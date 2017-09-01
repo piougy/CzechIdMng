@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.test.api;
 
 import java.util.UUID;
 
@@ -13,16 +13,15 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Creates common test entities
  * 
- * TODO: switch entities to dto, move to test-api, include in abstract integration test => then will be usable in other modules
+ * TODO: include in abstract integration test => then will be usable in other modules
  * 
  * @author Radek Tomiška
  *
@@ -78,7 +77,7 @@ public interface TestHelper {
 	 * Creates tree type with random name and code
 	 * @return
 	 */
-	IdmTreeType createTreeType();
+	IdmTreeTypeDto createTreeType();
 	
 	/**
 	 * Creates tree type with given name = code
@@ -86,14 +85,14 @@ public interface TestHelper {
 	 * @param code
 	 * @return
 	 */
-	IdmTreeType createTreeType(String code);
+	IdmTreeTypeDto createTreeType(String code);
 
 	/**
 	 * Creates tree node with random name and code
 	 * 
 	 * @return
 	 */
-	IdmTreeNode createTreeNode();
+	IdmTreeNodeDto createTreeNode();
 
 	/**
 	 * Creates tree node under default tree structure
@@ -103,9 +102,9 @@ public interface TestHelper {
 	 * @param parent
 	 * @return
 	 */
-	IdmTreeNode createTreeNode(String code, IdmTreeNode parent);
-	IdmTreeNode createTreeNode(IdmTreeType treeType, String code, IdmTreeNode parent);	
-	IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent);
+	IdmTreeNodeDto createTreeNode(String code, IdmTreeNodeDto parent);
+	IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, String code, IdmTreeNodeDto parent);	
+	IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, IdmTreeNodeDto parent);
 
 	void deleteTreeNode(UUID id);
 
@@ -148,7 +147,7 @@ public interface TestHelper {
 	 * @param skipLongRunningTask
 	 * @return
 	 */
-	IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNode treeNode, boolean skipLongRunningTask);
+	IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask);
 	
 	/**
 	 * Creates uuid permission evaluator authorization policy 
@@ -220,7 +219,7 @@ public interface TestHelper {
 	 * @param position
 	 * @return
 	 */
-	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position);
+	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position);
 	
 	/**
 	 * Creates identity contract on given position
@@ -231,7 +230,7 @@ public interface TestHelper {
 	 * @param validTill
 	 * @return
 	 */
-	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position, LocalDate validFrom, LocalDate validTill);
+	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
 	
 	/**
 	 * Deletes identity's contract

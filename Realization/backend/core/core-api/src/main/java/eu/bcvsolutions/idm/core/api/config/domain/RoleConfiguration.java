@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
@@ -40,23 +41,37 @@ public interface RoleConfiguration  extends Configurable {
 	
 	@Override
 	default List<String> getPropertyNames() {
-		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sence here
+		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sense here
 		properties.add(getPropertyName(PROPERTY_DEFAULT_ROLE));
 		properties.add(getPropertyName(PROPERTY_ADMIN_ROLE));
 		return properties;
 	}
 	
 	/**
-	 * Returns default role code
+	 * Returns default role identifier
 	 * 
 	 * @return
 	 */
 	UUID getDefaultRoleId();
 	
 	/**
-	 * Returns admin role code
+	 * Returns default role
+	 * 
+	 * @return
+	 */
+	IdmRoleDto getDefaultRole();
+	
+	/**
+	 * Returns admin role identifier
 	 * 
 	 * @return
 	 */
 	UUID getAdminRoleId();
+	
+	/**
+	 * Returns admin role
+	 * 
+	 * @return
+	 */
+	IdmRoleDto getAdminRole();
 }

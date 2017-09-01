@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.dto.filter;
+package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
@@ -7,8 +7,6 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 
 /**
  * Filter for roles
@@ -17,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
  * @author Radek Tomiška
  *
  */
-public class RoleFilter extends DataFilter implements CorrelationFilter {
+public class IdmRoleFilter extends DataFilter implements CorrelationFilter {
 
 	private RoleType roleType;
 	private UUID roleCatalogueId;
@@ -28,11 +26,11 @@ public class RoleFilter extends DataFilter implements CorrelationFilter {
 	private String property;
 	private String value;
 	
-	public RoleFilter() {
+	public IdmRoleFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
 	
-	public RoleFilter(MultiValueMap<String, Object> data) {
+	public IdmRoleFilter(MultiValueMap<String, Object> data) {
 		super(IdmRoleDto.class, data);
 	}
 

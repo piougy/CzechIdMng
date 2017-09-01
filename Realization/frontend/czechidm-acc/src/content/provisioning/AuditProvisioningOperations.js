@@ -3,6 +3,11 @@ import React from 'react';
 import { Basic } from 'czechidm-core';
 import ProvisioningOperations from './ProvisioningOperations';
 
+/**
+ * Route only
+ *
+ * @author Radek Tomiška
+ */
 export default class AuditProvisioningOperations extends Basic.AbstractContent {
 
   constructor(props, context) {

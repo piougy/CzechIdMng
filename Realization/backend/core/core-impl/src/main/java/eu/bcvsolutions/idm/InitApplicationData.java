@@ -10,18 +10,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -73,6 +75,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private FormService formService;	
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmScriptService scriptService;
+	@Autowired private TreeConfiguration treeConfiguration;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -143,20 +146,20 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create Node type for organization			
-			IdmTreeType treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
+			IdmTreeTypeDto treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
 			if (treeType == null && this.treeTypeService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
-				treeType = new IdmTreeType();
+				treeType = new IdmTreeTypeDto();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
-				treeType.setDefaultTreeType(true);
-				this.treeTypeService.save(treeType);
+				treeType = this.treeTypeService.save(treeType);
+				treeConfiguration.setDefaultType(treeType.getId());
 				//
 				// create organization root
 				if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
-					IdmTreeNode organizationRoot = new IdmTreeNode();
+					IdmTreeNodeDto organizationRoot = new IdmTreeNodeDto();
 					organizationRoot.setCode("root");
 					organizationRoot.setName("Root organization");
-					organizationRoot.setTreeType(treeType);
+					organizationRoot.setTreeType(treeType.getId());
 					organizationRoot = this.treeNodeService.save(organizationRoot);
 				}
 			}

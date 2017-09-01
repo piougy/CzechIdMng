@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
@@ -71,21 +70,17 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	
 	protected static final String TAG = "Contracts";
 	private final IdmFormDefinitionController formDefinitionController;
-	private final IdmIdentityContractRepository identityContractRepository;
 	
 	@Autowired
 	public IdmIdentityContractController(
 			LookupService entityLookupService, 
 			IdmIdentityContractService identityContractService,
-			IdmFormDefinitionController formDefinitionController,
-			IdmIdentityContractRepository identityContractRepository) {
+			IdmFormDefinitionController formDefinitionController) {
 		super(identityContractService);
 		//
 		Assert.notNull(formDefinitionController);
-		Assert.notNull(identityContractRepository);
 		//
 		this.formDefinitionController = formDefinitionController;
-		this.identityContractRepository = identityContractRepository;
 	}
 	
 	@Override
@@ -313,7 +308,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(identityContractRepository.findOne(dto.getId()), formDefinition, assembler);
+		return formDefinitionController.getFormValues(dto.getId(), IdmIdentityContract.class, formDefinition, assembler);
 	}
 	
 	/**
@@ -354,7 +349,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(identityContractRepository.findOne(dto.getId()), formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(dto.getId(), IdmIdentityContract.class, formDefinition, formValues, assembler);
 	}
 	
 	@Override

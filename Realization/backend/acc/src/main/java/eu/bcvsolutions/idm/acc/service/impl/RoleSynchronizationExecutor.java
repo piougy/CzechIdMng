@@ -49,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
@@ -58,7 +59,6 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
@@ -389,7 +389,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected CorrelationFilter getEntityFilter() {
-		return new RoleFilter();
+		return new IdmRoleFilter();
 	}
 
 	@Override
@@ -398,7 +398,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
 		
-		List<IdmRoleDto> entities = roleService.find((RoleFilter) filter, null).getContent();
+		List<IdmRoleDto> entities = roleService.find((IdmRoleFilter) filter, null).getContent();
 		
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;

@@ -37,7 +37,9 @@ public interface SysSystemRepository extends AbstractEntityRepository<SysSystem,
 	        + "and "
 	        + "(?#{[0].passwordPolicyValidationId} is null or e.passwordPolicyValidate.id = ?#{[0].passwordPolicyValidationId})"
 	        + "and "
-	        + "(?#{[0].passwordPolicyGenerationId} is null or e.passwordPolicyGenerate.id = ?#{[0].passwordPolicyGenerationId})")
+	        + "(?#{[0].passwordPolicyGenerationId} is null or e.passwordPolicyGenerate.id = ?#{[0].passwordPolicyGenerationId})"
+	        + "and "
+	        + "(?#{[0].virtual} is null or e.virtual = ?#{[0].virtual})")
 	Page<SysSystem> find(SysSystemFilter filter, Pageable pageable);
 	
 	/**

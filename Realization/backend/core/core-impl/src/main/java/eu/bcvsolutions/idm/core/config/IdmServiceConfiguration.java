@@ -16,6 +16,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
+import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -65,6 +67,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
@@ -78,6 +81,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -404,6 +408,28 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Configuration for tree structures
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(TreeConfiguration.class)
+	public TreeConfiguration treeConfiguration() {
+		return new DefaultTreeConfiguration(lookupService());
+	}
+	
+	/**
+	 * Tree type service
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmTreeTypeService.class)
+	public IdmTreeTypeService treeTypeService() {
+		return new DefaultIdmTreeTypeService(treeTypeRepository, configurationService(), treeConfiguration(), entityEventManager());
+	}
+	
+	/**
 	 * Automatic role service
 	 * 
 	 * @return
@@ -436,7 +462,12 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityContractService.class)
 	public IdmIdentityContractService identityContractService() {
-		return new DefaultIdmIdentityContractService(identityContractRepository, formService(), entityEventManager(), treeTypeRepository, treeNodeRepository);
+		return new DefaultIdmIdentityContractService(
+				identityContractRepository,
+				formService(),
+				entityEventManager(),
+				treeConfiguration(),
+				treeNodeRepository);
 	}
 	
 	/**

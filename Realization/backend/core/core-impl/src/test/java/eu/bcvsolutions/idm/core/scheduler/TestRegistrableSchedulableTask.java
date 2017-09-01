@@ -26,8 +26,8 @@ public class TestRegistrableSchedulableTask extends AbstractSchedulableTaskExecu
 	}
 	
 	@Override
-	public List<String> getParameterNames() {
-		List<String> params = super.getParameterNames();
+	public List<String> getPropertyNames() {
+		List<String> params = super.getPropertyNames();
 		params.add(PARAMETER);
 		return params;
 	}

@@ -29,13 +29,13 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
@@ -251,7 +251,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		subScript = scriptService.save(subScript);
 		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeTypeDto.class.getName(), null);
 		//
 		createAuthority(subScript.getId(), ScriptAuthorityType.SERVICE, DefaultIdmTreeTypeService.class.getCanonicalName(), "treeTypeService");
 		//
@@ -267,7 +267,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		assertNotNull(uuid);
 		//
-		IdmTreeType treeType = this.treeTypeService.get(UUID.fromString(uuid.toString()));
+		IdmTreeTypeDto treeType = this.treeTypeService.get(UUID.fromString(uuid.toString()));
 		//
 		assertNotNull(treeType);
 		assertEquals(this.TREE_TYPE_CODE, treeType.getCode());
@@ -285,7 +285,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		subScript = scriptService.save(subScript);
 		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeTypeDto.class.getName(), null);
 		//
 		createAuthority(subScript.getId(), ScriptAuthorityType.SERVICE, this.treeTypeService.getClass().getName(), "treeTypeService");
 		//
@@ -295,8 +295,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		parent.setName("script_name_" + System.currentTimeMillis());
 		//
 		StringBuilder scriptToEnd = new StringBuilder();
-		scriptToEnd.append("import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;\n");
-		scriptToEnd.append("IdmTreeType entity = new IdmTreeType();\n");
+		scriptToEnd.append("import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;\n");
+		scriptToEnd.append("IdmTreeTypeDto entity = new IdmTreeTypeDto();\n");
 		scriptToEnd.append("entity.setCode('" + TREE_TYPE_CODE + "_3');\n");
 		scriptToEnd.append("entity.setName('" + TREE_TYPE_NAME + "_3');\n");
 		scriptToEnd.append("return 'test';\n");
@@ -333,8 +333,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		second.setScript(script.toString());
 		//
 		second = scriptService.save(second);
-		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
-		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNode.class.getName(), null);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeTypeDto.class.getName(), null);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNodeDto.class.getName(), null);
 		//
 		//
 		IdmScriptDto first = new IdmScriptDto();
@@ -364,7 +364,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		third.setName("script_name_" + System.currentTimeMillis());
 		third.setScript(createTreeNodeScript());
 		third = scriptService.save(third);
-		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNode.class.getName(), null);
+		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNodeDto.class.getName(), null);
 		//
 		IdmScriptDto second = new IdmScriptDto();
 		second.setCategory(IdmScriptCategory.DEFAULT);
@@ -375,7 +375,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		script.append(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
 		second.setScript(script.toString());
 		second = scriptService.save(second);
-		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeTypeDto.class.getName(), null);
 		//
 		//
 		IdmScriptDto first = new IdmScriptDto();
@@ -403,7 +403,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		script.append(createIdenityScript()); // fail
 		third.setScript(script.toString());
 		third = scriptService.save(third);
-		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNode.class.getName(), null);
+		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNodeDto.class.getName(), null);
 		//
 		IdmScriptDto second = new IdmScriptDto();
 		second.setCategory(IdmScriptCategory.DEFAULT);
@@ -413,7 +413,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		script.append(createTreeNodeScript());
 		second.setScript(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
 		second = scriptService.save(second);
-		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeTypeDto.class.getName(), null);
 		//
 		//
 		IdmScriptDto first = new IdmScriptDto();
@@ -761,10 +761,10 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Method create script that create {@link IdmTreeNode} and return ID for newly created {@link IdmTreeNode}
-	 * Is necessary to include to this script service for {@link IdmTreeNodeService} and allow use of {@link IdmTreeNode} class
+	 * Method create script that create {@link IdmTreeNodeDto} and return ID for newly created {@link IdmTreeNodeDto}
+	 * Is necessary to include to this script service for {@link IdmTreeNodeService} and allow use of {@link IdmTreeNodeDto} class
 	 * 
-	 * When will be change {@link IdmTreeNode} to DTO is necessary to fix this method and SCRIPT INSIDE!
+	 * When will be change {@link IdmTreeNodeDto} to DTO is necessary to fix this method and SCRIPT INSIDE!
 	 * (imports and entities)
 	 * 
 	 * @return
@@ -772,8 +772,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	private String createTreeNodeScript(String code, String name) {
 		StringBuilder script = new StringBuilder();
 		// TODO: refactor IdmTreeType to dto
-		script.append("import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;\n");
-		script.append("IdmTreeType entity = new IdmTreeType();\n");
+		script.append("import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;\n");
+		script.append("IdmTreeTypeDto entity = new IdmTreeTypeDto();\n");
 		script.append("entity.setCode('" + code + "');\n");
 		script.append("entity.setName('" + name + "');\n");
 		script.append("entity = treeTypeService.save(entity);\n");
@@ -896,15 +896,15 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	private String createTreeNodeScript() {
 		StringBuilder treeNode = new StringBuilder();
-		treeNode.append("import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;\n");
-		treeNode.append("IdmTreeNode treeNode_" + System.currentTimeMillis() + " = new IdmTreeNode();\n");
+		treeNode.append("import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;\n");
+		treeNode.append("IdmTreeNodeDto treeNode_" + System.currentTimeMillis() + " = new IdmTreeNodeDto();\n");
 		return treeNode.toString();
 	}
 	
 	private String createTreeTypeScript() {
 		StringBuilder treeType = new StringBuilder();
-		treeType.append("import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;\n");
-		treeType.append("IdmTreeType treeType_" + System.currentTimeMillis() + " = new IdmTreeType();\n");
+		treeType.append("import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;\n");
+		treeType.append("IdmTreeTypeDto treeType_" + System.currentTimeMillis() + " = new IdmTreeTypeDto();\n");
 		return treeType.toString();
 	}
 }

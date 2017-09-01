@@ -327,15 +327,6 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		SysSystem duplicate = systemService.duplicate(system.getId());
 		return new ResponseEntity<>(toResource(duplicate, assembler), HttpStatus.OK);
 	}
-
-	@Override
-	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SysSystemFilter filter = new SysSystemFilter();
-		filter.setText((String) parameters.toSingleValueMap().get("text"));
-		filter.setPasswordPolicyValidationId(getParameterConverter().toUuid(parameters, "passwordPolicyValidationId"));
-		filter.setPasswordPolicyGenerationId(getParameterConverter().toUuid(parameters, "passwordPolicyGenerationId"));
-		return filter;
-	}
 	
 	/**
 	 * Test usage only
@@ -599,5 +590,15 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		}
 		//
 		return systemService.getConnectorFormDefinition(system.getConnectorInstance());
+	}
+	
+	@Override
+	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSystemFilter filter = new SysSystemFilter();
+		filter.setText((String) parameters.toSingleValueMap().get("text"));
+		filter.setPasswordPolicyValidationId(getParameterConverter().toUuid(parameters, "passwordPolicyValidationId"));
+		filter.setPasswordPolicyGenerationId(getParameterConverter().toUuid(parameters, "passwordPolicyGenerationId"));
+		filter.setVirtual(getParameterConverter().toBoolean(parameters, "virtual"));
+		return filter;
 	}
 }

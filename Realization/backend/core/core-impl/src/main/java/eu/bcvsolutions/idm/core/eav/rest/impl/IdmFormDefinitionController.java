@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.rest.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -280,6 +281,13 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 		return toResources(formService.getValues(owner, getDefinition(owner.getClass(), formDefinition)), assembler, owner.getClass(), null);
 	}
 	
+	public Resources<?> getFormValues(UUID ownerId, Class<? extends FormableEntity> ownerType, IdmFormDefinition formDefinition, PersistentEntityResourceAssembler assembler) {
+		Assert.notNull(ownerId);
+		Assert.notNull(ownerType);
+		//
+		return toResources(formService.getValues(ownerId, ownerType, getDefinition(ownerType, formDefinition)), assembler, ownerType, null);
+	}
+	
 	/**
 	 * Saves owner's form values
 	 * 
@@ -298,6 +306,18 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 		formService.saveValues(owner, formDefinition, formValues);
 		//
 		return toResources(formService.getValues(owner, formDefinition), assembler, owner.getClass(), null);
+	}
+	
+	public <O extends FormableEntity> Resources<?> saveFormValues(
+			UUID ownerId,
+			Class<O> ownerType,
+			IdmFormDefinition formDefinition, 
+			List<? extends AbstractFormValue<O>> formValues, 
+			PersistentEntityResourceAssembler assembler) {		
+		formDefinition = getDefinition(ownerType, formDefinition); 
+		formService.saveValues(ownerId, ownerType, formDefinition, formValues);
+		//
+		return toResources(formService.getValues(ownerId, ownerType, formDefinition), assembler, ownerType, null);
 	}
 	
 }

@@ -86,7 +86,13 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('successComplete', { name: task.name }) });
-    this.context.router.goBack();
+
+    if (this.context.router.goBack()) {
+      // nothig, router just can go back
+    } else {
+      // transmition to /task, history doesnt exist
+      this.context.router.push(`tasks/${task.variables.implementerIdentifier}`);
+    }
   }
 
   _getApplicantAndRequester(task) {

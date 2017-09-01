@@ -19,13 +19,13 @@ import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -53,10 +53,9 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmRoleService 
-		extends AbstractEventableDtoService<IdmRoleDto, IdmRole, RoleFilter> 
+		extends AbstractEventableDtoService<IdmRoleDto, IdmRole, IdmRoleFilter> 
 		implements IdmRoleService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
 	private final FormService formService;
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
@@ -90,11 +89,6 @@ public class DefaultIdmRoleService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.ROLE, getEntityClass());
-	}
-	
-	@Override
-	protected IdmRoleDto toDto(IdmRole entity, IdmRoleDto dto) {
-		return super.toDto(entity, dto);
 	}
 	
 	@Override
@@ -149,7 +143,7 @@ public class DefaultIdmRoleService
 	}
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
@@ -246,31 +240,13 @@ public class DefaultIdmRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public IdmRoleDto getDefaultRole() {
-		UUID roleId = roleConfiguration.getDefaultRoleId();
-		if (roleId == null) {
-			LOG.debug("Default role is not configured. Change configuration [{}].", RoleConfiguration.PROPERTY_DEFAULT_ROLE);
-			return null;
-		}
-		IdmRoleDto defaultRole = get(roleId);
-		if (defaultRole == null) {
-			LOG.warn("Default role [{}] not found. Change configuration [{}].", roleId, RoleConfiguration.PROPERTY_DEFAULT_ROLE);
-		}
-		return defaultRole;
+		return roleConfiguration.getDefaultRole();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public IdmRoleDto getAdminRole() {
-		UUID roleId = roleConfiguration.getAdminRoleId();
-		if (roleId == null) {
-			LOG.debug("Admin role is not configured. Change configuration [{}].", RoleConfiguration.PROPERTY_ADMIN_ROLE);
-			return null;
-		}
-		IdmRoleDto adminRole = get(roleId);
-		if (adminRole == null) {
-			LOG.warn("Admin role [{}] not found. Change configuration [{}].", roleId, RoleConfiguration.PROPERTY_ADMIN_ROLE);
-		}
-		return adminRole;
+		return roleConfiguration.getAdminRole();
 	}
 	
 	@Override

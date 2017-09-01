@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import uuid from 'uuid';
-import { SecurityManager } from '../../../redux';
+import { SecurityManager, DataManager, TreeTypeManager } from '../../../redux';
 
 /**
  * Table of type
@@ -25,6 +25,7 @@ export class TypeTable extends Basic.AbstractContent {
     const { treeTypeManager, uiKey } = this.props;
     const searchParameters = treeTypeManager.getService().getDefaultSearchParameters();
     this.context.store.dispatch(treeTypeManager.fetchEntities(searchParameters, uiKey));
+    this.context.store.dispatch(treeTypeManager.fetchDefaultTreeType());
   }
 
   componentWillUnmount() {
@@ -85,7 +86,7 @@ export class TypeTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, treeTypeManager } = this.props;
+    const { uiKey, treeTypeManager, defaultTreeType } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -144,8 +145,17 @@ export class TypeTable extends Basic.AbstractContent {
               sort={false}/>
             <Advanced.Column property="code" sort width={125}/>
             <Advanced.Column property="name" sort/>
-            <Advanced.Column property="defaultTreeType" header={this.i18n('entity.TreeType.defaultTreeType.label')} sort width={100} face="bool"/>
-            <Advanced.Column property="defaultTreeNode.name" header={this.i18n('entity.TreeType.defaultTreeNode.label')} width={200}/>
+            <Advanced.Column
+              header={ this.i18n('entity.TreeType.defaultTreeType.label') }
+              className="column-face-bool"
+              cell={
+                ({ rowIndex, data }) => {
+                  //
+                  return (
+                    <input type="checkbox" checked={ (defaultTreeType && defaultTreeType.id === data[rowIndex].id) ? true : false } disabled />
+                  );
+                }
+              }/>
           </Advanced.Table>
         </div>
       </Basic.Row>
@@ -155,11 +165,22 @@ export class TypeTable extends Basic.AbstractContent {
 
 TypeTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  treeTypeManager: PropTypes.object.isRequired
+  treeTypeManager: PropTypes.object.isRequired,
+  /**
+   * Default tree type is used for info in table
+   */
+  defaultTreeType: PropTypes.object
 };
 
 TypeTable.defaultProps = {
-  _showLoading: false
+  _showLoading: false,
+  defaultTreeType: null
 };
 
-export default connect()(TypeTable);
+function select(state) {
+  return {
+    defaultTreeType: DataManager.getData(state, TreeTypeManager.UI_KEY_DEFAULT_TREE_TYPE)
+  };
+}
+
+export default connect(select)(TypeTable);

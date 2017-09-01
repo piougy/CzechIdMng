@@ -1,4 +1,4 @@
-import { PropTypes } from 'react';
+import { PropTypes} from 'react';
 import { connect } from 'react-redux';
 //
 import { IdentityManager } from '../../../redux/';
@@ -75,6 +75,23 @@ export class IdentityInfo extends AbstractEntityInfo {
   }
 
   /**
+   * @Override
+   * Renders nicelabel used in text and link face
+   */
+  _renderNiceLabel() {
+    const{showOnlyUsername} = this.props;
+    if (!showOnlyUsername) {
+      return super._renderNiceLabel();
+    }
+    const _entity = this.getEntity();
+    if (_entity && _entity.username) {
+      return _entity.username;
+    }
+    return '';
+  }
+
+
+  /**
    * Returns popover info content
    *
    * @param  {array} table data
@@ -107,6 +124,10 @@ IdentityInfo.propTypes = {
    * Selected identity's id (username alias) - identity will be loaded automatically
    */
   entityIdentifier: PropTypes.string,
+  /**
+   * If true, then show only username instead niceLabel
+   */
+  showOnlyUsername: PropTypes.bool,
   //
   _showLoading: PropTypes.bool
 };
@@ -114,6 +135,7 @@ IdentityInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'full',
+  showOnlyUsername: false,
   _showLoading: true,
   _permissions: PropTypes.arrayOf(PropTypes.string)
 };

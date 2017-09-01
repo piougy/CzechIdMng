@@ -17,7 +17,7 @@ export default class VsRequestService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.uid} (${entity.operationType} - ${entity.state})`;
+    return `${entity.uid}`;
   }
 
   /**
@@ -47,7 +47,7 @@ export default class VsRequestService extends Services.AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('uid');
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
   }
 
   /**
@@ -73,9 +73,9 @@ export default class VsRequestService extends Services.AbstractService {
   /**
   * Cancel virtual system request
   */
-  cancel(id) {
+  cancel(id, reason) {
     return Services.RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}/cancel`)
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}/cancel`, reason)
       .then(response => {
         return response.json();
       })

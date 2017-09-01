@@ -101,20 +101,20 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		this.systemService = systemService;
 	}
 
-	
 	@Override
 	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto) {
 		VsRequestDto request = super.toDto(entity, dto);
-		
+
 		if (request == null) {
 			return null;
 		}
-		
-		// Remove after DTO service for system will be created (enable embedded annotation in VsRequestDto.systemId)
+
+		// Remove after DTO service for system will be created (enable embedded
+		// annotation in VsRequestDto.systemId)
 		UUID systemId = request.getSystemId();
-		if(systemId != null){
+		if (systemId != null) {
 			SysSystem systemEntity = this.systemService.get(systemId);
-			if(systemEntity != null){
+			if (systemEntity != null) {
 				SysSystemDto system = new SysSystemDto();
 				system.setTrimmed(true);
 				system.setId(systemEntity.getId());
@@ -124,10 +124,14 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
 			}
 		}
-		
+
 		// Add list of implementers
 		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
 		request.setImplementers(implementers);
+
+		if (request.isTrimmed()) {
+			request.setConnectorObject(null);
+		}
 
 		return request;
 	}
@@ -159,10 +163,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public VsRequestDto cancel(UUID requestId) {
+	public VsRequestDto cancel(UUID requestId, String reason) {
 		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", requestId));
 
 		Assert.notNull(requestId, "Id of VS request cannot be null!");
+		Assert.notNull(reason, "Cancel reason cannot be null!");
 		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
@@ -173,6 +178,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 
 		request.setState(VsRequestState.CANCELED);
+		request.setReason(reason);
 		// Save cancelled request
 		request = this.save(request);
 
@@ -221,10 +227,12 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		if (!CollectionUtils.isEmpty(duplicities)) {
 			// Get the newest request (for same operation)
 			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
+			// Load untrimed request 
+			previousRequest = this.get(previousRequest.getId());
 			// Shows on previous request with same operation type. We need this
 			// for create diff.
 			request.setPreviousRequest(previousRequest.getId());
- 
+
 			if (this.isRequestSame(request, previousRequest)) {
 				request.setDuplicateToRequest(previousRequest.getId());
 				request.setState(VsRequestState.DUPLICATED);
@@ -320,8 +328,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		//
 		// quick - "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.or(builder.equal(builder.lower(root.get(VsRequest_.uid)),
-					"%" + filter.getText().toLowerCase() + "%")));
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(VsRequest_.uid)), "%" + filter.getText().toLowerCase() + "%")));
 		}
 
 		// UID
@@ -342,6 +350,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Operation type
 		if (filter.getOperationType() != null) {
 			predicates.add(builder.equal(root.get(VsRequest_.operationType), filter.getOperationType()));
+		}
+
+		// Created before
+		if (filter.getCreatedBefore() != null) {
+			predicates.add(builder.lessThan(root.get(VsRequest_.created), filter.getCreatedBefore()));
+		}
+
+		// Created after
+		if (filter.getCreatedAfter() != null) {
+			predicates.add(builder.greaterThan(root.get(VsRequest_.created), filter.getCreatedAfter()));
 		}
 
 		return predicates;
@@ -369,7 +387,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		VsRequestFilter filter = new VsRequestFilter();
 		filter.setUid(request.getUid());
 		filter.setSystemId(request.getSystemId());
-		// filter.setOperationType(request.getOperationType());
 		filter.setState(VsRequestState.IN_PROGRESS);
 		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
 		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();

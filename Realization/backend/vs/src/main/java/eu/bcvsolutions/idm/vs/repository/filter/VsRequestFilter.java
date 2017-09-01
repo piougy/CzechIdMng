@@ -2,7 +2,8 @@ package eu.bcvsolutions.idm.vs.repository.filter;
 
 import java.util.UUID;
 
-import javax.validation.constraints.NotNull;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
@@ -22,7 +23,8 @@ public class VsRequestFilter extends QuickFilter {
 	private String connectorKey;
 	private VsOperationType operationType;
 	private VsRequestState state;
-	private Boolean unfinished;
+	private DateTime createdAfter;
+	private DateTime createdBefore;
 	
 	public void setUid(String uidValue) {
 		this.uid = uidValue;
@@ -64,11 +66,20 @@ public class VsRequestFilter extends QuickFilter {
 		this.state = state;
 	}
 
-	public Boolean getUnfinished() {
-		return unfinished;
+	public DateTime getCreatedAfter() {
+		return createdAfter;
 	}
 
-	public void setUnfinished(Boolean unfinished) {
-		this.unfinished = unfinished;
+	public void setCreatedAfter(DateTime createdAfter) {
+		this.createdAfter = createdAfter;
 	}
+
+	public DateTime getCreatedBefore() {
+		return createdBefore;
+	}
+
+	public void setCreatedBefore(DateTime createdBefore) {
+		this.createdBefore = createdBefore;
+	}
+	
 }

@@ -1,9 +1,12 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
-import { Basic, Utils } from 'czechidm-core';
+import { Basic, Utils, Advanced, Domain } from 'czechidm-core';
 import { VsRequestManager } from '../../redux';
+import VsRequestInfo from '../../components/advanced/VsRequestInfo/VsRequestInfo';
+import VsRequestTable from './VsRequestTable';
 
 const manager = new VsRequestManager();
 
@@ -29,99 +32,86 @@ class VsRequestDetail extends Basic.AbstractContent {
     return 'vs:content.vs-request.detail';
   }
 
-  componentDidMount() {
-    const { entity } = this.props;
-    // set loaded entity to form
-    this.refs.form.setData(entity);
-    this.refs.uid.focus();
-  }
-
   /**
    * Component will receive new props, try to compare with actual,
    * then init form
    */
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if (entity && entity.id !== nextProps.entity.id) {
-      this.refs.form.setData(nextProps.entity);
+    if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
+      //
     }
   }
 
-  /**
-  * Mark virtual system request as realized (changes will be propagated to VsAccount)
-  */
-  realize(afterAction, event) {
-    if (event) {
-      event.preventDefault();
+  _getImplementers(entity) {
+    if (!entity || !entity.implementers) {
+      return '';
     }
-    // get entity from form
-    const entity = this.refs.form.getData();
-    // check form validity
-    if (!this.refs.form.isFormValid()) {
-      return;
+    const identities = [];
+    for (const implementer of entity.implementers) {
+      identities.push(implementer.id);
     }
 
-    this.setState({
-      showLoading: true
-    }, () => {
-      this.context.store.dispatch(manager.realize(entity, null, (realizedEntity, newError) => {
-        this._afterSave(realizedEntity, newError, afterAction);
-      }));
-    });
+    return (
+      <Advanced.IdentitiesInfo identities={identities} maxEntry={100} showOnlyUsername={false}/>
+    );
   }
 
-  /**
-  * Cancel virtual system request
-  */
-  cancel(afterAction, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    // get entity from form
-    const entity = this.refs.form.getData();
-    // check form validity
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
+  _getAccountData(entity) {
+    const accountData = [];
+    if (entity && entity.connectorObject) {
+      const attributes = entity.connectorObject.attributes;
+      for (const schemaAttributeId in attributes) {
+        if (!attributes.hasOwnProperty(schemaAttributeId)) {
+          continue;
+        }
+        let content = '';
+        const attribute = attributes[schemaAttributeId];
+        const propertyValue = attribute.values;
+        if (_.isArray(propertyValue)) {
+          content = propertyValue.join(', ');
+        } else {
+          content = propertyValue;
+        }
 
-    this.setState({
-      showLoading: true
-    }, () => {
-      this.context.store.dispatch(manager.cancel(entity, null, (realizedEntity, newError) => {
-        this._afterSave(realizedEntity, newError, afterAction);
-      }));
-    });
-  }
-
-  /**
-   * `Callback` after save action ends
-   */
-  _afterSave(entity, error, afterAction = 'CLOSE') {
-    this.setState({
-      showLoading: false
-    });
-
-    if (error) {
-      this.addError(error);
-      return;
+        accountData.push({
+          property: attribute.name,
+          value: content
+        });
+      }
     }
-
-    this.addMessage({ message: this.i18n('save.realize', { name: entity.uid }) });
-    //
-    if (afterAction === 'CLOSE') {
-      // reload options with remote connectors
-      this.context.router.replace(`vs/requests`);
-    } else {
-      this.context.router.replace(`vs/request/${entity.id}/detail`);
-    }
+    return accountData;
   }
 
   render() {
-    const { uiKey, entity, _permissions } = this.props;
+    const { entity, _permissions } = this.props;
     const { showLoading } = this.state;
+
+    const searchBefore = new Domain.SearchParameters()
+    .setFilter('uid', entity ? entity.uid : null)
+    .setFilter('systemId', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('createdBefore', entity ? entity.created : null)
+    .setFilter('state', 'IN_PROGRESS');
+
+    const searchAfter = new Domain.SearchParameters()
+    .setFilter('uid', entity ? entity.uid : null)
+    .setFilter('systemId', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('createdAfter', entity ? entity.created : null)
+    .setFilter('state', 'IN_PROGRESS');
     //
     return (
       <div>
+        <Basic.Confirm ref="confirm-realize" level="danger"/>
+        <Basic.Confirm ref="confirm-cancel" level="danger">
+          <div style={{marginTop: '20px'}}>
+            <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
+              <Basic.TextArea
+                ref="cancel-reason"
+                placeholder={this.i18n('vs:content.vs-requests.cancel-reason.placeholder')}
+                required/>
+            </Basic.AbstractForm>
+          </div>
+        </Basic.Confirm>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
 
           <Basic.Panel>
@@ -129,32 +119,69 @@ class VsRequestDetail extends Basic.AbstractContent {
 
             <Basic.PanelBody
               showLoading={ showLoading } >
-              <Basic.AbstractForm
-                ref="form"
-                uiKey={ uiKey }
-                readOnly >
-
+              <Basic.AbstractForm data={entity} ref="vs-request-detail" uiKey="vs-request-detail" >
                 <Basic.Row>
-                  <Basic.Col lg={ 2 }>
-                    <Basic.TextField
-                      ref="uid"
-                      label={ this.i18n('vs:entity.VsRequest.uid.label') }
-                      required
-                      max={ 255 }/>
+                  <Basic.Col lg={ 6 }>
+                    <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
+                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                      {this._getImplementers(entity)}
+                    </Basic.LabelWrapper>
                   </Basic.Col>
-                  <Basic.Col lg={ 10 }>
-                    <Basic.TextField
-                      ref="state"
-                      label={this.i18n('vs:entity.VsRequest.state.label')}
-                      required
-                      max={ 255 }/>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.TextArea
+                      ref="reason"
+                      label={this.i18n('vs:entity.VsRequest.reason.label')}
+                      readOnly
+                      rows={6}
+                      rendered={entity && entity.state === 'CANCELED' }
+                      value={entity ? entity.reason : null}/>
                   </Basic.Col>
                 </Basic.Row>
-
-                <Basic.TextField
-                  ref="systemId"
-                  label={ this.i18n('vs:entity.VsRequest.system.label') }
-                  required/>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('requestAttributes') + ':'}>
+                      <Basic.Table
+                        data={this._getAccountData(entity)}
+                        noData={this.i18n('component.basic.Table.noData')}
+                        className="table-bordered">
+                        <Basic.Column property="property" header={this.i18n('label.property')}/>
+                        <Basic.Column property="value" header={this.i18n('label.value')}/>
+                      </Basic.Table>
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+                      <VsRequestTable
+                        uiKey="vs-request-table-before"
+                        columns= {['state', 'operationType', 'created', 'creator', 'operations']}
+                        showFilter={false}
+                        forceSearchParameters={searchBefore}
+                        showToolbar={false}
+                        showPageSize={false}
+                        showRowSelection={false}
+                        showId={false}
+                        filterOpened={false} />
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
+                        <VsRequestTable
+                          uiKey="vs-request-table-after"
+                          columns= {['state', 'operationType', 'created', 'creator', 'operations']}
+                          showFilter={false}
+                          forceSearchParameters={searchAfter}
+                          showToolbar={false}
+                          showPageSize={false}
+                          showRowSelection={false}
+                          showId={false}
+                          filterOpened={false} />
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                </Basic.Row>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 
@@ -163,15 +190,20 @@ class VsRequestDetail extends Basic.AbstractContent {
 
               <Basic.SplitButton
                 level="success"
+                id="request-realize"
                 title={ this.i18n('button.request.realize') }
-                onClick={ this.realize.bind(this, 'CONTINUE') }
+                onClick={manager.realizeUi.bind(this, 'realize', [entity ? entity.id : null], manager) }
                 showLoading={ showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={ manager.canSave(entity, _permissions) }
+                rendered={ manager.canSave(entity, _permissions) && entity && entity.state === 'IN_PROGRESS' }
                 pullRight
                 dropup>
-                <Basic.MenuItem eventKey="1" onClick={ this.cancel.bind(this, 'CONTINUE')}>{this.i18n('button.request.cancel') }</Basic.MenuItem>
+                <Basic.MenuItem
+                  eventKey="1"
+                  onClick={ manager.cancelUi.bind(this, 'cancel', [entity ? entity.id : null], manager)}>
+                  {this.i18n('button.request.cancel')}
+                </Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>

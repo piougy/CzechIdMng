@@ -106,6 +106,12 @@ public class BasicVirtualConnector
 		if (system == null) {
 			throw new IcException("System cannot be null (for virtual system)");
 		}
+	 	
+		// TODO: This is big workaround how mark SysSystem as virtual
+		if(!system.isVirtual()){
+			system.setVirtual(true);
+			this.systemService.save(system);
+		}
 
 		IcConnectorClass connectorAnnotation = this.getClass().getAnnotation(IcConnectorClass.class);
 		IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation, this.getClass());

@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -36,13 +34,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -55,13 +53,11 @@ import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -76,6 +72,8 @@ import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Rest methods for IdmIdentity resource
+ * 
+ * TODO: eav to dtos
  * 
  * @author Radek Tomiška
  *
@@ -97,8 +95,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmAuditService auditService; 	
 	private final IdmTreeNodeService treeNodeService;
-	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
-	private final IdmIdentityRepository identityRepository;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -110,9 +106,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
 			IdmAuditService auditService,
-			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
-			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository) {
+			IdmTreeNodeService treeNodeService) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -120,18 +114,14 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(identityContractService);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(auditService);
-		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
-		Assert.notNull(identityRepository);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
 		this.identityRoleService = identityRoleService;
 		this.auditService = auditService;
-		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
-		this.identityRepository = identityRepository;
 	}
 	
 	@Override
@@ -413,26 +403,16 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		checkAccess(identity, IdmBasePermission.READ);
-		//
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
 		if (primeContract == null) {
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
 		WorkPositionDto position = new WorkPositionDto(identity, primeContract);
 		if (primeContract.getWorkPosition() != null) {
-			List<IdmTreeNode> positions = new ArrayList<>();
-			// TODO: tree node service to dtos
-			IdmTreeNode contractPosition = treeNodeService.get(primeContract.getWorkPosition());
-			positions = treeNodeIndexService.findAllParents(contractPosition.getId(), new Sort(Direction.ASC, "forestIndex.lft"));
-			positions.add(contractPosition);
-			positions.forEach(treeNode -> {
-				// TODO: use DTOs!
-				treeNode.setTreeType(null);
-				treeNode.setParent(null);
-			});
-			position.setPath(positions);
-		}		
+			IdmTreeNodeDto contractPosition = treeNodeService.get(primeContract.getWorkPosition());
+			position.getPath().addAll(treeNodeService.findAllParents(contractPosition.getId(), new Sort(Direction.ASC, "forestIndex.lft")));
+			position.getPath().add(contractPosition);
+		}
 		return new ResponseEntity<WorkPositionDto>(position, HttpStatus.OK);
 	}
 	
@@ -558,7 +538,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(identityRepository.findOne(entity.getId()), formDefinition, assembler);
+		return formDefinitionController.getFormValues(entity.getId(), IdmIdentity.class, formDefinition, assembler);
 	}
 	
 	/**
@@ -598,7 +578,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(identityRepository.findOne(entity.getId()), formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(entity.getId(), IdmIdentity.class, formDefinition, formValues, assembler);
 	}
 	
 	@Override

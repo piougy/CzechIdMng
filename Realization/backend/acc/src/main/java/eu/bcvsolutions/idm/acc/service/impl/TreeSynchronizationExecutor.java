@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -61,7 +62,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
@@ -75,8 +76,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -91,6 +92,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Default implementation of tree sync
+ * 
  * @author svandav
  *
  */
@@ -102,7 +104,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	public final static String PARENT_FIELD = "parent";
 	public final static String CODE_FIELD = "code";
 
-	private final IdmTreeTypeService treeTypeService;
+	private final IdmTreeTypeRepository treeTypeRepository;
 	private final IdmTreeNodeService treeNodeService;
 	private final AccTreeAccountService treeAccoutnService;
 	private final IdmTreeNodeRepository treeNodeRepository;
@@ -120,7 +122,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
 			IdmTreeNodeService treeNodeService, IdmTreeNodeRepository treeNodeRepository,
-			IdmTreeTypeService treeTypeService,
+			IdmTreeTypeRepository treeTypeRepository,
 			SysSystemMappingService systemMappingService,
 			SysSyncConfigRepository synchronizationConfigRepository,
 			SysSchemaObjectClassService schemaObjectClassService,
@@ -137,7 +139,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		Assert.notNull(systemMappingService);
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(treeTypeService);
+		Assert.notNull(treeTypeRepository);
 
 		this.treeNodeService = treeNodeService;
 		this.treeAccoutnService = treeAccoutnService;
@@ -145,7 +147,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		this.systemMappingService = systemMappingService;
 		this.attributeHandlingService = attributeHandlingService;
 		this.schemaObjectClassService = schemaObjectClassService;
-		this.treeTypeService = treeTypeService;
+		this.treeTypeRepository = treeTypeRepository;
 	}
 
 	@Override
@@ -245,7 +247,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
 		if (entityId != null) {
-			treeNode = treeNodeService.get(entityId);
+			treeNode = treeNodeRepository.findOne(entityId);
 		}
 		if (treeNode == null) {
 			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
@@ -264,6 +266,13 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param entityType
 	 * @param logItem
 	 */
+	/**
+	 * Call provisioning for given account
+	 * 
+	 * @param entity
+	 * @param entityType
+	 * @param logItem
+	 */
 	@Override
 	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
 		IdmTreeNode treeNode = (IdmTreeNode) entity;
@@ -271,7 +280,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				MessageFormat.format(
 						"Call provisioning (process TreeNodeEventType.SAVE) for treeNode ({0}) with name ({1}).",
 						treeNode.getId(), treeNode.getName()));
-		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.UPDATE, treeNode)).getContent();
+		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.UPDATE, treeNodeService.get(treeNode.getId()))).getContent();
 	}
 	
 	/**
@@ -282,10 +291,16 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	@Override
 	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
-		IdmTreeNode node = (IdmTreeNode) entity;
-		EntityEvent<IdmTreeNode> event = new TreeNodeEvent(treeNodeService.isNew(node) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, node, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		IdmTreeNode treeNode = (IdmTreeNode) entity;
+		// Create DTO mock ...
+		IdmTreeNodeDto dummyDTO = new IdmTreeNodeDto(entity.getId());
+		boolean isNew = treeNodeService.isNew(dummyDTO);
 		
-		return treeNodeService.publish(event).getContent();
+		// Content will be set in service (we need do transform entity to DTO). 
+		// Here we set only dummy dto (null content is not allowed)
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(isNew ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, dummyDTO, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		
+		return treeNodeService.publishTreeNode(treeNode, event);
 	}
 
 
@@ -309,9 +324,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Fill entity by mapped attribute
 		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, true);
 		
-		treeNode.setTreeType(treeTypeService.get(this.getSystemMapping(mappedAttributes).getTreeType()));
+		treeNode.setTreeType(treeTypeRepository.findOne(this.getSystemMapping(mappedAttributes).getTreeType()));
 		// Create new Entity
-		this.saveEntity(treeNode, true);
+		treeNode = (IdmTreeNode) this.saveEntity(treeNode, true);
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true);
 		// Update confidential attribute (entity must be persisted first)
@@ -360,12 +375,12 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		IdmTreeNode treeNode = null;
 		
 		if (entityId != null) {
-			treeNode = treeNodeService.get(entityId);
+			treeNode = treeNodeRepository.findOne(entityId);
 		}
 		if (treeNode != null) {
 			// Update entity
 			treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, false);
-			this.saveEntity(treeNode, true);
+			treeNode = (IdmTreeNode) this.saveEntity(treeNode, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false);
 			// Update confidential attribute (entity must be persisted first)
@@ -441,7 +456,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
 		if (entityId != null) {
-			treeNode = treeNodeService.get(entityId);
+			treeNode = treeNodeRepository.findOne(entityId);
 		}
 		if (treeNode == null) {
 			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
@@ -472,7 +487,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes,
 				system);
 
-		List<IdmTreeNode> roots = treeNodeService.findRoots(systemMapping.getTreeType(), null).getContent();
+		List<IdmTreeNode> roots = treeNodeRepository.findChildren(systemMapping.getTreeType(), null, null).getContent();
 		roots.stream().forEach(root -> {
 			SynchronizationContext itemBuilder = new SynchronizationContext();
 			itemBuilder.addConfig(config) //
@@ -510,7 +525,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				if(!treeAccounts.isEmpty()){
 					// Find parent tree node by ID
 					// TODO: resolve more treeAccounts situations
-					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
+					transformedValue = treeNodeRepository.findOne(treeAccounts.get(0).getTreeNode());
 				} else {
 					LOG.warn(
 							"For parent UID: [{}] on system ID [{}] and acc account: [{}], was not found tree accounts! Return null value in parent!!",
@@ -537,7 +552,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		return treeNodeService.get(entityId);
+		return treeNodeRepository.findOne(entityId);
 	}
 
 	@Override
@@ -584,8 +599,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected List<IdmTreeNode> findAllEntity() {
-		return treeNodeService.find(null).getContent();
-	};
+		return Lists.newArrayList(treeNodeRepository.findAll());
+	}
 	
 	/**
 	 * Execute sync for tree and given accounts.
@@ -659,7 +674,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private void exportChildrenRecursively(IdmTreeNode treeNode, SynchronizationContext itemBuilder, SysSystemAttributeMappingDto uidAttribute){
 		SysSyncItemLogDto logItem = itemBuilder.getLogItem();
 		
-		List<IdmTreeNode> children = treeNodeService.findChildrenByParent(treeNode.getId(), null).getContent();
+		List<IdmTreeNode> children = treeNodeRepository.findChildren(null, treeNode.getId(), null).getContent();
 		if (children.isEmpty()) {
 			this.exportEntity(itemBuilder, uidAttribute, treeNode);
 		} else {
@@ -674,9 +689,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	private void deleteChildrenRecursively(IdmTreeNode treeNode, SysSyncItemLogDto logItem) {
-		List<IdmTreeNode> children = treeNodeService.findChildrenByParent(treeNode.getId(), null).getContent();
+		List<IdmTreeNode> children = treeNodeRepository.findChildren(null, treeNode.getId(), null).getContent();
 		if (children.isEmpty()) {
-			treeNodeService.delete(treeNode);
+			treeNodeService.deleteById(treeNode.getId());
 			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
 		} else {
 			addToItemLog(logItem,
@@ -685,7 +700,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			children.forEach(child -> {
 				deleteChildrenRecursively(child, logItem);
 			});
-			treeNodeService.delete(treeNode);
+			treeNodeService.deleteById(treeNode.getId());
 			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
 		}
 	}
@@ -798,7 +813,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected CorrelationFilter getEntityFilter() {
-		return new TreeNodeFilter();
+		return new IdmTreeNodeFilter();
 	}
 
 	@Override
@@ -807,7 +822,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
 		
-		List<IdmTreeNode> entities = treeNodeService.find((TreeNodeFilter) filter, null).getContent();
+		List<IdmTreeNodeDto> entities = treeNodeService.find((IdmTreeNodeFilter) filter, null).getContent();
 		
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;
@@ -817,7 +832,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
 		}
 		if (entities.size() == 1) {
-			return entities.get(0);
+			return treeNodeRepository.findOne(entities.get(0).getId());
 		}
 		return null;
 	}

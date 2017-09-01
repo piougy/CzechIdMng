@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -28,7 +29,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -117,7 +117,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRoleDto dto = null;
@@ -143,7 +143,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole entity = null;
@@ -187,7 +187,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param account
 	 */
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
-			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
+			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account) {
 		// We will create new Role
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new role.");
 		IdmRole role = new IdmRole();
@@ -238,7 +238,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
-		AccAccount account = context.getAccount();
+		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole role = null;
@@ -282,7 +282,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUnlink(AccAccount account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
+	protected void doUnlink(AccAccountDto account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
 			List<SysSyncActionLogDto> actionLogs) {
 
 		EntityAccountFilter roleAccountFilter = new RoleAccountFilter();

@@ -6,9 +6,16 @@ module.exports = {
     {
       'id': 'vsDashboard',
       'type': 'dashboard',
-      'span': '4',
+      'span': '8',
       'order': '4',
       'component': require('./src/content/dashboards/VsDashboard')
-    }
+    },
+    {
+      'id': 'vs-request-info',
+      'type': 'entity-info',
+      'entityType': ['vs-request', 'VsRequest'],
+      'component': require('./src/components/advanced/VsRequestInfo/VsRequestInfo').default,
+      'manager': require('./src/redux').VsRequestManager
+    },
   ]
 };

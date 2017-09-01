@@ -91,7 +91,7 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * Evaluates authorization permission on given dto
 	 *  
 	 * @param dto
-	 * @param permission base permissions to evaluate
+	 * @param permission base permissions to evaluate (all permission needed)
 	 * @return
 	 */
 	DTO checkAccess(DTO dto, BasePermission... permission);

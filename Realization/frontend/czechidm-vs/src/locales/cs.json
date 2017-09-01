@@ -24,8 +24,14 @@
       "implementers": {
         "label": "Realizátoři"
       },
+      "reason": {
+        "label": "Důvod zamítnutí"
+      },
       "created": {
         "label": "Vytvořeno"
+      },
+      "creator": {
+        "label": "Vytvořil"
       }
     }
   },
@@ -37,7 +43,7 @@
   "content": {
     "dashboard": {
       "vsDashboard": {
-        "header": "Virtuální systémy",
+        "header": "Požadavky na virtuálních systémech",
         "title": "Uživatelská plocha pro virtuální systémy",
         "text": "Uživatelská plocha pro virtuální systémy"
       }
@@ -59,6 +65,14 @@
       },
       "cancel-reason": {
         "placeholder": "Vyplňte důvod zamítnutí ..."
+      },
+      "tabs": {
+        "active": {
+          "label": "Nevyřešené požadavky"
+        },
+        "archive": {
+          "label": "Archiv"
+        }
       },
       "action": {
         "realize": {
@@ -96,6 +110,11 @@
         "basic": "Základní informace",
         "header": "Požadavek",
         "title": "$t(vs:content.vs-request.detail.header)",
+        "requestAttributes": "Atributy v tomto požadavku",
+        "beforeRequests": {
+          "label": "Předchozí nevyřešené požadavky"},
+        "afterRequests": {
+          "label": "Následující nevyřešené požadavky"},
         "edit": {
           "title": "Detail požadavku",
           "header": "{{name}} <small>detail požadavku</small>"

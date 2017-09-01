@@ -187,7 +187,8 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "') or hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@ApiOperation(
 			value = "Create / update role", 
 			nickname = "postRole", 

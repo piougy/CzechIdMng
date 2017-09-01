@@ -80,7 +80,7 @@ public class DefaultIdmConceptRoleRequestService
 			return null;
 		}
 		if (!ObjectUtils.isEmpty(permission) && !getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
-			throw new ForbiddenEntityException(entity.getId());
+			throw new ForbiddenEntityException(entity.getId(), permission);
 		}
 		return entity;
 	}

@@ -13,14 +13,14 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -73,16 +73,16 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
 		
-		SysSystemEntity systemEntity = new SysSystemEntity();
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
 		systemEntity.setUid("test_uid_" + System.currentTimeMillis());
 		systemEntity.setEntityType(SystemEntityType.IDENTITY);
 		systemEntity.setWish(true);
-		systemEntity.setSystem(system);
+		systemEntity.setSystem(system.getId());
 		systemEntity = systemEntityService.save(systemEntity);
 		
-		AccAccount account = new AccAccount();
-		account.setSystem(system);
-		account.setSystemEntity(systemEntity);
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(system.getId());
+		account.setSystemEntity(systemEntity.getId());
 		account.setUid(systemEntity.getUid());
 		account.setAccountType(AccountType.PERSONAL);
 		account = accountService.save(account);

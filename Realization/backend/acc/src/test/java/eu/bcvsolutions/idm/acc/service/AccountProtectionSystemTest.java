@@ -14,18 +14,16 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -44,8 +42,6 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	@Autowired 
 	private TestHelper helper;
 	@Autowired
-	private SysSystemService sysSystemService;
-	@Autowired
 	private IdmIdentityService idmIdentityService;
 	@Autowired
 	private AccAccountService accountService;
@@ -57,8 +53,6 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmIdentityContractService contractService;
 
 	@Before
 	public void init() {
@@ -77,7 +71,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		SysSystem system = initSystem();
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleService.getByCode(ROLE_ONE));
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -110,7 +104,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -145,7 +139,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
@@ -188,7 +182,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -234,7 +228,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -282,7 +276,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -324,7 +318,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());

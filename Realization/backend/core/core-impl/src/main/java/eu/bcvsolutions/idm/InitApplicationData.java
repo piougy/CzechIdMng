@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -74,6 +75,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private FormService formService;	
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmScriptService scriptService;
+	@Autowired private TreeConfiguration treeConfiguration;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -149,8 +151,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				treeType = new IdmTreeTypeDto();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
-				treeType.setDefaultTreeType(true);
 				treeType = this.treeTypeService.save(treeType);
+				treeConfiguration.setDefaultType(treeType.getId());
 				//
 				// create organization root
 				if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {

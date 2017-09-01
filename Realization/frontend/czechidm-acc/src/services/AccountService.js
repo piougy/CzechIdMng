@@ -8,6 +8,11 @@ export default class AccountService extends Services.AbstractService {
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

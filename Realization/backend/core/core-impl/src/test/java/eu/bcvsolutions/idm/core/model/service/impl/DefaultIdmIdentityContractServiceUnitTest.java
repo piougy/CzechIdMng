@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -42,6 +44,8 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 	@Mock 
 	private IdmTreeTypeRepository treeTypeRepository;
 	@Mock 
+	private TreeConfiguration treeConfiguration;
+	@Mock 
 	private IdmTreeNodeRepository treeNodeRepository;
 	@Spy 
 	private ModelMapper modelMapper = new ModelMapper();
@@ -59,7 +63,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(mainContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(mainContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -79,7 +83,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(otherContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(contractWithPosition.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -104,7 +108,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(otherContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(defaultTreeType);
+		when(treeConfiguration.getDefaultType()).thenReturn(new IdmTreeTypeDto(defaultTreeType.getId()));
 		//
 		Assert.assertEquals(contractWithDefaultPosition.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -121,7 +125,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(mainContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(mainContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -138,7 +142,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(mainContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(mainContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -158,7 +162,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(invalidContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(invalidContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -175,7 +179,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(oneContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(oneContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
@@ -193,7 +197,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(oneContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
-		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(oneContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}

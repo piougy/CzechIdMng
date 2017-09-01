@@ -39,7 +39,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.processor.tree.TreeNodeDeleteProcessor;
@@ -152,9 +151,7 @@ public class DefaultIdmTreeNodeService
 		}		
 		if (this.identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
-		}		
-		// clear default tree nodes from type
-		treeTypeService.clearDefaultTreeNode(treeNode.getId());
+		}
 		// TODO: eav dto
 		formService.deleteValues(getRepository().findOne(treeNode.getId()));
 		//
@@ -222,7 +219,7 @@ public class DefaultIdmTreeNodeService
 		}
 		// parent node
 		if (filter.getTreeNode() != null) {
-			// TODO: bug - forest index needs tree type
+			// TODO: bug - forest index needs tree type - same numbers in different trees
 			if (filter.isRecursively()) {
 				Subquery<IdmTreeNode> subquery = query.subquery(IdmTreeNode.class);
 				Root<IdmTreeNode> subRoot = subquery.from(IdmTreeNode.class);
@@ -242,15 +239,13 @@ public class DefaultIdmTreeNodeService
 		}
 		// default tree type
 		if (filter.getDefaultTreeType() != null) {
-			Subquery<IdmTreeType> subQuery = query.subquery(IdmTreeType.class);
-			Root<IdmTreeType> subRoot = subQuery.from(IdmTreeType.class);
-			subQuery.select(subRoot);
-			subQuery.where(
-				builder.and(
-					builder.equal(subRoot.get(IdmTreeType_.defaultTreeType), filter.getDefaultTreeType())),
-					builder.equal(root.get(IdmTreeNode_.treeType), subRoot)
-				);
-			predicates.add(builder.exists(subQuery));
+			IdmTreeTypeDto defaultTreeType = treeTypeService.getDefaultTreeType();
+			if (defaultTreeType == null) {
+				// nothing to find
+				predicates.add(builder.disjunction());
+			} else {
+				predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), defaultTreeType.getId()));
+			}
 		}
 
 		// dyn property

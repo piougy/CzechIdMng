@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
@@ -57,9 +58,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Tree nodes endpoint
- * 
- * TODO: secure read operations? 
+ * Tree nodes endpoint 
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -72,7 +71,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operation with tree nodes",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTreeNodeDto, IdmTreeNodeFilter> {
+public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTreeNodeDto, IdmTreeNodeFilter> {
 	
 	protected static final String TAG = "Tree structure - nodes";
 	private final IdmTreeNodeService treeNodeService;
@@ -177,6 +176,7 @@ public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTree
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
@@ -198,6 +198,7 @@ public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTree
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update tree node",
@@ -219,8 +220,8 @@ public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTree
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update tree node",
 			nickname = "patchTreeNode", 
@@ -242,6 +243,7 @@ public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTree
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_DELETE + "')")
 	@ApiOperation(
 			value = "Delete tree node", 

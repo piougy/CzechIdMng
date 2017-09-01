@@ -27,8 +27,8 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
+import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -53,25 +53,25 @@ public class DefaultAccIdentityAccountService extends
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
 	
-	private final AccAccountService accountService;
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final EntityEventManager entityEventManager;
+	private final AccAccountRepository accountRepository;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(
 			AccIdentityAccountRepository identityAccountRepository,
-			AccAccountService accountService,
 			IdmIdentityRoleRepository identityRoleRepository,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			AccAccountRepository accountRepository) {
 		super(identityAccountRepository);
 		//
-		Assert.notNull(accountService);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(entityEventManager);
+		Assert.notNull(accountRepository);
 		//
-		this.accountService = accountService;
 		this.identityRoleRepository = identityRoleRepository;
 		this.entityEventManager = entityEventManager;
+		this.accountRepository = accountRepository;
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class DefaultAccIdentityAccountService extends
 		// identityRole
 		AccIdentityAccount ia = super.getEntity(id, permission);
 		if (ia != null && ia.getAccount() != null) {
-			ia.setAccount(accountService.get(ia.getAccount().getId()));
+			ia.setAccount(accountRepository.findOne(ia.getAccount().getId()));
 		}
 		if (ia != null && ia.getIdentityRole() != null) {
 			ia.setIdentityRole(identityRoleRepository.findOne(ia.getIdentityRole().getId()));

@@ -83,8 +83,7 @@ LabelWrapper.propTypes = {
 
 LabelWrapper.defaultProps = {
   ...AbstractFormComponent.defaultProps,
-  type: 'text',
-  rendered: true
+  type: 'text'
 };
 
 

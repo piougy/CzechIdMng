@@ -52,8 +52,6 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
-    formEntity.systemEntity = systemEntityManager.getSelfLink(formEntity.systemEntity);
     //
     super.save(formEntity, event);
   }

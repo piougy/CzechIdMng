@@ -75,7 +75,7 @@ public class ExecuteScriptTaskExecutor extends AbstractSchedulableTaskExecutor<B
 	}
 
 	@Override
-	public List<String> getParameterNames() {
+	public List<String> getPropertyNames() {
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_SCRIPT_CODE);
 		return parameters;

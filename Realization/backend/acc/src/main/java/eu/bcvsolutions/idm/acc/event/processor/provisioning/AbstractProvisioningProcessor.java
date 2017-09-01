@@ -6,10 +6,10 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -102,7 +102,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			IcUidAttribute resultUid = processInternal(provisioningOperation, connectorConfig);
 			// update system entity, when identifier on target system differs
 			if (resultUid != null && resultUid.getUidValue() != null) {
-				SysSystemEntity systemEntity = provisioningOperation.getSystemEntity();
+				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity().getId());
 				if(!systemEntity.getUid().equals(resultUid.getUidValue()) || systemEntity.isWish()) {
 					systemEntity.setUid(resultUid.getUidValue());
 					systemEntity.setWish(false);

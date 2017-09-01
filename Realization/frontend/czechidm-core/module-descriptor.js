@@ -176,7 +176,7 @@ module.exports = {
         'order': 1020,
         'iconColor': '#419641',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREETYPE_READ', 'TREENODE_READ'] } ]
       },
       {
         'id': 'profile-system-separator',
@@ -443,7 +443,7 @@ module.exports = {
           {
             'type': 'HAS_ANY_AUTHORITY',
             'authorities': [
-              'TREENODE_UPDATE', 'CONFIGURATION_READ', 'MODULE_READ',
+              'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ',
               'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_UPDATE'
             ]
           }
@@ -548,7 +548,7 @@ module.exports = {
             'order': 80,
             'iconColor': '#419641',
             'path': '/tree/nodes',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_UPDATE'] } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ', 'TREENODE_READ'] } ],
             'items': [
               {
                 'id': 'tree-nodes',
@@ -556,7 +556,7 @@ module.exports = {
                 'order': 15,
                 'icon': 'apple',
                 'path': '/tree/nodes',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_UPDATE'] } ],
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ],
                 'items': [
                   {
                     'id': 'tree-node-detail',
@@ -564,7 +564,8 @@ module.exports = {
                     'labelKey': 'content.tree.node.detail.label',
                     'order': 10,
                     'path': '/tree/nodes/:entityId/detail',
-                    'icon': 'fa:newspaper-o'
+                    'icon': 'fa:newspaper-o',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
                   },
                   {
                     'id': 'tree-node-eav',
@@ -572,6 +573,7 @@ module.exports = {
                     'labelKey': 'content.tree.node.eav.title',
                     'order': 20,
                     'path': '/tree/nodes/:entityId/eav',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
                   },
                   {
                     'id': 'tree-node-roles',
@@ -591,7 +593,7 @@ module.exports = {
                 'order': 10,
                 'icon': 'tree-deciduous',
                 'path': '/tree/types',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_UPDATE'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
               }
             ]
           },

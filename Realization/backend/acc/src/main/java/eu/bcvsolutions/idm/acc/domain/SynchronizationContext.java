@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
@@ -57,7 +57,7 @@ public class SynchronizationContext implements Serializable {
 	private SysSystem system;
 	private SystemEntityType entityType;
 	private List<SysSystemAttributeMappingDto> mappedAttributes;
-	private AccAccount account;
+	private AccAccountDto account;
 	private SysSyncLogDto log;
 	private SysSyncItemLogDto logItem;
 	private List<SysSyncActionLogDto> actionLogs;
@@ -65,7 +65,7 @@ public class SynchronizationContext implements Serializable {
 	private boolean exportAction = false;
 	private AttributeMapping tokenAttribute;
 	private IcConnectorConfiguration connectorConfig;
-	private SysSystemEntity systemEntity;
+	private SysSystemEntityDto systemEntity;
 	private SynchronizationActionType actionType;
 
 	public String getUid() {
@@ -131,11 +131,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public AccAccount getAccount() {
+	public AccAccountDto getAccount() {
 		return account;
 	}
 
-	public SynchronizationContext addAccount(AccAccount account) {
+	public SynchronizationContext addAccount(AccAccountDto account) {
 		this.account = account;
 		return this;
 	}
@@ -203,12 +203,12 @@ public class SynchronizationContext implements Serializable {
 		return connectorConfig;
 	}
 	
-	public SynchronizationContext addSystemEntity(SysSystemEntity systemEntity){
+	public SynchronizationContext addSystemEntity(SysSystemEntityDto systemEntity){
 		this.systemEntity = systemEntity;
 		return this;
 	}
 	
-	public SysSystemEntity getSystemEntity() {
+	public SysSystemEntityDto getSystemEntity() {
 		return systemEntity;
 	}
 	

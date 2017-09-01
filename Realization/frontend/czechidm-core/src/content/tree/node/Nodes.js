@@ -35,7 +35,7 @@ class Nodes extends Basic.AbstractContent {
     super.componentDidMount();
     //
     if (this._getTypeIdFromParam()) {
-      this.context.store.dispatch(this.getTypeManager().fetchEntity(this._getTypeIdFromParam(), uiKey, (type) => {
+      this.context.store.dispatch(this.getTypeManager().autocompleteEntityIfNeeded(this._getTypeIdFromParam(), uiKey, (type) => {
         // TODO 404
         this.setState({
           showLoading: false,
@@ -43,7 +43,7 @@ class Nodes extends Basic.AbstractContent {
         });
       }));
     } else {
-      const searchParameters = this.getTypeManager().getDefaultSearchParameters();
+      const searchParameters = this.getTypeManager().getDefaultSearchParameters().setName('autocomplete');
       this.context.store.dispatch(this.getTypeManager().fetchEntities(searchParameters, uiKey, (types) => {
         const isNoType = types._embedded.treeTypes.length === 0 ? true : false;
 
@@ -98,7 +98,7 @@ class Nodes extends Basic.AbstractContent {
             {
               !isNoType
               ?
-              <NodeTable treeNodeManager={this.getManager()} treeTypeManager={this.getTypeManager()} type={type} activeTab={2}/>
+              <NodeTable treeNodeManager={this.getManager()} type={type} activeTab={2}/>
               :
               <div className="alert alert-info">
                 {this.i18n('content.tree.typeNotFound')} <a href="#" className="alert-link" onClick={this.newType.bind(this)}>{this.i18n('content.tree.newType')}</a>

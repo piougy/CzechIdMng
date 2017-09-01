@@ -68,4 +68,104 @@ export default class VsRequestManager extends Managers.EntityManager {
       });
     };
   }
+
+  /**
+  * Mark virtual system request as realized (changes will be propagated to VsAccount)
+  */
+  realizeUi(bulkActionValue, ids, manager, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), ids);
+    this.refs[`confirm-realize`].show(
+      this.i18n(`vs:content.vs-requests.action.realize.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`vs:content.vs-requests.action.realize.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      const cb = (realizedEntity, newError) => {
+        if (!newError) {
+          this.setState({
+            showLoading: false
+          });
+          if (this.refs.table) {
+            this.refs.table.getWrappedInstance().reload();
+          }
+          this.addMessage({ message: this.i18n('vs:content.vs-requests.action.realize.success', { record: realizedEntity.uid }) });
+        } else {
+          this.setState({
+            showLoading: false
+          });
+          this.addError(newError);
+          if (this.refs.table) {
+            this.refs.table.getWrappedInstance().reload();
+          }
+        }
+      };
+
+      for (const id of ids) {
+        this.setState({
+          showLoading: true
+        });
+        this.context.store.dispatch(manager.realize(id, null, cb));
+      }
+    }, () => {
+      // Rejected
+    });
+    return;
+  }
+
+  /**
+  * Cancel virtual system request
+  */
+  cancelUi(bulkActionValue, ids, manager, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), ids);
+    this.refs[`confirm-cancel`].show(
+      this.i18n(`vs:content.vs-requests.action.cancel.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`vs:content.vs-requests.action.cancel.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      manager._validateCancelDialog.bind(this)
+    ).then(() => {
+      const cb = (realizedEntity, newError) => {
+        if (!newError) {
+          this.setState({
+            showLoading: false
+          });
+          if (this.refs.table) {
+            this.refs.table.getWrappedInstance().reload();
+          }
+          this.addMessage({ message: this.i18n('vs:content.vs-requests.action.cancel.success', { record: realizedEntity.uid }) });
+        } else {
+          this.setState({
+            showLoading: false
+          });
+          this.addError(newError);
+          if (this.refs.table) {
+            this.refs.table.getWrappedInstance().reload();
+          }
+        }
+      };
+
+      for (const id of ids) {
+        this.setState({
+          showLoading: true
+        });
+        const reason = this.refs['cancel-form'].getData()['cancel-reason'];
+        this.context.store.dispatch(manager.cancel(id, reason, null, cb));
+      }
+    }, () => {
+      // Rejected
+    });
+    return;
+  }
+
+  _validateCancelDialog(result) {
+    if (result === 'reject') {
+      return true;
+    }
+    if (result === 'confirm' && this.refs['cancel-form'].isFormValid()) {
+      return true;
+    }
+    return false;
+  }
 }

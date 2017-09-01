@@ -17,7 +17,7 @@ export default class VsRequestService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.uid} (${entity.operationType} - ${entity.state})`;
+    return `${entity.uid}`;
   }
 
   /**

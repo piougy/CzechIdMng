@@ -62,7 +62,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	}
 	
 	@Override
-	public List<String> getParameterNames() {
+	public List<String> getPropertyNames() {
 		List<String> params = super.getPropertyNames();
 		params.add(PARAMETER_UUID);
 		return params;

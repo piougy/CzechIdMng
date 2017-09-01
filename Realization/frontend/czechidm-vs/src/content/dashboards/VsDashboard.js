@@ -1,5 +1,6 @@
 import React from 'react';
-import { Basic } from 'czechidm-core';
+import { Basic, Domain } from 'czechidm-core';
+import VsRequestTable from '../vs-request/VsRequestTable';
 
 /**
  * Virtual system dashbord panel
@@ -16,23 +17,21 @@ export default class VsDashboard extends Basic.AbstractContent {
   }
 
   render() {
+    const searchActive = new Domain.SearchParameters().setFilter('state', 'IN_PROGRESS');
     return (
       <Basic.Panel>
-        <Basic.PanelHeader text={ this.i18n('header') }/>
-        <Basic.PanelBody>
-          <Basic.Panel className="panel-warning no-margin">
-            <Basic.PanelHeader>
-              <Basic.Row>
-                <Basic.Col lg={ 3 }>
-                  <Basic.Icon type="fa" icon="dashboard" className="fa-5x"/>
-                </Basic.Col>
-                <Basic.Col lg={ 9 }>
-                  <div><strong>{ this.i18n('title') }</strong></div>
-                  <div>{ this.i18n('text') }</div>
-                </Basic.Col>
-              </Basic.Row>
-            </Basic.PanelHeader>
-          </Basic.Panel>
+        <Basic.PanelHeader text={this.i18n('header')}/>
+        <Basic.PanelBody >
+          <VsRequestTable
+            uiKey="vs-request-table-dashboard"
+            columns= {['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
+            showFilter={false}
+            forceSearchParameters={searchActive}
+            showToolbar={false}
+            showPageSize={false}
+            showRowSelection={false}
+            showId={false}
+            filterOpened={false} />
         </Basic.PanelBody>
       </Basic.Panel>
     );

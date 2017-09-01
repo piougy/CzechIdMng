@@ -6,10 +6,10 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -48,7 +48,7 @@ public interface ProvisioningService {
 	 * 
 	 * @param account
 	 */
-	void doProvisioning(AccAccount account);
+	void doProvisioning(AccAccountDto account);
 	
 	/**
 	 * Do provisioning for given account and entity
@@ -58,7 +58,7 @@ public interface ProvisioningService {
 	 * @param entity
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, AbstractEntity entity);
+	void doProvisioning(AccAccountDto account, AbstractEntity entity);
 
 	/**
 	 * Do delete provisioning for given account on connected system
@@ -68,7 +68,7 @@ public interface ProvisioningService {
 	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
 	 * 
 	 */
-	void doDeleteProvisioning(AccAccount account, SystemEntityType entityType, UUID entityId);
+	void doDeleteProvisioning(AccAccountDto account, SystemEntityType entityType, UUID entityId);
 	
 	/**
 	 * 
@@ -88,7 +88,7 @@ public interface ProvisioningService {
 	 * @param operationType
 	 * @param entity
 	 */
-	void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
+	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, AbstractEntity entity);
 	
 	/**
@@ -111,7 +111,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(AccAccount account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -139,7 +139,7 @@ public interface ProvisioningService {
 	 * @param system
 	 * @return
 	 */
-	void doInternalProvisioning(AccAccount account, AbstractEntity entity);
+	void doInternalProvisioning(AccAccountDto account, AbstractEntity entity);
 
 	
 }

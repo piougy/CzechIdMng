@@ -73,140 +73,18 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     }
   }
 
-  _cancelSynchronization(id, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs[`confirm-delete`].show(
-      this.i18n(`action.cancelSynchronization.message`),
-      this.i18n(`action.cancelSynchronization.header`)
-    ).then(() => {
-      this.setState({
-        showLoading: true
-      });
-      const promise = this.getManager().getService().cancelSynchronization(id);
-      promise.then((json) => {
-        this.setState({
-          showLoading: false
-        });
-        if (this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-        this.addMessage({ message: this.i18n('action.cancelSynchronization.canceled', { name: json.name }) });
-      }).catch(ex => {
-        this.setState({
-          showLoading: false
-        });
-        this.addError(ex);
-        if (this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-      });
-    }, () => {
-      // Rejected
-    });
-    return;
-  }
-
-
   /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
   realize(bulkActionValue, ids, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), ids);
-    this.refs[`confirm-delete`].show(
-      this.i18n(`action.realize.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.realize.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      const cb = (realizedEntity, newError) => {
-        if (!newError) {
-          this.setState({
-            showLoading: false
-          });
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
-          }
-          this.addMessage({ message: this.i18n('action.realize.success', { record: realizedEntity.uid }) });
-        } else {
-          this.setState({
-            showLoading: false
-          });
-          this.addError(newError);
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
-          }
-        }
-      };
-
-      for (const id of ids) {
-        this.setState({
-          showLoading: true
-        });
-        this.context.store.dispatch(manager.realize(id, null, cb));
-      }
-    }, () => {
-      // Rejected
-    });
-    return;
+    return manager.realizeUi.bind(this)(bulkActionValue, ids, manager, event);
   }
 
   /**
   * Cancel virtual system request
   */
   cancel(bulkActionValue, ids, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), ids);
-    this.refs[`confirm-cancel`].show(
-      this.i18n(`action.cancel.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.cancel.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      this._validateCancelDialog.bind(this)
-    ).then(() => {
-      const cb = (realizedEntity, newError) => {
-        if (!newError) {
-          this.setState({
-            showLoading: false
-          });
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
-          }
-          this.addMessage({ message: this.i18n('action.cancel.success', { record: realizedEntity.uid }) });
-        } else {
-          this.setState({
-            showLoading: false
-          });
-          this.addError(newError);
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
-          }
-        }
-      };
-
-      for (const id of ids) {
-        this.setState({
-          showLoading: true
-        });
-        const reason = this.refs['cancel-form'].getData()['cancel-reason'];
-        this.context.store.dispatch(manager.cancel(id, reason, null, cb));
-      }
-    }, () => {
-      // Rejected
-    });
-    return;
-  }
-
-  _validateCancelDialog(result) {
-    if (result === 'reject') {
-      return true;
-    }
-    if (result === 'confirm' && this.refs['cancel-form'].isFormValid()) {
-      return true;
-    }
-    return false;
+    return manager.cancelUi.bind(this)(bulkActionValue, ids, manager, event);
   }
 
   _getSystemCell({ rowIndex, data }) {
@@ -214,6 +92,15 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
       <Advanced.EntityInfo
         entityType="system"
         entityIdentifier={ data[rowIndex]._embedded.systemId.id }
+        face="popover" />
+    );
+  }
+
+  _getUidCell({ rowIndex, data }) {
+    return (
+      <Advanced.EntityInfo
+        entityType="vs-request"
+        entityIdentifier={ data[rowIndex].id }
         face="popover" />
     );
   }
@@ -267,26 +154,32 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, showRowSelection } = this.props;
+    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId } = this.props;
     const { filterOpened, showLoading} = this.state;
 
     return (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-realize" level="danger"/>
         <Basic.Confirm ref="confirm-cancel" level="danger">
-          <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
-            <Basic.TextArea
-              ref="cancel-reason"
-              label=" "
-              placeholder={this.i18n('vs:content.vs-requests.cancel-reason.placeholder')}
-              required/>
-          </Basic.AbstractForm>
+          <div style={{marginTop: '20px'}}>
+            <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
+              <Basic.TextArea
+                ref="cancel-reason"
+                placeholder={this.i18n('vs:content.vs-requests.cancel-reason.placeholder')}
+                required/>
+            </Basic.AbstractForm>
+          </div>
         </Basic.Confirm>
 
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
           manager={ manager }
+          showFilter={showFilter}
+          showToolbar={showToolbar}
+          showPageSize={showPageSize}
+          showId={showId}
+          condensed
           filterOpened={filterOpened}
           showLoading={showLoading}
           forceSearchParameters={ forceSearchParameters }
@@ -338,7 +231,10 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="uid" width="15%" sort face="text" rendered={_.includes(columns, 'uid')}/>
+          <Advanced.Column
+              header={this.i18n('vs:entity.VsRequest.uid.label')}
+              rendered={_.includes(columns, 'uid')}
+              cell={this._getUidCell.bind(this)}/>
           <Advanced.Column
               header={this.i18n('acc:entity.System.name')}
               rendered={_.includes(columns, 'systemId')}
@@ -350,10 +246,12 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               header={this.i18n('vs:entity.VsRequest.implementers.label')}
               rendered={_.includes(columns, 'implementers')}
               cell={this._getImplementersCell.bind(this)}/>
-          <Advanced.Column property="created" width="10%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
           <Advanced.Column
             property=""
             header=""
+            rendered={_.includes(columns, 'operations')}
             width="55px"
             className="detail-button"
             cell={this._getButtonsCell.bind(this)}/>
@@ -387,7 +285,7 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created'],
+  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'operations'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

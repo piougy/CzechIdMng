@@ -144,7 +144,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                   return (
                     <Advanced.EntityInfo
                       entityType="system"
-                      entityIdentifier={ data[rowIndex]._embedded.account._embedded.system.id }
+                      entityIdentifier={ data[rowIndex]._embedded.account.system }
                       face="popover" />
                   );
                 }
@@ -154,10 +154,13 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({rowIndex, data}) => {
+                  if (!data[rowIndex]._embedded.identityRole) {
+                    return null;
+                  }
                   return (
                     <Advanced.EntityInfo
                       entityType="role"
-                      entityIdentifier={ data[rowIndex]._embedded.identityRole._embedded.role.id }
+                      entityIdentifier={ data[rowIndex]._embedded.identityRole.role }
                       entity={ data[rowIndex]._embedded.identityRole._embedded.role}
                       face="popover" />
                   );

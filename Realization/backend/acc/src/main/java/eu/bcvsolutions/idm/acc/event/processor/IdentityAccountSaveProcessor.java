@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -53,7 +53,7 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 	public EventResult<AccIdentityAccountDto> process(EntityEvent<AccIdentityAccountDto> event) {
 		AccIdentityAccountDto entity = event.getContent();
 		UUID account = entity.getAccount();
-		AccAccount accountEntity = accountService.get(account);
+		AccAccountDto accountEntity = accountService.get(account);
 		Assert.notNull(account, "Account cannot be null!");
 
 		// If is account protected and new role for same account is creates, then we
@@ -66,7 +66,7 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 			service.delete(protectedIdentityAccount);
 			// Next we set account to unprotected state
 			this.deactivateProtection(accountEntity);
-			accountService.save(accountEntity);
+			accountEntity = accountService.save(accountEntity);
 			return new DefaultEventResult<>(event, this);
 		}
 
@@ -93,7 +93,7 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 		return identityAccounts;
 	}
 
-	private void deactivateProtection(AccAccount accountEntity) {
+	private void deactivateProtection(AccAccountDto accountEntity) {
 		accountEntity.setInProtection(false);
 		accountEntity.setEndOfProtection(null);
 	}

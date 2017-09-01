@@ -24,12 +24,14 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -189,8 +191,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		system.setName(systemName);
 		system = systemService.save(system);
 		// account
-		AccAccount account = new AccAccount();
-		account.setSystem(system);
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(system.getId());
 		account.setUid("test_uid_" + System.currentTimeMillis());
 		account.setAccountType(AccountType.PERSONAL);
 		account = accountService.save(account);
@@ -205,11 +207,11 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		system.setName(systemName);
 		system = systemService.save(system);
 		// system entity
-		SysSystemEntity systemEntity = new SysSystemEntity();
-		systemEntity.setSystem(system);
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
+		systemEntity.setSystem(system.getId());
 		systemEntity.setEntityType(SystemEntityType.IDENTITY);
 		systemEntity.setUid("se_uid_" + System.currentTimeMillis());
-		systemEntityService.save(systemEntity);
+		systemEntity = systemEntityService.save(systemEntity);
 		
 		systemService.delete(system);
 	}

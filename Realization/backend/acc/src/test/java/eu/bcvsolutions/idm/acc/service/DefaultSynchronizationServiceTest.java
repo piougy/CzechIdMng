@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -51,7 +52,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -727,10 +727,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		identity.setLastName(IDENTITY_USERNAME_THREE);
 		identity = identityService.save(identity);
 
-		AccAccount accountOne = new AccAccount();
+		AccAccountDto accountOne = new AccAccountDto();
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
 		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
-		accountOne.setSystem(system);
+		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME_THREE);
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);

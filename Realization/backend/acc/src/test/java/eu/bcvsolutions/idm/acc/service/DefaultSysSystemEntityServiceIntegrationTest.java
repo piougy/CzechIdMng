@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -52,21 +54,22 @@ public class DefaultSysSystemEntityServiceIntegrationTest extends AbstractIntegr
 		system.setName(systemName);
 		system = systemService.save(system);
 		// system entity
-		SysSystemEntity systemEntity = new SysSystemEntity();
-		systemEntity.setSystem(system);
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
+		systemEntity.setSystem(system.getId());
 		systemEntity.setEntityType(SystemEntityType.IDENTITY);
 		String uid = "se_uid_" + System.currentTimeMillis();
 		systemEntity.setUid(uid);
-		systemEntityService.save(systemEntity);
+		systemEntity = systemEntityService.save(systemEntity);
 		// account
-		AccAccount account = new AccAccount();
-		account.setSystem(system);
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(system.getId());
 		account.setUid("test_uid_" + System.currentTimeMillis());
 		account.setAccountType(AccountType.PERSONAL);
-		account.setSystemEntity(systemEntity);
+		account.setSystemEntity(systemEntity.getId());
 		account = accountService.save(account);
 		
-		assertEquals(uid, accountService.get(account.getId()).getSystemEntity().getUid());
+		SysSystemEntityDto systemEntityDto = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
+		assertEquals(uid, systemEntityDto.getUid());
 		
 		systemEntityService.delete(systemEntity);
 		

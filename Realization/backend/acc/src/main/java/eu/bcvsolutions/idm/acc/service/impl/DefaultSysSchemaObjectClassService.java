@@ -2,8 +2,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,23 +31,19 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 
 	private final SysSchemaAttributeService sysSchemaAttributeService;
 	private final SysSystemMappingService systemMappingService;
-	private final EntityManager entityManager;
 	
 	@Autowired
 	public DefaultSysSchemaObjectClassService(
 			SysSchemaObjectClassRepository repository,
 			SysSchemaAttributeService sysSchemaAttributeService,
-			SysSystemMappingService systemMappingService,
-			EntityManager entityManager) {
+			SysSystemMappingService systemMappingService) {
 		super(repository);
 		//
 		Assert.notNull(sysSchemaAttributeService, "Schema attribute service is required!");
 		Assert.notNull(systemMappingService);
-		Assert.notNull(entityManager);
 		//
 		this.sysSchemaAttributeService = sysSchemaAttributeService;
 		this.systemMappingService = systemMappingService;
-		this.entityManager = entityManager;
 	}
 	
 	@Override

@@ -13,7 +13,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.rest.projection.SysSystemAttributeMappingExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -26,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "systemAttributeMappings", //
 		path = "system-attribute-mappings", //
 		itemResourceRel = "systemAttributeMapping", //
-		excerptProjection = SysSystemAttributeMappingExcerpt.class,//
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )

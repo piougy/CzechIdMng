@@ -14,20 +14,24 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent.SystemMappingEventType;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -44,20 +48,24 @@ public class DefaultSysSystemMappingService extends
 	private final SysSystemMappingRepository repository;
 	private final SysSyncConfigRepository syncConfigRepository;
 	private final EntityEventManager entityEventManager;
+	private final SysSystemRepository systemRepository;
 
 	@Autowired
 	public DefaultSysSystemMappingService(
 			SysSystemMappingRepository repository,
 			SysSyncConfigRepository syncConfigRepository,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			SysSystemRepository systemrepository) {
 		super(repository);
 		//
 		Assert.notNull(syncConfigRepository);
 		Assert.notNull(entityEventManager);
+		Assert.notNull(systemrepository);
 		//
 		this.repository = repository;
 		this.syncConfigRepository = syncConfigRepository;
 		this.entityEventManager = entityEventManager;
+		this.systemRepository = systemrepository;
 	}
 	
 	@Override
@@ -99,11 +107,11 @@ public class DefaultSysSystemMappingService extends
 	}
 	
 	@Override
-	public boolean isEnabledProtection(AccAccount account){
+	public boolean isEnabledProtection(AccAccountDto account){
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
-		
-		List<SysSystemMappingDto> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
+		List<SysSystemMappingDto> mappings = this.findBySystem(systemRepository.findOne(account.getSystem()), SystemOperationType.PROVISIONING, systemEntity.getEntityType());
 		if(mappings.isEmpty()){
 			return false;
 		}
@@ -112,11 +120,12 @@ public class DefaultSysSystemMappingService extends
 	}
 	
 	@Override
-	public Integer getProtectionInterval(AccAccount account){
+	public Integer getProtectionInterval(AccAccountDto account){
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
-		
-		List<SysSystemMappingDto> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
+
+		List<SysSystemMappingDto> mappings = this.findBySystem(systemRepository.findOne(account.getSystem()), SystemOperationType.PROVISIONING, systemEntity.getEntityType());
 		if(mappings.isEmpty()){
 			return -1;
 		}

@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -39,18 +40,22 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ReadonlySystemProcessor.class);
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
+	private final SysSystemService systemService;
 	
 	@Autowired
 	public ReadonlySystemProcessor(
 			NotificationManager notificationManager,
-			SysProvisioningOperationService provisioningOperationService) {
+			SysProvisioningOperationService provisioningOperationService,
+			SysSystemService systemService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);
+		Assert.notNull(systemService);
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
+		this.systemService = systemService;
 	}
 	
 	@Override
@@ -61,7 +66,7 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = provisioningOperation.getSystem();
+		SysSystem system = systemService.get(provisioningOperation.getSystem().getId());
 		boolean closed = false;
 		if (system.isReadonly()) {
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 

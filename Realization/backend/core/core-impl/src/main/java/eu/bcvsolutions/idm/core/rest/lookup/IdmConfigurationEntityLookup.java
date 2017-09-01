@@ -5,20 +5,16 @@ import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.annotations.Beta;
-
 import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractEntityLookup;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 
 /**
- * TODO: Codeable repository? Or add public methods to dtoService?
+ * Configuration item entity lookup
  * 
  * @author Radek Tomiška
- *
  */
-@Beta
 @Component
 public class IdmConfigurationEntityLookup extends AbstractEntityLookup<IdmConfiguration> {
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
@@ -28,12 +29,12 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 * @param account
 	 * @return
 	 */
-	boolean isEnabledProtection(AccAccount account);
+	boolean isEnabledProtection(AccAccountDto account);
 
 	/**
 	 * Interval of protection against account delete
 	 * @param account
 	 * @return
 	 */
-	Integer getProtectionInterval(AccAccount account);
+	Integer getProtectionInterval(AccAccountDto account);
 }

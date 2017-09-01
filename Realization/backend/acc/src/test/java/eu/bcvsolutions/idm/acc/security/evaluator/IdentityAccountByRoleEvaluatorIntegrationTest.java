@@ -9,8 +9,8 @@ import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -51,8 +51,8 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 			identity = helper.createIdentity();
 			SysSystem system = helper.createTestResourceSystem(true);
 			
-			AccAccount accountOne = new AccAccount();
-			accountOne.setSystem(system);
+			AccAccountDto accountOne = new AccAccountDto();
+			accountOne.setSystem(system.getId());
 			accountOne.setUid(identity.getUsername());
 			accountOne.setAccountType(AccountType.PERSONAL);
 			accountOne = accountService.save(accountOne);
@@ -98,8 +98,8 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 			identity = helper.createIdentity();
 			SysSystem system = helper.createTestResourceSystem(true);
 			
-			AccAccount accountOne = new AccAccount();
-			accountOne.setSystem(system);
+			AccAccountDto accountOne = new AccAccountDto();
+			accountOne.setSystem(system.getId());
 			accountOne.setUid(identity.getUsername());
 			accountOne.setAccountType(AccountType.PERSONAL);
 			accountOne = accountService.save(accountOne);

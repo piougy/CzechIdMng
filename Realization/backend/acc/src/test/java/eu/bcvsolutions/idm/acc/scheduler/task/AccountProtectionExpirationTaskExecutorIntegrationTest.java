@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.AccountProtectionExpirationTaskExecutor;
@@ -61,7 +61,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		helper.createRoleSystem(role, system);
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
 		//
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
 		TestResource createdAccount = helper.findResource(account.getUid());
@@ -94,12 +94,12 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		// change account expiration
 		
 		account.setEndOfProtection(new DateTime().minusDays(1));
-		accountService.save(account);
+		account = accountService.save(account);
 		
 		taskExecutor = new AccountProtectionExpirationTaskExecutor();
 		longRunningTaskManager.executeSync(taskExecutor);
 		
-		AccAccount removedAccount = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto removedAccount = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNull(removedAccount);
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNull(createdAccount);

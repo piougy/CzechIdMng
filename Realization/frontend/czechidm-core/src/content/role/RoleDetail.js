@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, IdentityManager, RoleCatalogueManager } from '../../redux';
+import { RoleManager, IdentityManager, RoleCatalogueManager, SecurityManager } from '../../redux';
 
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
@@ -259,7 +259,12 @@ class RoleDetail extends Basic.AbstractContent {
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
-                <Basic.MenuItem eventKey="2" onClick={this.save.bind(this, 'NEW')}>{this.i18n('button.createNew')}</Basic.MenuItem>
+                <Basic.MenuItem
+                  eventKey="2"
+                  onClick={ this.save.bind(this, 'NEW') }
+                  rendered={ SecurityManager.hasAuthority('ROLE_CREATE') }>
+                  { this.i18n('button.saveAndNew') }
+                </Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>

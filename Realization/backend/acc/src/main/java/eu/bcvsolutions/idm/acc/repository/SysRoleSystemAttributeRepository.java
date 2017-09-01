@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.rest.projection.SysRoleSystemAttributeExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -23,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "roleSystemAttributes", //
 		path = "role-system-attributes", //
 		itemResourceRel = "roleSystemAttribute", //
-		excerptProjection = SysRoleSystemAttributeExcerpt.class, //
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )

@@ -2,6 +2,10 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
@@ -14,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
  *
  */
 @Relation(collectionRelation = "passwordPolicies")
-public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerate {
+public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerate, Disableable, Codeable {
 
 	private static final long serialVersionUID = -7102038216963911330L;
 	
@@ -317,7 +321,14 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}
+	
+	@Override
+	@JsonIgnore
+	public String getCode() {
+		return getName();
+	}
 
+	@JsonIgnore
 	public int getNotRequiredRules() {
 		int rules = 0;
 		if (!this.isLowerCharRequired()) {

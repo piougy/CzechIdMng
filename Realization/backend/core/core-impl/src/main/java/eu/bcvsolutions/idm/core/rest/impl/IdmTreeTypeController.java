@@ -380,4 +380,9 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 		//
 		return longRunningTaskController.get(longRunningTaskId.toString());
 	}
+	
+	@Override
+	protected IdmTreeTypeFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return new IdmTreeTypeFilter(parameters);
+	}
 }

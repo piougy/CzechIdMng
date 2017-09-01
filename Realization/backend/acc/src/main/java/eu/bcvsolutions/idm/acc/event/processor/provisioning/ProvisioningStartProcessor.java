@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  */
 @Component
 @Description("Starts provisioning process by given account and entity")
-public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<AccAccount> {
+public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<AccAccountDto> {
 
 	public static final String PROCESSOR_NAME = "provisioning-start-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningStartProcessor.class);
@@ -47,11 +47,11 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 	}
 
 	@Override
-	public EventResult<AccAccount> process(EntityEvent<AccAccount> event) {
-		AccAccount account = event.getContent();
+	public EventResult<AccAccountDto> process(EntityEvent<AccAccountDto> event) {
+		AccAccountDto account = event.getContent();
 		Assert.notNull(account);
 		LOG.info("Provisioning event start, for account id: [{}], account uid: [{}], real uid [{}] , system id: [{}]",
-				account.getId(), account.getUid(), account.getRealUid(), account.getSystem().getId());
+				account.getId(), account.getUid(), account.getRealUid(), account.getSystem());
 
 		if (account.isInProtection()) {
 			if(!isCanceledProvisioningProtectionBreak(event.getProperties())){

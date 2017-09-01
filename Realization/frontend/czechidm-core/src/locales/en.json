@@ -76,6 +76,7 @@
     "save": "Save",
     "saveAndClose": "Save and exit",
     "saveAndContinue": "Save and continue",
+    "saveAndNew": "Save and add another",
     "saving": "Saving",
     "yes": "Yes",
     "set": "Set"
@@ -2248,7 +2249,15 @@
     "TreeType": {
       "_type": "Structure",
       "code": "Code",
-      "name": "Name"
+      "name": "Name",
+      "defaultTreeType": {
+        "label": "Default tree",
+        "help": "This tree type will be used as default organization structure."
+      },
+      "defaultTreeNode": {
+        "label": "Default tree element",
+        "help": "This tree element will be used as default, e.g. for default work position."
+      }
     },
     "Delegate": {
       "_type": "Delegation",

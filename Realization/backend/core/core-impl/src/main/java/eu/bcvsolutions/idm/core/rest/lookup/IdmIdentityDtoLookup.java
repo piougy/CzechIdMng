@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
 /**
- * Identity lookup
+ * Identity do lookup
  * 
  * @author Radek Tomiška
  *

@@ -32,6 +32,15 @@ class VsRequestDetail extends Basic.AbstractContent {
     return 'vs:content.vs-request.detail';
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    const { entity } = this.props;
+    if (entity) {
+      this._initConnectorObject(entity.id);
+    }
+  }
+
   /**
    * Component will receive new props, try to compare with actual,
    * then init form
@@ -39,8 +48,36 @@ class VsRequestDetail extends Basic.AbstractContent {
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
     if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
-      //
+      this._initConnectorObject(nextProps.entity.id);
     }
+  }
+
+  realize(entity) {
+    if (!entity) {
+      return;
+    }
+    manager.realizeUi.bind(this)('realize', [entity ? entity.id : null], manager, () => {
+      this._initConnectorObject(entity.id);
+    });
+  }
+
+  cancel(entity) {
+    if (!entity) {
+      return;
+    }
+    manager.cancelUi.bind(this)('cancel', [entity ? entity.id : null], manager, () => {
+      this._initConnectorObject(entity.id);
+    });
+  }
+
+  _initConnectorObject(entityId) {
+    manager.getService().getConnectorObject(entityId)
+    .then(json => {
+      this.setState({connectorObject: json});
+    })
+    .catch(error => {
+      this.addError(error);
+    });
   }
 
   _getImplementers(entity) {
@@ -57,35 +94,47 @@ class VsRequestDetail extends Basic.AbstractContent {
     );
   }
 
-  _getAccountData(entity) {
-    const accountData = [];
+  _getRequestAccountData(entity) {
     if (entity && entity.connectorObject) {
       const attributes = entity.connectorObject.attributes;
-      for (const schemaAttributeId in attributes) {
-        if (!attributes.hasOwnProperty(schemaAttributeId)) {
-          continue;
-        }
-        let content = '';
-        const attribute = attributes[schemaAttributeId];
-        const propertyValue = attribute.values;
-        if (_.isArray(propertyValue)) {
-          content = propertyValue.join(', ');
-        } else {
-          content = propertyValue;
-        }
-
-        accountData.push({
-          property: attribute.name,
-          value: content
-        });
-      }
+      return this._compileAttributes(attributes);
     }
-    return accountData;
+  }
+  _getAccountData() {
+    const {connectorObject} = this.state;
+    if (connectorObject) {
+      const attributes = connectorObject.attributes;
+      return this._compileAttributes(attributes);
+    }
+  }
+
+  _compileAttributes(attributes) {
+    const accountData = [];
+    for (const schemaAttributeId in attributes) {
+      if (!attributes.hasOwnProperty(schemaAttributeId)) {
+        continue;
+      }
+      let content = '';
+      const attribute = attributes[schemaAttributeId];
+      const propertyValue = attribute.values;
+      if (_.isArray(propertyValue)) {
+        content = propertyValue.join(', ');
+      } else {
+        content = propertyValue;
+      }
+
+      accountData.push({
+        property: attribute.name,
+        value: content
+      });
+    }
+    // sort by property
+    return _(accountData).sortBy('property').value();
   }
 
   render() {
-    const { entity, _permissions } = this.props;
-    const { showLoading } = this.state;
+    const { entity, _permissions, showLoading } = this.props;
+    const _showLoading = showLoading || this.state.showLoading;
 
     const searchBefore = new Domain.SearchParameters()
     .setFilter('uid', entity ? entity.uid : null)
@@ -116,84 +165,89 @@ class VsRequestDetail extends Basic.AbstractContent {
 
           <Basic.Panel>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
-
             <Basic.PanelBody
-              showLoading={ showLoading } >
-              <Basic.AbstractForm data={entity} ref="vs-request-detail" uiKey="vs-request-detail" >
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
-                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
-                      {this._getImplementers(entity)}
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.TextArea
-                      ref="reason"
-                      label={this.i18n('vs:entity.VsRequest.reason.label')}
-                      readOnly
-                      rows={6}
-                      rendered={entity && entity.state === 'CANCELED' }
-                      value={entity ? entity.reason : null}/>
-                  </Basic.Col>
-                </Basic.Row>
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('requestAttributes') + ':'}>
-                      <Basic.Table
-                        data={this._getAccountData(entity)}
-                        noData={this.i18n('component.basic.Table.noData')}
-                        className="table-bordered">
-                        <Basic.Column property="property" header={this.i18n('label.property')}/>
-                        <Basic.Column property="value" header={this.i18n('label.value')}/>
-                      </Basic.Table>
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                  </Basic.Col>
-                </Basic.Row>
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+              showLoading={ _showLoading } >
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
+                  <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                    {this._getImplementers(entity)}
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.TextArea
+                    ref="reason"
+                    label={this.i18n('vs:entity.VsRequest.reason.label')}
+                    readOnly
+                    rows={6}
+                    rendered={entity && entity.state === 'CANCELED' }
+                    value={entity ? entity.reason : null}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
+                    <Basic.Table
+                      data={this._getRequestAccountData(entity)}
+                      noData={this.i18n('component.basic.Table.noData')}
+                      className="table-bordered">
+                      <Basic.Column property="property" header={this.i18n('label.property')}/>
+                      <Basic.Column property="value" header={this.i18n('label.value')}/>
+                    </Basic.Table>
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
+                    <Basic.Table
+                      data={this._getAccountData()}
+                      noData={this.i18n('component.basic.Table.noData')}
+                      className="table-bordered">
+                      <Basic.Column property="property" header={this.i18n('label.property')}/>
+                      <Basic.Column property="value" header={this.i18n('label.value')}/>
+                    </Basic.Table>
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+                    <VsRequestTable
+                      uiKey="vs-request-table-before"
+                      columns= {['state', 'operationType', 'created', 'operations', 'uid']}
+                      showFilter={false}
+                      forceSearchParameters={searchBefore}
+                      showToolbar={false}
+                      showPageSize={false}
+                      showRowSelection={false}
+                      showId={false}
+                      filterOpened={false} />
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
                       <VsRequestTable
-                        uiKey="vs-request-table-before"
-                        columns= {['state', 'operationType', 'created', 'creator', 'operations']}
+                        uiKey="vs-request-table-after"
+                        columns= {['state', 'operationType', 'created', 'operations', 'uid']}
                         showFilter={false}
-                        forceSearchParameters={searchBefore}
+                        forceSearchParameters={searchAfter}
                         showToolbar={false}
                         showPageSize={false}
                         showRowSelection={false}
                         showId={false}
                         filterOpened={false} />
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
-                        <VsRequestTable
-                          uiKey="vs-request-table-after"
-                          columns= {['state', 'operationType', 'created', 'creator', 'operations']}
-                          showFilter={false}
-                          forceSearchParameters={searchAfter}
-                          showToolbar={false}
-                          showPageSize={false}
-                          showRowSelection={false}
-                          showId={false}
-                          filterOpened={false} />
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                </Basic.Row>
-              </Basic.AbstractForm>
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+              </Basic.Row>
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={ this.context.router.goBack }>{ this.i18n('button.back') }</Basic.Button>
-
               <Basic.SplitButton
                 level="success"
                 id="request-realize"
                 title={ this.i18n('button.request.realize') }
-                onClick={manager.realizeUi.bind(this, 'realize', [entity ? entity.id : null], manager) }
-                showLoading={ showLoading }
+                onClick={this.realize.bind(this, entity) }
+                showLoading={ _showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave(entity, _permissions) && entity && entity.state === 'IN_PROGRESS' }
@@ -201,7 +255,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                 dropup>
                 <Basic.MenuItem
                   eventKey="1"
-                  onClick={ manager.cancelUi.bind(this, 'cancel', [entity ? entity.id : null], manager)}>
+                  onClick={this.cancel.bind(this, entity)}>
                   {this.i18n('button.request.cancel')}
                 </Basic.MenuItem>
               </Basic.SplitButton>

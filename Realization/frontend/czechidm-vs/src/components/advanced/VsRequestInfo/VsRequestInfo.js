@@ -55,7 +55,7 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
   getLink() {
     const { entityIdentifier } = this.props;
     //
-    return `/vs/reqeust/${entityIdentifier}/detail`;
+    return `/vs/request/${entityIdentifier}/detail`;
   }
 
   /**
@@ -108,6 +108,10 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
       {
         label: this.i18n('vs:entity.VsRequest.executeImmediately.label'),
         value: entity.executeImmediately ? this.i18n('label.yes') : this.i18n('label.no'),
+      },
+      {
+        label: this.i18n('vs:entity.VsRequest.creator.label'),
+        value: entity.creator
       },
       {
         label: this.i18n('entity.created'),

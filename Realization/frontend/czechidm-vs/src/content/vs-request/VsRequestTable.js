@@ -77,14 +77,14 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
   realize(bulkActionValue, ids, event) {
-    return manager.realizeUi.bind(this)(bulkActionValue, ids, manager, event);
+    return manager.realizeUi.bind(this)(bulkActionValue, ids, manager, null, event);
   }
 
   /**
   * Cancel virtual system request
   */
   cancel(bulkActionValue, ids, event) {
-    return manager.cancelUi.bind(this)(bulkActionValue, ids, manager, event);
+    return manager.cancelUi.bind(this)(bulkActionValue, ids, manager, null, event);
   }
 
   _getSystemCell({ rowIndex, data }) {

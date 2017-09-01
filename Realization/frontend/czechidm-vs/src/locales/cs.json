@@ -111,6 +111,7 @@
         "header": "Požadavek",
         "title": "$t(vs:content.vs-request.detail.header)",
         "requestAttributes": "Atributy v tomto požadavku",
+        "accountAttributes": "Atributy účtu na virtuálním systému",
         "beforeRequests": {
           "label": "Předchozí nevyřešené požadavky"},
         "afterRequests": {

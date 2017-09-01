@@ -72,7 +72,7 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
-  realizeUi(bulkActionValue, ids, manager, event) {
+  realizeUi(bulkActionValue, ids, manager, callback, event) {
     if (event) {
       event.preventDefault();
     }
@@ -88,6 +88,9 @@ export default class VsRequestManager extends Managers.EntityManager {
           });
           if (this.refs.table) {
             this.refs.table.getWrappedInstance().reload();
+          }
+          if (callback) {
+            callback();
           }
           this.addMessage({ message: this.i18n('vs:content.vs-requests.action.realize.success', { record: realizedEntity.uid }) });
         } else {
@@ -116,7 +119,7 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Cancel virtual system request
   */
-  cancelUi(bulkActionValue, ids, manager, event) {
+  cancelUi(bulkActionValue, ids, manager, callback, event) {
     if (event) {
       event.preventDefault();
     }
@@ -133,6 +136,9 @@ export default class VsRequestManager extends Managers.EntityManager {
           });
           if (this.refs.table) {
             this.refs.table.getWrappedInstance().reload();
+          }
+          if (callback) {
+            callback();
           }
           this.addMessage({ message: this.i18n('vs:content.vs-requests.action.cancel.success', { record: realizedEntity.uid }) });
         } else {

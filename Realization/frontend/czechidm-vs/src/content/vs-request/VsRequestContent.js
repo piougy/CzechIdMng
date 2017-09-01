@@ -45,6 +45,22 @@ class VsRequestContent extends Basic.AbstractContent {
   }
 
   /**
+   * Component will receive new props, try to compare with actual,
+   * then init form
+   */
+  componentWillReceiveProps(nextProps) {
+    const { entityId } = this.props.params;
+    if (entityId && nextProps.params.entityId && entityId !== nextProps.params.entityId) {
+      if (this._isNew()) {
+        // persist new entity to redux
+        this.context.store.dispatch(manager.receiveEntity(nextProps.params.entityId, { }));
+      } else {
+        this.context.store.dispatch(manager.fetchEntity(nextProps.params.entityId));
+      }
+    }
+  }
+
+  /**
    * Helper - returns `true`, when new entity is created
    */
   _isNew() {
@@ -53,12 +69,13 @@ class VsRequestContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity} = this.props;
+    const { entity, showLoading} = this.props;
+
     return (
       <Basic.Row>
         <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
-            <VsRequestDetail uiKey="vs-request-detail" entity={entity} />
+            <VsRequestDetail uiKey="vs-request-detail" entity={entity} showLoading={showLoading} />
           }
         </div>
       </Basic.Row>

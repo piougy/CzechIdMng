@@ -206,6 +206,18 @@ module.exports = {
       ]
     },
     {
+      path: 'role-catalogue/:entityId',
+      component: require('czechidm-core/src/content/rolecatalogue/RoleCatalogue'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'accounts',
+          component: require('./src/content/rolecatalogue/RoleCatalogueAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEACCOUNT_READ'] } ]
+        }
+      ]
+    },
+    {
       path: 'provisioning',
       component: require('./src/content/provisioning/AuditProvisioningOperations'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],

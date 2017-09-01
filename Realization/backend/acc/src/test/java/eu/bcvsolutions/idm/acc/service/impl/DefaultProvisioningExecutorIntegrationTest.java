@@ -330,7 +330,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMappingKey.getSchemaAttributeName()), 0)));
 		//
 		system.setReadonly(false);
-		systemService.save(system);
+		system = systemService.save(system);
 		//
 		provisioningExecutor.execute(operation);
 		//
@@ -359,14 +359,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(),
 				sysProvisioningOperationService.createAccountObjectPropertyKey(
 						schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(), 0)));
-		assertNull(
-				confidentialStorage
-						.get(operation.getId(), operation.getClass(),
-								sysProvisioningOperationService.createConnectorObjectPropertyKey(
-										operation.getProvisioningContext().getConnectorObject()
-												.getAttributeByName(schemaAttributeService
-														.get(passwordAttributeMapping.getSchemaAttribute()).getName()),
-										0)));
+		//
+		String connectorObjectPropertyKey = sysProvisioningOperationService.createConnectorObjectPropertyKey(
+				operation.getProvisioningContext().getConnectorObject()
+						.getAttributeByName(schemaAttributeService
+								.get(passwordAttributeMapping.getSchemaAttribute()).getName()),
+				0);
+		//
+		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), connectorObjectPropertyKey));
 	}
 	
 	// TODO: batch test - create, update, update, delete - all has to be processed, batch needs to be cleared

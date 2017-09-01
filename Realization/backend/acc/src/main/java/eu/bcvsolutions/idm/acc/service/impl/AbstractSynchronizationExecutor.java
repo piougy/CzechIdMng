@@ -1060,7 +1060,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			AccAccountDto account = doCreateIdmAccount(attributeUid, system);
 			// Find and set SystemEntity (must exist)
 			account.setSystemEntity(this.findSystemEntity(uid, system, entityType).getId());
-			accountService.save(account);
+			account = accountService.save(account);
 
 			// Create new entity
 			doCreateEntity(entityType, mappedAttributes, logItem, uid, icAttributes, account);
@@ -1777,7 +1777,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			account.setSystemEntity(systemEntity.getId());
 		}
 
-		accountService.save(account);
+		account = accountService.save(account);
 		addToItemLog(logItem,
 				MessageFormat.format("Account with uid {0} and id {1} was created", uid, account.getId()));
 
@@ -1989,7 +1989,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		if(!account.getUid().equals(attributeUid)){
 			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update him.", account.getUid(), attributeUid));
 			account.setUid(attributeUid);
-			accountService.save(account);
+			account = accountService.save(account);
 		}
 	}
 

@@ -26,7 +26,8 @@
       "delete": "Deletion successfully completed"
     },
     "task": {
-      "detailNotFound":"This task is not supported!"
+      "detailNotFound":"This task is not supported!",
+      "taskSolvedOrNotFound": "This task doesn't exist or has already been resolved."
     },
     "failed": "Operation failed",
     "notImplemented": "This operation is not available yet"

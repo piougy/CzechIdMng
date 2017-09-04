@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.eav.dto.filter;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 
 /**
  * Form values filter
@@ -14,24 +14,24 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  */
 public class FormValueFilter<O extends FormableEntity> implements BaseFilter {
 
-	private IdmFormDefinition formDefinition;
-	private IdmFormAttribute formAttribute;
-	private O owner;
+	private UUID formDefinitionId;
+	private UUID formAttributeId;
+	private O owner; // TODO: owner id and type
 
-	public IdmFormDefinition getFormDefinition() {
-		return formDefinition;
+	public UUID getFormDefinitionId() {
+		return formDefinitionId;
 	}
 
-	public void setFormDefinition(IdmFormDefinition formDefinition) {
-		this.formDefinition = formDefinition;
+	public void setFormDefinitionId(UUID formDefinitionId) {
+		this.formDefinitionId = formDefinitionId;
 	}
-	
-	public IdmFormAttribute getFormAttribute() {
-		return formAttribute;
+
+	public UUID getFormAttributeId() {
+		return formAttributeId;
 	}
-	
-	public void setFormAttribute(IdmFormAttribute formAttribute) {
-		this.formAttribute = formAttribute;
+
+	public void setFormAttributeId(UUID formAttributeId) {
+		this.formAttributeId = formAttributeId;
 	}
 
 	public O getOwner() {

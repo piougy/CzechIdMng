@@ -73,6 +73,13 @@ All notable changes to this project will be documented in this file.
 - **``IdmTreeTypeDto`` is used as event content - change all entity event processors from template ``IdmTreeType`` to ``IdmTreeTypeDto`` in your project.** ``TreeTypeEvent`` uses ``IdmTreeTypeDto`` content too.
 - **Added authorization policies support.** Authorization policies has to be [configured](https://wiki.czechidm.com/devel/dev/security/authorization#default_settings_of_permissions_for_an_identity_profile) to add permission for tree types and nodes. ``BasePermissionEvaluator`` can be used.
 
+##### Dynamic forms (eav)
+
+- Form definitions was refactored to dto usage. Search **``IdmFormDefinitionService``** usage in your project - **all methods works with dto**.
+- **``FormAttributeFilter``** -  **formDefinition** field was removed. Use **formDefinitionId** field.
+- **``FormValueFilter``** - - fields are ``UUID`` now - **formDefinition => formDefinitionId**, **formAttribute => formAttributeId**
+
+
 ##### TestHelper
 
 - **``TestHelper``** interface was moved to core test api module.
@@ -117,4 +124,3 @@ All notable changes to this project will be documented in this file.
 ### Removed
 ##### Long running tasks
 - From [AbstractLongRunningTaskExecutor](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-impl/src/main/java/eu/bcvsolutions/idm/core/scheduler/service/impl/AbstractLongRunningTaskExecutor.java) was removed deprecated method getParameterNames, replace this method from your project with method getPropertyNames.
-

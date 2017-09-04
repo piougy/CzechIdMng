@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.eav.service.api;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 
 /**
  * Form attributes definition
@@ -10,7 +10,8 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
  * @author Radek Tomiška
  *
  */
-public interface IdmFormAttributeService extends ReadWriteEntityService<IdmFormAttribute, FormAttributeFilter> {
+public interface IdmFormAttributeService 
+		extends ReadWriteDtoService<IdmFormAttributeDto, FormAttributeFilter> {
 	
 	/**
 	 * Finds one attribute from given definition by given attribute name
@@ -20,6 +21,6 @@ public interface IdmFormAttributeService extends ReadWriteEntityService<IdmFormA
 	 * @param attributeCode
 	 * @return
 	 */
-	IdmFormAttribute findAttribute(String definitionType, String definitionCode, String attributeCode);
+	IdmFormAttributeDto findAttribute(String definitionType, String definitionCode, String attributeCode);
 
 }

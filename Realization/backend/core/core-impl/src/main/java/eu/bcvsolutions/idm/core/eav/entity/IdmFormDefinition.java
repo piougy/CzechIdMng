@@ -44,8 +44,8 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 
 	private static final long serialVersionUID = 8267096009610364911L;
 	
-	@NotNull
 	@Audited
+	@NotEmpty
 	@Basic(optional = false)	
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "definition_type", nullable = false, length = DefaultFieldLengths.NAME)

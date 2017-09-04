@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.eav.dto.filter;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 
 /**
  * Form attribute definition filter
@@ -13,19 +12,10 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  */
 public class FormAttributeFilter implements BaseFilter {
 
-	private IdmFormDefinition formDefinition;
 	private UUID formDefinitionId;
 	private String definitionType;
 	private String definitionName;
 	private String code;
-
-	public IdmFormDefinition getFormDefinition() {
-		return formDefinition;
-	}
-
-	public void setFormDefinition(IdmFormDefinition formDefinition) {
-		this.formDefinition = formDefinition;
-	}
 
 	public void setCode(String code) {
 		this.code = code;

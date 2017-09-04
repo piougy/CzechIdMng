@@ -9,7 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
@@ -22,13 +23,16 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, QuickFilter> implements IdmFormDefinitionService {
+public class DefaultIdmFormDefinitionService 
+		extends AbstractReadWriteDtoService<IdmFormDefinitionDto, IdmFormDefinition, QuickFilter> 
+		implements IdmFormDefinitionService {
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
 	private final IdmFormAttributeService formAttributeService;
 
 	@Autowired
-	public DefaultIdmFormDefinitionService(IdmFormDefinitionRepository formDefinitionRepository,
+	public DefaultIdmFormDefinitionService(
+			IdmFormDefinitionRepository formDefinitionRepository,
 			IdmFormAttributeService formAttributeService) {
 		super(formDefinitionRepository);
 		//
@@ -43,49 +47,49 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	 */
 	@Override
 	@Transactional
-	public IdmFormDefinition save(IdmFormDefinition entity) {
-		if (StringUtils.isEmpty(entity.getCode())) {
-			entity.setMain(true);
-			entity.setCode(DEFAULT_DEFINITION_CODE);
+	public IdmFormDefinitionDto saveInternal(IdmFormDefinitionDto dto) {
+		if (StringUtils.isEmpty(dto.getCode())) {
+			dto.setMain(true);
+			dto.setCode(DEFAULT_DEFINITION_CODE);
 		}
-		if (StringUtils.isEmpty(entity.getName())) {
-			entity.setName(entity.getCode());
+		if (StringUtils.isEmpty(dto.getName())) {
+			dto.setName(dto.getCode());
 		}
-		if (entity.isMain()) {
-			this.formDefinitionRepository.clearMain(entity.getType(), entity.getId(), new DateTime());
+		if (dto.isMain()) {
+			// TODO: find / update - skips audit
+			this.formDefinitionRepository.clearMain(dto.getType(), dto.getId(), new DateTime());
 		}
-		return super.save(entity);
+		return super.saveInternal(dto);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition findOneByTypeAndCode(String type, String code) {
-		return formDefinitionRepository.findOneByTypeAndCode(type, code != null ? code : DEFAULT_DEFINITION_CODE);
+	public IdmFormDefinitionDto findOneByTypeAndCode(String type, String code) {
+		return toDto(formDefinitionRepository.findOneByTypeAndCode(type, code != null ? code : DEFAULT_DEFINITION_CODE));
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition findOneByMain(String type) {
-		return formDefinitionRepository.findOneByTypeAndMainIsTrue(type);
+	public IdmFormDefinitionDto findOneByMain(String type) {
+		return toDto(formDefinitionRepository.findOneByTypeAndMainIsTrue(type));
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmFormDefinition> findAllByType(String type) {
-		return formDefinitionRepository.findAllByType(type);
+	public List<IdmFormDefinitionDto> findAllByType(String type) {
+		return toDtos(formDefinitionRepository.findAllByType(type), true);
 	}
 
 	@Override
 	@Transactional
-	public void delete(IdmFormDefinition entity) {
+	public void deleteInternal(IdmFormDefinitionDto dto) {
 		// delete all attributes in definition
 		FormAttributeFilter filter = new FormAttributeFilter();
-		filter.setFormDefinition(entity);
+		filter.setFormDefinitionId(dto.getId());
 		formAttributeService.find(filter, null).forEach(formAttribute -> {
 			formAttributeService.delete(formAttribute);
 		});
-		entity.setFormAttributes(null); // prevent cascade - duplicit removal
 		//
-		super.delete(entity);
+		super.deleteInternal(dto);
 	}
 }

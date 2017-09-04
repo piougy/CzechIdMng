@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 
 /**
  * DTO for entity {@link SysSystemMapping}
@@ -27,6 +28,7 @@ public class SysSystemMappingDto extends AbstractDto {
 	@Embedded(dtoClass = SysSchemaObjectClassDto.class)
 	private UUID objectClass;
 	private SystemOperationType operationType;
+	@Embedded(dtoClass = IdmTreeTypeDto.class)
 	private UUID treeType;
 	private boolean protectionEnabled = false;
 	private Integer protectionInterval;

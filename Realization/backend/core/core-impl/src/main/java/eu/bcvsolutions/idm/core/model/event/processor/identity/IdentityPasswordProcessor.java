@@ -9,10 +9,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -27,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
  */
 @Component
 @Description("Persist identity's password.")
-public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor{
 
 	public static final String PROCESSOR_NAME = "identity-password-processor";
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";
@@ -38,7 +34,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto
 	@Autowired
 	public IdentityPasswordProcessor(IdmPasswordService passwordService,
 			IdmPasswordPolicyService passwordPolicyService) {
-		super(IdentityEventType.PASSWORD);
+		super(passwordService, IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(passwordService);
 		Assert.notNull(passwordPolicyService);
@@ -50,19 +46,6 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
-	}
-
-	@Override
-	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
-		IdmIdentityDto identity = event.getContent();
-		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties()
-				.get(PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(passwordChangeDto);
-		//
-		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
-			savePassword(identity, passwordChangeDto);
-		}
-		return new DefaultEventResult<>(event, this);
 	}
 
 	/**

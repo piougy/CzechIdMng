@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.h2.util.New;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,6 +29,8 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
@@ -193,6 +196,25 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	public Set<String> getPermissions(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/connector-object", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
+	@ApiOperation(value = "Read connector object", nickname = "getConnectorObject", response = IcConnectorObject.class, tags = {
+			VsRequestController.TAG }, authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }) })
+	public ResponseEntity<?> getConnectorObject(
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
+		IcConnectorObject connectorObject =  ((VsRequestService)getService()).getConnectorObject(UUID.fromString(backendId));
+		if(connectorObject != null) {
+			return new ResponseEntity<>(connectorObject, HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>(new IcConnectorObjectImpl(), HttpStatus.OK);
+		}
 	}
 
 	@Override

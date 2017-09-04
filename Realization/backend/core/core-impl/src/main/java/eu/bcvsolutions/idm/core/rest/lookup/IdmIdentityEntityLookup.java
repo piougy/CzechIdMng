@@ -5,20 +5,16 @@ import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.annotations.Beta;
-
 import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractEntityLookup;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
- * TODO: Codeable repository? Or add public methods to dtoService?
+ * Identity entity lookup by id or username (codeable)
  * 
  * @author Radek Tomiška
- *
  */
-@Beta
 @Component
 public class IdmIdentityEntityLookup extends AbstractEntityLookup<IdmIdentity> {
 
@@ -42,6 +38,4 @@ public class IdmIdentityEntityLookup extends AbstractEntityLookup<IdmIdentity> {
 		}
 		return entity;
 	}
-	
-	
 }

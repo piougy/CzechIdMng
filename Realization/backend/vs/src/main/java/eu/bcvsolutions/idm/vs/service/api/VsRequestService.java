@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
@@ -38,5 +39,7 @@ public interface VsRequestService extends
 	 * @return
 	 */
 	List<VsRequestDto> findDuplicities(VsRequestDto request);
+
+	IcConnectorObject getConnectorObject(UUID fromString);
 
 }

@@ -14,8 +14,11 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -28,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticator;
@@ -39,8 +43,9 @@ import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
-import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 
 /**
  * Component for authenticate over system
@@ -166,10 +171,15 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		IcUidAttribute auth = null;
 		//
 		// authenticate over all accounts find first, or throw error
+
+
 		for (AccAccountDto account : accounts) {
+			SysSchemaAttributeDto schemaAttribute = schemaAttributeService.get(attribute.getSchemaAttribute());
+			SysSchemaObjectClassDto schemaObjectClassDto = DtoUtils.getEmbedded(schemaAttribute, SysSchemaAttribute_.objectClass, SysSchemaObjectClassDto.class);
 			SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
-			IcConnectorObject connectorObject = systemService.readObject(system, systemMappingService.get(attribute.getSystemMapping()),
-					new IcUidAttributeImpl(null, systemEntityDto.getUid(), null));
+			IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
+			
+			IcConnectorObject connectorObject = systemService.readConnectorObject(system.getId(), systemEntityDto.getUid(), objectClass);
 			//
 			if (connectorObject == null) {
 				continue;

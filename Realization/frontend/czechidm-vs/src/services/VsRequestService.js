@@ -89,4 +89,24 @@ export default class VsRequestService extends Services.AbstractService {
         return jsonResponse;
       });
   }
+
+  /**
+  * Get connector object by given virtual system request. Call directly connector.
+  */
+  getConnectorObject(id) {
+    return Services.RestApiService
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/connector-object`)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
 }

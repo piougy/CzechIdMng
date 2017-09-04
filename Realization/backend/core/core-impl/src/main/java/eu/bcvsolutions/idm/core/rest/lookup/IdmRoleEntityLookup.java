@@ -5,20 +5,17 @@ import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.annotations.Beta;
-
 import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractEntityLookup;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 
 /**
- * TODO: Codeable repository? Or add public methods to dtoService?
+ * Role entity lookup (codeable)
  * 
  * @author Radek Tomiška
  *
  */
-@Beta
 @Component
 public class IdmRoleEntityLookup extends AbstractEntityLookup<IdmRole> {
 

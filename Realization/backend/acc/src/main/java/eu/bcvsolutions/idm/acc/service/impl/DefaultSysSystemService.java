@@ -73,6 +73,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
@@ -277,6 +278,22 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		
 		return icConf;
 	}
+	
+	@Override
+	@Transactional
+	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
+		Assert.notNull(systemId, "System ID cannot be null!");
+		Assert.notNull(uid, "Account UID cannot be null!");
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		
+		SysSystem system = this.get(systemId);
+		Assert.notNull(system, "System cannot be null!");
+		
+		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
+				objectClass, new IcUidAttributeImpl(null, uid, null));
+		
+	}
+	
 
 	@Override
 	@Transactional
@@ -405,39 +422,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		return sysObjectClasses;
 	}
 
-	private SysSchemaObjectClassDto convertIcObjectClassInfo(IcObjectClassInfo objectClass,
-			SysSchemaObjectClassDto sysObjectClass) {
-		if (objectClass == null) {
-			return null;
-		}
-		if (sysObjectClass == null) {
-			sysObjectClass = new SysSchemaObjectClassDto();
-		}
-		sysObjectClass.setObjectClassName(objectClass.getType());
-		sysObjectClass.setAuxiliary(objectClass.isAuxiliary());
-		sysObjectClass.setContainer(objectClass.isContainer());
-		return sysObjectClass;
-	}
-
-	private SysSchemaAttributeDto convertIcAttributeInfo(IcAttributeInfo attributeInfo, SysSchemaAttributeDto sysAttribute) {
-		if (attributeInfo == null) {
-			return null;
-		}
-		if (sysAttribute == null) {
-			sysAttribute = new SysSchemaAttributeDto();
-		}
-		sysAttribute.setClassType(attributeInfo.getClassType());
-		sysAttribute.setName(attributeInfo.getName());
-		sysAttribute.setMultivalued(attributeInfo.isMultivalued());
-		sysAttribute.setNativeName(attributeInfo.getNativeName());
-		sysAttribute.setReadable(attributeInfo.isReadable());
-		sysAttribute.setRequired(attributeInfo.isRequired());
-		sysAttribute.setReturnedByDefault(attributeInfo.isReturnedByDefault());
-		sysAttribute.setUpdateable(attributeInfo.isUpdateable());
-		sysAttribute.setCreateable(attributeInfo.isCreateable());
-		return sysAttribute;
-	}
-
 	@Override
 	@Transactional
 	public IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance) {
@@ -453,39 +437,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			formDefinition.setUnmodifiable(true);
 		}
 		return formDefinition;
-	}
-
-	/**
-	 * Create form definition to given connectorInstance by connector properties
-	 * 
-	 * @param connectorKey
-	 * @return
-	 */
-	private synchronized IdmFormDefinition createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
-		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
-		if (conf == null) {
-			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
-					connectorInstance.getConnectorKey().getFullName()));
-		}
-		//
-		List<IdmFormAttribute> formAttributes = new ArrayList<>();
-		for (short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
-			IcConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
-			IdmFormAttribute attribute = formPropertyManager.toFormAttribute(property);
-			attribute.setSeq(seq);
-			formAttributes.add(attribute);
-		}
-		return getFormService().createDefinition(SysSystem.class.getName(),
-				connectorInstance.getConnectorKey().getFullName(), formAttributes);
-	}
-
-	@Override
-	@Transactional
-	public IcConnectorObject readObject(SysSystem system, SysSystemMappingDto systemMapping, IcUidAttribute uidAttribute) {
-		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
-		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
-				objectClass, uidAttribute);
 	}
 
 	@Override
@@ -566,6 +517,63 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		originalSystem.setId(null);
 		EntityUtils.clearAuditFields(originalSystem);
 		return originalSystem;
+	}
+	
+	private SysSchemaObjectClassDto convertIcObjectClassInfo(IcObjectClassInfo objectClass,
+			SysSchemaObjectClassDto sysObjectClass) {
+		if (objectClass == null) {
+			return null;
+		}
+		if (sysObjectClass == null) {
+			sysObjectClass = new SysSchemaObjectClassDto();
+		}
+		sysObjectClass.setObjectClassName(objectClass.getType());
+		sysObjectClass.setAuxiliary(objectClass.isAuxiliary());
+		sysObjectClass.setContainer(objectClass.isContainer());
+		return sysObjectClass;
+	}
+
+	private SysSchemaAttributeDto convertIcAttributeInfo(IcAttributeInfo attributeInfo, SysSchemaAttributeDto sysAttribute) {
+		if (attributeInfo == null) {
+			return null;
+		}
+		if (sysAttribute == null) {
+			sysAttribute = new SysSchemaAttributeDto();
+		}
+		sysAttribute.setClassType(attributeInfo.getClassType());
+		sysAttribute.setName(attributeInfo.getName());
+		sysAttribute.setMultivalued(attributeInfo.isMultivalued());
+		sysAttribute.setNativeName(attributeInfo.getNativeName());
+		sysAttribute.setReadable(attributeInfo.isReadable());
+		sysAttribute.setRequired(attributeInfo.isRequired());
+		sysAttribute.setReturnedByDefault(attributeInfo.isReturnedByDefault());
+		sysAttribute.setUpdateable(attributeInfo.isUpdateable());
+		sysAttribute.setCreateable(attributeInfo.isCreateable());
+		return sysAttribute;
+	}
+	
+	/**
+	 * Create form definition to given connectorInstance by connector properties
+	 * 
+	 * @param connectorKey
+	 * @return
+	 */
+	private synchronized IdmFormDefinition createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
+		if (conf == null) {
+			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
+					connectorInstance.getConnectorKey().getFullName()));
+		}
+		//
+		List<IdmFormAttribute> formAttributes = new ArrayList<>();
+		for (short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
+			IcConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
+			IdmFormAttribute attribute = formPropertyManager.toFormAttribute(property);
+			attribute.setSeq(seq);
+			formAttributes.add(attribute);
+		}
+		return getFormService().createDefinition(SysSystem.class.getName(),
+				connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
 
 	/**

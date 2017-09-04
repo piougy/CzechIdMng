@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
@@ -68,15 +69,13 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	SysSystem createTestSystem();
 	
 	/**
-	 * Return {@link IcConnectorObject} (object from system)  for entityUID
-	 * 
-	 * @param system
-	 * @param operation
-	 * @param systemEntityUid
-	 * @param entityType
+	 * Read connector object by given UID. Method call directly connector (AccAccount or SysSystemEntity is not required).
+	 * @param systemId
+	 * @param uid
+	 * @param objectClass
 	 * @return
 	 */
-	IcConnectorObject readObject(SysSystem system, SysSystemMappingDto systemMapping, IcUidAttribute uidAttribute);
+	IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass);
 
 	/**
 	 * Duplicate (create/persist new) system with all configurations
@@ -84,5 +83,6 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @return 
 	 */
 	SysSystem duplicate(UUID id);
+
 
 }

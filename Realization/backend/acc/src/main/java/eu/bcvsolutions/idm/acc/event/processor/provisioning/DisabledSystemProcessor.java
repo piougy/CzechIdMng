@@ -67,7 +67,7 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = systemService.get(provisioningOperation.getSystem().getId());
+		SysSystem system = provisioningOperation.getSystem();
 		boolean closed = false;
 		if (system.isDisabled()) {			
 			SysProvisioningRequest request = provisioningOperation.getRequest();

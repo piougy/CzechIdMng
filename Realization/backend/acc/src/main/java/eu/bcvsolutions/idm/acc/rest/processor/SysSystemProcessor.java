@@ -8,18 +8,18 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.rest.impl.SysSystemController;
 import eu.bcvsolutions.idm.acc.rest.lookup.SysSystemLookup;
 
 @Component
-public class SysSystemProcessor implements ResourceProcessor<Resource<SysSystem>> {
+public class SysSystemProcessor implements ResourceProcessor<Resource<SysSystemDto>> {
 
 	@Autowired
 	private SysSystemLookup systemLookup;
 	
 	@Override
-	public Resource<SysSystem> process(Resource<SysSystem> resource) {
+	public Resource<SysSystemDto> process(Resource<SysSystemDto> resource) {
 		String name = String.valueOf(systemLookup.getIdentifier(resource.getContent()));
 		SysSystemController systemController = methodOn(SysSystemController.class);
 		resource.add(linkTo(systemController

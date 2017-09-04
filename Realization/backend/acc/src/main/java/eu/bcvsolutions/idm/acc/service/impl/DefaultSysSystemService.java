@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,10 +19,13 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
+import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
@@ -32,8 +33,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
-import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
@@ -49,13 +48,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
@@ -67,12 +67,10 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
-import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
-import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -84,7 +82,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-public class DefaultSysSystemService extends AbstractFormableService<SysSystem, SysSystemFilter>
+public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSystemDto, SysSystem, SysSystemFilter>
 		implements SysSystemService {
 
 	private final SysSystemRepository systemRepository;
@@ -98,11 +96,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final ConfidentialStorage confidentialStorage;
 	private final IcConnectorFacade connectorFacade;
-	private final EntityManager entityManager;
 	private final SysSystemFormValueService systemFormValueService;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
+	private final FormService formService;
 
 	@Autowired
 	public DefaultSysSystemService(SysSystemRepository systemRepository, FormService formService,
@@ -110,11 +108,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysSchemaAttributeService attributeService, SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository, SysSyncConfigService synchronizationConfigService,
 			FormPropertyManager formPropertyManager, SysProvisioningArchiveRepository provisioningArchiveRepository,
-			ConfidentialStorage confidentialStorage, IcConnectorFacade connectorFacade, EntityManager entityManager,
+			ConfidentialStorage confidentialStorage, IcConnectorFacade connectorFacade,
 			SysSystemFormValueService systemFormValueService, SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSchemaObjectClassService schemaObjectClassService) {
-		super(systemRepository, formService);
+		super(systemRepository);
 		//
 		Assert.notNull(icConfigurationFacade);
 		Assert.notNull(objectClassService);
@@ -126,11 +124,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(connectorFacade);
-		Assert.notNull(entityManager);
 		Assert.notNull(systemFormValueService);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(formService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -143,31 +141,31 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.confidentialStorage = confidentialStorage;
 		this.connectorFacade = connectorFacade;
-		this.entityManager = entityManager;
 		this.systemFormValueService = systemFormValueService;
 		this.systemMappingService = systemMappingService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
+		this.formService = formService;
 	}
 
 	@Override
-	public SysSystem save(SysSystem entity) {
+	public SysSystemDto save(SysSystemDto dto, BasePermission... permission) {
 		// create default connector server
-		if (entity.getConnectorServer() == null) {
-			entity.setConnectorServer(new SysConnectorServer());
+		if (dto.getConnectorServer() == null) {
+			dto.setConnectorServer(new SysConnectorServerDto());
 		}
-		if (entity.getConnectorKey() == null) {
-			entity.setConnectorKey(new SysConnectorKey());
+		if (dto.getConnectorKey() == null) {
+			dto.setConnectorKey(new SysConnectorKeyDto());
 		}
 		//
-		SysSystem newSystem = super.save(entity);
+		SysSystemDto newSystem = super.save(dto, permission);
 		//
 		// after save entity save password to confidential storage
 		// save password from remote connector server to confidential storage
-		if (entity.getConnectorServer().getPassword() != null) {
+		if (dto.getConnectorServer().getPassword() != null) {
 			// save for newSystem
 			confidentialStorage.save(newSystem.getId(), SysSystem.class, REMOTE_SERVER_PASSWORD,
-					entity.getConnectorServer().getPassword().asString());
+					dto.getConnectorServer().getPassword().asString());
 			//
 			// set asterix
 			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
@@ -176,8 +174,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	@Override
-	public SysSystem get(Serializable id) {
-		SysSystem entity = super.get(id);
+	public SysSystemDto get(Serializable id, BasePermission... permission) {
+		SysSystemDto entity = super.get(id, permission);
 		//
 		// found if entity has filled password
 		Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
@@ -191,7 +189,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public void delete(SysSystem system) {
+	public void delete(SysSystemDto system, BasePermission... permission) {
 		Assert.notNull(system);
 		//
 		// if exists accounts or system entities, then system could not be
@@ -200,7 +198,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES,
 					ImmutableMap.of("system", system.getName()));
 		}
-		if (accountRepository.countBySystem(system) > 0) {
+		SysSystem sytemEntity = toEntity(system);
+		if (accountRepository.countBySystem(sytemEntity) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS,
 					ImmutableMap.of("system", system.getName()));
 		}
@@ -218,20 +217,20 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			objectClassService.delete(schemaObjectClass);
 		});
 		// delete archived provisioning operations
-		provisioningArchiveRepository.deleteBySystem(system);
+		provisioningArchiveRepository.deleteBySystem(sytemEntity);
 		//
-		super.delete(system);
+		super.delete(system, permission);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public SysSystem getByCode(String name) {
-		return systemRepository.findOneByName(name);
+	public SysSystemDto getByCode(String name) {
+		return toDto(systemRepository.findOneByName(name));
 	}
 
 	@Override
 	@Transactional
-	public IcConnectorConfiguration getConnectorConfiguration(SysSystem system) {
+	public IcConnectorConfiguration getConnectorConfiguration(SysSystemDto system) {
 		Assert.notNull(system);
 
 		if (system.getConnectorKey() == null) {
@@ -248,7 +247,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// load filled form values
 		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
-		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
+		// TODO: eav to DTO
+		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(toEntity(system), formDefinition);
 		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toValueMap(formValues);
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl icConf = null;
@@ -265,7 +265,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		for (short seq = 0; seq < connectorConfig.getConfigurationProperties().getProperties().size(); seq++) {
 			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties()
 					.get(seq);
-			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(propertyConfig.getName());
+			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByCode(propertyConfig.getName());
 			List<AbstractFormValue<SysSystem>> eavAttributeValues = attributeValues.get(formAttribute.getCode());
 			// create property instance from configuration
 			IcConfigurationProperty property = formPropertyManager.toConnectorProperty(propertyConfig,
@@ -286,7 +286,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(uid, "Account UID cannot be null!");
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		
-		SysSystem system = this.get(systemId);
+		SysSystemDto system = this.get(systemId);
 		Assert.notNull(system, "System cannot be null!");
 		
 		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
@@ -297,7 +297,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public void checkSystem(SysSystem system) {
+	public void checkSystem(SysSystemDto system) {
 		Assert.notNull(system);
 
 		// Find connector identification persisted in system
@@ -320,7 +320,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public List<SysSchemaObjectClassDto> generateSchema(SysSystem system) {
+	public List<SysSchemaObjectClassDto> generateSchema(SysSystemDto system) {
 		Assert.notNull(system);
 		Assert.notNull(system.getId());
 		
@@ -417,7 +417,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 
 		// Persist generated schema to system
-		objectClassService.saveAll(sysObjectClasses);
+		sysObjectClasses = (List<SysSchemaObjectClassDto>) objectClassService.saveAll(sysObjectClasses);
 		attributeService.saveAll(sysAttributes);
 		return sysObjectClasses;
 	}
@@ -441,19 +441,19 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public SysSystem duplicate(UUID id) {
-		SysSystem originalSystem = this.get(id);
+	public SysSystemDto duplicate(UUID id) {
+		SysSystemDto originalSystem = this.get(id);
 		Asserts.notNull(originalSystem, "System must be found!");
 
 		// Clone and save system
-		SysSystem clone = this.clone(id);
+		SysSystemDto clone = this.clone(id);
 		String name = MessageFormat.format("{0}{1}", "Copy-of-", clone.getName());
 		name = this.duplicateName(name, 0);
 
 		clone.setName(name);
 		// Set as inactive system
 		clone.setDisabled(true);
-		SysSystem system = this.save(clone);
+		SysSystemDto system = this.save(clone);
 
 		// Cache old and new IDs
 		Map<UUID, UUID> schemaAttributesCache = new HashMap<UUID, UUID>();
@@ -467,7 +467,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
 					formDefinition);
 			originalFormValues.stream().forEach(value -> {
-				systemFormValueService.duplicate(value.getId(), system);
+				systemFormValueService.duplicate(value.getId(), toEntity(system));
 			});
 		}
 		
@@ -508,12 +508,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	@Override
-	public SysSystem clone(UUID id) {
-		SysSystem originalSystem = this.get(id);
+	public SysSystemDto clone(UUID id) {
+		SysSystemDto originalSystem = this.get(id);
 		Asserts.notNull(originalSystem, "System must be found!");
 
-		// We do detach this entity (and set id to null)
-		entityManager.detach(originalSystem);
 		originalSystem.setId(null);
 		EntityUtils.clearAuditFields(originalSystem);
 		return originalSystem;
@@ -583,7 +581,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param schemaAttributesIds
 	 * @return
 	 */
-	private SysSchemaObjectClassDto duplicateSchema(UUID id, SysSystem system, Map<UUID, UUID> schemaAttributesIds) {
+	private SysSchemaObjectClassDto duplicateSchema(UUID id, SysSystemDto system, Map<UUID, UUID> schemaAttributesIds) {
 		Assert.notNull(id, "Id of duplication schema, must be filled!");
 		Assert.notNull(system, "Parent system must be filled!");
 		SysSchemaObjectClassDto clonedSchema = objectClassService.clone(id);
@@ -722,11 +720,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Deprecated
 	@Transactional
-	public SysSystem createTestSystem() {
+	public SysSystemDto createTestSystem() {
 		// create owner
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName("sysOne_" + System.currentTimeMillis());
-		system.setConnectorKey(new SysConnectorKey(getTestConnectorKey()));
+		system.setConnectorKey(new SysConnectorKeyDto(getTestConnectorKey()));
 		save(system);
 
 		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorInstance());
@@ -787,7 +785,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
 
-		getFormService().saveValues(system, savedFormDefinition, values);
+		// TODO: eav to DTO
+		getFormService().saveValues(toEntity(system), savedFormDefinition, values);
 
 		return system;
 	}
@@ -807,4 +806,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		return key;
 	}
 
+	private FormService getFormService() {
+		return this.formService;
+	}
 }

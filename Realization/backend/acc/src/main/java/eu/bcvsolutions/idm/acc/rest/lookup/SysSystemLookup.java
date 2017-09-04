@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableServiceEntityLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 
 @Component
-public class SysSystemLookup extends CodeableServiceEntityLookup<SysSystem> {
+public class SysSystemLookup extends CodeableDtoLookup<SysSystemDto> {
 	
 	@Autowired 
 	private ApplicationContext applicationContext;

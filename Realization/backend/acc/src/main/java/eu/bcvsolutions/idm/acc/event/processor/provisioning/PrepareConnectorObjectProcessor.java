@@ -31,12 +31,13 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -138,7 +139,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = provisioningOperation.getSystem();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem().getId());
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		LOG.debug("Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
@@ -151,7 +152,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					ImmutableMap.of("system", provisioningOperation.getSystem().getName()));
 		}
 		// load connector configuration
-		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(provisioningOperation.getSystem());
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -210,7 +211,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param connectorConfig
 	 */
 	private void processCreate(SysProvisioningOperation provisioningOperation) {
-		SysSystem system = provisioningOperation.getSystem();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
@@ -299,7 +300,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	
 	@SuppressWarnings("unchecked")
 	private void processUpdate(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
-		SysSystem system = provisioningOperation.getSystem();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem().getId());
 		String systemEntityUid = provisioningOperation.getSystemEntityUid();
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
@@ -495,7 +496,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		return false;
 	}
 	
-	private SysSystemMappingDto getMapping(SysSystem system, SystemEntityType entityType) {
+	private SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
 		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
 			throw new IllegalStateException(MessageFormat.format("System [{0}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{1}]", system.getName(), entityType));
@@ -513,7 +514,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param system
 	 * @return
 	 */
-	private List<SysSchemaAttributeDto> findSchemaAttributes(SysSystem system, SysSchemaObjectClassDto objectClass) {
+	private List<SysSchemaAttributeDto> findSchemaAttributes(SysSystemDto system, SysSchemaObjectClassDto objectClass) {
 		
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
@@ -550,7 +551,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @param connectorObject
 	 */
-	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcConnectorObject existsConnectorObject, SysSystem system, ProvisioningAttributeDto provisioningAttributeDto) {
+	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcConnectorObject existsConnectorObject, SysSystemDto system, ProvisioningAttributeDto provisioningAttributeDto) {
 		List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 		//
 		Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
@@ -572,7 +573,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * map
 	 * 
 	 */
-	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystem system, String transformValueFromResourceScript, boolean sendAlways){
+	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystemDto system, String transformValueFromResourceScript, boolean sendAlways){
 
 		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute, icAttribute,
 				icAttributes, system);
@@ -604,7 +605,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 	private Object transformValueFromResource(String transformValueFromResourceScript,
 			SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes,
-			SysSystem system) {
+			SysSystemDto system) {
 		
 		Object icValueTransformed = null;
 		if (schemaAttribute.isMultivalued()) {

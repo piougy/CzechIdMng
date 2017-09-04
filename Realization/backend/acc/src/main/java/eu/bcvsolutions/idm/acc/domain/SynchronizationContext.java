@@ -10,8 +10,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
@@ -54,7 +54,7 @@ public class SynchronizationContext implements Serializable {
 	private IcConnectorObject icObject;
 	private IcSyncDeltaTypeEnum type;
 	private SysSyncConfigDto config;
-	private SysSystem system;
+	private SysSystemDto system;
 	private SystemEntityType entityType;
 	private List<SysSystemAttributeMappingDto> mappedAttributes;
 	private AccAccountDto account;
@@ -104,11 +104,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public SysSystem getSystem() {
+	public SysSystemDto getSystem() {
 		return system;
 	}
 
-	public SynchronizationContext addSystem(SysSystem system) {
+	public SynchronizationContext addSystem(SysSystemDto system) {
 		this.system = system;
 		return this;
 	}

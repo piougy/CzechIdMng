@@ -17,15 +17,14 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -76,8 +75,6 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	
-	private final SysSystemMappingService systemMappingService;
-	
 	private final JwtAuthenticationService jwtAuthenticationService;
 	
 	private final SysSchemaAttributeService schemaAttributeService;
@@ -92,7 +89,6 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			IdmIdentityService identityService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			JwtAuthenticationService jwtAuthenticationService,
-			SysSystemMappingService systemMappingService,
 			SysSchemaAttributeService schemaAttributeService,
 			SysSystemEntityService systemEntityService) {
 		//
@@ -103,7 +99,6 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		Assert.notNull(identityService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(jwtAuthenticationService);
-		Assert.notNull(systemMappingService);
 		Assert.notNull(schemaAttributeService);
 		Assert.notNull(systemEntityService);
 		//
@@ -114,7 +109,6 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		this.identityService = identityService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.jwtAuthenticationService = jwtAuthenticationService;
-		this.systemMappingService = systemMappingService;
 		this.schemaAttributeService = schemaAttributeService;
 		this.systemEntityService = systemEntityService;
 	}
@@ -142,7 +136,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			return null; // without system can't check
 		}
 		//
-		SysSystem system = systemService.get(systemId);
+		SysSystemDto system = systemService.get(systemId);
 		//
 		if (system == null) {
 			return null; // system dont exist

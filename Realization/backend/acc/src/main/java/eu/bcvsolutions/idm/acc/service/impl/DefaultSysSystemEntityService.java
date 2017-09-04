@@ -9,17 +9,18 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -34,24 +35,20 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<S
 	private final SysSystemEntityRepository repository;
 	private final AccAccountRepository accountRepository;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
-	private final SysSystemService systemService;
 	
 	@Autowired
 	public DefaultSysSystemEntityService(
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
-			SysProvisioningOperationRepository provisioningOperationRepository,
-			SysSystemService systemService) {
+			SysProvisioningOperationRepository provisioningOperationRepository) {
 		super(systemEntityRepository);
 		//
 		Assert.notNull(accountRepository);
 		Assert.notNull(provisioningOperationRepository);
-		Assert.notNull(systemService);
 		//
 		this.repository = systemEntityRepository;
 		this.accountRepository = accountRepository;
 		this.provisioningOperationRepository = provisioningOperationRepository;
-		this.systemService = systemService;
 	}
 	
 	@Override
@@ -60,7 +57,7 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<S
 		Assert.notNull(systemDto);
 		//
 		if (provisioningOperationRepository.countBySystemEntity(this.getEntity(systemDto.getId())) > 0) {
-			SysSystem system = systemService.get(systemDto.getSystem());
+			SysSystemDto system = DtoUtils.getEmbedded(systemDto, SysSystemEntity_.system, SysSystemDto.class);
 			throw new ResultCodeException(AccResultCode.SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS,
 					ImmutableMap.of("uid", systemDto.getUid(), "system", system.getName()));
 		}
@@ -72,7 +69,7 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<S
 	}
 
 	@Override
-	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystem system, SystemEntityType entityType, String uid) {
+	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid) {
 		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(system.getId(), entityType, uid));
 	}
 }

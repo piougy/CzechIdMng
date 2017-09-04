@@ -66,7 +66,7 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = systemService.get(provisioningOperation.getSystem().getId());
+		SysSystem system = provisioningOperation.getSystem();
 		boolean closed = false;
 		if (system.isReadonly()) {
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 

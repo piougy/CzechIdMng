@@ -18,13 +18,27 @@ class Task extends Basic.AbstractContent {
 
   constructor(props) {
     super(props);
-    this.state = {showLoading: props.showLoading};
+    this.state = {
+      showLoading: props.showLoading,
+      nonExistentTask: false // true if task isn't found or is solved
+    };
   }
 
   componentDidMount() {
     this.selectNavigationItem('tasks');
     const { taskID } = this.props.params;
-    this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID));
+    this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID, null, (json, error) => {
+      if (error) {
+        // task isn't exists or is solved
+        if (error && error.statusCode === 404) {
+          this.setState({
+            nonExistentTask: true
+          });
+        } else {
+          this.handleError(error);
+        }
+      }
+    }));
   }
 
   componentDidUpdate() {
@@ -35,8 +49,19 @@ class Task extends Basic.AbstractContent {
     return 'content.task';
   }
 
+  _goBack() {
+    if (this.context.router.goBack()) {
+      // nothig, router just can go back
+    } else {
+      // transmition to /task, history doesnt exist
+      // we havn't task or another information we must go to dashboard
+      this.context.router.push('/');
+    }
+  }
+
   render() {
-    const { readOnly, task} = this.props;
+    const { readOnly, task } = this.props;
+    const { nonExistentTask } = this.state;
     let DetailComponent;
     if (task && task.formKey) {
       DetailComponent = componentService.getComponent(task.formKey);
@@ -48,6 +73,23 @@ class Task extends Basic.AbstractContent {
     }
     if (!DetailComponent) {
       DetailComponent = DynamicTaskDetail;
+    }
+    if (nonExistentTask) {
+      return (
+        <div>
+          <Basic.PageHeader>
+            {this.i18n('instance.header')}
+          </Basic.PageHeader>
+          <Basic.Panel >
+            <Basic.Alert level="info" text={this.i18n('message.task.taskSolvedOrNotFound')} />
+            <Basic.PanelFooter>
+              <Basic.Button type="button" level="link" onClick={this._goBack.bind(this)}>
+                {this.i18n('button.back')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </div>
+      );
     }
     return (
       <div>

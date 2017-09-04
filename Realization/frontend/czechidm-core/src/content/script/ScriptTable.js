@@ -27,6 +27,10 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     };
   }
 
+  getManager() {
+    return this.props.scriptManager;
+  }
+
   getContentKey() {
     return 'content.scripts';
   }
@@ -88,7 +92,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
   render() {
     const { uiKey, scriptManager } = this.props;
     const { filterOpened } = this.state;
-
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>

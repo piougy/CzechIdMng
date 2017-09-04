@@ -26,7 +26,8 @@
       "delete": "Smazání proběhlo úspěšně"
     },
     "task": {
-      "detailNotFound":"Tento typ úkolu není podporován!"
+      "detailNotFound":"Tento typ úkolu není podporován!",
+      "taskSolvedOrNotFound": "Tento úkol neexistuje, nebo byl již vyřešen."
     },
     "failed": "Operace selhala",
     "notImplemented": "Operace není zatím podporována"

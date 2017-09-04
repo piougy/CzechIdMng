@@ -179,8 +179,13 @@ public class DefaultEmailer implements Emailer {
 		
 	    @Override
 	    public void onComplete(Exchange exchange) {
-	    	log.info("Sending email [id:{}] succeeded", emailLogId);
-	    	emailLogService.setEmailSent(emailLogId, new DateTime());
+	    	try {
+		    	log.info("Sending email [id:{}] succeeded", emailLogId);
+		    	emailLogService.setEmailSent(emailLogId, new DateTime());
+	    	} catch (Exception e) {
+	    		log.error("Unspecified error while save emailLog, with id: [{}].", emailLogId, e);
+	    		throw e;
+	    	}
 	    }
 	}
 }

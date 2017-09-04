@@ -95,21 +95,40 @@ class VsRequestDetail extends Basic.AbstractContent {
   }
 
   _getRequestAccountData(entity) {
+    const {connectorObject} = this.state;
+    let compiledConnectorAttributes;
+    if (connectorObject) {
+      const attributes = connectorObject.attributes;
+      compiledConnectorAttributes = this._compileAttributes(attributes);
+    }
     if (entity && entity.connectorObject) {
       const attributes = entity.connectorObject.attributes;
-      return this._compileAttributes(attributes);
+      const compiledAttributes = this._compileAttributes(attributes);
+      const result = this._compileDiffAttributes(compiledAttributes, compiledConnectorAttributes);
+      return result;
     }
   }
+
   _getAccountData() {
     const {connectorObject} = this.state;
     if (connectorObject) {
       const attributes = connectorObject.attributes;
-      return this._compileAttributes(attributes);
+      const compiledAttributes = this._compileAttributes(attributes);
+      for (const property in compiledAttributes) {
+        if (compiledAttributes.hasOwnProperty(property)) {
+          const propertyValue = compiledAttributes[property].value;
+          if (_.isArray(propertyValue)) {
+            compiledAttributes[property].value = propertyValue.join(', ');
+          }
+        }
+      }
+      // sort by property
+      return _(compiledAttributes).sortBy('property').value();
     }
   }
 
   _compileAttributes(attributes) {
-    const accountData = [];
+    const accountData = {};
     for (const schemaAttributeId in attributes) {
       if (!attributes.hasOwnProperty(schemaAttributeId)) {
         continue;
@@ -117,19 +136,82 @@ class VsRequestDetail extends Basic.AbstractContent {
       let content = '';
       const attribute = attributes[schemaAttributeId];
       const propertyValue = attribute.values;
-      if (_.isArray(propertyValue)) {
-        content = propertyValue.join(', ');
-      } else {
+      if (attribute.multiValue) {
         content = propertyValue;
+      } else {
+        content = propertyValue[0];
       }
-
-      accountData.push({
-        property: attribute.name,
-        value: content
-      });
+      accountData[attribute.name] = {property: attribute.name, value: content, multiValue: attribute.multiValue};
     }
-    // sort by property
-    return _(accountData).sortBy('property').value();
+    return accountData;
+  }
+
+  _compileDiffAttributes(requestAttributes, connectorAttributes) {
+    const result = {};
+    for (const property in requestAttributes) {
+      if (requestAttributes.hasOwnProperty(property)) {
+        const propertyValue = requestAttributes[property].value;
+        let content;
+        let level;
+        let multiValue = false;
+        if (requestAttributes[property].multiValue) {
+          multiValue = true;
+          const listResult = {};
+          const listConnector = connectorAttributes ? connectorAttributes[property].value : null;
+
+          for (const value of requestAttributes[property].value) {
+            let levelItem;
+            if (_.indexOf(listConnector, value) !== -1) {
+              levelItem = null;
+            } else {
+              levelItem = 'success';
+            }
+            listResult[value] = {property, value, level: levelItem};
+          }
+          content = _(listResult).sortBy('value').value();
+        } else {
+          content = propertyValue;
+          level = this._getLevelForAttribute(connectorAttributes, propertyValue, property);
+        }
+        result[property] = {property, value: content, level, multiValue};
+      }
+    }
+     // sort by property
+    return _(result).sortBy('property').value();
+  }
+
+  _getLevelForAttribute(connectorAttributes, propertyValue, property) {
+    if (!connectorAttributes || !connectorAttributes.hasOwnProperty(property)) {
+      return 'success';
+    } else if (connectorAttributes[property].value === propertyValue) {
+      return null;
+    }
+    return 'warning';
+  }
+
+  _getValueCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.value) {
+      return '';
+    }
+
+    if (entity.multiValue) {
+      const listResult = [];
+      for (const item of entity.value) {
+        if (item.level) {
+          listResult.push(<Basic.Label level={item.level} text={item.value}/>);
+        } else {
+          listResult.push(item.value + ' ');
+        }
+        listResult.push(' ');
+      }
+      return listResult;
+    }
+
+    if (entity.level) {
+      return (<Basic.Label level={entity.level} text={entity.value}/>);
+    }
+    return entity.value;
   }
 
   render() {
@@ -147,7 +229,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     .setFilter('systemId', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
     .setFilter('createdAfter', entity ? entity.created : null)
     .setFilter('state', 'IN_PROGRESS');
-    //
+
+    const accountData = this._getAccountData();
+    const requestData = this._getRequestAccountData(entity);
     return (
       <div>
         <Basic.Confirm ref="confirm-realize" level="danger"/>
@@ -188,18 +272,18 @@ class VsRequestDetail extends Basic.AbstractContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
                     <Basic.Table
-                      data={this._getRequestAccountData(entity)}
+                      data={requestData}
                       noData={this.i18n('component.basic.Table.noData')}
                       className="table-bordered">
                       <Basic.Column property="property" header={this.i18n('label.property')}/>
-                      <Basic.Column property="value" header={this.i18n('label.value')}/>
+                      <Basic.Column property="value" header={this.i18n('label.value')} cell={this._getValueCell.bind(this)}/>
                     </Basic.Table>
                   </Basic.LabelWrapper>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
                     <Basic.Table
-                      data={this._getAccountData()}
+                      data={accountData}
                       noData={this.i18n('component.basic.Table.noData')}
                       className="table-bordered">
                       <Basic.Column property="property" header={this.i18n('label.property')}/>
@@ -213,7 +297,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                   <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
                     <VsRequestTable
                       uiKey="vs-request-table-before"
-                      columns= {['state', 'operationType', 'created', 'operations', 'uid']}
+                      columns= {['state', 'operationType', 'created', 'uid']}
                       showFilter={false}
                       forceSearchParameters={searchBefore}
                       showToolbar={false}
@@ -227,7 +311,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                     <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
                       <VsRequestTable
                         uiKey="vs-request-table-after"
-                        columns= {['state', 'operationType', 'created', 'operations', 'uid']}
+                        columns= {['state', 'operationType', 'created', 'uid']}
                         showFilter={false}
                         forceSearchParameters={searchAfter}
                         showToolbar={false}

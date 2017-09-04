@@ -15,8 +15,8 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -68,7 +68,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	public void accountWithoutProtectionTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleService.getByCode(ROLE_ONE));
 
 		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
@@ -92,7 +92,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	@Test
 	public void accountWithProtectionTest() {
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
@@ -128,7 +128,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	public void accountWithProtectionRetryTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
@@ -168,7 +168,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	public void accountWithProtectionAndIntervalTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
 
 		int intervalInDays = 10;
@@ -210,7 +210,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	public void protectedAccountNoProvisioningTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
 
 		int intervalInDays = 10;
@@ -263,7 +263,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	public void protectedAccountDeleteTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
@@ -305,7 +305,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	public void protectedAccountExpiredDeleteTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
-		SysSystem system = initSystem();
+		SysSystemDto system = initSystem();
 		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
@@ -348,9 +348,9 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNull(createdAccount);
 	}
 
-	private SysSystem initSystem() {
+	private SysSystemDto initSystem() {
 		// create test system
-		SysSystem system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(true);
 		// Create role with link on system (default)
 		IdmRoleDto role = helper.createRole();
 		ROLE_ONE = role.getCode();

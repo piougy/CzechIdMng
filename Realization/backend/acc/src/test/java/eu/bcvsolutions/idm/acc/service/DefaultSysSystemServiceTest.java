@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
@@ -39,11 +40,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -98,6 +98,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private SysSyncConfigService syncConfigService;
 	@Autowired private SysSystemAttributeMappingService schemaAttributeMappingService;
+	@Autowired private SysSystemRepository systemRepository;
 	
 	@Before
 	public void login() {
@@ -111,7 +112,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testReferentialIntegrity() {
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		String systemName = "t_s_" + System.currentTimeMillis();
 		system.setName(systemName);
 		system = systemService.save(system);
@@ -186,7 +187,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegrityAccountExists() {
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		String systemName = "t_s_" + System.currentTimeMillis();
 		system.setName(systemName);
 		system = systemService.save(system);
@@ -202,7 +203,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegritySystemEntityExists() {
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		String systemName = "t_s_" + System.currentTimeMillis();
 		system.setName(systemName);
 		system = systemService.save(system);
@@ -222,10 +223,10 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void testFormAttributes() {
 		// create owner
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName(SYSTEM_NAME_ONE);
-		systemService.save(system);	
-		SysSystem systemOne = systemService.getByCode(SYSTEM_NAME_ONE);		
+		system = systemService.save(system);	
+		SysSystemDto systemOne = systemService.getByCode(SYSTEM_NAME_ONE);		
 		assertEquals(SYSTEM_NAME_ONE, systemOne.getName());
 		//
 		// create definition one
@@ -262,38 +263,44 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysSystemFormValue value2 = new SysSystemFormValue(attributeDefinitionTwo);
 		value2.setValue("test2");
 		
-		formService.saveValues(systemOne, formDefinitionOne, Lists.newArrayList(value1));
-		formService.saveValues(systemOne, formDefinitionTwo, Lists.newArrayList(value2));
+		// TODO: eav to dto
+		SysSystem systemOneEntity = systemRepository.findOne(systemOne.getId());
 		
-		assertEquals("test1", formService.getValues(systemOne, formDefinitionOne).get(0).getStringValue());
-		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo).get(0).getStringValue());
-		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo, attributeDefinitionTwo.getName()).get(0).getValue());
+		formService.saveValues(systemOneEntity, formDefinitionOne, Lists.newArrayList(value1));
+		formService.saveValues(systemOneEntity, formDefinitionTwo, Lists.newArrayList(value2));
+		
+		assertEquals("test1", formService.getValues(systemOneEntity, formDefinitionOne).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(systemOneEntity, formDefinitionTwo).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(systemOneEntity, formDefinitionTwo, attributeDefinitionTwo.getName()).get(0).getValue());
 		//
 		// create second owner
-		SysSystem systemTwo = new SysSystem();
+		SysSystemDto systemTwo = new SysSystemDto();
 		systemTwo.setName(SYSTEM_NAME_TWO);		
 		systemTwo = systemService.save(systemTwo);
+
+		// TODO: eav to dto
+		SysSystem systemTwoEntity = systemRepository.findOne(systemTwo.getId());
 		
-		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
-		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
-		assertEquals(1, formService.getValues(systemOne, formDefinitionOne).size());
-		assertEquals(1, formService.getValues(systemOne, formDefinitionTwo).size());
+		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionTwo).size());
+		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionOne).size());
+		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionTwo).size());
 		
 		systemService.delete(systemTwo);
 		
-		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
-		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
-		assertEquals(1, formService.getValues(systemOne, formDefinitionOne).size());
-		assertEquals(1, formService.getValues(systemOne, formDefinitionTwo).size());
+		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionTwo).size());
+		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionOne).size());
+		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionTwo).size());
 		
-		formService.deleteValues(systemOne, formDefinitionOne);		
-		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
-		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo).get(0).getStringValue());
+		formService.deleteValues(systemOneEntity, formDefinitionOne);		
+		assertEquals(0, formService.getValues(systemOneEntity, formDefinitionOne).size());
+		assertEquals("test2", formService.getValues(systemOneEntity, formDefinitionTwo).get(0).getStringValue());
 		
 		systemService.delete(systemOne);
 		
-		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
-		assertEquals(0, formService.getValues(systemOne, formDefinitionTwo).size());
+		assertEquals(0, formService.getValues(systemOneEntity, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemOneEntity, formDefinitionTwo).size());
 	}
 	
 	@Test
@@ -317,7 +324,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	public void testFillConnectorConfiguration() {
 		// create owner
 		@SuppressWarnings("deprecation")
-		SysSystem system =  systemService.createTestSystem();		
+		SysSystemDto system =  systemService.createTestSystem();		
 		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);		
 		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
 		//
@@ -353,16 +360,19 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadValuesFromDefaultFormDefinitionNotExists() {
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName(SYSTEM_NAME_ONE + "_" + System.currentTimeMillis());
-		systemService.save(system);
-		formService.getValues(system);
+		system = systemService.save(system);
+
+		// TODO: eav to dto
+		SysSystem systemEntity = systemRepository.findOne(system.getId());
+		formService.getValues(systemEntity);
 	}
 	
 	@Test
 	public void checkSystemValid() {
 		// create test system
-		SysSystem system = helper.createSystem(TestResource.TABLE_NAME);
+		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME);
 		// do test system
 		systemService.checkSystem(system);
 	}
@@ -370,12 +380,17 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test(expected = RuntimeException.class)
 	public void checkSystemUnValid() {
 		// create test system
-		SysSystem system =  helper.createSystem(TestResource.TABLE_NAME);
+		SysSystemDto system =  helper.createSystem(TestResource.TABLE_NAME);
+		
+		// TODO: eav to dto
+		SysSystem systemEntity = systemRepository.findOne(system.getId());
+
 		// set wrong password
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
-		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
+		List<AbstractFormValue<SysSystem>> values = formService.getValues(systemEntity, savedFormDefinition);
 		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "password".equals(value.getFormAttribute().getCode());}).findFirst().get();
-		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("wrongPassword"));
+		
+		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of("wrongPassword"));
 		
 		// do test system
 		systemService.checkSystem(system);
@@ -384,7 +399,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void duplicateSystem(){
 		// create test system
-		SysSystem system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(true);
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		// Number of schema attributes on original system
@@ -393,7 +408,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// Number of mapping attributes on original system
 		int numberOfMappingAttributesOrig = systemAttributeMappingService.findBySystemMapping(mappingOrig).size();
 		
-		SysSystem duplicatedSystem = systemService.duplicate(system.getId());
+		SysSystemDto duplicatedSystem = systemService.duplicate(system.getId());
 		// check duplicate
 		systemService.checkSystem(duplicatedSystem);
 		
@@ -414,7 +429,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	public void duplicateSystemWithSynchronization(){
 		String syncName = "test-sync-config";
 		// create test system
-		SysSystem system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(true);
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		// Number of schema attributes on original system
@@ -456,7 +471,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 
 		syncConfigDuplicate = syncConfigService.save(syncConfigDuplicate);
 		
-		SysSystem duplicatedSystem = systemService.duplicate(system.getId());
+		SysSystemDto duplicatedSystem = systemService.duplicate(system.getId());
 		// check duplicate
 		systemService.checkSystem(duplicatedSystem);
 		

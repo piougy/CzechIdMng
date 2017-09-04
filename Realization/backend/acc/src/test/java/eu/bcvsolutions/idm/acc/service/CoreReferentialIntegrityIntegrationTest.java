@@ -17,10 +17,10 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -69,7 +69,7 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
 		// accounts
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
 		
@@ -108,7 +108,7 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	public void testRoleReferentialIntegrity() {
 		IdmRoleDto role = helper.createRole();
 		// role systems
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
 		// schema
@@ -130,12 +130,12 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		RoleSystemFilter filter = new RoleSystemFilter();
 		filter.setRoleId(role.getId());
 		
-		assertNotNull(roleService.getByName(role.getName()));
+		assertNotNull(roleService.getByCode(role.getName()));
 		assertEquals(1, roleSystemService.find(filter, null).getTotalElements());
 		
 		roleService.delete(role);
 		
-		assertNull(roleService.getByName(role.getName()));
+		assertNull(roleService.getByCode(role.getName()));
 		assertEquals(0, roleSystemService.find(filter, null).getTotalElements());
 	}
 

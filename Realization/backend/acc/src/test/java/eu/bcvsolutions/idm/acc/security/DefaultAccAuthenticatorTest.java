@@ -23,10 +23,10 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.security.authentication.impl.DefaultAccAuthenticator;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -280,7 +280,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	}
 	
 	private void initData() {
-		SysSystem system = createTestSystem();
+		SysSystemDto system = createTestSystem();
 		List<SysSchemaObjectClassDto> objectClasses = sysSystemService.generateSchema(system);
 		
 		IdmIdentityDto identity = new IdmIdentityDto();
@@ -365,8 +365,8 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		overloadedRole2 = roleSystemAttributeService.save(overloadedRole2);
 	}
 	
-	private SysSystem createTestSystem() {
-		SysSystem system = helper.createSystem(TestResource.TABLE_NAME);
+	private SysSystemDto createTestSystem() {
+		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME);
 		system = sysSystemService.save(system);
 		
 		// set system id to application property

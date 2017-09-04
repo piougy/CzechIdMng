@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -54,6 +55,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
@@ -152,8 +154,11 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private FormService formService;
+	
+	@Autowired
+	private SysSystemRepository systemRepository;
 
-	private SysSystem system;
+	private SysSystemDto system;
 	private SynchronizationService synchornizationService;
 
 	@Before
@@ -329,13 +334,16 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 
-		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
+		// TODO: eav to dto
+		SysSystem systemEntity = systemRepository.findOne(system.getId());
+		
+		List<AbstractFormValue<SysSystem>> values = formService.getValues(systemEntity, savedFormDefinition);
 		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "changeLogColumn".equals(value.getFormAttribute().getCode());}).findFirst().get();
-		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("modified"));
+		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of("modified"));
 
 		// Set sync config
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
@@ -380,7 +388,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		// We have to change property of connector configuration "changeLogColumn" from "modified" on empty string. 
 		// When is this property set, then custom filter not working. Bug in Table connector !!!
-		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of(""));
+		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of(""));
 
 	}
 	
@@ -729,7 +737,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		AccAccountDto accountOne = new AccAccountDto();
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME_THREE);
 		accountOne.setAccountType(AccountType.PERSONAL);
@@ -867,7 +875,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
@@ -985,7 +993,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
@@ -1075,7 +1083,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
@@ -1286,7 +1294,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
@@ -1438,7 +1446,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		});
 	}
 
-	private void createMapping(SysSystem system, final SysSystemMappingDto entityHandlingResult) {
+	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 

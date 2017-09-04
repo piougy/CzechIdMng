@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -44,7 +45,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -118,7 +118,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private FormService formService;
 
-	private SysSystem system;
+	private SysSystemDto system;
 	private SynchronizationService synchornizationService;
 
 	@Before
@@ -640,7 +640,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 	
 
-	private void createMapping(SysSystem system, final SysSystemMappingDto entityHandlingResult) {
+	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 

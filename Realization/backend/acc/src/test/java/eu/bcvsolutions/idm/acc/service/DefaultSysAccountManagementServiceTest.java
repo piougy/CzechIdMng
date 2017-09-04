@@ -23,12 +23,12 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -483,7 +483,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	private void initData() {
 		// create test system
-		SysSystem system = helper.createTestResourceSystem(true, SYSTEM_NAME);
+		SysSystemDto system = helper.createTestResourceSystem(true, SYSTEM_NAME);
 		//
 		// Create test identity for provisioning test
 		IdmIdentityDto identity = new IdmIdentityDto();

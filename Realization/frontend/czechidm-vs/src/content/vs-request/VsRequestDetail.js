@@ -158,22 +158,45 @@ class VsRequestDetail extends Basic.AbstractContent {
           multiValue = true;
           const listResult = {};
           const listConnector = connectorAttributes ? connectorAttributes[property].value : null;
+          const listRequest = requestAttributes ? requestAttributes[property].value : null;
 
-          for (const value of requestAttributes[property].value) {
-            let levelItem;
-            if (_.indexOf(listConnector, value) !== -1) {
-              levelItem = null;
-            } else {
-              levelItem = 'success';
+          if (listRequest) {
+            for (const value of listRequest) {
+              let levelItem;
+              let labelItem;
+              if (listConnector && _.indexOf(listConnector, value) !== -1) {
+                levelItem = null;
+              } else {
+                levelItem = 'success';
+                labelItem = 'multivalue.add';
+              }
+              listResult[value] = {property, value, level: levelItem, label: labelItem};
             }
-            listResult[value] = {property, value, level: levelItem};
+          }
+          if (listConnector) {
+            for (const value of listConnector) {
+              let levelItem;
+              let labelItem;
+              if (!listRequest || _.indexOf(listRequest, value) === -1) {
+                levelItem = 'danger';
+                labelItem = 'multivalue.remove';
+              }
+              listResult[value] = {property, value, level: levelItem, label: labelItem};
+            }
           }
           content = _(listResult).sortBy('value').value();
         } else {
           content = propertyValue;
           level = this._getLevelForAttribute(connectorAttributes, propertyValue, property);
         }
-        result[property] = {property, value: content, level, multiValue};
+        let label;
+        if (level === 'success') {
+          label = 'add';
+        }
+        if (level === 'warning') {
+          label = 'change';
+        }
+        result[property] = {property, value: content, level, multiValue, label};
       }
     }
      // sort by property
@@ -199,7 +222,11 @@ class VsRequestDetail extends Basic.AbstractContent {
       const listResult = [];
       for (const item of entity.value) {
         if (item.level) {
-          listResult.push(<Basic.Label level={item.level} text={item.value}/>);
+          listResult.push(<Basic.Label
+            key={item.value}
+            level={item.level}
+            title={item.label ? this.i18n(`attribute.diff.${item.label}`) : null}
+            text={item.value}/>);
         } else {
           listResult.push(item.value + ' ');
         }
@@ -209,7 +236,10 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
 
     if (entity.level) {
-      return (<Basic.Label level={entity.level} text={entity.value}/>);
+      return (<Basic.Label
+        title={entity.label ? this.i18n(`attribute.diff.${entity.label}`) : null}
+        level={entity.level}
+        text={entity.value}/>);
     }
     return entity.value;
   }

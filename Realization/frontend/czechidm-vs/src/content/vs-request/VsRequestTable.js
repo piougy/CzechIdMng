@@ -134,7 +134,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           onClick={this.realize.bind(this, 'realize', [data[rowIndex].id])}
           disabled={ data[rowIndex].state !== 'IN_PROGRESS' }
           className="btn-xs">
-          <Basic.Icon type="fa" icon="play"/>
+          <Basic.Icon type="fa" icon="thumbs-up"/>
         </Basic.Button>
         <Basic.Button
           ref="cancelButton"
@@ -241,7 +241,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               cell={this._getSystemCell.bind(this)}/>
           <Advanced.Column property="operationType" width="15%" sort face="enum" enumClass={VsOperationType} rendered={_.includes(columns, 'operationType')}/>
           <Advanced.Column property="state" width="15%" sort face="enum" enumClass={VsRequestState} rendered={_.includes(columns, 'state')}/>
-          <Advanced.Column property="executeImmediately" width="5%" sort face="boolean" rendered={_.includes(columns, 'executeImmediately')}/>
+          <Advanced.Column property="executeImmediately" width="5%" sort face="bool" rendered={_.includes(columns, 'executeImmediately')}/>
           <Advanced.Column
               header={this.i18n('vs:entity.VsRequest.implementers.label')}
               rendered={_.includes(columns, 'implementers')}

@@ -94,6 +94,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     );
   }
 
+  /**
+   * Return data (attributes) for request table
+   */
   _getRequestAccountData(entity) {
     const {connectorObject} = this.state;
     let compiledConnectorAttributes;
@@ -109,6 +112,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * Return data (attributes) for account table (show current state of VS account in connector)
+   */
   _getAccountData() {
     const {connectorObject} = this.state;
     if (connectorObject) {
@@ -146,6 +152,12 @@ class VsRequestDetail extends Basic.AbstractContent {
     return accountData;
   }
 
+/**
+ * Create attributes with mark changes. Compare changes in attributes from
+ * request versus attributes from current virtual system account.
+ * @param   requestAttributes   [attributes from VS request]
+ * @param   connectorAttributes [attributes from VS account]
+ */
   _compileDiffAttributes(requestAttributes, connectorAttributes) {
     const result = {};
     for (const property in requestAttributes) {
@@ -156,35 +168,7 @@ class VsRequestDetail extends Basic.AbstractContent {
         let multiValue = false;
         if (requestAttributes[property].multiValue) {
           multiValue = true;
-          const listResult = {};
-          const listConnector = connectorAttributes ? connectorAttributes[property].value : null;
-          const listRequest = requestAttributes ? requestAttributes[property].value : null;
-
-          if (listRequest) {
-            for (const value of listRequest) {
-              let levelItem;
-              let labelItem;
-              if (listConnector && _.indexOf(listConnector, value) !== -1) {
-                levelItem = null;
-              } else {
-                levelItem = 'success';
-                labelItem = 'multivalue.add';
-              }
-              listResult[value] = {property, value, level: levelItem, label: labelItem};
-            }
-          }
-          if (listConnector) {
-            for (const value of listConnector) {
-              let levelItem;
-              let labelItem;
-              if (!listRequest || _.indexOf(listRequest, value) === -1) {
-                levelItem = 'danger';
-                labelItem = 'multivalue.remove';
-              }
-              listResult[value] = {property, value, level: levelItem, label: labelItem};
-            }
-          }
-          content = _(listResult).sortBy('value').value();
+          content = this._compileDiffMultiValues(requestAttributes, connectorAttributes, property);
         } else {
           content = propertyValue;
           level = this._getLevelForAttribute(connectorAttributes, propertyValue, property);
@@ -203,6 +187,45 @@ class VsRequestDetail extends Basic.AbstractContent {
     return _(result).sortBy('property').value();
   }
 
+  /**
+   * Create attribute values with mark changes. Compare changes in attribute values from
+   * request versus atribute values from current virtual system account.
+   * @param   requestAttributes   [attributes from VS request]
+   * @param   connectorAttributes [attributes from VS account]
+   * @param   property [name of multivalued attribute]
+   */
+  _compileDiffMultiValues(requestAttributes, connectorAttributes, property) {
+    const listResult = {};
+    const listConnector = connectorAttributes && connectorAttributes[property] ? connectorAttributes[property].value : null;
+    const listRequest = requestAttributes && requestAttributes[property] ? requestAttributes[property].value : null;
+
+    if (listRequest) {
+      for (const value of listRequest) {
+        let levelItem;
+        let labelItem;
+        if (listConnector && _.indexOf(listConnector, value) !== -1) {
+          levelItem = null;
+        } else {
+          levelItem = 'success';
+          labelItem = 'multivalue.add';
+        }
+        listResult[value] = {property, value, level: levelItem, label: labelItem};
+      }
+    }
+    if (listConnector) {
+      for (const value of listConnector) {
+        let levelItem;
+        let labelItem;
+        if (!listRequest || _.indexOf(listRequest, value) === -1) {
+          levelItem = 'danger';
+          labelItem = 'multivalue.remove';
+        }
+        listResult[value] = {property, value, level: levelItem, label: labelItem};
+      }
+    }
+    return _(listResult).sortBy('value').value();
+  }
+
   _getLevelForAttribute(connectorAttributes, propertyValue, property) {
     if (!connectorAttributes || !connectorAttributes.hasOwnProperty(property)) {
       return 'success';
@@ -212,6 +235,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     return 'warning';
   }
 
+  /**
+   * Create value (highlights changes) cell for attributes table
+   */
   _getValueCell({ rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || !entity.value) {

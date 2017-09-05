@@ -30,6 +30,9 @@
       "created": {
         "label": "Vytvořeno"
       },
+      "modified": {
+        "label": "Upraveno"
+      },
       "creator": {
         "label": "Vytvořil"
       }
@@ -51,6 +54,11 @@
     "virtuals": {
       "header": "Virtuální systémy",
       "label": "Virtuální systémy",
+      "title": "Virtuální systémy"
+    },
+    "vs-systems": {
+      "header": "Virtuální systémy",
+      "label": "Seznam",
       "title": "Virtuální systémy"
     },
     "vs-requests": {
@@ -134,12 +142,12 @@
         },
         "attribute": {
           "diff": {
-            "add": "Atribut byl přidán",
-            "remove": "Atribut byl odebrán",
-            "change": "Atribut byl změněn",
+            "add": "Atribut bude přidán",
+            "remove": "Atribut bude odebrán",
+            "change": "Atribut bude změněn",
             "multivalue": {
-              "add": "Hodnota byla přidána",
-              "remove": "Hodnota byla odebrána"
+              "add": "Hodnota bude přidána",
+              "remove": "Hodnota bude odebrána"
             }
           }
         }

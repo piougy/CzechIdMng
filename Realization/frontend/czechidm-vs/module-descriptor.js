@@ -19,25 +19,27 @@ module.exports = {
         'order': 1101,
         'items': [
           {
+            'id': 'vs-systems',
+            'type': 'DYNAMIC',
+            'section': 'main',
+            'labelKey': 'vs:content.vs-systems.label',
+            'titleKey': 'vs:content.vs-systems.title',
+            'order': 10,
+            'icon': 'link',
+            'iconColor': '#008AFF',
+            'path': '/vs/systems',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ'] } ]},
+          {
             'id': 'vs-requests',
             'type': 'DYNAMIC',
             'section': 'main',
             'labelKey': 'vs:content.vs-requests.label',
             'titleKey': 'vs:content.vs-requests.title',
             'order': 20,
+            'icon': 'inbox',
+            'iconColor': '#008AFF',
             'path': '/vs/requests',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ'] } ],
-            'items': [
-              {
-                'id': 'vs-request-detail',
-                'type': 'TAB',
-                'labelKey': 'vs:content.vs-request.detail.basic',
-                'order': 10,
-                'path': '/vs/request/:entityId/detail',
-                'icon': 'gift',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ'] } ]
-              },
-            ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ'] } ]
           }
         ]
       }

@@ -279,79 +279,87 @@ class VsRequestDetail extends Basic.AbstractContent {
 
           <Basic.Panel>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
-            <Basic.PanelBody
-              showLoading={ _showLoading } >
-              <Basic.Row>
-                <Basic.Col lg={ 6 }>
-                  <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
-                  <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
-                    {this._getImplementers(entity)}
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-                <Basic.Col lg={ 6 }>
-                  <Basic.TextArea
-                    ref="reason"
-                    label={this.i18n('vs:entity.VsRequest.reason.label')}
-                    readOnly
-                    rows={6}
-                    rendered={entity && entity.state === 'CANCELED' }
-                    value={entity ? entity.reason : null}/>
-                </Basic.Col>
-              </Basic.Row>
-              <Basic.Row>
-                <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
-                    <Basic.Table
-                      data={requestData}
-                      noData={this.i18n('component.basic.Table.noData')}
-                      className="table-bordered">
-                      <Basic.Column property="property" header={this.i18n('label.property')}/>
-                      <Basic.Column property="value" header={this.i18n('label.value')} cell={this._getValueCell.bind(this)}/>
-                    </Basic.Table>
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-                <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
-                    <Basic.Table
-                      data={accountData}
-                      noData={this.i18n('component.basic.Table.noData')}
-                      className="table-bordered">
-                      <Basic.Column property="property" header={this.i18n('label.property')}/>
-                      <Basic.Column property="value" header={this.i18n('label.value')}/>
-                    </Basic.Table>
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-              </Basic.Row>
-              <Basic.Row>
-                <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
-                    <VsRequestTable
-                      uiKey="vs-request-table-before"
-                      columns= {['state', 'operationType', 'created', 'uid']}
-                      showFilter={false}
-                      forceSearchParameters={searchBefore}
-                      showToolbar={false}
-                      showPageSize={false}
-                      showRowSelection={false}
-                      showId={false}
-                      filterOpened={false} />
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-                <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
-                      <VsRequestTable
-                        uiKey="vs-request-table-after"
-                        columns= {['state', 'operationType', 'created', 'uid']}
-                        showFilter={false}
-                        forceSearchParameters={searchAfter}
-                        showToolbar={false}
-                        showPageSize={false}
-                        showRowSelection={false}
-                        showId={false}
-                        filterOpened={false} />
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-              </Basic.Row>
+            <Basic.PanelBody>
+              {
+                _showLoading
+                ?
+                <Basic.Loading show isStatic />
+                :
+                <div>
+                  <Basic.Row>
+                    <Basic.Col lg={ 6 }>
+                      <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
+                      <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                        {this._getImplementers(entity)}
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
+                      <Basic.TextArea
+                        ref="reason"
+                        label={this.i18n('vs:entity.VsRequest.reason.label')}
+                        readOnly
+                        rows={6}
+                        rendered={entity && entity.state === 'CANCELED' }
+                        value={entity ? entity.reason : null}/>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row>
+                    <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
+                        <Basic.Table
+                          data={requestData}
+                          noData={this.i18n('component.basic.Table.noData')}
+                          className="table-bordered">
+                          <Basic.Column property="property" header={this.i18n('label.property')}/>
+                          <Basic.Column property="value" header={this.i18n('label.value')} cell={this._getValueCell.bind(this)}/>
+                        </Basic.Table>
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
+                        <Basic.Table
+                          data={accountData}
+                          noData={this.i18n('component.basic.Table.noData')}
+                          className="table-bordered">
+                          <Basic.Column property="property" header={this.i18n('label.property')}/>
+                          <Basic.Column property="value" header={this.i18n('label.value')}/>
+                        </Basic.Table>
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row>
+                    <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+                        <VsRequestTable
+                          uiKey="vs-request-table-before"
+                          columns= {['state', 'operationType', 'created', 'uid']}
+                          showFilter={false}
+                          forceSearchParameters={searchBefore}
+                          showToolbar={false}
+                          showPageSize={false}
+                          showRowSelection={false}
+                          showId={false}
+                          filterOpened={false} />
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
+                        <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
+                          <VsRequestTable
+                            uiKey="vs-request-table-after"
+                            columns= {['state', 'operationType', 'created', 'uid']}
+                            showFilter={false}
+                            forceSearchParameters={searchAfter}
+                            showToolbar={false}
+                            showPageSize={false}
+                            showRowSelection={false}
+                            showId={false}
+                            filterOpened={false} />
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                  </Basic.Row>
+                </div>
+              }
+
             </Basic.PanelBody>
 
             <Basic.PanelFooter>

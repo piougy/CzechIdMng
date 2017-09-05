@@ -551,7 +551,7 @@ public class BasicVirtualConnector
 			IdmFormAttributeDto formAttribute = formAttributeService.findAttribute(type, key, virtualAttirbute);
 			if (formAttribute == null) {
 				formAttribute = createFromAttribute(virtualAttirbute);
-				formAttribute.setFormDefinition(definition.getId());
+				formAttribute.setFormDefinition(definition == null ? null : definition.getId());
 				formAttributes.add(formAttribute);
 			}
 		});

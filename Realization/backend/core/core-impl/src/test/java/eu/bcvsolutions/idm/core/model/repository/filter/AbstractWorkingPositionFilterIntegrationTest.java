@@ -20,9 +20,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -187,21 +187,19 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	private IdmTreeNodeDto createPosition(IdmTreeTypeDto type, IdmTreeNodeDto parent) {
 		IdmTreeNodeDto node = helper.createTreeNode(type, parent);
 		
-		IdmFormDefinition formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
-		IdmFormAttribute attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
+		IdmFormAttributeDto attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
 		if (attr == null) {
-			attr = new IdmFormAttribute();
+			attr = new IdmFormAttributeDto();
 			attr.setName("Parent code");
 			attr.setCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
-			attr.setFormDefinition(formDefinition);
+			attr.setFormDefinition(formDefinition.getId());
 			attr.setPersistentType(PersistentType.TEXT);
 			attr.setUnmodifiable(true);
 			attr = formService.saveAttribute(attr);
-			// just for sure
-			formDefinition.addFormAttribute(attr);
 		}
 		//
-		formService.saveValues(node.getId(), IdmTreeNode.class, attr, Lists.newArrayList(parent.getCode()));
+		formService.saveValues(node, attr, Lists.newArrayList(parent.getCode()));
 		//
 		return node;
 	}

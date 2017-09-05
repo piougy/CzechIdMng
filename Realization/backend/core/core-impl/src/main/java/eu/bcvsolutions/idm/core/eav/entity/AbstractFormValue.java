@@ -1,9 +1,6 @@
 package eu.bcvsolutions.idm.core.eav.entity;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -17,7 +14,6 @@ import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -26,11 +22,8 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
@@ -128,223 +121,6 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	public abstract void setOwner(O owner);
 
 	/**
-	 * Returns value by persistent type
-	 * 
-	 * @return
-	 */
-	@JsonProperty(access = Access.READ_ONLY)
-	public Serializable getValue() {
-		return getValue(persistentType);
-	}
-
-	/**
-	 * Returns value by persistent type
-	 * 
-	 * @param persistentType
-	 * @return
-	 */
-	public Serializable getValue(PersistentType persistentType) {
-		Assert.notNull(persistentType);
-		//
-		switch (persistentType) {
-		case INT:
-			return longValue == null ? null : longValue.intValue();
-		case LONG:
-			return longValue;
-		case BOOLEAN:
-			return booleanValue;
-		case DATE:
-		case DATETIME:
-			return dateValue;
-		case DOUBLE:
-		case CURRENCY:
-			return doubleValue;
-		case CHAR: 
-			return stringValue == null ? null : stringValue.charAt(0);
-		case BYTEARRAY: {
-			return byteValue;
-		}
-		default:
-			return stringValue;
-		}
-	}
-
-	/**
-	 * Returns true, if value by persistent type is empty
-	 *
-	 * @return
-	 */
-	@JsonProperty(access = Access.READ_ONLY)
-	public boolean isEmpty() {
-		Assert.notNull(persistentType);
-		//
-		switch (persistentType) {
-			case INT:
-			case LONG:
-				return longValue == null;
-			case BOOLEAN:
-				return booleanValue == null;
-			case DATE:
-			case DATETIME:
-				return dateValue == null;
-			case DOUBLE:
-			case CURRENCY:
-				return doubleValue == null;
-			case BYTEARRAY: {
-				return byteValue == null || byteValue.length == 0;
-			}
-			default:
-				return StringUtils.isEmpty(stringValue);
-		}
-	}
-	
-	/**
-	 * Returns {@code true}, when value by persistent type is equal. 
-	 * Returns {@code false}, when other is null.
-	 * Returns {@code false}, when persistent types differs.
-	 * 
-	 * @param other
-	 * @return
-	 */
-	public boolean isEquals(AbstractFormValue<?> other) {
-		if (other == null) {
-			return false;
-		}
-		if (!Objects.equals(persistentType, other.getPersistentType())) {
-			return false;
-		}
-		if (isEmpty() && other.isEmpty()) {
-			return true;
-		}
-		if((isEmpty() && !other.isEmpty()) || (!isEmpty() && other.isEmpty())) {
-			return false;
-		}
-		//
-		Assert.notNull(persistentType);
-		switch (persistentType) {
-			case DATE:
-			case DATETIME:
-				// date from FE vs DB has different chronology - we are using isEquals method
-				return dateValue.isEqual(other.getDateValue());
-			default:
-				return Objects.equals(getValue(), other.getValue());
-		}
-	}
-
-	/**
-	 * Sets value by persintent type
-	 *
-	 * @param value
-	 */
-	public void setValue(Serializable value) {
-		Assert.notNull(persistentType);
-		//
-		switch (persistentType) {
-			case INT:
-			case LONG:
-				if (value == null) {
-					setLongValue(null);
-				} else if (value instanceof Long) {
-					setLongValue((Long) value);
-				} else if (value instanceof Integer) {
-					setLongValue(((Integer) value).longValue());
-				} else if (value instanceof Number) {
-					setLongValue(((Number) value).longValue());
-				} else {
-					throw wrongType(value);
-				}
-				break;
-			case BOOLEAN:
-				if (value == null) {
-					setBooleanValue(null);
-				} else if (value instanceof Boolean) {
-					setBooleanValue((Boolean) value);
-				} else {
-					throw wrongType(value);
-				}
-				break;
-			case DATE:
-			case DATETIME:
-				if (value == null) {
-					setDateValue(null);
-				} else if (value instanceof DateTime) {
-					setDateValue((DateTime) value);
-				} else if (value instanceof Date) {
-					setDateValue(new DateTime((Date) value));
-				} else if (value instanceof Long) {
-					setDateValue(new DateTime(( Long) value));
-				} else {
-					throw wrongType(value);
-				}
-				break;
-			case DOUBLE:
-			case CURRENCY:
-				if (value == null) {
-					setDoubleValue(null);
-				} else if (value instanceof BigDecimal) {
-					setDoubleValue((BigDecimal) value);
-				} else if (value instanceof Integer) {
-					setDoubleValue(BigDecimal.valueOf((Integer) value));
-				} else if (value instanceof Long) {
-					setDoubleValue(BigDecimal.valueOf((Long) value));
-				} else if (value instanceof Double) {
-					setDoubleValue(BigDecimal.valueOf((Double) value));
-				} else if (value instanceof Float) {
-					setDoubleValue(BigDecimal.valueOf(((Float) value).doubleValue()));
-				} else if (value instanceof Number) {
-					setDoubleValue(BigDecimal.valueOf(((Number) value).doubleValue()));
-				} else {
-					throw wrongType(value);
-				}
-				break;
-			case BYTEARRAY: {
-				if (value == null) {
-					setByteValue(null);
-				} else if (value instanceof byte[]) {
-					setByteValue((byte[]) value);
-				} else {
-					throw wrongType(value);
-				}
-				break;
-			}
-			default:
-				if (value == null) {
-					setStringValue(null);
-				} else if (value instanceof String) {
-					setStringValue((String) value);
-				} else {
-					throw wrongType(value);
-				}
-		}
-	}
-	
-	/**
-	 * Throws {@link ResultCodeException} exception only - value has wrong type
-	 * 
-	 * @param value
-	 */
-	private ResultCodeException wrongType(Serializable value) {
-		return new ResultCodeException(CoreResultCode.FORM_VALUE_WRONG_TYPE, ImmutableMap.of(
-				"value", Objects.toString(value), 
-				"formAttribute", formAttribute == null ? Objects.toString(formAttribute) : formAttribute.getCode(), 
-				"persistentType", persistentType, 
-				"valueType", value == null ?  Objects.toString(null) : value.getClass().getCanonicalName()
-				));
-	}
-	
-	/**
-	 * Clears all values
-	 */
-	public void clearValues() {
-		this.booleanValue = null;
-		this.stringValue = null;
-		this.dateValue = null;
-		this.longValue = null;
-		this.doubleValue = null;
-		this.byteValue = null;
-	}
-
-	/**
 	 * Attribute definition
 	 * 
 	 * @return
@@ -371,7 +147,6 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			setConfidential(attribute.isConfidential());
 		}
 	}
-	
 
 	public String getStringValue() {
 		return stringValue;

@@ -10,10 +10,9 @@ import org.springframework.util.Assert;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 
 /**
@@ -45,7 +44,7 @@ public class GuardedByteArrayFormPropertyConverter extends AbstractFormPropertyC
 	}
 	
 	@Override
-	protected Object convertSingleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, AbstractFormValue<SysSystem> formValue) {
+	protected Object convertSingleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, IdmFormValueDto formValue) {
 		if (formValue == null) {
 			return null;
 		}

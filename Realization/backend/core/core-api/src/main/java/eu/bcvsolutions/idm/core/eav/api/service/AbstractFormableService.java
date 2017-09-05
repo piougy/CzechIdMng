@@ -1,32 +1,34 @@
-package eu.bcvsolutions.idm.core.eav.service.impl;
+package eu.bcvsolutions.idm.core.eav.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 
 /**
- * Abstract implementation for generic CRUD operations on a repository for a specific type with extended attributes.
+ * Abstract implementation for generic CRUD operations on a repository for a specific type with extended attributes. 
+ * Owner type has to support event processing.
  * 
  * @author Radek Tomiška
  *
+ * @param <DTO> dto type
  * @param <E> {@link FormableEntity} type which supports extended atributes
  * @param <F> {@link BaseFilter} type
- * @deprecated dtos will be used
  */
-@Deprecated
-public abstract class AbstractFormableService<E extends FormableEntity, F extends BaseFilter> extends AbstractReadWriteEntityService<E, F> {
+public abstract class AbstractFormableService<DTO extends BaseDto, E extends FormableEntity, F extends BaseFilter> 
+		extends AbstractEventableDtoService<DTO, E, F> {
 
 	private final FormService formService;
 	
 	@Autowired
-	public AbstractFormableService(AbstractEntityRepository<E, F> repository, FormService formService) {
-		super(repository);
+	public AbstractFormableService(AbstractEntityRepository<E, F> repository, EntityEventManager entityEventManager, FormService formService) {
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(formService);
 		//
@@ -41,10 +43,10 @@ public abstract class AbstractFormableService<E extends FormableEntity, F extend
 	 */
 	@Override
 	@Transactional
-	public void delete(E entity) {
-		formService.deleteValues(entity);
+	public void deleteInternal(DTO dto) {
+		formService.deleteValues(dto);
 		//
-		super.delete(entity);
+		super.delete(dto);
 	}
 	
 	/**

@@ -2075,10 +2075,7 @@
         "label": "Main definition",
         "help": "Main / default definition"
       },
-      "description": {
-        "help": "System definition cannot be deleted. Some of its configurations are not able for edit.",
-        "label": "System definition"
-      }
+      "description": "Description"
     },
     "FormAttribute" : {
       "code": {

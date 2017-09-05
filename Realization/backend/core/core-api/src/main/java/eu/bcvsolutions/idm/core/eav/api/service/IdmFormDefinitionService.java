@@ -1,11 +1,11 @@
-package eu.bcvsolutions.idm.core.eav.service.api;
+package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
  * Form definition service
@@ -13,7 +13,9 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška
  *
  */
-public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmFormDefinition, QuickFilter>, ScriptEnabled {
+public interface IdmFormDefinitionService extends 
+		ReadWriteDtoService<IdmFormDefinitionDto, QuickFilter>,
+		ScriptEnabled {
 
 	/**
 	 * Default definition name for type (if no name is given)
@@ -27,7 +29,7 @@ public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmForm
 	 * @param code [optional] if code is {@code null}, then main definition for given type is used.
 	 * @return
 	 */
-	IdmFormDefinition findOneByTypeAndCode(String type, String code);
+	IdmFormDefinitionDto findOneByTypeAndCode(String type, String code);
 	
 	/**
 	 * Returns main definition for given type (unique).
@@ -35,7 +37,7 @@ public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmForm
 	 * @param type required
 	 * @return
 	 */
-	IdmFormDefinition findOneByMain(String type);
+	IdmFormDefinitionDto findOneByMain(String type);
 	
 	/**
 	 * Returns all definitions by given type
@@ -43,5 +45,5 @@ public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmForm
 	 * @param type required
 	 * @return
 	 */
-	List<IdmFormDefinition> findAllByType(String type);
+	List<IdmFormDefinitionDto> findAllByType(String type);
 }

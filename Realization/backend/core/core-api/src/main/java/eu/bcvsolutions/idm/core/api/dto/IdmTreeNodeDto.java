@@ -8,7 +8,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -19,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "treeNodes")
-public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable {
+public class IdmTreeNodeDto extends AbstractDto implements Disableable {
 
     private static final long serialVersionUID = 1337282508070610164L;
     @NotEmpty
@@ -44,7 +43,6 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable
 		super(id);
 	}
 	
-    @Override
     public String getCode() {
         return code;
     }

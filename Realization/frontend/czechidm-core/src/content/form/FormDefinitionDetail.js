@@ -15,7 +15,7 @@ const TYPES_UIKEY = 'typesUiKey';
 * @author Ondřej Kopr
 * @author Radek Tomiška
 */
-class FormDetail extends Basic.AbstractContent {
+class FormDefinitionDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -32,21 +32,7 @@ class FormDetail extends Basic.AbstractContent {
     super.componentDidMount();
     const { entityId } = this.props.params;
     const { isNew } = this.props;
-    this.context.store.dispatch(manager.fetchTypes(TYPES_UIKEY, (types) => {
-      const values = [];
-      if (types && types._embedded) {
-        types._embedded.resources.forEach((value) => {
-          values.push({
-            value,
-            niceLabel: value
-          });
-        });
-        this.setState({
-          types: values,
-          _showLoading: false
-        });
-      }
-    }));
+    this.context.store.dispatch(manager.fetchTypes(TYPES_UIKEY));
     if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { unmodifiable: false }));
     } else {
@@ -110,9 +96,8 @@ class FormDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, showLoading } = this.props;
-    const { types } = this.state;
-
+    const { uiKey, entity, showLoading, types } = this.props;
+    //
     return (
       <form onSubmit={this.save.bind(this)}>
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
@@ -129,7 +114,7 @@ class FormDetail extends Basic.AbstractContent {
               label={this.i18n('entity.FormDefinition.type')}
               placeholder={this.i18n('entity.FormDefinition.type')}
               required
-              readOnly={!entity || entity.unmodifiable}
+              readOnly={!entity || entity.unmodifiable || !Utils.Entity.isNew(entity)}
               options={types}/>
             <Basic.TextField
               ref="code"
@@ -153,7 +138,7 @@ class FormDetail extends Basic.AbstractContent {
               helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
             <Basic.TextArea
               ref="description"
-              label={this.i18n('entity.FormDefinition.description')}
+              label={ this.i18n('entity.FormDefinition.description') }
               rows={4}
               max={1000}/>
           </Basic.AbstractForm>
@@ -175,12 +160,12 @@ class FormDetail extends Basic.AbstractContent {
   }
 }
 
-FormDetail.propTypes = {
+FormDefinitionDetail.propTypes = {
   uiKey: PropTypes.string,
   definitionManager: PropTypes.object,
   isNew: PropTypes.bool
 };
-FormDetail.defaultProps = {
+FormDefinitionDetail.defaultProps = {
   isNew: false,
 };
 
@@ -194,4 +179,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(FormDetail);
+export default connect(select)(FormDefinitionDetail);

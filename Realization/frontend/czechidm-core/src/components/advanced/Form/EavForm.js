@@ -117,7 +117,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
   _fillFormValue(formInstance, attribute, formValue, rawValue, seq = 0) {
     if (formValue === null) {
       formValue = {
-        formAttribute: formInstance.getAttributeLink(attribute.code)
+        formAttribute: attribute.id
       };
     }
     formValue.seq = seq;

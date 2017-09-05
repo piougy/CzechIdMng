@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -32,15 +33,13 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
-import eu.bcvsolutions.idm.vs.entity.VsAccountFormValue;
-import eu.bcvsolutions.idm.vs.repository.VsAccountRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
@@ -56,7 +55,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Svanda
  *
  */
-@RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/vs/accounts")
 @Api(
 		value = VsAccountController.TAG,  
@@ -68,24 +67,17 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 
 	protected static final String TAG = "Accounts";
 	//
-	private final VsAccountRepository repository;
-	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public VsAccountController(
 			VsAccountService service, 
-			IdmFormDefinitionController formDefinitionController,
-			VsAccountRepository repository,
-			RequestResourceResolver requestResourceResolver) {
+			IdmFormDefinitionController formDefinitionController) {
 		super(service);
 		//
 		Assert.notNull(formDefinitionController);
-		Assert.notNull(repository);
-		Assert.notNull(requestResourceResolver);
 		//
 		this.formDefinitionController = formDefinitionController;
-		this.repository = repository;
 	}
 	
 	@Override
@@ -278,9 +270,8 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 				})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Account's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinitions(VsAccount.class, assembler);
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(VsAccount.class);
 	}
 	
 	/**
@@ -303,7 +294,7 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_ACCOUNT_READ, description = "") })
 				})
-	public Resources<?> getFormValues(
+	public Resource<?> getFormValues(
 			@ApiParam(value = "Account's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
@@ -316,9 +307,9 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 		//
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(VsAccount.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(VsAccount.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(repository.findOne(entity.getId()), formDefinition, assembler);
+		return formDefinitionController.getFormValues(entity, formDefinition);
 	}
 	
 	/**
@@ -342,23 +333,22 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_ACCOUNT_UPDATE, description = "") })
 				})
-	public Resources<?> saveFormValues(
+	public Resource<?> saveFormValues(
 			@ApiParam(value = "Account's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			@ApiParam(value = "Filled form data.", required = true)
-			@RequestBody @Valid List<VsAccountFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
 		VsAccountDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(VsAccount.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(VsAccount.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(repository.findOne(entity.getId()), formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
 	@Override

@@ -27,8 +27,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -38,7 +39,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -360,109 +360,109 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				// demo eav identity form
 				
-				IdmFormAttribute letter = new IdmFormAttribute();
+				IdmFormAttributeDto letter = new IdmFormAttributeDto();
 				letter.setCode("letter");
 				letter.setName("Favorite letter");
 				letter.setPlaceholder("Character");
 				letter.setDescription("Some favorite character");
 				letter.setPersistentType(PersistentType.CHAR);
 				letter.setRequired(true);
-				formService.saveAttribute(IdmIdentity.class, letter);
+				letter = formService.saveAttribute(IdmIdentity.class, letter);
 				
-				IdmFormAttribute phone = new IdmFormAttribute();
+				IdmFormAttributeDto phone = new IdmFormAttributeDto();
 				phone.setCode(FORM_ATTRIBUTE_PHONE);
 				phone.setName("Phone");
 				phone.setDescription("Additional identitiy's phone");
 				phone.setPersistentType(PersistentType.TEXT);
-				formService.saveAttribute(IdmIdentity.class, phone);
+				phone = formService.saveAttribute(IdmIdentity.class, phone);
 				
-				IdmFormAttribute description = new IdmFormAttribute();
+				IdmFormAttributeDto description = new IdmFormAttributeDto();
 				description.setCode("description");
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
 				description.setPersistentType(PersistentType.TEXTAREA);
-				formService.saveAttribute(IdmIdentity.class, description);
+				description = formService.saveAttribute(IdmIdentity.class, description);
 				
-				IdmFormAttribute rich = new IdmFormAttribute();
+				IdmFormAttributeDto rich = new IdmFormAttributeDto();
 				rich.setCode("rich");
 				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
 				rich.setPersistentType(PersistentType.RICHTEXTAREA);
-				formService.saveAttribute(IdmIdentity.class, rich);
+				rich = formService.saveAttribute(IdmIdentity.class, rich);
 				
-				IdmFormAttribute sure = new IdmFormAttribute();
+				IdmFormAttributeDto sure = new IdmFormAttributeDto();
 				sure.setCode("sure");
 				sure.setName("Registration");
 				sure.setPersistentType(PersistentType.BOOLEAN);
 				sure.setDefaultValue(Boolean.TRUE.toString());
-				formService.saveAttribute(IdmIdentity.class, sure);
+				sure = formService.saveAttribute(IdmIdentity.class, sure);
 				
-				IdmFormAttribute intNumber = new IdmFormAttribute();
+				IdmFormAttributeDto intNumber = new IdmFormAttributeDto();
 				intNumber.setCode("intNumber");
 				intNumber.setName("Int number");
 				intNumber.setPersistentType(PersistentType.INT);
-				formService.saveAttribute(IdmIdentity.class, intNumber);
+				intNumber = formService.saveAttribute(IdmIdentity.class, intNumber);
 				
-				IdmFormAttribute longNumber = new IdmFormAttribute();
+				IdmFormAttributeDto longNumber = new IdmFormAttributeDto();
 				longNumber.setCode("longNumber");
 				longNumber.setName("Long number");
 				longNumber.setPersistentType(PersistentType.LONG);
-				formService.saveAttribute(IdmIdentity.class, longNumber);
+				longNumber = formService.saveAttribute(IdmIdentity.class, longNumber);
 				
-				IdmFormAttribute doubleNumber = new IdmFormAttribute();
+				IdmFormAttributeDto doubleNumber = new IdmFormAttributeDto();
 				doubleNumber.setCode("doubleNumber");
 				doubleNumber.setName("Double number");
 				doubleNumber.setPersistentType(PersistentType.DOUBLE);
-				formService.saveAttribute(IdmIdentity.class, doubleNumber);
+				doubleNumber = formService.saveAttribute(IdmIdentity.class, doubleNumber);
 				
-				IdmFormAttribute currency = new IdmFormAttribute();
+				IdmFormAttributeDto currency = new IdmFormAttributeDto();
 				currency.setCode("currency");
 				currency.setName("Price");
 				currency.setPersistentType(PersistentType.CURRENCY);
-				formService.saveAttribute(IdmIdentity.class, currency);
+				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
-				IdmFormAttribute date = new IdmFormAttribute();
+				IdmFormAttributeDto date = new IdmFormAttributeDto();
 				date.setCode("date");
 				date.setName("Date");
 				date.setPersistentType(PersistentType.DATE);
 				date.setRequired(true);
 				date.setDescription("Important date");
-				formService.saveAttribute(IdmIdentity.class, date);
+				date = formService.saveAttribute(IdmIdentity.class, date);
 				
-				IdmFormAttribute datetime = new IdmFormAttribute();
+				IdmFormAttributeDto datetime = new IdmFormAttributeDto();
 				datetime.setCode(FORM_ATTRIBUTE_DATETIME);
 				datetime.setName("Date and time");
 				datetime.setPersistentType(PersistentType.DATETIME);
-				formService.saveAttribute(IdmIdentity.class, datetime);
+				datetime = formService.saveAttribute(IdmIdentity.class, datetime);
 				
-				IdmFormAttribute webPages = new IdmFormAttribute();
+				IdmFormAttributeDto webPages = new IdmFormAttributeDto();
 				webPages.setCode(FORM_ATTRIBUTE_WWW);
 				webPages.setName("WWW");
 				webPages.setDescription("Favorite web pages (every line in new value)");
 				webPages.setPersistentType(PersistentType.TEXT);
 				webPages.setMultiple(true);
-				formService.saveAttribute(IdmIdentity.class, webPages);
+				webPages = formService.saveAttribute(IdmIdentity.class, webPages);
 				
-				IdmFormAttribute password = new IdmFormAttribute();
+				IdmFormAttributeDto password = new IdmFormAttributeDto();
 				password.setCode(FORM_ATTRIBUTE_PASSWORD);
 				password.setName("Custom password");
 				password.setPersistentType(PersistentType.TEXT);
 				password.setConfidential(true);
 				password.setDescription("Test password");
-				formService.saveAttribute(IdmIdentity.class, password);
+				password = formService.saveAttribute(IdmIdentity.class, password);
 				
-				IdmFormAttribute byteArray = new IdmFormAttribute();
+				IdmFormAttributeDto byteArray = new IdmFormAttributeDto();
 				byteArray.setCode("byteArray");
 				byteArray.setName("Byte array");
 				byteArray.setPersistentType(PersistentType.BYTEARRAY);
 				byteArray.setConfidential(false);
 				byteArray.setDescription("Test byte array");
 				byteArray.setPlaceholder("or image :-)");
-				formService.saveAttribute(IdmIdentity.class, byteArray);				
+				byteArray = formService.saveAttribute(IdmIdentity.class, byteArray);				
 				
-				List<IdmIdentityFormValue> values = new ArrayList<>();				
-				IdmIdentityFormValue phoneValue = new IdmIdentityFormValue();
-				phoneValue.setFormAttribute(phone);
+				List<IdmFormValueDto> values = new ArrayList<>();				
+				IdmFormValueDto phoneValue = new IdmFormValueDto();
+				phoneValue.setFormAttribute(phone.getId());
 				phoneValue.setStringValue("12345679");
 				values.add(phoneValue);
 				
@@ -470,36 +470,36 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				
 				//
 				// demo eav role form
-				IdmFormAttribute roleExt = new IdmFormAttribute();
+				IdmFormAttributeDto roleExt = new IdmFormAttributeDto();
 				roleExt.setCode("extAttr");
 				roleExt.setName("Ext.attr");
 				roleExt.setPersistentType(PersistentType.TEXT);
 				roleExt.setConfidential(false);
 				roleExt.setDescription("Role's custom extended attribute");
 				
-				formService.saveAttribute(IdmRole.class, roleExt);
+				roleExt = formService.saveAttribute(IdmRole.class, roleExt);
 				
 				//
 				// demo eav tree node form
-				IdmFormAttribute treeNodeExt = new IdmFormAttribute();
+				IdmFormAttributeDto treeNodeExt = new IdmFormAttributeDto();
 				treeNodeExt.setCode("extAttr");
 				treeNodeExt.setName("Ext.attr");
 				treeNodeExt.setPersistentType(PersistentType.TEXT);
 				treeNodeExt.setConfidential(false);
 				treeNodeExt.setDescription("Tree node's custom extended attribute");
 				
-				formService.saveAttribute(IdmTreeNode.class, treeNodeExt);
+				treeNodeExt = formService.saveAttribute(IdmTreeNode.class, treeNodeExt);
 				
 				//
 				// demo eav identity contract's form
-				IdmFormAttribute identityContractExt = new IdmFormAttribute();
+				IdmFormAttributeDto identityContractExt = new IdmFormAttributeDto();
 				identityContractExt.setCode("extAttr");
 				identityContractExt.setName("Ext.attr");
 				identityContractExt.setPersistentType(PersistentType.TEXT);
 				identityContractExt.setConfidential(false);
 				identityContractExt.setDescription("Identity contract's custom extended attribute");
 				
-				formService.saveAttribute(IdmIdentityContract.class, identityContractExt);
+				identityContractExt = formService.saveAttribute(IdmIdentityContract.class, identityContractExt);
 			}
 		} catch(Exception ex) {
 			LOG.warn("Demo data was not created", ex);

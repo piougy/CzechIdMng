@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.dto.filter;
+package eu.bcvsolutions.idm.core.eav.api.dto.filter;
 
 import java.util.UUID;
 
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Radek Tomiška
  *
  */
-public class FormAttributeFilter implements BaseFilter {
+public class IdmFormAttributeFilter implements BaseFilter {
 
 	private UUID formDefinitionId;
 	private String definitionType;

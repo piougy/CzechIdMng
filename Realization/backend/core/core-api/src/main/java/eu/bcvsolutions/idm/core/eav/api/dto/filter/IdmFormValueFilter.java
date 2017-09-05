@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.dto.filter;
+package eu.bcvsolutions.idm.core.eav.api.dto.filter;
 
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  *
  * @param <O>
  */
-public class FormValueFilter<O extends FormableEntity> implements BaseFilter {
+public class IdmFormValueFilter<O extends FormableEntity> implements BaseFilter {
 
 	private UUID formDefinitionId;
 	private UUID formAttributeId;

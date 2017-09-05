@@ -1,8 +1,8 @@
-package eu.bcvsolutions.idm.core.eav.service.api;
+package eu.bcvsolutions.idm.core.eav.api.service;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 
 /**
  * Form attributes definition
@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
  *
  */
 public interface IdmFormAttributeService 
-		extends ReadWriteDtoService<IdmFormAttributeDto, FormAttributeFilter> {
+		extends ReadWriteDtoService<IdmFormAttributeDto, IdmFormAttributeFilter> {
 	
 	/**
 	 * Finds one attribute from given definition by given attribute name

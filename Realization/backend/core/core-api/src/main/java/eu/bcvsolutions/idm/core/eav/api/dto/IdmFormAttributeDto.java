@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.dto;
+package eu.bcvsolutions.idm.core.eav.api.dto;
 
 import java.util.UUID;
 

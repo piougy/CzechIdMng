@@ -1,11 +1,11 @@
-package eu.bcvsolutions.idm.core.eav.service.api;
+package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
  * Form definition service

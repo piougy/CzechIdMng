@@ -16,10 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -33,10 +34,9 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormDefinitionIntegrationTest.class);
 
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private IdmFormAttributeRepository formAttributeRepository;
+	@Autowired private ApplicationContext context;
+	@Autowired private IdmFormAttributeRepository formAttributeRepository;
+	@Autowired private IdmFormAttributeService formAttributeService;
 	//
 	private IdmFormDefinitionService formDefinitionService;	
 	
@@ -62,7 +62,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	private ResultHolder createDefinition(String code, boolean randomAttributes, boolean log) {
 		ResultHolder result = new ResultHolder();
 		
-		IdmFormDefinition formDefinition = new IdmFormDefinition();
+		IdmFormDefinitionDto formDefinition = new IdmFormDefinitionDto();
 		formDefinition.setType("test_type");
 		formDefinition.setCode(code);
 		if (log) {
@@ -80,12 +80,12 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		}
 		startTime = System.currentTimeMillis();
 		for(int i = 0; i < attributeCount; i++) {
-			IdmFormAttribute attributeDefinition = new IdmFormAttribute();
-			attributeDefinition.setFormDefinition(formDefinition);
+			IdmFormAttributeDto attributeDefinition = new IdmFormAttributeDto();
+			attributeDefinition.setFormDefinition(formDefinition.getId());
 			attributeDefinition.setCode("name_" + i);
 			attributeDefinition.setName(attributeDefinition.getCode());
 			attributeDefinition.setPersistentType(PersistentType.TEXT);			
-			formAttributeRepository.save(attributeDefinition);
+			attributeDefinition = formAttributeService.save(attributeDefinition);
 		}
 		if (log) {
 			result.childrenCreateTime = (double) System.currentTimeMillis() - startTime;
@@ -94,7 +94,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 				result.childrenCreateTime = result.childrenCreateTime / attributeCount;
 			}
 			startTime = System.currentTimeMillis();
-			int realAttributeCount = formAttributeRepository.findByFormDefinitionOrderBySeq(formDefinition).size();
+			int realAttributeCount = formAttributeRepository.findByFormDefinition_IdOrderBySeq(formDefinition.getId()).size();
 			assertEquals(attributeCount, realAttributeCount);
 			result.childrenLoadTime = System.currentTimeMillis() - startTime;
 			LOG.info("--- {}ms:  After definition [{}] attributes load, attributes count [{}]", result.childrenLoadTime, code, realAttributeCount);
@@ -106,11 +106,11 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Test
 	@Transactional
 	public void testDeleteDefinitionWithAttributes() {
-		IdmFormDefinition formDefinition = createDefinition("one", true, true).formDefinition;
+		IdmFormDefinitionDto formDefinition = createDefinition("one", true, true).formDefinition;
 		
 		formDefinitionService.delete(formDefinition);
 		
-		assertEquals(0, formAttributeRepository.findByFormDefinitionOrderBySeq(formDefinition).size());
+		assertEquals(0, formAttributeRepository.findByFormDefinition_IdOrderBySeq(formDefinition.getId()).size());
 	}
 	
 	@Test
@@ -169,7 +169,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	}
 	
 	private class ResultHolder {
-		public IdmFormDefinition formDefinition;
+		public IdmFormDefinitionDto formDefinition;
 		public double createTime;
 		public double childrenCreateTime;
 		public double childrenLoadTime;

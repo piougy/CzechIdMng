@@ -60,10 +60,10 @@ import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -372,7 +372,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		roleFilter.setValue("3");
 		IdmRoleDto roleThree = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleThree);
-		IdmRoleFormValue changedRole = (IdmRoleFormValue) formService.getValues(roleThree.getId(), IdmRole.class, "changed").get(0);
+		IdmFormValueDto changedRole = (IdmFormValueDto) formService.getValues(roleThree.getId(), IdmRole.class, "changed").get(0);
 		Assert.assertNotNull(changedRole);
 
 		// Set sync config

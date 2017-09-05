@@ -1,12 +1,16 @@
 import React from 'react';
+//
 import * as Basic from '../../components/basic';
 import { FormDefinitionManager } from '../../redux';
-import FormTable from './FormTable';
+import FormDefinitionTable from './FormDefinitionTable';
 
 /**
  * Form definitions and attributes (same agenda)
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
-export default class Forms extends Basic.AbstractContent {
+export default class FormDefinitions extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -26,14 +30,14 @@ export default class Forms extends Basic.AbstractContent {
       <div>
         {this.renderPageHeader()}
         <Basic.Panel>
-          <FormTable uiKey="form-table" definitionManager={this.manager}/>
+          <FormDefinitionTable uiKey="form-table" definitionManager={this.manager}/>
         </Basic.Panel>
       </div>
     );
   }
 }
 
-Forms.propTypes = {
+FormDefinitions.propTypes = {
 };
-Forms.defaultProps = {
+FormDefinitions.defaultProps = {
 };

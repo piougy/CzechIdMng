@@ -97,7 +97,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
     };
 
     if (entity.id === undefined) {
-      saveEntity.formDefinition = formDefinitionManager.getSelfLink(this._getFormDefinitionId());
+      saveEntity.formDefinition = this._getFormDefinitionId();
       this.context.store.dispatch(attributeManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));

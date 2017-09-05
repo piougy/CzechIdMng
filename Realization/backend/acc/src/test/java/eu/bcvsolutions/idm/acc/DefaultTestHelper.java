@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -35,8 +34,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -120,60 +120,60 @@ public class DefaultTestHelper implements TestHelper {
 		system.setName(systemName == null ? tableName + "_" + System.currentTimeMillis() : systemName);
 
 		system.setConnectorKey(new SysConnectorKey(systemService.getTestConnectorKey()));
-		systemService.save(system);
+		system = systemService.save(system);
 
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 
-		List<SysSystemFormValue> values = new ArrayList<>();
+		List<IdmFormValueDto> values = new ArrayList<>();
 
-		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
+		IdmFormValueDto jdbcUrlTemplate = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("jdbcUrlTemplate"));
 		jdbcUrlTemplate.setValue(tomcatDataSource.getUrl());
 		values.add(jdbcUrlTemplate);
-		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
+		IdmFormValueDto jdbcDriver = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("jdbcDriver"));
 		jdbcDriver.setValue(tomcatDataSource.getDriverClassName());
 		values.add(jdbcDriver);
 
-		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
+		IdmFormValueDto user = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("user"));
 		user.setValue(tomcatDataSource.getUsername());
 		values.add(user);
-		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
+		IdmFormValueDto password = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("password"));
 		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
 		values.add(password);
-		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
+		IdmFormValueDto table = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("table"));
 		table.setValue(tableName);
 		values.add(table);
-		SysSystemFormValue keyColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("keyColumn"));
+		IdmFormValueDto keyColumn = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("keyColumn"));
 		keyColumn.setValue("name");
 		values.add(keyColumn);
-		SysSystemFormValue passwordColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("passwordColumn"));
+		IdmFormValueDto passwordColumn = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("passwordColumn"));
 		passwordColumn.setValue("password");
 		values.add(passwordColumn);
-		SysSystemFormValue allNative = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("allNative"));
+		IdmFormValueDto allNative = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("allNative"));
 		allNative.setValue(true);
 		values.add(allNative);
-		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
+		IdmFormValueDto rethrowAllSQLExceptions = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("rethrowAllSQLExceptions"));
 		rethrowAllSQLExceptions.setValue(true);
 		values.add(rethrowAllSQLExceptions);
-		SysSystemFormValue statusColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("statusColumn"));
+		IdmFormValueDto statusColumn = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("statusColumn"));
 		statusColumn.setValue("status");
 		values.add(statusColumn);
-		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
+		IdmFormValueDto disabledStatusValue = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("disabledStatusValue"));
 		disabledStatusValue.setValue("disabled");
 		values.add(disabledStatusValue);
-		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
+		IdmFormValueDto enabledStatusValue = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("enabledStatusValue"));
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
-		SysSystemFormValue changeLogColumnValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("changeLogColumn"));
+		IdmFormValueDto changeLogColumnValue = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("changeLogColumn"));
 		changeLogColumnValue.setValue(null);
 		values.add(changeLogColumnValue);
 

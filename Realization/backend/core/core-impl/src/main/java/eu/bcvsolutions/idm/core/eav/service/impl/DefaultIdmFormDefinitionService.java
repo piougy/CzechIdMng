@@ -10,12 +10,12 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 
 /**
  * Default implementation of form definition service
@@ -63,6 +63,18 @@ public class DefaultIdmFormDefinitionService
 	}
 	
 	@Override
+	protected IdmFormDefinitionDto toDto(IdmFormDefinition entity, IdmFormDefinitionDto dto) {
+		dto = super.toDto(entity, dto);
+		if (dto != null && !dto.isTrimmed()) {
+			// set mapped attributes
+			IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
+			filter.setFormDefinitionId(dto.getId());
+			dto.setFormAttributes(formAttributeService.find(filter, null).getContent());
+		}
+		return dto;
+	}
+	
+	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinitionDto findOneByTypeAndCode(String type, String code) {
 		return toDto(formDefinitionRepository.findOneByTypeAndCode(type, code != null ? code : DEFAULT_DEFINITION_CODE));
@@ -84,7 +96,7 @@ public class DefaultIdmFormDefinitionService
 	@Transactional
 	public void deleteInternal(IdmFormDefinitionDto dto) {
 		// delete all attributes in definition
-		FormAttributeFilter filter = new FormAttributeFilter();
+		IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
 		filter.setFormDefinitionId(dto.getId());
 		formAttributeService.find(filter, null).forEach(formAttribute -> {
 			formAttributeService.delete(formAttribute);

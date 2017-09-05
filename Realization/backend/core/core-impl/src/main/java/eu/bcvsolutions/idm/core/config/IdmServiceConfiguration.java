@@ -28,12 +28,12 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.FormValueService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
@@ -147,7 +147,7 @@ public class IdmServiceConfiguration {
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
-	@Autowired private List<? extends FormValueService<?, ?>> formValueServices;
+	@Autowired private List<? extends FormValueService<?>> formValueServices;
 	@Autowired private List<? extends FilterBuilder<?, ?>> filterBuilders;
 	@Autowired private List<? extends EntityLookup<?>> entityLookups;
 	@Autowired private List<? extends DtoLookup<?>> dtoLookups;

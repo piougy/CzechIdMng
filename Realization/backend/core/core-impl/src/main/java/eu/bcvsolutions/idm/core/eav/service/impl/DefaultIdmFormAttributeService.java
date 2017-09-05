@@ -14,13 +14,13 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
-import eu.bcvsolutions.idm.core.eav.dto.filter.FormValueFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
-import eu.bcvsolutions.idm.core.eav.service.api.FormValueService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
 
 /**
  * Form attribute (attribute definition) service
@@ -29,16 +29,16 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
  *
  */
 public class DefaultIdmFormAttributeService 
-		extends AbstractReadWriteDtoService<IdmFormAttributeDto, IdmFormAttribute, FormAttributeFilter> 
+		extends AbstractReadWriteDtoService<IdmFormAttributeDto, IdmFormAttribute, IdmFormAttributeFilter> 
 		implements IdmFormAttributeService {
 
 	private final IdmFormAttributeRepository repository;
-	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
+	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
 	
 	@Autowired
 	public DefaultIdmFormAttributeService(
 			IdmFormAttributeRepository repository,
-			List<? extends FormValueService<?, ?>> formValueServices) {
+			List<? extends FormValueService<?>> formValueServices) {
 		super(repository);
 		//
 		Assert.notNull(formValueServices);
@@ -64,7 +64,7 @@ public class DefaultIdmFormAttributeService
 	public void deleteInternal(IdmFormAttributeDto dto) {
 		Assert.notNull(dto);
 		// attribute with filled values cannot be deleted
-		FormValueFilter filter = new FormValueFilter();
+		IdmFormValueFilter filter = new IdmFormValueFilter();
 		filter.setFormAttributeId(dto.getId());
 		formValueServices.getPlugins().forEach(formValueService -> {
 			if (formValueService.find(filter, new PageRequest(0, 1)).getTotalElements() > 0) {

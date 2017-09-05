@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +18,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
@@ -37,7 +35,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
  * @author Svanda
  *
  */
-@Service()
+@Service
 public class DefaultVsAccountService
 		extends AbstractReadWriteDtoService<VsAccountDto, VsAccount, VsAccountFilter> 
 		implements VsAccountService {

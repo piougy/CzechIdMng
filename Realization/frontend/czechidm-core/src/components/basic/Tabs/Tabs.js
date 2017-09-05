@@ -34,7 +34,7 @@ export default class BasicTabs extends AbstractComponent {
     }
     //
     return (
-      <Tabs id={_id} position={position} onSelect={onSelect} activeKey={activeKey} className={classNames} {...others}>
+      <Tabs id={_id} onSelect={onSelect} activeKey={activeKey} className={classNames}>
         {this.props.children}
       </Tabs>
     );

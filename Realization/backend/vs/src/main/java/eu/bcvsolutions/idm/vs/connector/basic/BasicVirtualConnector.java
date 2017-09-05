@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +20,12 @@ import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -40,6 +47,7 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
+import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
@@ -67,6 +75,8 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 public class BasicVirtualConnector
 		implements VsVirtualConnector {
 
+	private static final Logger LOG = LoggerFactory.getLogger(BasicVirtualConnector.class);
+	
 	@Autowired
 	private FormService formService;
 	@Autowired
@@ -75,6 +85,10 @@ public class BasicVirtualConnector
 	private SysSystemService systemService;
 	@Autowired
 	private VsAccountService accountService;
+	@Autowired
+	private AccAccountService accAccountService;
+	@Autowired
+	private SysSystemEntityService systemEntityService;
 	@Autowired
 	private VsRequestService requestService;
 	@Autowired
@@ -182,8 +196,13 @@ public class BasicVirtualConnector
 						MessageFormat.format("UID attribute value [{0}] must be String!", attributeUidValue));
 			}
 			if (!uidValue.equals(attributeUidValue)) {
-				account.setUid((String) attributeUidValue);
+				// TODO: Connector not supported more entity types!
+				LOG.info("Update account - UID is different (old: {} new: {})", uidValue, attributeUidValue);
+		 		account.setUid((String) attributeUidValue);
 				account = accountService.save(account);
+				// We have to change system entity directly from VS module (request can be started/executed async => standard 
+				// process update UID in system entity (ACC module) will not works!)
+				updateSystemEntity(uidValue, attributeUidValue);
 			}
 		}
 
@@ -549,6 +568,33 @@ public class BasicVirtualConnector
 			});
 			return definition;
 		}
+	}
+	
+	/**
+	 * We have to change system entity directly from VS module (request can be started/executed async => standard 
+	 * process update UID in system entity (ACC module) will not works!)
+	 * @param uidValue
+	 * @param attributeUidValue
+	 */
+	private void updateSystemEntity(String uidValue, Object attributeUidValue) {
+		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
+		systemEntityFilter.setUid(uidValue);
+		systemEntityFilter.setSystemId(systemId);
+		
+		List<SysSystemEntityDto> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
+		if (systemEntities.isEmpty()) {
+			throw new IcException(MessageFormat.format("System entity was not found for UID [{0}] and system ID [{1}]! Change UID attribute (new [{2}]) cannot be executed!",
+					uidValue, systemId, attributeUidValue));
+		}
+		if (systemEntities.size() > 1) {
+			throw new IcException(MessageFormat.format("For UID [{0}] and system ID [{1}] was found too many items [{2}]! Change UID attribute (new [{3}]) cannot be executed!",
+					uidValue, systemId, systemEntities.size(), attributeUidValue));
+		}
+		SysSystemEntityDto systemEntity = systemEntities.get(0);
+		systemEntity.setUid((String) attributeUidValue);
+		// Save changed system entity
+		systemEntityService.save(systemEntity);
+		LOG.info("Update account - UID was changed (old: {} new: {}). System entity was updated.", uidValue, attributeUidValue);
 	}
 
 	private void updateFormAttributeValue(Object uidValue, String virtualAttirbute, UUID accountId,

@@ -25,7 +25,16 @@ public class VsRequestFilter extends QuickFilter {
 	private VsRequestState state;
 	private DateTime createdAfter;
 	private DateTime createdBefore;
+	private Boolean onlyArchived;
 	
+	public Boolean getOnlyArchived() {
+		return onlyArchived;
+	}
+
+	public void setOnlyArchived(Boolean onlyArchived) {
+		this.onlyArchived = onlyArchived;
+	}
+
 	public void setUid(String uidValue) {
 		this.uid = uidValue;
 	}
@@ -81,5 +90,4 @@ public class VsRequestFilter extends QuickFilter {
 	public void setCreatedBefore(DateTime createdBefore) {
 		this.createdBefore = createdBefore;
 	}
-	
 }

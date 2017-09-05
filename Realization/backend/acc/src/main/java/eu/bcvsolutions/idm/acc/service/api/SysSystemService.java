@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
@@ -53,7 +53,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param connectorKey
 	 * @return
 	 */
-	IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance);
+	IdmFormDefinitionDto getConnectorFormDefinition(IcConnectorInstance connectorInstance);
 	
 	/**
 	 * Check if is connector works fine 

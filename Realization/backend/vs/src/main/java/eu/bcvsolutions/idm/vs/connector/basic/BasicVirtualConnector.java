@@ -29,11 +29,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
@@ -96,7 +96,7 @@ public class BasicVirtualConnector
 	
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IcConnectorConfiguration configuration;
-	private IdmFormDefinition formDefinition;
+	private IdmFormDefinitionDto formDefinition;
 	private String virtualSystemKey;
 	private String connectorKey;
 	private UUID systemId;
@@ -414,15 +414,14 @@ public class BasicVirtualConnector
 	 * @return
 	 */
 	private IcAttributeImpl loadIcAttribute(UUID accountId, String name) {
-		IdmFormAttribute attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(),
+		IdmFormAttributeDto attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(),
 				formDefinition.getCode(), name);
-		List<AbstractFormValue<VsAccount>> values = this.formService.getValues(accountId, VsAccount.class,
-				this.formDefinition, name);
+		List<IdmFormValueDto> values = this.formService.getValues(accountId, VsAccount.class, this.formDefinition, name);
 		if (CollectionUtils.isEmpty(values)) {
 			return null;
 		}
 
-		List<Object> valuesObject = values.stream().map(AbstractFormValue::getValue).collect(Collectors.toList());
+		List<Object> valuesObject = values.stream().map(IdmFormValueDto::getValue).collect(Collectors.toList());
 
 		IcAttributeImpl attribute = new IcAttributeImpl();
 		attribute.setMultiValue(attributeDefinition.isMultiple());
@@ -472,7 +471,7 @@ public class BasicVirtualConnector
 
 		// Attributes from definition and configuration
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IdmFormAttribute formAttribute = formAttributeService.findAttribute(VsAccount.class.getName(),
+			IdmFormAttributeDto formAttribute = formAttributeService.findAttribute(VsAccount.class.getName(),
 					formDefinition.getCode(), virtualAttirbute);
 			if (formAttribute == null) {
 				return;
@@ -542,23 +541,23 @@ public class BasicVirtualConnector
 	 * @param virtualConfiguration
 	 * @return
 	 */
-	private IdmFormDefinition updateFormDefinition(String key, String type, SysSystem system,
+	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystem system,
 			BasicVirtualConfiguration virtualConfiguration) {
 		// TODO: delete attribute definitions
 
-		IdmFormDefinition definition = this.formService.getDefinition(type, key);
-		List<IdmFormAttribute> formAttributes = new ArrayList<>();
+		IdmFormDefinitionDto definition = this.formService.getDefinition(type, key);
+		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IdmFormAttribute formAttribute = formAttributeService.findAttribute(type, key, virtualAttirbute);
+			IdmFormAttributeDto formAttribute = formAttributeService.findAttribute(type, key, virtualAttirbute);
 			if (formAttribute == null) {
 				formAttribute = createFromAttribute(virtualAttirbute);
-				formAttribute.setFormDefinition(definition);
+				formAttribute.setFormDefinition(definition == null ? null : definition.getId());
 				formAttributes.add(formAttribute);
 			}
 		});
 
 		if (definition == null) {
-			IdmFormDefinition createdDefinition = this.formService.createDefinition(type, key, formAttributes);
+			IdmFormDefinitionDto createdDefinition = this.formService.createDefinition(type, key, formAttributes);
 			createdDefinition.setName(MessageFormat.format("Virtual system for [{0}]", system.getName()));
 			createdDefinition.setUnmodifiable(true);
 			return this.formService.saveDefinition(createdDefinition);
@@ -619,8 +618,8 @@ public class BasicVirtualConnector
 		formService.saveValues(accountId, VsAccount.class, this.formDefinition, virtualAttirbute, serializableValues);
 	}
 
-	private IdmFormAttribute createFromAttribute(String virtualAttirbute) {
-		IdmFormAttribute formAttribute = new IdmFormAttribute();
+	private IdmFormAttributeDto createFromAttribute(String virtualAttirbute) {
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto();
 		formAttribute.setCode(virtualAttirbute);
 		formAttribute.setConfidential(false);
 		formAttribute.setPersistentType(PersistentType.TEXT);

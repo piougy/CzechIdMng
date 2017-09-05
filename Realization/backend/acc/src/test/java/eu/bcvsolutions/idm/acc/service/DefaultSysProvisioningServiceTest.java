@@ -65,11 +65,11 @@ import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -555,10 +555,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		systemAttributeMappingService.save(attributeHandling);
 
 		// Create extended attribute value for password
-		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName());
-		List<IdmIdentityFormValue> values = new ArrayList<>();
-		IdmIdentityFormValue phoneValue = new IdmIdentityFormValue();
-		phoneValue.setFormAttribute(formDefinition.getMappedAttributeByName(IDENTITY_EXT_PASSWORD));
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName());
+		List<IdmFormValueDto> values = new ArrayList<>();
+		IdmFormValueDto phoneValue = new IdmFormValueDto();
+		phoneValue.setFormAttribute(formDefinition.getMappedAttributeByCode(IDENTITY_EXT_PASSWORD).getId());
 		phoneValue.setStringValue(IDENTITY_PASSWORD_THREE);
 		values.add(phoneValue);
 		formService.saveValues(identityRepository.findOne(identity.getId()), formDefinition, values);

@@ -65,13 +65,12 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
@@ -791,25 +790,10 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			}
 		});
 	}
-	
-	/**
-	 * Find tree type ID by attribute mapping
-	 * @param attribute
-	 * @return
-	 */
-	private UUID findTreeTypeId(AttributeMapping attribute){
-		SysSystemMappingDto systemMapping = systemMappingService.get(((SysSystemAttributeMappingDto)attribute).getSystemMapping());
-		return systemMapping.getTreeType();
-	}
 
 	@Override
 	protected Class<? extends FormableEntity> getEntityClass() {
 		return IdmTreeNode.class;
-	}
-
-	@Override
-	protected BaseEntityRepository getRepository() {
-		return this.treeNodeRepository;
 	}
 
 	@Override

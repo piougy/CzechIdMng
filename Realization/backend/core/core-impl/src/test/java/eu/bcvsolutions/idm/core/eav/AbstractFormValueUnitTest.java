@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -22,7 +22,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 
 	@Test
 	public void testDateValueAsDateTime() {
-		IdmIdentityFormValue formValue = new IdmIdentityFormValue();
+		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATE);
 		
 		DateTime current = new DateTime();
@@ -34,7 +34,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testDateValueAsDate() {
-		IdmIdentityFormValue formValue = new IdmIdentityFormValue();
+		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATE);
 		
 		DateTime current = new DateTime();
@@ -46,7 +46,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testDateValueAsLong() {
-		IdmIdentityFormValue formValue = new IdmIdentityFormValue();
+		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATE);
 		
 		DateTime current = new DateTime();
@@ -58,7 +58,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testWrongDate() {
-		IdmIdentityFormValue formValue = new IdmIdentityFormValue();
+		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATE);
 		
 		formValue.setValue("wrong");

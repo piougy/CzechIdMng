@@ -11,7 +11,7 @@ import { SecurityManager } from '../../redux';
 * @author Ondřej Kopr
 * @author Radek Tomiška
 */
-export default class FormTable extends Basic.AbstractContent {
+export default class FormDefinitioTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -168,12 +168,12 @@ export default class FormTable extends Basic.AbstractContent {
   }
 }
 
-FormTable.propTypes = {
+FormDefinitioTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   definitionManager: PropTypes.object.isRequired,
   filterOpened: PropTypes.bool
 };
 
-FormTable.defaultProps = {
+FormDefinitioTable.defaultProps = {
   filterOpened: true
 };

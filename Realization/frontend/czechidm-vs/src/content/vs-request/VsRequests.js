@@ -37,8 +37,6 @@ export default class VsRequests extends Basic.AbstractContent {
         <Basic.PageHeader>
           <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
         </Basic.PageHeader>
-
-        <Basic.Panel>
           <Basic.Tabs>
             <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
               <VsRequestTable
@@ -55,8 +53,6 @@ export default class VsRequests extends Basic.AbstractContent {
                 filterOpened />
             </Basic.Tab>
           </Basic.Tabs>
-        </Basic.Panel>
-
       </div>
     );
   }

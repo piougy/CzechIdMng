@@ -48,7 +48,7 @@ public class DefaultEntityLookup<E extends BaseEntity> implements EntityLookup<E
 			if (dto == null) {
 				return null;
 			}
-			return entityManager.find(entityClass, dto.getId());
+			return find(dto.getId());
 		}
 		// default by id
 		if (AbstractEntity.class.isAssignableFrom(entityClass) && (id instanceof String)) {
@@ -56,12 +56,16 @@ public class DefaultEntityLookup<E extends BaseEntity> implements EntityLookup<E
 			// EL does not recognize two methods with the same name and
 			// different argument type
 			try {
-				return entityManager.find(entityClass, UUID.fromString((String) id));
+				return find(UUID.fromString((String) id));
 			} catch (IllegalArgumentException ex) {
 				// simply not found
 				return null;
 			}
 		}
+		return find(id);
+	}
+	
+	private E find(Serializable id) {
 		return entityManager.find(entityClass, id);
 	}
 	

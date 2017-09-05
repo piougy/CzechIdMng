@@ -8,9 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -35,13 +35,13 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
@@ -53,12 +53,10 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Identity contract endpoint
  * 
- * TODO: eav to dtos
- * 
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController // TODO: @RestController after eav to dto
+@RestController // TODO: @RestController after eav to dto
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identity-contracts")
 @Api(
 		value = IdmIdentityContractController.TAG, 
@@ -250,7 +248,6 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	 * Returns form definition to given entity.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -268,16 +265,14 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 				})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Contract's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinitions(IdmIdentityContract.class, assembler);
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(IdmIdentityContract.class);
 	}
 	
 	/**
 	 * Returns entity's filled form values
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -293,12 +288,11 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_READ, description = "") })
 				})
-	public Resources<?> getFormValues(
+	public Resource<?> getFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			PersistentEntityResourceAssembler assembler) {
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
 		IdmIdentityContractDto dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -306,9 +300,9 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		//
 		checkAccess(dto, IdmBasePermission.READ);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(dto.getId(), IdmIdentityContract.class, formDefinition, assembler);
+		return formDefinitionController.getFormValues(dto, formDefinition);
 	}
 	
 	/**
@@ -316,7 +310,6 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -332,14 +325,13 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = "") })
 				})
-	public Resources<?> saveFormValues(
+	public Resource<?> saveFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId,
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			@ApiParam(value = "Filled form data.", required = true)
-			@RequestBody @Valid List<IdmIdentityContractFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
 		IdmIdentityContractDto dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -347,9 +339,9 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		// 
 		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(dto.getId(), IdmIdentityContract.class, formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
 	}
 	
 	@Override

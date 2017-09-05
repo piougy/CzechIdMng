@@ -115,8 +115,8 @@
     },
     "vs-request": {
       "detail" : {
-        "basic": "Základní informace",
-        "header": "Požadavek",
+        "basic": "Detail požadavku na realizaci",
+        "header": "Požadavek na realizaci",
         "title": "$t(vs:content.vs-request.detail.header)",
         "requestAttributes": "Atributy v tomto požadavku",
         "accountAttributes": "Atributy účtu na virtuálním systému",

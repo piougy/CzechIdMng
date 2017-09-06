@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -29,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 @Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,code", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEntity, Codeable {
+public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 8267096009610364911L;
 	
@@ -105,7 +104,6 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 		this.unmodifiable = unmodifiable;
 	}
 
-	@Override
 	public String getCode() {
 		return code;
 	}

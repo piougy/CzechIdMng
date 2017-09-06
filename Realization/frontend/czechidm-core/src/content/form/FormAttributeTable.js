@@ -52,17 +52,17 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity) {
-    const { formDefinitionId } = this.props;
+    const { definitionId } = this.props;
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/forms/attribute/${uuidId}?new=1&formDefinition=${formDefinitionId}`);
+      this.context.router.push(`/forms/attribute/${uuidId}?new=1&formDefinition=${definitionId}`);
     } else {
       this.context.router.push('/forms/attribute/' + entity.id);
     }
   }
 
   render() {
-    const { uiKey, formDefinitionId } = this.props;
+    const { uiKey, definitionId } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -71,9 +71,9 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
-          showRowSelection={ SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE') }
+          showRowSelection={ SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE') }
           manager={ attributeManager }
-          forceSearchParameters={ new SearchParameters().setFilter('formDefinitionId', formDefinitionId) }
+          forceSearchParameters={ new SearchParameters().setFilter('definitionId', definitionId) }
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -108,7 +108,7 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, { })}
-                rendered={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_CREATE')}>
+                rendered={SecurityManager.hasAuthority('FORMATTRIBUTE_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -144,7 +144,7 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
 FormAttributeTable.propTypes = {
   filterOpened: PropTypes.bool,
   uiKey: PropTypes.string.isRequired,
-  formDefinitionId: PropTypes.string.isRequired
+  definitionId: PropTypes.string.isRequired
 };
 
 FormAttributeTable.defaultProps = {

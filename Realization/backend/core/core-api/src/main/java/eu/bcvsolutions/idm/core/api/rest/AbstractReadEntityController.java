@@ -45,7 +45,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -285,10 +284,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	@SuppressWarnings("unchecked")
 	public Page<E> findSecuredEntities(F filter, Pageable pageable, BasePermission permission) {
-		ReadEntityService<E, F> service = getEntityService();
-		if (service instanceof AuthorizableEntityService) {
-			return ((AuthorizableEntityService<E, F>) service).findSecured(filter, pageable, permission);
-		}
 		return findEntities(filter, pageable);
 	}
 	

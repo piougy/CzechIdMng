@@ -179,9 +179,9 @@ public class DefaultEmailer implements Emailer {
 	 *
 	 */
 	private class DefaultSendOperation implements SendOperation {
-		private IdmEmailLogDto emailLog;
-		private Endpoint endpoint;
-		private Exchange exchange;
+		private final IdmEmailLogDto emailLog;
+		private final Endpoint endpoint;
+		private final Exchange exchange;
 		
 		public DefaultSendOperation(IdmEmailLogDto emailLog, Endpoint endpoint, Exchange exchange) {
 			this.emailLog = emailLog;

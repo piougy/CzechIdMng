@@ -1,9 +1,13 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
@@ -22,9 +26,13 @@ import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Custom form value service can be registered by spring plugin
@@ -63,9 +71,14 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		return ownerClass;
 	}
 	
-	// @Override
 	public Class<E> getFormValueClass() {
 		return formValueClass;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		// secured internally by value owner
+		return null;
 	}
 	
 	@Override
@@ -83,21 +96,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		entity.setOwner((O) dto.getOwner());
 		return entity;
 	}
-	
-	// @Override
-	public E newValue() {
-		try {
-			return formValueClass.newInstance();
-		} catch(IllegalAccessException | InstantiationException ex) {
-			throw new IllegalStateException(MessageFormat.format("New form value instance could not be created. Check class [{0}] and their constructors (no-argument constructor is required)", formValueClass), ex);
-		}
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.plugin.core.Plugin#supports(java.lang.Object)
-	 */
 	@Override
 	public boolean supports(Class<?> delimiter) {
 		return ownerClass.isAssignableFrom(delimiter);
@@ -169,6 +168,26 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	}
 	
 	@Override
+	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			IdmFormValueFilter<O> filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		if (filter.getDefinitionId() != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), filter.getDefinitionId()));
+		}
+		//
+		if (filter.getAttributeId() != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.id), filter.getAttributeId()));
+		}
+		//
+		if (filter.getOwner() != null) {
+			predicates.add(builder.equal(root.get("owner"), filter.getOwner()));
+		}
+		//
+		return predicates;
+	}
+	
+	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton) {
 		Assert.notNull(owner);
@@ -193,10 +212,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmFormValueDto> find(IdmFormValueFilter<O> filter, Pageable pageable) {
-		if (filter == null) {
-			return toDtoPage(getRepository().findAll(pageable));
-		}
-		return toDtoPage(getRepository().find(filter, pageable));
+		return super.find(filter, pageable, (BasePermission) null);
 	}
 	
 	@Override
@@ -269,7 +285,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 				return repository.findOwnersByDoubleValue(attribute.getId(), value.getDoubleValue(), pageable);
 			case BYTEARRAY: {
 				return repository.findOwnersByByteArrayValue(attribute.getId(), value.getByteValue(), pageable);
-			}
+			} // texts
 			default:
 				return repository.findOwnersByStringValue(attribute.getId(), value.getStringValue(), pageable);
 		}

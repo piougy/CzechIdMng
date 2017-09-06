@@ -11,8 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.projection.IdmFormDefinitionExcerpt;
 
@@ -28,19 +28,17 @@ import eu.bcvsolutions.idm.core.eav.rest.projection.IdmFormDefinitionExcerpt;
 		itemResourceRel = "formDefinition", //
 		excerptProjection = IdmFormDefinitionExcerpt.class,
 		exported = false)
-public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition, QuickFilter> {
+public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition, IdmFormDefinitionFilter> {
 	
 	/**
-	 * Quick search
+	 * @deprecated Use IdmFormDefinitionService (uses criteria api)
 	 */
 	@Override
-	@Query(value = "SELECT e FROM #{#entityName} e WHERE"
-			+ " ("
-			+ " ?#{[0].text} is null"
-			+ " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-			+ "	or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-			+ " )")
-	Page<IdmFormDefinition> find(QuickFilter filter, Pageable pageable);	
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmFormDefinition> find(IdmFormDefinitionFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmFormDefinitionService (uses criteria api)");
+	}
 	
 	/**
 	 * Returns all form definitions by given type

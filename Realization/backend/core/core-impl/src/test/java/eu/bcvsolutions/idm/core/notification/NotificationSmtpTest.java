@@ -18,7 +18,6 @@ import com.nilhcem.fakesmtp.model.EmailModel;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.NotificationObserver;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -37,6 +36,7 @@ import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.notification.SendNotificationFromTask;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.test.api.AbstractNotificationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Testing sending emails via smtp server. Server is running locally.

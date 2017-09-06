@@ -31,8 +31,6 @@ export default class FormInstance {
         const attributeCode = formValue._embedded.formAttribute.code;
         //
         const clonedFormValue = _.clone(formValue);
-        // link to attribute definition
-        clonedFormValue.formAttribute = this.getAttributeLink(clonedFormValue._embedded.formAttribute.code);
         if (!this.values.has(attributeCode)) {
           this.values = this.values.set(attributeCode, new Immutable.List());
         }
@@ -43,16 +41,6 @@ export default class FormInstance {
 
   _clone() {
     return _.clone(this);
-  }
-
-  /**
-   * Returns attribute defition by given attribute name as object with id is filled
-   *
-   * @param  {string} attributeName
-   * @return {string}
-   */
-  getAttributeLink(attributeName) {
-    return { id: this.attributes.get(attributeName).id };
   }
 
   /**

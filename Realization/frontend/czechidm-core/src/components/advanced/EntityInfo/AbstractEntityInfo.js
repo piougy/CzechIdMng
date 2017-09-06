@@ -171,7 +171,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
-        trigger="click"
+        trigger={['click']}
         value={ this._renderFull() }
         className="abstract-entity-info-popover">
         {

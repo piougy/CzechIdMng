@@ -41,7 +41,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -57,12 +56,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -85,7 +84,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private TestHelper helper;
 	@Autowired private SysSystemService systemService;	
 	@Autowired private IdmFormDefinitionService formDefinitionService;	
-	@Autowired private IdmFormAttributeRepository formAttributeDefinitionRepository;	
+	@Autowired private IdmFormAttributeService formAttributeService;	
 	@Autowired private FormService formService;	
 	@Autowired private IcConfigurationFacade icConfigurationAggregatorService;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
@@ -230,37 +229,37 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertEquals(SYSTEM_NAME_ONE, systemOne.getName());
 		//
 		// create definition one
-		IdmFormDefinition formDefinitionOne = new IdmFormDefinition();
+		IdmFormDefinitionDto formDefinitionOne = new IdmFormDefinitionDto();
 		formDefinitionOne.setType(SysSystem.class.getCanonicalName());
 		formDefinitionOne.setCode("v1");
 		formDefinitionOne = formDefinitionService.save(formDefinitionOne);
 		
-		IdmFormAttribute attributeDefinitionOne = new IdmFormAttribute();
-		attributeDefinitionOne.setFormDefinition(formDefinitionOne);
+		IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();
+		attributeDefinitionOne.setFormDefinition(formDefinitionOne.getId());
 		attributeDefinitionOne.setCode("name_" + System.currentTimeMillis());
 		attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);			
-		attributeDefinitionOne = formAttributeDefinitionRepository.save(attributeDefinitionOne);
+		attributeDefinitionOne = formAttributeService.save(attributeDefinitionOne);
 		formDefinitionOne = formDefinitionService.get(formDefinitionOne.getId());
 		//
 		// create definition two
-		IdmFormDefinition formDefinitionTwo = new IdmFormDefinition();
+		IdmFormDefinitionDto formDefinitionTwo = new IdmFormDefinitionDto();
 		formDefinitionTwo.setType(SysSystem.class.getCanonicalName());
 		formDefinitionTwo.setCode("v2");
 		formDefinitionTwo = formDefinitionService.save(formDefinitionTwo);
 		
-		IdmFormAttribute attributeDefinitionTwo = new IdmFormAttribute();
-		attributeDefinitionTwo.setFormDefinition(formDefinitionTwo);
+		IdmFormAttributeDto attributeDefinitionTwo = new IdmFormAttributeDto();
+		attributeDefinitionTwo.setFormDefinition(formDefinitionTwo.getId());
 		attributeDefinitionTwo.setCode("name_" + System.currentTimeMillis());
 		attributeDefinitionTwo.setName(attributeDefinitionTwo.getCode());
 		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);			
-		attributeDefinitionTwo = formAttributeDefinitionRepository.save(attributeDefinitionTwo);
+		attributeDefinitionTwo = formAttributeService.save(attributeDefinitionTwo);
 		formDefinitionTwo = formDefinitionService.get(formDefinitionTwo.getId());
 		//		
-		SysSystemFormValue value1 = new SysSystemFormValue(attributeDefinitionOne);
+		IdmFormValueDto value1 = new IdmFormValueDto(attributeDefinitionOne);
 		value1.setValue("test1");
 		
-		SysSystemFormValue value2 = new SysSystemFormValue(attributeDefinitionTwo);
+		IdmFormValueDto value2 = new IdmFormValueDto(attributeDefinitionTwo);
 		value2.setValue("test2");
 		
 		// TODO: eav to dto
@@ -314,7 +313,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		
 		IcConnectorConfiguration conf = icConfigurationAggregatorService.getConnectorConfiguration(connectorInstance);
 		
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(connectorInstance);
 		
 		assertEquals(conf.getConfigurationProperties().getProperties().size(), savedFormDefinition.getFormAttributes().size());
 		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getName());
@@ -382,15 +381,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create test system
 		SysSystemDto system =  helper.createSystem(TestResource.TABLE_NAME);
 		
-		// TODO: eav to dto
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
-
 		// set wrong password
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
-		List<AbstractFormValue<SysSystem>> values = formService.getValues(systemEntity, savedFormDefinition);
-		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "password".equals(value.getFormAttribute().getCode());}).findFirst().get();
-		
-		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of("wrongPassword"));
+		formService.saveValues(system, "password", ImmutableList.of("wrongPassword"));
 		
 		// do test system
 		systemService.checkSystem(system);

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.service.api;
+package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.io.Serializable;
 import java.util.List;
@@ -8,21 +8,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.dto.filter.FormValueFilter;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 
 /**
- * Custom form value repository can be registered by spring plugin
+ * Custom form value repository can be registered by spring plugin.
  * 
  * @author Radek Tomiška
  *
  * @param <O> values owner
- * @param <E> values entity
  */
-public interface FormValueService<O extends FormableEntity, E extends AbstractFormValue<O>> extends Plugin<Class<?>> {
+public interface FormValueService<O extends FormableEntity> extends Plugin<Class<?>> {
 
 	public static final String CONFIDENTIAL_STORAGE_VALUE_PREFIX = "eav";
 	
@@ -34,35 +33,13 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	Class<O> getOwnerClass();
 	
 	/**
-	 * Returns form value entity type.
-	 * 
-	 * @return
-	 */
-	Class<E> getFormValueClass();
-	
-	/**
-	 * Return new form value instance
-	 * 
-	 * @return
-	 */
-	E newValue();
-	
-	/**
 	 * Saves a given form value. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
 	 * 
 	 * @param entity
 	 * @return the saved entity
 	 */
-	E save(E entity);
-	
-	/**
-	 * Returns entity by given id. Returns null, if entity is not exists.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	E get(UUID id);
+	IdmFormValueDto save(IdmFormValueDto entity);
 	
 	/**
 	 * Returns values by given owner and definition (optional). If no definition is given, then all values from given owner are returned.
@@ -70,7 +47,7 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param owner
 	 * @param definiton
 	 */
-	List<E> getValues(O owner, IdmFormDefinition formDefiniton);
+	List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton);
 	
 	/**
 	 * Returns values by given owner and attribute (required). If no attribute is given, then {@link IllegalArgumentException} is thrown.
@@ -78,7 +55,7 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param owner
 	 * @param attribute
 	 */
-	List<E> getValues(O owner, IdmFormAttribute attribute);
+	List<IdmFormValueDto> getValues(O owner, IdmFormAttributeDto attribute);
 	
 	/**
 	 * Returns page of entities by given filter
@@ -87,14 +64,14 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param pageable
 	 * @return
 	 */
-	Page<E> find(FormValueFilter<O> filter, Pageable pageable);
+	Page<IdmFormValueDto> find(IdmFormValueFilter<O> filter, Pageable pageable);
 	
 	/**
 	 * Deletes form value
 	 * 
 	 * @param value
 	 */
-	void deleteValue(E value);
+	void delete(IdmFormValueDto value);
 	
 	/**
 	 * Deletes values by given owner and definition. If no definition is given, then all values from given owner are deleted.
@@ -102,7 +79,7 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param owner
 	 * @param definiton
 	 */
-	void deleteValues(O owner, IdmFormDefinition formDefiniton);
+	void deleteValues(O owner, IdmFormDefinitionDto formDefiniton);
 	
 	/**
 	 * Deletes values by given owner and attribute. If no attribute is given, then {@link IllegalArgumentException} is thrown.
@@ -110,17 +87,15 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param owner
 	 * @param formAttribute
 	 */
-	void deleteValues(O owner, IdmFormAttribute attribute);
+	void deleteValues(O owner, IdmFormAttributeDto attribute);
 	
 	/**
 	 * Returns key in confidential storage for given extended attribute
 	 * 
-	 * TODO: owner is not needed now ... but?
-	 * 
-	 * @param attribute
+	 * @param formAttributeId
 	 * @return
 	 */
-	String getConfidentialStorageKey(IdmFormAttribute attribute);
+	String getConfidentialStorageKey(UUID formAttributeId);
 	
 	/**
 	 * Returns value in FormValue's persistent type from confidential storage
@@ -130,7 +105,7 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param guardedValue
 	 * @return
 	 */
-	Serializable getConfidentialPersistentValue(E guardedValue);
+	Serializable getConfidentialPersistentValue(IdmFormValueDto guardedValue);
 	
 	/**
 	 * Finds owners by string attribute value
@@ -140,5 +115,5 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param pageable
 	 * @return
 	 */
-	Page<O> findOwners(IdmFormAttribute attribute, Serializable persistentValue, Pageable pageable);
+	Page<O> findOwners(IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable);
 }

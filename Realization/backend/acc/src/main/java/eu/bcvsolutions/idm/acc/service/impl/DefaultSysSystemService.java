@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
@@ -51,10 +50,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
@@ -82,7 +82,9 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
+
 public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSystemDto, SysSystem, SysSystemFilter>
+
 		implements SysSystemService {
 
 	private final SysSystemRepository systemRepository;
@@ -219,7 +221,10 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		// delete archived provisioning operations
 		provisioningArchiveRepository.deleteBySystem(sytemEntity);
 		//
+		formService.deleteValues(system);
+		//
 		super.delete(system, permission);
+
 	}
 
 	@Override
@@ -246,10 +251,9 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 
 		// load filled form values
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
-		// TODO: eav to DTO
-		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(toEntity(system), formDefinition);
-		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toValueMap(formValues);
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormInstanceDto formValues = getFormService().getFormInstance(system, formDefinition);
+		Map<String, List<IdmFormValueDto>> attributeValues = formValues.toValueMap();
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl icConf = null;
 		if(SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
@@ -265,8 +269,10 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		for (short seq = 0; seq < connectorConfig.getConfigurationProperties().getProperties().size(); seq++) {
 			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties()
 					.get(seq);
-			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByCode(propertyConfig.getName());
-			List<AbstractFormValue<SysSystem>> eavAttributeValues = attributeValues.get(formAttribute.getCode());
+
+			IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(propertyConfig.getName());
+			List<IdmFormValueDto> eavAttributeValues = attributeValues.get(formAttribute.getCode());
+
 			// create property instance from configuration
 			IcConfigurationProperty property = formPropertyManager.toConnectorProperty(propertyConfig,
 					eavAttributeValues);
@@ -424,11 +430,11 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 
 	@Override
 	@Transactional
-	public IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+	public IdmFormDefinitionDto getConnectorFormDefinition(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance);
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
-		IdmFormDefinition formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
+		IdmFormDefinitionDto formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
 				connectorInstance.getConnectorKey().getFullName());
 		//
 		if (formDefinition == null) {
@@ -463,8 +469,8 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		IcConnectorInstance connectorInstance = originalSystem.getConnectorInstance();
 		
 		if(connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null){
-			IdmFormDefinition formDefinition = getConnectorFormDefinition(connectorInstance);
-			List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
+			IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(connectorInstance);
+			List<IdmFormValueDto> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
 					formDefinition);
 			originalFormValues.stream().forEach(value -> {
 				systemFormValueService.duplicate(value.getId(), toEntity(system));
@@ -556,17 +562,17 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 	 * @param connectorKey
 	 * @return
 	 */
-	private synchronized IdmFormDefinition createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+	private synchronized IdmFormDefinitionDto createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
 		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
 					connectorInstance.getConnectorKey().getFullName()));
 		}
 		//
-		List<IdmFormAttribute> formAttributes = new ArrayList<>();
+		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		for (short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
 			IcConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
-			IdmFormAttribute attribute = formPropertyManager.toFormAttribute(property);
+			IdmFormAttributeDto attribute = formPropertyManager.toFormAttribute(property);
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);
 		}
@@ -727,61 +733,61 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		system.setConnectorKey(new SysConnectorKeyDto(getTestConnectorKey()));
 		save(system);
 
-		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 
-		List<SysSystemFormValue> values = new ArrayList<>();
-		SysSystemFormValue host = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("host"));
+		List<IdmFormValueDto> values = new ArrayList<>();
+		IdmFormValueDto host = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("host"));
 		host.setValue("localhost");
 		values.add(host);
-		SysSystemFormValue port = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("port"));
+		IdmFormValueDto port = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("port"));
 		port.setValue("5432");
 		values.add(port);
-		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
+		IdmFormValueDto user = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("user"));
 		user.setValue("idmadmin");
 		values.add(user);
-		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
+		IdmFormValueDto password = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("password"));
 		password.setValue("idmadmin");
 		values.add(password);
-		SysSystemFormValue database = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("database"));
+		IdmFormValueDto database = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("database"));
 		database.setValue("bcv_idm_storage");
 		values.add(database);
-		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
+		IdmFormValueDto table = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("table"));
 		table.setValue("system_users");
 		values.add(table);
-		SysSystemFormValue keyColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("keyColumn"));
+		IdmFormValueDto keyColumn = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("keyColumn"));
 		keyColumn.setValue("name");
 		values.add(keyColumn);
-		SysSystemFormValue passwordColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("passwordColumn"));
+		IdmFormValueDto passwordColumn = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("passwordColumn"));
 		passwordColumn.setValue("password");
 		values.add(passwordColumn);
-		SysSystemFormValue allNative = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("allNative"));
+		IdmFormValueDto allNative = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("allNative"));
 		allNative.setValue(Boolean.TRUE);
 		values.add(allNative);
-		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
+		IdmFormValueDto jdbcDriver = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("jdbcDriver"));
 		jdbcDriver.setValue("org.postgresql.Driver");
 		values.add(jdbcDriver);
-		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
+		IdmFormValueDto jdbcUrlTemplate = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("jdbcUrlTemplate"));
 		jdbcUrlTemplate.setValue("jdbc:postgresql://%h:%p/%d");
 		values.add(jdbcUrlTemplate);
-		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
+		IdmFormValueDto rethrowAllSQLExceptions = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("rethrowAllSQLExceptions"));
 		rethrowAllSQLExceptions.setValue(Boolean.TRUE);
 		values.add(rethrowAllSQLExceptions);
-		SysSystemFormValue statusColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("statusColumn"));
+		IdmFormValueDto statusColumn = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("statusColumn"));
 		statusColumn.setValue("status");
 		values.add(statusColumn);
-		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
+		IdmFormValueDto disabledStatusValue = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("disabledStatusValue"));
 		disabledStatusValue.setValue("disabled");
 		values.add(disabledStatusValue);
-		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
+		IdmFormValueDto enabledStatusValue = new IdmFormValueDto(
+				savedFormDefinition.getMappedAttributeByCode("enabledStatusValue"));
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
 
@@ -806,7 +812,8 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		return key;
 	}
 
-	private FormService getFormService() {
-		return this.formService;
+
+	protected FormService getFormService() {
+		return formService;
 	}
 }

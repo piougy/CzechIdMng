@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
@@ -14,9 +13,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -33,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -333,6 +329,24 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				request.getConnectorObject().getObjectClass());
 	}
 
+	/**
+	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
+	 * and system. For all operation types.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Override
+	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
+		VsRequestFilter filter = new VsRequestFilter();
+		filter.setUid(request.getUid());
+		filter.setSystemId(request.getSystemId());
+		filter.setState(VsRequestState.IN_PROGRESS);
+		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
+		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
+		return duplicities;
+	}
+
 	@Override
 	protected List<Predicate> toPredicates(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			VsRequestFilter filter) {
@@ -375,6 +389,15 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			predicates.add(builder.greaterThan(root.get(VsRequest_.created), filter.getCreatedAfter()));
 		}
 
+		// Only archived 
+		if (filter.getOnlyArchived() != null) {
+			predicates.add(builder.or(//
+					builder.equal(root.get(VsRequest_.state), VsRequestState.REALIZED), //
+					builder.equal(root.get(VsRequest_.state), VsRequestState.CANCELED), //
+					builder.equal(root.get(VsRequest_.state), VsRequestState.REJECTED), //
+					builder.equal(root.get(VsRequest_.state), VsRequestState.DUPLICATED)));
+		}
+
 		return predicates;
 	}
 
@@ -386,24 +409,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private void sendNotification(VsRequestDto request, VsRequestDto vsRequestDto) {
 		// TODO
 
-	}
-
-	/**
-	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
-	 * and system. For all operation types.
-	 * 
-	 * @param request
-	 * @return
-	 */
-	@Override
-	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
-		VsRequestFilter filter = new VsRequestFilter();
-		filter.setUid(request.getUid());
-		filter.setSystemId(request.getSystemId());
-		filter.setState(VsRequestState.IN_PROGRESS);
-		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
-		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
-		return duplicities;
 	}
 
 	/**

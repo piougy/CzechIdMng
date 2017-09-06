@@ -147,8 +147,9 @@ public class DefaultLookupService implements LookupService {
 		return lookup;
 	}
 	
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
-	private Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType) {
+	public Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType) {
 		Object service = getService(identifiableType);
 		if (service == null) {
 			return null;

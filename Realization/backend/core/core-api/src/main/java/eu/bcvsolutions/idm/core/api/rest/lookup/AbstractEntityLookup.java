@@ -14,13 +14,13 @@ import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
  */
 public abstract class AbstractEntityLookup<E extends BaseEntity> implements EntityLookup<E>, ScriptEnabled {
 
-	private final Class<?> domainType;
+	private final Class<?> entityClass;
 
 	/**
 	 * Creates a new {@link AbstractEntityLookup} instance discovering the supported type from the generics signature.
 	 */
 	public AbstractEntityLookup() {
-		this.domainType = GenericTypeResolver.resolveTypeArgument(getClass(), EntityLookup.class);
+		this.entityClass = GenericTypeResolver.resolveTypeArgument(getClass(), EntityLookup.class);
 	}
 
 	/* 
@@ -29,6 +29,15 @@ public abstract class AbstractEntityLookup<E extends BaseEntity> implements Enti
 	 */
 	@Override
 	public boolean supports(Class<?> delimiter) {
-		return domainType.isAssignableFrom(delimiter);
+		return entityClass.isAssignableFrom(delimiter);
+	}
+	
+	/**
+	 * Returns entity class for this lookup
+	 * 
+	 * @return
+	 */
+	public Class<?> getEntityClass() {
+		return entityClass;
 	}
 }

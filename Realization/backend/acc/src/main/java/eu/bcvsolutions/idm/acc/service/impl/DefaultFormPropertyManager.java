@@ -9,11 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.converter.FormPropertyConverter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 
 /**
@@ -35,7 +34,7 @@ public class DefaultFormPropertyManager implements FormPropertyManager {
 	}
 	
 	@Override
-	public IdmFormAttribute toFormAttribute(IcConfigurationProperty propertyConfiguration) {
+	public IdmFormAttributeDto toFormAttribute(IcConfigurationProperty propertyConfiguration) {
 		FormPropertyConverter converter = getPropertyConverter(propertyConfiguration);
 		Assert.notNull(converter);
 		//
@@ -43,7 +42,7 @@ public class DefaultFormPropertyManager implements FormPropertyManager {
 	}
 
 	@Override
-	public IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<AbstractFormValue<SysSystem>> formValues) {
+	public IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
 		FormPropertyConverter converter = getPropertyConverter(propertyConfiguration);
 		Assert.notNull(converter);
 		//

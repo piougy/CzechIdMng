@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -173,6 +174,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * AbstractEntity uuid or uuid as string could be given.
 	 */
 	protected E getEntity(Serializable id, BasePermission... permission) {
+		if (id instanceof Identifiable) {
+			// dto or entity could be given
+			id = ((Identifiable) id).getId();
+		}
+		//
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and

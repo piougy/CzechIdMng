@@ -23,11 +23,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
@@ -73,7 +72,6 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testReferentialIntegrity() {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "delete_test_" + System.currentTimeMillis();
@@ -83,9 +81,8 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
 		// eav
-		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
-		AbstractFormValue value1 = new IdmIdentityFormValue(
-				formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue("one");
 		formService.saveValues(identity.getId(), IdmIdentity.class, formDefinition, Lists.newArrayList(value1));
 		// role guarantee

@@ -23,9 +23,9 @@ public class SysSystemProcessor implements ResourceProcessor<Resource<SysSystemD
 		String name = String.valueOf(systemLookup.getIdentifier(resource.getContent()));
 		SysSystemController systemController = methodOn(SysSystemController.class);
 		resource.add(linkTo(systemController
-				.getConnectorFormDefinition(name, null)).withRel("connector-form-definition"));
+				.getConnectorFormDefinition(name)).withRel("connector-form-definition"));
 		resource.add(linkTo(systemController
-				.getConnectorFormValues(name, null)).withRel("connector-form-values"));
+				.getConnectorFormValues(name)).withRel("connector-form-values"));
 		return resource;
 	}
 

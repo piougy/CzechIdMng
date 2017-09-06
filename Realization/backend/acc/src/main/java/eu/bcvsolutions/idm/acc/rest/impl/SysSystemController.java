@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,8 +37,6 @@ import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -47,7 +45,8 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -92,7 +91,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	private final SysSystemService systemService;
 	private final IcConfigurationFacade icConfiguration;
 	private final ConfidentialStorage confidentialStorage;
-	private final SysSystemRepository systemRepository;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -101,21 +99,18 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			SysSystemService systemService, 
 			IdmFormDefinitionController formDefinitionController,
 			IcConfigurationFacade icConfiguration,
-			ConfidentialStorage confidentialStorage,
-			SysSystemRepository systemRepository) {
+			ConfidentialStorage confidentialStorage) {
 		super(systemService);
 		//
 		Assert.notNull(systemService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(icConfiguration);
 		Assert.notNull(confidentialStorage);
-		Assert.notNull(systemRepository);
 		//
 		this.systemService = systemService;
 		this.formDefinitionController = formDefinitionController;
 		this.icConfiguration = icConfiguration;
 		this.confidentialStorage = confidentialStorage;
-		this.systemRepository = systemRepository;
 	}
 
 	@Override
@@ -330,7 +325,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -348,14 +342,13 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 				})
 	public ResponseEntity<?> getConnectorFormDefinition(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
+			@PathVariable @NotNull String backendId) {
 		SysSystemDto system = getDto(backendId);
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
-		return formDefinitionController.get(formDefinition.getId().toString(), assembler);	
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(system);
+		return formDefinitionController.get(formDefinition.getId().toString());	
 	}
 	
 	/**
@@ -363,7 +356,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -379,17 +371,15 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				})
-	public Resources<?> getConnectorFormValues(
+	public Resource<?> getConnectorFormValues(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		// TODO: eav to dto
-		SysSystem entity = systemRepository.findOne(UUID.fromString(backendId));
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(this.getDto(entity.getId()));
-		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(entity);
+		return formDefinitionController.getFormValues(entity, formDefinition);
 	}
 	
 	/**
@@ -413,18 +403,16 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
 				})
-	public Resources<?> saveConnectorFormValues(
+	public Resource<?> saveConnectorFormValues(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId,
-			@RequestBody @Valid List<SysSystemFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
 		SysSystemDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(entity);
-		// TODO: eav to dto
-		return formDefinitionController.saveFormValues(systemRepository.findOne(entity.getId()), formDefinition, formValues, assembler);
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(entity);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
@@ -549,7 +537,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * @param system
 	 * @return
 	 */
-	private synchronized IdmFormDefinition getConnectorFormDefinition(SysSystemDto system) {
+	private synchronized IdmFormDefinitionDto getConnectorFormDefinition(SysSystemDto system) {
 		Assert.notNull(system);
 		//
 		// connector key can't be null

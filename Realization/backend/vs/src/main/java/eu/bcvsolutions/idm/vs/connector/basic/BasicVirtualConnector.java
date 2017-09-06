@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,15 +20,18 @@ import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
@@ -67,6 +72,8 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 public class BasicVirtualConnector
 		implements VsVirtualConnector {
 
+	private static final Logger LOG = LoggerFactory.getLogger(BasicVirtualConnector.class);
+	
 	@Autowired
 	private FormService formService;
 	@Autowired
@@ -76,13 +83,15 @@ public class BasicVirtualConnector
 	@Autowired
 	private VsAccountService accountService;
 	@Autowired
+	private SysSystemEntityService systemEntityService;
+	@Autowired
 	private VsRequestService requestService;
 	@Autowired
 	private IdmIdentityService identityService;
 	
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IcConnectorConfiguration configuration;
-	private IdmFormDefinition formDefinition;
+	private IdmFormDefinitionDto formDefinition;
 	private String virtualSystemKey;
 	private String connectorKey;
 	private UUID systemId;
@@ -182,8 +191,13 @@ public class BasicVirtualConnector
 						MessageFormat.format("UID attribute value [{0}] must be String!", attributeUidValue));
 			}
 			if (!uidValue.equals(attributeUidValue)) {
-				account.setUid((String) attributeUidValue);
+				// TODO: Connector not supported more entity types!
+				LOG.info("Update account - UID is different (old: {} new: {})", uidValue, attributeUidValue);
+		 		account.setUid((String) attributeUidValue);
 				account = accountService.save(account);
+				// We have to change system entity directly from VS module (request can be started/executed async => standard 
+				// process update UID in system entity (ACC module) will not works!)
+				updateSystemEntity(uidValue, attributeUidValue);
 			}
 		}
 
@@ -395,15 +409,14 @@ public class BasicVirtualConnector
 	 * @return
 	 */
 	private IcAttributeImpl loadIcAttribute(UUID accountId, String name) {
-		IdmFormAttribute attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(),
+		IdmFormAttributeDto attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(),
 				formDefinition.getCode(), name);
-		List<AbstractFormValue<VsAccount>> values = this.formService.getValues(accountId, VsAccount.class,
-				this.formDefinition, name);
+		List<IdmFormValueDto> values = this.formService.getValues(accountId, VsAccount.class, this.formDefinition, name);
 		if (CollectionUtils.isEmpty(values)) {
 			return null;
 		}
 
-		List<Object> valuesObject = values.stream().map(AbstractFormValue::getValue).collect(Collectors.toList());
+		List<Object> valuesObject = values.stream().map(IdmFormValueDto::getValue).collect(Collectors.toList());
 
 		IcAttributeImpl attribute = new IcAttributeImpl();
 		attribute.setMultiValue(attributeDefinition.isMultiple());
@@ -453,7 +466,7 @@ public class BasicVirtualConnector
 
 		// Attributes from definition and configuration
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IdmFormAttribute formAttribute = formAttributeService.findAttribute(VsAccount.class.getName(),
+			IdmFormAttributeDto formAttribute = formAttributeService.findAttribute(VsAccount.class.getName(),
 					formDefinition.getCode(), virtualAttirbute);
 			if (formAttribute == null) {
 				return;
@@ -523,23 +536,23 @@ public class BasicVirtualConnector
 	 * @param virtualConfiguration
 	 * @return
 	 */
-	private IdmFormDefinition updateFormDefinition(String key, String type, SysSystem system,
+	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystem system,
 			BasicVirtualConfiguration virtualConfiguration) {
 		// TODO: delete attribute definitions
 
-		IdmFormDefinition definition = this.formService.getDefinition(type, key);
-		List<IdmFormAttribute> formAttributes = new ArrayList<>();
+		IdmFormDefinitionDto definition = this.formService.getDefinition(type, key);
+		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IdmFormAttribute formAttribute = formAttributeService.findAttribute(type, key, virtualAttirbute);
+			IdmFormAttributeDto formAttribute = formAttributeService.findAttribute(type, key, virtualAttirbute);
 			if (formAttribute == null) {
 				formAttribute = createFromAttribute(virtualAttirbute);
-				formAttribute.setFormDefinition(definition);
+				formAttribute.setFormDefinition(definition == null ? null : definition.getId());
 				formAttributes.add(formAttribute);
 			}
 		});
 
 		if (definition == null) {
-			IdmFormDefinition createdDefinition = this.formService.createDefinition(type, key, formAttributes);
+			IdmFormDefinitionDto createdDefinition = this.formService.createDefinition(type, key, formAttributes);
 			createdDefinition.setName(MessageFormat.format("Virtual system for [{0}]", system.getName()));
 			createdDefinition.setUnmodifiable(true);
 			return this.formService.saveDefinition(createdDefinition);
@@ -549,6 +562,33 @@ public class BasicVirtualConnector
 			});
 			return definition;
 		}
+	}
+	
+	/**
+	 * We have to change system entity directly from VS module (request can be started/executed async => standard 
+	 * process update UID in system entity (ACC module) will not works!)
+	 * @param uidValue
+	 * @param attributeUidValue
+	 */
+	private void updateSystemEntity(String uidValue, Object attributeUidValue) {
+		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
+		systemEntityFilter.setUid(uidValue);
+		systemEntityFilter.setSystemId(systemId);
+		
+		List<SysSystemEntityDto> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
+		if (systemEntities.isEmpty()) {
+			throw new IcException(MessageFormat.format("System entity was not found for UID [{0}] and system ID [{1}]! Change UID attribute (new [{2}]) cannot be executed!",
+					uidValue, systemId, attributeUidValue));
+		}
+		if (systemEntities.size() > 1) {
+			throw new IcException(MessageFormat.format("For UID [{0}] and system ID [{1}] was found too many items [{2}]! Change UID attribute (new [{3}]) cannot be executed!",
+					uidValue, systemId, systemEntities.size(), attributeUidValue));
+		}
+		SysSystemEntityDto systemEntity = systemEntities.get(0);
+		systemEntity.setUid((String) attributeUidValue);
+		// Save changed system entity
+		systemEntityService.save(systemEntity);
+		LOG.info("Update account - UID was changed (old: {} new: {}). System entity was updated.", uidValue, attributeUidValue);
 	}
 
 	private void updateFormAttributeValue(Object uidValue, String virtualAttirbute, UUID accountId,
@@ -573,8 +613,8 @@ public class BasicVirtualConnector
 		formService.saveValues(accountId, VsAccount.class, this.formDefinition, virtualAttirbute, serializableValues);
 	}
 
-	private IdmFormAttribute createFromAttribute(String virtualAttirbute) {
-		IdmFormAttribute formAttribute = new IdmFormAttribute();
+	private IdmFormAttributeDto createFromAttribute(String virtualAttirbute) {
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto();
 		formAttribute.setCode(virtualAttirbute);
 		formAttribute.setConfidential(false);
 		formAttribute.setPersistentType(PersistentType.TEXT);

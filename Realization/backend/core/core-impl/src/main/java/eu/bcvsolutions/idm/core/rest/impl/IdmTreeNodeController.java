@@ -12,9 +12,8 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -42,12 +42,12 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -63,7 +63,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + BaseDtoController.TREE_BASE_PATH + "-nodes")
 @Api(
 		value = IdmTreeNodeController.TAG,  
@@ -298,8 +298,7 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable("backendId") String backendId, 
 			@ApiParam(value = "Revision identifier.", required = true)
-			@PathVariable("revId") Long revId, 
-			PersistentEntityResourceAssembler assembler) {
+			@PathVariable("revId") Long revId) {
 		IdmTreeNodeDto treeNode = getDto(backendId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", backendId));
@@ -392,7 +391,6 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 	 * Returns form definition to given entity.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -403,16 +401,14 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 			tags = { IdmTreeNodeController.TAG })
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinitions(IdmTreeNode.class, assembler);
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(IdmTreeNode.class);
 	}
 	
 	/**
 	 * Returns filled form values
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -421,20 +417,19 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 			value = "Tree node form definition - read values", 
 			nickname = "getTreeNodeFormValues", 
 			tags = { IdmTreeNodeController.TAG })
-	public Resources<?> getFormValues(
+	public Resource<?> getFormValues(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			PersistentEntityResourceAssembler assembler) {
-		IdmTreeNodeDto entity = getDto(backendId);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+		IdmTreeNodeDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", dto));
 		}
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(entity.getId(), IdmTreeNode.class, formDefinition, assembler);
+		return formDefinitionController.getFormValues(dto, formDefinition);
 	}
 	
 	/**
@@ -442,7 +437,6 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -452,21 +446,20 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 			value = "Tree node form definition - save values", 
 			nickname = "postTreeNodeFormValues", 
 			tags = { IdmTreeNodeController.TAG })
-	public Resources<?> saveFormValues(
+	public Resource<?> saveFormValues(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			@RequestBody @Valid List<IdmTreeNodeFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
-		IdmTreeNodeDto entity = getDto(backendId);
-		if (entity == null) {
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
+		IdmTreeNodeDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(entity.getId(), IdmTreeNode.class, formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
 	}
 	
 	@Override

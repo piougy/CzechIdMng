@@ -51,7 +51,7 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
-        trigger="click"
+        trigger={['click']}
         value={<span className="uuid-info-popover-value">{value}</span>}>
         {
           <span

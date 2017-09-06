@@ -4,14 +4,17 @@ import Helmet from 'react-helmet';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { FormDefinitionManager } from '../../redux';
-import FormDetail from './FormDetail';
+import FormDefinitionDetail from './FormDefinitionDetail';
 
 const manager = new FormDefinitionManager();
 
 /**
  * Form content -> detail with vertical menu
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
-class FormRoutes extends Basic.AbstractContent {
+class FormDefinitionRoutes extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -64,7 +67,7 @@ class FormRoutes extends Basic.AbstractContent {
         {
           this._getIsNew()
           ?
-          <FormDetail isNew params={this.props.params} />
+          <FormDefinitionDetail isNew params={this.props.params} />
           :
           <Advanced.TabPanel position="left" parentId="forms" params={this.props.params}>
             {this.props.children}
@@ -76,11 +79,11 @@ class FormRoutes extends Basic.AbstractContent {
   }
 }
 
-FormRoutes.propTypes = {
+FormDefinitionRoutes.propTypes = {
   entity: PropTypes.object,
   showLoading: PropTypes.bool
 };
-FormRoutes.defaultProps = {
+FormDefinitionRoutes.defaultProps = {
 };
 
 function select(state, component) {
@@ -92,4 +95,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(FormRoutes);
+export default connect(select)(FormDefinitionRoutes);

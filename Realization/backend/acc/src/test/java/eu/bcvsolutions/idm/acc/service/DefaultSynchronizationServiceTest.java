@@ -53,9 +53,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
@@ -70,9 +68,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
@@ -154,9 +152,6 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private FormService formService;
-	
-	@Autowired
-	private SysSystemRepository systemRepository;
 
 	private SysSystemDto system;
 	private SynchronizationService synchornizationService;
@@ -336,14 +331,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
 		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
-
-		// TODO: eav to dto
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
-		
-		List<AbstractFormValue<SysSystem>> values = formService.getValues(systemEntity, savedFormDefinition);
-		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "changeLogColumn".equals(value.getFormAttribute().getCode());}).findFirst().get();
-		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of("modified"));
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormAttributeDto changeLogColumn = savedFormDefinition.getMappedAttributeByCode("changeLogColumn");
+		formService.saveValues(system, changeLogColumn, ImmutableList.of("modified"));
 
 		// Set sync config
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
@@ -388,8 +378,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		// We have to change property of connector configuration "changeLogColumn" from "modified" on empty string. 
 		// When is this property set, then custom filter not working. Bug in Table connector !!!
-		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of(""));
-
+		formService.saveValues(system, changeLogColumn, ImmutableList.of(""));
 	}
 	
 	@Test

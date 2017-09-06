@@ -30,6 +30,9 @@
       "created": {
         "label": "Vytvořeno"
       },
+      "modified": {
+        "label": "Upraveno"
+      },
       "creator": {
         "label": "Vytvořil"
       }
@@ -51,6 +54,11 @@
     "virtuals": {
       "header": "Virtuální systémy",
       "label": "Virtuální systémy",
+      "title": "Virtuální systémy"
+    },
+    "vs-systems": {
+      "header": "Virtuální systémy",
+      "label": "Seznam",
       "title": "Virtuální systémy"
     },
     "vs-requests": {
@@ -107,8 +115,8 @@
     },
     "vs-request": {
       "detail" : {
-        "basic": "Základní informace",
-        "header": "Požadavek",
+        "basic": "Detail požadavku na realizaci",
+        "header": "Požadavek na realizaci",
         "title": "$t(vs:content.vs-request.detail.header)",
         "requestAttributes": "Atributy v tomto požadavku",
         "accountAttributes": "Atributy účtu na virtuálním systému",
@@ -130,6 +138,17 @@
           "request": {
             "realize": "Realizováno",
             "cancel": "Zrušit požadavek"
+          }
+        },
+        "attribute": {
+          "diff": {
+            "add": "Atribut bude přidán",
+            "remove": "Atribut bude odebrán",
+            "change": "Atribut bude změněn",
+            "multivalue": {
+              "add": "Hodnota bude přidána",
+              "remove": "Hodnota bude odebrána"
+            }
           }
         }
       }

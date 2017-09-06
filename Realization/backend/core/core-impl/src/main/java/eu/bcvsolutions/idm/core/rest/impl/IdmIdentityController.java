@@ -13,9 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -48,16 +48,16 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -73,12 +73,10 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Rest methods for IdmIdentity resource
  * 
- * TODO: eav to dtos
- * 
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
 @Api(
 		value = IdmIdentityController.TAG,  
@@ -378,7 +376,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * Get given identity's prime position in organization.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return Positions from root to closest parent
 	 */
 	@ResponseBody
@@ -396,8 +393,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				})
 	public ResponseEntity<?> organizationPosition(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable String backendId, 
-			PersistentEntityResourceAssembler assembler) {
+			@PathVariable String backendId) {
 		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -467,8 +463,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	public Resources<?> findRevisions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable("backendId") String backendId, 
-			Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
+			Pageable pageable) {
 		IdmIdentityDto originalEntity = getDto(backendId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", backendId));
@@ -482,7 +477,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * Returns form definition to given identity.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -500,16 +494,14 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinitions(IdmIdentity.class, assembler);
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(IdmIdentity.class);
 	}
 	
 	/**
 	 * Returns filled form values
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -525,20 +517,19 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 				})
-	public Resources<?> getFormValues(
+	public Resource<?> getFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			PersistentEntityResourceAssembler assembler) {
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(entity.getId(), IdmIdentity.class, formDefinition, assembler);
+		return formDefinitionController.getFormValues(entity, formDefinition);
 	}
 	
 	/**
@@ -546,7 +537,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -562,23 +552,22 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
 				})
-	public Resources<?> saveFormValues(
+	public Resource<?> saveFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId,
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			@ApiParam(value = "Filled form data.", required = true)
-			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(entity.getId(), IdmIdentity.class, formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
 	@Override

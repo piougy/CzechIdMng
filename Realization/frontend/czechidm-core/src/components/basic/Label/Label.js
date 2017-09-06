@@ -32,7 +32,7 @@ class Label extends AbstractComponent {
       className
     );
     return (
-      <span className={classNames} {...others}>
+      <span className={classNames} title={title} {...others}>
         {
           showLoading
           ?

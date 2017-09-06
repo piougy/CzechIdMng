@@ -97,9 +97,9 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -1333,13 +1333,6 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	protected abstract Class<? extends FormableEntity> getEntityClass();
 	
 	/**
-	 * Return repository
-	 * 
-	 * @return
-	 */
-	protected abstract BaseEntityRepository getRepository();
-	
-	/**
 	 * Return specific correlation filter
 	 * 
 	 * @return
@@ -1423,8 +1416,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 						ImmutableMap.of("uid", uid, "message", message));
 			}
-			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
-					.getMappedAttributeByName(attributeProperty);
+			IdmFormAttributeDto defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
+					.getMappedAttributeByCode(attributeProperty);
 			if (defAttribute == null) {
 				// eav definition could be changed
 				String message = MessageFormat.format("Form attribute defininion [{0}] was not found!",

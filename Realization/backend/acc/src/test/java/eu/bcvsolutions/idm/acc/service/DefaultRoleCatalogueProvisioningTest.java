@@ -28,10 +28,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -39,9 +37,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -76,8 +74,6 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	private IdmRoleCatalogueService treeNodeService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private SysSystemRepository systemRepository;
 	//
 	private SysSystemDto system;
 
@@ -247,14 +243,10 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 		// key to EAV
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
-		
-		// TODO: eav to dto
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
-		
-		List<AbstractFormValue<SysSystem>> values = formService.getValues(systemEntity, savedFormDefinition);
-		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "keyColumn".equals(value.getFormAttribute().getCode());}).findFirst().get();
-		formService.saveValues(systemEntity, changeLogColumn.getFormAttribute(), ImmutableList.of("ID"));
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormAttributeDto attributeKeyColumn = savedFormDefinition.getMappedAttributeByCode("keyColumn");
+		formService.saveValues(system, attributeKeyColumn, ImmutableList.of("ID"));
+
 		// generate schema for system
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		

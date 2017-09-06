@@ -10,28 +10,28 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  * 
  * @author Radek Tomiška
  *
- * @param <O>
+ * @param <O> value owner
  */
 public class IdmFormValueFilter<O extends FormableEntity> implements BaseFilter {
 
-	private UUID formDefinitionId;
-	private UUID formAttributeId;
-	private O owner; // TODO: owner id and type
+	private UUID definitionId;
+	private UUID attributeId;
+	private O owner;
 
-	public UUID getFormDefinitionId() {
-		return formDefinitionId;
+	public UUID getDefinitionId() {
+		return definitionId;
 	}
 
-	public void setFormDefinitionId(UUID formDefinitionId) {
-		this.formDefinitionId = formDefinitionId;
+	public void setDefinitionId(UUID definitionId) {
+		this.definitionId = definitionId;
 	}
 
-	public UUID getFormAttributeId() {
-		return formAttributeId;
+	public UUID getAttributeId() {
+		return attributeId;
 	}
 
-	public void setFormAttributeId(UUID formAttributeId) {
-		this.formAttributeId = formAttributeId;
+	public void setAttributeId(UUID attributeId) {
+		this.attributeId = attributeId;
 	}
 
 	public O getOwner() {

@@ -95,7 +95,7 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
             ref="table"
             uiKey={uiKey}
             manager={definitionManager}
-            showRowSelection={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE')}
+            showRowSelection={SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE')}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             actions={
               [
@@ -130,7 +130,7 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('EAVFORMDEFINITIONS_CREATE')}>
+                  rendered={SecurityManager.hasAuthority('FORMDEFINITION_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

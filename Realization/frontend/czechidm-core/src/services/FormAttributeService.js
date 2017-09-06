@@ -20,6 +20,10 @@ class FormAttributeService extends AbstractService {
     return `${entity.name}`;
   }
 
+  getGroupPermission() {
+    return 'FORMATTRIBUTE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 //
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
-import { FormDefinitionManager, SecurityManager, DataManager } from '../../redux';
+import { FormDefinitionManager, DataManager } from '../../redux';
 
 const manager = new FormDefinitionManager();
 
@@ -96,7 +96,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, showLoading, types } = this.props;
+    const { uiKey, entity, showLoading, types, _permissions } = this.props;
     //
     return (
       <form onSubmit={this.save.bind(this)}>
@@ -108,7 +108,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
               uiKey={uiKey}
               data={entity}
               rendered={types !== undefined}
-              readOnly={ Utils.Entity.isNew(entity) ? !SecurityManager.hasAuthority('EAVFORMDEFINITIONS_CREATE') : !SecurityManager.hasAuthority('EAVFORMDEFINITIONS_UPDATE') }>
+              readOnly={ !manager.canSave(entity, _permissions) }>
             <Basic.EnumSelectBox
               ref="type"
               label={this.i18n('entity.FormDefinition.type')}
@@ -149,8 +149,8 @@ class FormDefinitionDetail extends Basic.AbstractContent {
               type="submit"
               level="success"
               showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}
-              rendered={ Utils.Entity.isNew(entity) ? SecurityManager.hasAuthority('EAVFORMDEFINITIONS_CREATE') : SecurityManager.hasAuthority('EAVFORMDEFINITIONS_UPDATE') }>
+              showLoadingText={ this.i18n('button.saving') }
+              rendered={ manager.canSave(entity, _permissions) }>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>
@@ -163,10 +163,12 @@ class FormDefinitionDetail extends Basic.AbstractContent {
 FormDefinitionDetail.propTypes = {
   uiKey: PropTypes.string,
   definitionManager: PropTypes.object,
-  isNew: PropTypes.bool
+  isNew: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 FormDefinitionDetail.defaultProps = {
   isNew: false,
+  _permissions: null
 };
 
 function select(state, component) {
@@ -175,7 +177,8 @@ function select(state, component) {
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId),
-    types: DataManager.getData(state, TYPES_UIKEY)
+    types: DataManager.getData(state, TYPES_UIKEY),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 

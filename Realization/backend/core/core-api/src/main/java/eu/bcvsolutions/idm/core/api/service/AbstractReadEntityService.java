@@ -12,16 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
@@ -144,14 +140,7 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	
 	@Override
 	public E checkAccess(E entity, BasePermission... permission) {
-		if (entity == null) {
-			// nothing to check
-			return null;
-		}
-		//
-		if (!ObjectUtils.isEmpty(permission) && this instanceof AuthorizableEntityService && !getAuthorizationManager().evaluate(entity, permission)) {
-			throw new ForbiddenEntityException(entity.getId());
-		}
+		// entity service will be removed - don't support authorization policies
 		return entity;
 	}
 }

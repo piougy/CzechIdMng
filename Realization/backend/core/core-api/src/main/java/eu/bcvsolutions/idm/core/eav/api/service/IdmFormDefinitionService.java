@@ -2,10 +2,11 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Form definition service
@@ -14,7 +15,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
  *
  */
 public interface IdmFormDefinitionService extends 
-		ReadWriteDtoService<IdmFormDefinitionDto, QuickFilter>,
+		ReadWriteDtoService<IdmFormDefinitionDto, IdmFormDefinitionFilter>,
+		AuthorizableService<IdmFormDefinitionDto>,
 		ScriptEnabled {
 
 	/**

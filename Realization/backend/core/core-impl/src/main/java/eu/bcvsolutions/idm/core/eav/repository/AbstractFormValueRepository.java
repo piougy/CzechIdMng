@@ -31,16 +31,14 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 public interface AbstractFormValueRepository<O extends FormableEntity, E extends AbstractFormValue<O>> extends AbstractEntityRepository<E, IdmFormValueFilter<O>> {
 	
 	/**
-	 * Quick search 
+	 * @deprecated Use AbstractFormValueService (uses criteria api)
 	 */
 	@Override
-	@Query(value = "select e from #{#entityName} e " + " where"
-			+ " (?#{[0].owner} is null or e.owner = ?#{[0].owner})"
-			+ " and"
-			+ " (?#{[0].formDefinitionId} is null or e.formAttribute.formDefinition.id = ?#{[0].formDefinitionId})"
-			+ " and"
-			+ " (?#{[0].formAttributeId} is null or e.formAttribute.id = ?#{[0].formAttributeId})")
-	Page<E> find(IdmFormValueFilter<O> filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<E> find(IdmFormValueFilter<O> filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use AbstractFormValueService (uses criteria api)");
+	}
 	
 	/**
 	 * Returns all form values by given owner (from all definitions)

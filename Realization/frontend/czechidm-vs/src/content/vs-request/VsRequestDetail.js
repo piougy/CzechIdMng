@@ -94,6 +94,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     );
   }
 
+  /**
+   * Return data (attributes) for request table
+   */
   _getRequestAccountData(entity) {
     const {connectorObject} = this.state;
     let compiledConnectorAttributes;
@@ -109,6 +112,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * Return data (attributes) for account table (show current state of VS account in connector)
+   */
   _getAccountData() {
     const {connectorObject} = this.state;
     if (connectorObject) {
@@ -146,6 +152,12 @@ class VsRequestDetail extends Basic.AbstractContent {
     return accountData;
   }
 
+/**
+ * Create attributes with mark changes. Compare changes in attributes from
+ * request versus attributes from current virtual system account.
+ * @param   requestAttributes   [attributes from VS request]
+ * @param   connectorAttributes [attributes from VS account]
+ */
   _compileDiffAttributes(requestAttributes, connectorAttributes) {
     const result = {};
     for (const property in requestAttributes) {
@@ -156,35 +168,7 @@ class VsRequestDetail extends Basic.AbstractContent {
         let multiValue = false;
         if (requestAttributes[property].multiValue) {
           multiValue = true;
-          const listResult = {};
-          const listConnector = connectorAttributes ? connectorAttributes[property].value : null;
-          const listRequest = requestAttributes ? requestAttributes[property].value : null;
-
-          if (listRequest) {
-            for (const value of listRequest) {
-              let levelItem;
-              let labelItem;
-              if (listConnector && _.indexOf(listConnector, value) !== -1) {
-                levelItem = null;
-              } else {
-                levelItem = 'success';
-                labelItem = 'multivalue.add';
-              }
-              listResult[value] = {property, value, level: levelItem, label: labelItem};
-            }
-          }
-          if (listConnector) {
-            for (const value of listConnector) {
-              let levelItem;
-              let labelItem;
-              if (!listRequest || _.indexOf(listRequest, value) === -1) {
-                levelItem = 'danger';
-                labelItem = 'multivalue.remove';
-              }
-              listResult[value] = {property, value, level: levelItem, label: labelItem};
-            }
-          }
-          content = _(listResult).sortBy('value').value();
+          content = this._compileDiffMultiValues(requestAttributes, connectorAttributes, property);
         } else {
           content = propertyValue;
           level = this._getLevelForAttribute(connectorAttributes, propertyValue, property);
@@ -203,6 +187,45 @@ class VsRequestDetail extends Basic.AbstractContent {
     return _(result).sortBy('property').value();
   }
 
+  /**
+   * Create attribute values with mark changes. Compare changes in attribute values from
+   * request versus atribute values from current virtual system account.
+   * @param   requestAttributes   [attributes from VS request]
+   * @param   connectorAttributes [attributes from VS account]
+   * @param   property [name of multivalued attribute]
+   */
+  _compileDiffMultiValues(requestAttributes, connectorAttributes, property) {
+    const listResult = {};
+    const listConnector = connectorAttributes && connectorAttributes[property] ? connectorAttributes[property].value : null;
+    const listRequest = requestAttributes && requestAttributes[property] ? requestAttributes[property].value : null;
+
+    if (listRequest) {
+      for (const value of listRequest) {
+        let levelItem;
+        let labelItem;
+        if (listConnector && _.indexOf(listConnector, value) !== -1) {
+          levelItem = null;
+        } else {
+          levelItem = 'success';
+          labelItem = 'multivalue.add';
+        }
+        listResult[value] = {property, value, level: levelItem, label: labelItem};
+      }
+    }
+    if (listConnector) {
+      for (const value of listConnector) {
+        let levelItem;
+        let labelItem;
+        if (!listRequest || _.indexOf(listRequest, value) === -1) {
+          levelItem = 'danger';
+          labelItem = 'multivalue.remove';
+        }
+        listResult[value] = {property, value, level: levelItem, label: labelItem};
+      }
+    }
+    return _(listResult).sortBy('value').value();
+  }
+
   _getLevelForAttribute(connectorAttributes, propertyValue, property) {
     if (!connectorAttributes || !connectorAttributes.hasOwnProperty(property)) {
       return 'success';
@@ -212,6 +235,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     return 'warning';
   }
 
+  /**
+   * Create value (highlights changes) cell for attributes table
+   */
   _getValueCell({ rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || !entity.value) {
@@ -248,6 +274,15 @@ class VsRequestDetail extends Basic.AbstractContent {
     const { entity, _permissions, showLoading } = this.props;
     const _showLoading = showLoading || this.state.showLoading;
 
+    if (_showLoading) {
+      return (<Basic.Panel>
+        <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
+        <Basic.PanelBody>
+          <Basic.Loading show isStatic />
+        </Basic.PanelBody>
+      </Basic.Panel>);
+    }
+
     const searchBefore = new Domain.SearchParameters()
     .setFilter('uid', entity ? entity.uid : null)
     .setFilter('systemId', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
@@ -280,88 +315,80 @@ class VsRequestDetail extends Basic.AbstractContent {
           <Basic.Panel>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
             <Basic.PanelBody>
-              {
-                _showLoading
-                ?
-                <Basic.Loading show isStatic />
-                :
-                <div>
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
-                      <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
-                        {this._getImplementers(entity)}
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.TextArea
-                        ref="reason"
-                        label={this.i18n('vs:entity.VsRequest.reason.label')}
-                        readOnly
-                        rows={6}
-                        rendered={entity && entity.state === 'CANCELED' }
-                        value={entity ? entity.reason : null}/>
-                    </Basic.Col>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
-                        <Basic.Table
-                          data={requestData}
-                          noData={this.i18n('component.basic.Table.noData')}
-                          className="table-bordered">
-                          <Basic.Column property="property" header={this.i18n('label.property')}/>
-                          <Basic.Column property="value" header={this.i18n('label.value')} cell={this._getValueCell.bind(this)}/>
-                        </Basic.Table>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
-                        <Basic.Table
-                          data={accountData}
-                          noData={this.i18n('component.basic.Table.noData')}
-                          className="table-bordered">
-                          <Basic.Column property="property" header={this.i18n('label.property')}/>
-                          <Basic.Column property="value" header={this.i18n('label.value')}/>
-                        </Basic.Table>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+              <div>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
+                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                      {this._getImplementers(entity)}
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.TextArea
+                      ref="reason"
+                      label={this.i18n('vs:entity.VsRequest.reason.label')}
+                      readOnly
+                      rows={6}
+                      rendered={entity && entity.state === 'CANCELED' }
+                      value={entity ? entity.reason : null}/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
+                      <Basic.Table
+                        data={requestData}
+                        noData={this.i18n('component.basic.Table.noData')}
+                        className="table-bordered">
+                        <Basic.Column property="property" header={this.i18n('label.property')}/>
+                        <Basic.Column property="value" header={this.i18n('label.value')} cell={this._getValueCell.bind(this)}/>
+                      </Basic.Table>
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
+                      <Basic.Table
+                        data={accountData}
+                        noData={this.i18n('component.basic.Table.noData')}
+                        className="table-bordered">
+                        <Basic.Column property="property" header={this.i18n('label.property')}/>
+                        <Basic.Column property="value" header={this.i18n('label.value')}/>
+                      </Basic.Table>
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+                      <VsRequestTable
+                        uiKey="vs-request-table-before"
+                        columns= {['state', 'operationType', 'created', 'uid']}
+                        showFilter={false}
+                        forceSearchParameters={searchBefore}
+                        showToolbar={false}
+                        showPageSize={false}
+                        showRowSelection={false}
+                        showId={false}
+                        filterOpened={false} />
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
                         <VsRequestTable
-                          uiKey="vs-request-table-before"
+                          uiKey="vs-request-table-after"
                           columns= {['state', 'operationType', 'created', 'uid']}
                           showFilter={false}
-                          forceSearchParameters={searchBefore}
+                          forceSearchParameters={searchAfter}
                           showToolbar={false}
                           showPageSize={false}
                           showRowSelection={false}
                           showId={false}
                           filterOpened={false} />
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 }>
-                        <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
-                          <VsRequestTable
-                            uiKey="vs-request-table-after"
-                            columns= {['state', 'operationType', 'created', 'uid']}
-                            showFilter={false}
-                            forceSearchParameters={searchAfter}
-                            showToolbar={false}
-                            showPageSize={false}
-                            showRowSelection={false}
-                            showId={false}
-                            filterOpened={false} />
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                  </Basic.Row>
-                </div>
-              }
-
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                </Basic.Row>
+              </div>
             </Basic.PanelBody>
-
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={ this.context.router.goBack }>{ this.i18n('button.back') }</Basic.Button>
               <Basic.SplitButton

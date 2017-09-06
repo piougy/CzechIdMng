@@ -9,7 +9,6 @@ package eu.bcvsolutions.idm.vs.domain;
 public enum VsRequestState {
 	
 	CONCEPT,
-	EXECUTED,
 	CANCELED,
 	REALIZED,
 	REJECTED,

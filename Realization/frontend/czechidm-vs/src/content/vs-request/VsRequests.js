@@ -30,30 +30,29 @@ export default class VsRequests extends Basic.AbstractContent {
 
   render() {
     const searchActive = new Domain.SearchParameters().setFilter('state', 'IN_PROGRESS');
-    // const searchArchive = new Domain.SearchParameters().setFilter('state', 'REALIZED');
+    const searchArchive = new Domain.SearchParameters().setFilter('onlyArchived', true).clearSort().setSort('modified', 'desc');
 
     return (
       <div>
         <Basic.PageHeader>
           <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
         </Basic.PageHeader>
-
-        <Basic.Tabs>
-          <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
-            <VsRequestTable
-              uiKey="vs-request-table"
-              forceSearchParameters={searchActive}
-              filterOpened />
-          </Basic.Tab>
-          <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
-            <VsRequestTable
-              uiKey="vs-request-table-archive"
-              columns= {['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator']}
-              showRowSelection={false}
-              filterOpened />
-          </Basic.Tab>
-        </Basic.Tabs>
-
+          <Basic.Tabs>
+            <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
+              <VsRequestTable
+                uiKey="vs-request-table"
+                forceSearchParameters={searchActive}
+                filterOpened />
+            </Basic.Tab>
+            <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
+              <VsRequestTable
+                uiKey="vs-request-table-archive"
+                columns= {['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'created', 'creator', 'modified']}
+                showRowSelection={false}
+                forceSearchParameters={searchArchive}
+                filterOpened />
+            </Basic.Tab>
+          </Basic.Tabs>
       </div>
     );
   }

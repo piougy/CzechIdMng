@@ -246,6 +246,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               header={this.i18n('vs:entity.VsRequest.implementers.label')}
               rendered={_.includes(columns, 'implementers')}
               cell={this._getImplementersCell.bind(this)}/>
+          <Advanced.Column property="modified" width="30%" sort face="datetime" rendered={_.includes(columns, 'modified')}/>
           <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
           <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
           <Advanced.Column

@@ -24,11 +24,11 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTest {
 	
-	private static final String WF_1_ENABLED_PROCESS_KEY = "testNotificationEnable";
+	public static final String WF_1_ENABLED_PROCESS_KEY = "testNotificationEnable";
 	private static final String WF_2_FORM_DISABLED_PROCESS_KEY = "testNotificationDisable";
 	private static final String WF_3_DISABLED_PROCESS_KEY = "testNotificationDisableGlobal";
 	
-	private static final String WF_TEST_IDENTITY_01 = "wfTestUser01";
+	public static final String WF_TEST_IDENTITY_01 = "wfTestUser01";
 	private static final String WF_TEST_IDENTITY_02 = "wfTestUser02";
 	private static final String WF_TEST_IDENTITY_03 = "wfTestUser03";
 	

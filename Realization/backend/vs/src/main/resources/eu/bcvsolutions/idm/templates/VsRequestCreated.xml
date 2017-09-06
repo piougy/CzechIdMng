@@ -1,0 +1,106 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with result WF that change identity roles
+
+parameters:
+	-	addedRoles
+	-	changedRoles
+	-	removedRoles
+	-	identity
+	-	from
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>vs:vsRequestCreated</code>
+	<name>New virtual system request (for realization) was created.</name>
+	<subject>CzechIdM - požadavek na realizaci účtu '$request.Uid' na systému '$systemName'</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+CONCEPT,
+	CANCELED,
+	REALIZED,
+	REJECTED,
+	IN_PROGRESS,
+	EXCEPTION,
+	DUPLICATED;
+<body>
+<!-- Macros for Apache velocity -->
+#macro( printState $state $loc )
+#if($loc == "cs")
+#if( $state == "CONCEPT" )
+Koncept
+#elseif( $state == "REALIZED" )
+Realizováno
+#elseif( $state == "CANCELED" )
+Zrušeno
+#elseif($state == "IN_PROGRESS")
+Zpracovává se
+#elseif($state == "EXCEPTION")
+Chyba
+#elseif($state == "DUPLICATED")
+Duplicitní
+#elseif($state == "REJECTED")
+Odmítnuto
+#else
+#end
+#else
+#if( $state == "CONCEPT" )
+Concept
+#elseif( $state == "REALIZED" )
+Realized
+#elseif( $state == "CANCELED" )
+Canceled
+#elseif($state == "IN_PROGRESS")
+In progress
+#elseif($state == "EXCEPTION")
+Exception
+#elseif($state == "DUPLICATED")
+Duplicated
+#elseif($state == "REJECTED")
+Rejected
+#else
+#end
+#end
+#end
+
+#macro( printAttributes $color $attributes $loc )
+#if( !$attributes.isEmpty() )
+#foreach( $attribute in $attributes )
+<li bgcolor='$color' >$attribute.Name - attribute.Value</li>
+#end
+#end
+#end
+
+Dobrý den,<br />
+<br />
+Byl vytvořen požadavek na realizaci účtu '$request.Uid' na virtuálním systému '$systemName'.<br />
+<br />
+
+Kontaktní údaje: <br />
+Email: <b>$identity.email</b>,<br />
+Telefon: <b>$identity.phone</b><br />
+<br />
+<b>Zajistěte prosím realizaci požadovaných změn.<b>
+
+Požadavek pro účet <b>$request.Uid</b> obsahuje následující atributy:<br />
+<br />
+<br />
+#set( $loc = "cs" )
+#set( $color = "green" )
+#printAttributes( $attributes $color $loc )
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>attributes, request, systemName, fullName, identity</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>vs</moduleId>
+</template>

@@ -27,9 +27,15 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -43,6 +49,7 @@ import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
@@ -78,11 +85,14 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private final CzechIdMIcConnectorService czechIdMConnectorService;
 	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
 	private final SysSystemService systemService;
+	private final NotificationManager notificationManager;
+	private final IdmIdentityService identityService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
 			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
-			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService) {
+			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService,
+			NotificationManager notificationManager, IdmIdentityService identityService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
@@ -90,12 +100,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(czechIdMConnectorService);
 		Assert.notNull(czechIdMConfigurationService);
 		Assert.notNull(systemService);
+		Assert.notNull(notificationManager);
+		Assert.notNull(identityService);
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
 		this.czechIdMConnectorService = czechIdMConnectorService;
 		this.czechIdMConfigurationService = czechIdMConfigurationService;
 		this.systemService = systemService;
+		this.notificationManager = notificationManager;
+		this.identityService = identityService;
 	}
 
 	@Override
@@ -225,14 +239,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			// Get the newest request (for same operation)
 			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
 			// Load untrimed request
-			previousRequest = this.get(previousRequest.getId());
-			// Shows on previous request with same operation type. We need this
-			// for create diff.
-			request.setPreviousRequest(previousRequest.getId());
-
-			if (this.isRequestSame(request, previousRequest)) {
-				request.setDuplicateToRequest(previousRequest.getId());
-				request.setState(VsRequestState.DUPLICATED);
+			if(previousRequest != null) {
+				previousRequest = this.get(previousRequest.getId());
+				// Shows on previous request with same operation type. We need this
+				// for create diff.
+				request.setPreviousRequest(previousRequest.getId());
+	
+				if (this.isRequestSame(request, previousRequest)) {
+					request.setDuplicateToRequest(previousRequest.getId());
+					request.setState(VsRequestState.DUPLICATED);
+				}
 			}
 		}
 		request = this.save(request);
@@ -253,13 +269,10 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		if (lastRequest != null) {
 			// Send update message
-			// TODO: send message
-			this.sendNotification(request, this.get(request.getPreviousRequest()));
-		}
-		{
+			this.sendNotification(request, this.get(lastRequest.getId()));
+		}else{
 			// Send new message
-			// TODO: send message
-			this.sendNotification(request, null); // TODO
+			this.sendNotification(request, null);
 		}
 		return null;
 	}
@@ -406,9 +419,58 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
 	}
 
-	private void sendNotification(VsRequestDto request, VsRequestDto vsRequestDto) {
-		// TODO
+	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
+		
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
+		if(implementers.isEmpty()) {
+			// We do not have any implementers ... we don`t have anyone to send notification
+			LOG.warn(MessageFormat.format("Notification cannot be send! We do not have any implementers in request [{0}].", request.getId()));
+			return;
+		}
+		
+		// We assume the request.UID is equals Identity user name!;
+		IdmIdentityDto identity = this.getIdentity(request);
+		SysSystem system = systemService.get(request.getSystemId());
+		IcConnectorObject connectorObject = systemService.readConnectorObject(request.getSystemId(), request.getUid(), request.getConnectorObject().getObjectClass());
+		
+//		if(previous != null) {
+//			notificationManager.send(
+//					VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_UPDATED,
+//				          new IdmMessageDto.Builder()
+//						.setLevel(NotificationLevel.INFO)
+//					.build());
+//		}else {
+		
+		// send create notification
+		notificationManager.send(
+			VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED,
+		          new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.INFO)
+				.addParameter("requestAttributes", request.getConnectorObject() != null ? request.getConnectorObject().getAttributes() : null)
+				.addParameter("accountAttributes", connectorObject != null ? connectorObject.getAttributes() : null)
+				.addParameter("fullName", identityService.getNiceLabel(identity))
+				.addParameter("identity", identity)
+				.addParameter("request", request)
+				.addParameter("systemName", system.getName())
+			.build(), implementers);
+//		}
+		
+	}
+	
+	
 
+	private IdmIdentityDto getIdentity(VsRequestDto request) {
+		if(request == null){
+			return null;
+		}
+		// We assume the request.UID is equals Identity user name!;
+		IdentityFilter filter = new IdentityFilter();
+		filter.setUsername(request.getUid());
+		List<IdmIdentityDto> identities = this.identityService.find(filter, null).getContent();
+		if(identities.isEmpty()){
+			return null;
+		}
+		return identities.get(0);
 	}
 
 	/**

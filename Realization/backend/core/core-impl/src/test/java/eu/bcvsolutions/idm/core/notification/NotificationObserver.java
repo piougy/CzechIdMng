@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.core.notification;
 
 import java.util.HashSet;
 import java.util.Observable;

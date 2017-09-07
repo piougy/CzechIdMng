@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
-import * as Utils from '../../utils';
-import { SecurityManager, FormAttributeManager, FormDefinitionManager } from '../../redux';
+import { FormAttributeManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
 /**
@@ -15,9 +14,7 @@ import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
  * @author Ondřej Kopr
  * @author Radek Tomiška
  */
-const attributeManager = new FormAttributeManager();
-
-const formDefinitionManager = new FormDefinitionManager();
+const manager = new FormAttributeManager();
 
 /**
 * Form attribute detail
@@ -40,7 +37,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
     const { entityId } = this.props.params;
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(attributeManager.receiveEntity(entityId,
+      this.context.store.dispatch(manager.receiveEntity(entityId,
         {
           persistentType: PersistentTypeEnum.TEXT,
           seq: 0,
@@ -51,7 +48,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
         }));
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(attributeManager.fetchEntity(entityId, null, () => {
+      this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
         this.refs.code.focus();
       }));
     }
@@ -98,11 +95,11 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
     if (entity.id === undefined) {
       saveEntity.formDefinition = this._getFormDefinitionId();
-      this.context.store.dispatch(attributeManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(attributeManager.patchEntity(saveEntity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -132,7 +129,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
     let loadedEntity = null;
     if (entity) {
@@ -171,8 +168,12 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
         <Basic.Panel>
             <form onSubmit={this.save.bind(this)}>
-              <Basic.AbstractForm ref="form" data={loadedEntity} showLoading={showLoading || _showLoading}
-                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'EAVFORMATTRIBUTES_CREATE' : 'EAVFORMATTRIBUTES_UPDATE')} style={{ padding: '15px 15px 0 15px' }}>
+              <Basic.AbstractForm
+                ref="form"
+                data={loadedEntity}
+                showLoading={showLoading || _showLoading}
+                readOnly={ !manager.canSave(entity, _permissions) }
+                style={{ padding: '15px 15px 0 15px' }}>
                 <Basic.Row>
                   <div className="col-lg-4">
                     <Basic.TextField
@@ -263,7 +264,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   level="success"
                   showLoadingIcon
                   showLoadingText={this.i18n('button.saving')}
-                  rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'EAVFORMATTRIBUTES_CREATE' : 'EAVFORMATTRIBUTES_UPDATE')}>
+                  rendered={ manager.canSave(entity, _permissions) }>
                   {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.PanelFooter>
@@ -276,8 +277,10 @@ class FormAttributeDetail extends Basic.AbstractContent {
 }
 
 FormAttributeDetail.propTypes = {
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 FormAttributeDetail.defaultProps = {
+  _permissions: null
 };
 
 function select(state, component) {
@@ -285,8 +288,9 @@ function select(state, component) {
 
   //
   return {
-    entity: attributeManager.getEntity(state, entityId),
-    showLoading: attributeManager.isShowLoading(state, null, entityId)
+    entity: manager.getEntity(state, entityId),
+    showLoading: manager.isShowLoading(state, null, entityId),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 

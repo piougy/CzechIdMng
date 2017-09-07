@@ -122,13 +122,13 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE, 
 			IdmBasePermission.EXECUTE),
-	EAVFORMDEFINITIONS(
+	FORMDEFINITION(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
-	EAVFORMATTRIBUTES(
+	FORMATTRIBUTE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -231,15 +231,15 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLE_REQUEST_DELETE = "ROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	public static final String ROLE_REQUEST_EXECUTE = "ROLEREQUEST" + BasePermission.SEPARATOR + "EXECUTE";
 	//
-	public static final String EAV_FORM_DEFINITIONS_READ = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "READ";
-	public static final String EAV_FORM_DEFINITIONS_CREATE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "CREATE";
-	public static final String EAV_FORM_DEFINITIONS_UPDATE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String EAV_FORM_DEFINITIONS_DELETE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "DELETE";
+	public static final String FORM_DEFINITION_READ = "FORMDEFINITION" + BasePermission.SEPARATOR + "READ";
+	public static final String FORM_DEFINITION_CREATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String FORM_DEFINITION_UPDATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String FORM_DEFINITION_DELETE = "FORMDEFINITION" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String EAV_FORM_ATTRIBUTES_READ = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "READ";
-	public static final String EAV_FORM_ATTRIBUTES_CREATE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "CREATE";
-	public static final String EAV_FORM_ATTRIBUTES_UPDATE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String EAV_FORM_ATTRIBUTES_DELETE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "DELETE";
+	public static final String FORM_ATTRIBUTE_READ = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "READ";
+	public static final String FORM_ATTRIBUTE_CREATE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String FORM_ATTRIBUTE_UPDATE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String FORM_ATTRIBUTE_DELETE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String WORKFLOW_DEFINITION_READ = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "READ";
 	public static final String WORKFLOW_DEFINITION_CREATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "CREATE";

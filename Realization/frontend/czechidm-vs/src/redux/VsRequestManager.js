@@ -153,10 +153,10 @@ export default class VsRequestManager extends Managers.EntityManager {
       };
 
       for (const id of ids) {
+        const reason = this.refs['cancel-form'].getData()['cancel-reason'];
         this.setState({
           showLoading: true
         });
-        const reason = this.refs['cancel-form'].getData()['cancel-reason'];
         this.context.store.dispatch(manager.cancel(id, reason, null, cb));
       }
     }, () => {

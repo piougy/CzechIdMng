@@ -13,15 +13,18 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Custom form value repository can be registered by spring plugin.
+ * Custom form value service (and repository) can be registered by spring plugin.
  * 
  * @author Radek Tomiška
  *
  * @param <O> values owner
  */
-public interface FormValueService<O extends FormableEntity> extends Plugin<Class<?>> {
+public interface FormValueService<O extends FormableEntity> extends 
+		Plugin<Class<?>>,
+		AuthorizableService<IdmFormValueDto> {
 
 	public static final String CONFIDENTIAL_STORAGE_VALUE_PREFIX = "eav";
 	

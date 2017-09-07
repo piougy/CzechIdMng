@@ -16,6 +16,10 @@ class FormDefinitionService extends AbstractService {
     return `${entity.name} (${entity.type})`;
   }
 
+  getGroupPermission() {
+    return 'FORMDEFINITION';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

@@ -2,7 +2,11 @@ package eu.bcvsolutions.idm.core.eav.api.dto.filter;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
 /**
  * Form attribute definition filter
@@ -10,12 +14,22 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Radek Tomiška
  *
  */
-public class IdmFormAttributeFilter implements BaseFilter {
+public class IdmFormAttributeFilter extends DataFilter {
 
-	private UUID formDefinitionId;
+	private String code;
+	//
+	private UUID definitionId;
 	private String definitionType;
 	private String definitionName;
-	private String code;
+	private String definitionCode;
+	
+	public IdmFormAttributeFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public IdmFormAttributeFilter(MultiValueMap<String, Object> data) {
+		super(IdmFormAttributeDto.class, data);
+	}
 
 	public void setCode(String code) {
 		this.code = code;
@@ -40,13 +54,20 @@ public class IdmFormAttributeFilter implements BaseFilter {
 	public void setDefinitionName(String definitionName) {
 		this.definitionName = definitionName;
 	}
-
-	public UUID getFormDefinitionId() {
-		return formDefinitionId;
+	
+	public void setDefinitionId(UUID definitionId) {
+		this.definitionId = definitionId;
 	}
-
-	public void setFormDefinitionId(UUID formDefinitionId) {
-		this.formDefinitionId = formDefinitionId;
+	
+	public UUID getDefinitionId() {
+		return definitionId;
 	}
-
+	
+	public void setDefinitionCode(String definitionCode) {
+		this.definitionCode = definitionCode;
+	}
+	
+	public String getDefinitionCode() {
+		return definitionCode;
+	}
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
@@ -20,6 +21,7 @@ public class SysSchemaObjectClassDto extends AbstractDto {
 	private static final long serialVersionUID = 2416496027763299303L;
 	
 	private String objectClassName;
+	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
 	private boolean container = false;
 	private boolean auxiliary = false;

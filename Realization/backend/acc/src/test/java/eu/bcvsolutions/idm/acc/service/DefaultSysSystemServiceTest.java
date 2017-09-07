@@ -262,44 +262,33 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		IdmFormValueDto value2 = new IdmFormValueDto(attributeDefinitionTwo);
 		value2.setValue("test2");
 		
-		// TODO: eav to dto
-		SysSystem systemOneEntity = systemRepository.findOne(systemOne.getId());
+		formService.saveValues(system, formDefinitionOne, Lists.newArrayList(value1));
+		formService.saveValues(system, formDefinitionTwo, Lists.newArrayList(value2));
 		
-		formService.saveValues(systemOneEntity, formDefinitionOne, Lists.newArrayList(value1));
-		formService.saveValues(systemOneEntity, formDefinitionTwo, Lists.newArrayList(value2));
-		
-		assertEquals("test1", formService.getValues(systemOneEntity, formDefinitionOne).get(0).getStringValue());
-		assertEquals("test2", formService.getValues(systemOneEntity, formDefinitionTwo).get(0).getStringValue());
-		assertEquals("test2", formService.getValues(systemOneEntity, formDefinitionTwo, attributeDefinitionTwo.getName()).get(0).getValue());
+		assertEquals("test1", formService.getValues(system, formDefinitionOne).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(system, formDefinitionTwo).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(system, formDefinitionTwo, attributeDefinitionTwo.getName()).get(0).getValue());
 		//
 		// create second owner
 		SysSystemDto systemTwo = new SysSystemDto();
 		systemTwo.setName(SYSTEM_NAME_TWO);		
 		systemTwo = systemService.save(systemTwo);
 
-		// TODO: eav to dto
-		SysSystem systemTwoEntity = systemRepository.findOne(systemTwo.getId());
-		
-		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionOne).size());
-		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionTwo).size());
-		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionOne).size());
-		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionTwo).size());
+		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
+		assertEquals(1, formService.getValues(system, formDefinitionOne).size());
+		assertEquals(1, formService.getValues(system, formDefinitionTwo).size());
 		
 		systemService.delete(systemTwo);
 		
-		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionOne).size());
-		assertEquals(0, formService.getValues(systemTwoEntity, formDefinitionTwo).size());
-		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionOne).size());
-		assertEquals(1, formService.getValues(systemOneEntity, formDefinitionTwo).size());
+		assertEquals(1, formService.getValues(system, formDefinitionOne).size());
+		assertEquals(1, formService.getValues(system, formDefinitionTwo).size());
 		
-		formService.deleteValues(systemOneEntity, formDefinitionOne);		
-		assertEquals(0, formService.getValues(systemOneEntity, formDefinitionOne).size());
-		assertEquals("test2", formService.getValues(systemOneEntity, formDefinitionTwo).get(0).getStringValue());
+		formService.deleteValues(system, formDefinitionOne);		
+		assertEquals(0, formService.getValues(system, formDefinitionOne).size());
+		assertEquals("test2", formService.getValues(system, formDefinitionTwo).get(0).getStringValue());
 		
-		systemService.delete(systemOne);
-		
-		assertEquals(0, formService.getValues(systemOneEntity, formDefinitionOne).size());
-		assertEquals(0, formService.getValues(systemOneEntity, formDefinitionTwo).size());
+		systemService.delete(system);
 	}
 	
 	@Test

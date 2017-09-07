@@ -138,7 +138,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		irdto.setRole(role.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		identityRoleService.save(irdto);
+		irdto = identityRoleService.save(irdto);
 		//		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -191,7 +191,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(role2.getId());
 
-		identityRoleService.save(irdto);
+		irdto = identityRoleService.save(irdto);
 
 		identityAccounts = identityAccountService.find(filter, null).getContent();
 		

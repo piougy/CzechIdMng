@@ -200,7 +200,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES,
 					ImmutableMap.of("system", system.getName()));
 		}
-		SysSystem sytemEntity = toEntity(system);
+		SysSystem sytemEntity = getEntity(system.getId());
 		if (accountRepository.countBySystem(sytemEntity) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS,
 					ImmutableMap.of("system", system.getName()));
@@ -237,7 +237,6 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 	@Transactional
 	public IcConnectorConfiguration getConnectorConfiguration(SysSystemDto system) {
 		Assert.notNull(system);
-
 		if (system.getConnectorKey() == null) {
 			return null;
 		}
@@ -254,6 +253,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 		IdmFormInstanceDto formValues = getFormService().getFormInstance(system, formDefinition);
 		Map<String, List<IdmFormValueDto>> attributeValues = formValues.toValueMap();
+
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl icConf = null;
 		if(SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
@@ -472,8 +472,9 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 			IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(connectorInstance);
 			List<IdmFormValueDto> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
 					formDefinition);
+			SysSystem systemEntity = getEntity(system.getId());
 			originalFormValues.stream().forEach(value -> {
-				systemFormValueService.duplicate(value.getId(), toEntity(system));
+				systemFormValueService.duplicate(value.getId(), systemEntity);
 			});
 		}
 		
@@ -731,7 +732,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		SysSystemDto system = new SysSystemDto();
 		system.setName("sysOne_" + System.currentTimeMillis());
 		system.setConnectorKey(new SysConnectorKeyDto(getTestConnectorKey()));
-		save(system);
+		system = save(system);
 
 		IdmFormDefinitionDto savedFormDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 
@@ -792,7 +793,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		values.add(enabledStatusValue);
 
 		// TODO: eav to DTO
-		getFormService().saveValues(toEntity(system), savedFormDefinition, values);
+		getFormService().saveValues(getEntity(system.getId()), savedFormDefinition, values);
 
 		return system;
 	}

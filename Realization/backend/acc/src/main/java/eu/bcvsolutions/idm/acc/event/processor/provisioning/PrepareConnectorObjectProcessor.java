@@ -211,7 +211,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param connectorConfig
 	 */
 	private void processCreate(SysProvisioningOperation provisioningOperation) {
-		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem().getId());
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//

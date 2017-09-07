@@ -20,10 +20,14 @@ import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 
+<<<<<<< Updated upstream
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+=======
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+>>>>>>> Stashed changes
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -111,7 +115,7 @@ public class BasicVirtualConnector
 		if (systemId == null) {
 			throw new IcException("System ID cannot be null (for virtual system)");
 		}
-		SysSystem system = this.systemService.get(systemId);
+		SysSystemDto system = this.systemService.get(systemId);
 		if (system == null) {
 			throw new IcException("System cannot be null (for virtual system)");
 		}
@@ -536,7 +540,11 @@ public class BasicVirtualConnector
 	 * @param virtualConfiguration
 	 * @return
 	 */
+<<<<<<< Updated upstream
 	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystem system,
+=======
+	private IdmFormDefinition updateFormDefinition(String key, String type, SysSystemDto system,
+>>>>>>> Stashed changes
 			BasicVirtualConfiguration virtualConfiguration) {
 		// TODO: delete attribute definitions
 

@@ -974,7 +974,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	protected abstract ReadWriteDtoService getEntityService();
 	
 	/**
-	 * Method get {@link SysSystem} from uuid schemaAttribute.
+	 * Method get {@link SysSystemDto} from uuid schemaAttribute.
 	 * 
 	 * @param schemaAttributeId
 	 * @return

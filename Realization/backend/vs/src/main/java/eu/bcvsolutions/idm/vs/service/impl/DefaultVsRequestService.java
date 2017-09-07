@@ -23,8 +23,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -104,22 +102,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		if (request == null) {
 			return null;
-		}
-
-		// Remove after DTO service for system will be created (enable embedded
-		// annotation in VsRequestDto.systemId)
-		UUID systemId = request.getSystemId();
-		if (systemId != null) {
-			SysSystem systemEntity = this.systemService.get(systemId);
-			if (systemEntity != null) {
-				SysSystemDto system = new SysSystemDto();
-				system.setTrimmed(true);
-				system.setId(systemEntity.getId());
-				system.setName(systemEntity.getName());
-				system.setReadonly(systemEntity.isReadonly());
-				system.setDisabled(systemEntity.isDisabled());
-				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
-			}
 		}
 
 		// Add list of implementers

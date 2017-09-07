@@ -11,6 +11,7 @@ import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -39,7 +40,7 @@ public class VsRequestDto extends AbstractDto {
 	@ApiModelProperty(required = true, notes = "Unique account identifier. UID on system and for connector.")
 	private String uid;
 	@ApiModelProperty(required = true, notes = "CzechIdM system identifier. UID on system and for connector.")
-	// @Embedded(dtoClass = SysSystemDto.class) will works after System DTO service will be created (UUID to UUID converter) 
+	@Embedded(dtoClass = SysSystemDto.class) //  use UUID to UUID converter 
 	private UUID systemId;
 	@ApiModelProperty(required = true, notes = "Connector identifier. UID on system and for connector.")
 	private String connectorKey;

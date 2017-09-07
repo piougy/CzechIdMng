@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
@@ -18,6 +20,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
  * @author Svanda
  *
  */
+@Relation(collectionRelation = "systems")
 public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 
 	private static final long serialVersionUID = 1L;

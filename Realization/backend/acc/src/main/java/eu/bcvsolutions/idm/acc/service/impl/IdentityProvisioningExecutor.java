@@ -167,7 +167,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 
 		idenityAccoutnList.stream().filter(ia -> {
 			return ((AccIdentityAccount)ia).getIdentityRole() != null && ia.getAccount().getSystem() != null
-					&& ia.getAccount().getSystem().equals(system.getId()) 
+					&& ia.getAccount().getSystem().getId().equals(system.getId())  // Beware identity accouts is there entity not DTO's
 					&& ia.isOwnership();
 		}).forEach((identityAccountInner) -> {
 			// All identity account with same system and with filled

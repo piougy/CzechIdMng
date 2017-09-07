@@ -20,14 +20,10 @@ import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 
-<<<<<<< Updated upstream
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-=======
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
->>>>>>> Stashed changes
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -123,7 +119,7 @@ public class BasicVirtualConnector
 		// TODO: This is big workaround how mark SysSystem as virtual
 		if(!system.isVirtual()){
 			system.setVirtual(true);
-			this.systemService.save(system);
+			system = this.systemService.save(system);
 		}
 
 		IcConnectorClass connectorAnnotation = this.getClass().getAnnotation(IcConnectorClass.class);
@@ -540,14 +536,9 @@ public class BasicVirtualConnector
 	 * @param virtualConfiguration
 	 * @return
 	 */
-<<<<<<< Updated upstream
-	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystem system,
-=======
-	private IdmFormDefinition updateFormDefinition(String key, String type, SysSystemDto system,
->>>>>>> Stashed changes
+	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystemDto system,
 			BasicVirtualConfiguration virtualConfiguration) {
 		// TODO: delete attribute definitions
-
 		IdmFormDefinitionDto definition = this.formService.getDefinition(type, key);
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {

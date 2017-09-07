@@ -23,13 +23,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -412,7 +412,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		
 		// We assume the request.UID is equals Identity user name!;
 		IdmIdentityDto identity = this.getIdentity(request);
-		SysSystem system = systemService.get(request.getSystemId());
+		SysSystemDto system = systemService.get(request.getSystemId());
 		IcConnectorObject connectorObject = systemService.readConnectorObject(request.getSystemId(), request.getUid(), request.getConnectorObject().getObjectClass());
 		
 //		if(previous != null) {

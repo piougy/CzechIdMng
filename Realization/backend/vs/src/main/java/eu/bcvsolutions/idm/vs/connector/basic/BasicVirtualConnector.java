@@ -319,37 +319,35 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		// Find account by UID and System ID
 		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
-		if (account == null) {
-			return null;
-		}
-
-		UUID accountId = account.getId();
 
 		// All attributes from VS account
 		List<IcAttribute> vsAttributes = new ArrayList<>();
 
 		// Create uid attribute
-		IcAttributeImpl uidAttribute = new IcAttributeImpl(IcAttributeInfo.NAME, account.getUid());
+		IcAttributeImpl uidAttribute = new IcAttributeImpl(IcAttributeInfo.NAME, uidValue);
 		vsAttributes.add(uidAttribute);
-
-		// Attributes from definition and configuration
-		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IcAttribute attribute = accountService.getIcAttribute(accountId, virtualAttirbute, formDefinition);
-			if (attribute == null) {
-				return;
-			}
-			vsAttributes.add(attribute);
-		});
+		
+		if (account != null) {
+			// Attributes from definition and configuration
+			UUID accountId = account.getId();
+			Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
+				IcAttribute attribute = accountService.getIcAttribute(accountId, virtualAttirbute, formDefinition);
+				if (attribute == null) {
+					return;
+				}
+				vsAttributes.add(attribute);
+			});
+		}
 
 		// Overwrite attributes form VS account with attributes from unresloved
 		// requests
-		List<IcAttribute> attributes = this.overwriteAttributesByUnresolvedRequests(account, vsAttributes);
+		List<IcAttribute> attributes = this.overwriteAttributesByUnresolvedRequests(account, uidValue, vsAttributes);
 		if (attributes == null) {
 			return null;
 		}
 
 		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
-		connectorObject.setUidValue(account.getUid());
+		connectorObject.setUidValue(uidValue);
 		connectorObject.setObjectClass(new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT));
 		connectorObject.setAttributes(attributes);
 		return connectorObject;
@@ -389,15 +387,15 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	/**
 	 * Overwrite attributes form VS account with attributes from unresloved
 	 * requests
+	 * @param account 
 	 * 
 	 * @param account
 	 * @param vsAttributes
 	 * @return
 	 */
-	private List<IcAttribute> overwriteAttributesByUnresolvedRequests(VsAccountDto account,
-			List<IcAttribute> vsAttributes) {
+	private List<IcAttribute> overwriteAttributesByUnresolvedRequests(VsAccountDto account, String uid, List<IcAttribute> vsAttributes) {
 		Map<String, IcAttribute> attributesMap = new HashMap<>();
-		List<VsRequestDto> unresolvedRequests = requestService.findDuplicities(account.getUid(), this.systemId);
+		List<VsRequestDto> unresolvedRequests = requestService.findDuplicities(uid, this.systemId);
 
 		vsAttributes.forEach(attribute -> {
 			attributesMap.put(attribute.getName(), attribute);
@@ -406,13 +404,16 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		if (unresolvedRequests != null) {
 			unresolvedRequests = Lists.reverse(unresolvedRequests);
 			boolean deleteAccount = false;
+			boolean createAccount = false;
 			for (VsRequestDto request : unresolvedRequests) {
 				if (VsOperationType.DELETE == request.getOperationType()) {
 					deleteAccount = true;
+					createAccount = false;
 					continue;
 				}
 				if (VsOperationType.CREATE == request.getOperationType()) {
 					deleteAccount = false;
+					createAccount = true;
 				}
 				VsRequestDto fullRequest = requestService.get(request.getId());
 				if (fullRequest.getConnectorObject() != null
@@ -422,7 +423,12 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 					});
 				}
 			}
+			// If exits delete request (and not exist next create request), then return null
 			if (deleteAccount) {
+				return null;
+			}
+			// If VS account not exists, then must exist create request, else return null 
+			if (account == null && !createAccount){
 				return null;
 			}
 		}

@@ -6,9 +6,7 @@ import { Utils, Advanced, Managers, Basic } from 'czechidm-core';
 import VsOperationType from '../../../enums/VsOperationType';
 import VsRequestState from '../../../enums/VsRequestState';
 
-const accManagers = require('czechidm-acc').Managers;
 const manager = new VsRequestManager();
-const systemManager = new accManagers.SystemManager();
 
 
 /**
@@ -76,26 +74,46 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     return this.i18n('vs:entity.VsRequest._type');
   }
 
+  _getValueCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity) {
+      return '';
+    }
+    if (entity.label === this.i18n('vs:entity.VsRequest.state.label')) {
+      return ((<Basic.Label
+          level={VsRequestState.getLevel(entity.value)}
+          text={VsRequestState.getNiceLabel(entity.value)}/>));
+    }
+    if (entity.label === this.i18n('vs:entity.VsRequest.operationType.label')) {
+      return ((<Basic.Label
+          level={VsOperationType.getLevel(entity.value)}
+          text={VsOperationType.getNiceLabel(entity.value)}/>));
+    }
+    if (entity.label === this.i18n('acc:entity.System.name')) {
+      return ((<Advanced.EntityInfo
+        entityType="system"
+        entityIdentifier={ entity.value }
+        face="link" />));
+    }
+    return entity.value;
+  }
+
+  getTableChildren() {
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value" cell={this._getValueCell.bind(this)}/>];
+  }
+
   /**
    * Returns popover info content
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    // idenity nice label
-    let systemNiceLabel = '';
-    if (entity && entity._embedded) {
-      systemNiceLabel = systemManager.getNiceLabel(entity._embedded.systemId);
-    }
-    // (<Basic.Label
-    //   ref={entity.state}
-    //   id={entity.state}
-    //   level={VsRequestState.getLevel(entity.state)}
-    //   text={VsRequestState.getNiceLabel(entity.state)}/>)
     return [
       {
         label: this.i18n('acc:entity.System.name'),
-        value: systemNiceLabel
+        value: entity._embedded.systemId.id
       },
       {
         label: this.i18n('vs:entity.VsRequest.uid.label'),
@@ -103,11 +121,11 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
       },
       {
         label: this.i18n('vs:entity.VsRequest.state.label'),
-        value: VsRequestState.getNiceLabel(entity.state)
+        value: entity.state
       },
       {
         label: this.i18n('vs:entity.VsRequest.operationType.label'),
-        value: VsOperationType.getNiceLabel(entity.operationType),
+        value: entity.operationType,
       },
       {
         label: this.i18n('vs:entity.VsRequest.executeImmediately.label'),

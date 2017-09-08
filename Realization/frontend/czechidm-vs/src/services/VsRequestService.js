@@ -109,4 +109,24 @@ export default class VsRequestService extends Services.AbstractService {
         return jsonResponse;
       });
   }
+  /**
+  * Get connector object by given virtual system request.
+  * Show wish for this request = current VS account attributes + changes from request.
+  */
+  getWishConnectorObject(id) {
+    return Services.RestApiService
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/wish-connector-object`)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
 }

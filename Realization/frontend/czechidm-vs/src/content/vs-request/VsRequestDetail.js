@@ -7,6 +7,7 @@ import { Basic, Utils, Advanced, Domain } from 'czechidm-core';
 import { VsRequestManager } from '../../redux';
 import VsRequestInfo from '../../components/advanced/VsRequestInfo/VsRequestInfo';
 import VsRequestTable from './VsRequestTable';
+import VsValueChangeType from '../../enums/VsValueChangeType';
 
 const manager = new VsRequestManager();
 
@@ -78,6 +79,13 @@ class VsRequestDetail extends Basic.AbstractContent {
     .catch(error => {
       this.addError(error);
     });
+    manager.getService().getWishConnectorObject(entityId)
+    .then(json => {
+      this.setState({wishConnectorObject: json});
+    })
+    .catch(error => {
+      this.addError(error);
+    });
   }
 
   _getImplementers(entity) {
@@ -98,39 +106,25 @@ class VsRequestDetail extends Basic.AbstractContent {
    * Return data (attributes) for request table
    */
   _getRequestAccountData(entity) {
-    const {connectorObject} = this.state;
-    let compiledConnectorAttributes;
-    if (connectorObject) {
-      const attributes = connectorObject.attributes;
-      compiledConnectorAttributes = this._compileAttributes(attributes);
-    }
     if (entity && entity.connectorObject) {
       const attributes = entity.connectorObject.attributes;
       const compiledAttributes = this._compileAttributes(attributes);
-      const result = this._compileDiffAttributes(compiledAttributes, compiledConnectorAttributes);
-      return result;
+      // sort by property
+      return _(compiledAttributes).sortBy('property').value();
     }
   }
 
   /**
-   * Return data (attributes) for account table (show current state of VS account in connector)
+   * Return data (attributes) for account table.
+   * Show wish for this request = current VS account attributes + changes from request.
    */
-  _getAccountData() {
-    const {connectorObject} = this.state;
-    if (connectorObject) {
-      const attributes = connectorObject.attributes;
-      const compiledAttributes = this._compileAttributes(attributes);
-      for (const property in compiledAttributes) {
-        if (compiledAttributes.hasOwnProperty(property)) {
-          const propertyValue = compiledAttributes[property].value;
-          if (_.isArray(propertyValue)) {
-            compiledAttributes[property].value = propertyValue.join(', ');
-          }
-        }
-      }
-      // sort by property
-      return _(compiledAttributes).sortBy('property').value();
+  _getWishData() {
+    const {wishConnectorObject} = this.state;
+    if (wishConnectorObject) {
+      // sort by name
+      return _(wishConnectorObject.attributes).sortBy('name').value();
     }
+    return null;
   }
 
   _compileAttributes(attributes) {
@@ -145,95 +139,13 @@ class VsRequestDetail extends Basic.AbstractContent {
       if (attribute.multiValue) {
         content = propertyValue;
       } else {
-        content = propertyValue[0];
+        content = propertyValue ? propertyValue[0] : null;
       }
       accountData[attribute.name] = {property: attribute.name, value: content, multiValue: attribute.multiValue};
     }
     return accountData;
   }
 
-/**
- * Create attributes with mark changes. Compare changes in attributes from
- * request versus attributes from current virtual system account.
- * @param   requestAttributes   [attributes from VS request]
- * @param   connectorAttributes [attributes from VS account]
- */
-  _compileDiffAttributes(requestAttributes, connectorAttributes) {
-    const result = {};
-    for (const property in requestAttributes) {
-      if (requestAttributes.hasOwnProperty(property)) {
-        const propertyValue = requestAttributes[property].value;
-        let content;
-        let level;
-        let multiValue = false;
-        if (requestAttributes[property].multiValue) {
-          multiValue = true;
-          content = this._compileDiffMultiValues(requestAttributes, connectorAttributes, property);
-        } else {
-          content = propertyValue;
-          level = this._getLevelForAttribute(connectorAttributes, propertyValue, property);
-        }
-        let label;
-        if (level === 'success') {
-          label = 'add';
-        }
-        if (level === 'warning') {
-          label = 'change';
-        }
-        result[property] = {property, value: content, level, multiValue, label};
-      }
-    }
-     // sort by property
-    return _(result).sortBy('property').value();
-  }
-
-  /**
-   * Create attribute values with mark changes. Compare changes in attribute values from
-   * request versus atribute values from current virtual system account.
-   * @param   requestAttributes   [attributes from VS request]
-   * @param   connectorAttributes [attributes from VS account]
-   * @param   property [name of multivalued attribute]
-   */
-  _compileDiffMultiValues(requestAttributes, connectorAttributes, property) {
-    const listResult = {};
-    const listConnector = connectorAttributes && connectorAttributes[property] ? connectorAttributes[property].value : null;
-    const listRequest = requestAttributes && requestAttributes[property] ? requestAttributes[property].value : null;
-
-    if (listRequest) {
-      for (const value of listRequest) {
-        let levelItem;
-        let labelItem;
-        if (listConnector && _.indexOf(listConnector, value) !== -1) {
-          levelItem = null;
-        } else {
-          levelItem = 'success';
-          labelItem = 'multivalue.add';
-        }
-        listResult[value] = {property, value, level: levelItem, label: labelItem};
-      }
-    }
-    if (listConnector) {
-      for (const value of listConnector) {
-        let levelItem;
-        let labelItem;
-        if (!listRequest || _.indexOf(listRequest, value) === -1) {
-          levelItem = 'danger';
-          labelItem = 'multivalue.remove';
-        }
-        listResult[value] = {property, value, level: levelItem, label: labelItem};
-      }
-    }
-    return _(listResult).sortBy('value').value();
-  }
-
-  _getLevelForAttribute(connectorAttributes, propertyValue, property) {
-    if (!connectorAttributes || !connectorAttributes.hasOwnProperty(property)) {
-      return 'success';
-    } else if (connectorAttributes[property].value === propertyValue) {
-      return null;
-    }
-    return 'warning';
-  }
 
   /**
    * Create value (highlights changes) cell for attributes table
@@ -247,27 +159,47 @@ class VsRequestDetail extends Basic.AbstractContent {
     if (entity.multiValue) {
       const listResult = [];
       for (const item of entity.value) {
-        if (item.level) {
+        listResult.push(item.value + ' ');
+      }
+      return listResult;
+    }
+
+    return entity.value;
+  }
+  /**
+   * Create value (highlights changes) cell for attributes table
+   */
+  _getWishValueCell( old = false, { rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || (!entity.value && !entity.values)) {
+      return '';
+    }
+    if (entity.multivalue) {
+      const listResult = [];
+      for (const item of entity.values) {
+        const value = old ? item.oldValue : item.value;
+        if (!old && item.change) {
           listResult.push(<Basic.Label
-            key={item.value}
-            level={item.level}
-            title={item.label ? this.i18n(`attribute.diff.${item.label}`) : null}
-            text={item.value}/>);
+            key={value}
+            level={VsValueChangeType.getLevel(item.change)}
+            title={item.change ? this.i18n(`attribute.diff.${item.change}`) : null}
+            text={value}/>);
         } else {
-          listResult.push(item.value + ' ');
+          listResult.push(value ? (item.value + ' ') : '');
         }
         listResult.push(' ');
       }
       return listResult;
     }
 
-    if (entity.level) {
+    const value = old ? entity.value.oldValue : entity.value.value;
+    if (!old && entity.value.change) {
       return (<Basic.Label
-        title={entity.label ? this.i18n(`attribute.diff.${entity.label}`) : null}
-        level={entity.level}
-        text={entity.value}/>);
+        title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
+        level={VsValueChangeType.getLevel(entity.value.change)}
+        text={value}/>);
     }
-    return entity.value;
+    return value;
   }
 
   render() {
@@ -295,8 +227,10 @@ class VsRequestDetail extends Basic.AbstractContent {
     .setFilter('createdAfter', entity ? entity.created : null)
     .setFilter('state', 'IN_PROGRESS');
 
-    const accountData = this._getAccountData();
-    const requestData = this._getRequestAccountData(entity);
+    const wishData = this._getWishData();
+    const isInProgress = entity ? (entity.state === 'IN_PROGRESS') : false;
+    const isDeleteOperation = entity ? (entity.operationType === 'DELETE') : false;
+    const isCreateOperation = entity ? (entity.operationType === 'CREATE') : false;
     return (
       <div>
         <Basic.Confirm ref="confirm-realize" level="danger"/>
@@ -334,25 +268,29 @@ class VsRequestDetail extends Basic.AbstractContent {
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly label={this.i18n('requestAttributes') + ':'}>
+                  <Basic.Col lg={ 12 }>
+                    <Basic.LabelWrapper rendered={isInProgress} readOnly label={this.i18n('wishAttributes') + ':'}>
+                      <Basic.Alert
+                        level="warning"
+                        icon="trash"
+                        rendered={isDeleteOperation}
+                        style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
+                        text={this.i18n('alert.accountShouldBeDeleted')}/>
+                      <Basic.Alert
+                        level="success"
+                        icon="ok"
+                        rendered={isCreateOperation}
+                        style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
+                        text={this.i18n('alert.accountShouldBeCreated')}/>
                       <Basic.Table
-                        data={requestData}
+                        data={wishData}
+                        rendered={!isDeleteOperation}
                         noData={this.i18n('component.basic.Table.noData')}
+                        rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) ? 'warning' : ''; }}
                         className="table-bordered">
-                        <Basic.Column property="property" header={this.i18n('label.property')}/>
-                        <Basic.Column property="value" header={this.i18n('label.value')} cell={this._getValueCell.bind(this)}/>
-                      </Basic.Table>
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly label={this.i18n('accountAttributes') + ':'}>
-                      <Basic.Table
-                        data={accountData}
-                        noData={this.i18n('component.basic.Table.noData')}
-                        className="table-bordered">
-                        <Basic.Column property="property" header={this.i18n('label.property')}/>
-                        <Basic.Column property="value" header={this.i18n('label.value')}/>
+                        <Basic.Column property="name" header={this.i18n('label.property')}/>
+                        <Basic.Column property="value" header={this.i18n('label.targetValue')} cell={this._getWishValueCell.bind(this, false)}/>
+                        <Basic.Column property="oldValue" rendered={isInProgress} header={this.i18n('label.oldValue')} cell={this._getWishValueCell.bind(this, true)}/>
                       </Basic.Table>
                     </Basic.LabelWrapper>
                   </Basic.Col>
@@ -399,7 +337,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                 showLoading={ _showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={ manager.canSave(entity, _permissions) && entity && entity.state === 'IN_PROGRESS' }
+                rendered={ manager.canSave(entity, _permissions) && isInProgress }
                 pullRight
                 dropup>
                 <Basic.MenuItem

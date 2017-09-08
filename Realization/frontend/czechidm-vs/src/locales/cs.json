@@ -119,7 +119,15 @@
         "header": "Požadavek na realizaci",
         "title": "$t(vs:content.vs-request.detail.header)",
         "requestAttributes": "Atributy v tomto požadavku",
-        "accountAttributes": "Atributy účtu na virtuálním systému",
+        "wishAttributes": "Cílový stav na systému",
+        "label": {
+          "oldValue": "Původní hodnota",
+          "targetValue": "Cílová hodnota"
+        },
+        "alert": {
+          "accountShouldBeDeleted": "Účet má být z koncového systému odstraněn.",
+          "accountShouldBeCreated": "Účet má být na koncového systému vytvořen."
+        },
         "beforeRequests": {
           "label": "Předchozí nevyřešené požadavky"},
         "afterRequests": {
@@ -142,13 +150,9 @@
         },
         "attribute": {
           "diff": {
-            "add": "Atribut bude přidán",
-            "remove": "Atribut bude odebrán",
-            "change": "Atribut bude změněn",
-            "multivalue": {
-              "add": "Hodnota bude přidána",
-              "remove": "Hodnota bude odebrána"
-            }
+            "ADDED": "Hodnota má být přidána",
+            "REMOVED": "Hodnota má být odebrána",
+            "UPDATED": "Hodnata má být upravena"
           }
         }
       }

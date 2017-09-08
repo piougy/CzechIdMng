@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
  * Archived provisioning operation
@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningArchiveService extends ReadWriteEntityService<SysProvisioningArchive, ProvisioningOperationFilter> {
+public interface SysProvisioningArchiveService extends ReadWriteDtoService<SysProvisioningArchiveDto, ProvisioningOperationFilter> {
 
 	/**
 	 * Archives provisioning operation
@@ -19,5 +19,5 @@ public interface SysProvisioningArchiveService extends ReadWriteEntityService<Sy
 	 * @param provisioningOperation
 	 * @return
 	 */
-	SysProvisioningArchive archive(ProvisioningOperation provisioningOperation);
+	SysProvisioningArchiveDto archive(ProvisioningOperation provisioningOperation);
 }

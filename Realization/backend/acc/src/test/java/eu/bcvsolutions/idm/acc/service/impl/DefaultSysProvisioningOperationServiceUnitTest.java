@@ -21,6 +21,8 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
@@ -49,6 +51,11 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	private NotificationManager notificationManager;
 	@Mock
 	private ConfidentialStorage confidentialStorage;
+	@Mock
+	private SysProvisioningRequestService requestService;
+	@Mock
+	private SysSystemService systemService;
+	
 	
 	DefaultSysProvisioningOperationService service;
 
@@ -60,7 +67,9 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 				provisioningArchiveService, 
 				batchService, 
 				notificationManager, 
-				confidentialStorage);
+				confidentialStorage,
+				requestService,
+				systemService);
 	}
 	
 	@Test

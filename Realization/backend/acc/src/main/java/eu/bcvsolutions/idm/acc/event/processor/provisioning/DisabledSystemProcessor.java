@@ -10,15 +10,16 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -36,28 +37,32 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Checks disabled system before provisioning is called.")
-public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
 	public static final String PROCESSOR_NAME = "disabled-system-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DisabledSystemProcessor.class);
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysSystemService systemService;
+	private final SysProvisioningRequestService requestService;
 	
 	@Autowired
 	public DisabledSystemProcessor(
 			NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService,
-			SysSystemService systemService) {
+			SysSystemService systemService, 
+			SysProvisioningRequestService requestService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(systemService);
+		Assert.notNull(requestService);
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
 		this.systemService = systemService;
+		this.requestService = requestService;
 	}
 	
 	@Override
@@ -66,16 +71,16 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 	}
 	
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
-		SysProvisioningOperation provisioningOperation = event.getContent();
-		// TODO: transform provisioning operation to DTO
-		SysSystemDto system = systemService.get(provisioningOperation.getSystem().getId());
+	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		boolean closed = false;
 		if (system.isDisabled()) {			
-			SysProvisioningRequest request = provisioningOperation.getRequest();
+			SysProvisioningRequestDto request = requestService.get(provisioningOperation.getRequest());
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_DISABLED, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
-			request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+			request.setResult(new OperationResultDto.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+			request = requestService.save(request);
 			//
 			provisioningOperationService.save(provisioningOperation);
 			//

@@ -16,14 +16,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
 import javax.validation.constraints.NotNull;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -41,7 +39,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_entity_sys_e_id", columnList = "system_entity_id"),
 		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier")
 		})
-public class SysProvisioningOperation extends AbstractEntity implements ProvisioningOperation {
+public class SysProvisioningOperation extends AbstractEntity {
 
 	private static final long serialVersionUID = -6191740329296942394L;
 	
@@ -70,7 +68,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysProvisioningRequest request;
 	
-	@Override
 	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
@@ -88,7 +85,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		this.systemEntity = systemEntity;
 	}
 	
-	@Override
 	public SysSystem getSystem() {
 		if (systemEntity == null) {
 			return null;
@@ -96,7 +92,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return systemEntity.getSystem();
 	}
 
-	@Override
 	public SystemEntityType getEntityType() {
 		if (systemEntity == null) {
 			return null;
@@ -104,7 +99,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return systemEntity.getEntityType();
 	}	
 	
-	@Override
 	public String getSystemEntityUid() {
 		if (systemEntity == null) {
 			return null;
@@ -112,7 +106,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return systemEntity.getUid();
 	}
 
-	@Override
 	public UUID getEntityIdentifier() {
 		return entityIdentifier;
 	}
@@ -121,7 +114,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		this.entityIdentifier = entityIdentifier;
 	}
 	
-	@Override
 	public OperationState getResultState() {
 		if (request != null && request.getResult() != null) {
 			return request.getResult().getState();
@@ -139,7 +131,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		}
 	}
 	
-	@Override
 	public OperationResult getResult() {
 		if (request != null) {
 			return request.getResult();
@@ -155,7 +146,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return request;
 	}
 	
-	@Override
 	public ProvisioningContext getProvisioningContext() {
 		return provisioningContext;
 	}

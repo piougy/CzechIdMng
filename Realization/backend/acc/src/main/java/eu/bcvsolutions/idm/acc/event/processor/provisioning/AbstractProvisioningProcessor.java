@@ -7,9 +7,9 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Enabled(AccModuleDescriptor.MODULE_ID)
-public abstract class AbstractProvisioningProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public abstract class AbstractProvisioningProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
@@ -66,15 +66,15 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	protected abstract IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
+	protected abstract IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig);
 	
 	/**
 	 * Prepare provisioning operation execution
 	 */
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {				
-		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = provisioningOperation.getSystem();
+	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {				
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
 		LOG.debug("Start provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
@@ -85,10 +85,10 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		// Find connector identification persisted in system
 		if (system.getConnectorKey() == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", provisioningOperation.getSystem().getName()));
+					ImmutableMap.of("system", system.getName()));
 		}
-		// load connector configuration, TODO: provisioning operation to dto
-		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(systemService.get(provisioningOperation.getSystem().getId()));
+		// load connector configuration
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(systemService.get(provisioningOperation.getSystem()));
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -102,7 +102,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			IcUidAttribute resultUid = processInternal(provisioningOperation, connectorConfig);
 			// update system entity, when identifier on target system differs
 			if (resultUid != null && resultUid.getUidValue() != null) {
-				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity().getId());
+				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity());
 				if(!systemEntity.getUid().equals(resultUid.getUidValue()) || systemEntity.isWish()) {
 					systemEntity.setUid(resultUid.getUidValue());
 					systemEntity.setWish(false);

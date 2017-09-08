@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
@@ -76,13 +75,13 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService, SysSystemEntityRepository systemEntityRepository) {
+			IdmRoleService roleService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService,
 				schemaObjectClassService, systemAttributeMappingService,
-				roleService, systemEntityRepository);
+				roleService);
 
 		Assert.notNull(treeAccountService);
 		Assert.notNull(treeNodeRepository);

@@ -190,6 +190,13 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   }
 
   /**
+   * Allows define columns for table in children Info component.
+   */
+  getTableChildren() {
+    return null;
+  }
+
+  /**
    * Renders full info card - its used ass popover content too
    */
   _renderFull() {
@@ -224,7 +231,8 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           condensed
           hover={ false }
           noHeader
-          data={ this.getPopoverContent(_entity) }/>
+          data={ this.getPopoverContent(_entity) }
+          children={this.getTableChildren()}/>
 
         <Basic.PanelFooter rendered={ this.showLink() }>
           <Link to={ this.getLink() }>

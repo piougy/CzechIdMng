@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import {VsRequestManager} from '../../../redux/';
-import { Utils, Advanced, Managers } from 'czechidm-core';
+import { Utils, Advanced, Managers, Basic } from 'czechidm-core';
 import VsOperationType from '../../../enums/VsOperationType';
 import VsRequestState from '../../../enums/VsRequestState';
 
@@ -87,7 +87,11 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     if (entity && entity._embedded) {
       systemNiceLabel = systemManager.getNiceLabel(entity._embedded.systemId);
     }
-
+    // (<Basic.Label
+    //   ref={entity.state}
+    //   id={entity.state}
+    //   level={VsRequestState.getLevel(entity.state)}
+    //   text={VsRequestState.getNiceLabel(entity.state)}/>)
     return [
       {
         label: this.i18n('acc:entity.System.name'),

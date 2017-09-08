@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -32,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -327,7 +324,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		}
 
 		UUID accountId = account.getId();
-		
+
 		// All attributes from VS account
 		List<IcAttribute> vsAttributes = new ArrayList<>();
 
@@ -337,16 +334,20 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		// Attributes from definition and configuration
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IcAttribute attribute = accountService.loadIcAttribute(accountId, virtualAttirbute, formDefinition);
+			IcAttribute attribute = accountService.getIcAttribute(accountId, virtualAttirbute, formDefinition);
 			if (attribute == null) {
 				return;
 			}
 			vsAttributes.add(attribute);
 		});
 
-		// Overwrite attributes form VS account with attributes from unresloved requests
+		// Overwrite attributes form VS account with attributes from unresloved
+		// requests
 		List<IcAttribute> attributes = this.overwriteAttributesByUnresolvedRequests(account, vsAttributes);
-		
+		if (attributes == null) {
+			return null;
+		}
+
 		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
 		connectorObject.setUidValue(account.getUid());
 		connectorObject.setObjectClass(new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT));
@@ -384,9 +385,11 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		return schema;
 	}
-	
+
 	/**
-	 * Overwrite attributes form VS account with attributes from unresloved requests
+	 * Overwrite attributes form VS account with attributes from unresloved
+	 * requests
+	 * 
 	 * @param account
 	 * @param vsAttributes
 	 * @return
@@ -402,14 +405,26 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		if (unresolvedRequests != null) {
 			unresolvedRequests = Lists.reverse(unresolvedRequests);
-			unresolvedRequests.forEach(request -> {
+			boolean deleteAccount = false;
+			for (VsRequestDto request : unresolvedRequests) {
+				if (VsOperationType.DELETE == request.getOperationType()) {
+					deleteAccount = true;
+					continue;
+				}
+				if (VsOperationType.CREATE == request.getOperationType()) {
+					deleteAccount = false;
+				}
 				VsRequestDto fullRequest = requestService.get(request.getId());
-				if (fullRequest.getConnectorObject() != null && fullRequest.getConnectorObject().getAttributes() != null) {
+				if (fullRequest.getConnectorObject() != null
+						&& fullRequest.getConnectorObject().getAttributes() != null) {
 					fullRequest.getConnectorObject().getAttributes().forEach(attribute -> {
 						attributesMap.put(attribute.getName(), attribute);
 					});
 				}
-			});
+			}
+			if (deleteAccount) {
+				return null;
+			}
 		}
 		return new ArrayList<>(attributesMap.values());
 	}

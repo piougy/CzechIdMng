@@ -368,7 +368,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request, "VS request cannot be null!");
 
 		List<VsAttributeDto> resultAttributes = new ArrayList<>();
-		IcConnectorObject currentObject = this.getVsConnectorObject(requestId);
+		IcConnectorObject realConnectorObject = this.getVsConnectorObject(requestId);
+		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject : new IcConnectorObjectImpl();
 		IcConnectorObject changeObject = request.getConnectorObject() != null ? request.getConnectorObject()
 				: new IcConnectorObjectImpl();
 		List<IcAttribute> currentAttributes = currentObject.getAttributes();
@@ -401,7 +402,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				if (changedAttribute.isMultiValue()) {
 					changedAttribute.getValues().forEach(value -> {
 						if (currentAttribute.getValues().contains(value)) {
-							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, null));
+							vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
 						} else {
 							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
 						}
@@ -409,7 +410,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					currentAttribute.getValues().forEach(value -> {
 						if (!changedAttribute.getValues().contains(value)) {
 							vsAttribute.getValues()
-									.add(new VsAttributeValueDto(value, null, VsValueChangeType.REMOVED));
+									.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
 						}
 					});
 				} else {
@@ -419,7 +420,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 							|| (changedValue != null && changedValue.equals(currentObject))
 							|| (currentValue != null && currentValue.equals(changedValue))) {
 
-						vsAttribute.setValue(new VsAttributeValueDto(changedValue, null, null));
+						vsAttribute.setValue(new VsAttributeValueDto(changedValue, currentValue, null));
 					} else {
 						vsAttribute.setValue(
 								new VsAttributeValueDto(changedValue, currentValue, VsValueChangeType.UPDATED));
@@ -430,11 +431,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), false);
 				if (currentAttribute.isMultiValue()) {
 					currentAttribute.getValues().forEach(value -> {
-						vsAttribute.getValues().add(new VsAttributeValueDto(value, null, null));
+						vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
 					});
 				} else {
 					vsAttribute.setValue(
-							new VsAttributeValueDto(currentAttribute.getValue(), null, null));
+							new VsAttributeValueDto(currentAttribute.getValue(), currentAttribute.getValue(), null));
 				}
 			}
 			resultAttributes.add(vsAttribute);

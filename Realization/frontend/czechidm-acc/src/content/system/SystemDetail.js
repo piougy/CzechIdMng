@@ -94,14 +94,6 @@ class SystemDetail extends Basic.AbstractContent {
     this.setState({
       _showLoading: true
     }, () => {
-      // transform password policies
-      if (entity.passwordPolicyGenerate) {
-        entity.passwordPolicyGenerate = this.passwordPolicyManager.getSelfLink(entity.passwordPolicyGenerate);
-      }
-      if (entity.passwordPolicyValidate) {
-        entity.passwordPolicyValidate = this.passwordPolicyManager.getSelfLink(entity.passwordPolicyValidate);
-      }
-
       const saveEntity = {
         ...entity,
         connectorServer: {
@@ -118,7 +110,7 @@ class SystemDetail extends Basic.AbstractContent {
           this._afterSave(createdEntity, newError, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.context.store.dispatch(this.manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
           this._afterSave(patchedEntity, newError, afterAction);
         }));
       }

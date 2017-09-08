@@ -136,7 +136,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
       }
 
       // we dont must check is new, on this component will be always old entity
-      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+      this.context.store.dispatch(manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
         this.reloadConnectorConfiguration(patchedEntity.id);
         this._afterSave(patchedEntity, newError);
       }));

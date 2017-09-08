@@ -54,6 +54,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
@@ -62,8 +63,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -94,6 +95,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -214,7 +216,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		
 		SysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
@@ -313,7 +315,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		IcConnectorObject icObject = context.getIcObject();
 		IcSyncDeltaTypeEnum type = context.getType();
 		SysSyncConfigDto config = context.getConfig();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 		SystemEntityType entityType = context.getEntityType();
 		AccAccountDto account = context.getAccount();
 		SysSyncLogDto log = context.getLog();
@@ -607,7 +609,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param actionsLog
 	 */
 	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet, SysSyncConfigDto config,
-			SysSystem system, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
+			SysSystemDto system, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
 		
@@ -700,7 +702,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystem system = systemService.get(schemaObjectClassDto);
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
 				system);
 
@@ -733,7 +735,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncConfigDto config = itemBuilder.getConfig();
 		SysSyncLogDto log = itemBuilder.getLog();
 		List<SysSyncActionLogDto> actionsLog = itemBuilder.getActionLogs();
-		SysSystem system = itemBuilder.getSystem();
+		SysSystemDto system = itemBuilder.getSystem();
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 		try {
 			// Default setting for log item
@@ -842,7 +844,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		Assert.notNull(mapping);
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystem system = systemService.get(schemaObjectClassDto.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 		Assert.notNull(system);
 
 		// System must be enabled
@@ -980,7 +982,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		AccAccountDto account = context.getAccount();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 
 		addToItemLog(logItem, MessageFormat.format("IdM Account ({0}) exists in IDM (LINKED)", account.getUid()));
 		
@@ -1034,7 +1036,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		
 		String uid = context.getUid();
 		SystemEntityType entityType = context.getEntityType();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
@@ -1181,7 +1183,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param system
 	 * @return
 	 */
-	protected AccAccountDto doCreateIdmAccount(String uid, SysSystem system) {
+	protected AccAccountDto doCreateIdmAccount(String uid, SysSystemDto system) {
 		AccAccountDto account = new AccAccountDto();
 		account.setSystem(system.getId());
 		account.setAccountType(AccountType.PERSONAL);
@@ -1518,7 +1520,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	private AccAccountDto findAccount(String uid, SystemEntityType entityType, SysSystemEntityDto systemEntity,
-			SysSystem system, SysSyncItemLogDto logItem) {
+			SysSystemDto system, SysSyncItemLogDto logItem) {
 
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -1551,7 +1553,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		return null;
 	}
 
-	private SysSystemEntityDto createSystemEntity(String uid, SystemEntityType entityType, SysSystem system) {
+	private SysSystemEntityDto createSystemEntity(String uid, SystemEntityType entityType, SysSystemDto system) {
 		SysSystemEntityDto systemEntityNew = new SysSystemEntityDto();
 		systemEntityNew.setUid(uid);
 		systemEntityNew.setEntityType(entityType);
@@ -1559,7 +1561,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		return systemEntityService.save(systemEntityNew);
 	}
 
-	private SysSystemEntityDto findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {
+	private SysSystemEntityDto findSystemEntity(String uid, SysSystemDto system, SystemEntityType entityType) {
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
@@ -1753,7 +1755,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	protected void doCreateLink(AbstractEntity entity,  boolean callProvisioning, SynchronizationContext context) {
 		String uid = context.getUid();
 		SystemEntityType entityType = context.getEntityType();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 		SysSyncItemLogDto logItem = context.getLogItem();
 		SysSystemEntityDto systemEntity = context.getSystemEntity();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
@@ -1975,7 +1977,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param system
 	 */
 	private void updateAccountUid(SysSyncItemLogDto logItem, AccAccountDto account,
-			List<SysSystemAttributeMappingDto> mappedAttributes, List<IcAttribute> icAttributes, SysSystem system) {
+			List<SysSystemAttributeMappingDto> mappedAttributes, List<IcAttribute> icAttributes, SysSystemDto system) {
 		// Generate UID value from mapped attribute marked as UID (Unique ID).
 		// UID mapped attribute must exist and returned value must be not null and must be String
 		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);

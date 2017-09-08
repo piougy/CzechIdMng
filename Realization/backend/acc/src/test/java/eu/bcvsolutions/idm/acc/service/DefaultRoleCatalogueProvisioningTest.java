@@ -12,7 +12,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
@@ -26,9 +25,9 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -72,13 +71,11 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Autowired
 	private EntityManager entityManager;
 	@Autowired
-	private ApplicationContext applicationContext;
-	@Autowired
 	private IdmRoleCatalogueService treeNodeService;
 	@Autowired
 	private FormService formService;
 	//
-	private SysSystem system;
+	private SysSystemDto system;
 
 	@Before
 	public void init() {
@@ -249,6 +246,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		IdmFormAttributeDto attributeKeyColumn = savedFormDefinition.getMappedAttributeByCode("keyColumn");
 		formService.saveValues(system, attributeKeyColumn, ImmutableList.of("ID"));
+
 		// generate schema for system
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		
@@ -279,7 +277,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	}
 	
 
-	private void createMapping(SysSystem system, final SysSystemMappingDto entityHandlingResult) {
+	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 
@@ -325,9 +323,5 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 
 			}
 		});
-	}
-
-	private DefaultRoleCatalogueProvisioningTest getBean() {
-		return applicationContext.getBean(this.getClass());
 	}
 }

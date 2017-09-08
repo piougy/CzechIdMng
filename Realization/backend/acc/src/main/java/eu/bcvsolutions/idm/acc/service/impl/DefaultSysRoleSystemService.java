@@ -11,17 +11,18 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -37,26 +38,22 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmRoleService roleService;
-	private final SysSystemService systemService;
 	
 	@Autowired
 	public DefaultSysRoleSystemService(
 			SysRoleSystemRepository repository,
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
 			AccIdentityAccountRepository identityAccountRepository,
-			IdmRoleService roleService,
-			SysSystemService systemService) {
+			IdmRoleService roleService) {
 		super(repository);
 		//
 		Assert.notNull(roleSystemAttributeRepository);
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(roleService);
-		Assert.notNull(systemService);
 		//
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.identityAccountRepository = identityAccountRepository;
 		this.roleService = roleService;
-		this.systemService = systemService;
 	}
 	
 	
@@ -91,9 +88,9 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		
 		if(isDuplicated){
 			IdmRoleDto roleDto = roleService.get(dto.getRole());
-			SysSystem systemEntity = systemService.get(dto.getSystem());
+			SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system, SysSystemDto.class);
 			throw new ResultCodeException(AccResultCode.ROLE_SYSTEM_ALREADY_EXISTS,
-					ImmutableMap.of("role", roleDto.getName(), "system", systemEntity.getName()));
+					ImmutableMap.of("role", roleDto.getName(), "system", systemDto.getName()));
 		}
 	    
 		return super.save(dto, permission);

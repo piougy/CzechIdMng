@@ -22,13 +22,15 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -38,15 +40,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
  * Service for control account management
@@ -63,8 +64,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
-	private final IdmRoleService roleService;
-	private final SysSystemService systemService;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	
@@ -73,7 +72,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService, SysSystemService systemService,
 			SysSystemMappingService systemMappingService,
 			SysSchemaObjectClassService schemaObjectClassService) {
 		super();
@@ -84,8 +82,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(roleService);
-		Assert.notNull(systemService);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(schemaObjectClassService);
 		//
@@ -95,8 +91,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
-		this.systemService = systemService;
-		this.roleService = roleService;
 		this.systemMappingService = systemMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
 	}
@@ -251,10 +245,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}).collect(Collectors.toList());
 
 		if (attributesUid.size() > 1) {
-			IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
-			SysSystem systemEntity = systemService.get(roleSystem.getSystem());
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role, IdmRoleDto.class);
+			DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID, ImmutableMap.of("role",
-					roleDto.getName(), "system", systemEntity.getName()));
+					roleDto.getName(), "system", systemDto.getName()));
 		}
 
 		SysRoleSystemAttributeDto uidRoleAttribute = !attributesUid.isEmpty() ? attributesUid.get(0) : null;
@@ -269,7 +264,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 					.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
 			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, uidRoleAttribute);
 			if(uid == null) {
-				SysSystem systemEntity = systemService.get(roleSystem.getSystem());
+				SysSystemDto systemEntity = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 						ImmutableMap.of("system", systemEntity.getName()));
 			}
@@ -284,7 +279,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// If roleSystem UID was not found, then we use default UID schema
 		// attribute handling
 		SysSchemaObjectClassDto objectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystem system = systemService.get(objectClassDto.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 		SystemAttributeMappingFilter systeAttributeMappingFilter = new SystemAttributeMappingFilter();
 		systeAttributeMappingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> schemaHandlingAttributes = systemAttributeMappingService

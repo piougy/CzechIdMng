@@ -14,6 +14,11 @@ class SystemService extends Services.AbstractService {
     return system.name;
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
@@ -41,7 +42,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -71,7 +71,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -147,9 +146,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
-	private IdmPasswordPolicyRepository passwordPolicyRepository;
-	
-	@Autowired
 	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
@@ -171,7 +167,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private IdmRoleService roleService;
 	
 	private List<SysSchemaObjectClassDto> objectClasses = null;
-	private SysSystem system = null;
+	private SysSystemDto system = null;
 	private SysSystemMappingDto systemMapping = null;
 	
 	@Before
@@ -369,7 +365,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
-		SysSystem system = systemService.get(account.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
 		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
 
 		SystemAttributeMappingFilter attributeFilter = new SystemAttributeMappingFilter();
@@ -397,7 +393,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		SysSystem system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
+		SysSystemDto system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		
 		// Create new password one
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
@@ -436,8 +432,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		SysSystem system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
-		SysSystem clonedSystem = systemService.duplicate(system.getId());
+		SysSystemDto system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
+		SysSystemDto clonedSystem = systemService.duplicate(system.getId());
 		clonedSystem.setReadonly(false);
 		clonedSystem.setDisabled(false);
 		clonedSystem = systemService.save(clonedSystem);
@@ -1233,7 +1229,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccountDto accountIdentityOne;
 
 		// create test system
-		SysSystem system = helper.createSystem(TestResource.TABLE_NAME, SYSTEM_NAME);
+		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME, SYSTEM_NAME);
 
 		// set default generate password policy for system
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
@@ -1245,7 +1241,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordPolicy.setMaxPasswordLength(2);
 		passwordPolicy.setMinLowerChar(2);
 		passwordPolicy = passwordPolicyService.save(passwordPolicy);
-		system.setPasswordPolicyGenerate(passwordPolicyRepository.findOne(passwordPolicy.getId()));
+		system.setPasswordPolicyGenerate(passwordPolicy.getId());
 		system = systemService.save(system);
 
 		// generate schema for system
@@ -1368,7 +1364,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		return identityAccoutnService.save(accountIdentityOne);
 	}
 	
-	private SysSystem getSystem() {
+	private SysSystemDto getSystem() {
 		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());

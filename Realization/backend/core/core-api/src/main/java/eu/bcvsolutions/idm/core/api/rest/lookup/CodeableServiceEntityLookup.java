@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.service.CodeableService;
  * 
  * @param <E>
  * @author Radek Tomiška
- * @deprecated use {@link CodeableEntityLookup}
+ * @deprecated use {@link CodeableDtoLookup}
  */
 @Deprecated
 public class CodeableServiceEntityLookup<E extends BaseEntity> extends AbstractEntityLookup<E>{

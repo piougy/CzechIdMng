@@ -23,9 +23,9 @@ import org.springframework.util.CollectionUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -113,7 +113,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		if (systemId == null) {
 			throw new IcException("System ID cannot be null (for virtual system)");
 		}
-		SysSystem system = this.systemService.get(systemId);
+		SysSystemDto system = this.systemService.get(systemId);
 		if (system == null) {
 			throw new IcException("System cannot be null (for virtual system)");
 		}
@@ -121,7 +121,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		// TODO: This is big workaround how mark SysSystem as virtual
 		if (!system.isVirtual()) {
 			system.setVirtual(true);
-			this.systemService.save(system);
+			system = this.systemService.save(system);
 		}
 
 		IcConnectorClass connectorAnnotation = this.getClass().getAnnotation(IcConnectorClass.class);
@@ -548,10 +548,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * @param virtualConfiguration
 	 * @return
 	 */
-	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystem system,
+	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystemDto system,
 			BasicVirtualConfiguration virtualConfiguration) {
 		// TODO: delete attribute definitions
-
 		IdmFormDefinitionDto definition = this.formService.getDefinition(type, key);
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {

@@ -22,10 +22,10 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -83,7 +83,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	//
 	// local variables
-	private SysSystem system = null;
+	private SysSystemDto system = null;
 	private SysSystemMappingDto systemMapping = null;
 	private int MAX_CREATE = 10;
 	
@@ -275,7 +275,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, roleService);
 	}
 	
-	private SysRoleSystemDto createAndSaveRoleSystem(IdmRoleDto role, SysSystem system) {
+	private SysRoleSystemDto createAndSaveRoleSystem(IdmRoleDto role, SysSystemDto system) {
 		SysRoleSystemDto entity = new SysRoleSystemDto();
 		entity.setRole(role.getId());
 		entity.setSystem(system.getId());
@@ -314,7 +314,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, idmIdentityRoleSerivce);
 	}
 	
-	private SysSystem createAndSaveSystemWithMapping() {
+	private SysSystemDto createAndSaveSystemWithMapping() {
 		system = null;
 		systemMapping = null;
 		SysSystemAttributeMappingDto nameAttributeMapping = null;

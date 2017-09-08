@@ -15,8 +15,8 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -94,7 +94,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public IcUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+	public IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system,
 			SystemEntityType entityType) {
 		Assert.notNull(entityType);
 		return this.getExecutor(entityType).authenticate(username, password, system, entityType);
@@ -102,7 +102,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 
 	@Override
 	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractEntity entity,
-			SysSystem system, SystemEntityType entityType) {
+			SysSystemDto system, SystemEntityType entityType) {
 		Assert.notNull(entityType);
 		return this.getExecutor(entityType).resolveMappedAttributes(account, entity, system, entityType);
 	}

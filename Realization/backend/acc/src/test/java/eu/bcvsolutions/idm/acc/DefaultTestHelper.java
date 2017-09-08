@@ -15,15 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -64,6 +66,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
+	@Autowired private SysSystemRepository systemRepository;
 
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -101,7 +104,7 @@ public class DefaultTestHelper implements TestHelper {
 	 * @return
 	 */
 	@Override
-	public SysSystem createSystem(String tableName) {
+	public SysSystemDto createSystem(String tableName) {
 		return createSystem(tableName, null);
 	}
 	
@@ -113,13 +116,14 @@ public class DefaultTestHelper implements TestHelper {
 	 * @return
 	 */
 	@Override
-	public SysSystem createSystem(String tableName, String systemName) {
+	public SysSystemDto createSystem(String tableName, String systemName) {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName(systemName == null ? tableName + "_" + System.currentTimeMillis() : systemName);
 
-		system.setConnectorKey(new SysConnectorKey(systemService.getTestConnectorKey()));
+		system.setConnectorKey(new SysConnectorKeyDto(systemService.getTestConnectorKey()));
+
 		system = systemService.save(system);
 
 		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
@@ -177,20 +181,23 @@ public class DefaultTestHelper implements TestHelper {
 		changeLogColumnValue.setValue(null);
 		values.add(changeLogColumnValue);
 
-		formService.saveValues(system, savedFormDefinition, values);
+		// TODO: eav to dto
+		SysSystem systemEntity = systemRepository.findOne(system.getId());
+		
+		formService.saveValues(systemEntity, savedFormDefinition, values);
 
 		return system;
 	}
 	
 	@Override
-	public SysSystem createTestResourceSystem(boolean withMapping) {
+	public SysSystemDto createTestResourceSystem(boolean withMapping) {
 		return createTestResourceSystem(withMapping, null);
 	}
 	
 	@Override
-	public SysSystem createTestResourceSystem(boolean withMapping, String systemName) {
+	public SysSystemDto createTestResourceSystem(boolean withMapping, String systemName) {
 		// create test system
-		SysSystem system = createSystem(TestResource.TABLE_NAME, systemName);
+		SysSystemDto system = createSystem(TestResource.TABLE_NAME, systemName);
 		//
 		if (!withMapping) {
 			return system;
@@ -265,7 +272,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public SysSystemMappingDto getDefaultMapping(SysSystem system) {
+	public SysSystemMappingDto getDefaultMapping(SysSystemDto system) {
 		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 		if(mappings.isEmpty()) {
 			throw new CoreException(String.format("Default mapping for system[%s] not found", system.getId()));
@@ -275,7 +282,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public SysRoleSystemDto createRoleSystem(IdmRoleDto role, SysSystem system) {
+	public SysRoleSystemDto createRoleSystem(IdmRoleDto role, SysSystemDto system) {
 		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
 		roleSystem.setRole(role.getId());
 		roleSystem.setSystem(system.getId());

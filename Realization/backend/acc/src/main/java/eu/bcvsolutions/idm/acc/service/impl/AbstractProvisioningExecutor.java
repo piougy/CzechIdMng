@@ -34,13 +34,17 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
@@ -63,6 +67,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -205,7 +210,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(entity);
 		//
 		ProvisioningOperationType operationType;
-		SysSystem system = systemService.get(account.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
 		SysSystemEntityDto systemEntity = getSystemEntity(account);
 		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
 		String uid = account.getUid();
@@ -303,7 +308,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			AccAccountDto account = accountService.get(accountId);
 			// find uid from system entity or from account
 			String uid = account.getUid();
-			SysSystem system = systemService.get(account.getSystem());
+			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
 			SysSystemEntityDto systemEntity = systemEntityService.get(account.getSystemEntity());
 			//
 			// Find mapped attributes (include overloaded attributes)
@@ -348,7 +353,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 				// We already have account for this system -> next
 				return;
 			}
-			SysSystem sytemEntity = systemService.get(systemId);
+			SysSystemDto sytemEntity = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 			List<SysSystemAttributeMappingDto> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
 			SysSystemAttributeMappingDto uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes,
 					sytemEntity);
@@ -419,7 +424,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(systemEntity);
 		Assert.notNull(systemEntity.getUid());
 		Assert.notNull(systemEntity.getEntityType());
-		SysSystem system = systemService.get(systemEntity.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system, SysSystemDto.class);
 		Assert.notNull(system);
 		//
 		// If are input attributes null, then we load default mapped attributes
@@ -601,7 +606,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	}
 
 	@Override
-	public IcUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+	public IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system,
 			SystemEntityType entityType) {
 
 		Assert.notNull(username);
@@ -633,7 +638,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 */
 	@Override
 	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, ENTITY entity,
-			SysSystem system, SystemEntityType entityType) {
+			SysSystemDto system, SystemEntityType entityType) {
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
 		filter.setSystemId(system.getId());
@@ -838,9 +843,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return
 	 */
 	protected abstract List<SysRoleSystemAttributeDto> findOverloadingAttributes(ENTITY entity,
-			SysSystem system, List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
+			SysSystemDto system, List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
 
-	private SysSystemMappingDto getMapping(SysSystem system, SystemEntityType entityType) {
+	private SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
 		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system,
 				SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
@@ -866,7 +871,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param system
 	 * @return
 	 */
-	protected List<? extends AttributeMapping> findAttributeMappings(SysSystem system, SystemEntityType entityType) {
+	protected List<? extends AttributeMapping> findAttributeMappings(SysSystemDto system, SystemEntityType entityType) {
 		SysSystemMappingDto mapping = getMapping(system, entityType);
 		if (mapping == null) {
 			return null;
@@ -969,36 +974,36 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	protected abstract ReadWriteDtoService getEntityService();
 	
 	/**
-	 * Method get {@link SysSystem} from uuid schemaAttribute.
+	 * Method get {@link SysSystemDto} from uuid schemaAttribute.
 	 * 
 	 * @param schemaAttributeId
 	 * @return
 	 */
-	protected SysSystem getSytemFromSchemaAttribute(UUID schemaAttributeId) {
+	protected SysSystemDto getSytemFromSchemaAttribute(UUID schemaAttributeId) {
 		Assert.notNull(schemaAttributeId);
 		return getSytemFromSchemaAttribute(schemaAttributeService.get(schemaAttributeId));
 	}
 	
 	/**
-	 * Method get {@link SysSystem} from {@link SysSchemaAttributeDto}.
+	 * Method get {@link SysSystemDto} from {@link SysSchemaAttributeDto}.
 	 * 
 	 * @param attributeDto
 	 * @return
 	 */
-	protected SysSystem getSytemFromSchemaAttribute(SysSchemaAttributeDto attributeDto) {
+	protected SysSystemDto getSytemFromSchemaAttribute(SysSchemaAttributeDto attributeDto) {
 		Assert.notNull(attributeDto);
 		return getSystemFromSchemaObjectClass(schemaObjectClassService.get(attributeDto.getObjectClass()));
 	}
 	
 	/**
-	 * Method get {@link SysSystem} from {@link SysSchemaObjectClassDto}.
+	 * Method get {@link SysSystemDto} from {@link SysSchemaObjectClassDto}.
 	 * 
 	 * @param schemaObjectClassDto
 	 * @return
 	 */
-	protected SysSystem getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClassDto) {
+	protected SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClassDto) {
 		Assert.notNull(schemaObjectClassDto);
-		return systemService.get(schemaObjectClassDto.getSystem());
+		return DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 	}
 
 	/**

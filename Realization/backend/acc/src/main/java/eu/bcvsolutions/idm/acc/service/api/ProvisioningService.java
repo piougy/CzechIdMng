@@ -8,8 +8,8 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -99,7 +99,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system, SystemEntityType entityType);
+	IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system, SystemEntityType entityType);
 
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
@@ -111,7 +111,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractEntity entity, SysSystemDto system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.

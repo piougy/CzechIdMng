@@ -87,8 +87,8 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", provisioningOperation.getSystem().getName()));
 		}
-		// load connector configuration
-		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(provisioningOperation.getSystem());
+		// load connector configuration, TODO: provisioning operation to dto
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(systemService.get(provisioningOperation.getSystem().getId()));
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));

@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
 public class ProvisioningEvent extends CoreEvent<AccAccountDto> {
 
 	public static final int DEFAULT_PROVISIONING_ORDER = 1000;
-	public static final int DEFAULT_PASSWORD_VALIDATION_ORDER = -1000;
+	public static final int DEFAULT_PASSWORD_VALIDATION_ORDER = -2000; // password validation in acc must be before core validation
 
 	private static final long serialVersionUID = 1L;
 	

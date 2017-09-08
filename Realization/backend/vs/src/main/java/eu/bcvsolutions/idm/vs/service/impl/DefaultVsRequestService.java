@@ -24,14 +24,12 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -118,22 +116,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		if (request == null) {
 			return null;
-		}
-
-		// Remove after DTO service for system will be created (enable embedded
-		// annotation in VsRequestDto.systemId)
-		UUID systemId = request.getSystemId();
-		if (systemId != null) {
-			SysSystem systemEntity = this.systemService.get(systemId);
-			if (systemEntity != null) {
-				SysSystemDto system = new SysSystemDto();
-				system.setTrimmed(true);
-				system.setId(systemEntity.getId());
-				system.setName(systemEntity.getName());
-				system.setReadonly(systemEntity.isReadonly());
-				system.setDisabled(systemEntity.isDisabled());
-				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
-			}
 		}
 
 		// Add list of implementers
@@ -430,7 +412,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		
 		// We assume the request.UID is equals Identity user name!;
 		IdmIdentityDto identity = this.getIdentity(request);
-		SysSystem system = systemService.get(request.getSystemId());
+		SysSystemDto system = systemService.get(request.getSystemId());
 		IcConnectorObject connectorObject = systemService.readConnectorObject(request.getSystemId(), request.getUid(), request.getConnectorObject().getObjectClass());
 		
 //		if(previous != null) {

@@ -2,9 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -16,12 +14,12 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -31,11 +29,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -49,11 +46,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service
-public class DefaultSysRoleSystemAttributeService
-		extends AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, RoleSystemAttributeFilter>
+public class DefaultSysRoleSystemAttributeService extends
+		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, RoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysRoleSystemAttributeService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(DefaultSysRoleSystemAttributeService.class);
 	@Autowired(required = false)
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
@@ -69,51 +67,51 @@ public class DefaultSysRoleSystemAttributeService
 	@Autowired
 	private SysRoleSystemService roleSystemService;
 	@Autowired
-	private SysSystemAttributeMappingService systemAttributeMappingService; 
+	private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
 	private IdmRoleService roleService;
-	@Autowired
-	private SysSystemService systemService;
-	
+
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
 		super(repository);
 	}
-	
+
 	@Override
 	public SysRoleSystemAttributeDto save(SysRoleSystemAttributeDto dto, BasePermission... permission) {
-		// Check if exist some else attribute which is defined like unique identifier
+		// Check if exist some else attribute which is defined like unique
+		// identifier
 		if (dto.isUid()) {
 			RoleSystemAttributeFilter filter = new RoleSystemAttributeFilter();
 			filter.setIsUid(Boolean.TRUE);
 			filter.setRoleSystemId(dto.getRoleSystem());
-			
+
 			List<SysRoleSystemAttributeDto> list = this.find(filter, null).getContent();
-			
+
 			if (list.size() > 0 && !list.get(0).getId().equals(dto.getId())) {
 				SysRoleSystemDto roleSystem = roleSystemService.get(dto.getRoleSystem());
 				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
-				SysSystem systemEntity = systemService.get(roleSystem.getSystem());
-				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID, ImmutableMap.of("role",
-						roleDto.getName(), "system", systemEntity.getName()));
+				SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system, SysSystemDto.class);
+				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
+						ImmutableMap.of("role", roleDto.getName(), "system", systemDto.getName()));
 			}
 		}
-		
+
 		// We will check exists definition for extended attribute
-		SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService.get(dto.getSystemAttributeMapping());
+		SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
+				.get(dto.getSystemAttributeMapping());
 		SysSystemMappingDto systemMapping = systemMappingService.get(systemAttributeMapping.getSystemMapping());
 		Class<?> entityType = systemMapping.getEntityType().getEntityType();
 		if (dto.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
 			systeAttributeMappingService.createExtendedAttributeDefinition(dto, entityType);
 		}
-		
+
 		// We will do script validation (on compilation errors), before save
 		if (dto.getTransformScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformScript());
 		}
-		
+
 		SysRoleSystemAttributeDto roleSystemAttribute = super.save(dto, permission);
 
 		// RoleSystemAttribute was changed. We need do ACC management for all
@@ -128,10 +126,10 @@ public class DefaultSysRoleSystemAttributeService
 				identities.add(identityRepository.findOne(identityAccount.getIdentity()));
 			}
 		});
-		identities.stream().forEach(identity -> {		
+		identities.stream().forEach(identity -> {
 			LOG.debug("Call account management for identity [{}]", identity.getUsername());
 			boolean provisioningRequired = getAccountManagementService().resolveIdentityAccounts(identity);
-			if(provisioningRequired){
+			if (provisioningRequired) {
 				LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 				getProvisioningService().doProvisioning(identity);
 			}
@@ -146,7 +144,7 @@ public class DefaultSysRoleSystemAttributeService
 		}
 		return accountManagementService;
 	}
-	
+
 	/**
 	 * provisioningService has dependency everywhere - so we need lazy init ...
 	 * 

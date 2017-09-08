@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -49,7 +49,7 @@ public class DefaultSysSystemEntityServiceIntegrationTest extends AbstractIntegr
 	@Test
 	public void testReferentialIntegrity() {
 		// system
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		String systemName = "t_s_" + System.currentTimeMillis();
 		system.setName(systemName);
 		system = systemService.save(system);

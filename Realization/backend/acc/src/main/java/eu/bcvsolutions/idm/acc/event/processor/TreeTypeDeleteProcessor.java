@@ -11,9 +11,9 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -70,8 +70,8 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 		List<SysSystemMappingDto> mappings = systemMappingService.find(filter, null).getContent();
 		long count = mappings.size();
 		if (count > 0) {
-			SysSystem systemEntity = systemService.get(schemaObjectClassService.get(mappings.get(0).getObjectClass()).getSystem());
-			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system",  systemEntity.getCode()));
+			SysSystemDto systemDto = systemService.get(schemaObjectClassService.get(mappings.get(0).getObjectClass()).getSystem());
+			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system",  systemDto.getCode()));
 		}
 		
 		return new DefaultEventResult<>(event, this);

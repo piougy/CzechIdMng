@@ -8,9 +8,9 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -67,9 +67,9 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 */
 	Object transformValueFromResource(Object value, AttributeMapping attributeMapping,  List<IcAttribute> icAttributes );
 
-	Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystem system);
+	Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystemDto system);
 
-	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystem system);
+	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystemDto system);
 
 	/**
 	 * Check on exists EAV definition for given attribute. If the definition not exist, then we try create it.
@@ -126,7 +126,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @param mappedAttributes
 	 * @return
 	 */
-	SysSystemAttributeMappingDto getUidAttribute(List<SysSystemAttributeMappingDto> mappedAttributes, SysSystem system);
+	SysSystemAttributeMappingDto getUidAttribute(List<SysSystemAttributeMappingDto> mappedAttributes, SysSystemDto system);
 
 	/**
 	 * Return transformed value from resource (IC attributes) for given mapped attribute
@@ -146,5 +146,5 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @return
 	 */
 	String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMappingDto> mappedAttributes,
-			SysSystem system);
+			SysSystemDto system);
 }

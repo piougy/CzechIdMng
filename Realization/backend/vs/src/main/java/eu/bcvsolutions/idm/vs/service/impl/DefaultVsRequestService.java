@@ -232,7 +232,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request, "Request cannot be null!");
 		// Unfinished requests for same UID and system
 
-		List<VsRequestDto> duplicities = this.findDuplicities(request);
+		List<VsRequestDto> duplicities = this.findDuplicities(request.getUid(), request.getSystemId());
 		request.setState(VsRequestState.IN_PROGRESS);
 
 		if (!CollectionUtils.isEmpty(duplicities)) {
@@ -350,10 +350,10 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * @return
 	 */
 	@Override
-	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
+	public List<VsRequestDto> findDuplicities(String uid, UUID systemId) {
 		VsRequestFilter filter = new VsRequestFilter();
-		filter.setUid(request.getUid());
-		filter.setSystemId(request.getSystemId());
+		filter.setUid(uid);
+		filter.setSystemId(systemId);
 		filter.setState(VsRequestState.IN_PROGRESS);
 		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
 		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();

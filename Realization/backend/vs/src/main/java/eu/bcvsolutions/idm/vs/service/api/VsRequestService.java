@@ -35,11 +35,11 @@ public interface VsRequestService extends
 	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
 	 * and system. For all operation types.
 	 * 
-	 * @param request
 	 * @return
 	 */
-	List<VsRequestDto> findDuplicities(VsRequestDto request);
+	List<VsRequestDto> findDuplicities(String uid, UUID systemId);
 
 	IcConnectorObject getConnectorObject(UUID fromString);
+
 
 }

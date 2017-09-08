@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
+import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningRequestFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -23,15 +23,22 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		itemResourceRel = "provisioningRequest",
 		exported = false
 )
-public interface SysProvisioningRequestRepository extends AbstractEntityRepository<SysProvisioningRequest, EmptyFilter> {
+public interface SysProvisioningRequestRepository extends AbstractEntityRepository<SysProvisioningRequest, ProvisioningRequestFilter> {
 
 	/*
 	 * (non-Javadoc)
 	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
 	 */
 	@Override
-	@Query(value = "select e from #{#entityName} e")
-	Page<SysProvisioningRequest> find(EmptyFilter filter, Pageable pageable);
+	@Query(value = "select e from #{#entityName} e where "
+			+ " ("
+        		+ " ?#{[0].operationId} is null or e.operation.id = ?#{[0].operationId}"
+	    	+ " ) "
+	    	+ " and "
+    		+ " ("
+    			+ " ?#{[0].batchId} is null or e.batch.id = ?#{[0].batchId}"
+    		+ ") ")
+	Page<SysProvisioningRequest> find(ProvisioningRequestFilter filter, Pageable pageable);
 	
 	/**
 	 * Deletes given operation request (one to one).

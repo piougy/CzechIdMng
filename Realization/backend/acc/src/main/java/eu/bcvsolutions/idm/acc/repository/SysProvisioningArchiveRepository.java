@@ -9,7 +9,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.rest.projection.SysProvisioningArchiveExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -22,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "provisioningArchives",
 		path = "provisioning-archives",
 		itemResourceRel = "provisioningArchive",
-		excerptProjection = SysProvisioningArchiveExcerpt.class,
 		exported = false
 )
 public interface SysProvisioningArchiveRepository extends AbstractEntityRepository<SysProvisioningArchive, ProvisioningOperationFilter> {

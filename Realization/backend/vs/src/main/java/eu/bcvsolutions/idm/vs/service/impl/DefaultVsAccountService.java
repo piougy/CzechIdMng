@@ -124,26 +124,26 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 	 * @return
 	 */
 	@Override
-	public IcAttribute loadIcAttribute(UUID accountId, String name, IdmFormDefinitionDto formDefinition) {
+	public IcAttribute getIcAttribute(UUID accountId, String name, IdmFormDefinitionDto formDefinition) {
 		IdmFormAttributeDto attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(),
 				formDefinition.getCode(), name);
 		List<IdmFormValueDto> values = this.formService.getValues(accountId, VsAccount.class, formDefinition, name);
-		if (CollectionUtils.isEmpty(values)) {
-			return null;
-		}
-
-		List<Object> valuesObject = values.stream().map(IdmFormValueDto::getValue).collect(Collectors.toList());
-
 		IcAttributeImpl attribute = new IcAttributeImpl();
 		attribute.setMultiValue(attributeDefinition.isMultiple());
 		attribute.setName(name);
+		
+		if (CollectionUtils.isEmpty(values)) {
+			return attribute;
+		}
+
+		List<Object> valuesObject = values.stream().map(IdmFormValueDto::getValue).collect(Collectors.toList());
 		attribute.setValues(valuesObject);
+
 		return attribute;
 	}
-	
-	
+
 	@Override
-	public List<IcAttribute> loadIcAttributes(VsAccountDto account) {
+	public List<IcAttribute> getIcAttributes(VsAccountDto account) {
 		Assert.notNull(account);
 
 		List<IcAttribute> attributes = new ArrayList<>();
@@ -159,7 +159,7 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 			return attributes;
 		}
 		definition.getFormAttributes().forEach(formAttribute -> {
-			attributes.add(this.loadIcAttribute(account.getId(), formAttribute.getName(), definition));
+			attributes.add(this.getIcAttribute(account.getId(), formAttribute.getName(), definition));
 		});
 		return attributes;
 	}

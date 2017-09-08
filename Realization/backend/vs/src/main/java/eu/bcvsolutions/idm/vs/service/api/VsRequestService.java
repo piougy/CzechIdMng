@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 /**
@@ -16,8 +17,8 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
  * @author Svanda
  *
  */
-public interface VsRequestService extends 
-		ReadWriteDtoService<VsRequestDto, VsRequestFilter>, AuthorizableService<VsRequestDto> {
+public interface VsRequestService
+		extends ReadWriteDtoService<VsRequestDto, VsRequestFilter>, AuthorizableService<VsRequestDto> {
 
 	IcUidAttribute execute(VsRequestDto request);
 
@@ -39,7 +40,32 @@ public interface VsRequestService extends
 	 */
 	List<VsRequestDto> findDuplicities(String uid, UUID systemId);
 
+	/**
+	 * Return account from connector. Account will be contained "wish"
+	 * attributes ... it means current attributes + changed attributes from
+	 * unresolved requests
+	 * 
+	 * @param fromString
+	 * @return
+	 */
 	IcConnectorObject getConnectorObject(UUID fromString);
 
+	/**
+	 * Return account. Account will be contained only "valid" attributes (not
+	 * from requests).
+	 * 
+	 * @param requestId
+	 * @return
+	 */
+	IcConnectorObject getVsConnectorObject(UUID requestId);
+
+	/**
+	 * Read wish connector object. Object contains current attributes from
+	 * virtual system + changed attributes from given request.
+	 * 
+	 * @param fromString
+	 * @return
+	 */
+	VsConnectorObjectDto getWishConnectorObject(UUID fromString);
 
 }

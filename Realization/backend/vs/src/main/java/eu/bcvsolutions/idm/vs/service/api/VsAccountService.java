@@ -36,13 +36,13 @@ public interface VsAccountService
 	 * @param name
 	 * @return
 	 */
-	IcAttribute loadIcAttribute(UUID accountId, String name, IdmFormDefinitionDto formDefinition);
+	IcAttribute getIcAttribute(UUID accountId, String name, IdmFormDefinitionDto formDefinition);
 
 	/**
 	 * Load attributes for given VsAccount
 	 * @param account
 	 * @return
 	 */
-	List<IcAttribute> loadIcAttributes(VsAccountDto account);
+	List<IcAttribute> getIcAttributes(VsAccountDto account);
 
 }

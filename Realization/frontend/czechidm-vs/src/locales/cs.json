@@ -179,13 +179,9 @@
     }
   },
   "error": {
-    "EXAMPLE_SERVER_ERROR": {
-      "title": "Ukázka chyby serveru",
-      "message": "Ukázka chyby serveru s parametrem [{{parameter}}]."
-    },
-    "EXAMPLE_CLIENT_ERROR": {
-      "title": "Ukázka chyby klienta",
-      "message": "Zadaná hodnota je chybná [{{parameter}}]."
+    "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
+      "title": "Nelze smazat účet [{{uid}}] na virtuálním systému",
+      "message": "Účet [{{uid}}] na vyrtuálním systému nelze smazat, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovaly požadavek na jeho vytvoření! "
     }
   }
 }

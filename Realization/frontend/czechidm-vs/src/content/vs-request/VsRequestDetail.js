@@ -311,17 +311,17 @@ class VsRequestDetail extends Basic.AbstractContent {
                     </Basic.LabelWrapper>
                   </Basic.Col>
                   <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
-                        <VsRequestTable
-                          uiKey="vs-request-table-after"
-                          columns= {['state', 'operationType', 'created', 'uid']}
-                          showFilter={false}
-                          forceSearchParameters={searchAfter}
-                          showToolbar={false}
-                          showPageSize={false}
-                          showRowSelection={false}
-                          showId={false}
-                          filterOpened={false} />
+                    <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
+                      <VsRequestTable
+                        uiKey="vs-request-table-after"
+                        columns= {['state', 'operationType', 'created', 'uid']}
+                        showFilter={false}
+                        forceSearchParameters={searchAfter}
+                        showToolbar={false}
+                        showPageSize={false}
+                        showRowSelection={false}
+                        showId={false}
+                        filterOpened={false} />
                     </Basic.LabelWrapper>
                   </Basic.Col>
                 </Basic.Row>

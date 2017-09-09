@@ -71,6 +71,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const _entityId = entityId ? entityId : props.params.entityId;
     if (this._getIsNew(props)) {
       this.setState({
+        showLoading: false,
         request: {
           applicant: props.location.query.applicantId,
           state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
@@ -282,39 +283,32 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs[`confirm-delete`].show(
-      this.i18n(`content.roleRequests.action.startRequest.message`),
-      this.i18n(`content.roleRequests.action.startRequest.header`)
-    ).then(() => {
+    this.setState({
+      showLoading: true
+    });
+    const promise = roleRequestManager.getService().startRequest(idRequest);
+    promise.then((json) => {
       this.setState({
-        showLoading: true
+        showLoading: false
       });
-      const promise = roleRequestManager.getService().startRequest(idRequest);
-      promise.then((json) => {
-        this.setState({
-          showLoading: false
-        });
-        this.context.router.goBack();
-        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
-          return;
-        }
-        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
-          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
-          return;
-        }
-        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
-      }).catch(ex => {
-        this.setState({
-          showLoading: false
-        });
-        this.addError(ex);
-        if (this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
-        }
+      this.context.router.goBack();
+      if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+        return;
+      }
+      if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
+        return;
+      }
+      this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
+    }).catch(ex => {
+      this.setState({
+        showLoading: false
       });
-    }, () => {
-      // Rejected
+      this.addError(ex);
+      if (this.refs.table) {
+        this.refs.table.getWrappedInstance().reload();
+      }
     });
     return;
   }
@@ -460,12 +454,26 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       _permissions,
       _identityPermissions } = this.props;
     //
-    const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
+    // We want show audit fields only for Admin, but not in concept state.
+    const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN') && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
     const showLoading = !request || _showLoading || this.state.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
+
+    if (this.state.showLoading || !request) {
+      return (<div>
+        <Basic.ContentHeader rendered={showRequestDetail}>
+          <Basic.Icon value="compressed"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+        </Basic.ContentHeader>
+        <Basic.PanelBody>
+          <Basic.Loading show isStatic />
+        </Basic.PanelBody>
+      </div>);
+    }
 
     const addedIdentityRoles = [];
     const changedIdentityRoles = [];

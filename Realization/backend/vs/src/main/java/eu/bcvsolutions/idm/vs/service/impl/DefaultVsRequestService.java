@@ -315,8 +315,31 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			break;
 		}
 		case DELETE: {
+			VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystemId());
+			if (account == null) {
+				throw new VsException(VsResultCode.VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST,
+						ImmutableMap.of("uid", request.getUid()));
+			}
 			virtualConnector.internalDelete(new IcUidAttributeImpl(null, request.getUid(), null),
 					request.getConnectorObject().getObjectClass());
+			// All unresolved request created before this delete request will be
+			// canceled
+			VsRequestFilter filter = new VsRequestFilter();
+			filter.setCreatedBefore(request.getCreated());
+			filter.setUid(request.getUid());
+			filter.setSystemId(request.getSystemId());
+			filter.setState(VsRequestState.IN_PROGRESS);
+			// Unresolved request created before this request
+			List<VsRequestDto> beforeRequests = this.find(filter, null).getContent();
+
+			beforeRequests.forEach(beforeRequest -> {
+				String reason = MessageFormat.format(
+						"Request [{0}] was canceled (by SYSTEM), because 'after' delete request [{1}] was realized!",
+						beforeRequest.getId(), request.getId());
+				this.cancel(beforeRequest.getId(), reason);
+				LOG.info(reason);
+
+			});
 			break;
 		}
 
@@ -369,7 +392,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		List<VsAttributeDto> resultAttributes = new ArrayList<>();
 		IcConnectorObject realConnectorObject = this.getVsConnectorObject(requestId);
-		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject : new IcConnectorObjectImpl();
+		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject
+				: new IcConnectorObjectImpl();
 		IcConnectorObject changeObject = request.getConnectorObject() != null ? request.getConnectorObject()
 				: new IcConnectorObjectImpl();
 		List<IcAttribute> currentAttributes = currentObject.getAttributes();
@@ -425,7 +449,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 						vsAttribute.setValue(
 								new VsAttributeValueDto(changedValue, currentValue, VsValueChangeType.UPDATED));
 					}
-				} 
+				}
 			} else {
 				// Attribute was not changed
 				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), false);
@@ -440,7 +464,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			}
 			resultAttributes.add(vsAttribute);
 		});
-		
+
 		VsConnectorObjectDto wishObject = new VsConnectorObjectDto();
 		wishObject.setUid(request.getUid());
 		wishObject.setAttributes(resultAttributes);

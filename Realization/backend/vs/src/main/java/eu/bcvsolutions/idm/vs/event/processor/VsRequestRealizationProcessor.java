@@ -38,7 +38,7 @@ public class VsRequestRealizationProcessor extends CoreEventProcessor<VsRequestD
 		this.service = service;
 	}
 	
-	@Override
+	@Override	
 	public String getName() {
 		return PROCESSOR_NAME;
 	}

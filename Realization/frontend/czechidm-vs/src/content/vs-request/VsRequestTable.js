@@ -101,7 +101,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
       <Advanced.EntityInfo
         entityType="vs-request"
         entityIdentifier={ data[rowIndex].id }
-        face="popover" />
+        face="link" />
     );
   }
 

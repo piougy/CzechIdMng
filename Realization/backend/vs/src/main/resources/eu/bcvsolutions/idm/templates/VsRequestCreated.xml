@@ -1,106 +1,145 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
-<!-- 
-Notification with result WF that change identity roles
-
-parameters:
-	-	addedRoles
-	-	changedRoles
-	-	removedRoles
-	-	identity
-	-	from
+<!--
+New virtual system request (for realization) was created and send to implementers.
  -->
 
 <template
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>vs:vsRequestCreated</code>
-	<name>New virtual system request (for realization) was created.</name>
+	<name>New virtual system request (for realization) was created and send to implementers.</name>
 	<subject>CzechIdM - požadavek na realizaci účtu '$request.Uid' na systému '$systemName'</subject>
 	<bodyHtml>
 <![CDATA[
 <html>
-CONCEPT,
-	CANCELED,
-	REALIZED,
-	REJECTED,
-	IN_PROGRESS,
-	EXCEPTION,
-	DUPLICATED;
-<body>
-<!-- Macros for Apache velocity -->
-#macro( printState $state $loc )
-#if($loc == "cs")
-#if( $state == "CONCEPT" )
-Koncept
-#elseif( $state == "REALIZED" )
-Realizováno
-#elseif( $state == "CANCELED" )
-Zrušeno
-#elseif($state == "IN_PROGRESS")
-Zpracovává se
-#elseif($state == "EXCEPTION")
-Chyba
-#elseif($state == "DUPLICATED")
-Duplicitní
-#elseif($state == "REJECTED")
-Odmítnuto
-#else
-#end
-#else
-#if( $state == "CONCEPT" )
-Concept
-#elseif( $state == "REALIZED" )
-Realized
-#elseif( $state == "CANCELED" )
-Canceled
-#elseif($state == "IN_PROGRESS")
-In progress
-#elseif($state == "EXCEPTION")
-Exception
-#elseif($state == "DUPLICATED")
-Duplicated
-#elseif($state == "REJECTED")
-Rejected
-#else
-#end
-#end
-#end
+  <body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+    ## Print multi value from attribute
+    #macro( printMultivalue $values $showOldValue )
+      #set( $oldValueTrue = "true" )
+      #foreach( $value in $values )
+          #if($showOldValue != $oldValueTrue && $value.getValue())
+          <span style="#getLevelColor($value.getChange())">
+              $value.getValue()
+          </span>
+          #end
+          #if($showOldValue == $oldValueTrue && $value.getOldValue())
+          <span>
+              $value.getOldValue()
+          </span>
+          #end
+      #end
+    #end
 
-#macro( printAttributes $color $attributes $loc )
-#if( !$attributes.isEmpty() )
-#foreach( $attribute in $attributes )
-<li bgcolor='$color' >$attribute.Name - attribute.Value</li>
-#end
-#end
-#end
+    ## Return style by change operation
+    #macro( getLevelColor $change )
+      #set( $updated = "UPDATED" )
+      #set( $added = "ADDED" )
+      #set( $removed = "REMOVED" )
+      #if( $added == $change)
+        background-color: #5cb85c; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
+      #elseif( $updated == $change)
+        background-color: #f0ad4e; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
+      #elseif( $removed == $change)
+        background-color: #d9534f; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; text-decoration: line-through; margin: 2px;
+      #end
+    #end
 
-Dobrý den,<br />
-<br />
-Byl vytvořen požadavek na realizaci účtu '$request.Uid' na virtuálním systému '$systemName'.<br />
-<br />
+    ## Print table of attributes (with highlight changes)
+    #macro( printAttributes $atts )
+      #set($showNewColumn = true)
+      #set($operationTypeDelete = 'DELETE')
+      #if($operationTypeDelete == $request.getOperationType())
+        #set($showNewColumn = false)
+      #end
+      <table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
+        <tbody>
+          <tr style="height: 15px;">
+            <td style="background-color: #5cb85c; min-width: 150px;"><span style="font-size: 12pt; color: #ffffff;"><strong>Název atributu</strong></span></td>
+            #if($showNewColumn)
+              <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;"><strong>Cílová hodnota</strong></span></td>
+            #end
+            <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;"><strong>Původní hodnota</strong></span></td>
+          </tr>
+          #foreach( $attribute in $atts )
+            <tr style="#if($attribute.isChanged()) background-color: #faf2cc; #end height: 25px;">
+              #if( $attribute.isMultivalue() )
+                <td ><span style="font-size: 12pt;"><strong>$attribute.getName()</strong></span></td>
+                #set( $showOldValue = "false" )
+                #if($showNewColumn)
+                  <td ><span style="font-size: 12pt;">#printMultivalue( $attribute.getValues() $showOldValue)</span></td>
+                #end
+                #set( $showOldValue = "true" )
+                <td ><span style="font-size: 12pt;">#printMultivalue( $attribute.getValues() $showOldValue)</span></td>
+              #else
+                  <td ><span style="font-size: 12pt;"><strong>$attribute.getName()</strong></span></td>
+                  #if($showNewColumn)
+                    <td ><span style="font-size: 12pt;"><span style="#getLevelColor($attribute.getValue().getChange())">#if($attribute.getValue().getValue())$attribute.getValue().getValue()#end</span></td>
+                  #end
+                  <td ><span style="font-size: 12pt;"><span>#if($attribute.getValue().getOldValue())$attribute.getValue().getOldValue()#end</span></td>
+              #end
+            </tr>
+          #end
+        </tbody>
+      </table>
+    #end
 
-Kontaktní údaje: <br />
-Email: <b>$identity.email</b>,<br />
-Telefon: <b>$identity.phone</b><br />
-<br />
-<b>Zajistěte prosím realizaci požadovaných změn.<b>
+    Dobrý den,<br />
+    byl vytvořen požadavek na realizaci účtu '<b>$request.getUid()</b>' na virtuálním systému '<b>$systemName</b>'.<br />
+    <br />
 
-Požadavek pro účet <b>$request.Uid</b> obsahuje následující atributy:<br />
-<br />
-<br />
-#set( $loc = "cs" )
-#set( $color = "green" )
-#printAttributes( $attributes $color $loc )
-<br />
-<br />
-S pozdravem BCV Solutions s.r.o.
-<br />
-<br />
+    Kontaktní údaje: <br />
+    Jméno: <b>$fullName</b><br />
+    Telefon:
+    #if($identity.getPhone())
+      <b>$identity.getPhone()</b>
+    #end
+    <br />
+    Email:
+    #if($identity.getEmail())
+      <b>$identity.getEmail()</b>
+    #end
+    <br />
+    <br />
+    #set($operationTypeDelete = 'DELETE')
+    #if($operationTypeDelete == $request.getOperationType())
+      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #f2dede; color: #a94442; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
+        Účet má být z koncového systému odstraněn.
+      </div>
+    #end
+    #set($operationTypeDelete = 'CREATE')
+    #if($operationTypeDelete == $request.getOperationType())
+      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #dff0d8; color: #3c763d; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #d6e9c6;">
+        Účet má být na koncového systému vytvořen.
+      </div>
+    #end
+    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+    border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+        <b>Zajistěte prosím realizaci požadovaných změn.</b><br/>
+        <br/>
+        Potvrzení či zamítnutí realizace můžete provést <a href='$url'>zde</a>.
+    </div>
+    #if($previousUrl)
+    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
+    border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
+          Pro tento účet a systém, existuje nevyřešený požadavek nebo požadavky. Detail posledního požadavku je <a href='$previousUrl'>zde</a>.
+    </div>
+    #end
+    Cílový stav na systému (pro účet <b>$request.getUid()</b>):<br/>
+    <br/>
+    #printAttributes($wishAttributes )
+    <br />
 
+    <div style="display: block; margin: 30px auto; max-width: 400px;">
+        CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+    </div>
+  </body>
+</html>
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>
-	<parameter>attributes, request, systemName, fullName, identity</parameter>
+	<parameter>requestAttributes, wishAttributes, fullName, url, previousUrl, request, systemName, identity</parameter>
 	<systemTemplate>true</systemTemplate>
 	<moduleId>vs</moduleId>
 </template>

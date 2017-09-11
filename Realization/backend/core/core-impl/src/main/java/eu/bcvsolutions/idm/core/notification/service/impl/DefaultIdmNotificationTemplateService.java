@@ -19,6 +19,8 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.DisplayTool;
 import org.dom4j.CDATA;
@@ -106,6 +108,7 @@ public class DefaultIdmNotificationTemplateService extends
 		VelocityEngine velocityEngine = new VelocityEngine();
 		// Initialization apache velocity
 		velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, LOG);
+		velocityEngine.setProperty(RuntimeConstants.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL, true);
 		velocityEngine.init();
 		this.velocityEngine = velocityEngine;
 		this.configurationService = configurationService;

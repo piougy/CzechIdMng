@@ -10,7 +10,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
@@ -30,7 +29,6 @@ public class VirtualSystemModuleDescriptor extends PropertyModuleDescriptor {
 
 	public static final String MODULE_ID = "vs";
 	public static final String TOPIC_VS_REQUEST_CREATED = String.format("%s:vsRequestCreated", MODULE_ID);
-	public static final String TOPIC_VS_REQUEST_UPDATED = String.format("%s:vsRequestUpdated", MODULE_ID);
 	
 	@Autowired
 	private IdmNotificationTemplateService templateService;
@@ -59,10 +57,7 @@ public class VirtualSystemModuleDescriptor extends PropertyModuleDescriptor {
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		
 		configs.add(new NotificationConfigurationDto(TOPIC_VS_REQUEST_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"New virtual system request (for realization) was created.", templateService.getTemplateByCode(TOPIC_VS_REQUEST_CREATED).getId()));
-
-		configs.add(new NotificationConfigurationDto(TOPIC_VS_REQUEST_UPDATED, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"Virtual system request (for realization) was updated.", templateService.getTemplateByCode(TOPIC_VS_REQUEST_UPDATED).getId()));
+				"New virtual system request (for realization) was created and send to implementers.", templateService.getTemplateByCode(TOPIC_VS_REQUEST_CREATED).getId()));
 		return configs;
 	}
 }

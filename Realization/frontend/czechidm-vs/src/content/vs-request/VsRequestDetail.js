@@ -51,6 +51,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
       this._initConnectorObject(nextProps.entity.id);
     }
+    if (!entity && nextProps.entity && nextProps.entity.id) {
+      this._initConnectorObject(nextProps.entity.id);
+    }
   }
 
   realize(entity) {

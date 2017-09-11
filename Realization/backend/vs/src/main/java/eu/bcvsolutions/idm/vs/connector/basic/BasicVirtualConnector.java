@@ -252,9 +252,17 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		if (!(uidValue instanceof String)) {
 			throw new IcException(MessageFormat.format("UID attribute value [{0}] must be String!", uidValue));
 		}
+		String uid = (String) uidValue;
+		
+		// Find account by UID and System ID - If will be found, then we will do update instead create
+		VsAccountDto account = accountService.findByUidSystem(uid, systemId);
+		if (account != null) {
+			LOG.info("Create account - Virtual system account for UID [{}] already exist. We will execute update!", uidValue);
+			return this.internalUpdate(new IcUidAttributeImpl(null, uid, null), objectClass, attributes);
+		}
 
-		VsAccountDto account = new VsAccountDto();
-		account.setUid((String) uidValue);
+		account = new VsAccountDto();
+		account.setUid(uid);
 		account.setSystemId(this.systemId);
 		account.setConnectorKey(connectorKey);
 
@@ -415,7 +423,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 					deleteAccount = false;
 					createAccount = true;
 				}
-				VsRequestDto fullRequest = requestService.get(request.getId());
+				//VsRequestDto fullRequest = requestService.get(request.getId());
+				VsRequestDto fullRequest = request;
 				if (fullRequest.getConnectorObject() != null
 						&& fullRequest.getConnectorObject().getAttributes() != null) {
 					fullRequest.getConnectorObject().getAttributes().forEach(attribute -> {

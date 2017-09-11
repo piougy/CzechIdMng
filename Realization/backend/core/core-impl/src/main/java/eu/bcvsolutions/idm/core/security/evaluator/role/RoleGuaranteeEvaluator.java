@@ -13,8 +13,10 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -54,8 +56,8 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 			
 			subquery.where(
 	                builder.and(
-	                		builder.equal(subRoot.get("role"), root), // correlation attr
-	                		builder.equal(subRoot.get("guarantee").get("id"), authentication.getCurrentIdentity().getId())
+	                		builder.equal(subRoot.get(IdmRoleGuarantee_.role), root), // correlation attr
+	                		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee).get(AbstractEntity_.id), authentication.getCurrentIdentity().getId())
 	                		)
 	        );	
 			return builder.exists(subquery);

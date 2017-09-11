@@ -28,9 +28,9 @@ public interface VsRequestService
 
 	IcUidAttribute internalExecute(VsRequestDto request);
 
-	VsRequestDto realize(UUID fromString);
+	VsRequestDto realize(VsRequestDto request);
 
-	VsRequestDto cancel(UUID fromString, String reason);
+	VsRequestDto cancel(VsRequestDto request, String reason);
 
 	/**
 	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
@@ -45,27 +45,27 @@ public interface VsRequestService
 	 * attributes ... it means current attributes + changed attributes from
 	 * unresolved requests
 	 * 
-	 * @param fromString
+	 * @param request
 	 * @return
 	 */
-	IcConnectorObject getConnectorObject(UUID fromString);
+	IcConnectorObject getConnectorObject(VsRequestDto request);
 
 	/**
 	 * Return account. Account will be contained only "valid" attributes (not
 	 * from requests).
 	 * 
-	 * @param requestId
+	 * @param request
 	 * @return
 	 */
-	IcConnectorObject getVsConnectorObject(UUID requestId);
+	IcConnectorObject getVsConnectorObject(VsRequestDto request);
 
 	/**
 	 * Read wish connector object. Object contains current attributes from
 	 * virtual system + changed attributes from given request.
 	 * 
-	 * @param fromString
+	 * @param request
 	 * @return
 	 */
-	VsConnectorObjectDto getWishConnectorObject(UUID fromString);
+	VsConnectorObjectDto getWishConnectorObject(VsRequestDto request);
 
 }

@@ -138,7 +138,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> realize(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		VsRequestDto request = ((VsRequestService) getService()).realize(UUID.fromString(backendId));
+		VsRequestDto request = ((VsRequestService) getService()).realize(getService().get(backendId));
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
@@ -158,7 +158,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		if (reason.startsWith("\"") && reason.endsWith("\"")) {
 			reason = reason.substring(1, reason.length() - 2);
 		}
-		VsRequestDto request = ((VsRequestService) getService()).cancel(UUID.fromString(backendId), reason);
+		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason);
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
@@ -208,7 +208,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	public ResponseEntity<?> getConnectorObject(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
 		IcConnectorObject connectorObject = ((VsRequestService) getService())
-				.getVsConnectorObject(UUID.fromString(backendId));
+				.getVsConnectorObject(getService().get(backendId));
 		if (connectorObject != null) {
 			return new ResponseEntity<>(connectorObject, HttpStatus.OK);
 		} else {
@@ -229,7 +229,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	public ResponseEntity<?> getWishConnectorObject(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
 		VsConnectorObjectDto connectorObject = ((VsRequestService) getService())
-				.getWishConnectorObject(UUID.fromString(backendId));
+				.getWishConnectorObject(getService().get(backendId));
 		if (connectorObject != null) {
 			return new ResponseEntity<>(connectorObject, HttpStatus.OK);
 		} else {

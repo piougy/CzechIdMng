@@ -10,9 +10,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.tools.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -95,13 +97,14 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private final NotificationManager notificationManager;
 	private final IdmIdentityService identityService;
 	private final VsAccountService accountService;
+	private final ConfigurationService configurationService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
 			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
 			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService,
 			NotificationManager notificationManager, IdmIdentityService identityService,
-			VsAccountService accountService) {
+			VsAccountService accountService, ConfigurationService configurationService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
@@ -112,6 +115,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(notificationManager);
 		Assert.notNull(identityService);
 		Assert.notNull(accountService);
+		Assert.notNull(configurationService);
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
@@ -121,6 +125,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		this.notificationManager = notificationManager;
 		this.identityService = identityService;
 		this.accountService = accountService;
+		this.configurationService = configurationService;
 	}
 
 	@Override
@@ -134,9 +139,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Add list of implementers
 		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
 		request.setImplementers(implementers);
-
 		if (request.isTrimmed()) {
-			request.setConnectorObject(null);
+			// request.setConnectorObject(null);
 		}
 
 		return request;
@@ -144,11 +148,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Override
 	@Transactional
-	public VsRequestDto realize(UUID requestId) {
-		LOG.info(MessageFormat.format("Start realize virtual system request [{0}].", requestId));
+	public VsRequestDto realize(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start realize virtual system request [{0}].", request));
 
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
 
@@ -163,18 +165,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save realized request
 		request = this.save(request);
 
-		LOG.info(MessageFormat.format("Virtual system request [{0}] was realized. Output UID attribute: [{1}]",
-				requestId, uidAttribute));
+		LOG.info(MessageFormat.format("Virtual system request [{0}] was realized. Output UID attribute: [{1}]", request,
+				uidAttribute));
 		return request;
 	}
 
 	@Override
-	public VsRequestDto cancel(UUID requestId, String reason) {
-		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", requestId));
+	public VsRequestDto cancel(VsRequestDto request, String reason) {
+		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", request));
 
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
 		Assert.notNull(reason, "Cancel reason cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
 
@@ -188,7 +188,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save cancelled request
 		request = this.save(request);
 
-		LOG.info(MessageFormat.format("Virtual system request [{0}] for UID [{1}] was canceled.", requestId,
+		LOG.info(MessageFormat.format("Virtual system request [{0}] for UID [{1}] was canceled.", request,
 				request.getUid()));
 		return request;
 	}
@@ -235,7 +235,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
 			// Load untrimed request
 			if (previousRequest != null) {
-				previousRequest = this.get(previousRequest.getId());
+				// previousRequest = this.get(previousRequest.getId());
 				// Shows on previous request with same operation type. We need
 				// this
 				// for create diff.
@@ -336,7 +336,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				String reason = MessageFormat.format(
 						"Request [{0}] was canceled (by SYSTEM), because 'after' delete request [{1}] was realized!",
 						beforeRequest.getId(), request.getId());
-				this.cancel(beforeRequest.getId(), reason);
+				this.cancel(beforeRequest, reason);
 				LOG.info(reason);
 
 			});
@@ -350,10 +350,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public IcConnectorObject getConnectorObject(UUID requestId) {
-		LOG.info(MessageFormat.format("Start read connector object [{0}].", requestId));
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+	public IcConnectorObject getConnectorObject(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start read connector object [{0}].", request));
 		Assert.notNull(request, "VS request cannot be null!");
 		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
 
@@ -362,10 +360,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public IcConnectorObject getVsConnectorObject(UUID requestId) {
-		LOG.info(MessageFormat.format("Start read vs connector object [{0}].", requestId));
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+	public IcConnectorObject getVsConnectorObject(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start read vs connector object [{0}].", request));
 		Assert.notNull(request, "VS request cannot be null!");
 		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
 
@@ -384,14 +380,12 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public VsConnectorObjectDto getWishConnectorObject(UUID requestId) {
-		LOG.info(MessageFormat.format("Start read wish connector object [{0}].", requestId));
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+	public VsConnectorObjectDto getWishConnectorObject(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start read wish connector object [{0}].", request));
 		Assert.notNull(request, "VS request cannot be null!");
 
 		List<VsAttributeDto> resultAttributes = new ArrayList<>();
-		IcConnectorObject realConnectorObject = this.getVsConnectorObject(requestId);
+		IcConnectorObject realConnectorObject = this.getVsConnectorObject(request);
 		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject
 				: new IcConnectorObjectImpl();
 		IcConnectorObject changeObject = request.getConnectorObject() != null ? request.getConnectorObject()
@@ -486,8 +480,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		filter.setSystemId(systemId);
 		filter.setState(VsRequestState.IN_PROGRESS);
 		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
-		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
-		return duplicities;
+		return this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
 	}
 
 	@Override
@@ -563,27 +556,36 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// We assume the request.UID is equals Identity user name!;
 		IdmIdentityDto identity = this.getIdentity(request);
 		SysSystemDto system = systemService.get(request.getSystemId());
-		IcConnectorObject connectorObject = systemService.readConnectorObject(request.getSystemId(), request.getUid(),
-				request.getConnectorObject().getObjectClass());
-
-		// if(previous != null) {
-		// notificationManager.send(
-		// VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_UPDATED,
-		// new IdmMessageDto.Builder()
-		// .setLevel(NotificationLevel.INFO)
-		// .build());
-		// }else {
+		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
 
 		// send create notification
 		notificationManager.send(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, new IdmMessageDto.Builder()
 				.setLevel(NotificationLevel.INFO)
 				.addParameter("requestAttributes",
 						request.getConnectorObject() != null ? request.getConnectorObject().getAttributes() : null)
-				.addParameter("accountAttributes", connectorObject != null ? connectorObject.getAttributes() : null)
+				.addParameter("wishAttributes", wish != null ? wish.getAttributes() : null)
 				.addParameter("fullName", identityService.getNiceLabel(identity)).addParameter("identity", identity)
+				.addParameter("url", getUrl(request)).addParameter("previousUrl", getUrl(previous))
 				.addParameter("request", request).addParameter("systemName", system.getName()).build(), implementers);
-		// }
 
+	}
+
+	/**
+	 * Construct URL to frontend for given request 
+	 * @param request
+	 * @return
+	 */
+	private String getUrl(VsRequestDto request) {
+		if (request == null) {
+			return null;
+		}
+		String origins = configurationService.getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
+		//
+		if (origins != null && !origins.isEmpty()) {
+			String origin = origins.trim().split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR)[0];
+			return MessageFormat.format("{0}/#/vs/request/{1}/detail", origin, request.getId());
+		}
+		return null;
 	}
 
 	private IdmIdentityDto getIdentity(VsRequestDto request) {

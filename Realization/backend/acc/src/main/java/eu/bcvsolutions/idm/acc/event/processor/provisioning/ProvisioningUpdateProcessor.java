@@ -6,8 +6,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -48,13 +47,12 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		if (!connectorObject.getAttributes().isEmpty()) { 
 			// TODO: appropriate message - provisioning is not executed - attributes don't change
-			SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-			return connectorFacade.updateObject(system.getConnectorInstance(), connectorConfig,
+			return connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
 			
 		}

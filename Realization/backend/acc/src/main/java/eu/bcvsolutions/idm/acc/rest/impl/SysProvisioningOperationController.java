@@ -4,6 +4,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -23,17 +24,16 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,7 +49,7 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseDtoController.BASE_PATH + "/provisioning-operations")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/provisioning-operations")
 @Api(
 		value = SysProvisioningOperationController.TAG, 
 		tags = SysProvisioningOperationController.TAG, 
@@ -57,16 +57,16 @@ import io.swagger.annotations.AuthorizationScope;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysProvisioningOperationController
-		extends AbstractReadDtoController<SysProvisioningOperationDto, ProvisioningOperationFilter> {
+		extends AbstractReadEntityController<SysProvisioningOperation, ProvisioningOperationFilter> {
 
 	protected static final String TAG = "Provisioning - queue";
 	//
 	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
-	public SysProvisioningOperationController(SysProvisioningOperationService service,
+	public SysProvisioningOperationController(LookupService entityLookupService,
 			ProvisioningExecutor provisioningExecutor) {
-		super(service);
+		super(entityLookupService);
 		//
 		Assert.notNull(provisioningExecutor);
 		//
@@ -89,8 +89,9 @@ public class SysProvisioningOperationController
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable) {
-		return super.find(parameters, pageable);
+			@PageableDefault Pageable pageable,
+			PersistentEntityResourceAssembler assembler) {
+		return super.find(parameters, pageable, assembler);
 	}
 
 	@ResponseBody
@@ -108,8 +109,9 @@ public class SysProvisioningOperationController
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable) {
-		return super.find(parameters, pageable);
+			@PageableDefault Pageable pageable,
+			PersistentEntityResourceAssembler assembler) {
+		return super.find(parameters, pageable, assembler);
 	}
 
 	@Override
@@ -129,8 +131,9 @@ public class SysProvisioningOperationController
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Provisioning operation's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId) {
-		return super.get(backendId);
+			@PathVariable @NotNull String backendId, 
+			PersistentEntityResourceAssembler assembler) {
+		return super.get(backendId, assembler);
 	}
 
 	@ResponseBody
@@ -149,13 +152,14 @@ public class SysProvisioningOperationController
 				})
 	public ResponseEntity<?> retry(
 			@ApiParam(value = "Provisioning operation's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId) {
-		SysProvisioningOperationDto provisioningOperation = getDto(backendId);
+			@PathVariable @NotNull String backendId, 
+			PersistentEntityResourceAssembler assembler) {
+		SysProvisioningOperation provisioningOperation = getEntity(backendId);
 		if (provisioningOperation == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		provisioningOperation = provisioningExecutor.execute(provisioningOperation);
-		return new ResponseEntity<>(toResource(provisioningOperation), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(provisioningOperation, assembler), HttpStatus.OK);
 	}
 
 	@ResponseBody
@@ -174,12 +178,13 @@ public class SysProvisioningOperationController
 				})
 	public ResponseEntity<?> cancel(
 			@ApiParam(value = "Provisioning operation's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId) {
-		SysProvisioningOperationDto provisioningOperation = getDto(backendId);
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
+		SysProvisioningOperation provisioningOperation = getEntity(backendId);
 		if (provisioningOperation == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		provisioningOperation = provisioningExecutor.cancel(provisioningOperation);
-		return new ResponseEntity<>(toResource(provisioningOperation), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(provisioningOperation, assembler), HttpStatus.OK);
 	}
 }

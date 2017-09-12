@@ -4,8 +4,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.google.common.annotations.Beta;
 
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 
 /**
  * Entry point to all provisioning operations.
@@ -23,7 +23,7 @@ public interface ProvisioningExecutor {
 	 * @param provisioningOperation executed operation
 	 * @return
 	 */
-	SysProvisioningOperationDto execute(SysProvisioningOperationDto provisioningOperation);
+	SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
@@ -33,14 +33,14 @@ public interface ProvisioningExecutor {
 	 */
 	@Beta
 	@TransactionalEventListener
-	SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation);
+	SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 * Cancel the resource operation.
 	 * 
 	 * @param provisioningOperation executed operation
 	 */
-	SysProvisioningOperationDto cancel(SysProvisioningOperationDto provisioningOperation);
+	SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 *  Executes operations in given batch.
@@ -48,12 +48,12 @@ public interface ProvisioningExecutor {
 	 * @param batch executed batch
 	 * @return
 	 */
-	void execute(SysProvisioningBatchDto batch);
+	void execute(SysProvisioningBatch batch);
 	
 	/**
 	 * Cancel operations in batch.
 	 * 
 	 * @param batch executed batch
 	 */
-	void cancel(SysProvisioningBatchDto batch);
+	void cancel(SysProvisioningBatch batch);
 }

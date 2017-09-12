@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
@@ -29,7 +28,7 @@ public class ProvisioningOperationBuilderUnitTest extends AbstractVerifiableUnit
 	
 	@Test
 	public void testBuildWithChange() {
-		SysProvisioningOperationDto.Builder builder = new SysProvisioningOperationDto.Builder();
+		SysProvisioningOperation.Builder builder = new SysProvisioningOperation.Builder();
 		
 		builder.setOperationType(ProvisioningEventType.CREATE);
 		ProvisioningOperation one = builder.build();

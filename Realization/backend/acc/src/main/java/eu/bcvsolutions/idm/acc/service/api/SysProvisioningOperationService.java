@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningOperationService extends ReadWriteDtoService<SysProvisioningOperationDto, ProvisioningOperationFilter> {
+public interface SysProvisioningOperationService extends ReadWriteEntityService<SysProvisioningOperation, ProvisioningOperationFilter> {
 
 	/**
 	 * Returns fully loaded AccountObject with guarded string.
@@ -23,7 +23,7 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @param provisioningOperation
 	 * @return
 	 */
-	Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperationDto provisioningOperation);
+	Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 * Returns fully loaded ConnectorObject with guarded strings.
@@ -33,7 +33,7 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @param provisioningOperation
 	 * @return
 	 */
-	IcConnectorObject getFullConnectorObject(SysProvisioningOperationDto provisioningOperation);
+	IcConnectorObject getFullConnectorObject(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 * Handles failed operation (plans next attempt etc.)
@@ -41,14 +41,14 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @param operation
 	 * @param ex
 	 */
-	void handleFailed(SysProvisioningOperationDto operation, Exception ex);
+	void handleFailed(SysProvisioningOperation operation, Exception ex);
 	
 	/**
 	 * Called when operation succeeded. 
 	 * 
 	 * @param operation
 	 */
-	void handleSuccessful(SysProvisioningOperationDto operation);
+	void handleSuccessful(SysProvisioningOperation operation);
 	
 	/**
 	 * Creates account object property key into confidential storage

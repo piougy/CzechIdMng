@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
@@ -49,13 +49,13 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 		boolean canContinue = true;
 		while(canContinue) {
 			// we process all batches
-			Page<SysProvisioningBatchDto> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 100));
+			Page<SysProvisioningBatch> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 100));
 			// init count
 			if (count == null) {
 				count = batches.getTotalElements();
 			}
 			//
-			for(SysProvisioningBatchDto batch : batches) {
+			for(SysProvisioningBatch batch : batches) {
 				provisioningExecutor.execute(batch);
 				counter++;
 				canContinue = updateState();

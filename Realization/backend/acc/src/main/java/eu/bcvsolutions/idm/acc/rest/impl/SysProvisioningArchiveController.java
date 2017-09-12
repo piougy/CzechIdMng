@@ -4,6 +4,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -19,14 +20,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,20 +42,20 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseDtoController.BASE_PATH + "/provisioning-archives")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/provisioning-archives")
 @Api(
 		value = SysProvisioningArchiveController.TAG, 
 		tags = SysProvisioningArchiveController.TAG, 
 		description = "Archived provisioning operations (completed, canceled)",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysProvisioningArchiveController extends AbstractReadDtoController<SysProvisioningArchiveDto, ProvisioningOperationFilter> {
+public class SysProvisioningArchiveController extends AbstractReadEntityController<SysProvisioningArchive, ProvisioningOperationFilter> {
 
 	protected static final String TAG = "Provisioning - archive";
 	
 	@Autowired
-	public SysProvisioningArchiveController(SysProvisioningArchiveService service) {
-		super(service);
+	public SysProvisioningArchiveController(LookupService entityLookupService) {
+		super(entityLookupService);
 	}
 
 	@Override
@@ -74,8 +74,9 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable) {
-		return super.find(parameters, pageable);
+			@PageableDefault Pageable pageable,
+			PersistentEntityResourceAssembler assembler) {
+		return super.find(parameters, pageable, assembler);
 	}
 
 	@ResponseBody
@@ -93,8 +94,9 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable) {
-		return super.find(parameters, pageable);
+			@PageableDefault Pageable pageable, 
+			PersistentEntityResourceAssembler assembler) {
+		return super.find(parameters, pageable, assembler);
 	}
 
 	@Override
@@ -114,7 +116,8 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Provisioning archive item's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId) {
-		return super.get(backendId);
+			@PathVariable @NotNull String backendId, 
+			PersistentEntityResourceAssembler assembler) {
+		return super.get(backendId, assembler);
 	}
 }

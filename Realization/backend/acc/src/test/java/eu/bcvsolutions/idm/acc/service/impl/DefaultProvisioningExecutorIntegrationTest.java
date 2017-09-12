@@ -22,11 +22,12 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -74,6 +75,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysSystemEntityRepository systemEntityRepository;
 	//	
 	private SysProvisioningOperationService sysProvisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
@@ -159,9 +162,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
-		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntity.getId())
+				.setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 		//
@@ -224,11 +227,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
-		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntity.getId())
+				.setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
-		SysProvisioningOperationDto operation = provisioningExecutor.execute(operationBuilder.build());
+		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
 		//
 		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_DISABLED.name(), operation.getResult().getModel().getStatusEnum());
@@ -305,11 +308,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
-		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntity.getId())
+				.setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
-		SysProvisioningOperationDto operation = provisioningExecutor.execute(operationBuilder.build());
+		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
 		//
 		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), operation.getResult().getModel().getStatusEnum());

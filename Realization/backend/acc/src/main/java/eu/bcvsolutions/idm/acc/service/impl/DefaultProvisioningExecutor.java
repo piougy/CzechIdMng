@@ -12,21 +12,18 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -48,8 +45,6 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysProvisioningBatchService batchService;
 	private final NotificationManager notificationManager;
-	private final SysProvisioningRequestService requestService;
-	private final SysSystemService systemService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -57,27 +52,21 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			EntityEventManager entityEventManager,
 			SysProvisioningOperationService provisioningOperationService,
 			SysProvisioningBatchService batchService,
-			NotificationManager notificationManager,
-			SysProvisioningRequestService requestService,
-			SysSystemService systemService) {
+			NotificationManager notificationManager) {
 		Assert.notNull(entityEventManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(batchService);
 		Assert.notNull(notificationManager);
-		Assert.notNull(requestService);
-		Assert.notNull(systemService);
 		//
 		this.entityEventManager = entityEventManager;
 		this.provisioningOperationService = provisioningOperationService;
 		this.batchService = batchService;
 		this.notificationManager = notificationManager;
-		this.requestService = requestService;
-		this.systemService = systemService;
 	}
 
 	@Override
 	@Transactional
-	public SysProvisioningOperationDto execute(SysProvisioningOperationDto provisioningOperation) {
+	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
 		//
 		// execute - after original transaction is commited
 		entityEventManager.publishEvent(provisioningOperation);
@@ -94,34 +83,32 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	@TransactionalEventListener
 	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)
-	public SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
+	public SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystem());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		//
 		if (provisioningOperationService.isNew(provisioningOperation)) {
 			// save new operation to provisioning log / queue
-			SysProvisioningBatchDto batch = batchService.findBatch(provisioningOperation);
-			SysProvisioningRequestDto request = new SysProvisioningRequestDto(provisioningOperation);
+			SysProvisioningBatch batch = batchService.findBatch(provisioningOperation);
+			SysProvisioningRequest request = new SysProvisioningRequest(provisioningOperation);
 			if (batch == null) {
-				batch = batchService.save(new SysProvisioningBatchDto());
-				request.setResult(new OperationResultDto.Builder(OperationState.CREATED).build());
+				batch = batchService.save(new SysProvisioningBatch());
+				request.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 			} else {
 				// put to queue
 				// TODO: maybe putting into queue has to run after disable and readonly system
-				SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
 						ImmutableMap.of(
 								"name", provisioningOperation.getSystemEntityUid(), 
-								"system", system.getName(),
+								"system", provisioningOperation.getSystem().getName(),
 								"operationType", provisioningOperation.getOperationType(),
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
 				LOG.debug(resultModel.toString());				
-				request.setResult(new OperationResultDto.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+				request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			}
-			request.setBatch(batch.getId());
-			request = requestService.save(request);
-			provisioningOperation.setRequest(request.getId());
+			request.setBatch(batch);
+			provisioningOperation.setRequest(request);
 			//
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
@@ -133,41 +120,40 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				return provisioningOperation;
 			}
 		}
-		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
-		EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
+		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
+		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);		
 		return context.getContent();
 	}
 	
 	@Override
 	@Transactional
-	public SysProvisioningOperationDto cancel(SysProvisioningOperationDto provisioningOperation) {
+	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
 		// Cancel single request
-		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(ProvisioningEventType.CANCEL, provisioningOperation);
-		EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);
+		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(ProvisioningEventType.CANCEL, provisioningOperation);
+		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
 		return context.getContent();
 	}
 
 	@Override
-	public void execute(SysProvisioningBatchDto batch) {
+	public void execute(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
 		batch = batchService.get(batch.getId());
-		//		
-		for (SysProvisioningRequestDto request : requestService.getByTimelineAndBatchId(batch.getId())) {
-			SysProvisioningOperationDto operation = executeInternal(request.getOperation()); // not run in transaction
+		//
+		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
+			SysProvisioningOperation operation = executeInternal(request.getOperation()); // not run in transaction
 			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
 				return;
 			}
-			// TODO: is this necessary 
-			// batch.removeRequest(request);
+			batch.removeRequest(request);
 		}
 	}
 
 	@Override
 	@Transactional
-	public void cancel(SysProvisioningBatchDto batch) {
+	public void cancel(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
 		//
-		for (SysProvisioningRequestDto request : requestService.getByTimelineAndBatchId(batch.getId())) {
+		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
 			cancel(request.getOperation());
 		}
 	}

@@ -3,11 +3,9 @@ package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -31,8 +29,6 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 	
 	public static final String PROCESSOR_NAME = "provisioning-delete-processor";
 	
-	private final SysSystemService systemService;
-	
 	@Autowired
 	public ProvisioningDeleteProcessor(
 			IcConnectorFacade connectorFacade,
@@ -40,10 +36,6 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 			SysProvisioningOperationService provisioningOperationService,
 			SysSystemEntityService systemEntityService) {
 		super(connectorFacade, systemService, provisioningOperationService, systemEntityService, ProvisioningEventType.DELETE);
-		//
-		Assert.notNull(systemService);
-		//
-		this.systemService = systemService;
 	}
 	
 	@Override
@@ -52,9 +44,8 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig) {
-		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
+		IcConnectorInstance connectorInstance = provisioningOperation.getSystem().getConnectorInstance();
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		//

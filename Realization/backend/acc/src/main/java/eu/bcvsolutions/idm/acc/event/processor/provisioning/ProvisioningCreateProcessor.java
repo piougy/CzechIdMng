@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -9,13 +7,13 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -40,7 +38,6 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningCreateProcessor.class);
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final SysProvisioningOperationService provisioningOperationService;
-	private final SysSystemService systemService;
 	
 	@Autowired
 	public ProvisioningCreateProcessor(
@@ -53,11 +50,9 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 				ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(provisioningOperationService);
-		Assert.notNull(systemService);
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.provisioningOperationService = provisioningOperationService;
-		this.systemService = systemService;
 	}
 	
 	@Override
@@ -66,24 +61,21 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		// execute provisioning
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();		
 		// 	
-		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		for (IcAttribute attribute : connectorObject.getAttributes()) {
 			// if attribute is password and his value is empty, generate new password
 			if(attribute instanceof IcPasswordAttribute 
 					&& ((IcPasswordAttribute) attribute).getPasswordValue() == null) {
-				UUID passwordPolicyId = system.getPasswordPolicyGenerate();
+				IdmPasswordPolicy passwordPolicy = provisioningOperation.getSystem().getPasswordPolicyGenerate();
 				//
 				String password = null;
-				if (passwordPolicyId == null) {
-					LOG.debug("Generate password policy for system [{}], not found. Password will be generate by default password policy", system.getCode());
+				if (passwordPolicy == null) {
 					password = passwordPolicyService.generatePasswordByDefault();
 				} else {
-					LOG.debug("Generate password policy for system  [{}] found", system.getCode());
-					password = passwordPolicyService.generatePassword(passwordPolicyService.get(passwordPolicyId));
+					password = passwordPolicyService.generatePassword(passwordPolicyService.get(passwordPolicy.getId()));
 				}
 				//
 				connectorObject.getAttributes().remove(attribute);
@@ -92,7 +84,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 			}
 		}
 		//
-		IcUidAttribute icUid = connectorFacade.createObject(system.getConnectorInstance(), connectorConfig,
+		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
 		//
 		provisioningOperationService.save(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)

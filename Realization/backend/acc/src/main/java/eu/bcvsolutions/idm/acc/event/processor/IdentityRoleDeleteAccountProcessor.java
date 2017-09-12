@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 public class IdentityRoleDeleteAccountProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-account-processor";
+	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleDeleteAccountProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 
 	@Autowired

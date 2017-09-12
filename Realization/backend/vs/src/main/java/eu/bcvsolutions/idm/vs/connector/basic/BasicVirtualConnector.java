@@ -515,12 +515,14 @@ public class BasicVirtualConnector
 		case DATETIME:
 			return DateTime.class.getName();
 		case DOUBLE:
-		case CURRENCY:
 			return Double.class.getName();
 		case CHAR:
 			return Character.class.getName();
 		case BYTEARRAY: {
 			return byte[].class.getName();
+		}
+		case UUID: {
+			return UUID.class.getName();
 		}
 		default:
 			return String.class.getName();

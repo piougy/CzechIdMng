@@ -78,6 +78,90 @@ module.exports = {
       'entityType': ['contract', 'identityContract', 'IdmIdentityContract'],
       'component': require('./src/components/advanced/IdentityContractInfo/IdentityContractInfo').default,
       'manager': require('./src/redux').IdentityContractManager
+    },
+    {
+      'id': 'text-form-value',
+      'type': 'form-value',
+      'faceType': 'TEXT',
+      'component': require('./src/components/advanced/Form/TextFormValue')
+    },
+    {
+      'id': 'char-form-value',
+      'type': 'form-value',
+      'faceType': 'CHAR',
+      'component': require('./src/components/advanced/Form/CharFormValue')
+    },
+    {
+      'id': 'int-form-value',
+      'type': 'form-value',
+      'faceType': 'INT',
+      'component': require('./src/components/advanced/Form/IntFormValue')
+    },
+    {
+      'id': 'long-form-value',
+      'type': 'form-value',
+      'faceType': 'LONG',
+      'component': require('./src/components/advanced/Form/LongFormValue')
+    },
+    {
+      'id': 'double-form-value',
+      'type': 'form-value',
+      'faceType': 'DOUBLE',
+      'component': require('./src/components/advanced/Form/DoubleFormValue')
+    },
+    {
+      'id': 'currency-form-value',
+      'type': 'form-value',
+      'faceType': 'CURRENCY',
+      'component': require('./src/components/advanced/Form/CurrencyFormValue')
+    },
+    {
+      'id': 'boolean-form-value',
+      'type': 'form-value',
+      'faceType': 'BOOLEAN',
+      'component': require('./src/components/advanced/Form/BooleanFormValue')
+    },
+    {
+      'id': 'date-form-value',
+      'type': 'form-value',
+      'faceType': 'DATE',
+      'component': require('./src/components/advanced/Form/DateFormValue')
+    },
+    {
+      'id': 'datetime-form-value',
+      'type': 'form-value',
+      'faceType': 'DATETIME',
+      'component': require('./src/components/advanced/Form/DateTimeFormValue')
+    },
+    {
+      'id': 'textarea-form-value',
+      'type': 'form-value',
+      'faceType': 'TEXTAREA',
+      'component': require('./src/components/advanced/Form/TextAreaFormValue')
+    },
+    {
+      'id': 'richtextarea-form-value',
+      'type': 'form-value',
+      'faceType': 'RICHTEXTAREA',
+      'component': require('./src/components/advanced/Form/RichTextAreaFormValue')
+    },
+    {
+      'id': 'bytearray-form-value',
+      'type': 'form-value',
+      'faceType': 'BYTEARRAY',
+      'component': require('./src/components/advanced/Form/ByteArrayFormValue')
+    },
+    {
+      'id': 'uuid-form-value',
+      'type': 'form-value',
+      'faceType': 'UUID',
+      'component': require('./src/components/advanced/Form/UuidFormValue')
+    },
+    {
+      'id': 'identity-select-form-value',
+      'type': 'form-value',
+      'faceType': 'IDENTITY-SELECT',
+      'component': require('./src/components/advanced/Form/IdentitySelectFormValue')
     }
   ]
 };

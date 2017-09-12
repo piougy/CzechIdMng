@@ -8,7 +8,8 @@ All parameters from AbstractComponent are supported except showloading. Added pa
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
-| text | string | Text to be shorten | nan |
+| text | string | Text to be shorten |  |
+| value | string | Text to be shorten (text alias - text has higher priority) |  |
 | maxLength  | number | Maximal length for text | 20 |
 | cutChar  | string | Character according which it will cut text | " " | |
 | cutPointEnd  | bool | If you want cut from the end (true) or from the beginning (false) | true | |

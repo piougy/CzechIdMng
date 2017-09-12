@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -85,6 +86,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	@Audited
 	@Column(name = "byte_value")
 	private byte[] byteValue;
+	
+	@Audited
+	@JsonDeserialize(as = UUID.class)
+	@Column(name = "uuid_value", length = 16)
+	private UUID uuidValue;
 
 	@Audited
 	@Max(99999)
@@ -210,6 +216,14 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 
 	public void setByteValue(byte[] byteValue) {
 		this.byteValue = byteValue;
+	}
+	
+	public UUID getUuidValue() {
+		return uuidValue;
+	}
+	
+	public void setUuidValue(UUID uuidValue) {
+		this.uuidValue = uuidValue;
 	}
 
 	public boolean isConfidential() {

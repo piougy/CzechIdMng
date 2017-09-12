@@ -380,14 +380,16 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setCode("description");
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
-				description.setPersistentType(PersistentType.TEXTAREA);
+				description.setPersistentType(PersistentType.TEXT);
+				description.setFaceType("TEEXTAREA");
 				description = formService.saveAttribute(IdmIdentity.class, description);
 				
 				IdmFormAttributeDto rich = new IdmFormAttributeDto();
 				rich.setCode("rich");
 				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
-				rich.setPersistentType(PersistentType.RICHTEXTAREA);
+				rich.setPersistentType(PersistentType.TEXT);
+				description.setFaceType("RICHTEXTAREA");
 				rich = formService.saveAttribute(IdmIdentity.class, rich);
 				
 				IdmFormAttributeDto sure = new IdmFormAttributeDto();
@@ -418,7 +420,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmFormAttributeDto currency = new IdmFormAttributeDto();
 				currency.setCode("currency");
 				currency.setName("Price");
-				currency.setPersistentType(PersistentType.CURRENCY);
+				currency.setPersistentType(PersistentType.DOUBLE);
+				currency.setFaceType("CURRENCY");				
 				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
 				IdmFormAttributeDto date = new IdmFormAttributeDto();

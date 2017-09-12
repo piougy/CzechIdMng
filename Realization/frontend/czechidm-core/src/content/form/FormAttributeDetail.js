@@ -175,7 +175,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                 readOnly={ !manager.canSave(entity, _permissions) }
                 style={{ padding: '15px 15px 0 15px' }}>
                 <Basic.Row>
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <Basic.TextField
                       ref="code"
                       label={ this.i18n('entity.FormAttribute.code.label') }
@@ -183,18 +183,27 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       readOnly={ this._isUnmodifiable() }
                       required
                       max={ 255 }/>
-                  </div>
-                  <div className="col-lg-8">
+                  </Basic.Col>
+                  <Basic.Col lg={ 8 }>
                     <Basic.TextField
                       ref="name"
                       label={ this.i18n('entity.FormAttribute.name.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.name.help') }
                       max={ 255 }
                       required/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 8 } className="col-lg-offset-4">
+                    <Basic.TextField
+                      ref="placeholder"
+                      label={this.i18n('entity.FormAttribute.placeholder.label')}
+                      helpBlock={ this.i18n('entity.FormAttribute.placeholder.help') }
+                      max={255}/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 4 }>
                     <Basic.EnumSelectBox
                       ref="persistentType"
                       enum={PersistentTypeEnum}
@@ -203,37 +212,37 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       max={255}
                       useSymbol={false}
                       required/>
-                  </div>
-                  <div className="col-lg-8">
+                  </Basic.Col>
+                  <Basic.Col lg={ 8 }>
                     <Basic.TextField
-                      ref="placeholder"
-                      label={this.i18n('entity.FormAttribute.placeholder.label')}
-                      helpBlock={ this.i18n('entity.FormAttribute.placeholder.help') }
+                      ref="defaultValue"
+                      label={this.i18n('entity.FormAttribute.defaultValue')}
                       max={255}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
+                    <Basic.TextField
+                      ref="faceType"
+                      label={ this.i18n('entity.FormAttribute.faceType.label') }
+                      helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
+                      max={255}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 8 }>
                     <Basic.TextField
                       ref="seq"
                       label={this.i18n('entity.FormAttribute.seq.label')}
                       helpBlock={this.i18n('entity.FormAttribute.seq.help')}
                       validation={Joi.number().required().integer().min(0).max(99999)}/>
-                  </div>
-                  <div className="col-lg-8">
-                    <Basic.TextField
-                      ref="defaultValue"
-                      label={this.i18n('entity.FormAttribute.defaultValue')}
-                      max={255}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <div className="col-lg-12">
+                  <Basic.Col lg={ 12 }>
                     <Basic.TextArea
                       ref="description"
                       label={this.i18n('entity.FormAttribute.description')}
                       max={2000}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Checkbox
                   ref="required"

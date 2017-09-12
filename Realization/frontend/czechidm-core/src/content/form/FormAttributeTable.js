@@ -134,6 +134,7 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="code" header={ this.i18n('entity.FormAttribute.code.label') } sort/>
           <Advanced.Column property="name" header={ this.i18n('entity.FormAttribute.name.label') } sort/>
           <Advanced.Column property="persistentType" sort />
+          <Advanced.Column property="faceType" sort />
           <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
         </Advanced.Table>
       </div>

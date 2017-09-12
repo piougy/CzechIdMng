@@ -340,14 +340,26 @@
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
-              "name": "Name"
+              "name": "Name",
+              "code": "Code"
+            }
+          }
+        },
+        "single": {
+          "unsupported": {
+            "title": "{{name}} - attribute cannot be single value",
+            "formDefinition": {
+              "title": "Form definition has to be fixed",
+              "type": "Type",
+              "name": "Name",
+              "code": "Code"
             }
           }
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - nepodporovaný typ (opravte definici formuláře)",
-            "confidential": "{{name}} - tajný typ není podporovaný (opravte definici formuláře)"
+            "title": "Nepodporovaný typ [{{name}}] s face [{{face}}] (opravte definici formuláře)",
+            "confidential": "Tajný typ [{{name}}] s face [{{face}}] není podporovaný (opravte definici formuláře)"
           }
         },
         "attributes": {
@@ -411,16 +423,14 @@
     "PersistentTypeEnum": {
       "CHAR": "Znak",
       "TEXT": "Text",
-      "TEXTAREA": "Textové pole",
-      "RICHTEXTAREA": "WYSIWYG editor",
       "INT": "Integer",
       "LONG": "Long",
       "DOUBLE": "Double",
-      "CURRENCY": "Měna",
       "BOOLEAN": "Boolean",
       "DATE": "Datum",
       "DATETIME": "Datum + čas",
-      "BYTEARRAY": "Bitové pole"
+      "BYTEARRAY": "Bitové pole",
+      "UUID": "Uuid identifikátor"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -2151,6 +2161,10 @@
         "help": "Pořadí atributu na detailu formuláře."
       },
       "persistentType": "Typ atributu",
+      "faceType": {
+        "label": "Typ zobrazení",
+        "help": "Určuje typ zobrazení atributu na formuláři. Defaultně se typ zobrazení řídí typem atributu."
+      },
       "description": "Popis",
       "required": "Povinný",
       "readonly": "Pouze pro čtení",

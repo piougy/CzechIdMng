@@ -301,14 +301,26 @@
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
-              "name": "Name"
+              "name": "Name",
+              "code": "Code"
+            }
+          }
+        },
+        "single": {
+          "unsupported": {
+            "title": "{{name}} - attribute cannot be single value",
+            "formDefinition": {
+              "title": "Form definition has to be fixed",
+              "type": "Type",
+              "name": "Name",
+              "code": "Code"
             }
           }
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - unsupported persistentType",
-            "confidential": "{{name}} - confidential is not supported"
+            "title": "Unsupported persistentType [{{name}}] with face [{{face}}]",
+            "confidential": "Confidential for type [{{name}}] with face [{{face}}] is not supported"
           }
         }
       },
@@ -369,16 +381,14 @@
     "PersistentTypeEnum": {
       "CHAR": "Char",
       "TEXT": "Text",
-      "TEXTAREA": "Text field",
-      "RICHTEXTAREA": "WYSIWYG editor",
       "INT": "Integer",
       "LONG": "Long",
       "DOUBLE": "Double",
-      "CURRENCY": "Currency",
       "BOOLEAN": "Boolean",
       "DATE": "Date",
       "DATETIME": "Date + time",
-      "BYTEARRAY": "Byte array"
+      "BYTEARRAY": "Byte array",
+      "UUID": "Uuid identifier"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -2091,6 +2101,10 @@
         "help": "Attribute order on form detail."
       },
       "persistentType": "Attribute type",
+      "faceType": {
+        "label": "Face type",
+        "help": "Choose attribute renderer. Default renderer is chosen by attribute type."
+      },
       "description": "Description",
       "required": "Required",
       "readonly": "Read-only",

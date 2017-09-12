@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
@@ -56,6 +57,7 @@ public class IdmFormValueDto extends AbstractDto {
 	private BigDecimal doubleValue;
 	private DateTime dateValue;
 	private byte[] byteValue;
+	private UUID uuidValue;
 	@Max(99999)
 	private short seq;
 	//
@@ -179,6 +181,14 @@ public class IdmFormValueDto extends AbstractDto {
 	public void setByteValue(byte[] byteValue) {
 		this.byteValue = byteValue;
 	}
+	
+	public void setUuidValue(UUID uuidValue) {
+		this.uuidValue = uuidValue;
+	}
+	
+	public UUID getUuidValue() {
+		return uuidValue;
+	}
 
 	public short getSeq() {
 		return seq;
@@ -218,12 +228,14 @@ public class IdmFormValueDto extends AbstractDto {
 		case DATETIME:
 			return dateValue;
 		case DOUBLE:
-		case CURRENCY:
 			return doubleValue;
 		case CHAR: 
 			return stringValue == null ? null : stringValue.charAt(0);
 		case BYTEARRAY: {
 			return byteValue;
+		}
+		case UUID: {
+			return uuidValue;
 		}
 		default:
 			return stringValue;
@@ -249,10 +261,12 @@ public class IdmFormValueDto extends AbstractDto {
 			case DATETIME:
 				return dateValue == null;
 			case DOUBLE:
-			case CURRENCY:
 				return doubleValue == null;
 			case BYTEARRAY: {
 				return byteValue == null || byteValue.length == 0;
+			}
+			case UUID: {
+				return uuidValue == null;
 			}
 			default:
 				return StringUtils.isEmpty(stringValue);
@@ -312,7 +326,7 @@ public class IdmFormValueDto extends AbstractDto {
 				} else if (value instanceof Number) {
 					setLongValue(((Number) value).longValue());
 				} else {
-					throw wrongType(value);
+					throw wrongType(value, null);
 				}
 				break;
 			case BOOLEAN:
@@ -321,7 +335,7 @@ public class IdmFormValueDto extends AbstractDto {
 				} else if (value instanceof Boolean) {
 					setBooleanValue((Boolean) value);
 				} else {
-					throw wrongType(value);
+					throw wrongType(value, null);
 				}
 				break;
 			case DATE:
@@ -335,11 +349,10 @@ public class IdmFormValueDto extends AbstractDto {
 				} else if (value instanceof Long) {
 					setDateValue(new DateTime(( Long) value));
 				} else {
-					throw wrongType(value);
+					throw wrongType(value, null);
 				}
 				break;
 			case DOUBLE:
-			case CURRENCY:
 				if (value == null) {
 					setDoubleValue(null);
 				} else if (value instanceof BigDecimal) {
@@ -355,7 +368,7 @@ public class IdmFormValueDto extends AbstractDto {
 				} else if (value instanceof Number) {
 					setDoubleValue(BigDecimal.valueOf(((Number) value).doubleValue()));
 				} else {
-					throw wrongType(value);
+					throw wrongType(value, null);
 				}
 				break;
 			case BYTEARRAY: {
@@ -364,7 +377,15 @@ public class IdmFormValueDto extends AbstractDto {
 				} else if (value instanceof byte[]) {
 					setByteValue((byte[]) value);
 				} else {
-					throw wrongType(value);
+					throw wrongType(value, null);
+				}
+				break;
+			}
+			case UUID: {
+				try {
+					setUuidValue(EntityUtils.toUuid(value));
+				} catch (ClassCastException ex) {
+					throw wrongType(value, ex);
 				}
 				break;
 			}
@@ -374,7 +395,7 @@ public class IdmFormValueDto extends AbstractDto {
 				} else if (value instanceof String) {
 					setStringValue((String) value);
 				} else {
-					throw wrongType(value);
+					throw wrongType(value, null);
 				}
 		}
 	}
@@ -384,13 +405,13 @@ public class IdmFormValueDto extends AbstractDto {
 	 * 
 	 * @param value
 	 */
-	private ResultCodeException wrongType(Serializable value) {
+	private ResultCodeException wrongType(Serializable value, Exception ex) {
 		return new ResultCodeException(CoreResultCode.FORM_VALUE_WRONG_TYPE, ImmutableMap.of(
 				"value", Objects.toString(value), 
 				"formAttribute", formAttribute == null ? Objects.toString(formAttribute) : formAttribute, 
 				"persistentType", persistentType, 
 				"valueType", value == null ?  Objects.toString(null) : value.getClass().getCanonicalName()
-				));
+				), ex);
 	}
 	
 	/**
@@ -403,6 +424,7 @@ public class IdmFormValueDto extends AbstractDto {
 		this.longValue = null;
 		this.doubleValue = null;
 		this.byteValue = null;
+		this.uuidValue = null;
 	}
 	
 	public void setOwner(FormableEntity owner) {

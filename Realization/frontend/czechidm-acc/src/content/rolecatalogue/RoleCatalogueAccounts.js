@@ -7,7 +7,7 @@ import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { RoleCatalogueAccountManager, AccountManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
 
-const uiKey = 'role-accounts-table';
+const uiKey = 'role-catalogue-accounts-table';
 const manager = new RoleCatalogueAccountManager();
 const accountManager = new AccountManager();
 const roleManager = new Managers.RoleCatalogueManager();

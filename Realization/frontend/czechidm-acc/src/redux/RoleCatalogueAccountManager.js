@@ -1,12 +1,12 @@
 import { Managers } from 'czechidm-core';
-import { RoleAccountService } from '../services';
+import { RoleCatalogueAccountService } from '../services';
 
-const service = new RoleAccountService();
+const service = new RoleCatalogueAccountService();
 
 /**
  * Role catalogue accounts
  *
- * @author Roman Kučera
+ * @author Kučera
  */
 export default class RoleCatalogueAccountManager extends Managers.EntityManager {
 

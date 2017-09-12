@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -45,18 +46,15 @@ public class DefaultVsSystemImplementerService
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsSystemImplementerService.class);
 	private final IdmIdentityService identityService;
-	private final IdmRoleService roleService;
 
 	@Autowired
 	public DefaultVsSystemImplementerService(VsSystemImplementerRepository repository,
-			IdmIdentityService identityService, IdmRoleService roleService) {
+			IdmIdentityService identityService) {
 		super(repository);
 
 		Assert.notNull(identityService);
-		Assert.notNull(roleService);
 
 		this.identityService = identityService;
-		this.roleService = roleService;
 
 	}
 
@@ -99,14 +97,13 @@ public class DefaultVsSystemImplementerService
 				.collect(Collectors.toSet());
 
 		// Add identities from all roles
-		Set<IdmIdentityDto> roles = requestImplementers.stream()//
-				.filter(sysImp -> sysImp.getIdentity() != null)//
-				.map(VsSystemImplementerDto::getIdentity)//
-				.map(identityService::get)//
+		Set<UUID> roles = requestImplementers.stream()//
+				.filter(sysImp -> sysImp.getRole() != null)//
+				.map(VsSystemImplementerDto::getRole)//
 				.collect(Collectors.toSet());
 
 		roles.forEach(role -> {
-			identities.addAll(identityService.findAllByRole(role.getId()));
+			identities.addAll(identityService.findAllByRole(role));
 		});
 		return new ArrayList<>(identities);
 	}

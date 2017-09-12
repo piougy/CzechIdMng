@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -27,12 +28,14 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -62,10 +65,13 @@ import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
+import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 //@Component - we want control create connector instances
 @IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.1.2", configurationClass = BasicVirtualConfiguration.class)
@@ -87,6 +93,10 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	private VsRequestService requestService;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private IdmRoleService roleService;
+	@Autowired
+	private VsSystemImplementerService systemImplementerService;
 
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IcConnectorConfiguration configuration;
@@ -137,6 +147,11 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		// Create/Update form definition and attributes
 		formDefinition = updateFormDefinition(virtualSystemKey, type, system, virtualConfiguration);
+
+		// Update identity and role implementers relations
+
+		updateSystemImplementers(this.virtualConfiguration, this.systemId);
+
 	}
 
 	@Override
@@ -253,11 +268,13 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 			throw new IcException(MessageFormat.format("UID attribute value [{0}] must be String!", uidValue));
 		}
 		String uid = (String) uidValue;
-		
-		// Find account by UID and System ID - If will be found, then we will do update instead create
+
+		// Find account by UID and System ID - If will be found, then we will do
+		// update instead create
 		VsAccountDto account = accountService.findByUidSystem(uid, systemId);
 		if (account != null) {
-			LOG.info("Create account - Virtual system account for UID [{}] already exist. We will execute update!", uidValue);
+			LOG.info("Create account - Virtual system account for UID [{}] already exist. We will execute update!",
+					uidValue);
 			return this.internalUpdate(new IcUidAttributeImpl(null, uid, null), objectClass, attributes);
 		}
 
@@ -334,7 +351,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		// Create uid attribute
 		IcAttributeImpl uidAttribute = new IcAttributeImpl(IcAttributeInfo.NAME, uidValue);
 		vsAttributes.add(uidAttribute);
-		
+
 		if (account != null) {
 			// Attributes from definition and configuration
 			UUID accountId = account.getId();
@@ -395,13 +412,15 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	/**
 	 * Overwrite attributes form VS account with attributes from unresloved
 	 * requests
-	 * @param account 
+	 * 
+	 * @param account
 	 * 
 	 * @param account
 	 * @param vsAttributes
 	 * @return
 	 */
-	private List<IcAttribute> overwriteAttributesByUnresolvedRequests(VsAccountDto account, String uid, List<IcAttribute> vsAttributes) {
+	private List<IcAttribute> overwriteAttributesByUnresolvedRequests(VsAccountDto account, String uid,
+			List<IcAttribute> vsAttributes) {
 		Map<String, IcAttribute> attributesMap = new HashMap<>();
 		List<VsRequestDto> unresolvedRequests = requestService.findDuplicities(uid, this.systemId);
 
@@ -423,7 +442,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 					deleteAccount = false;
 					createAccount = true;
 				}
-				//VsRequestDto fullRequest = requestService.get(request.getId());
+				// VsRequestDto fullRequest =
+				// requestService.get(request.getId());
 				VsRequestDto fullRequest = request;
 				if (fullRequest.getConnectorObject() != null
 						&& fullRequest.getConnectorObject().getAttributes() != null) {
@@ -432,12 +452,14 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 					});
 				}
 			}
-			// If exits delete request (and not exist next create request), then return null
+			// If exits delete request (and not exist next create request), then
+			// return null
 			if (deleteAccount) {
 				return null;
 			}
-			// If VS account not exists, then must exist create request, else return null 
-			if (account == null && !createAccount){
+			// If VS account not exists, then must exist create request, else
+			// return null
+			if (account == null && !createAccount) {
 				return null;
 			}
 		}
@@ -696,6 +718,70 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	}
 
 	/**
+	 * Update identity and role implementers relations
+	 * 
+	 * @param virtualConfiguration
+	 * @param systemId
+	 */
+	private void updateSystemImplementers(BasicVirtualConfiguration virtualConfiguration, UUID systemId) {
+		VsSystemImplementerFilter systemImplementerFilter = new VsSystemImplementerFilter();
+		systemImplementerFilter.setSystemId(systemId);
+		List<VsSystemImplementerDto> systemImplementers = systemImplementerService.find(systemImplementerFilter, null)
+				.getContent();
+
+		// Load implementers from config
+		List<IdmIdentityDto> implementersFromConfig = this.loadImplementers(virtualConfiguration.getImplementers());
+		// Load roles from config
+		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles());
+
+		List<VsSystemImplementerDto> systemImplementersToAdd = new ArrayList<>();
+
+		// Search system-implementers to delete (for identity)
+		List<VsSystemImplementerDto> systemImplementersToDelete = systemImplementers.stream().filter(sysImplementer -> {
+			return sysImplementer.getIdentity() != null && !implementersFromConfig.contains(new IdmIdentityDto(sysImplementer.getIdentity()));
+		}).collect(Collectors.toList());
+
+		// Search implementers to add (for identity)
+		List<IdmIdentityDto> implementersToAdd = implementersFromConfig.stream().filter(implementer -> {
+			return !systemImplementers.stream().filter(sysImplementer -> {
+				return implementer.getId().equals(sysImplementer.getIdentity());
+			}).findFirst().isPresent();
+		}).collect(Collectors.toList());
+
+		implementersToAdd.forEach(identity -> {
+			VsSystemImplementerDto sysImpl = new VsSystemImplementerDto();
+			sysImpl.setIdentity(identity.getId());
+			sysImpl.setSystem(systemId);
+			systemImplementersToAdd.add(sysImpl);
+		});
+
+		// Search system-implementers to delete (for role)
+		systemImplementersToDelete.addAll(systemImplementers.stream().filter(sysImplementer -> {
+			return sysImplementer.getRole() != null && !implementersFromConfig.contains(new IdmRoleDto(sysImplementer.getRole()));
+		}).collect(Collectors.toList()));
+
+		// Search implementers to add (for role)
+		List<IdmRoleDto> rolesToAdd = rolesFromConfig.stream().filter(implementer -> {
+			return !systemImplementers.stream().filter(sysImplementer -> {
+				return implementer.getId().equals(sysImplementer.getRole());
+			}).findFirst().isPresent();
+		}).collect(Collectors.toList());
+
+		rolesToAdd.forEach(role -> {
+			VsSystemImplementerDto sysImpl = new VsSystemImplementerDto();
+			sysImpl.setRole(role.getId());
+			sysImpl.setSystem(systemId);
+			systemImplementersToAdd.add(sysImpl);
+		});
+
+		// Save changes (add new and remove old)
+		systemImplementerService.saveAll(systemImplementersToAdd);
+		systemImplementersToDelete.forEach(sysImpl -> {
+			systemImplementerService.delete(sysImpl);
+		});
+	}
+
+	/**
 	 * Load implementers by UUIDs in connector configuration. Throw exception
 	 * when identity not found.
 	 * 
@@ -703,10 +789,10 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * @return
 	 */
 	private List<IdmIdentityDto> loadImplementers(String[] implementersString) {
-		if (implementersString == null) {
-			return null;
-		}
 		List<IdmIdentityDto> implementers = new ArrayList<>();
+		if (implementersString == null) {
+			return implementers;
+		}
 
 		for (String implementer : implementersString) {
 			IdmIdentityDto identity = identityService.get(UUID.fromString(implementer));
@@ -715,6 +801,30 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 						ImmutableMap.of("implementer", implementer));
 			}
 			implementers.add(identity);
+		}
+		return implementers;
+	}
+
+	/**
+	 * Load implementer roles by UUIDs in connector configuration. Throw
+	 * exception when identity not found.
+	 * 
+	 * @param implementerRolesString
+	 * @return
+	 */
+	private List<IdmRoleDto> loadImplementerRoles(String[] implementerRolesString) {
+		List<IdmRoleDto> implementers = new ArrayList<>();
+		if (implementerRolesString == null) {
+			return implementers;
+		}
+
+		for (String implementer : implementerRolesString) {
+			IdmRoleDto role = roleService.get(UUID.fromString(implementer));
+			if (role == null) {
+				throw new VsException(VsResultCode.VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND,
+						ImmutableMap.of("role", implementer));
+			}
+			implementers.add(role);
 		}
 		return implementers;
 	}

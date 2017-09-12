@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,59 +16,65 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
-import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer;
-import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer_;
-import eu.bcvsolutions.idm.vs.entity.VsRequest_;
-import eu.bcvsolutions.idm.vs.repository.VsRequestImplementerRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.VsRequestImplementerFilter;
-import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
+import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
+import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer_;
+import eu.bcvsolutions.idm.vs.repository.VsSystemImplementerRepository;
+import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
- * Service for relation between request in virtual system and identity
+ * Service for relation between system in virtual system and identity
  * 
  * @author Svanda
  *
  */
 @Service
-public class DefaultVsRequestImplementerService
-		extends AbstractReadWriteDtoService<VsRequestImplementerDto, VsRequestImplementer, VsRequestImplementerFilter>
-		implements VsRequestImplementerService {
+public class DefaultVsSystemImplementerService
+		extends AbstractReadWriteDtoService<VsSystemImplementerDto, VsSystemImplementer, VsSystemImplementerFilter>
+		implements VsSystemImplementerService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestImplementerService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsSystemImplementerService.class);
 	private final IdmIdentityService identityService;
+	private final IdmRoleService roleService;
 
 	@Autowired
-	public DefaultVsRequestImplementerService(VsRequestImplementerRepository repository,
-			IdmIdentityService identityService) {
+	public DefaultVsSystemImplementerService(VsSystemImplementerRepository repository,
+			IdmIdentityService identityService, IdmRoleService roleService) {
 		super(repository);
 
 		Assert.notNull(identityService);
+		Assert.notNull(roleService);
 
 		this.identityService = identityService;
+		this.roleService = roleService;
 
 	}
 
 	@Override
-	protected List<Predicate> toPredicates(Root<VsRequestImplementer> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, VsRequestImplementerFilter filter) {
+	protected List<Predicate> toPredicates(Root<VsSystemImplementer> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, VsSystemImplementerFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 
-		// Request ID
-		if (filter.getRequestId() != null) {
-			predicates.add(builder.equal(root.get(VsRequestImplementer_.request).get(VsRequest_.id), filter.getRequestId()));
+		// System ID
+		if (filter.getSystemId() != null) {
+			predicates
+					.add(builder.equal(root.get(VsSystemImplementer_.system).get(SysSystem_.id), filter.getSystemId()));
 		}
 
 		// Identity ID
 		if (filter.getIdentityId() != null) {
-			predicates.add(builder.equal(root.get(VsRequestImplementer_.identity).get(IdmIdentity_.id), filter.getIdentityId()));
+			predicates.add(builder.equal(root.get(VsSystemImplementer_.identity).get(IdmIdentity_.id),
+					filter.getIdentityId()));
 		}
 		return predicates;
 	}
@@ -81,13 +89,26 @@ public class DefaultVsRequestImplementerService
 		if (request == null) {
 			return null;
 		}
-		VsRequestImplementerFilter filter = new VsRequestImplementerFilter();
-		filter.setRequestId(request.getId());
-		List<VsRequestImplementerDto> requestImplementers = this.find(filter, null).getContent();
-		return requestImplementers.stream()//
-				.map(VsRequestImplementerDto::getIdentity)//
+		VsSystemImplementerFilter filter = new VsSystemImplementerFilter();
+		filter.setSystemId(request.getSystemId());
+		List<VsSystemImplementerDto> requestImplementers = this.find(filter, null).getContent();
+		Set<IdmIdentityDto> identities = requestImplementers.stream()//
+				.filter(sysImp -> sysImp.getIdentity() != null)//
+				.map(VsSystemImplementerDto::getIdentity)//
 				.map(identityService::get)//
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
+
+		// Add identities from all roles
+		Set<IdmIdentityDto> roles = requestImplementers.stream()//
+				.filter(sysImp -> sysImp.getIdentity() != null)//
+				.map(VsSystemImplementerDto::getIdentity)//
+				.map(identityService::get)//
+				.collect(Collectors.toSet());
+
+		roles.forEach(role -> {
+			identities.addAll(identityService.findAllByRole(role.getId()));
+		});
+		return new ArrayList<>(identities);
 	}
 
 }

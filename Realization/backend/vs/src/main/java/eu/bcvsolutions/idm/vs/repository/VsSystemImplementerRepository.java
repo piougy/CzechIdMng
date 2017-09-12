@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.vs.repository;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer;
-import eu.bcvsolutions.idm.vs.repository.filter.VsRequestImplementerFilter;
+import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
+import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 
 /**
  * Repository for virtual system request
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.vs.repository.filter.VsRequestImplementerFilter;
  * @author Svanda
  *
  */
-public interface VsRequestImplementerRepository extends AbstractEntityRepository<VsRequestImplementer, VsRequestImplementerFilter> {
+public interface VsSystemImplementerRepository extends AbstractEntityRepository<VsSystemImplementer, VsSystemImplementerFilter> {
 
 
 }

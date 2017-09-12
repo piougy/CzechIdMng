@@ -11,17 +11,18 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  *
  */
 
-public class VsRequestImplementerFilter extends QuickFilter {
+public class VsSystemImplementerFilter extends QuickFilter {
 
-	UUID requestId;
+	UUID systemId;
 	UUID identityId;
 
-	public UUID getRequestId() {
-		return requestId;
+
+	public UUID getSystemId() {
+		return systemId;
 	}
 
-	public void setRequestId(UUID requestId) {
-		this.requestId = requestId;
+	public void setSystemId(UUID systemId) {
+		this.systemId = systemId;
 	}
 
 	public UUID getIdentityId() {

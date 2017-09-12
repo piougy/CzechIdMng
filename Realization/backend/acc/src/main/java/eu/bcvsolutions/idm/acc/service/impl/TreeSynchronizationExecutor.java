@@ -39,11 +39,12 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -69,6 +70,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -156,7 +158,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				
 		SysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();	
 		SysSystemMappingDto systemMapping = systemMappingService.get(context.getConfig().getSystemMapping());
@@ -483,7 +485,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystem system = systemService.get(schemaObjectClassDto.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes,
 				system);
 
@@ -612,7 +614,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		
 		SysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
-		SysSystem system = context.getSystem();
+		SysSystemDto system = context.getSystem();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		SysSyncLogDto log = context.getLog();
 		List<SysSyncActionLogDto> actionsLog = context.getActionLogs();

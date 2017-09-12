@@ -1,10 +1,18 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 
 /**
  * Target system setting - is used for accont management and provisioning DTO
@@ -12,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * @author Svanda
  *
  */
+@Relation(collectionRelation = "systems")
 public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 
 	private static final long serialVersionUID = 1L;
@@ -24,11 +33,17 @@ public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 	private boolean virtual;
 	private Long version; // Optimistic lock - will be used with ETag
 	private boolean remote;
+	@Embedded(dtoClass = IdmPasswordPolicyDto.class)
+	private UUID passwordPolicyValidate;
+	@Embedded(dtoClass = IdmPasswordPolicyDto.class)
+	private UUID passwordPolicyGenerate;
+	private SysConnectorKeyDto connectorKey;
+	private SysConnectorServerDto connectorServer;
 
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	@JsonIgnore
 	public String getCode() {
@@ -95,4 +110,40 @@ public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 		this.remote = remote;
 	}
 
+	public UUID getPasswordPolicyValidate() {
+		return passwordPolicyValidate;
+	}
+
+	public void setPasswordPolicyValidate(UUID passwordPolicyValidate) {
+		this.passwordPolicyValidate = passwordPolicyValidate;
+	}
+
+	public UUID getPasswordPolicyGenerate() {
+		return passwordPolicyGenerate;
+	}
+
+	public void setPasswordPolicyGenerate(UUID passwordPolicyGenerate) {
+		this.passwordPolicyGenerate = passwordPolicyGenerate;
+	}
+
+	public SysConnectorKeyDto getConnectorKey() {
+		return connectorKey;
+	}
+
+	public void setConnectorKey(SysConnectorKeyDto connectorKey) {
+		this.connectorKey = connectorKey;
+	}
+
+	public SysConnectorServerDto getConnectorServer() {
+		return connectorServer;
+	}
+
+	public void setConnectorServer(SysConnectorServerDto connectorServer) {
+		this.connectorServer = connectorServer;
+	}
+	
+	@JsonIgnore
+	public IcConnectorInstance getConnectorInstance() {
+		return new IcConnectorInstanceImpl(this.getConnectorServer(), this.getConnectorKey(), this.isRemote());
+	}
 }

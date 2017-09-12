@@ -14,9 +14,9 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -102,7 +102,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRole entity, SysSystem system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRole entity, SysSystemDto system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleNode
 		return new ArrayList<>();

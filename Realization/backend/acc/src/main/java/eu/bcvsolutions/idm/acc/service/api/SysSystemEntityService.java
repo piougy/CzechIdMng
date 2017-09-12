@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -23,6 +23,6 @@ public interface SysSystemEntityService extends ReadWriteDtoService<SysSystemEnt
 	 * @param entityType
 	 * @return
 	 */
-	SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystem system, SystemEntityType entityType, String uid);
+	SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid);
 	
 }

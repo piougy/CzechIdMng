@@ -3,10 +3,8 @@ package eu.bcvsolutions.idm.vs.rest.impl;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.h2.util.New;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -36,7 +34,7 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -129,7 +127,6 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		return super.get(backendId);
 	}
 
-
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/realize", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_UPDATE + "')")
@@ -141,10 +138,10 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> realize(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		VsRequestDto request =  ((VsRequestService)getService()).realize(UUID.fromString(backendId));
+		VsRequestDto request = ((VsRequestService) getService()).realize(getService().get(backendId));
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
-	
+
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/cancel", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_UPDATE + "')")
@@ -155,12 +152,13 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> cancel(
-			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId, @RequestBody(required = true) String reason) {
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
+			@RequestBody(required = true) String reason) {
 		// TODO correct convert to String
-		if(reason.startsWith("\"") && reason.endsWith("\"")){
-			reason = reason.substring(1, reason.length()-2);
+		if (reason.startsWith("\"") && reason.endsWith("\"")) {
+			reason = reason.substring(1, reason.length() - 2);
 		}
-		VsRequestDto request =  ((VsRequestService)getService()).cancel(UUID.fromString(backendId), reason);
+		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason);
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
@@ -176,7 +174,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_DELETE, description = "") }) })
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		return super.delete(backendId); 
+		return super.delete(backendId);
 	}
 
 	@Override
@@ -197,7 +195,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
-	
+
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/connector-object", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
@@ -209,11 +207,33 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }) })
 	public ResponseEntity<?> getConnectorObject(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		IcConnectorObject connectorObject =  ((VsRequestService)getService()).getConnectorObject(UUID.fromString(backendId));
-		if(connectorObject != null) {
+		IcConnectorObject connectorObject = ((VsRequestService) getService())
+				.getVsConnectorObject(getService().get(backendId));
+		if (connectorObject != null) {
 			return new ResponseEntity<>(connectorObject, HttpStatus.OK);
-		}else{
+		} else {
 			return new ResponseEntity<>(new IcConnectorObjectImpl(), HttpStatus.OK);
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/wish-connector-object", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
+	@ApiOperation(value = "Read wish connector object. Object contains current attributes from virtual system + changed attributes from given request.",
+	nickname = "getVsConnectorObject", response = VsConnectorObjectDto.class, tags = {
+			VsRequestController.TAG }, authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }) })
+	public ResponseEntity<?> getWishConnectorObject(
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
+		VsConnectorObjectDto connectorObject = ((VsRequestService) getService())
+				.getWishConnectorObject(getService().get(backendId));
+		if (connectorObject != null) {
+			return new ResponseEntity<>(connectorObject, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(new VsConnectorObjectDto(), HttpStatus.OK);
 		}
 	}
 
@@ -227,7 +247,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		filter.setCreatedAfter(getParameterConverter().toDateTime(parameters, "createdAfter"));
 		filter.setCreatedBefore(getParameterConverter().toDateTime(parameters, "createdBefore"));
 		filter.setOnlyArchived(getParameterConverter().toBoolean(parameters, "onlyArchived"));
-		
+
 		return filter;
 	}
 }

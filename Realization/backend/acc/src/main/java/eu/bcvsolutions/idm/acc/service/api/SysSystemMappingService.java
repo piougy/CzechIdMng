@@ -6,10 +6,9 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -20,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  */
 public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMappingDto, SystemMappingFilter>, CloneableService<SysSystemMappingDto> {
 
-	public List<SysSystemMappingDto> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType);
+	public List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation, SystemEntityType entityType);
 	
 	public List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass, SystemOperationType operation, SystemEntityType entityType);
 

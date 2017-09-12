@@ -23,10 +23,10 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -80,7 +80,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	//	
 	private SysProvisioningOperationService sysProvisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
-	private SysSystem system = null;
+	private SysSystemDto system = null;
 	private SysSystemMappingDto systemMapping = null;
 	private SysSystemAttributeMappingDto nameAttributeMapping = null;
 	private SysSystemAttributeMappingDto firstNameAttributeMapping = null;

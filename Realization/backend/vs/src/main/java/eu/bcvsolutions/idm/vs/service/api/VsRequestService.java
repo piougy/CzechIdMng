@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 /**
@@ -16,8 +17,8 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
  * @author Svanda
  *
  */
-public interface VsRequestService extends 
-		ReadWriteDtoService<VsRequestDto, VsRequestFilter>, AuthorizableService<VsRequestDto> {
+public interface VsRequestService
+		extends ReadWriteDtoService<VsRequestDto, VsRequestFilter>, AuthorizableService<VsRequestDto> {
 
 	IcUidAttribute execute(VsRequestDto request);
 
@@ -27,19 +28,44 @@ public interface VsRequestService extends
 
 	IcUidAttribute internalExecute(VsRequestDto request);
 
-	VsRequestDto realize(UUID fromString);
+	VsRequestDto realize(VsRequestDto request);
 
-	VsRequestDto cancel(UUID fromString, String reason);
+	VsRequestDto cancel(VsRequestDto request, String reason);
 
 	/**
 	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
 	 * and system. For all operation types.
 	 * 
+	 * @return
+	 */
+	List<VsRequestDto> findDuplicities(String uid, UUID systemId);
+
+	/**
+	 * Return account from connector. Account will be contained "wish"
+	 * attributes ... it means current attributes + changed attributes from
+	 * unresolved requests
+	 * 
 	 * @param request
 	 * @return
 	 */
-	List<VsRequestDto> findDuplicities(VsRequestDto request);
+	IcConnectorObject getConnectorObject(VsRequestDto request);
 
-	IcConnectorObject getConnectorObject(UUID fromString);
+	/**
+	 * Return account. Account will be contained only "valid" attributes (not
+	 * from requests).
+	 * 
+	 * @param request
+	 * @return
+	 */
+	IcConnectorObject getVsConnectorObject(VsRequestDto request);
+
+	/**
+	 * Read wish connector object. Object contains current attributes from
+	 * virtual system + changed attributes from given request.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	VsConnectorObjectDto getWishConnectorObject(VsRequestDto request);
 
 }

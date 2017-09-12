@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.AccountProtectionExpirationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -53,7 +53,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	public void testRemoveExpiredAccount() {
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmRoleDto role = helper.createRole();
-		SysSystem system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(true);
 		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(1);
 		mapping.setProtectionEnabled(true);

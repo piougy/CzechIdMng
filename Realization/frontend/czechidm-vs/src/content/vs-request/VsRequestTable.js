@@ -101,7 +101,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
       <Advanced.EntityInfo
         entityType="vs-request"
         entityIdentifier={ data[rowIndex].id }
-        face="popover" />
+        face="link" />
     );
   }
 
@@ -128,13 +128,13 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           type="button"
           level="success"
           rendered={Managers.SecurityManager.hasAnyAuthority(['VSREQUEST_UPDATE'])}
-          style={{marginRight: '2px'}}
+          style={{marginRight: '2px', maxWidth: '21px', paddingLeft: '4px'}}
           title={this.i18n('vs:content.vs-request.detail.button.request.realize')}
           titlePlacement="bottom"
           onClick={this.realize.bind(this, 'realize', [data[rowIndex].id])}
           disabled={ data[rowIndex].state !== 'IN_PROGRESS' }
           className="btn-xs">
-          <Basic.Icon type="fa" icon="thumbs-up"/>
+          <Basic.Icon type="fa" icon="check"/>
         </Basic.Button>
         <Basic.Button
           ref="cancelButton"

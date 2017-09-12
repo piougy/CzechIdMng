@@ -8,6 +8,22 @@ We use [Redmine](https://redmine.czechidm.com) to track bugs and enhancements.
 
 If you believe you have found a bug, please take a moment to search the existing issues. If no one else has reported the problem, please open a new ticket that describes the problem in detail and has sufficient category and instructions to be able to reproduce the issue. Ideally, includes a test that reproduces it. Application, module (backend, frontend) and browser version has to be included in ticket description.
 
+#### Strict ticket example:
+| Name form attribute   |      Values/Info      |
+|----------|:-------------:|
+| Queue |  Task, Defect, Feature |
+| Subject |    Clear, unambiguous and unique name, **don't create duplicate tickets please!** |
+| Description | **Very detailed description**, bug or feature, with affected version. Description how to reproduce bug (use case, steps, etc.). StackTrace with error. Info why is new feature so necessary. |
+| State | Please keep state as New |
+| Priority | Remeber only critical bugs has priority higher than normal. For feature never set priority higher than normal. Features are planned for a very long time ahead. Is possible that your feature will be moved to another version. |
+| Assigned | If you don't know who is responsible for category don't don't set up anyone. |
+| Category | Best match category that describe your problem. |
+| Target version | If you don't know what is current version, don't set up any version.  |
+| Files | Please add some screens, your specific code and **tests** with bug. |
+| Parent ticket, from, till, estimated time, done % | Please do not fill these attributes. |
+
+If you found some other behavior feel free to add comment.
+
 ### Enhancements
 
 If you’d like an enhancement to be made to CzechIdM, pull requests are most welcome. The source code is on GitHub. You may want to search the existing issues and pull requests to see if the enhancement is already being worked on. You may also want to open a new issue to discuss a possible enhancement before work on it begins.

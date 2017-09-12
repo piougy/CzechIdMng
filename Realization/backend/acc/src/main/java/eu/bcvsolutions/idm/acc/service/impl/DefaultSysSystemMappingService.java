@@ -16,17 +16,16 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent.SystemMappingEventType;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -48,28 +47,24 @@ public class DefaultSysSystemMappingService extends
 	private final SysSystemMappingRepository repository;
 	private final SysSyncConfigRepository syncConfigRepository;
 	private final EntityEventManager entityEventManager;
-	private final SysSystemRepository systemRepository;
 
 	@Autowired
 	public DefaultSysSystemMappingService(
 			SysSystemMappingRepository repository,
 			SysSyncConfigRepository syncConfigRepository,
-			EntityEventManager entityEventManager,
-			SysSystemRepository systemrepository) {
+			EntityEventManager entityEventManager) {
 		super(repository);
 		//
 		Assert.notNull(syncConfigRepository);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(systemrepository);
 		//
 		this.repository = repository;
 		this.syncConfigRepository = syncConfigRepository;
 		this.entityEventManager = entityEventManager;
-		this.systemRepository = systemrepository;
 	}
 	
 	@Override
-	public List<SysSystemMappingDto> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType){
+	public List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation, SystemEntityType entityType){
 		Assert.notNull(system);
 		
 		SystemMappingFilter filter = new SystemMappingFilter();
@@ -111,7 +106,8 @@ public class DefaultSysSystemMappingService extends
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
 		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
-		List<SysSystemMappingDto> mappings = this.findBySystem(systemRepository.findOne(account.getSystem()), SystemOperationType.PROVISIONING, systemEntity.getEntityType());
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		List<SysSystemMappingDto> mappings = this.findBySystem(system, SystemOperationType.PROVISIONING, systemEntity.getEntityType());
 		if(mappings.isEmpty()){
 			return false;
 		}
@@ -125,7 +121,8 @@ public class DefaultSysSystemMappingService extends
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
 		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
 
-		List<SysSystemMappingDto> mappings = this.findBySystem(systemRepository.findOne(account.getSystem()), SystemOperationType.PROVISIONING, systemEntity.getEntityType());
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		List<SysSystemMappingDto> mappings = this.findBySystem(system, SystemOperationType.PROVISIONING, systemEntity.getEntityType());
 		if(mappings.isEmpty()){
 			return -1;
 		}

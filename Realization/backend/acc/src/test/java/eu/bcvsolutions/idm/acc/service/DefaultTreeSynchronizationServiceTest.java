@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -43,7 +44,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
@@ -119,7 +119,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
 
-	private SysSystem system;
+	private SysSystemDto system;
 	private SynchronizationService synchornizationService;
 
 	@Before
@@ -578,7 +578,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setObjectClass(systemMappingSync.getObjectClass());
 		final SysSystemMappingDto syncMapping = systemMappingService.save(systemMapping);
-		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		createMapping(system, syncMapping);
 
 	}
@@ -592,6 +592,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		// key to EAV
 		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		formService.saveValues(system, formDefinition, "keyColumn", ImmutableList.of("ID"));
+
 		// generate schema for system
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 
@@ -660,7 +661,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 	
 
-	private void createMapping(SysSystem system, final SysSystemMappingDto entityHandlingResult) {
+	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 

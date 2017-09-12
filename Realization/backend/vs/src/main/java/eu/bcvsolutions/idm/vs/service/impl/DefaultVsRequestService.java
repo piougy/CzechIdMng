@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,12 +25,18 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -42,11 +49,14 @@ import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConfigurationServi
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
+import eu.bcvsolutions.idm.vs.domain.VsValueChangeType;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.entity.VsRequest_;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent;
@@ -56,10 +66,15 @@ import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
-import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
+import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeValueDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
  * Service for request in virtual system
@@ -74,15 +89,21 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestService.class);
 
 	private final EntityEventManager entityEventManager;
-	private final VsRequestImplementerService requestImplementerService;
+	private final VsSystemImplementerService requestImplementerService;
 	private final CzechIdMIcConnectorService czechIdMConnectorService;
 	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
 	private final SysSystemService systemService;
+	private final NotificationManager notificationManager;
+	private final IdmIdentityService identityService;
+	private final VsAccountService accountService;
+	private final ConfigurationService configurationService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
-			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
-			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService) {
+			VsSystemImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
+			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService,
+			NotificationManager notificationManager, IdmIdentityService identityService,
+			VsAccountService accountService, ConfigurationService configurationService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
@@ -90,12 +111,20 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(czechIdMConnectorService);
 		Assert.notNull(czechIdMConfigurationService);
 		Assert.notNull(systemService);
+		Assert.notNull(notificationManager);
+		Assert.notNull(identityService);
+		Assert.notNull(accountService);
+		Assert.notNull(configurationService);
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
 		this.czechIdMConnectorService = czechIdMConnectorService;
 		this.czechIdMConfigurationService = czechIdMConfigurationService;
 		this.systemService = systemService;
+		this.notificationManager = notificationManager;
+		this.identityService = identityService;
+		this.accountService = accountService;
+		this.configurationService = configurationService;
 	}
 
 	@Override
@@ -106,28 +135,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			return null;
 		}
 
-		// Remove after DTO service for system will be created (enable embedded
-		// annotation in VsRequestDto.systemId)
-		UUID systemId = request.getSystemId();
-		if (systemId != null) {
-			SysSystem systemEntity = this.systemService.get(systemId);
-			if (systemEntity != null) {
-				SysSystemDto system = new SysSystemDto();
-				system.setTrimmed(true);
-				system.setId(systemEntity.getId());
-				system.setName(systemEntity.getName());
-				system.setReadonly(systemEntity.isReadonly());
-				system.setDisabled(systemEntity.isDisabled());
-				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
-			}
-		}
-
 		// Add list of implementers
 		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
 		request.setImplementers(implementers);
-
 		if (request.isTrimmed()) {
-			request.setConnectorObject(null);
+			// request.setConnectorObject(null);
 		}
 
 		return request;
@@ -135,11 +147,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Override
 	@Transactional
-	public VsRequestDto realize(UUID requestId) {
-		LOG.info(MessageFormat.format("Start realize virtual system request [{0}].", requestId));
+	public VsRequestDto realize(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start realize virtual system request [{0}].", request));
 
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
 
@@ -154,18 +164,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save realized request
 		request = this.save(request);
 
-		LOG.info(MessageFormat.format("Virtual system request [{0}] was realized. Output UID attribute: [{1}]",
-				requestId, uidAttribute));
+		LOG.info(MessageFormat.format("Virtual system request [{0}] was realized. Output UID attribute: [{1}]", request,
+				uidAttribute));
 		return request;
 	}
 
 	@Override
-	public VsRequestDto cancel(UUID requestId, String reason) {
-		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", requestId));
+	public VsRequestDto cancel(VsRequestDto request, String reason) {
+		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", request));
 
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
 		Assert.notNull(reason, "Cancel reason cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
 
@@ -179,7 +187,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save cancelled request
 		request = this.save(request);
 
-		LOG.info(MessageFormat.format("Virtual system request [{0}] for UID [{1}] was canceled.", requestId,
+		LOG.info(MessageFormat.format("Virtual system request [{0}] for UID [{1}] was canceled.", request,
 				request.getUid()));
 		return request;
 	}
@@ -201,15 +209,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save new request
 		req.setState(VsRequestState.CONCEPT);
 		VsRequestDto request = this.save(req, IdmBasePermission.CREATE);
-		if (req.getImplementers() != null) {
-			req.getImplementers().forEach(identity -> {
-				// We have some implementers to save
-				VsRequestImplementerDto implementer = new VsRequestImplementerDto();
-				implementer.setRequest(request.getId());
-				implementer.setIdentity(identity.getId());
-				requestImplementerService.save(implementer);
-			});
-		}
 		return this.get(request.getId());
 	}
 
@@ -218,21 +217,24 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request, "Request cannot be null!");
 		// Unfinished requests for same UID and system
 
-		List<VsRequestDto> duplicities = this.findDuplicities(request);
+		List<VsRequestDto> duplicities = this.findDuplicities(request.getUid(), request.getSystemId());
 		request.setState(VsRequestState.IN_PROGRESS);
 
 		if (!CollectionUtils.isEmpty(duplicities)) {
 			// Get the newest request (for same operation)
 			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
 			// Load untrimed request
-			previousRequest = this.get(previousRequest.getId());
-			// Shows on previous request with same operation type. We need this
-			// for create diff.
-			request.setPreviousRequest(previousRequest.getId());
+			if (previousRequest != null) {
+				// previousRequest = this.get(previousRequest.getId());
+				// Shows on previous request with same operation type. We need
+				// this
+				// for create diff.
+				request.setPreviousRequest(previousRequest.getId());
 
-			if (this.isRequestSame(request, previousRequest)) {
-				request.setDuplicateToRequest(previousRequest.getId());
-				request.setState(VsRequestState.DUPLICATED);
+				if (this.isRequestSame(request, previousRequest)) {
+					request.setDuplicateToRequest(previousRequest.getId());
+					request.setState(VsRequestState.DUPLICATED);
+				}
 			}
 		}
 		request = this.save(request);
@@ -253,13 +255,10 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		if (lastRequest != null) {
 			// Send update message
-			// TODO: send message
-			this.sendNotification(request, this.get(request.getPreviousRequest()));
-		}
-		{
+			this.sendNotification(request, this.get(lastRequest.getId()));
+		} else {
 			// Send new message
-			// TODO: send message
-			this.sendNotification(request, null); // TODO
+			this.sendNotification(request, null);
 		}
 		return null;
 	}
@@ -306,8 +305,31 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			break;
 		}
 		case DELETE: {
+			VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystemId());
+			if (account == null) {
+				throw new VsException(VsResultCode.VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST,
+						ImmutableMap.of("uid", request.getUid()));
+			}
 			virtualConnector.internalDelete(new IcUidAttributeImpl(null, request.getUid(), null),
 					request.getConnectorObject().getObjectClass());
+			// All unresolved request created before this delete request will be
+			// canceled
+			VsRequestFilter filter = new VsRequestFilter();
+			filter.setCreatedBefore(request.getCreated());
+			filter.setUid(request.getUid());
+			filter.setSystemId(request.getSystemId());
+			filter.setState(VsRequestState.IN_PROGRESS);
+			// Unresolved request created before this request
+			List<VsRequestDto> beforeRequests = this.find(filter, null).getContent();
+
+			beforeRequests.forEach(beforeRequest -> {
+				String reason = MessageFormat.format(
+						"Request [{0}] was canceled (by SYSTEM), because 'after' delete request [{1}] was realized!",
+						beforeRequest.getId(), request.getId());
+				this.cancel(beforeRequest, reason);
+				LOG.info(reason);
+
+			});
 			break;
 		}
 
@@ -318,15 +340,120 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public IcConnectorObject getConnectorObject(UUID requestId) {
-		LOG.info(MessageFormat.format("Start read connector object [{0}].", requestId));
-		Assert.notNull(requestId, "Id of VS request cannot be null!");
-		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+	public IcConnectorObject getConnectorObject(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start read connector object [{0}].", request));
 		Assert.notNull(request, "VS request cannot be null!");
 		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
 
 		return this.systemService.readConnectorObject(request.getSystemId(), request.getUid(),
 				request.getConnectorObject().getObjectClass());
+	}
+
+	@Override
+	public IcConnectorObject getVsConnectorObject(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start read vs connector object [{0}].", request));
+		Assert.notNull(request, "VS request cannot be null!");
+		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
+
+		// Find account by UID and System ID
+		VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystemId());
+		if (account == null) {
+			return null;
+		}
+
+		List<IcAttribute> attributes = accountService.getIcAttributes(account);
+		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
+		connectorObject.setUidValue(account.getUid());
+		connectorObject.setObjectClass(request.getConnectorObject().getObjectClass());
+		connectorObject.setAttributes(attributes);
+		return connectorObject;
+	}
+
+	@Override
+	public VsConnectorObjectDto getWishConnectorObject(VsRequestDto request) {
+		LOG.info(MessageFormat.format("Start read wish connector object [{0}].", request));
+		Assert.notNull(request, "VS request cannot be null!");
+
+		List<VsAttributeDto> resultAttributes = new ArrayList<>();
+		IcConnectorObject realConnectorObject = this.getVsConnectorObject(request);
+		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject
+				: new IcConnectorObjectImpl();
+		IcConnectorObject changeObject = request.getConnectorObject() != null ? request.getConnectorObject()
+				: new IcConnectorObjectImpl();
+		List<IcAttribute> currentAttributes = currentObject.getAttributes();
+		List<IcAttribute> changedAttributes = request.getConnectorObject().getAttributes();
+
+		// First add all new attributes
+		changedAttributes.forEach(changedAttribute -> {
+			if (currentObject.getAttributeByName(changedAttribute.getName()) == null) {
+				VsAttributeDto vsAttribute = new VsAttributeDto(changedAttribute.getName(),
+						changedAttribute.isMultiValue(), true);
+				if (changedAttribute.isMultiValue()) {
+					changedAttribute.getValues().forEach(value -> {
+						vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
+					});
+				} else {
+					vsAttribute.setValue(
+							new VsAttributeValueDto(changedAttribute.getValue(), null, VsValueChangeType.ADDED));
+				}
+				resultAttributes.add(vsAttribute);
+			}
+		});
+
+		// Second add all already exists attributes
+		currentAttributes.forEach(currentAttribute -> {
+			VsAttributeDto vsAttribute;
+			// Attribute was changed
+			if (changeObject.getAttributeByName(currentAttribute.getName()) != null) {
+				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), true);
+				IcAttribute changedAttribute = changeObject.getAttributeByName(currentAttribute.getName());
+				if (changedAttribute.isMultiValue()) {
+					changedAttribute.getValues().forEach(value -> {
+						if (currentAttribute.getValues().contains(value)) {
+							vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
+						} else {
+							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
+						}
+					});
+					currentAttribute.getValues().forEach(value -> {
+						if (!changedAttribute.getValues().contains(value)) {
+							vsAttribute.getValues()
+									.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
+						}
+					});
+				} else {
+					Object changedValue = changedAttribute.getValue();
+					Object currentValue = currentAttribute.getValue();
+					if ((changedValue == null && currentValue == null)
+							|| (changedValue != null && changedValue.equals(currentObject))
+							|| (currentValue != null && currentValue.equals(changedValue))) {
+
+						vsAttribute.setValue(new VsAttributeValueDto(changedValue, currentValue, null));
+					} else {
+						vsAttribute.setValue(
+								new VsAttributeValueDto(changedValue, currentValue, VsValueChangeType.UPDATED));
+					}
+				}
+			} else {
+				// Attribute was not changed
+				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), false);
+				if (currentAttribute.isMultiValue()) {
+					currentAttribute.getValues().forEach(value -> {
+						vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
+					});
+				} else {
+					vsAttribute.setValue(
+							new VsAttributeValueDto(currentAttribute.getValue(), currentAttribute.getValue(), null));
+				}
+			}
+			resultAttributes.add(vsAttribute);
+		});
+
+		VsConnectorObjectDto wishObject = new VsConnectorObjectDto();
+		wishObject.setUid(request.getUid());
+		wishObject.setAttributes(resultAttributes);
+
+		return wishObject;
 	}
 
 	/**
@@ -337,14 +464,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * @return
 	 */
 	@Override
-	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
+	public List<VsRequestDto> findDuplicities(String uid, UUID systemId) {
 		VsRequestFilter filter = new VsRequestFilter();
-		filter.setUid(request.getUid());
-		filter.setSystemId(request.getSystemId());
+		filter.setUid(uid);
+		filter.setSystemId(systemId);
 		filter.setState(VsRequestState.IN_PROGRESS);
 		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
-		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
-		return duplicities;
+		return this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
 	}
 
 	@Override
@@ -389,7 +515,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			predicates.add(builder.greaterThan(root.get(VsRequest_.created), filter.getCreatedAfter()));
 		}
 
-		// Only archived 
+		// Only archived
 		if (filter.getOnlyArchived() != null) {
 			predicates.add(builder.or(//
 					builder.equal(root.get(VsRequest_.state), VsRequestState.REALIZED), //
@@ -406,9 +532,68 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
 	}
 
-	private void sendNotification(VsRequestDto request, VsRequestDto vsRequestDto) {
-		// TODO
+	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
 
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
+		if (implementers.isEmpty()) {
+			// We do not have any implementers ... we don`t have anyone to send
+			// notification
+			LOG.warn(MessageFormat.format(
+					"Notification cannot be send! We do not have any implementers in request [{0}].", request.getId()));
+			return;
+		}
+
+		// We assume the request.UID is equals Identity user name!;
+		IdmIdentityDto identity = this.getIdentity(request);
+		SysSystemDto system = systemService.get(request.getSystemId());
+		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
+
+		// send create notification
+		notificationManager.send(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.INFO)
+				.addParameter("requestAttributes",
+						request.getConnectorObject() != null ? request.getConnectorObject().getAttributes() : null)
+				.addParameter("wishAttributes", wish != null ? wish.getAttributes() : null)//
+				.addParameter("fullName", identityService.getNiceLabel(identity))//
+				.addParameter("identity", identity)//
+				.addParameter("url", getUrl(request))//
+				.addParameter("previousUrl", getUrl(previous))//
+				.addParameter("request", request)//
+				.addParameter("systemName", system.getName()).build(), implementers);
+
+	}
+
+	/**
+	 * Construct URL to frontend for given request
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private String getUrl(VsRequestDto request) {
+		if (request == null) {
+			return null;
+		}
+		String origins = configurationService.getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
+		//
+		if (origins != null && !origins.isEmpty()) {
+			String origin = origins.trim().split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR)[0];
+			return MessageFormat.format("{0}/#/vs/request/{1}/detail", origin, request.getId());
+		}
+		return null;
+	}
+
+	private IdmIdentityDto getIdentity(VsRequestDto request) {
+		if (request == null) {
+			return null;
+		}
+		// We assume the request.UID is equals Identity user name!;
+		IdentityFilter filter = new IdentityFilter();
+		filter.setUsername(request.getUid());
+		List<IdmIdentityDto> identities = this.identityService.find(filter, null).getContent();
+		if (identities.isEmpty()) {
+			return null;
+		}
+		return identities.get(0);
 	}
 
 	/**

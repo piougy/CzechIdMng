@@ -1,4 +1,4 @@
-import TextFormValue from './TextFormValue';
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
  * Uuid form value component
@@ -7,7 +7,7 @@ import TextFormValue from './TextFormValue';
  *
  * @author Radek Tomiška
  */
-export default class UuidFormValue extends TextFormValue {
+export default class UuidFormAttributeRenderer extends TextFormAttributeRenderer {
 
   /**
    * Returns joi validator by persistent type

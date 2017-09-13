@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
-import AbstractFormValue from './AbstractFormValue';
-import UuidFormValue from './UuidFormValue';
+import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
+import UuidFormAttributeRenderer from './UuidFormAttributeRenderer';
 import { IdentityManager } from '../../../redux/';
 
 const manager = new IdentityManager();
@@ -15,7 +15,7 @@ const manager = new IdentityManager();
  *
  * @author Radek Tomiška
  */
-export default class IdentitySelectFormValue extends UuidFormValue {
+export default class IdentitySelectFormAttributeRenderer extends UuidFormAttributeRenderer {
 
   /**
    * Returns true, when multi value mode is supported
@@ -56,7 +56,7 @@ export default class IdentitySelectFormValue extends UuidFormValue {
    */
   getMultipleValue() {
     const { values } = this.props;
-    const formComponent = this.refs[AbstractFormValue.INPUT];
+    const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     const filledFormValues = [];
     //
     if (!formComponent) {
@@ -106,7 +106,7 @@ export default class IdentitySelectFormValue extends UuidFormValue {
     //
     return (
       <Basic.SelectBox
-        ref={ AbstractFormValue.INPUT }
+        ref={ AbstractFormAttributeRenderer.INPUT }
         label={ attribute.name }
         placeholder={ attribute.placeholder }
         manager={ manager }

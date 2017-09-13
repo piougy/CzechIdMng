@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Joi from 'joi';
 //
 import * as Basic from '../../basic';
-import AbstractFormValue from './AbstractFormValue';
+import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 
 /**
  * Text form value component
@@ -11,7 +11,7 @@ import AbstractFormValue from './AbstractFormValue';
  *
  * @author Radek Tomiška
  */
-export default class TextFormValue extends AbstractFormValue {
+export default class TextFormAttributeRenderer extends AbstractFormAttributeRenderer {
 
   /**
    * Returns true, when confidential mode is supported
@@ -38,7 +38,7 @@ export default class TextFormValue extends AbstractFormValue {
    */
   getMultipleValue() {
     const { values } = this.props;
-    const formComponent = this.refs[AbstractFormValue.INPUT];
+    const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     const filledFormValues = [];
     //
     if (!formComponent) {
@@ -146,7 +146,7 @@ export default class TextFormValue extends AbstractFormValue {
     //
     return (
       <Basic.TextField
-        ref={ AbstractFormValue.INPUT }
+        ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
         label={ attribute.name }
         placeholder={ attribute.placeholder }
@@ -164,7 +164,7 @@ export default class TextFormValue extends AbstractFormValue {
     //
     return (
       <Basic.TextArea
-        ref={ AbstractFormValue.INPUT }
+        ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
         required={ attribute.required }
         label={

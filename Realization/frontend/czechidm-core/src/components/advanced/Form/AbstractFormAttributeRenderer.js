@@ -9,7 +9,7 @@ import * as Basic from '../../../components/basic';
  *
  * @author Radek Tomiška
  */
-export default class AbstractFormValue extends Basic.AbstractContextComponent {
+export default class AbstractFormAttributeRenderer extends Basic.AbstractContextComponent {
 
   /**
    * Returns true, when confidential mode is supported
@@ -56,7 +56,7 @@ export default class AbstractFormValue extends Basic.AbstractContextComponent {
    * @return {Boolean} is valid
    */
   isValid() {
-    const formComponent = this.refs[AbstractFormValue.INPUT];
+    const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     if (!formComponent) {
       // not supported compoenents
       return true;
@@ -106,7 +106,7 @@ export default class AbstractFormValue extends Basic.AbstractContextComponent {
    */
   getSingleValue() {
     const { values } = this.props;
-    const formComponent = this.refs[AbstractFormValue.INPUT];
+    const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     //
     if (!formComponent) {
       // not supported compoenents
@@ -228,7 +228,7 @@ export default class AbstractFormValue extends Basic.AbstractContextComponent {
   }
 }
 
-AbstractFormValue.propTypes = {
+AbstractFormAttributeRenderer.propTypes = {
   /**
    * Form attribute
    */
@@ -242,8 +242,8 @@ AbstractFormValue.propTypes = {
    */
   readOnly: PropTypes.bool
 };
-AbstractFormValue.defaultProps = {
+AbstractFormAttributeRenderer.defaultProps = {
   readOnly: false
 };
 
-AbstractFormValue.INPUT = 'input'; // input ref - is used internally for common operations
+AbstractFormAttributeRenderer.INPUT = 'input'; // input ref - is used internally for common operations

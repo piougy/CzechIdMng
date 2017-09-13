@@ -39,7 +39,7 @@ export default class FormAttributeManager extends EntityManager {
       return null;
     }
     //
-    return this.componentService.getComponentDefinitions(ComponentService.FORM_VALUE).find(component => {
+    return this.componentService.getComponentDefinitions(ComponentService.FORM_ATTRIBUTE_RENDERER).find(component => {
       if (!component.persistentType) {
         // persistent type is required
         return false;

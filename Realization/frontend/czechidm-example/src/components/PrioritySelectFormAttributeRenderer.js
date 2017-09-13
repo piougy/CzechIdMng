@@ -13,7 +13,7 @@ import { Advanced } from 'czechidm-core';
  *
  * @author Radek Tomiška
  */
-export default class PrioritySelectFormValue extends Advanced.AbstractFormValue {
+export default class PrioritySelectFormAttributeRenderer extends Advanced.AbstractFormAttributeRenderer {
 
   constructor(props, context) {
     super(props, context);
@@ -73,7 +73,7 @@ export default class PrioritySelectFormValue extends Advanced.AbstractFormValue 
     const singleValue = this.state.value || this.toSingleInputValue(values);
     // create radio inputs
     const inputs = [];
-    for (let i = 1; i <= PrioritySelectFormValue.RADIO_COUNT; i++) {
+    for (let i = 1; i <= PrioritySelectFormAttributeRenderer.RADIO_COUNT; i++) {
       inputs.push(
         <label className="radio-inline">
           <input
@@ -97,4 +97,4 @@ export default class PrioritySelectFormValue extends Advanced.AbstractFormValue 
   }
 }
 
-PrioritySelectFormValue.RADIO_COUNT = 5;
+PrioritySelectFormAttributeRenderer.RADIO_COUNT = 5;

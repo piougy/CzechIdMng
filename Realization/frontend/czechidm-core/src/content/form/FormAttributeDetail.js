@@ -157,7 +157,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
       return [];
     }
     //
-    const types = componentService.getComponentDefinitions(ComponentService.FORM_VALUE)
+    const types = componentService.getComponentDefinitions(ComponentService.FORM_ATTRIBUTE_RENDERER)
       .filter(component => {
         if (!component.persistentType) {
           // persistent type is required

@@ -44,4 +44,4 @@ export default class ComponentService {
 // reserved component types
 ComponentService.ENTITY_INFO_COMPONENT_TYPE = 'entity-info';
 ComponentService.DASHBOARD_COMPONENT_TYPE = 'dashboard';
-ComponentService.FORM_VALUE = 'form-value';
+ComponentService.FORM_ATTRIBUTE_RENDERER = 'form-attribute-renderer';

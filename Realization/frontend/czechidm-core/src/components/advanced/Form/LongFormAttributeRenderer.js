@@ -1,6 +1,6 @@
 import Joi from 'joi';
 //
-import TextFormValue from './TextFormValue';
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
  * Long form value component
@@ -9,7 +9,7 @@ import TextFormValue from './TextFormValue';
  *
  * @author Radek Tomiška
  */
-export default class LongFormValue extends TextFormValue {
+export default class LongFormAttributeRenderer extends TextFormAttributeRenderer {
 
   /**
    * Returns joi validator by persistent type

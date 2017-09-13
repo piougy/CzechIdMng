@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
 /**

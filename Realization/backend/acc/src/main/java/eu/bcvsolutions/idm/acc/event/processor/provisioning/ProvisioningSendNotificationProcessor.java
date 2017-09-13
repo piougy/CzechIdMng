@@ -6,10 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -25,26 +27,30 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 
 @Component
 @Description("After success provisioning send notification to identity with new generate password.")
-public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
 	public static final String PROCESSOR_NAME = "provisioning-send-notification-processor";
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final IdmIdentityService identityService;
+	private final SysSystemService systemService;
 	
 	@Autowired
 	public ProvisioningSendNotificationProcessor(NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService,
-			IdmIdentityService identityService) {
+			IdmIdentityService identityService,
+			SysSystemService systemService) {
 		super(ProvisioningEventType.CREATE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(identityService);
+		Assert.notNull(systemService);
 		//
 		this.identityService = identityService;
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
+		this.systemService = systemService;
 	}
 
 	@Override
@@ -53,8 +59,8 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	}
 
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
-		SysProvisioningOperation provisioningOperation = event.getContent();
+	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		IdmIdentityDto identity = null;
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			identity = identityService.get(provisioningOperation.getEntityIdentifier());
@@ -67,11 +73,12 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 					GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
 					//
 					// send message with new password to identity, topic has connection to templates
+					SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 					notificationManager.send(
 							AccModuleDescriptor.TOPIC_NEW_PASSWORD,
 							new IdmMessageDto.Builder()
 							.setLevel(NotificationLevel.SUCCESS)
-							.addParameter("systemName", provisioningOperation.getSystem().getName())
+							.addParameter("systemName", system.getName())
 							.addParameter("uid", provisioningOperation.getSystemEntityUid())
 							.addParameter("password", password)
 							.build(),

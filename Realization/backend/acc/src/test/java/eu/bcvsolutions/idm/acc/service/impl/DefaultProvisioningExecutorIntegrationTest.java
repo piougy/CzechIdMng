@@ -18,16 +18,16 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -75,8 +75,6 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
-	@Autowired
-	private SysSystemEntityRepository systemEntityRepository;
 	//	
 	private SysProvisioningOperationService sysProvisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
@@ -136,7 +134,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		initSystem();
 		//
 		// create test provisioning context
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		SysSystemEntityDto systemEntity = new SysSystemEntityDto("oneUid", SystemEntityType.IDENTITY);
 		systemEntity.setSystem(system.getId());
 		systemEntity.setWish(true);
@@ -162,10 +160,10 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
-		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
-				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
+				.setSystemEntity(systemEntity.getId())
+				.setProvisioningContext(new ProvisioningContextDto(accoutObject, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 		//
 		// check target account
@@ -203,7 +201,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		system = systemService.save(system);
 		//
 		// create test provisioning context
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		String systemEntityUid = "twoUid";
 		SysSystemEntityDto systemEntity = new SysSystemEntityDto(systemEntityUid, SystemEntityType.IDENTITY);
 		systemEntity.setSystem(system.getId());
@@ -227,11 +225,13 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
-		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
-				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
-		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
+				.setSystemEntity(systemEntity.getId())
+				.setProvisioningContext(new ProvisioningContextDto(accoutObject, connectorObject));
+		SysProvisioningOperationDto operation = provisioningExecutor.execute(operationBuilder.build());
+		// is necessary to get again operation from service
+		operation = sysProvisioningOperationService.get(operation.getId());
 		//
 		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_DISABLED.name(), operation.getResult().getModel().getStatusEnum());
@@ -245,10 +245,10 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// password is stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
+		assertNotNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
 		//
 		system.setDisabled(false);
-		systemService.save(system);
+		system = systemService.save(system);
 		//
 		provisioningExecutor.execute(operation);
 		//
@@ -274,7 +274,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(systemEntityUid, attribute.getUidValue());
 		// password is removed in confidential storage
-		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
+		assertNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
 	}
 	
 	@Test
@@ -284,7 +284,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		system = systemService.save(system);
 		//
 		// create test provisioning context
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		String systemEntityUid = "threeUid";
 		SysSystemEntityDto systemEntity = new SysSystemEntityDto(systemEntityUid, SystemEntityType.IDENTITY);
 		systemEntity.setSystem(system.getId());
@@ -308,11 +308,13 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
-		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
-				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
-		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
+				.setSystemEntity(systemEntity.getId())
+				.setProvisioningContext(new ProvisioningContextDto(accoutObject, connectorObject));
+		SysProvisioningOperationDto operation = provisioningExecutor.execute(operationBuilder.build());
+		// is necessary to get again operation from service
+		operation = sysProvisioningOperationService.get(operation.getId());
 		//
 		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), operation.getResult().getModel().getStatusEnum());
@@ -326,13 +328,13 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// passwords are stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey( passwordAttributeMappingKey.getKey(), 0)));
-		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMappingKey.getSchemaAttributeName()), 0)));
+		assertNotNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, sysProvisioningOperationService.createAccountObjectPropertyKey( passwordAttributeMappingKey.getKey(), 0)));
+		assertNotNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMappingKey.getSchemaAttributeName()), 0)));
 		//
 		system.setReadonly(false);
 		system = systemService.save(system);
 		//
-		provisioningExecutor.execute(operation);
+		operation = provisioningExecutor.execute(operation);
 		//
 		// check target account
 		existsConnectorObject = connectorFacade.readObject(
@@ -356,7 +358,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(systemEntityUid, attribute.getUidValue());
 		// passwords are removed in confidential storage
-		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(),
+		assertNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class,
 				sysProvisioningOperationService.createAccountObjectPropertyKey(
 						schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(), 0)));
 		//
@@ -366,7 +368,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 								.get(passwordAttributeMapping.getSchemaAttribute()).getName()),
 				0);
 		//
-		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), connectorObjectPropertyKey));
+		assertNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, connectorObjectPropertyKey));
 	}
 	
 	// TODO: batch test - create, update, update, delete - all has to be processed, batch needs to be cleared

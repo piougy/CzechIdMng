@@ -6,6 +6,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { SecurityManager, FormAttributeManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
+import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
 const attributeManager = new FormAttributeManager();
 
@@ -81,8 +82,8 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                 <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.TextField
-                      ref="code"
-                      placeholder={this.i18n('filter.code')}/>
+                      ref="text"
+                      placeholder={this.i18n('filter.text.placeholder')}/>
                   </div>
                   <div className="col-lg-6 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -130,12 +131,31 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
             }
             sort={false}
             _searchParameters={ this.getSearchParameters() }/>
-          <Advanced.Column property="seq" header={ this.i18n('entity.FormAttribute.seq.label') } sort width="5%"/>
           <Advanced.Column property="code" header={ this.i18n('entity.FormAttribute.code.label') } sort/>
           <Advanced.Column property="name" header={ this.i18n('entity.FormAttribute.name.label') } sort/>
-          <Advanced.Column property="persistentType" sort />
-          <Advanced.Column property="faceType" sort />
+          <Advanced.Column property="persistentType" sort face="enum" enumClass={ PersistentTypeEnum } />
+          <Advanced.Column
+            property="faceType"
+            cell={
+              ({ data, rowIndex, property }) => {
+                const faceType = data[rowIndex][property] || data[rowIndex].persistentType;
+                const formComponent = attributeManager.getFormComponent(data[rowIndex]);
+                //
+                if (!formComponent) {
+                  return (
+                    <Basic.Label
+                      level="warning"
+                      value={ faceType }
+                      title={ this.i18n('component.advanced.EavForm.persistentType.unsupported.title', { name: data[rowIndex].persistentType, face: faceType }) } />
+                  );
+                }
+                return (
+                  <span>{ formComponent.labelKey ? this.i18n(formComponent.labelKey) : faceType }</span>
+                );
+              }
+            }/>
           <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
+          <Advanced.Column property="seq" header={ this.i18n('entity.FormAttribute.seq.label') } sort width="5%"/>
         </Advanced.Table>
       </div>
       );

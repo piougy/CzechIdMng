@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
-import ComponentService from '../../../services/ComponentService';
+import { FormAttributeManager } from '../../../redux';
 //
-const componentService = new ComponentService();
+const attributeManager = new FormAttributeManager();
 
 /**
  * Content of eav form by given form instance (= form definition + form values)
@@ -78,25 +78,6 @@ export default class EavForm extends Basic.AbstractContextComponent {
     return filledFormValues;
   }
 
-  /**
-   * Returns form value component by form attribute's face and persistent type
-   *
-   * @param  {FormAttribute} attribute
-   * @return {object} component or null
-   */
-  _getComponent(attribute) {
-    if (!attribute) {
-      return null;
-    }
-    return componentService.getComponentDefinitions(ComponentService.FORM_VALUE).find(component => {
-      if (!component.faceType) {
-        return false;
-      }
-      // by face type or persistnet type - face type is not required => by persistent type by default
-      return component.faceType.toLowerCase() === (attribute.faceType ? attribute.faceType.toLowerCase() : attribute.persistentType.toLowerCase());
-    });
-  }
-
   render() {
     const { formInstance, rendered, showLoading, readOnly } = this.props;
     //
@@ -119,7 +100,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
       <span>
         {
           formInstance.getAttributes().map(attribute => {
-            const component = this._getComponent(attribute);
+            const component = attributeManager.getFormComponent(attribute);
             if (!component) {
               return (
                 <Basic.LabelWrapper label={attribute.name}>

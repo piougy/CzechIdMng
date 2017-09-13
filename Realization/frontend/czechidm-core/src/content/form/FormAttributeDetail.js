@@ -6,25 +6,24 @@ import Joi from 'joi';
 import * as Basic from '../../components/basic';
 import { FormAttributeManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
+import ComponentService from '../../services/ComponentService';
+//
+const componentService = new ComponentService();
+const manager = new FormAttributeManager();
 
 /**
- * Form attribute manager for saving attributes
- * @type {FormAttributeManager}
+ * Form attribute detail
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
  */
-const manager = new FormAttributeManager();
-
-/**
-* Form attribute detail
-*/
 class FormAttributeDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
       _showLoading: false,
+      persistentType: null
     };
   }
 
@@ -45,11 +44,17 @@ class FormAttributeDetail extends Basic.AbstractContent {
           formDefinition: this._getFormDefinitionId()
         }, null, () => {
           this.refs.name.focus();
+          this.setState({
+            persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.TEXT)
+          });
         }));
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
+      this.context.store.dispatch(manager.fetchEntity(entityId, null, (entity) => {
         this.refs.code.focus();
+        this.setState({
+          persistentType: entity.persistentType
+        });
       }));
     }
   }
@@ -128,18 +133,54 @@ class FormAttributeDetail extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * Change persistent type listener
+   * @param  {SelectBox.option} persistentType option from enum select box
+   */
+  onChangePersistentType(persistentType) {
+    this.setState( {
+      persistentType: persistentType.value
+    }, () => {
+      // clear selected face type
+      this.refs.faceType.setValue(null);
+    });
+  }
+
+  /**
+   * Face types enum select box options by selected persistent type
+   *
+   * @return {arrayOf(SelectBox.option)}
+   */
+  getFaceTypes() {
+    const { persistentType } = this.state;
+    if (!persistentType) {
+      return [];
+    }
+    //
+    const types = componentService.getComponentDefinitions(ComponentService.FORM_VALUE)
+      .filter(component => {
+        if (!component.persistentType) {
+          // persistent type is required
+          return false;
+        }
+        // persistent type has to fit
+        return component.persistentType === persistentType;
+      })
+      .toArray()
+      .map(component => {
+        const _faceType = component.faceType || component.persistentType;
+        return {
+          value: _faceType,
+          niceLabel: `${ component.labelKey ? this.i18n(component.labelKey) : _faceType }${ _faceType === component.persistentType ? ` (${ this.i18n('label.default') })` : '' }`
+        };
+      });
+    return types;
+  }
+
   render() {
     const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
-    let loadedEntity = null;
-    if (entity) {
-      loadedEntity = {
-        ...entity,
-        seq: '' + entity.seq
-        // persistentType: PersistentTypeEnum.findSymbolForKey(entity.persistentType)
-      };
-    }
-
+    //
     return (
       <div>
         {
@@ -170,7 +211,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
             <form onSubmit={this.save.bind(this)}>
               <Basic.AbstractForm
                 ref="form"
-                data={loadedEntity}
+                data={ entity }
                 showLoading={showLoading || _showLoading}
                 readOnly={ !manager.canSave(entity, _permissions) }
                 style={{ padding: '15px 15px 0 15px' }}>
@@ -206,12 +247,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 4 }>
                     <Basic.EnumSelectBox
                       ref="persistentType"
-                      enum={PersistentTypeEnum}
+                      enum={ PersistentTypeEnum }
                       readOnly={this._isUnmodifiable()}
                       label={this.i18n('entity.FormAttribute.persistentType')}
+                      onChange={ this.onChangePersistentType.bind(this) }
                       max={255}
-                      useSymbol={false}
-                      required/>
+                      useSymbol={ false }
+                      required
+                      clearable={ false }/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
@@ -222,11 +265,12 @@ class FormAttributeDetail extends Basic.AbstractContent {
                 </Basic.Row>
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
-                    <Basic.TextField
+                    <Basic.EnumSelectBox
                       ref="faceType"
+                      options={ this.getFaceTypes() }
                       label={ this.i18n('entity.FormAttribute.faceType.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
-                      max={255}/>
+                      placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField

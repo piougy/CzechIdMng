@@ -77,6 +77,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data.created";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
+	public static final String FORM_ATTRIBUTE_UUID = "uuid";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	public static final String DEFAULT_ROLE_NAME = "userRole";
@@ -437,6 +438,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				datetime.setName("Date and time");
 				datetime.setPersistentType(PersistentType.DATETIME);
 				datetime = formService.saveAttribute(IdmIdentity.class, datetime);
+				
+				IdmFormAttributeDto uuid = new IdmFormAttributeDto();
+				uuid.setCode(FORM_ATTRIBUTE_UUID);
+				uuid.setName("UUID");
+				uuid.setDescription("Some uuid value");
+				uuid.setPersistentType(PersistentType.UUID);
+				uuid = formService.saveAttribute(IdmIdentity.class, uuid);
 				
 				IdmFormAttributeDto webPages = new IdmFormAttributeDto();
 				webPages.setCode(FORM_ATTRIBUTE_WWW);

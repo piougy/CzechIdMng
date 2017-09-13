@@ -40,6 +40,7 @@
     "validFrom": "$t(entity.validFrom)",
     "validTill": "$t(entity.validTill)",
     "select": "Select ...",
+    "default": "Default",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
     "disabled": "Disabled",
@@ -322,6 +323,25 @@
             "title": "Unsupported persistentType [{{name}}] with face [{{face}}]",
             "confidential": "Confidential for type [{{name}}] with face [{{face}}] is not supported"
           }
+        },
+        "faceType": {
+          "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
+          "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "INT": "$t(enums.PersistentTypeEnum.INT)",
+          "LONG": "$t(enums.PersistentTypeEnum.LONG)",
+          "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
+          "BOOLEAN": "$t(enums.PersistentTypeEnum.BOOLEAN)",
+          "DATE": "$t(enums.PersistentTypeEnum.DATE)",
+          "DATETIME": "$t(enums.PersistentTypeEnum.DATETIME)",
+          "BYTEARRAY": "$t(enums.PersistentTypeEnum.BYTEARRAY)",
+          "UUID": "$t(enums.PersistentTypeEnum.UUID)",
+          "CURRENCY": "Currency",
+          "TEXTAREA": "TextArea",
+          "RICHTEXTAREA": "WYSIWYG editor",
+          "IDENTITY-SELECT": "Select identity (SelectBox)"
+        },
+        "attributes": {
+          "empty": "Form definition was found, but doesn't contain attributes."
         }
       },
       "Recaptcha": {
@@ -1096,7 +1116,11 @@
         "success": "Attribute [{{name}}] successfully saved"
       },
       "filter": {
-        "code": "Code"
+        "code": "Code",
+        "text": {
+          "label": "Text",
+          "placeholder": "Code / Name / Description"
+        }
       }
     },
     "scripts": {
@@ -2103,6 +2127,7 @@
       "persistentType": "Attribute type",
       "faceType": {
         "label": "Face type",
+        "placeholder": "Select face type or leave it default ...",
         "help": "Choose attribute renderer. Default renderer is chosen by attribute type."
       },
       "description": "Description",

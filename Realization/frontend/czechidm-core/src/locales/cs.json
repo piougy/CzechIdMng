@@ -40,6 +40,7 @@
     "validFrom": "$t(entity.validFrom)",
     "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
+    "default": "Výchozí",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
@@ -362,6 +363,22 @@
             "confidential": "Tajný typ [{{name}}] s face [{{face}}] není podporovaný (opravte definici formuláře)"
           }
         },
+        "faceType": {
+          "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
+          "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "INT": "$t(enums.PersistentTypeEnum.INT)",
+          "LONG": "$t(enums.PersistentTypeEnum.LONG)",
+          "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
+          "BOOLEAN": "$t(enums.PersistentTypeEnum.BOOLEAN)",
+          "DATE": "$t(enums.PersistentTypeEnum.DATE)",
+          "DATETIME": "$t(enums.PersistentTypeEnum.DATETIME)",
+          "BYTEARRAY": "$t(enums.PersistentTypeEnum.BYTEARRAY)",
+          "UUID": "$t(enums.PersistentTypeEnum.UUID)",
+          "CURRENCY": "Měna",
+          "TEXTAREA": "Textové pole (TextArea)",
+          "RICHTEXTAREA": "WYSIWYG editor",
+          "IDENTITY-SELECT": "Výběr identit (SelectBox)"
+        },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
         }
@@ -423,9 +440,9 @@
     "PersistentTypeEnum": {
       "CHAR": "Znak",
       "TEXT": "Text",
-      "INT": "Integer",
-      "LONG": "Long",
-      "DOUBLE": "Double",
+      "INT": "Integer (celé číslo)",
+      "LONG": "Long (celé číslo)",
+      "DOUBLE": "Reálné číslo",
       "BOOLEAN": "Boolean",
       "DATE": "Datum",
       "DATETIME": "Datum + čas",
@@ -1153,7 +1170,11 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "code": "Kód položky"
+        "code": "Kód položky",
+        "text": {
+          "label": "Text",
+          "placeholder": "Kód / Název / Popis"
+        }
       }
     },
     "scripts": {
@@ -1173,7 +1194,7 @@
         "success": "Skript [{{name}}] bylo úspěšně uložen"
       },
       "filter": {
-        "text": "Kód /Název / Popis"
+        "text": "Kód / Název / Popis"
       }
     },
     "scriptAuthorities": {
@@ -2163,6 +2184,7 @@
       "persistentType": "Typ atributu",
       "faceType": {
         "label": "Typ zobrazení",
+        "placeholder": "Vyberte typ zobrazení nebo ponechte výchozí ...",
         "help": "Určuje typ zobrazení atributu na formuláři. Defaultně se typ zobrazení řídí typem atributu."
       },
       "description": "Popis",

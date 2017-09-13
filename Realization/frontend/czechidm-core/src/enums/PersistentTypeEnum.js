@@ -2,6 +2,8 @@ import AbstractEnum from '../enums/AbstractEnum';
 
 /**
  * Persistent type enum for EAVs
+ *
+ * @author Radek Tomiška
  */
 export default class PersistentTypeEnum extends AbstractEnum {
 

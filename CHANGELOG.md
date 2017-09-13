@@ -22,6 +22,11 @@ All notable changes to this project will be documented in this file.
 #### Core module
 
 - ``AuthorizableEntityService`` was removed - ``AuthorizableService`` is used for adding authorization policies support for dto services.
+- Application property **idm.pub.core.notification.template.folder** was changed to **idm.sec.core.notification.template.folder**.
+- Application property **idm.pub.core.notification.template.fileSuffix** was changed to **idm.sec.core.notification.template.fileSuffix**.
+- Application property **idm.pub.core.script.folder** was changed to **idm.sec.core.script.folder**.
+- Application property **idm.pub.core.script.fileSuffix** was changed to **idm.sec.core.script.fileSuffix**.
+
 
 ##### Event processiong
 

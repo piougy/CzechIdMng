@@ -86,16 +86,6 @@ public class DefaultAccRoleCatalogueAccountService
 		}
 	}
 
-	//
-//	"select e from AccRoleCatalogueAccount e" +
-//			" where" +
-//			" (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
-//			" and" +
-//			" (?#{[0].roleCatalogueId} is null or e.roleCatalogue.id = ?#{[0].roleCatalogueId})"+
-//			" and" +
-//			" (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})" +
-//			" and" +
-//			" (?#{[0].ownership} is null or e.ownership = ?#{[0].ownership})"
 	@Override
 	protected List<Predicate> toPredicates(Root<AccRoleCatalogueAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleCatalogueAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);

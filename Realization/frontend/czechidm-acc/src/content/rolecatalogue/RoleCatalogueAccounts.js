@@ -10,7 +10,7 @@ import AccountTypeEnum from '../../domain/AccountTypeEnum';
 const uiKey = 'role-catalogue-accounts-table';
 const manager = new RoleCatalogueAccountManager();
 const accountManager = new AccountManager();
-const roleManager = new Managers.RoleCatalogueManager();
+const roleCatalogueManager = new Managers.RoleCatalogueManager();
 
 /**
  * Role catalogue accounts
@@ -32,7 +32,7 @@ class RoleCatalogueAccounts extends Advanced.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.role.accounts';
+    return 'acc:content.roleCatalogue.accounts';
   }
 
   getNavigationKey() {
@@ -58,8 +58,8 @@ class RoleCatalogueAccounts extends Advanced.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     const state = this.context.store.getState();
     if (Utils.Entity.isNew(formEntity)) {
-      const role = Utils.Entity.getEntity(state, roleManager.getEntityType(), formEntity.identity);
-      formEntity.role = role.id;
+      const roleCatalogue = Utils.Entity.getEntity(state, roleCatalogueManager.getEntityType(), formEntity.identity);
+      formEntity.roleCatalogue = roleCatalogue.id;
       formEntity.account = formEntity.account;
     }
     //

@@ -16,17 +16,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
 import javax.validation.constraints.NotNull;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Persisted "active" provisioning operation. Any operation has request and batch.
@@ -41,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_entity_sys_e_id", columnList = "system_entity_id"),
 		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier")
 		})
-public class SysProvisioningOperation extends AbstractEntity implements ProvisioningOperation {
+public class SysProvisioningOperation extends AbstractEntity {
 
 	private static final long serialVersionUID = -6191740329296942394L;
 	
@@ -64,13 +60,19 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	@Column(name = "entity_identifier")
 	private UUID entityIdentifier;
 	
-	@NotNull
 	@OneToOne(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysProvisioningRequest request;
+	private SysProvisioningRequest requestEntity; // its there only for filtering in jpa query
 	
-	@Override
+	public SysProvisioningRequest getRequestEntity() {
+		return requestEntity;
+	}
+
+	public void setRequestEntity(SysProvisioningRequest requestEntity) {
+		this.requestEntity = requestEntity;
+	}
+
 	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
@@ -88,7 +90,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		this.systemEntity = systemEntity;
 	}
 	
-	@Override
 	public SysSystem getSystem() {
 		if (systemEntity == null) {
 			return null;
@@ -96,7 +97,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return systemEntity.getSystem();
 	}
 
-	@Override
 	public SystemEntityType getEntityType() {
 		if (systemEntity == null) {
 			return null;
@@ -104,7 +104,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return systemEntity.getEntityType();
 	}	
 	
-	@Override
 	public String getSystemEntityUid() {
 		if (systemEntity == null) {
 			return null;
@@ -112,7 +111,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return systemEntity.getUid();
 	}
 
-	@Override
 	public UUID getEntityIdentifier() {
 		return entityIdentifier;
 	}
@@ -121,41 +119,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		this.entityIdentifier = entityIdentifier;
 	}
 	
-	@Override
-	public OperationState getResultState() {
-		if (request != null && request.getResult() != null) {
-			return request.getResult().getState();
-		}
-		return null;
-	}
-	
-	public void setResultState(OperationState resultState) {
-		if (request != null) {
-			if (request.getResult() == null) {
-				request.setResult(new OperationResult(resultState));
-			} else {
-				request.getResult().setState(resultState);
-			}
-		}
-	}
-	
-	@Override
-	public OperationResult getResult() {
-		if (request != null) {
-			return request.getResult();
-		}
-		return null;
-	}
-	
-	public void setRequest(SysProvisioningRequest request) {
-		this.request = request;
-	}
-	
-	public SysProvisioningRequest getRequest() {
-		return request;
-	}
-	
-	@Override
 	public ProvisioningContext getProvisioningContext() {
 		return provisioningContext;
 	}

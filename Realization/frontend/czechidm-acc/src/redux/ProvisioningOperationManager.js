@@ -42,7 +42,7 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
         // resolve batch ids;
         let idSet = new Immutable.Set();
         _ids.forEach(id => {
-          idSet = idSet.add(this.getEntity(getState(), id).request.batch.id);
+          idSet = idSet.add(this.getEntity(getState(), id).request.batch);
         });
         //
         ids = idSet.toArray();

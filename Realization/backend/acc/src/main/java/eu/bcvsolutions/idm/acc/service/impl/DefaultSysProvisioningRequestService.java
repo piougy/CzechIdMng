@@ -66,8 +66,9 @@ public class DefaultSysProvisioningRequestService
 
 	@Override
 	public List<SysProvisioningRequestDto> getByTimelineAndBatchId(UUID batchId) {
+		// sort from higher created
 		List<SysProvisioningRequestDto> sortedList = this.findByBatchId(batchId, new PageRequest(0, Integer.MAX_VALUE,
-				new Sort(Direction.DESC, SysProvisioningRequest_.created.getName()))).getContent();
+				new Sort(Direction.ASC, SysProvisioningRequest_.created.getName()))).getContent();
 		return Collections.unmodifiableList(sortedList);
 	}
 

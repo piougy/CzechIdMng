@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
@@ -166,13 +165,12 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		batch = batchService.get(batch.getId());
 		//		
 		for (SysProvisioningRequestDto request : requestService.getByTimelineAndBatchId(batch.getId())) {
-			SysProvisioningOperationDto provisioningOperation = DtoUtils.getEmbedded(request, SysProvisioningRequest_.operation, SysProvisioningOperationDto.class);
+			// It not possible to get operation from embedded, because missing request
+			SysProvisioningOperationDto provisioningOperation = provisioningOperationService.get(request.getOperation());
 			SysProvisioningOperationDto operation = executeInternal(provisioningOperation); // not run in transaction
 			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
 				return;
 			}
-			// TODO: is this necessary 
-			// batch.removeRequest(request);
 		}
 	}
 
@@ -182,7 +180,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(batch);
 		//
 		for (SysProvisioningRequestDto request : requestService.getByTimelineAndBatchId(batch.getId())) {
-			cancel(DtoUtils.getEmbedded(request, SysProvisioningRequest_.operation, SysProvisioningOperationDto.class));
+			// It not possible get operation from embedded, missing request
+			cancel(provisioningOperationService.get(request.getOperation()));
 		}
 	}
 }

@@ -154,9 +154,11 @@ public class DefaultSysProvisioningOperationService
 			confidentialStorage.save(dto.getId(), SysProvisioningOperation.class, entry.getKey(), entry.getValue());
 		}
 		// set operation id to request, save and set back to operation
-		requestDto.setOperation(dto.getId());
-		requestDto = requestService.save(requestDto);
-		dto.setRequest(requestDto);
+		if (requestDto != null) {
+			requestDto.setOperation(dto.getId());
+			requestDto = requestService.save(requestDto);
+			dto.setRequest(requestDto);
+		}
 		//
 		return dto;
 	}
@@ -176,7 +178,7 @@ public class DefaultSysProvisioningOperationService
 
 		SysProvisioningBatchDto batch = batchService.get(request.getBatch());
 		
-		if (requestService.findByBatchId(batch.getId(), null).getSize() <= 1) {
+		if (requestService.findByBatchId(batch.getId(), null).getNumberOfElements() <= 1) {
 			batchService.delete(batch);
 		}
 		provisioningRequestService.delete(request);

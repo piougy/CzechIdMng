@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -52,17 +51,12 @@ public class DefaultSysProvisioningBatchService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public SysProvisioningBatchDto get(Serializable id, BasePermission ...permissions) {
-		SysProvisioningBatchDto batch = super.get(id, permissions);
-		return batch;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
 	public SysProvisioningBatchDto findBatch(SysProvisioningOperationDto operation) {
-		// TODO:update repository method to UUID, not object
-		SysProvisioningBatchDto batch = toDto(repository.findBatch(operationRepository.findOne(operation.getId())));
-		return batch;
+		if (operation.getId() == null) {
+			return null;
+		}
+		// TODO: update repository method to UUID, not object
+		return toDto(repository.findBatch(operationRepository.findOne(operation.getId())));
 	}
 	
 	@Override

@@ -24,7 +24,7 @@ public class SysProvisioningRequestDto extends AbstractDto {
 	private int currentAttempt = 0;
 	private int maxAttempts;
 	@Embedded(dtoClass = SysProvisioningOperationDto.class)
-	private SysProvisioningOperationDto operation;
+	private UUID operation;
 	private OperationResultDto result;
 	@Embedded(dtoClass = SysProvisioningBatchDto.class)
 	private UUID batch;
@@ -32,7 +32,7 @@ public class SysProvisioningRequestDto extends AbstractDto {
 	public SysProvisioningRequestDto() {
 	}
 
-	public SysProvisioningRequestDto(SysProvisioningOperationDto operation) {
+	public SysProvisioningRequestDto(UUID operation) {
 		this.operation = operation;
 	}
 
@@ -52,11 +52,11 @@ public class SysProvisioningRequestDto extends AbstractDto {
 		this.maxAttempts = maxAttempts;
 	}
 
-	public SysProvisioningOperationDto getOperation() {
+	public UUID getOperation() {
 		return operation;
 	}
 
-	public void setOperation(SysProvisioningOperationDto operation) {
+	public void setOperation(UUID operation) {
 		this.operation = operation;
 	}
 

@@ -11,12 +11,13 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.modelmapper.ModelMapper;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -55,6 +56,10 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	private SysProvisioningRequestService requestService;
 	@Mock
 	private SysSystemService systemService;
+	@Mock
+	private ModelMapper modelMapper;
+	@Mock
+	private SysProvisioningRequestService provisioningRequestService;
 	
 	
 	DefaultSysProvisioningOperationService service;
@@ -69,7 +74,9 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 				notificationManager, 
 				confidentialStorage,
 				requestService,
-				systemService);
+				systemService,
+				modelMapper,
+				provisioningRequestService);
 	}
 	
 	@Test
@@ -79,7 +86,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceGuardedStringsInEmptyAccountObject() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		Map<ProvisioningAttributeDto, Object> accoutObjet = new HashMap<>();
 		context.setAccountObject(accoutObjet);		
 		Map<String, Serializable> confidentialValues = service.replaceGuardedStrings(context);		
@@ -88,7 +95,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceSingleGuardedStringsInAccountObject() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
@@ -112,7 +119,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceGuardedStringsInConnectorObject() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
 		context.setConnectorObject(connectorObject);
 		//
@@ -137,7 +144,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceArrayGuardedStringsInAccountObject() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
@@ -161,7 +168,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceCollectionGuardedStringsInAccountObject() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContextDto context = new ProvisioningContextDto();
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//

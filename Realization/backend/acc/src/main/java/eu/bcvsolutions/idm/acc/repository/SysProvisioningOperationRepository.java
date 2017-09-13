@@ -48,7 +48,7 @@ public interface SysProvisioningOperationRepository extends AbstractEntityReposi
         	+ " and "
         	+ " (?#{[0].systemEntityUid} is null or e.systemEntity.uid = ?#{[0].systemEntityUid})"
         	+ " and "
-        	+ " (?#{[0].resultState} is null or e.request.result.state = ?#{[0].resultState})")
+        	+ " (?#{[0].resultState} is null or e.requestEntity.result.state = ?#{[0].resultState})")
 	Page<SysProvisioningOperation> find(ProvisioningOperationFilter filter, Pageable pageable);
 	
 	/**

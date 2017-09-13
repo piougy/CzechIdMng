@@ -22,9 +22,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Persisted "active" provisioning operation. Any operation has request and batch.
@@ -62,12 +60,19 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@Column(name = "entity_identifier")
 	private UUID entityIdentifier;
 	
-	@NotNull
 	@OneToOne(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysProvisioningRequest request;
+	private SysProvisioningRequest requestEntity; // its there only for filtering in jpa query
 	
+	public SysProvisioningRequest getRequestEntity() {
+		return requestEntity;
+	}
+
+	public void setRequestEntity(SysProvisioningRequest requestEntity) {
+		this.requestEntity = requestEntity;
+	}
+
 	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
@@ -112,38 +117,6 @@ public class SysProvisioningOperation extends AbstractEntity {
 
 	public void setEntityIdentifier(UUID entityIdentifier) {
 		this.entityIdentifier = entityIdentifier;
-	}
-	
-	public OperationState getResultState() {
-		if (request != null && request.getResult() != null) {
-			return request.getResult().getState();
-		}
-		return null;
-	}
-	
-	public void setResultState(OperationState resultState) {
-		if (request != null) {
-			if (request.getResult() == null) {
-				request.setResult(new OperationResult(resultState));
-			} else {
-				request.getResult().setState(resultState);
-			}
-		}
-	}
-	
-	public OperationResult getResult() {
-		if (request != null) {
-			return request.getResult();
-		}
-		return null;
-	}
-	
-	public void setRequest(SysProvisioningRequest request) {
-		this.request = request;
-	}
-	
-	public SysProvisioningRequest getRequest() {
-		return request;
 	}
 	
 	public ProvisioningContext getProvisioningContext() {

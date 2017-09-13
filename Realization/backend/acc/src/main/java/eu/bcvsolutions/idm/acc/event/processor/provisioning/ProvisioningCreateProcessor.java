@@ -67,10 +67,10 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 
 	@Override
 	public IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig) {
-		// execute provisioning
-		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();		
-		// 	
+		// get system for password policy
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
+		// execute provisioning
+		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		for (IcAttribute attribute : connectorObject.getAttributes()) {
 			// if attribute is password and his value is empty, generate new password
 			if(attribute instanceof IcPasswordAttribute 
@@ -95,8 +95,9 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		IcUidAttribute icUid = connectorFacade.createObject(system.getConnectorInstance(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
 		//
-		provisioningOperationService.save(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
-		//
+		// set connector object back to provisioning context
+		provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
+		provisioningOperation = provisioningOperationService.save(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
 		return icUid;
 	}
 	

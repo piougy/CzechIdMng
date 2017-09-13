@@ -24,12 +24,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
@@ -93,7 +93,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
-	private final SysProvisioningRequestService reguestService;
+	private final SysProvisioningRequestService requestService;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -107,7 +107,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSchemaAttributeService schemaAttributeService,
 			SysProvisioningArchiveService provisioningArchiveService,
 			SysSchemaObjectClassService schemaObjectClassService,
-			SysProvisioningRequestService reguestService) {
+			SysProvisioningRequestService requestService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
@@ -120,7 +120,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		Assert.notNull(schemaAttributeService);
 		Assert.notNull(provisioningArchiveService);
 		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(reguestService);
+		Assert.notNull(requestService);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -131,7 +131,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.schemaAttributeService = schemaAttributeService;
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.schemaObjectClassService = schemaObjectClassService;
-		this.reguestService = reguestService;
+		this.requestService = requestService;
 	}
 	
 	@Override
@@ -177,12 +177,13 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				processUpdate(provisioningOperation, connectorConfig, existsConnectorObject);
 			}
 			//
-			provisioningOperationService.save(provisioningOperation);
-			//
 			LOG.debug("Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
 					provisioningOperation.getOperationType(), 
 					provisioningOperation.getSystemEntityUid(),
 					objectClass.getType());
+			// set back to event content
+			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this);
 		} catch (Exception ex) {
 			ResultModel resultModel;
@@ -197,16 +198,19 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							"objectClass", objectClass.getType()));
 			}
 			LOG.error(resultModel.toString(), ex);
-			SysProvisioningRequestDto request = reguestService.get(provisioningOperation.getRequest());
+			SysProvisioningRequestDto request = provisioningOperation.getRequest();
 			request.setResult(
 					new OperationResultDto.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			request = requestService.save(request);
 			//
-			provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			//
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
 					.setModel(resultModel)
 					.build());
+			// set back to event content
+			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this, true);
 		}
 	}
@@ -219,7 +223,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 */
 	private void processCreate(SysProvisioningOperationDto provisioningOperation) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
+		ProvisioningContextDto provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
 		// prepare provisioning attributes from account attributes
@@ -301,6 +305,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					connectorObject.getAttributes().add(createdAttribute);
 				}
 			}
+			provisioningContext.setConnectorObject(connectorObject);
 		}
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 	}
@@ -309,7 +314,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		String systemEntityUid = provisioningOperation.getSystemEntityUid();
-		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
+		ProvisioningContextDto provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
 		//

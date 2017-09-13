@@ -17,7 +17,7 @@ public class ProvisioningRequestFilter implements BaseFilter {
 	private UUID operationId;
 	private UUID batchId;
 
-	public UUID getOperation() {
+	public UUID getOperationId() {
 		return operationId;
 	}
 
@@ -29,7 +29,7 @@ public class ProvisioningRequestFilter implements BaseFilter {
 		return batchId;
 	}
 
-	public void setBatch(UUID batch) {
+	public void setBatchId(UUID batch) {
 		this.batchId = batch;
 	}
 

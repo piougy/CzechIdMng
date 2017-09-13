@@ -6,12 +6,16 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningRequestFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -56,15 +60,14 @@ public class DefaultSysProvisioningRequestService
 	@Override
 	public Page<SysProvisioningRequestDto> findByBatchId(UUID batchId,  Pageable pageable) {
 		ProvisioningRequestFilter filter = new ProvisioningRequestFilter();
-		filter.setBatch(batchId);
+		filter.setBatchId(batchId);
 		return this.find(filter, pageable);
 	}
 
 	@Override
 	public List<SysProvisioningRequestDto> getByTimelineAndBatchId(UUID batchId) {
-		// TODO: sorted in table?
-		List<SysProvisioningRequestDto> sortedList = this.findByBatchId(batchId, null).getContent();
-		Collections.sort(sortedList, (a, b) -> a.getCreated().compareTo(b.getCreated()));
+		List<SysProvisioningRequestDto> sortedList = this.findByBatchId(batchId, new PageRequest(0, Integer.MAX_VALUE,
+				new Sort(Direction.DESC, SysProvisioningRequest_.created.getName()))).getContent();
 		return Collections.unmodifiableList(sortedList);
 	}
 

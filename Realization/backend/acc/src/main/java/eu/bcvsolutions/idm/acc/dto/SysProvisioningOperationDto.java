@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
@@ -25,17 +24,16 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  *
  */
 @Relation(collectionRelation = "provisioningOperations")
-public class SysProvisioningOperationDto extends AbstractDto  implements ProvisioningOperation {
+public class SysProvisioningOperationDto extends AbstractDto implements ProvisioningOperation {
 
 	private static final long serialVersionUID = 3928289153591673531L;
 	
 	private ProvisioningEventType operationType;
-	private ProvisioningContext provisioningContext;
+	private ProvisioningContextDto provisioningContext;
 	@Embedded(dtoClass = SysSystemEntityDto.class)
 	private UUID systemEntity; // account, etc.
 	private UUID entityIdentifier;
-	@Embedded(dtoClass = SysProvisioningRequestDto.class)
-	private UUID request;
+	private SysProvisioningRequestDto request;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -45,11 +43,11 @@ public class SysProvisioningOperationDto extends AbstractDto  implements Provisi
 		this.operationType = operationType;
 	}
 
-	public ProvisioningContext getProvisioningContext() {
+	public ProvisioningContextDto getProvisioningContext() {
 		return provisioningContext;
 	}
 
-	public void setProvisioningContext(ProvisioningContext provisioningContext) {
+	public void setProvisioningContext(ProvisioningContextDto provisioningContext) {
 		this.provisioningContext = provisioningContext;
 	}
 
@@ -69,32 +67,41 @@ public class SysProvisioningOperationDto extends AbstractDto  implements Provisi
 		this.entityIdentifier = entityIdentifier;
 	}
 
-	public UUID getRequest() {
+	public SysProvisioningRequestDto getRequest() {
 		return request;
 	}
 
-	public void setRequest(UUID request) {
+	public void setRequest(SysProvisioningRequestDto request) {
 		this.request = request;
 	}
 
-	@Override
 	/**
 	 * systemDto is get by {@link DtoUtils#getEmbedded}
 	 */
+	@Override
 	public UUID getSystem() {
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class);
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class, null);
+		if (systemEntity == null) {
+			return null;
+		}
 		return systemEntity.getSystem();
 	}
 
 	@Override
 	public SystemEntityType getEntityType() {
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class);
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class, null);
+		if (systemEntity == null) {
+			return null;
+		}
 		return systemEntity.getEntityType();
 	}
 
 	@Override
 	public String getSystemEntityUid() {
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class);
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class, null);
+		if (systemEntity == null) {
+			return null;
+		}
 		return systemEntity.getUid();
 	}
 
@@ -103,12 +110,7 @@ public class SysProvisioningOperationDto extends AbstractDto  implements Provisi
 		if (this.request == null) {
 			return null;
 		}
-		SysProvisioningRequestDto requestDto = DtoUtils.getEmbedded(this, SysProvisioningOperation_.request, SysProvisioningRequestDto.class);
-
-		if (requestDto != null && requestDto.getResult() != null) {
-			return requestDto.getResult().getState();
-		}
-		return null;
+		return request.getResult().getState();
 	}
 
 	@Override
@@ -116,9 +118,7 @@ public class SysProvisioningOperationDto extends AbstractDto  implements Provisi
 		if (this.request == null) {
 			return null;
 		}
-		SysProvisioningRequestDto requestDto = DtoUtils.getEmbedded(this, SysProvisioningOperation_.request, SysProvisioningRequestDto.class);
-
-		return requestDto.getResult();
+		return request.getResult();
 	}
 
 	
@@ -130,7 +130,7 @@ public class SysProvisioningOperationDto extends AbstractDto  implements Provisi
 	 */
 	public static class Builder {
 		private ProvisioningEventType operationType;
-		private ProvisioningContext provisioningContext;
+		private ProvisioningContextDto provisioningContext;
 		private UUID entityIdentifier;
 		private UUID systemEntity;
 		
@@ -166,7 +166,7 @@ public class SysProvisioningOperationDto extends AbstractDto  implements Provisi
 			return this;
 		}
 		
-		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
+		public Builder setProvisioningContext(ProvisioningContextDto provisioningContext) {
 			this.provisioningContext = provisioningContext;
 			return this;
 		}

@@ -91,17 +91,19 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		//
 		if (provisioningOperationService.isNew(provisioningOperation)) {
 			// save new operation to provisioning log / queue
-			SysProvisioningBatchDto batch = batchService.findBatch(provisioningOperation);
+			SysProvisioningBatchDto batch = provisioningOperationService.findBatch(provisioningOperation);
 			SysProvisioningRequestDto request = new SysProvisioningRequestDto(provisioningOperation.getId());
 			if (batch == null) {
 				batch = batchService.save(new SysProvisioningBatchDto());
 				request.setResult(new OperationResultDto.Builder(OperationState.CREATED).build());
 			} else {
+				// get system entity from service, in provisioning operation may not exist
+				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity());
 				// put to queue
 				// TODO: maybe putting into queue has to run after disable and readonly system
 				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
 						ImmutableMap.of(
-								"name", provisioningOperation.getSystemEntityUid(), 
+								"name", systemEntity.getUid(), 
 								"system", system.getName(),
 								"operationType", provisioningOperation.getOperationType(),
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));

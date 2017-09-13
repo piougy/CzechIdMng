@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -60,7 +61,8 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	private ModelMapper modelMapper;
 	@Mock
 	private SysProvisioningRequestService provisioningRequestService;
-	
+	@Mock
+	private SysProvisioningBatchRepository batchRepository;
 	
 	DefaultSysProvisioningOperationService service;
 
@@ -76,7 +78,8 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 				requestService,
 				systemService,
 				modelMapper,
-				provisioningRequestService);
+				provisioningRequestService,
+				batchRepository);
 	}
 	
 	@Test

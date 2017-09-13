@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -67,4 +68,12 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @return
 	 */
 	String createConnectorObjectPropertyKey(IcAttribute property, int index);
+	
+	/**
+	 * Method find {@link SysProvisioningBatchDto} by {@link SysProvisioningOperationDto}.
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	SysProvisioningBatchDto findBatch(SysProvisioningOperationDto dto);
 }

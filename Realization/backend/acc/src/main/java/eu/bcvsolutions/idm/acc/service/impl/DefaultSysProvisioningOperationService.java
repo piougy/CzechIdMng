@@ -26,7 +26,9 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -69,6 +71,7 @@ public class DefaultSysProvisioningOperationService
 	
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysProvisioningBatchService batchService;
+	private final SysProvisioningBatchRepository batchRepository;
 	private final NotificationManager notificationManager;
 	private final ConfidentialStorage confidentialStorage;
 	private final SysProvisioningRequestService requestService;
@@ -87,7 +90,8 @@ public class DefaultSysProvisioningOperationService
 			SysProvisioningRequestService requestService,
 			SysSystemService systemService,
 			ModelMapper modelMapper,
-			SysProvisioningRequestService provisioningRequestService) {
+			SysProvisioningRequestService provisioningRequestService,
+			SysProvisioningBatchRepository batchRepository) {
 		super(repository);
 		//
 		Assert.notNull(provisioningRequestRepository);
@@ -99,6 +103,7 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(systemService);
 		Assert.notNull(modelMapper);
 		Assert.notNull(provisioningRequestService);
+		Assert.notNull(batchRepository);
 		//
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.batchService = batchService;
@@ -108,6 +113,7 @@ public class DefaultSysProvisioningOperationService
 		this.systemService = systemService;
 		this.modelMapper = modelMapper;
 		this.provisioningRequestService = provisioningRequestService;
+		this.batchRepository = batchRepository;
 	}
 	
 	@Override
@@ -538,5 +544,14 @@ public class DefaultSysProvisioningOperationService
 				});	
 			});
 		}
+	}
+
+	@Override
+	public SysProvisioningBatchDto findBatch(SysProvisioningOperationDto dto) {
+		SysProvisioningBatch entity = batchRepository.findBatch(this.toEntity(dto));
+		if (entity == null) {
+			return null;
+		}
+		return batchService.get(entity.getId());
 	}
 }

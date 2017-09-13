@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -18,14 +17,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  *
  */
 public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProvisioningBatchDto, EmptyFilter> {
-
-	/**
-	 * Finds batch for given operation.
-	 * 
-	 * @param operation
-	 * @return
-	 */
-	SysProvisioningBatchDto findBatch(SysProvisioningOperationDto operation);
 	
 	/**
 	 * Calculates when the request should be invoked

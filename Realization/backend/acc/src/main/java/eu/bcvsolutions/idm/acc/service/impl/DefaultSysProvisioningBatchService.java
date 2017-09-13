@@ -13,11 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -35,28 +33,15 @@ public class DefaultSysProvisioningBatchService
 		extends AbstractReadWriteDtoService<SysProvisioningBatchDto, SysProvisioningBatch, EmptyFilter> implements SysProvisioningBatchService {
 
 	private final SysProvisioningBatchRepository repository;
-	private final SysProvisioningOperationRepository operationRepository;
 	
 	@Autowired
 	public DefaultSysProvisioningBatchService(
-			SysProvisioningBatchRepository repository,
-			SysProvisioningOperationRepository operationRepository) {
+			SysProvisioningBatchRepository repository) {
 		super(repository);
 		//
-		Assert.notNull(operationRepository);
+		Assert.notNull(repository);
 		//
 		this.repository = repository;
-		this.operationRepository = operationRepository;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public SysProvisioningBatchDto findBatch(SysProvisioningOperationDto operation) {
-		if (operation.getId() == null) {
-			return null;
-		}
-		// TODO: update repository method to UUID, not object
-		return toDto(repository.findBatch(operationRepository.findOne(operation.getId())));
 	}
 	
 	@Override

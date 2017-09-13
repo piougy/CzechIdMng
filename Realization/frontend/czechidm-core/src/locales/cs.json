@@ -337,7 +337,7 @@
           "label": "multi",
           "title": "Podporuje zadání více hodnot. Co hodnota, to nový řádek",
           "unsupported": {
-            "title": "{{name}} - attribute cannot be multiple",
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be multiple",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
@@ -348,7 +348,7 @@
         },
         "single": {
           "unsupported": {
-            "title": "{{name}} - attribute cannot be single value",
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be single value",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",

@@ -43,7 +43,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
           unmodifiable: false,
           formDefinition: this._getFormDefinitionId()
         }, null, () => {
-          this.refs.name.focus();
+          this.refs.code.focus();
           this.setState({
             persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.TEXT)
           });

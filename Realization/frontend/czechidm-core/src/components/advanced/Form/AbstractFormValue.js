@@ -187,7 +187,7 @@ export default class AbstractFormValue extends Basic.AbstractContextComponent {
     return (
       <Basic.LabelWrapper label={ attribute.code } >
         <Basic.Alert level="warning" className="no-margin">
-          <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.title`, { name: attribute.persistentType }) }</div>
+          <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.title`, { name: attribute.persistentType, face: attribute.faceType }) }</div>
           <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.title`) }:</div>
           <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { formDefinition.type }</div>
           <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { formDefinition.code }</div>

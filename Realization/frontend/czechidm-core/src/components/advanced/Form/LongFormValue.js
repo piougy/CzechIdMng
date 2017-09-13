@@ -27,6 +27,13 @@ export default class LongFormValue extends TextFormValue {
     return validation;
   }
 
+  /**
+   * Fill form value field by persistent type from input value
+   *
+   * @param  {FormValue} formValue - form value
+   * @param  {object} formComponent value
+   * @return {FormValue}
+   */
   fillFormValue(formValue, rawValue) {
     formValue.longValue = rawValue;
     // TODO: validations for numbers

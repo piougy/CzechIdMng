@@ -298,7 +298,7 @@
           "label": "multi",
           "title": "Supports entering multiple values. Each value to new line.",
           "unsupported": {
-            "title": "{{name}} - attribute cannot be multiple",
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be multiple",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
@@ -309,7 +309,7 @@
         },
         "single": {
           "unsupported": {
-            "title": "{{name}} - attribute cannot be single value",
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be single value",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
@@ -320,7 +320,7 @@
         },
         "persistentType": {
           "unsupported": {
-            "title": "Unsupported persistentType [{{name}}] with face [{{face}}]",
+            "title": "Unsupported persistent type [{{name}}] with face [{{face}}]",
             "confidential": "Confidential for type [{{name}}] with face [{{face}}] is not supported"
           }
         },

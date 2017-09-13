@@ -1,6 +1,6 @@
 import Joi from 'joi';
 //
-import TextFormValue from './TextFormValue';
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
  * Double form value component
@@ -9,7 +9,7 @@ import TextFormValue from './TextFormValue';
  *
  * @author Radek Tomiška
  */
-export default class DoubleFormValue extends TextFormValue {
+export default class DoubleFormAttributeRenderer extends TextFormAttributeRenderer {
 
   /**
    * Returns joi validator by persistent type

@@ -1,14 +1,14 @@
 import React from 'react';
 //
 import * as Basic from '../../basic';
-import TextFormValue from './TextFormValue';
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
  * TextArea form value component
  *
  * @author Radek Tomiška
  */
-export default class TextAreaFormValue extends TextFormValue {
+export default class TextAreaFormAttributeRenderer extends TextFormAttributeRenderer {
 
   /**
    * Returns true, when multi value mode is supported
@@ -27,7 +27,7 @@ export default class TextAreaFormValue extends TextFormValue {
     }
     return (
       <Basic.TextArea
-        ref={ TextFormValue.INPUT }
+        ref={ TextFormAttributeRenderer.INPUT }
         label={ attribute.name}
         value={ this.toSingleInputValue(values) }
         placeholder={ attribute.placeholder }

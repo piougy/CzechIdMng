@@ -1,4 +1,4 @@
-import DoubleFormValue from './DoubleFormValue';
+import DoubleFormAttributeRenderer from './DoubleFormAttributeRenderer';
 
 /**
  * Currency form value component
@@ -7,6 +7,6 @@ import DoubleFormValue from './DoubleFormValue';
  *
  * @author Radek Tomiška
  */
-export default class CurrencyFormValue extends DoubleFormValue {
+export default class CurrencyFormAttributeRenderer extends DoubleFormAttributeRenderer {
 
 }

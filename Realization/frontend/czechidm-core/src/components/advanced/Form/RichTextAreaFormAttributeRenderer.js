@@ -1,14 +1,14 @@
 import React from 'react';
 //
 import RichTextArea from '../RichTextArea/RichTextArea';
-import TextFormValue from './TextFormValue';
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
  * RichTextArea form value component
  *
  * @author Radek Tomiška
  */
-export default class RichTextAreaFormValue extends TextFormValue {
+export default class RichTextAreaFormAttributeRenderer extends TextFormAttributeRenderer {
 
   /**
    * Returns true, when multi value mode is supported
@@ -33,7 +33,7 @@ export default class RichTextAreaFormValue extends TextFormValue {
     //
     return (
       <RichTextArea
-        ref={ TextFormValue.INPUT }
+        ref={ TextFormAttributeRenderer.INPUT }
         label={ attribute.name}
         value={ this.toSingleInputValue(values) }
         placeholder={ attribute.placeholder }

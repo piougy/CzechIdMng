@@ -1,15 +1,14 @@
 import Joi from 'joi';
 //
-import LongFormValue from './LongFormValue';
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
- * Integer form value component
+ * Char form value component
  * - supports multiple and confidential attributes
- * - TODO: validation for multiple attrs
  *
  * @author Radek Tomiška
  */
-export default class IntFormValue extends LongFormValue {
+export default class CharFormAttributeRenderer extends TextFormAttributeRenderer {
 
   /**
    * Returns joi validator by persistent type
@@ -20,9 +19,9 @@ export default class IntFormValue extends LongFormValue {
   getInputValidation() {
     const { attribute } = this.props;
     //
-    let validation = Joi.number().integer().min(-2147483648).max(2147483647);
+    let validation = Joi.string().max(1);
     if (!attribute.required) {
-      validation = validation.concat(Joi.number().allow(null));
+      validation = validation.concat(Joi.string().allow(null).allow(''));
     }
     return validation;
   }

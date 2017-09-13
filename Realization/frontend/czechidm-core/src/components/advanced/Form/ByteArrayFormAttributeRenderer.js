@@ -1,11 +1,11 @@
-import TextAreaFormValue from './TextAreaFormValue';
+import TextAreaFormAttributeRenderer from './TextAreaFormAttributeRenderer';
 
 /**
  * Byte array form value component - the same as text area for now.
  *
  * @author Radek Tomiška
  */
-export default class ByteArrayFormValue extends TextAreaFormValue {
+export default class ByteArraFormAttributeRenderer extends TextAreaFormAttributeRenderer {
 
   /**
    * Fill form value field by persistent type from input value

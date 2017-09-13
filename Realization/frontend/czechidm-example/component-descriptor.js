@@ -12,10 +12,10 @@ module.exports = {
     },
     {
       'id': 'priority-select-form-value',
-      'type': 'form-value',
+      'type': 'form-attribute-renderer',
       'persistentType': 'INT',
       'faceType': 'PRIORITY-SELECT',
-      'component': require('./src/components/PrioritySelectFormValue'),
+      'component': require('./src/components/PrioritySelectFormAttributeRenderer'),
       'labelKey': 'Priority radio select'
     }
   ]

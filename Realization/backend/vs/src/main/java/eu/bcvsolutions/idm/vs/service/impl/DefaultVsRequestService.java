@@ -10,7 +10,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -68,14 +67,14 @@ import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
-import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeValueDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
  * Service for request in virtual system
@@ -90,7 +89,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestService.class);
 
 	private final EntityEventManager entityEventManager;
-	private final VsRequestImplementerService requestImplementerService;
+	private final VsSystemImplementerService requestImplementerService;
 	private final CzechIdMIcConnectorService czechIdMConnectorService;
 	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
 	private final SysSystemService systemService;
@@ -101,7 +100,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
-			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
+			VsSystemImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
 			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService,
 			NotificationManager notificationManager, IdmIdentityService identityService,
 			VsAccountService accountService, ConfigurationService configurationService) {
@@ -210,15 +209,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save new request
 		req.setState(VsRequestState.CONCEPT);
 		VsRequestDto request = this.save(req, IdmBasePermission.CREATE);
-		if (req.getImplementers() != null) {
-			req.getImplementers().forEach(identity -> {
-				// We have some implementers to save
-				VsRequestImplementerDto implementer = new VsRequestImplementerDto();
-				implementer.setRequest(request.getId());
-				implementer.setIdentity(identity.getId());
-				requestImplementerService.save(implementer);
-			});
-		}
 		return this.get(request.getId());
 	}
 
@@ -563,15 +553,19 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				.setLevel(NotificationLevel.INFO)
 				.addParameter("requestAttributes",
 						request.getConnectorObject() != null ? request.getConnectorObject().getAttributes() : null)
-				.addParameter("wishAttributes", wish != null ? wish.getAttributes() : null)
-				.addParameter("fullName", identityService.getNiceLabel(identity)).addParameter("identity", identity)
-				.addParameter("url", getUrl(request)).addParameter("previousUrl", getUrl(previous))
-				.addParameter("request", request).addParameter("systemName", system.getName()).build(), implementers);
+				.addParameter("wishAttributes", wish != null ? wish.getAttributes() : null)//
+				.addParameter("fullName", identityService.getNiceLabel(identity))//
+				.addParameter("identity", identity)//
+				.addParameter("url", getUrl(request))//
+				.addParameter("previousUrl", getUrl(previous))//
+				.addParameter("request", request)//
+				.addParameter("systemName", system.getName()).build(), implementers);
 
 	}
 
 	/**
-	 * Construct URL to frontend for given request 
+	 * Construct URL to frontend for given request
+	 * 
 	 * @param request
 	 * @return
 	 */

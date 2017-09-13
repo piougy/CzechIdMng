@@ -6,39 +6,41 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.vs.entity.VsRequest;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import io.swagger.annotations.ApiModel;
 
 /**
- * DTO for request-implementer in virtual system
+ * DTO for system-implementer in virtual system
  * 
  * @author Svanda
  *
  */
 @Relation(collectionRelation = "implementers")
-@ApiModel(description = "Relation between virtual system request and identity")
-public class VsRequestImplementerDto extends AbstractDto {
+@ApiModel(description = "Relation between virtual system and identity or role")
+public class VsSystemImplementerDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@Embedded(dtoClass = VsRequestDto.class)
-	private UUID request;
+	@Embedded(dtoClass = SysSystemDto.class)
+	private UUID system;
 
-	@NotNull
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID identity;
+	
+	@Embedded(dtoClass = IdmRoleDto.class)
+	private UUID role;
 
-	public UUID getRequest() {
-		return request;
+	public UUID getSystem() {
+		return system;
 	}
 
-	public void setRequest(UUID request) {
-		this.request = request;
+	public void setSystem(UUID system) {
+		this.system = system;
 	}
 
 	public UUID getIdentity() {
@@ -48,4 +50,13 @@ public class VsRequestImplementerDto extends AbstractDto {
 	public void setIdentity(UUID identity) {
 		this.identity = identity;
 	}
+
+	public UUID getRole() {
+		return role;
+	}
+
+	public void setRole(UUID role) {
+		this.role = role;
+	}
+	
 }

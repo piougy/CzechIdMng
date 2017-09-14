@@ -36,7 +36,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
    *
    * @return {arrayOf(FormValue)}
    */
-  getMultipleValue() {
+  toFormValues() {
     const { values } = this.props;
     const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     const filledFormValues = [];
@@ -91,7 +91,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
    * @param  {FormValue} formValue form value
    * @return {oneOf([string, boolean, long])}
    */
-  toMultipleInputValue(formValues) {
+  toInputValues(formValues) {
     const { attribute } = this.props;
     //
     if (formValues === null) {
@@ -107,7 +107,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
           }
           result += '\n';
         }
-        const inputValue = this.toMultipleInputValue(singleValue);
+        const inputValue = this.toInputValues(singleValue);
         if (inputValue) {
           if (result === null) { // single values should not be concated
             result = inputValue;
@@ -150,7 +150,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         type={ attribute.confidential ? 'password' : 'text' }
         label={ attribute.name }
         placeholder={ attribute.placeholder }
-        value={ this.toSingleInputValue(values) }
+        value={ this.toInputValue(values) }
         helpBlock={ attribute.description }
         readOnly={ readOnly || attribute.readonly }
         validation={ this.getInputValidation() }
@@ -178,7 +178,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
             </Basic.Tooltip>
           </span>
         }
-        value={ this.toMultipleInputValue(values) }
+        value={ this.toInputValues(values) }
         helpBlock={ attribute.description ? attribute.description : this.i18n('multiple.title') }
         readOnly={ readOnly || attribute.readonly }
         placeholder={ attribute.placeholder }/>

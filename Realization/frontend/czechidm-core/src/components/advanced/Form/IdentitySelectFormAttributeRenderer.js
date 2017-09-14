@@ -54,7 +54,7 @@ export default class IdentitySelectFormAttributeRenderer extends UuidFormAttribu
    *
    * @return {arrayOf(FormValue)}
    */
-  getMultipleValue() {
+  toFormValues() {
     const { values } = this.props;
     const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     const filledFormValues = [];
@@ -80,7 +80,7 @@ export default class IdentitySelectFormAttributeRenderer extends UuidFormAttribu
     return filledFormValues;
   }
 
-  toMultipleInputValue(formValues) {
+  toInputValues(formValues) {
     const { attribute } = this.props;
     //
     let formValue = null;
@@ -110,7 +110,7 @@ export default class IdentitySelectFormAttributeRenderer extends UuidFormAttribu
         label={ attribute.name }
         placeholder={ attribute.placeholder }
         manager={ manager }
-        value={ !attribute.multiple ? this.toSingleInputValue(values) : this.toMultipleInputValue(values) }
+        value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
         helpBlock={ attribute.description }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }

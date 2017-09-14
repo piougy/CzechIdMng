@@ -185,8 +185,20 @@ module.exports = {
     },
     {
       path: 'role-catalogue/:entityId',
-      component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
+      component: require('./src/content/rolecatalogue/RoleCatalogue'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'role-catalogue/:entityId/new',
+      component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_CREATE'] } ],
     },
     {
       path: 'roles',

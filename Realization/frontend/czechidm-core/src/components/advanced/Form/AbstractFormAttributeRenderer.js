@@ -6,6 +6,8 @@ import * as Basic from '../../../components/basic';
 /**
  * Abstract form value component
  * - supper class for all face type renderers
+ * - provide basic implementation for single value Input
+ * - multi value input has to be implemented in descendant
  *
  * @author Radek Tomiška
  */
@@ -40,10 +42,10 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     const { attribute } = this.props;
     //
     if (attribute.multiple) {
-      return this.getMultipleValue();
+      return this.toFormValues();
     }
     const filledFormValues = [];
-    const formValue = this.getSingleValue();
+    const formValue = this.toFormValue();
     if (formValue) {
       filledFormValues.push(formValue);
     }
@@ -100,11 +102,11 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   /**
-   * Filled form value
+   * Filled form value for single input
    *
    * @return {FormValue}
    */
-  getSingleValue() {
+  toFormValue() {
     const { values } = this.props;
     const formComponent = this.refs[AbstractFormAttributeRenderer.INPUT];
     //
@@ -125,8 +127,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    *
    * @return {arrayOf(FormValue)}
    */
-  getMultipleValue() {
-    throw new TypeError('Must override method getMultipleValue()');
+  toFormValues() {
+    throw new TypeError('Must override method toFormValues()');
   }
 
   /**
@@ -146,7 +148,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * @param  {arrayOf(FormValue)} formValue form values array or single form value
    * @return {object} value by persistent type
    */
-  toSingleInputValue(formValues) {
+  toInputValue(formValues) {
     const { attribute } = this.props;
     //
     let formValue = null;
@@ -163,8 +165,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     return this.getInputValue(formValue);
   }
 
-  toMultipleInputValue(/* formValues*/) {
-    throw new TypeError('Must override method toMultipleInputValue()');
+  toInputValues(/* formValues*/) {
+    throw new TypeError('Must override method toInputValues()');
   }
 
   /**

@@ -4,6 +4,11 @@ import { SecurityManager } from '../redux';
 
 const securityManager = new SecurityManager();
 
+/**
+ * Logout page
+ *
+ * @author Radek Tomiška
+ */
 export default class Logout extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -11,6 +16,7 @@ export default class Logout extends Basic.AbstractContent {
   }
 
   componentWillMount() {
+    // logout immediately, when component will mount
     this.context.store.dispatch(securityManager.logout(() => {
       this.context.router.replace('/login');
     }));

@@ -168,15 +168,16 @@ class RoleDetail extends Basic.AbstractContent {
   render() {
     const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
+    //
     return (
       <div>
-        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
+        <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
 
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic')} />
+        <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
+          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }>
+            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic') } />
 
-            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
                 ref="form"
                 showLoading={ _showLoading || showLoading }

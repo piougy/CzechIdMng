@@ -18,8 +18,9 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Radek Tomiška
  *
  */
-public interface AccAccountService extends ReadWriteDtoService<AccAccountDto, AccountFilter>, ScriptEnabled {
-
+public interface AccAccountService extends 
+		ReadWriteDtoService<AccAccountDto, AccountFilter>, 
+		ScriptEnabled {
 
 	@Deprecated
 	/**

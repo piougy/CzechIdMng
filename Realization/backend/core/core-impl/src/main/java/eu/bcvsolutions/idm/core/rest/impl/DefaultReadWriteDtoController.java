@@ -50,7 +50,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
 	 * @return
 	 */
 	@Override

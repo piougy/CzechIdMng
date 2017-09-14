@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import * as Basic from '../../components/basic';
 import { RoleCatalogueManager } from '../../redux';
 import RoleCatalogueDetail from './RoleCatalogueDetail';
@@ -8,7 +7,10 @@ import RoleCatalogueDetail from './RoleCatalogueDetail';
 const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
- * Role Catalogue detail
+ * Role Catalogue detail - first tab on role detail
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 class RoleCatalogueContent extends Basic.AbstractContent {
 
@@ -24,11 +26,10 @@ class RoleCatalogueContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('role-catalogues');
     const { entityId } = this.props.params;
-    const isNew = this._getIsNew();
-
-    if (isNew) {
+    this.selectNavigationItems(['role-catalogues', 'role-catalogue-detail']);
+    //
+    if (this._isNew()) {
       this.context.store.dispatch(roleCatalogueManager.receiveEntity(entityId, { }));
     } else {
       this.getLogger().debug(`[RoleCatalogueContent] loading entity detail [id:${entityId}]`);
@@ -40,7 +41,7 @@ class RoleCatalogueContent extends Basic.AbstractContent {
     }
   }
 
-  _getIsNew() {
+  _isNew() {
     const { query } = this.props.location;
     return (query) ? query.new : null;
   }
@@ -48,34 +49,15 @@ class RoleCatalogueContent extends Basic.AbstractContent {
   render() {
     const { entity, showLoading } = this.props;
     return (
-      <div>
-        <Helmet title={this.i18n('title')} rendered={!this._getIsNew()} />
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:list-alt"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create.title')
-              :
-              <span>{entity.name} <small>{this.i18n('edit')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
-        <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
+      <Basic.Row>
+        <div className={ this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12' }>
           {
             !entity
             ||
-            <RoleCatalogueDetail entity={entity} />
+            <RoleCatalogueDetail entity={entity} showLoading={showLoading}/>
           }
-        </Basic.Panel>
-
-      </div>
+        </div>
+      </Basic.Row>
     );
   }
 }

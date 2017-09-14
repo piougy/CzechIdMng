@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -17,12 +16,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(
-		collectionResourceRel = "provisioningOperations",
-		path = "provisioning-operations",
-		itemResourceRel = "provisioningOperation",
-		exported = false
-)
 public interface SysProvisioningOperationRepository extends AbstractEntityRepository<SysProvisioningOperation, ProvisioningOperationFilter> {
 
 	/*

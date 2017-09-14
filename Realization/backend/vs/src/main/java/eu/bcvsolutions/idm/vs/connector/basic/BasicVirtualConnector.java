@@ -58,6 +58,7 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSchemaImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.vs.config.domain.VsConfiguration;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
@@ -97,6 +98,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	private IdmRoleService roleService;
 	@Autowired
 	private VsSystemImplementerService systemImplementerService;
+	@Autowired
+	private VsConfiguration vsConfiguration;
 
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IcConnectorConfiguration configuration;
@@ -759,7 +762,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		// Search system-implementers to delete (for role)
 		systemImplementersToDelete.addAll(systemImplementers.stream().filter(sysImplementer -> {
-			return sysImplementer.getRole() != null && !implementersFromConfig.contains(new IdmRoleDto(sysImplementer.getRole()));
+			return sysImplementer.getRole() != null && !rolesFromConfig.contains(new IdmRoleDto(sysImplementer.getRole()));
 		}).collect(Collectors.toList()));
 
 		// Search implementers to add (for role)
@@ -816,7 +819,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 */
 	private List<IdmRoleDto> loadImplementerRoles(String[] implementerRolesString) {
 		List<IdmRoleDto> implementers = new ArrayList<>();
-		if (implementerRolesString == null) {
+		if (implementerRolesString == null || implementerRolesString.length == 0) {
+			// Load default role from configuration
+			implementers.add(vsConfiguration.getDefaultRole());
 			return implementers;
 		}
 

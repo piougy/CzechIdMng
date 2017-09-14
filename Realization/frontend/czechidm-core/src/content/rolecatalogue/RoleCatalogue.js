@@ -1,17 +1,17 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { RoleManager } from '../../redux';
+import { RoleCatalogueManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
 
-const manager = new RoleManager();
+const manager = new RoleCatalogueManager();
 
 /**
- * Role's tab panel
+ * Role's catalogue tab panel
  *
- * @author Radek Tomiška
+ * @author Kučera
  */
-class Role extends Basic.AbstractContent {
+class RoleCatalogue extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
@@ -27,10 +27,10 @@ class Role extends Basic.AbstractContent {
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
-          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
+          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roleCatalogues.edit.header') }</small>
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="roles" params={this.props.params}>
+        <Advanced.TabPanel parentId="role-catalogues" params={this.props.params}>
           { this.props.children }
         </Advanced.TabPanel>
       </div>
@@ -38,11 +38,11 @@ class Role extends Basic.AbstractContent {
   }
 }
 
-Role.propTypes = {
+RoleCatalogue.propTypes = {
   entity: PropTypes.object,
   showLoading: PropTypes.bool
 };
-Role.defaultProps = {
+RoleCatalogue.defaultProps = {
   entity: null,
   showLoading: false
 };
@@ -55,4 +55,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(Role);
+export default connect(select)(RoleCatalogue);

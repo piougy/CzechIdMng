@@ -51,7 +51,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
    *
    * @return {FormValue}
    */
-  getSingleValue() {
+  toFormValue() {
     const { values } = this.props;
     //
     return this.fillFormValue(this.prepareFormValue(values ? values[0] : null), this.state.value);
@@ -70,7 +70,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
 
   renderSingleInput() {
     const { attribute, readOnly, values } = this.props;
-    const singleValue = this.state.value || this.toSingleInputValue(values);
+    const singleValue = this.state.value || this.toInputValue(values);
     // create radio inputs
     const inputs = [];
     for (let i = 1; i <= PrioritySelectFormAttributeRenderer.RADIO_COUNT; i++) {

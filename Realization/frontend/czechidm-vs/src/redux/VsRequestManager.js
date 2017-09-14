@@ -38,7 +38,7 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
-  realize(entityId, uiKey = null, cb = null) {
+  _realize(entityId, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, entityId);
     return (dispatch) => {
       dispatch(this.requestEntity(entityId, uiKey));
@@ -53,62 +53,46 @@ export default class VsRequestManager extends Managers.EntityManager {
   }
 
   /**
-  * Cancel virtual system request
-  */
-  cancel(entityId, reason, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey, entityId);
-    return (dispatch) => {
-      dispatch(this.requestEntity(entityId, uiKey));
-      this.getService().cancel(entityId, reason)
-      .then(json => {
-        dispatch(this.receiveEntity(entityId, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entityId, uiKey, error, cb));
-      });
-    };
-  }
-
-  /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
-  realizeUi(bulkActionValue, ids, manager, callback, event) {
+  realize(bulkActionValue, ids, detail, callback, event) {
     if (event) {
       event.preventDefault();
     }
-    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), ids);
-    this.refs[`confirm-realize`].show(
-      this.i18n(`vs:content.vs-requests.action.realize.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`vs:content.vs-requests.action.realize.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
+    const dispatch = detail.context.store.dispatch;
+    const selectedEntities = this.getEntitiesByIds(detail.context.store.getState(), ids);
+    detail.refs[`confirm-realize`].show(
+      detail.i18n(`vs:content.vs-requests.action.realize.message`, { count: selectedEntities.length, record: this.getNiceLabel(selectedEntities[0]), records: this.getNiceLabels(selectedEntities).join(', ') }),
+      detail.i18n(`vs:content.vs-requests.action.realize.header`, { count: selectedEntities.length, records: this.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       const cb = (realizedEntity, newError) => {
         if (!newError) {
-          this.setState({
+          detail.setState({
             showLoading: false
           });
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
+          if (detail.refs.table) {
+            detail.refs.table.getWrappedInstance().reload();
           }
           if (callback) {
             callback();
           }
-          this.addMessage({ message: this.i18n('vs:content.vs-requests.action.realize.success', { record: realizedEntity.uid }) });
+          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.realize.success', { record: realizedEntity.uid }) });
         } else {
-          this.setState({
+          detail.setState({
             showLoading: false
           });
-          this.addError(newError);
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
+          detail.addError(newError);
+          if (detail.refs.table) {
+            detail.refs.table.getWrappedInstance().reload();
           }
         }
       };
 
       for (const id of ids) {
-        this.setState({
+        detail.setState({
           showLoading: true
         });
-        this.context.store.dispatch(manager.realize(id, null, cb));
+        dispatch(this._realize(id, null, cb));
       }
     }, () => {
       // Rejected
@@ -119,50 +103,82 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Cancel virtual system request
   */
-  cancelUi(bulkActionValue, ids, manager, callback, event) {
+  cancel(bulkActionValue, ids, detail, callback, event) {
     if (event) {
       event.preventDefault();
     }
-    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), ids);
-    this.refs[`confirm-cancel`].show(
-      this.i18n(`vs:content.vs-requests.action.cancel.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`vs:content.vs-requests.action.cancel.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      manager._validateCancelDialog.bind(this)
+    const dispatch = detail.context.store.dispatch;
+    const selectedEntities = this.getEntitiesByIds(detail.context.store.getState(), ids);
+    detail.refs[`confirm-cancel`].show(
+      detail.i18n(`vs:content.vs-requests.action.cancel.message`, { count: selectedEntities.length, record: this.getNiceLabel(selectedEntities[0]), records: this.getNiceLabels(selectedEntities).join(', ') }),
+      detail.i18n(`vs:content.vs-requests.action.cancel.header`, { count: selectedEntities.length, records: this.getNiceLabels(selectedEntities).join(', ') }),
+      this._validateCancelDialog.bind(detail)
     ).then(() => {
       const cb = (realizedEntity, newError) => {
         if (!newError) {
-          this.setState({
+          detail.setState({
             showLoading: false
           });
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
+          if (detail.refs.table) {
+            detail.refs.table.getWrappedInstance().reload();
           }
           if (callback) {
             callback();
           }
-          this.addMessage({ message: this.i18n('vs:content.vs-requests.action.cancel.success', { record: realizedEntity.uid }) });
+          dispatch(this.updateBulkAction());
         } else {
-          this.setState({
+          detail.setState({
             showLoading: false
           });
-          this.addError(newError);
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
+          detail.addError(newError);
+          if (detail.refs.table) {
+            detail.refs.table.getWrappedInstance().reload();
           }
         }
       };
 
-      for (const id of ids) {
-        const reason = this.refs['cancel-form'].getData()['cancel-reason'];
-        this.setState({
-          showLoading: true
-        });
-        this.context.store.dispatch(manager.cancel(id, reason, null, cb));
+      if (ids.length !== 1) {
+        dispatch(this.startBulkAction(
+          {
+            name: 'cancel',
+            title: detail.i18n(`action.cancel.header`, { count: ids.length })
+          },
+          ids.length
+          )
+        );
       }
+      const reason = detail.refs['cancel-form'].getData()['cancel-reason'];
+      detail.setState({
+        showLoading: true
+      });
+      ids.reduce((sequence, entityId) => {
+        const uiKey = this.resolveUiKey(uiKey, entityId);
+        return sequence.then(() => {
+          dispatch(this.requestEntity(entityId, uiKey));
+          // Call backend API
+          return this.getService().cancel(entityId, reason);
+        }).then(json => {
+          dispatch(this.receiveEntity(entityId, json, uiKey, cb));
+        })
+          .catch(error => {
+            dispatch(this.receiveError(entityId, uiKey, error, cb));
+          });
+      }, Promise.resolve())
+      .catch((error) => {
+        // nothing - message is propagated before
+        // catch is before then - we want execute next then clausule
+        return error;
+      })
+      .then(() => {
+        if (ids.length !== 1) {
+          dispatch(this.stopBulkAction());
+        } else {
+          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.cancel.success') });
+        }
+      });
     }, () => {
       // Rejected
     });
-    return;
   }
 
   _validateCancelDialog(result) {

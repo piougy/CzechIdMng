@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import eu.bcvsolutions.forest.index.domain.ForestContent;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
@@ -37,7 +38,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 		@Index(name = "ux_role_catalogue_code", columnList = "code", unique = true),
 		@Index(name = "ux_role_catalogue_name", columnList = "name"),
 		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id")})
-public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<IdmRoleCatalogue>, ForestContent<IdmForestIndexEntity, UUID> {
+public class IdmRoleCatalogue extends AbstractEntity implements Codeable, BaseTreeEntity<IdmRoleCatalogue>, ForestContent<IdmForestIndexEntity, UUID> {
 
 	private static final long serialVersionUID = 1883443149941011579L;
 	public static final String FOREST_TREE_TYPE = "role-catalogue";
@@ -93,7 +94,7 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 		this.name = name;
 	}
 	
-	
+	@Override
 	public String getCode() {
 		return this.code;
 	}

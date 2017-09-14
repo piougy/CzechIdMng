@@ -357,6 +357,27 @@
         }
       }
     },
+    "roleCatalogue": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
     "identity": {
       "accounts": {
         "header": "Účty na koncovém systému",
@@ -902,6 +923,7 @@
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
       "ROLEACCOUNT": "Účty pro role",
+      "ROLECATALOGUEACCOUNT": "Účty pro katalog rolí",
       "SYSTEM": "Napojené systémy",
       "SYNCHRONIZATION": "Synchronizace",
       "TREEACCOUNT": "Účty pro prvky stromu",

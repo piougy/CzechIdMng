@@ -60,7 +60,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     if (!entity) {
       return;
     }
-    manager.realizeUi.bind(this)('realize', [entity ? entity.id : null], manager, () => {
+    manager.realize('realize', [entity ? entity.id : null], this, () => {
       this._initConnectorObject(entity.id);
     });
   }
@@ -69,7 +69,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     if (!entity) {
       return;
     }
-    manager.cancelUi.bind(this)('cancel', [entity ? entity.id : null], manager, () => {
+    manager.cancel('cancel', [entity ? entity.id : null], this, () => {
       this._initConnectorObject(entity.id);
     });
   }
@@ -186,6 +186,7 @@ class VsRequestDetail extends Basic.AbstractContent {
             key={value}
             level={VsValueChangeType.getLevel(item.change)}
             title={item.change ? this.i18n(`attribute.diff.${item.change}`) : null}
+            style={item.change === 'REMOVED' ? {textDecoration: 'line-through'} : null}
             text={value}/>);
         } else {
           listResult.push(value ? (item.value + ' ') : '');
@@ -200,6 +201,7 @@ class VsRequestDetail extends Basic.AbstractContent {
       return (<Basic.Label
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
         level={VsValueChangeType.getLevel(entity.value.change)}
+        style={entity.value.change === 'REMOVED' ? {textDecoration: 'line-through'} : null}
         text={value}/>);
     }
     return value;

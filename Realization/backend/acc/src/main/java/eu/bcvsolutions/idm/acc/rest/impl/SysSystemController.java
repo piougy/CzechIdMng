@@ -10,8 +10,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -27,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -75,7 +74,7 @@ import io.swagger.annotations.AuthorizationScope;;
  * @author Ondřej Kopr
  *
  */
-@RepositoryRestController
+@RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/systems")
 @Api(
@@ -387,7 +386,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -430,8 +428,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			notes = "Check system connector configuration.")
 	public ResponseEntity<?> checkSystem(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
+			@PathVariable @NotNull String backendId) {
 		systemService.checkSystem(super.getDto(backendId));
 		return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
 	}

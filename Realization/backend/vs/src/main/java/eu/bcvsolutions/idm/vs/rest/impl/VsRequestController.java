@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.vs.rest.impl;
 
 import java.util.Set;
-import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 

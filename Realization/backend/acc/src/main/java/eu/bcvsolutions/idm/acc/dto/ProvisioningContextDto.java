@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class ProvisioningContextDto {
 	
 	private Map<ProvisioningAttributeDto, Object> accountObject; // account attributes 	
@@ -28,7 +27,7 @@ public class ProvisioningContextDto {
 		this.accountObject = accountObject;
 	}
 	
-	public ProvisioningContextDto( Map<ProvisioningAttributeDto, Object> accountObject, IcConnectorObject connectorObject) {
+	public ProvisioningContextDto(Map<ProvisioningAttributeDto, Object> accountObject, IcConnectorObject connectorObject) {
 		this(accountObject);
 		this.connectorObject = connectorObject;
 	}
@@ -37,7 +36,6 @@ public class ProvisioningContextDto {
 		this(null, connectorObject);
 	}
 	
-
 	/**
 	 * Account attributes
 	 * 

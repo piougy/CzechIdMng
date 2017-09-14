@@ -1,6 +1,11 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
+/**
+ * Role catalogue
+ *
+ * @author Ondřej Kopr
+ */
 class RoleCatalogueService extends AbstractService {
 
   getApiPath() {

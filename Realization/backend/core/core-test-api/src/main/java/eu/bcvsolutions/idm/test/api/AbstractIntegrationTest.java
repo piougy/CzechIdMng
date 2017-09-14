@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
@@ -79,15 +78,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param object
 	 * @param service
 	 * @return
-	 */
-	protected <T extends BaseEntity> T saveInTransaction(final T object, final ReadWriteEntityService<T, ?> service) {
-		return getTransactionTemplate().execute(new TransactionCallback<T>() {
-			public T doInTransaction(TransactionStatus transactionStatus) {
-				return service.save(object);
-			}
-		});
-	}
-	
+	 */	
 	protected <T extends BaseDto> T saveInTransaction(final T object, final ReadWriteDtoService<T, ?> service) {
 		return getTransactionTemplate().execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {

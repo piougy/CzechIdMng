@@ -77,14 +77,14 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
   realize(bulkActionValue, ids, event) {
-    return manager.realizeUi.bind(this)(bulkActionValue, ids, manager, null, event);
+    return manager.realize(bulkActionValue, ids, this, null, event);
   }
 
   /**
   * Cancel virtual system request
   */
   cancel(bulkActionValue, ids, event) {
-    return manager.cancelUi.bind(this)(bulkActionValue, ids, manager, null, event);
+    return manager.cancel(bulkActionValue, ids, this, null, event);
   }
 
   _getSystemCell({ rowIndex, data }) {
@@ -159,6 +159,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
 
     return (
       <div>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-realize" level="danger"/>
         <Basic.Confirm ref="confirm-cancel" level="danger">
           <div style={{marginTop: '20px'}}>
@@ -210,9 +211,8 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
-              { value: 'realize', niceLabel: this.i18n('action.realize.action'), action: this.realize.bind(this), disabled: false },
-              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.cancel.bind(this), disabled: false }
+              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.cancel.bind(this), disabled: false },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
           _searchParameters={ this.getSearchParameters() }

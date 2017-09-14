@@ -444,7 +444,7 @@ module.exports = {
             'type': 'HAS_ANY_AUTHORITY',
             'authorities': [
               'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ',
-              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_UPDATE'
+              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ'
             ]
           }
         ],
@@ -613,7 +613,8 @@ module.exports = {
                 'labelKey': 'content.roles.tabs.basic',
                 'order': 200,
                 'path': '/role-catalogue/:entityId/detail',
-                'icon': 'fa:newspaper-o'
+                'icon': 'fa:newspaper-o',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
               }
             ]
           },

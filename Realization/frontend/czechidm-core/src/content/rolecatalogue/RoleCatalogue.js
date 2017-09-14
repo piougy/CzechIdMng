@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { RoleCatalogueManager } from '../../redux';
@@ -27,10 +26,8 @@ class RoleCatalogue extends Basic.AbstractContent {
 
     return (
       <div>
-        <Helmet title={this.i18n('navigation.menu.profile')} />
-
         <Basic.PageHeader showLoading={!entity && showLoading}>
-          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
+          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roleCatalogues.edit.header') }</small>
         </Basic.PageHeader>
 
         <Advanced.TabPanel parentId="role-catalogues" params={this.props.params}>

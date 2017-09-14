@@ -12,7 +12,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Svanda
  *
  */
-public interface AccRoleCatalogueAccountService extends ReadWriteDtoService<AccRoleCatalogueAccountDto, RoleCatalogueAccountFilter>,
+public interface AccRoleCatalogueAccountService extends 
+		ReadWriteDtoService<AccRoleCatalogueAccountDto, RoleCatalogueAccountFilter>,
 		AuthorizableService<AccRoleCatalogueAccountDto> {
 
 	/**

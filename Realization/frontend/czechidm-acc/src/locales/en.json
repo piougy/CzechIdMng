@@ -917,6 +917,7 @@
     "group": {
       "ACCOUNT": "Accounts in systems",
       "ROLEACCOUNT": "Role accounts",
+      "ROLECATALOGUEACCOUNT": "Role catalogue accounts",
       "SYSTEM": "Connected systems",
       "SYNCHRONIZATION": "Synchronization",
       "TREEACCOUNT": "Tree accounts",

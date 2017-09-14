@@ -21,14 +21,14 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to role catalogue accounts
+ * Permissions to role catalogue accounts by their role catalogue
  *
  * @author Kučera
  *
  */
 @Component
 @Description("Permission to role catalogue accounts by role")
-public class RoleCatalogueAccountByRoleEvaluator extends AbstractTransitiveEvaluator<AccRoleCatalogueAccount> {
+public class RoleCatalogueAccountByRoleCatalogueEvaluator extends AbstractTransitiveEvaluator<AccRoleCatalogueAccount> {
 
 	@Autowired private AuthorizationManager authorizationManager;
 	@Autowired private SecurityService securityService;

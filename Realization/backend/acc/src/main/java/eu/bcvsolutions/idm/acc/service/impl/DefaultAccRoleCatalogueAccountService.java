@@ -50,6 +50,11 @@ public class DefaultAccRoleCatalogueAccountService
 		//
 		this.accountService = accountService;
 	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.ROLECATALOGUEACCOUNT, getEntityClass());
+	}
 
 	@Override
 	@Transactional
@@ -102,10 +107,5 @@ public class DefaultAccRoleCatalogueAccountService
 			predicates.add(builder.equal(root.get(AccRoleCatalogueAccount_.ownership), filter.isOwnership()));
 		}
 		return predicates;
-	}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.ROLECATALOGUEACCOUNT, getEntityClass());
 	}
 }

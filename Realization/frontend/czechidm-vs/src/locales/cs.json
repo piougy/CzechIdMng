@@ -106,7 +106,7 @@
           "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybrané požadavky zamítnout?",
           "message_5": "Vybrány požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybraných požadavků zamítnout?",
           "error": "Při relizaci požadaku [{{record}}] nastala chyba",
-          "success": "Vybraný požadavek [{{record}}] byl úspěšně zamítnutý",
+          "success": "Vybraný požadavek byl úspěšně zamítnutý",
           "success_1": "Vybraný požadavek [{{record}}] byl úspěšně zamítnutý",
           "success_2": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté",
           "success_5": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté"

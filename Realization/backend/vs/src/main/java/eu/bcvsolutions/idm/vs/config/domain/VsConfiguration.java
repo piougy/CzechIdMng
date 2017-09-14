@@ -3,44 +3,34 @@ package eu.bcvsolutions.idm.vs.config.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Virtual system configuration - interface
  * 
- * @author Radek Tomiška
+ * @author Svanda
  *
  */
-public interface VirtualSystemConfiguration extends Configurable {
+public interface VsConfiguration extends Configurable {
 
-	static final String PROPERTY_PRIVATE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.test.private";
-	static final String PROPERTY_CONFIDENTIAL = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.test.confidential.token";
+	static final String PROPERTY_DEFAULT_ROLE = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.role.default";
+	static final String DEFAULT_DEFAULT_ROLE = "superAdminRole";
 	
 	@Override
 	default String getConfigurableType() {
-		return "test";
+		return "vs";
 	}
 	
 	@Override
 	default List<String> getPropertyNames() {
-		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sense here
-		properties.add(getPropertyName(PROPERTY_PRIVATE));
-		properties.add(getPropertyName(PROPERTY_CONFIDENTIAL));
+		List<String> properties = new ArrayList<>();
+		properties.add(getPropertyName(PROPERTY_DEFAULT_ROLE));
 		return properties;
 	}
+
+	IdmRoleDto getDefaultRole();
 	
-	/**
-	 * Read private value from module-vs.properties
-	 * 
-	 * @return
-	 */
-	String getPrivateValue();
-	
-	/**
-	 * Read confidential value from module-vs.properties
-	 * 
-	 * @return
-	 */
-	String getConfidentialValue();
 }

@@ -20,7 +20,6 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.DisplayTool;
 import org.dom4j.CDATA;
@@ -67,8 +66,8 @@ public class DefaultIdmNotificationTemplateService extends
 		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, NotificationTemplateFilter>
 		implements IdmNotificationTemplateService {
 
-	private static final String TEMPLATE_FOLDER = "idm.pub.core.notification.template.folder";
-	private static final String TEMPLATE_FILE_SUFIX = "idm.pub.core.notification.template.fileSuffix";
+	private static final String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
+	private static final String TEMPLATE_FILE_SUFIX = "idm.sec.core.notification.template.fileSuffix";
 	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory

@@ -16,8 +16,8 @@ import org.modelmapper.ModelMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
@@ -41,30 +41,19 @@ import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
  */
 public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVerifiableUnitTest {
 	
-	@Mock
-	SysProvisioningOperationRepository repository;
-	@Mock
-	private SysProvisioningRequestRepository provisioningRequestRepository;
-	@Mock
-	private SysProvisioningArchiveService provisioningArchiveService;
-	@Mock
-	private SysProvisioningBatchService batchService;
-	@Mock
-	private NotificationManager notificationManager;
-	@Mock
-	private ConfidentialStorage confidentialStorage;
-	@Mock
-	private SysProvisioningRequestService requestService;
-	@Mock
-	private SysSystemService systemService;
-	@Mock
-	private ModelMapper modelMapper;
-	@Mock
-	private SysProvisioningRequestService provisioningRequestService;
-	@Mock
-	private SysProvisioningBatchRepository batchRepository;
-	
-	DefaultSysProvisioningOperationService service;
+	@Mock private SysProvisioningOperationRepository repository;
+	@Mock private SysProvisioningRequestRepository provisioningRequestRepository;
+	@Mock private SysProvisioningArchiveService provisioningArchiveService;
+	@Mock private SysProvisioningBatchService batchService;
+	@Mock private NotificationManager notificationManager;
+	@Mock private ConfidentialStorage confidentialStorage;
+	@Mock private SysProvisioningRequestService requestService;
+	@Mock private SysSystemService systemService;
+	@Mock private ModelMapper modelMapper;
+	@Mock private SysProvisioningRequestService provisioningRequestService;
+	@Mock private SysProvisioningBatchRepository batchRepository;
+	//
+	private DefaultSysProvisioningOperationService service;
 
 	@Before
 	public void init() {		
@@ -89,7 +78,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceGuardedStringsInEmptyAccountObject() {
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		Map<ProvisioningAttributeDto, Object> accoutObjet = new HashMap<>();
 		context.setAccountObject(accoutObjet);		
 		Map<String, Serializable> confidentialValues = service.replaceGuardedStrings(context);		
@@ -98,7 +87,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceSingleGuardedStringsInAccountObject() {
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
@@ -122,7 +111,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceGuardedStringsInConnectorObject() {
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
 		context.setConnectorObject(connectorObject);
 		//
@@ -147,7 +136,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceArrayGuardedStringsInAccountObject() {
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
@@ -171,7 +160,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	
 	@Test
 	public void testReplaceCollectionGuardedStringsInAccountObject() {
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//

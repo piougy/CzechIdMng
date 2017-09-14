@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -27,7 +28,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 	private ProvisioningEventType operationType;
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
-	private ProvisioningContextDto provisioningContext;
+	private ProvisioningContext provisioningContext;
 	private SystemEntityType entityType;
 	private UUID entityIdentifier;
 	private String systemEntityUid; // account uid, etc.
@@ -49,11 +50,11 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 		this.system = system;
 	}
 
-	public ProvisioningContextDto getProvisioningContext() {
+	public ProvisioningContext getProvisioningContext() {
 		return provisioningContext;
 	}
 
-	public void setProvisioningContext(ProvisioningContextDto provisioningContext) {
+	public void setProvisioningContext(ProvisioningContext provisioningContext) {
 		this.provisioningContext = provisioningContext;
 	}
 
@@ -98,7 +99,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 	public static class Builder {
 		private ProvisioningEventType operationType;
 		private UUID system;
-		private ProvisioningContextDto provisioningContext;
+		private ProvisioningContext provisioningContext;
 		private SystemEntityType entityType;
 		private UUID entityIdentifier;
 		private String systemEntityUid;
@@ -129,7 +130,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 			return this;
 		}
 		
-		public Builder setProvisioningContext(ProvisioningContextDto provisioningContext) {
+		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
 			this.provisioningContext = provisioningContext;
 			return this;
 		}

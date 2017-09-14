@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.entity;
 
-import java.text.MessageFormat;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -20,7 +19,6 @@ import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -64,14 +62,6 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysProvisioningRequest requestEntity; // its there only for filtering in jpa query
-	
-	public SysProvisioningRequest getRequestEntity() {
-		return requestEntity;
-	}
-
-	public void setRequestEntity(SysProvisioningRequest requestEntity) {
-		this.requestEntity = requestEntity;
-	}
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -133,73 +123,73 @@ public class SysProvisioningOperation extends AbstractEntity {
 	 * @author Radek Tomiška
 	 *
 	 */
-	public static class Builder {
-		private ProvisioningEventType operationType;
-		private ProvisioningContext provisioningContext;
-		private UUID entityIdentifier;
-		private SysSystemEntity systemEntity;
-		
-		public Builder setOperationType(ProvisioningEventType operationType) {
-			this.operationType = operationType;
-			return this;
-		}
-		
-		/**
-		 * Maps {@linkAccountOperationType} to {@link ProvisioningEventType}.
-		 * @param operationType
-		 * @return
-		 */
-		public Builder setOperationType(ProvisioningOperationType operationType) {
-			switch (operationType) {
-				case CREATE: {
-					this.operationType = ProvisioningEventType.CREATE;
-					break;
-				}
-				case UPDATE: {
-					this.operationType = ProvisioningEventType.UPDATE;
-					break;
-				}
-				case DELETE: {
-					this.operationType = ProvisioningEventType.DELETE;
-					break;
-				}
-				default: {
-					throw new UnsupportedOperationException(MessageFormat.format("Account operation type [{}] is not supported for provisioning", operationType));
-				}
-			}
-			
-			return this;
-		}
-		
-		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
-			this.provisioningContext = provisioningContext;
-			return this;
-		}
-		
-		
-		public Builder setEntityIdentifier(UUID entityIdentifier) {
-			this.entityIdentifier = entityIdentifier;
-			return this;
-		}
-		
-		public Builder setSystemEntity(SysSystemEntity systemEntity) {
-			this.systemEntity = systemEntity;
-			return this;
-		}
-		
-		/**
-		 * Returns newly constructed SysProvisioningOperation object.
-		 * 
-		 * @return
-		 */
-		public SysProvisioningOperation build() {
-			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
-			provisioningOperation.setOperationType(operationType);
-			provisioningOperation.setSystemEntity(systemEntity);
-			provisioningOperation.setEntityIdentifier(entityIdentifier);
-			provisioningOperation.setProvisioningContext(provisioningContext);
-			return provisioningOperation;
-		}
-	}
+//	public static class Builder {
+//		private ProvisioningEventType operationType;
+//		private ProvisioningContext provisioningContext;
+//		private UUID entityIdentifier;
+//		private SysSystemEntity systemEntity;
+//		
+//		public Builder setOperationType(ProvisioningEventType operationType) {
+//			this.operationType = operationType;
+//			return this;
+//		}
+//		
+//		/**
+//		 * Maps {@linkAccountOperationType} to {@link ProvisioningEventType}.
+//		 * @param operationType
+//		 * @return
+//		 */
+//		public Builder setOperationType(ProvisioningOperationType operationType) {
+//			switch (operationType) {
+//				case CREATE: {
+//					this.operationType = ProvisioningEventType.CREATE;
+//					break;
+//				}
+//				case UPDATE: {
+//					this.operationType = ProvisioningEventType.UPDATE;
+//					break;
+//				}
+//				case DELETE: {
+//					this.operationType = ProvisioningEventType.DELETE;
+//					break;
+//				}
+//				default: {
+//					throw new UnsupportedOperationException(MessageFormat.format("Account operation type [{}] is not supported for provisioning", operationType));
+//				}
+//			}
+//			
+//			return this;
+//		}
+//		
+//		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
+//			this.provisioningContext = provisioningContext;
+//			return this;
+//		}
+//		
+//		
+//		public Builder setEntityIdentifier(UUID entityIdentifier) {
+//			this.entityIdentifier = entityIdentifier;
+//			return this;
+//		}
+//		
+//		public Builder setSystemEntity(SysSystemEntity systemEntity) {
+//			this.systemEntity = systemEntity;
+//			return this;
+//		}
+//		
+//		/**
+//		 * Returns newly constructed SysProvisioningOperation object.
+//		 * 
+//		 * @return
+//		 */
+//		public SysProvisioningOperation build() {
+//			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
+//			provisioningOperation.setOperationType(operationType);
+//			provisioningOperation.setSystemEntity(systemEntity);
+//			provisioningOperation.setEntityIdentifier(entityIdentifier);
+//			provisioningOperation.setProvisioningContext(provisioningContext);
+//			return provisioningOperation;
+//		}
+//	}
 	
 }

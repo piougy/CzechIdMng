@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.domain;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -70,6 +69,6 @@ public interface ProvisioningOperation extends BaseEntity, Auditable {
 	 * 
 	 * @return
 	 */
-	ProvisioningContextDto getProvisioningContext();
+	ProvisioningContext getProvisioningContext();
 
 }

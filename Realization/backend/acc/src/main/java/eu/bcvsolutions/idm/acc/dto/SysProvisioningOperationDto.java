@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
@@ -29,7 +30,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	private static final long serialVersionUID = 3928289153591673531L;
 	
 	private ProvisioningEventType operationType;
-	private ProvisioningContextDto provisioningContext;
+	private ProvisioningContext provisioningContext;
 	@Embedded(dtoClass = SysSystemEntityDto.class)
 	private UUID systemEntity; // account, etc.
 	private UUID entityIdentifier;
@@ -43,11 +44,11 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.operationType = operationType;
 	}
 
-	public ProvisioningContextDto getProvisioningContext() {
+	public ProvisioningContext getProvisioningContext() {
 		return provisioningContext;
 	}
 
-	public void setProvisioningContext(ProvisioningContextDto provisioningContext) {
+	public void setProvisioningContext(ProvisioningContext provisioningContext) {
 		this.provisioningContext = provisioningContext;
 	}
 
@@ -130,7 +131,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	 */
 	public static class Builder {
 		private ProvisioningEventType operationType;
-		private ProvisioningContextDto provisioningContext;
+		private ProvisioningContext provisioningContext;
 		private UUID entityIdentifier;
 		private UUID systemEntity;
 		
@@ -166,7 +167,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			return this;
 		}
 		
-		public Builder setProvisioningContext(ProvisioningContextDto provisioningContext) {
+		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
 			this.provisioningContext = provisioningContext;
 			return this;
 		}

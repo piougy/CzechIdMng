@@ -24,12 +24,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
@@ -223,7 +223,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 */
 	private void processCreate(SysProvisioningOperationDto provisioningOperation) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		ProvisioningContextDto provisioningContext = provisioningOperation.getProvisioningContext();
+		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
 		// prepare provisioning attributes from account attributes
@@ -314,7 +314,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		String systemEntityUid = provisioningOperation.getSystemEntityUid();
-		ProvisioningContextDto provisioningContext = provisioningOperation.getProvisioningContext();
+		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
 		//

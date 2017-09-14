@@ -20,9 +20,9 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
@@ -141,6 +141,8 @@ public class DefaultSysProvisioningOperationService
 		
 		if (dto != null) {
 			dto.setRequest(requestService.findByOperationId(entity.getId()));
+			// copy => detach
+			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
 		}
 		return dto;
 	}
@@ -376,14 +378,14 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	/**
-	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContextDto}. 
+	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContext}. 
 	 * 
 	 * TODO: don't update accountObject in provisioningOperation (needs attribute defensive clone)
 	 *
 	 * @param context
 	 * @return Returns values (key / value) to store in confidential storage. 
 	 */
-	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContextDto context) {
+	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContext context) {
 		try {
 			Map<String, Serializable> confidentialValues = new HashMap<>();
 			if (context == null) {
@@ -499,7 +501,7 @@ public class DefaultSysProvisioningOperationService
 	protected void deleteConfidentialStrings(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		//
-		ProvisioningContextDto context = provisioningOperation.getProvisioningContext();
+		ProvisioningContext context = provisioningOperation.getProvisioningContext();
 		if (context == null) {
 			return;
 		}

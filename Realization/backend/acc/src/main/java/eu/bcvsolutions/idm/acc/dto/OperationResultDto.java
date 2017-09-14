@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class OperationResultDto {
 
 	private OperationState state = OperationState.CREATED;

@@ -3,15 +3,12 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
@@ -21,17 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  * @author Radek Tomiška 
  *
  */
-public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, IdmRoleFilter> {
-	
-	/**
-	 * @deprecated use IdmRoleService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmRole> find(IdmRoleFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmRoleService (uses criteria api)");
-	}
+public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole> {
 	
 	/**
 	 * @deprecated use {@link #findOneByCode(String)}

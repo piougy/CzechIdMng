@@ -99,6 +99,14 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	}
 	
 	@Override
+	protected Page<IdmAudit> findEntities(AuditFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return auditRepository.find(filter, pageable);
+	}
+	
+	@Override
 	public <T> T findRevision(Class<T> classType, UUID entityId, Long revisionNumber) throws RevisionDoesNotExistException  {
 		return this.find(classType, entityId, revisionNumber);
 	}

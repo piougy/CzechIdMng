@@ -29,15 +29,15 @@ import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
  */
 public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends DataFilter> extends BaseFilterBuilder<E, F> {
 
-	private final BaseEntityRepository<E, ?, F> repository;
+	private final BaseEntityRepository<E, ?> repository;
 	
-	public AbstractFilterBuilder(BaseEntityRepository<E, ?, F> repository) {
+	public AbstractFilterBuilder(BaseEntityRepository<E, ?> repository) {
 		Assert.notNull(repository);
 		//
 		this.repository = repository;
 	}
 	
-	protected BaseEntityRepository<E, ?, F> getRepository() {
+	protected BaseEntityRepository<E, ?> getRepository() {
 		return repository;
 	}
 	

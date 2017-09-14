@@ -17,11 +17,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemRepository extends AbstractEntityRepository<SysSystem, SysSystemFilter> {
+public interface SysSystemRepository extends AbstractEntityRepository<SysSystem> {
 
 	SysSystem findOneByName(@Param("name") String name);
 	
-	@Override
 	@Query(value = "select e from SysSystem e" +
 	        " where" +
 	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}) "

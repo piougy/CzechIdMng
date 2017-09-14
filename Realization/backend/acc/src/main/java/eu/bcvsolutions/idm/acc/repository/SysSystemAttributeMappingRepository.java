@@ -20,13 +20,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-public interface SysSystemAttributeMappingRepository extends AbstractEntityRepository<SysSystemAttributeMapping, SystemAttributeMappingFilter> {
+public interface SysSystemAttributeMappingRepository extends AbstractEntityRepository<SysSystemAttributeMapping> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
-	@Override
 	@Query(value = "select e from SysSystemAttributeMapping e" +
 			" where"
 			+ " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"

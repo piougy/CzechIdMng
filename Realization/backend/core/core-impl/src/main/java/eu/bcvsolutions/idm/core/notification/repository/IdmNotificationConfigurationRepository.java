@@ -2,12 +2,9 @@ package eu.bcvsolutions.idm.core.notification.repository;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
@@ -18,11 +15,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationConfigurationRepository extends AbstractEntityRepository<IdmNotificationConfiguration, EmptyFilter> {
-	
-	@Override
-	@Query(value = "select e from IdmNotificationConfiguration e")
-	Page<IdmNotificationConfiguration> find(EmptyFilter filter, Pageable pageable);
+public interface IdmNotificationConfigurationRepository extends AbstractEntityRepository<IdmNotificationConfiguration> {
 	
 	List<IdmNotificationConfiguration> findAllByNotificationType(@Param("notificationType") String notificationType);
 	

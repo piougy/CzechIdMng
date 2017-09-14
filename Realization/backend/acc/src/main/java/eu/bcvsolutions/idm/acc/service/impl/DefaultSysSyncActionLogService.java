@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -28,15 +30,27 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public class DefaultSysSyncActionLogService extends
 		AbstractReadWriteDtoService<SysSyncActionLogDto, SysSyncActionLog, SyncActionLogFilter> implements SysSyncActionLogService {
 
+	private final SysSyncActionLogRepository repository;
 	private final SysSyncItemLogService syncItemLogService;
 
 	@Autowired
-	public DefaultSysSyncActionLogService(SysSyncActionLogRepository repository,
+	public DefaultSysSyncActionLogService(
+			SysSyncActionLogRepository repository,
 			SysSyncItemLogService syncItemLogService) {
 		super(repository);
+		//
 		Assert.notNull(syncItemLogService);
-
+		//
+		this.repository = repository;
 		this.syncItemLogService = syncItemLogService;
+	}
+	
+	@Override
+	protected Page<SysSyncActionLog> findEntities(SyncActionLogFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

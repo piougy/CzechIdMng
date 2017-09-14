@@ -71,10 +71,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	//
 	private AuthorizationManager authorizationManager;
 	private FilterManager filterManager;
-	private final AbstractEntityRepository<E, F> repository;
+	private final AbstractEntityRepository<E> repository;
 
 	@SuppressWarnings("unchecked")
-	public AbstractReadDtoService(AbstractEntityRepository<E, F> repository) {
+	public AbstractReadDtoService(AbstractEntityRepository<E> repository) {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractReadDtoService.class);
 		entityClass = (Class<E>) genericTypes[1];
 		filterClass = (Class<F>) genericTypes[2];
@@ -95,7 +95,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
-	protected AbstractEntityRepository<E, F> getRepository() {
+	protected AbstractEntityRepository<E> getRepository() {
 		return repository;
 	}
 
@@ -201,12 +201,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		// TODO: remove this if after all dto services will be rewritten - remove getRepository().find(filter, pageable)
-		if (!(this instanceof AuthorizableService)) {
-			if (filter == null) {
-				return getRepository().findAll(pageable);
-			}
-			return getRepository().find(filter, pageable);
-		}
+//		if (!(this instanceof AuthorizableService)) {
+//			if (filter == null) {
+//				return getRepository().findAll(pageable);
+//			}
+//			return getRepository().find(filter, pageable);
+//		}
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {

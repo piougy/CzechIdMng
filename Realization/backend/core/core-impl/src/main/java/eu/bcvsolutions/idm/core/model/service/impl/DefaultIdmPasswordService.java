@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -11,12 +13,15 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -38,6 +43,14 @@ public class DefaultIdmPasswordService
 		super(repository);
 		//
 		this.repository = repository;
+	}
+	
+	@Override
+	protected Page<IdmPassword> findEntities(PasswordFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
@@ -50,8 +52,9 @@ public class DefaultSysRoleSystemAttributeService extends
 		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, RoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultSysRoleSystemAttributeService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysRoleSystemAttributeService.class);
+	
+	private final SysRoleSystemAttributeRepository repository;
 	@Autowired(required = false)
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
@@ -76,6 +79,16 @@ public class DefaultSysRoleSystemAttributeService extends
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
 		super(repository);
+		//
+		this.repository = repository;
+	}
+	
+	@Override
+	protected Page<SysRoleSystemAttribute> findEntities(RoleSystemAttributeFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

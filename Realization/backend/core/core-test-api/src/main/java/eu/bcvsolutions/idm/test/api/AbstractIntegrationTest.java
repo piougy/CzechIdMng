@@ -94,7 +94,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param repository
 	 * @return
 	 */
-	protected <T extends BaseEntity> T saveInTransaction(final T object, final AbstractEntityRepository<T, ?> repository) {
+	protected <T extends BaseEntity> T saveInTransaction(final T object, final AbstractEntityRepository<T> repository) {
 		return getTransactionTemplate().execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
 				return repository.save(object);

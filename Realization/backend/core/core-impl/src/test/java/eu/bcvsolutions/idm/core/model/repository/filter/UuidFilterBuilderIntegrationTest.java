@@ -75,9 +75,9 @@ public class UuidFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 	
 	private class FindableUuidFilter<E extends AbstractEntity> extends UuidFilter<E> {
 		
-		private final AbstractEntityRepository<E, ?> repository;
+		private final AbstractEntityRepository<E> repository;
 		
-		public FindableUuidFilter(AbstractEntityRepository<E, ?> repository) {
+		public FindableUuidFilter(AbstractEntityRepository<E> repository) {
 			this.repository = repository;
 		}
 		

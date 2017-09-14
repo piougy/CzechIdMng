@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Service for log provisioning
@@ -32,13 +33,23 @@ public class DefaultSysProvisioningRequestService
 		extends AbstractReadWriteDtoService<SysProvisioningRequestDto, SysProvisioningRequest, ProvisioningRequestFilter>
 		implements SysProvisioningRequestService {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultSysProvisioningRequestService.class);
-
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningRequestService.class);
+	//
+	private final SysProvisioningRequestRepository repository;
 	
 	@Autowired
 	public DefaultSysProvisioningRequestService(SysProvisioningRequestRepository repository) {
 		super(repository);
+		//
+		this.repository = repository;
+	}
+	
+	@Override
+	protected Page<SysProvisioningRequest> findEntities(ProvisioningRequestFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

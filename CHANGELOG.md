@@ -12,16 +12,6 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
-- Removed support for entity services - use dto services in your project. Removed classes:
-  - ``DefaultReadWriteEntityController``
-  - ``AbstractReadWriteEntityController``
-  - ``AbstractReadEntityController``
-  - ``AbstractReadWriteEntityService``
-  - ``AbstractReadEntityService``
-  - ``ReadWriteEntityService``
-  - ``ReadEntityService``
-- Use ``@RestController`` for your controllers. ``@RepositoryRestController`` support from Spring Data project was removed.
-
 ##### Long running task
 
 - New long running task ExecuteScriptTaskExecutor, this task can execute any of scripts in DEFAULT category.
@@ -31,11 +21,21 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
-- ``AuthorizableEntityService`` was removed - ``AuthorizableService`` is used for adding authorization policies support for dto services.
 - Application property **idm.pub.core.notification.template.folder** was changed to **idm.sec.core.notification.template.folder**.
 - Application property **idm.pub.core.notification.template.fileSuffix** was changed to **idm.sec.core.notification.template.fileSuffix**.
 - Application property **idm.pub.core.script.folder** was changed to **idm.sec.core.script.folder**.
 - Application property **idm.pub.core.script.fileSuffix** was changed to **idm.sec.core.script.fileSuffix**.
+- Removed support for entity services - use dto services in your project. Removed classes:
+  - ``DefaultReadWriteEntityController`` - use ``DefaultReadWriteDtoController``
+  - ``AbstractReadWriteEntityController`` - use ``DefaultReadWriteDtoController``
+  - ``AbstractReadEntityController`` - use ``AbstractReadWriteDtoController``
+  - ``AbstractReadWriteEntityService`` - use ``AbstractReadWriteDtoService``
+  - ``AbstractReadEntityService`` - use ``AbstractReadDtoService``
+  - ``ReadWriteEntityService`` - use ``ReadWriteDtoService``
+  - ``ReadEntityService`` - use ``ReadDtoService``
+  - ``AuthorizableEntityService`` was removed - ``AuthorizableService`` is used for adding authorization policies support for dto services.
+- Use ``@RestController`` for your controllers. ``@RepositoryRestController`` support from Spring Data project was removed.
+- ``BaseFilter`` template and ``find(F filter, Pageable pageable)`` method was removed from ``BaseEntityRepository``. Use service layer with criteria api for find dtos.
 
 
 ##### Event processiong

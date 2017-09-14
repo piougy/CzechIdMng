@@ -14,9 +14,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-public interface SysSchemaAttributeRepository extends AbstractEntityRepository<SysSchemaAttribute, SchemaAttributeFilter> {
+public interface SysSchemaAttributeRepository extends AbstractEntityRepository<SysSchemaAttribute> {
 
-	@Override
 	@Query(value = "select e from SysSchemaAttribute e" 
 			+ " where"
 			+ " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"

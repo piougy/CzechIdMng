@@ -4,15 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 
 /**
@@ -21,14 +18,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
  * @author Radek Tomiška
  *
  */
-public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<IdmLongRunningTask, LongRunningTaskFilter> {
-	
-	@Deprecated
-	@Override
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmLongRunningTask> find(LongRunningTaskFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmLongRunningTaskService (uses criteria api)");
-	}
+public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<IdmLongRunningTask> {
 	
 	/**
 	 * Finds all tasks by given machine and state

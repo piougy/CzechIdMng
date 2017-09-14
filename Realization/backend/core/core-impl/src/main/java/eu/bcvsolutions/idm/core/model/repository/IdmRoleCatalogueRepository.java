@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.forest.index.repository.BaseForestContentRepository;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
@@ -22,17 +21,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  *
  */
 public interface IdmRoleCatalogueRepository extends 
-		AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter>, 
+		AbstractEntityRepository<IdmRoleCatalogue>, 
 		BaseForestContentRepository<IdmRoleCatalogue, UUID>  {
-	
-	/**
-	 * @deprecated Use IdmRoleCatalogueService (uses criteria api)
-	 */
-	@Override
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmRoleCatalogueService (uses criteria api)");
-	}
 	
 	IdmRoleCatalogue findOneByCode(@Param("code") String code);
 	

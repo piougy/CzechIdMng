@@ -14,8 +14,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-public interface SysSyncItemLogRepository extends AbstractEntityRepository<SysSyncItemLog, SyncItemLogFilter> {
-	@Override
+public interface SysSyncItemLogRepository extends AbstractEntityRepository<SysSyncItemLog> {
+	
 	@Query(value = "select e from SysSyncItemLog e"+ 
 			" where" +
 	        " (?#{[0].syncActionLogId} is null or e.syncActionLog.id = ?#{[0].syncActionLogId})" +

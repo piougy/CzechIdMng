@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.vs.entity;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -17,6 +19,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -49,8 +52,13 @@ public class VsRequest extends AbstractEntity {
 	 * Account is for CzechIdM system
 	 */
 	@Audited
-	@Column(name = "system_id", nullable = false)
-	private UUID systemId;
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private SysSystem system;
 
 	/**
 	 * Account is for specific connector version
@@ -117,12 +125,12 @@ public class VsRequest extends AbstractEntity {
 		this.operationType = operationType;
 	}
 
-	public UUID getSystemId() {
-		return systemId;
+	public SysSystem getSystem() {
+		return system;
 	}
 
-	public void setSystemId(UUID systemId) {
-		this.systemId = systemId;
+	public void setSystem(SysSystem system) {
+		this.system = system;
 	}
 
 	public IcConnectorConfiguration getConfiguration() {

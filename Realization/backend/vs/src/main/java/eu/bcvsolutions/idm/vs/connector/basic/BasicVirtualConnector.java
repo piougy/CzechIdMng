@@ -712,7 +712,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		VsRequestDto request = new VsRequestDto();
 		request.setUid(uidString);
 		request.setState(VsRequestState.CONCEPT);
-		request.setSystemId(this.systemId);
+		request.setSystem(this.systemId);
 		request.setConfiguration(this.configuration);
 		request.setConnectorKey(connectorKey);
 		request.setConnectorObject(new IcConnectorObjectImpl(uidString, objectClass, attributes));

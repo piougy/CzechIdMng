@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.vs.entity;
 
+import java.util.List;
+
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -51,7 +54,6 @@ public class VsSystemImplementer extends AbstractEntity {
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRole role;
-
 	
 	public IdmIdentity getIdentity() {
 		return identity;

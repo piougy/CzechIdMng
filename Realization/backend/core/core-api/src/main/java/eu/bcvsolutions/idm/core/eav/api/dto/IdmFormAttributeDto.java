@@ -41,6 +41,7 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private String placeholder;
 	@NotNull
 	private PersistentType persistentType;
+	private String faceType;
 	private boolean multiple;
 	private boolean required;
 	private boolean readonly;
@@ -154,5 +155,13 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	@Override
 	public void setUnmodifiable(boolean unmodifiable) {
 		this.unmodifiable = unmodifiable;
+	}
+	
+	public void setFaceType(String faceType) {
+		this.faceType = faceType;
+	}
+	
+	public String getFaceType() {
+		return faceType;
 	}
 }

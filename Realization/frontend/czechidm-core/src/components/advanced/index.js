@@ -11,6 +11,7 @@ import DetailButton from './Table/DetailButton';
 import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
 import EavContent from './Form/EavContent';
+import AbstractFormAttributeRenderer from './Form/AbstractFormAttributeRenderer';
 import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
@@ -45,6 +46,7 @@ const Components = {
   DetailButton,
   EavForm,
   EavContent,
+  AbstractFormAttributeRenderer,
   PasswordField,
   RichTextArea,
   AbstractTableContent,

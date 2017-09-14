@@ -281,13 +281,16 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			case DATETIME:
 				return repository.findOwnersByDateValue(attribute.getId(), value.getDateValue(), pageable);
 			case DOUBLE:
-			case CURRENCY:
 				return repository.findOwnersByDoubleValue(attribute.getId(), value.getDoubleValue(), pageable);
 			case BYTEARRAY: {
 				return repository.findOwnersByByteArrayValue(attribute.getId(), value.getByteValue(), pageable);
-			} // texts
+			}
+			case UUID: {
+				return repository.findOwnersByUuidValue(attribute.getId(), value.getUuidValue(), pageable);
+			} 
+			// texts
 			default:
 				return repository.findOwnersByStringValue(attribute.getId(), value.getStringValue(), pageable);
 		}
-	}
+}
 }

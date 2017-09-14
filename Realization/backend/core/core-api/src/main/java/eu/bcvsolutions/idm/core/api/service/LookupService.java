@@ -3,12 +3,10 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Support for loading {@link BaseEntity} by identifier.

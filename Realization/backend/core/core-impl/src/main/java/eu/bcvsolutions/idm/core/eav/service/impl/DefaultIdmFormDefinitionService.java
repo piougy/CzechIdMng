@@ -87,7 +87,7 @@ public class DefaultIdmFormDefinitionService
 			filter.setDefinitionId(dto.getId());
 			dto.setFormAttributes(
 					formAttributeService
-					.find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmFormAttribute_.seq.getName())))
+					.find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
 					.getContent());
 		}
 		return dto;

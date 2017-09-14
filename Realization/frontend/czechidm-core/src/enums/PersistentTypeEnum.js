@@ -2,6 +2,8 @@ import AbstractEnum from '../enums/AbstractEnum';
 
 /**
  * Persistent type enum for EAVs
+ *
+ * @author Radek Tomiška
  */
 export default class PersistentTypeEnum extends AbstractEnum {
 
@@ -20,13 +22,11 @@ export default class PersistentTypeEnum extends AbstractEnum {
 
 PersistentTypeEnum.CHAR = Symbol('CHAR');
 PersistentTypeEnum.TEXT = Symbol('TEXT');
-PersistentTypeEnum.TEXTAREA = Symbol('TEXTAREA');
-PersistentTypeEnum.RICHTEXTAREA = Symbol('RICHTEXTAREA');
 PersistentTypeEnum.INT = Symbol('INT');
 PersistentTypeEnum.LONG = Symbol('LONG');
 PersistentTypeEnum.DOUBLE = Symbol('DOUBLE');
-PersistentTypeEnum.CURRENCY = Symbol('CURRENCY');
 PersistentTypeEnum.BOOLEAN = Symbol('BOOLEAN');
 PersistentTypeEnum.DATE = Symbol('DATE');
 PersistentTypeEnum.DATETIME = Symbol('DATETIME');
 PersistentTypeEnum.BYTEARRAY = Symbol('BYTEARRAY');
+PersistentTypeEnum.UUID = Symbol('UUID');

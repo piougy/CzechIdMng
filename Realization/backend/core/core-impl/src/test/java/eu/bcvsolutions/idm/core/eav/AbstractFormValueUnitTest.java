@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.eav;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -23,7 +25,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	@Test
 	public void testDateValueAsDateTime() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
-		formValue.setPersistentType(PersistentType.DATE);
+		formValue.setPersistentType(PersistentType.DATETIME);
 		
 		DateTime current = new DateTime();
 		
@@ -35,7 +37,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	@Test
 	public void testDateValueAsDate() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
-		formValue.setPersistentType(PersistentType.DATE);
+		formValue.setPersistentType(PersistentType.DATETIME);
 		
 		DateTime current = new DateTime();
 		
@@ -47,7 +49,7 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	@Test
 	public void testDateValueAsLong() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
-		formValue.setPersistentType(PersistentType.DATE);
+		formValue.setPersistentType(PersistentType.DATETIME);
 		
 		DateTime current = new DateTime();
 		
@@ -59,8 +61,19 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 	@Test(expected = ResultCodeException.class)
 	public void testWrongDate() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
-		formValue.setPersistentType(PersistentType.DATE);
+		formValue.setPersistentType(PersistentType.DATETIME);
 		
 		formValue.setValue("wrong");
+	}
+	
+	@Test
+	public void uuidAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.UUID);
+		UUID uuid = UUID.randomUUID();
+		
+		formValue.setValue(uuid.toString());
+		
+		assertEquals(uuid, formValue.getValue());
 	}
 }

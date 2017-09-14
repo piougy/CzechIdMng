@@ -40,6 +40,7 @@
     "validFrom": "$t(entity.validFrom)",
     "validTill": "$t(entity.validTill)",
     "select": "Select ...",
+    "default": "Default",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
     "disabled": "Disabled",
@@ -297,19 +298,50 @@
           "label": "multi",
           "title": "Supports entering multiple values. Each value to new line.",
           "unsupported": {
-            "title": "{{name}} - attribute cannot be multiple",
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be multiple",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
-              "name": "Name"
+              "name": "Name",
+              "code": "Code"
+            }
+          }
+        },
+        "single": {
+          "unsupported": {
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be single value",
+            "formDefinition": {
+              "title": "Form definition has to be fixed",
+              "type": "Type",
+              "name": "Name",
+              "code": "Code"
             }
           }
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - unsupported persistentType",
-            "confidential": "{{name}} - confidential is not supported"
+            "title": "Unsupported persistent type [{{name}}] with face [{{face}}]",
+            "confidential": "Confidential for type [{{name}}] with face [{{face}}] is not supported"
           }
+        },
+        "faceType": {
+          "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
+          "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "INT": "$t(enums.PersistentTypeEnum.INT)",
+          "LONG": "$t(enums.PersistentTypeEnum.LONG)",
+          "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
+          "BOOLEAN": "$t(enums.PersistentTypeEnum.BOOLEAN)",
+          "DATE": "$t(enums.PersistentTypeEnum.DATE)",
+          "DATETIME": "$t(enums.PersistentTypeEnum.DATETIME)",
+          "BYTEARRAY": "$t(enums.PersistentTypeEnum.BYTEARRAY)",
+          "UUID": "$t(enums.PersistentTypeEnum.UUID)",
+          "CURRENCY": "Currency",
+          "TEXTAREA": "TextArea",
+          "RICHTEXTAREA": "WYSIWYG editor",
+          "IDENTITY-SELECT": "Select identity (SelectBox)"
+        },
+        "attributes": {
+          "empty": "Form definition was found, but doesn't contain attributes."
         }
       },
       "Recaptcha": {
@@ -369,16 +401,14 @@
     "PersistentTypeEnum": {
       "CHAR": "Char",
       "TEXT": "Text",
-      "TEXTAREA": "Text field",
-      "RICHTEXTAREA": "WYSIWYG editor",
       "INT": "Integer",
       "LONG": "Long",
       "DOUBLE": "Double",
-      "CURRENCY": "Currency",
       "BOOLEAN": "Boolean",
       "DATE": "Date",
       "DATETIME": "Date + time",
-      "BYTEARRAY": "Byte array"
+      "BYTEARRAY": "Byte array",
+      "UUID": "Uuid identifier"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -1086,7 +1116,11 @@
         "success": "Attribute [{{name}}] successfully saved"
       },
       "filter": {
-        "code": "Code"
+        "code": "Code",
+        "text": {
+          "label": "Text",
+          "placeholder": "Code / Name / Description"
+        }
       }
     },
     "scripts": {
@@ -2091,6 +2125,11 @@
         "help": "Attribute order on form detail."
       },
       "persistentType": "Attribute type",
+      "faceType": {
+        "label": "Face type",
+        "placeholder": "Select face type or leave it default ...",
+        "help": "Choose attribute renderer. Default renderer is chosen by attribute type."
+      },
       "description": "Description",
       "required": "Required",
       "readonly": "Read-only",

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,23 +18,29 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
@@ -55,17 +62,22 @@ import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
  */
 @Service
 public class DefaultSysProvisioningOperationService
-		extends AbstractReadWriteEntityService<SysProvisioningOperation, ProvisioningOperationFilter> implements SysProvisioningOperationService {
+		extends AbstractReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperation, ProvisioningOperationFilter> implements SysProvisioningOperationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningOperationService.class);
 	private static final String CONFIDENTIAL_KEY_PATTERN = "%s:%s:%d";
 	private static final String ACCOUNT_OBJECT_PROPERTY_PREFIX = "sys:account:";
 	private static final String CONNECTOR_OBJECT_PROPERTY_PREFIX = "sys:connector:";
-	private final SysProvisioningRequestRepository provisioningRequestRepository;
+	
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysProvisioningBatchService batchService;
+	private final SysProvisioningBatchRepository batchRepository;
 	private final NotificationManager notificationManager;
 	private final ConfidentialStorage confidentialStorage;
+	private final SysProvisioningRequestService requestService;
+	private final SysSystemService systemService;
+	private final ModelMapper modelMapper;
+	private final SysProvisioningRequestService provisioningRequestService;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
@@ -74,7 +86,12 @@ public class DefaultSysProvisioningOperationService
 			SysProvisioningArchiveService provisioningArchiveService,
 			SysProvisioningBatchService batchService,
 			NotificationManager notificationManager,
-			ConfidentialStorage confidentialStorage) {
+			ConfidentialStorage confidentialStorage,
+			SysProvisioningRequestService requestService,
+			SysSystemService systemService,
+			ModelMapper modelMapper,
+			SysProvisioningRequestService provisioningRequestService,
+			SysProvisioningBatchRepository batchRepository) {
 		super(repository);
 		//
 		Assert.notNull(provisioningRequestRepository);
@@ -82,38 +99,73 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(batchService);
 		Assert.notNull(notificationManager);
 		Assert.notNull(confidentialStorage);
+		Assert.notNull(requestService);
+		Assert.notNull(systemService);
+		Assert.notNull(modelMapper);
+		Assert.notNull(provisioningRequestService);
+		Assert.notNull(batchRepository);
 		//
-		this.provisioningRequestRepository = provisioningRequestRepository;
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.batchService = batchService;
 		this.notificationManager = notificationManager;
 		this.confidentialStorage = confidentialStorage;
+		this.requestService = requestService;
+		this.systemService = systemService;
+		this.modelMapper = modelMapper;
+		this.provisioningRequestService = provisioningRequestService;
+		this.batchRepository = batchRepository;
+	}
+	
+	@Override
+	protected SysProvisioningOperationDto toDto(SysProvisioningOperation entity, SysProvisioningOperationDto dto) {
+		if (entity == null) {
+			return null;
+		}
+		if (dto == null) {
+			dto = modelMapper.map(entity, getDtoClass());
+		} else {
+			modelMapper.map(entity, dto);
+		}
+		
+		if (dto != null) {
+			dto.setRequest(requestService.findByOperationId(entity.getId()));
+		}
+		return dto;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public SysProvisioningOperation get(Serializable id, BasePermission... permission) {
+	public SysProvisioningOperationDto get(Serializable id, BasePermission... permission) {
 		return super.get(id, permission);
 	}
 	
 	@Override
 	@Transactional
-	public SysProvisioningOperation save(SysProvisioningOperation entity) {
+	public SysProvisioningOperationDto save(SysProvisioningOperationDto dto, BasePermission... permission) {
 		// replace guarded strings to confidential strings (save to persist)
-		Map<String, Serializable> confidentialValues = replaceGuardedStrings(entity.getProvisioningContext());
+		Map<String, Serializable> confidentialValues = replaceGuardedStrings(dto.getProvisioningContext());
 		//
-		entity = super.save(entity);
+		// ger request before save
+		SysProvisioningRequestDto requestDto = dto.getRequest();
+		// save operation
+		dto = super.save(dto);
 		// save prepared guarded strings into confidential storage 
 		for(Entry<String, Serializable> entry : confidentialValues.entrySet()) {
-			confidentialStorage.save(entity.getId(), entity.getClass(), entry.getKey(), entry.getValue());
+			confidentialStorage.save(dto.getId(), SysProvisioningOperation.class, entry.getKey(), entry.getValue());
+		}
+		// set operation id to request, save and set back to operation
+		if (requestDto != null) {
+			requestDto.setOperation(dto.getId());
+			requestDto = requestService.save(requestDto);
+			dto.setRequest(requestDto);
 		}
 		//
-		return entity;
+		return dto;
 	}
 
 	@Override
 	@Transactional
-	public void delete(SysProvisioningOperation provisioningOperation) {
+	public void delete(SysProvisioningOperationDto provisioningOperation, BasePermission... permission) {
 		Assert.notNull(provisioningOperation);
 		//
 		// delete persisted confidential storage values
@@ -122,12 +174,14 @@ public class DefaultSysProvisioningOperationService
 		// create archived operation
 		provisioningArchiveService.archive(provisioningOperation);	
 		//
-		// delete request and empty batch
-		SysProvisioningBatch batch = provisioningOperation.getRequest().getBatch();
-		if (batch.getRequests().size() <= 1) {
+		SysProvisioningRequestDto request = provisioningOperation.getRequest();
+
+		SysProvisioningBatchDto batch = batchService.get(request.getBatch());
+		
+		if (requestService.findByBatchId(batch.getId(), null).getNumberOfElements() <= 1) {
 			batchService.delete(batch);
 		}
-		provisioningRequestRepository.deleteByOperation(provisioningOperation);
+		provisioningRequestService.delete(request);
 		provisioningOperation.setRequest(null);
 		//
 		super.delete(provisioningOperation);
@@ -140,7 +194,7 @@ public class DefaultSysProvisioningOperationService
 	 * @return
 	 */
 	@Override
-	public Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation) {
+	public Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperationDto provisioningOperation) {
 		if (provisioningOperation == null 
 				|| provisioningOperation.getProvisioningContext() == null 
 				|| provisioningOperation.getProvisioningContext().getAccountObject() == null) {
@@ -161,7 +215,7 @@ public class DefaultSysProvisioningOperationService
 						entry.getKey(), 
 						confidentialStorage.getGuardedString(
 								provisioningOperation.getId(), 
-								provisioningOperation.getClass(), 
+								SysProvisioningOperation.class, 
 								((ConfidentialString)idmValue).getKey())
 						);
 				continue;
@@ -176,7 +230,7 @@ public class DefaultSysProvisioningOperationService
 						if (singleValue instanceof ConfidentialString) {
 							processedValues.add(confidentialStorage.getGuardedString(
 									provisioningOperation.getId(), 
-									provisioningOperation.getClass(), 
+									SysProvisioningOperation.class, 
 									((ConfidentialString)singleValue).getKey()));
 						}
 					}
@@ -194,7 +248,7 @@ public class DefaultSysProvisioningOperationService
 					if (singleValue instanceof ConfidentialString) {													
 						processedValues.add(confidentialStorage.getGuardedString(
 								provisioningOperation.getId(), 
-								provisioningOperation.getClass(), 
+								SysProvisioningOperation.class, 
 								((ConfidentialString)singleValue).getKey()));
 					}
 				});
@@ -218,7 +272,7 @@ public class DefaultSysProvisioningOperationService
 	 * @return
 	 */
 	@Override
-	public IcConnectorObject getFullConnectorObject(SysProvisioningOperation provisioningOperation) {
+	public IcConnectorObject getFullConnectorObject(SysProvisioningOperationDto provisioningOperation) {
 		if (provisioningOperation == null 
 				|| provisioningOperation.getProvisioningContext() == null 
 				|| provisioningOperation.getProvisioningContext().getConnectorObject() == null) {
@@ -237,7 +291,7 @@ public class DefaultSysProvisioningOperationService
 						attribute.getName(), 
 						confidentialStorage.getGuardedString(
 								provisioningOperation.getId(), 
-								provisioningOperation.getClass(), 
+								SysProvisioningOperation.class, 
 								((ConfidentialString) attribute.getValue()).getKey()));
 			} else if (attribute instanceof IcPasswordAttribute && attribute.getValue() == null) {
 				attributeCopy = new IcPasswordAttributeImpl(attribute.getName(), (GuardedString) null);
@@ -253,28 +307,31 @@ public class DefaultSysProvisioningOperationService
 	
 	@Override
 	@Transactional
-	public void handleFailed(SysProvisioningOperation operation, Exception ex) {
+	public void handleFailed(SysProvisioningOperationDto operation, Exception ex) {
+		SysSystemDto system = systemService.get(operation.getSystem());
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
 				ImmutableMap.of(
 						"name", operation.getSystemEntityUid(), 
-						"system", operation.getSystem().getName(),
+						"system", system.getName(),
 						"operationType", operation.getOperationType(),
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));			
 		LOG.error(resultModel.toString(), ex);
 		//
-		SysProvisioningRequest request = operation.getRequest();
+		SysProvisioningRequestDto request = operation.getRequest();
 		request.increaseAttempt();
 		request.setMaxAttempts(6); // TODO: from configuration
-		operation.getRequest().setResult(
-				new OperationResult.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build());
+		request.setResult(
+				new OperationResultDto.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build());
 		//
-		save(operation);
+		request = requestService.save(request);
+		operation = save(operation);
 		//
 		// calculate next attempt
-		SysProvisioningBatch batch = request.getBatch();
-		if (batch.getFirstRequest().equals(request)) {
+		SysProvisioningRequestDto firstRequest = requestService.getFirstRequestByBatchId(request.getBatch());
+		if (firstRequest.equals(request)) {
+			SysProvisioningBatchDto batch = batchService.get(request.getBatch());
 			batch.setNextAttempt(batchService.calculateNextAttempt(request));
-			batchService.save(batch);
+			batch = batchService.save(batch);
 		}
 		//
 		notificationManager.send(
@@ -285,16 +342,20 @@ public class DefaultSysProvisioningOperationService
 	
 	@Override
 	@Transactional
-	public void handleSuccessful(SysProvisioningOperation operation) {
+	public void handleSuccessful(SysProvisioningOperationDto operation) {
+		SysSystemDto system = systemService.get(operation.getSystem());
 		ResultModel resultModel = new DefaultResultModel(
 				AccResultCode.PROVISIONING_SUCCEED, 
 				ImmutableMap.of(
 						"name", operation.getSystemEntityUid(), 
-						"system", operation.getSystem().getName(),
+						"system", system.getName(),
 						"operationType", operation.getOperationType(),
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));
-		operation.getRequest().setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
-		save(operation);
+		requestService.findByOperationId(operation.getId());
+		SysProvisioningRequestDto request = operation.getRequest();
+		request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).setModel(resultModel).build());
+		request = requestService.save(request);
+		operation = save(operation);
 		//
 		LOG.debug(resultModel.toString());
 		notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
@@ -303,14 +364,14 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	/**
-	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContext}. 
+	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContextDto}. 
 	 * 
 	 * TODO: don't update accountObject in provisioningOperation (needs attribute defensive clone)
 	 *
 	 * @param context
 	 * @return Returns values (key / value) to store in confidential storage. 
 	 */
-	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContext context) {
+	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContextDto context) {
 		try {
 			Map<String, Serializable> confidentialValues = new HashMap<>();
 			if (context == null) {
@@ -423,10 +484,10 @@ public class DefaultSysProvisioningOperationService
 	 * 
 	 * @param provisioningOperation
 	 */
-	protected void deleteConfidentialStrings(SysProvisioningOperation provisioningOperation) {
+	protected void deleteConfidentialStrings(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		//
-		ProvisioningContext context = provisioningOperation.getProvisioningContext();
+		ProvisioningContextDto context = provisioningOperation.getProvisioningContext();
 		if (context == null) {
 			return;
 		}
@@ -440,7 +501,7 @@ public class DefaultSysProvisioningOperationService
 				}
 				// single value
 				if (idmValue instanceof ConfidentialString) {
-					confidentialStorage.delete(provisioningOperation.getId(), provisioningOperation.getClass(), ((ConfidentialString)entry.getValue()).getKey());
+					confidentialStorage.delete(provisioningOperation.getId(), SysProvisioningOperation.class, ((ConfidentialString)entry.getValue()).getKey());
 				}
 				// array
 				else if(idmValue.getClass().isArray()) {
@@ -451,7 +512,7 @@ public class DefaultSysProvisioningOperationService
 							if (singleValue instanceof ConfidentialString) {
 								confidentialStorage.delete(
 										provisioningOperation.getId(), 
-										provisioningOperation.getClass(), 
+										SysProvisioningOperation.class, 
 										((ConfidentialString)singleValue).getKey());
 							}
 						}
@@ -464,7 +525,7 @@ public class DefaultSysProvisioningOperationService
 						if (singleValue instanceof ConfidentialString) {
 							confidentialStorage.delete(
 									provisioningOperation.getId(), 
-									provisioningOperation.getClass(), 
+									SysProvisioningOperation.class, 
 									((ConfidentialString)singleValue).getKey());
 						}
 					});
@@ -479,11 +540,20 @@ public class DefaultSysProvisioningOperationService
 					if (attributeValue instanceof ConfidentialString) {
 						confidentialStorage.delete(
 								provisioningOperation.getId(), 
-								provisioningOperation.getClass(), 
+								SysProvisioningOperation.class, 
 								((ConfidentialString)attributeValue).getKey());
 					}
 				});	
 			});
 		}
+	}
+
+	@Override
+	public SysProvisioningBatchDto findBatch(SysProvisioningOperationDto dto) {
+		SysProvisioningBatch entity = batchRepository.findBatch(this.toEntity(dto));
+		if (entity == null) {
+			return null;
+		}
+		return batchService.get(entity.getId());
 	}
 }

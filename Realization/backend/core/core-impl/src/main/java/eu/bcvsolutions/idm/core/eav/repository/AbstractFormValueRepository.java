@@ -192,4 +192,18 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 			+ "	and"
 			+ " (e.byteValue = :persistentValue)")
 	Page<O> findOwnersByByteArrayValue(@Param("formAttributeId") UUID attributeId, @Param("persistentValue") byte[] persistentValue, Pageable pageable);
+	
+	/**
+	 * Finds owners by given attribute and value
+	 * 
+	 * @param attribute
+	 * @param persistentValue
+	 * @return
+	 */
+	@Query(value = "select distinct e.owner from #{#entityName} e " 
+			+ " where"
+			+ " (e.formAttribute.id = :formAttributeId)"
+			+ "	and"
+			+ " (e.uuidValue = :persistentValue)")
+	Page<O> findOwnersByUuidValue(@Param("formAttributeId") UUID attributeId, @Param("persistentValue") UUID persistentValue, Pageable pageable);
 }

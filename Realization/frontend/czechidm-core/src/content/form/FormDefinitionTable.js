@@ -157,9 +157,9 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
                 ({ rowIndex, data, property }) => {
                   return this._getType(data[rowIndex][property]);
                 }}/>
-              <Advanced.Column property="code" sort/>
-            <Advanced.Column property="name" sort/>
             <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
+            <Advanced.Column property="code" sort/>
+            <Advanced.Column property="name" sort/>
             <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
           </Advanced.Table>
         </div>

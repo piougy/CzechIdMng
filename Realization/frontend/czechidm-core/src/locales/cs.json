@@ -40,6 +40,7 @@
     "validFrom": "$t(entity.validFrom)",
     "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
+    "default": "Výchozí",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
@@ -336,19 +337,47 @@
           "label": "multi",
           "title": "Podporuje zadání více hodnot. Co hodnota, to nový řádek",
           "unsupported": {
-            "title": "{{name}} - attribute cannot be multiple",
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be multiple",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
-              "name": "Name"
+              "name": "Name",
+              "code": "Code"
+            }
+          }
+        },
+        "single": {
+          "unsupported": {
+            "title": "Attribute persistent type [{{name}}] with face [{{face}}] cannot be single value",
+            "formDefinition": {
+              "title": "Form definition has to be fixed",
+              "type": "Type",
+              "name": "Name",
+              "code": "Code"
             }
           }
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - nepodporovaný typ (opravte definici formuláře)",
-            "confidential": "{{name}} - tajný typ není podporovaný (opravte definici formuláře)"
+            "title": "Nepodporovaný typ [{{name}}] s face [{{face}}] (opravte definici formuláře)",
+            "confidential": "Tajný typ [{{name}}] s face [{{face}}] není podporovaný (opravte definici formuláře)"
           }
+        },
+        "faceType": {
+          "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
+          "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "INT": "$t(enums.PersistentTypeEnum.INT)",
+          "LONG": "$t(enums.PersistentTypeEnum.LONG)",
+          "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
+          "BOOLEAN": "$t(enums.PersistentTypeEnum.BOOLEAN)",
+          "DATE": "$t(enums.PersistentTypeEnum.DATE)",
+          "DATETIME": "$t(enums.PersistentTypeEnum.DATETIME)",
+          "BYTEARRAY": "$t(enums.PersistentTypeEnum.BYTEARRAY)",
+          "UUID": "$t(enums.PersistentTypeEnum.UUID)",
+          "CURRENCY": "Měna",
+          "TEXTAREA": "Textové pole (TextArea)",
+          "RICHTEXTAREA": "WYSIWYG editor",
+          "IDENTITY-SELECT": "Výběr identit (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
@@ -411,16 +440,14 @@
     "PersistentTypeEnum": {
       "CHAR": "Znak",
       "TEXT": "Text",
-      "TEXTAREA": "Textové pole",
-      "RICHTEXTAREA": "WYSIWYG editor",
-      "INT": "Integer",
-      "LONG": "Long",
-      "DOUBLE": "Double",
-      "CURRENCY": "Měna",
+      "INT": "Integer (celé číslo)",
+      "LONG": "Long (celé číslo)",
+      "DOUBLE": "Reálné číslo",
       "BOOLEAN": "Boolean",
       "DATE": "Datum",
       "DATETIME": "Datum + čas",
-      "BYTEARRAY": "Bitové pole"
+      "BYTEARRAY": "Bitové pole",
+      "UUID": "Uuid identifikátor"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -1143,7 +1170,11 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "code": "Kód položky"
+        "code": "Kód položky",
+        "text": {
+          "label": "Text",
+          "placeholder": "Kód / Název / Popis"
+        }
       }
     },
     "scripts": {
@@ -1163,7 +1194,7 @@
         "success": "Skript [{{name}}] bylo úspěšně uložen"
       },
       "filter": {
-        "text": "Kód /Název / Popis"
+        "text": "Kód / Název / Popis"
       }
     },
     "scriptAuthorities": {
@@ -2151,6 +2182,11 @@
         "help": "Pořadí atributu na detailu formuláře."
       },
       "persistentType": "Typ atributu",
+      "faceType": {
+        "label": "Typ zobrazení",
+        "placeholder": "Vyberte typ zobrazení nebo ponechte výchozí ...",
+        "help": "Určuje typ zobrazení atributu na formuláři. Defaultně se typ zobrazení řídí typem atributu."
+      },
       "description": "Popis",
       "required": "Povinný",
       "readonly": "Pouze pro čtení",

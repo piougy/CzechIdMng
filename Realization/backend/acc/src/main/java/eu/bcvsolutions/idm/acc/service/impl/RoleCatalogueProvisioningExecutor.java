@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleCatalogueAccountService;
@@ -65,12 +64,12 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService,SysSystemEntityRepository systemEntityRepository) {
+			IdmRoleService roleService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
-				systemAttributeMappingService, roleService, systemEntityRepository);
+				systemAttributeMappingService, roleService);
 		
 		Assert.notNull(catalogueAccountService);
 		Assert.notNull(catalogueService);

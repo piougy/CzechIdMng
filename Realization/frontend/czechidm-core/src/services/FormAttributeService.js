@@ -30,7 +30,7 @@ class FormAttributeService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('seq', 'asc').setSort('code', 'asc');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).setSize(100).clearSort().setSort('seq', 'asc').setSort('code', 'asc');
   }
 }
 

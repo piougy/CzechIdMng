@@ -77,6 +77,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data.created";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
+	public static final String FORM_ATTRIBUTE_UUID = "uuid";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	public static final String DEFAULT_ROLE_NAME = "userRole";
@@ -380,14 +381,16 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setCode("description");
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
-				description.setPersistentType(PersistentType.TEXTAREA);
+				description.setPersistentType(PersistentType.TEXT);
+				description.setFaceType("TEEXTAREA");
 				description = formService.saveAttribute(IdmIdentity.class, description);
 				
 				IdmFormAttributeDto rich = new IdmFormAttributeDto();
 				rich.setCode("rich");
 				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
-				rich.setPersistentType(PersistentType.RICHTEXTAREA);
+				rich.setPersistentType(PersistentType.TEXT);
+				description.setFaceType("RICHTEXTAREA");
 				rich = formService.saveAttribute(IdmIdentity.class, rich);
 				
 				IdmFormAttributeDto sure = new IdmFormAttributeDto();
@@ -418,7 +421,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmFormAttributeDto currency = new IdmFormAttributeDto();
 				currency.setCode("currency");
 				currency.setName("Price");
-				currency.setPersistentType(PersistentType.CURRENCY);
+				currency.setPersistentType(PersistentType.DOUBLE);
+				currency.setFaceType("CURRENCY");				
 				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
 				IdmFormAttributeDto date = new IdmFormAttributeDto();
@@ -434,6 +438,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				datetime.setName("Date and time");
 				datetime.setPersistentType(PersistentType.DATETIME);
 				datetime = formService.saveAttribute(IdmIdentity.class, datetime);
+				
+				IdmFormAttributeDto uuid = new IdmFormAttributeDto();
+				uuid.setCode(FORM_ATTRIBUTE_UUID);
+				uuid.setName("UUID");
+				uuid.setDescription("Some uuid value");
+				uuid.setPersistentType(PersistentType.UUID);
+				uuid = formService.saveAttribute(IdmIdentity.class, uuid);
 				
 				IdmFormAttributeDto webPages = new IdmFormAttributeDto();
 				webPages.setCode(FORM_ATTRIBUTE_WWW);

@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -29,6 +28,8 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -41,13 +42,11 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
@@ -95,7 +94,6 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	private final SysSystemService systemService;
 	protected final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemEntityService systemEntityService;
-	private final SysSystemEntityRepository systemEntityRepository;
 	protected final AccAccountService accountService;
 	private final ProvisioningExecutor provisioningExecutor;
 	private final EntityEventManager entityEventManager;
@@ -115,8 +113,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService,
-			SysSystemEntityRepository systemEntityRepository) {
+			IdmRoleService roleService) {
 
 		Assert.notNull(systemMappingService);
 		Assert.notNull(attributeMappingService);
@@ -133,7 +130,6 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(schemaObjectClassService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(roleService);
-		Assert.notNull(systemEntityRepository);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -149,7 +145,6 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.roleSystemService = roleSystemService;
 		this.roleService = roleService;
-		this.systemEntityRepository = systemEntityRepository;
 	}
 
 	@Override
@@ -463,10 +458,10 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName()), null);
-		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
-				.setOperationType(operationType).setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setOperationType(operationType).setSystemEntity(systemEntity.getId())
 				.setEntityIdentifier(entityId)
-				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
+				.setProvisioningContext(new ProvisioningContextDto(accountAttributes, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 	}
 
@@ -598,10 +593,10 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		// Call ic modul for update single attribute
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));
-		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
-				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntity.getId())
 				.setEntityIdentifier(entity == null ? null : entity.getId())
-				.setProvisioningContext(new ProvisioningContext(connectorObject));
+				.setProvisioningContext(new ProvisioningContextDto(connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 	}
 

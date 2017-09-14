@@ -61,8 +61,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, ScriptFilter>
 		implements IdmScriptService {
 
-	private static final String SCRIPT_FOLDER = "idm.pub.core.script.folder";
-	private static final String SCRIPT_FILE_SUFIX = "idm.pub.core.script.fileSuffix";
+	private static final String SCRIPT_FOLDER = "idm.sec.core.script.folder";
+	private static final String SCRIPT_FILE_SUFIX = "idm.sec.core.script.fileSuffix";
 	private static final String SCRIPT_DEFAULT_BACKUP_FOLDER = "scripts/";
 	private static final String SCRIPT_DEFAULT_TYPE = "groovy";
 

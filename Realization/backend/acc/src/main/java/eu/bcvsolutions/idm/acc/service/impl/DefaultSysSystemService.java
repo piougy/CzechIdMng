@@ -178,6 +178,9 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 	@Override
 	public SysSystemDto get(Serializable id, BasePermission... permission) {
 		SysSystemDto entity = super.get(id, permission);
+		if (entity == null) {
+			return null;
+		}
 		//
 		// found if entity has filled password
 		Object password = confidentialStorage.get(entity.getId(), SysSystem.class,

@@ -22,6 +22,9 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -74,6 +77,10 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Enumerated(EnumType.STRING)
 	@Column(name = "persistent_type", length = 45, nullable = false)
 	private PersistentType persistentType;
+	
+	@Column(name = "face_type", length = 45)
+	@JsonProperty(access = Access.READ_ONLY)
+	private String faceType;
 	
 	@NotNull
 	@Column(name = "multiple", nullable = false)
@@ -265,5 +272,13 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Override
 	public void setUnmodifiable(boolean unmodifiable) {
 		this.unmodifiable = unmodifiable;
-	}	
+	}
+	
+	public void setFaceType(String faceType) {
+		this.faceType = faceType;
+	}
+	
+	public String getFaceType() {
+		return faceType;
+	}
 }

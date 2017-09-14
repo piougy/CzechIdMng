@@ -477,6 +477,33 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testFindOwnersByUuidAttributeValue() {
+		IdmIdentityDto owner = helper.createIdentity();
+		IdmIdentityDto ownerTwo = helper.createIdentity();
+		
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_UUID);
+		// save values
+		UUID one = UUID.randomUUID();
+		UUID two = UUID.randomUUID();
+		formService.saveValues(owner, attribute, Lists.newArrayList(one));
+		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(two));
+		//
+		Page<? extends Identifiable> owners = formService.findOwners(owner.getClass(), InitDemoData.FORM_ATTRIBUTE_UUID, one, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(owner.getId(), owners.getContent().get(0).getId());
+		//
+		owners = formService.findOwners(owner.getClass(), InitDemoData.FORM_ATTRIBUTE_UUID, two, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(ownerTwo.getId(), owners.getContent().get(0).getId());
+		//
+		identityService.deleteById(owner.getId());
+		identityService.deleteById(ownerTwo.getId());
+	}
+	
+	@Test
 	public void testFindAttribute() {
 		IdmFormAttributeDto attribute = formService.getAttribute(IdmIdentity.class, InitDemoData.FORM_ATTRIBUTE_DATETIME);
 		//

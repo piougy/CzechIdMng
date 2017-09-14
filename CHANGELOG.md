@@ -12,6 +12,15 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
+- Removed support for entity services - use dto services in your project. Removed classes:
+  - ``DefaultReadWriteEntityController``
+  - ``AbstractReadWriteEntityController``
+  - ``AbstractReadEntityController``
+  - ``AbstractReadWriteEntityService``
+  - ``AbstractReadEntityService``
+  - ``ReadWriteEntityService``
+  - ``ReadEntityService``
+
 ##### Long running task
 
 - New long running task ExecuteScriptTaskExecutor, this task can execute any of scripts in DEFAULT category.

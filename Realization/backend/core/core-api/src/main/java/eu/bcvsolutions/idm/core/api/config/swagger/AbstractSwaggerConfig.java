@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
@@ -61,7 +60,7 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 						new BasicAuth(AUTHENTICATION_BASIC),
 						apiKey()
 						))
-				.ignoredParameterTypes(Pageable.class, MultiValueMap.class, PersistentEntityResourceAssembler.class)
+				.ignoredParameterTypes(Pageable.class, MultiValueMap.class)
 				// module
 				.groupName(getModuleDescriptor().getId())
 				.select()

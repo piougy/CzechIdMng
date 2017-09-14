@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -53,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author svandav
  * @author Radek Tomiška
  */
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/concept-role-requests")
 @Api(
 		value = IdmConceptRoleRequestController.TAG, 

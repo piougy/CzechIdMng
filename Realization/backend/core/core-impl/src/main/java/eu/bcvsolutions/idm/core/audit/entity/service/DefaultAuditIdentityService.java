@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.audit.entity.service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;

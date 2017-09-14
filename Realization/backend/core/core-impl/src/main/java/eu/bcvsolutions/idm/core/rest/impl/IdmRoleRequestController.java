@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -57,7 +58,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author svandav
  *
  */
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/role-requests")
 @Api(
 		value = IdmRoleRequestController.TAG, 

@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
   - ``AbstractReadEntityService``
   - ``ReadWriteEntityService``
   - ``ReadEntityService``
+- Use ``@RestController`` for your controllers. ``@RepositoryRestController`` support from Spring Data project was removed.
 
 ##### Long running task
 

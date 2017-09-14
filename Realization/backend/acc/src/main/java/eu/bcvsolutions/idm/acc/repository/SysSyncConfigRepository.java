@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
@@ -18,13 +17,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "synchronizationConfigs", //
-		path = "synchronization-configs", //
-		itemResourceRel = "synchronizationConfig", //
-		exported = false // we are using repository metadata, but we want expose
-							// rest endpoint manually
-)
 public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyncConfig, SynchronizationConfigFilter> {
 
 	@Override

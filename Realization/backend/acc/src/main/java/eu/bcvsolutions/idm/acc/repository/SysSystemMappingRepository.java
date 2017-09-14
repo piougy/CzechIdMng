@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -15,13 +14,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "systemMappings", //
-		path = "system-mapping", //
-		itemResourceRel = "systemMapping", //
-		exported = false // we are using repository metadata, but we want expose
-							// rest endpoint manually
-)
 public interface SysSystemMappingRepository extends AbstractEntityRepository<SysSystemMapping, SystemMappingFilter> {
 
 	/*

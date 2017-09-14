@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
@@ -45,7 +46,7 @@ import io.swagger.annotations.AuthorizationScope;;
  * @author svandav
  *
  */
-@RepositoryRestController
+@RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/system-synchronization-configs")
 @Api(
@@ -170,30 +171,6 @@ public class SysSyncConfigController
 			@RequestBody @NotNull SysSyncConfigDto dto) throws HttpMessageNotReadableException {
 		return super.put(backendId, dto);
 	}
-
-	// DTO not implemented patch method yet
-//	@Override
-//	@ResponseBody
-//	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
-//	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-//	@ApiOperation(
-//			value = "Update synchronization config", 
-//			nickname = "patchSyncConfig", 
-//			response = SysSyncConfig.class, 
-//			tags = { SysSyncConfigController.TAG }, 
-//			authorizations = { 
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-//						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")}),
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-//						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
-//				})
-//	public ResponseEntity<?> patch(
-//			@ApiParam(value = "Config's uuid identifier.", required = true)
-//			@PathVariable @NotNull String backendId,
-//			HttpServletRequest nativeRequest,
-//			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-//		return super.patch(backendId, nativeRequest, assembler);
-//	}
 
 	@Override
 	@ResponseBody

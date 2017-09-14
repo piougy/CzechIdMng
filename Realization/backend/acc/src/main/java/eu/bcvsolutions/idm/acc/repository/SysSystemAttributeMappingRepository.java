@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
@@ -21,13 +20,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "systemAttributeMappings", //
-		path = "system-attribute-mappings", //
-		itemResourceRel = "systemAttributeMapping", //
-		exported = false // we are using repository metadata, but we want expose
-							// rest endpoint manually
-)
 public interface SysSystemAttributeMappingRepository extends AbstractEntityRepository<SysSystemAttributeMapping, SystemAttributeMappingFilter> {
 	
 	/*

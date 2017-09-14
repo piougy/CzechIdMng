@@ -21,7 +21,8 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
  */
 @Service
 public class DefaultSysProvisioningArchiveService
-		extends AbstractReadWriteDtoService<SysProvisioningArchiveDto, SysProvisioningArchive, ProvisioningOperationFilter> implements SysProvisioningArchiveService {
+		extends AbstractReadWriteDtoService<SysProvisioningArchiveDto, SysProvisioningArchive, ProvisioningOperationFilter> 
+		implements SysProvisioningArchiveService {
 
 	@Autowired
 	public DefaultSysProvisioningArchiveService(

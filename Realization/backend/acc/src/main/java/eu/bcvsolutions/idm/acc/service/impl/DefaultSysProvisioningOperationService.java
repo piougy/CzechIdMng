@@ -143,6 +143,7 @@ public class DefaultSysProvisioningOperationService
 			dto.setRequest(requestService.findByOperationId(entity.getId()));
 			// copy => detach
 			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
+			// TODO: system to embedded
 		}
 		return dto;
 	}

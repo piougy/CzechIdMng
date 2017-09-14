@@ -25,18 +25,6 @@ All notable changes to this project will be documented in this file.
 - Application property **idm.pub.core.notification.template.fileSuffix** was changed to **idm.sec.core.notification.template.fileSuffix**.
 - Application property **idm.pub.core.script.folder** was changed to **idm.sec.core.script.folder**.
 - Application property **idm.pub.core.script.fileSuffix** was changed to **idm.sec.core.script.fileSuffix**.
-- Removed support for entity services - use dto services in your project. Removed classes:
-  - ``DefaultReadWriteEntityController`` - use ``DefaultReadWriteDtoController``
-  - ``AbstractReadWriteEntityController`` - use ``DefaultReadWriteDtoController``
-  - ``AbstractReadEntityController`` - use ``AbstractReadWriteDtoController``
-  - ``AbstractReadWriteEntityService`` - use ``AbstractReadWriteDtoService``
-  - ``AbstractReadEntityService`` - use ``AbstractReadDtoService``
-  - ``ReadWriteEntityService`` - use ``ReadWriteDtoService``
-  - ``ReadEntityService`` - use ``ReadDtoService``
-  - ``AuthorizableEntityService`` was removed - ``AuthorizableService`` is used for adding authorization policies support for dto services.
-- Use ``@RestController`` for your controllers. ``@RepositoryRestController`` support from Spring Data project was removed.
-- ``BaseFilter`` template and ``find(F filter, Pageable pageable)`` method was removed from ``BaseEntityRepository``. Use service layer with criteria api for find dtos.
-
 
 ##### Event processiong
 
@@ -164,5 +152,20 @@ All notable changes to this project will be documented in this file.
 - Method **SysProvisioningBatch findBatch(SysProvisioningOperation operation)** from service [SysProvisioningBatchService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/acc/src/main/java/eu/bcvsolutions/idm/acc/service/api/SysProvisioningBatchService.java) was moved to service [SysProvisioningOperationService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/acc/src/main/java/eu/bcvsolutions/idm/acc/service/api/SysProvisioningOperationService.java), update all places where you call method **findBatch** to new service.
 
 ### Removed
+
+#### Core module
+
+- Removed support for entity services - use dto services in your project. Removed classes:
+  - ``DefaultReadWriteEntityController`` - use ``DefaultReadWriteDtoController``
+  - ``AbstractReadWriteEntityController`` - use ``DefaultReadWriteDtoController``
+  - ``AbstractReadEntityController`` - use ``AbstractReadWriteDtoController``
+  - ``AbstractReadWriteEntityService`` - use ``AbstractReadWriteDtoService``
+  - ``AbstractReadEntityService`` - use ``AbstractReadDtoService``
+  - ``ReadWriteEntityService`` - use ``ReadWriteDtoService``
+  - ``ReadEntityService`` - use ``ReadDtoService``
+  - ``AuthorizableEntityService`` was removed - ``AuthorizableService`` is used for adding authorization policies support for dto services.
+- Use ``@RestController`` for your controllers. ``@RepositoryRestController`` support from Spring Data project was removed.
+- ``BaseFilter`` template and ``find(F filter, Pageable pageable)`` method was removed from ``BaseEntityRepository``. Use service layer with criteria api for find dtos.
+
 ##### Long running tasks
 - From [AbstractLongRunningTaskExecutor](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-impl/src/main/java/eu/bcvsolutions/idm/core/scheduler/service/impl/AbstractLongRunningTaskExecutor.java) was removed deprecated method getParameterNames, replace this method from your project with method getPropertyNames.

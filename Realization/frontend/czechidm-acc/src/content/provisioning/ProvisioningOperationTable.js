@@ -196,17 +196,26 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
               return (
-                <Advanced.EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="popover"/>
+                <Advanced.EntityInfo entityType={ entity.entityType } entityIdentifier={ entity.entityIdentifier } face="popover"/>
               );
             }
           }
           rendered={_.includes(columns, 'entityIdentifier')}/>
-        <Advanced.ColumnLink
-          to="/system/:_target/detail"
-          target="system.id"
-          access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
+        <Advanced.Column
           property="system.name"
           header={this.i18n('acc:entity.System.name')}
+          cell={
+            ({ rowIndex, data }) => {
+              const entity = data[rowIndex];
+              return (
+                <Advanced.EntityInfo
+                  entityType="system"
+                  entityIdentifier={ entity.system }
+                  entity={ entity._embedded.system }
+                  face="popover"/>
+              );
+            }
+          }
           rendered={_.includes(columns, 'system')} />
         <Advanced.Column
           property="systemEntityUid"

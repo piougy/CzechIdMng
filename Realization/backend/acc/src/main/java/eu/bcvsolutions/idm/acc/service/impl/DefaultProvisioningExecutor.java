@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("provisioningExecutor")
 public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningExecutor.class);

@@ -153,7 +153,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @param backendId
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public E getEntity(Serializable backendId) {
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
@@ -282,7 +281,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @param pageable
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public Page<E> findSecuredEntities(F filter, Pageable pageable, BasePermission permission) {
 		return findEntities(filter, pageable);
 	}

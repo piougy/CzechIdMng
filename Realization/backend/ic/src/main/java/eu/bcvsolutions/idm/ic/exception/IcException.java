@@ -21,7 +21,6 @@ public class IcException extends CoreException {
 
 	public IcException(String message, Map<String, Object> details) {
 		super(message, details);
-		// TODO Auto-generated constructor stub
 	}
 
 

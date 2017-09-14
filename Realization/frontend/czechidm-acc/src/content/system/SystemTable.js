@@ -111,8 +111,8 @@ export class SystemTable extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
-              { value: 'duplicate', niceLabel: this.i18n('action.duplicate.action'), action: this.onDuplicate.bind(this), disabled: false }
+              { value: 'duplicate', niceLabel: this.i18n('action.duplicate.action'), action: this.onDuplicate.bind(this), disabled: false },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
           buttons={

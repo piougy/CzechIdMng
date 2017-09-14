@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadDtoService<DTO, E, F> implements ReadWriteDtoService<DTO, F> {
 
-	public AbstractReadWriteDtoService(AbstractEntityRepository<E, F> repository) {
+	public AbstractReadWriteDtoService(AbstractEntityRepository<E> repository) {
 		super(repository);
 	}
 	

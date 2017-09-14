@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
  * Role catalogue relation on account (DTO)
  * 
  */
-@Relation(collectionRelation = "roleCatologueAccounts")
+@Relation(collectionRelation = "roleCatalogueAccounts")
 public class AccRoleCatalogueAccountDto extends AbstractDto implements EntityAccountDto {
 
 	private static final long serialVersionUID = 1L;

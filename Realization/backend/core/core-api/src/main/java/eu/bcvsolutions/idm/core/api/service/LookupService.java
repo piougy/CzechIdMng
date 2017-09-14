@@ -55,17 +55,6 @@ public interface LookupService {
 	 * @return
 	 */
 	<I extends BaseDto> DtoLookup<I> getDtoLookup(Class<? extends Identifiable> identifiableType);
-	
-	/**
-	 * Returns base service for given entity
-	 * 
-	 * @param entityClass
-	 * @param <E> {@link BaseEntity} type
-	 * @return
-	 * @deprecated will be removed (dto services usage)
-	 */
-	@Deprecated
-	<E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass);
 
 	/**
 	 * Returns base service for given dto
@@ -75,19 +64,6 @@ public interface LookupService {
 	 * @return
 	 */
 	ReadDtoService<?, ?> getDtoService(Class<? extends Identifiable> identifiableType);
-
-	/**
-	 * Returns base service for given entity in given type
-	 * 
-	 * @param entityClass
-	 * @param entityServiceClass
-	 * @param <E> {@link BaseEntity} type
-	 * @param <S> {@link ReadEntityService} type
-	 * @return
-	 * @deprecated will be removed (dto services usage)
-	 */
-	@Deprecated
-	<E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass);
 	
 	/**
 	 * If {@link BaseDto} is given as identifiable type, then {@link BaseEntity} type will be found by registered {@link ReadDtoService}. 

@@ -56,7 +56,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Radek Tomiška
  *
  */
-@RestController // TODO: @RestController after eav to dto
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identity-contracts")
 @Api(
 		value = IdmIdentityContractController.TAG, 

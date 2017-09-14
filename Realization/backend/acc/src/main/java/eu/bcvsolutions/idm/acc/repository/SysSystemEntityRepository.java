@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
@@ -19,15 +18,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "systemEntities", //
-		path = "system-entities", //
-		itemResourceRel = "systemEntity", //
-		exported = false // we are using repository metadata, but we want expose rest endpoint manually
-	)
-public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity, SystemEntityFilter> {
+public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity> {
 	
-	@Override
 	@Query(value = "select e from SysSystemEntity e" +
 	        " where" +
 	        " (lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" +

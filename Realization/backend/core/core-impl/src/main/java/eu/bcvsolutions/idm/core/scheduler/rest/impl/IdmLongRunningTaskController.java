@@ -86,7 +86,6 @@ public class IdmLongRunningTaskController
 	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody

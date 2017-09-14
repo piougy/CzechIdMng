@@ -14,10 +14,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+public interface IdmScriptAuthorityRepository extends AbstractEntityRepository<IdmScriptAuthority> {
 
-public interface IdmScriptAuthorityRepository extends AbstractEntityRepository<IdmScriptAuthority, ScriptAuthorityFilter> {
-
-	@Override
 	@Query(value = "select e from #{#entityName} e" +
 	        " where"
 	        + " ("

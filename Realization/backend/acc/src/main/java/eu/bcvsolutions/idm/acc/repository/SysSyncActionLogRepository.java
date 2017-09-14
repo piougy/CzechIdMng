@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
@@ -15,15 +14,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "syncActionLogs", //
-		path = "sync-action-logs", //
-		itemResourceRel = "syncActionLog", //
-		exported = false // we are using repository metadata, but we want expose
-							// rest endpoint manually
-)
-public interface SysSyncActionLogRepository extends AbstractEntityRepository<SysSyncActionLog, SyncActionLogFilter> {
-	@Override
+public interface SysSyncActionLogRepository extends AbstractEntityRepository<SysSyncActionLog> {
+	
 	@Query(value = "select e from SysSyncActionLog e"+ 
 			" where" +
 	        " (?#{[0].synchronizationLogId} is null or e.syncLog.id = ?#{[0].synchronizationLogId})"

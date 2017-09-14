@@ -36,19 +36,30 @@ public class DefaultSysSyncLogService
 		extends AbstractReadWriteDtoService<SysSyncLogDto, SysSyncLog, SynchronizationLogFilter>
 		implements SysSyncLogService {
 
+	private final SysSyncLogRepository repository;
 	private final SysSyncActionLogService syncActionLogService;
 	private final ModelMapper modelMapper;
 	
 	@Autowired
-	public DefaultSysSyncLogService(SysSyncLogRepository repository,
+	public DefaultSysSyncLogService(
+			SysSyncLogRepository repository,
 			SysSyncActionLogService syncActionLogService, ModelMapper modelMapper) {
 		super(repository);
 		//
 		Assert.notNull(syncActionLogService);
 		Assert.notNull(modelMapper);
 		//
+		this.repository = repository;
 		this.syncActionLogService = syncActionLogService;
 		this.modelMapper = modelMapper;
+	}
+	
+	@Override
+	protected Page<SysSyncLog> findEntities(SynchronizationLogFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override

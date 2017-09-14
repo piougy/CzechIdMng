@@ -7,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.Description;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
@@ -23,17 +21,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
  * TODO: weak password dictonary is now only string
  *
  */
-
-@RepositoryRestResource(
-		collectionResourceRel = "passwordPolicies",
-		itemResourceRel = "passwordPolicy",
-		collectionResourceDescription = @Description("Password policies"),
-		itemResourceDescription = @Description("Password policy"),
-		exported = false
-	)
-public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> {
+public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<IdmPasswordPolicy> {
 	
-	@Override
 	@Query(value = "SELECT e FROM IdmPasswordPolicy e" +
 	        " WHERE"
 	        + " ("

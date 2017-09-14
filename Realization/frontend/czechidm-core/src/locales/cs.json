@@ -1130,6 +1130,9 @@
         "niceName": "Název pro uživatele",
         "code": "Kód",
         "text": "Kód či název"
+      },
+      "tabs": {
+        "basic": "Základní informace"
       }
     },
     "formDefinitions": {

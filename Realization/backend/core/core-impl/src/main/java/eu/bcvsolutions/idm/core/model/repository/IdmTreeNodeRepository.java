@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.forest.index.repository.TypeableForestContentRepository;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
@@ -20,17 +19,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, IdmTreeNodeFilter>, TypeableForestContentRepository<IdmTreeNode, UUID> {
-
-	/**
-	 * @deprecated use IdmTreeNodeService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmTreeNode> find(IdmTreeNodeFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmTreeNodeService (uses criteria api)");
-	}
+public interface IdmTreeNodeRepository extends 
+		AbstractEntityRepository<IdmTreeNode>, 
+		TypeableForestContentRepository<IdmTreeNode, UUID> {
 	
 	/**
 	 * Nodes by tree type.

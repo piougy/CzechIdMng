@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
@@ -21,7 +19,7 @@ public class ProvisioningOperationBuilderUnitTest extends AbstractVerifiableUnit
 
 	@Test
 	public void testBuildEmpty() {
-		SysProvisioningOperation.Builder builder = new SysProvisioningOperation.Builder();
+		SysProvisioningOperationDto.Builder builder = new SysProvisioningOperationDto.Builder();
 		
 		assertNotNull(builder.build());
 		assertNull(builder.build().getOperationType());

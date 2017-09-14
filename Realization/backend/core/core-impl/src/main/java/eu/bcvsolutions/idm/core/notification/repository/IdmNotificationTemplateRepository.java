@@ -14,9 +14,8 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public interface IdmNotificationTemplateRepository extends AbstractEntityRepository<IdmNotificationTemplate, NotificationTemplateFilter> {
+public interface IdmNotificationTemplateRepository extends AbstractEntityRepository<IdmNotificationTemplate> {
 	
-	@Override
 	@Query(value = "SELECT e FROM IdmNotificationTemplate e " +
 	        " WHERE "
 	        + "("

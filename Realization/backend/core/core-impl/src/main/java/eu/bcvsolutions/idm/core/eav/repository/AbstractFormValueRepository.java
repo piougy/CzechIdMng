@@ -13,7 +13,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
@@ -28,17 +27,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @param <O> Values owner type
  */
 @NoRepositoryBean
-public interface AbstractFormValueRepository<O extends FormableEntity, E extends AbstractFormValue<O>> extends AbstractEntityRepository<E, IdmFormValueFilter<O>> {
-	
-	/**
-	 * @deprecated Use AbstractFormValueService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<E> find(IdmFormValueFilter<O> filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use AbstractFormValueService (uses criteria api)");
-	}
+public interface AbstractFormValueRepository<O extends FormableEntity, E extends AbstractFormValue<O>> extends AbstractEntityRepository<E> {
 	
 	/**
 	 * Returns all form values by given owner (from all definitions)

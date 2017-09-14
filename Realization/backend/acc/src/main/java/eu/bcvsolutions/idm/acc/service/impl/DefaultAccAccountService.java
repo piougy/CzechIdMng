@@ -66,6 +66,14 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 	}
 	
 	@Override
+	protected Page<AccAccount> findEntities(AccountFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return accountRepository.findAll(pageable);
+		}
+		return accountRepository.find(filter, pageable);
+	}
+	
+	@Override
 	protected AccAccountDto toDto(AccAccount entity, AccAccountDto dto) {
 		AccAccountDto newDto = super.toDto(entity, dto);
 		//

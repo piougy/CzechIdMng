@@ -171,6 +171,17 @@ module.exports = {
         'path': '/tree/nodes/:entityId/accounts',
         'icon': 'fa:external-link',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREEACCOUNT_READ'] } ]
+      },
+      {
+        'id': 'role-catalogue-accounts',
+        'parentId': 'role-catalogues',
+        'type': 'TAB',
+        'labelKey': 'acc:content.identity.accounts.title',
+        'order': 500,
+        'priority': 0,
+        'path': '/role-catalogue/:entityId/accounts',
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEACCOUNT_READ'] } ]
       }
     ]
   }

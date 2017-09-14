@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -252,7 +251,6 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 	 * Returns form definition to given account.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -278,7 +276,6 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 	 * Returns filled form values
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -298,14 +295,11 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 			@ApiParam(value = "Account's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			PersistentEntityResourceAssembler assembler) {
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
 		VsAccountDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		//
-		checkAccess(entity, IdmBasePermission.READ);
 		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(VsAccount.class, definitionCode);
 		//
@@ -317,7 +311,6 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody

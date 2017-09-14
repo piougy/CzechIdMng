@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.example.repository;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.example.dto.filter.ExampleProductFilter;
 import eu.bcvsolutions.idm.example.entity.ExampleProduct;
 
 /**
@@ -10,7 +9,7 @@ import eu.bcvsolutions.idm.example.entity.ExampleProduct;
  * @author Radek Tomiška
  *
  */
-public interface ExampleProductRepository extends AbstractEntityRepository<ExampleProduct, ExampleProductFilter> {
+public interface ExampleProductRepository extends AbstractEntityRepository<ExampleProduct> {
 
 	/**
 	 * Returns product by unique code.

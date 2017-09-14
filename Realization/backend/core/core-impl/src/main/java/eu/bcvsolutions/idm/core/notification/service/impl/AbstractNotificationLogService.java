@@ -40,7 +40,7 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 		extends AbstractReadWriteDtoService<DTO, E, F>
 		implements AuthorizableService<IdmNotificationDto> {
 
-    public AbstractNotificationLogService(AbstractEntityRepository<E, F> repository) {
+    public AbstractNotificationLogService(AbstractEntityRepository<E> repository) {
         super(repository);
     }
 

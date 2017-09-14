@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -35,6 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 @Service
 public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<SysRoleSystemDto, SysRoleSystem, RoleSystemFilter> implements SysRoleSystemService {
 
+	private final SysRoleSystemRepository repository;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmRoleService roleService;
@@ -51,11 +54,19 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(roleService);
 		//
+		this.repository = repository;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.identityAccountRepository = identityAccountRepository;
 		this.roleService = roleService;
 	}
 	
+	@Override
+	protected Page<SysRoleSystem> findEntities(RoleSystemFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
+	}
 	
 	@Override
 	@Transactional

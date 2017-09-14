@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -148,6 +149,14 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.formService = formService;
+	}
+	
+	@Override
+	protected Page<SysSystem> findEntities(SysSystemFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return systemRepository.findAll(pageable);
+		}
+		return systemRepository.find(filter, pageable);
 	}
 
 	@Override

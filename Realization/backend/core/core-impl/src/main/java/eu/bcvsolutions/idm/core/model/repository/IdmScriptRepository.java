@@ -18,9 +18,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmScript;
  *
  */
 
-public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript, ScriptFilter> {
+public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript> {
 
-	@Override
 	@Query(value = "select e from IdmScript e" +
 	        " where"
 	        + " ("

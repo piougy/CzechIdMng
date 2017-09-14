@@ -18,9 +18,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
  * @author Radek Tomiška
  *
  */
-public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassword, PasswordFilter> {
+public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassword> {
 	
-	@Override
 	@Query(value = ""
 			+ "SELECT e FROM #{#entityName} e"
 	        + " WHERE"

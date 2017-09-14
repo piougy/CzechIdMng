@@ -10,8 +10,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -27,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -60,7 +59,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + BaseDtoController.TREE_BASE_PATH + "-types")
 @Api(
 		value = IdmTreeTypeController.TAG,  
@@ -280,7 +279,6 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	/**
 	 * Returns default tree type or {@code null}, if no default tree type is defined
 	 * 
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -349,7 +347,6 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	 * Rebuild (drop and create) all indexes for given treeType.
 	 * 
 	 * @param backendId tree type id
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -369,8 +366,7 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 			notes = "Rebuild forest index for given tree type.")
 	public ResponseEntity<?> rebuildIndex(
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
-			@PathVariable String backendId,
-			PersistentEntityResourceAssembler assembler) {
+			@PathVariable String backendId) {
 		IdmTreeTypeDto treeType = getDto(backendId);
 		if (treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

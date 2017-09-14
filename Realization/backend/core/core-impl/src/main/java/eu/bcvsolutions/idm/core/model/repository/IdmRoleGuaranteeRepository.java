@@ -3,11 +3,6 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
@@ -19,17 +14,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
  * @author Radek Tomiška
  *
  */
-public interface IdmRoleGuaranteeRepository extends AbstractEntityRepository<IdmRoleGuarantee, RoleGuaranteeFilter> {
-	
-	/**
-	 * @deprecated use IdmRoleGuaranteeService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmRoleGuarantee> find(RoleGuaranteeFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmRoleService (uses criteria api)");
-	};
+public interface IdmRoleGuaranteeRepository extends AbstractEntityRepository<IdmRoleGuarantee> {
 	
 	List<IdmRoleGuarantee> findAllByRole(IdmRole role);
 	

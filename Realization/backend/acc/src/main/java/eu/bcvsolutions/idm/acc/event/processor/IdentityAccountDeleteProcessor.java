@@ -75,7 +75,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	public EventResult<AccIdentityAccountDto> process(EntityEvent<AccIdentityAccountDto> event) {
 		AccIdentityAccountDto entity = event.getContent();
 		UUID account = entity.getAccount();
-		AccAccountDto accountEntity = accountService.get(account);
+		AccAccountDto accountDto = accountService.get(account);
 		Assert.notNull(account, "Account cannot be null!");
 
 		// We check if exists another (ownership) identity-accounts, if not
@@ -89,16 +89,16 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				.get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
 
 		// Is account protection activated on system mapping?
-		if (systemMappingService.isEnabledProtection(accountEntity)) {
+		if (systemMappingService.isEnabledProtection(accountDto)) {
 			if (!moreIdentityAccounts && entity.isOwnership()) {
 				// This identity account is last ... protection will be
 				// activated
-				activateProtection(accountEntity);
-				accountEntity = accountService.save(accountEntity);
+				activateProtection(accountDto);
+				accountDto = accountService.save(accountDto);
 				entity.setRoleSystem(null);
 				entity.setIdentityRole(null);
 				service.save(entity);
-				doProvisioningSkipAccountProtection(accountEntity, entity.getEntity());
+				doProvisioningSkipAccountProtection(accountDto, entity.getEntity());
 
 				// If is account in protection, then we will not delete
 				// identity-account
@@ -126,7 +126,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 						service.delete(identityAccount);
 					});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
+			accountService.delete(accountDto, deleteTargetAccount, entity.getEntity());
 		}
 
 		return new DefaultEventResult<>(event, this);

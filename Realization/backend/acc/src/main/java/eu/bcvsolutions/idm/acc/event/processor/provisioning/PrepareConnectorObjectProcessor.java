@@ -24,12 +24,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
@@ -53,6 +52,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -199,8 +199,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			}
 			LOG.error(resultModel.toString(), ex);
 			SysProvisioningRequestDto request = provisioningOperation.getRequest();
-			request.setResult(
-					new OperationResultDto.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			request.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			request = requestService.save(request);
 			//
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
@@ -223,7 +222,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 */
 	private void processCreate(SysProvisioningOperationDto provisioningOperation) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		ProvisioningContextDto provisioningContext = provisioningOperation.getProvisioningContext();
+		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
 		// prepare provisioning attributes from account attributes
@@ -314,7 +313,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		String systemEntityUid = provisioningOperation.getSystemEntityUid();
-		ProvisioningContextDto provisioningContext = provisioningOperation.getProvisioningContext();
+		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
 		//

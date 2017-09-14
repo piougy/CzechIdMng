@@ -1076,6 +1076,9 @@
         "niceName": "Name for users",
         "code": "Code",
         "text": "Code or name"
+      },
+      "tabs": {
+        "basic": "Basic information"
       }
     },
     "formDefinitions": {
@@ -1216,7 +1219,7 @@
         }
       },
       "tabs": {
-        "basic": "Basic  information"
+        "basic": "Basic information"
       },
       "delete": {
         "identityAssigned": {

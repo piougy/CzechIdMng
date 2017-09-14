@@ -19,9 +19,8 @@ import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 		itemResourceRel = "audit", //
 		exported = false // 
 	)
-public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, AuditFilter> {
+public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 	
-	@Override
 	@Query(value = "SELECT e "
 				+ "FROM "
 					+ "#{#entityName} e "

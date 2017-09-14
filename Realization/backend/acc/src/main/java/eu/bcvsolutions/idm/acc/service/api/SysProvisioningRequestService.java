@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public interface SysProvisioningRequestService
 		extends ReadWriteDtoService<SysProvisioningRequestDto, ProvisioningRequestFilter> {
 

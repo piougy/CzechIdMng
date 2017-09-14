@@ -214,7 +214,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                           ?
                           <span>N/A</span>
                           :
-                          <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
+                          <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }} face="popover"/>
                         }
                       </Basic.LabelWrapper>
                     </div>
@@ -223,9 +223,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   <Basic.Row>
                     <div className="col-lg-4">
                       <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
-                        <div style={{ margin: '7px 0' }}>
-                          <Link to={`/system/${detail.entity.system.id}/detail`} >{detail.entity.system.name}</Link>
-                        </div>
+                        <Advanced.EntityInfo
+                          entityType="system"
+                          entityIdentifier={ detail.entity.system }
+                          entity={ detail.entity._embedded.system }
+                          style={{ margin: 0 }}
+                          face="popover"/>
                       </Basic.LabelWrapper>
                     </div>
                     <div className="col-lg-8">

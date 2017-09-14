@@ -27,7 +27,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Service
 public class DefaultSysProvisioningRequestService
 		extends AbstractReadWriteDtoService<SysProvisioningRequestDto, SysProvisioningRequest, ProvisioningRequestFilter>

@@ -8,7 +8,7 @@ import RoleCatalogueDetail from './RoleCatalogueDetail';
 const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
- * Role Catalogue detail
+ * Role Catalogue detail - first tab on role detail
  */
 class RoleCatalogueContent extends Basic.AbstractContent {
 
@@ -24,8 +24,8 @@ class RoleCatalogueContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('role-catalogues');
     const { entityId } = this.props.params;
+    this.selectNavigationItems(['role-catalogues', 'role-catalogue-detail']);
     const isNew = this._getIsNew();
 
     if (isNew) {

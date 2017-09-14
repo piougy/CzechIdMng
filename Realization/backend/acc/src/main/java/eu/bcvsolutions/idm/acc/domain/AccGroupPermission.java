@@ -21,6 +21,7 @@ public enum AccGroupPermission implements GroupPermission {
 	IDENTITYACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	ROLECATALOGUEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
@@ -50,6 +51,11 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String TREE_ACCOUNT_CREATE = "TREEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREE_ACCOUNT_UPDATE = "TREEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREE_ACCOUNT_DELETE = "TREEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLE_CATALOGUE_ACCOUNT_READ = "ROLECATALOGUEACCOUNT" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLE_CATALOGUE_ACCOUNT_CREATE = "ROLECATALOGUEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLE_CATALOGUE_ACCOUNT_UPDATE = "ROLECATALOGUEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLE_CATALOGUE_ACCOUNT_DELETE = "ROLECATALOGUEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String SYNCHRONIZATION_CREATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SYNCHRONIZATION_UPDATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "UPDATE";

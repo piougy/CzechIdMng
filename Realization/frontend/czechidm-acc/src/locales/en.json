@@ -357,6 +357,27 @@
         }
       }
     },
+    "roleCatalogue": {
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identificator",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
     "identity": {
       "accounts": {
         "header": "Accounts in system",

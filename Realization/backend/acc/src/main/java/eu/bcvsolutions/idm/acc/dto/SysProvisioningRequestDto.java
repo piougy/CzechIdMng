@@ -7,6 +7,7 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * DTO for {@link SysProvisioningRequest}
@@ -25,7 +26,7 @@ public class SysProvisioningRequestDto extends AbstractDto {
 	private int maxAttempts;
 	@Embedded(dtoClass = SysProvisioningOperationDto.class)
 	private UUID operation;
-	private OperationResultDto result;
+	private OperationResult result;
 	@Embedded(dtoClass = SysProvisioningBatchDto.class)
 	private UUID batch;
 	
@@ -60,11 +61,11 @@ public class SysProvisioningRequestDto extends AbstractDto {
 		this.operation = operation;
 	}
 
-	public OperationResultDto getResult() {
+	public OperationResult getResult() {
 		return result;
 	}
 
-	public void setResult(OperationResultDto result) {
+	public void setResult(OperationResult result) {
 		this.result = result;
 	}
 

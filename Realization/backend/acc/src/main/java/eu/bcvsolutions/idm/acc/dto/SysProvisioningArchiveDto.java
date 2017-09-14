@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * DTO for {@link SysProvisioningArchive}
@@ -32,7 +33,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 	private SystemEntityType entityType;
 	private UUID entityIdentifier;
 	private String systemEntityUid; // account uid, etc.
-	private OperationResultDto result;
+	private OperationResult result;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -82,11 +83,12 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 		this.systemEntityUid = systemEntityUid;
 	}
 
-	public OperationResultDto getResult() {
+	@Override
+	public OperationResult getResult() {
 		return result;
 	}
 
-	public void setResult(OperationResultDto result) {
+	public void setResult(OperationResult result) {
 		this.result = result;
 	}
 
@@ -103,7 +105,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 		private SystemEntityType entityType;
 		private UUID entityIdentifier;
 		private String systemEntityUid;
-		private OperationResultDto result;
+		private OperationResult result;
 		
 		public Builder() {
 		}
@@ -150,7 +152,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 			return this;
 		}
 		
-		public Builder setResult(OperationResultDto result) {
+		public Builder setResult(OperationResult result) {
 			this.result = result;
 			return this;
 		}

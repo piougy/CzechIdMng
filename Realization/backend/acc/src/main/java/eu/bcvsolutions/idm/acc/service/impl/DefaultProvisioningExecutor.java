@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
@@ -29,6 +28,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -94,7 +94,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			SysProvisioningRequestDto request = new SysProvisioningRequestDto(provisioningOperation.getId());
 			if (batch == null) {
 				batch = batchService.save(new SysProvisioningBatchDto());
-				request.setResult(new OperationResultDto.Builder(OperationState.CREATED).build());
+				request.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 			} else {
 				// get system entity from service, in provisioning operation may not exist
 				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity());
@@ -107,7 +107,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 								"operationType", provisioningOperation.getOperationType(),
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
 				LOG.debug(resultModel.toString());				
-				request.setResult(new OperationResultDto.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+				request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			}
 			request.setBatch(batch.getId());
 			provisioningOperation.setRequest(request);

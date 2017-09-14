@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
@@ -41,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -334,8 +334,12 @@ public class DefaultSysProvisioningOperationService
 		SysProvisioningRequestDto request = operation.getRequest();
 		request.increaseAttempt();
 		request.setMaxAttempts(6); // TODO: from configuration
-		request.setResult(
-				new OperationResultDto.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build());
+		request.setResult(new OperationResult
+				.Builder(OperationState.EXCEPTION)
+				.setCode(resultModel.getStatusEnum())
+				.setModel(resultModel)
+				.setCause(ex)
+				.build());
 		//
 		request = requestService.save(request);
 		operation = save(operation);
@@ -367,7 +371,7 @@ public class DefaultSysProvisioningOperationService
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));
 		requestService.findByOperationId(operation.getId());
 		SysProvisioningRequestDto request = operation.getRequest();
-		request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).setModel(resultModel).build());
+		request.setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
 		request = requestService.save(request);
 		operation = save(operation);
 		//

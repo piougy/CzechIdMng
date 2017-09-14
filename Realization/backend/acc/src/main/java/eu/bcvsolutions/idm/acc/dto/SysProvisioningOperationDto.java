@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
@@ -115,7 +116,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	}
 
 	@Override
-	public OperationResultDto getResult() {
+	public OperationResult getResult() {
 		if (this.request == null) {
 			return null;
 		}

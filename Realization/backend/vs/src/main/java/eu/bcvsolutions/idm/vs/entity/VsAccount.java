@@ -41,6 +41,7 @@ public class VsAccount extends AbstractEntity implements FormableEntity {
 	 * Account is for CzechIdM system
 	 */
 	@Audited
+	@NotNull
 	@Column(name = "system_id", nullable = false)
 	private UUID systemId;
 	

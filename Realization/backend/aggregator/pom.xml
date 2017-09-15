@@ -20,6 +20,7 @@
 		<module>../parent</module>
 		<module>../core</module>
 		<module>../app</module>
+		<module>../vs</module>
 	</modules>
 
 	<build>
@@ -52,6 +53,7 @@
 				<module>../example</module>
 				<module>../ic</module>
 				<module>../acc</module>
+				<module>../vs</module>
 			</modules>
 			<build>
 				<plugins>

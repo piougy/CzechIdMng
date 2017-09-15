@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs.entity;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -11,7 +10,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -95,11 +93,11 @@ public class VsRequest extends AbstractEntity {
 	private VsRequest previousRequest;
 
 	@Audited
-	@Column(name = "connector_conf")
+	@Column(name = "connector_conf", length = Integer.MAX_VALUE)
 	private IcConnectorConfiguration configuration;
 
 	@Audited
-	@Column(name = "connector_object")
+	@Column(name = "connector_object", length = Integer.MAX_VALUE)
 	private IcConnectorObject connectorObject;
 
 	@Audited

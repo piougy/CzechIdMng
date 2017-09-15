@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.vs.evaluator;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -14,7 +16,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -39,16 +45,20 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 
 	private final SecurityService securityService;
 	private final VsSystemImplementerService systemImplementerService;
+	private final IdmIdentityRoleService identityRoleService;
 
 	@Autowired
-	public VsRequestByImplementerEvaluator(SecurityService securityService, VsSystemImplementerService systemImplementerService) {
+	public VsRequestByImplementerEvaluator(SecurityService securityService,
+			VsSystemImplementerService systemImplementerService, IdmIdentityRoleService identityRoleService) {
 		Assert.notNull(securityService);
 		Assert.notNull(systemImplementerService);
+		Assert.notNull(identityRoleService);
 		//
 		this.securityService = securityService;
 		this.systemImplementerService = systemImplementerService;
+		this.identityRoleService = identityRoleService;
 	}
-	
+
 	@Override
 	public Set<String> getPermissions(VsRequest authorizable, AuthorizationPolicy policy) {
 		Set<String> permissions = super.getPermissions(authorizable, policy);
@@ -57,10 +67,26 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 		}
 		VsSystemImplementerFilter systemImplementerFilter = new VsSystemImplementerFilter();
 		systemImplementerFilter.setSystemId(authorizable.getSystem().getId());
-		List<VsSystemImplementerDto> implemnters = systemImplementerService.find(systemImplementerFilter, null).getContent();
-		
+		List<VsSystemImplementerDto> implemnters = systemImplementerService.find(systemImplementerFilter, null)
+				.getContent();
+
+		UUID currentId = securityService.getCurrentId();
+
+		// Find all valid roles
+		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
+		identityRoleFilter.setValid(Boolean.TRUE);
+		identityRoleFilter.setIdentityId(currentId);
+		Set<UUID> roles = identityRoleService.find(identityRoleFilter, null).getContent()//
+				.stream()//
+				.map(IdmIdentityRoleDto::getRole)//
+				.collect(Collectors.toSet());
+
 		for (VsSystemImplementerDto implementer : implemnters) {
-			if (implementer.getIdentity() != null && implementer.getIdentity().equals(securityService.getCurrentId())) {
+			if (implementer.getIdentity() != null && implementer.getIdentity().equals(currentId)) {
+				permissions.addAll(policy.getPermissions());
+				break;
+			}
+			if (implementer.getRole() != null && roles.contains(implementer.getRole())) {
 				permissions.addAll(policy.getPermissions());
 				break;
 			}
@@ -71,21 +97,29 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 	@Override
 	public Predicate getPredicate(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			AuthorizationPolicy policy, BasePermission... permission) {
-		if (!hasAuthority(securityService.getCurrentId(), policy, permission)) {
+		UUID currentId = securityService.getCurrentId();
+		if (!hasAuthority(currentId, policy, permission)) {
 			return null;
 		}
 		
-		
+		// Find all valid roles
+		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
+		identityRoleFilter.setValid(Boolean.TRUE);
+		identityRoleFilter.setIdentityId(currentId);
+		Set<UUID> roles = identityRoleService.find(identityRoleFilter, null).getContent()//
+				.stream()//
+				.map(IdmIdentityRoleDto::getRole)//
+				.collect(Collectors.toSet());
+
 		// System implementer subquery
 		Subquery<VsSystemImplementer> subquery = query.subquery(VsSystemImplementer.class);
 		Root<VsSystemImplementer> subRoot = subquery.from(VsSystemImplementer.class);
-		subquery.select(subRoot);		
-		subquery.where(
-				 builder.and(
-				builder.equal(root.get(VsRequest_.system), subRoot.get(VsSystemImplementer_.system)), // correlation attribute
-				builder.equal(subRoot.get(VsSystemImplementer_.identity).get(IdmIdentity_.id), securityService.getCurrentId())
-						 )
-				);
+		subquery.select(subRoot);
+		subquery.where(builder.and( //
+				builder.equal(root.get(VsRequest_.system), subRoot.get(VsSystemImplementer_.system)), //
+				builder.or(// correlation attribute
+						builder.equal(subRoot.get(VsSystemImplementer_.identity).get(IdmIdentity_.id), currentId),
+						subRoot.get(VsSystemImplementer_.role).get(IdmRole_.id).in(roles))));
 		//
 		return builder.exists(subquery);
 	}

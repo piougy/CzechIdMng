@@ -43,6 +43,7 @@ public class CzechIdMIcConvertUtil {
 		icProperty.setHelpMessage(property.helpMessage());
 		icProperty.setRequired(property.required());
 		icProperty.setOrder(property.order());
+		icProperty.setFace(property.face());
 
 		return icProperty;
 	}

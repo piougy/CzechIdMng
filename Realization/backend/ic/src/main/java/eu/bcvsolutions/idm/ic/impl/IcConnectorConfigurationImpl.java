@@ -10,6 +10,9 @@ import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
  *
  */
 public class IcConnectorConfigurationImpl implements IcConnectorConfiguration {
+	
+	private static final long serialVersionUID = 5152052214301511393L;
+	
 	/**
 	 * Instance of the configuration properties.
 	 */

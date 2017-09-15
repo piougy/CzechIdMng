@@ -53,5 +53,11 @@ public interface IcConfigurationProperty extends Serializable {
 	
 	int getOrder();
 
+	/**
+	 * Define how will be property rendered
+	 * @return
+	 */
+	String getFace();
+
 
 }

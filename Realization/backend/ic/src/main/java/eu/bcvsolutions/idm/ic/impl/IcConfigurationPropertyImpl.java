@@ -10,7 +10,8 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 
 	
-	
+	private static final long serialVersionUID = 5484107218554112289L;
+
 	public IcConfigurationPropertyImpl() {
 		super();
 	}
@@ -62,6 +63,11 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
     private boolean confidential;
 
     private boolean required;
+    
+    /**
+     * Define how will be property rendered
+     */
+    private String face;
 
 	/**
 	 * @return the name
@@ -182,6 +188,7 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 		this.required = required;
 	}
 
+	@Override
 	public int getOrder() {
 		return order;
 	}
@@ -189,4 +196,14 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 	public void setOrder(int order) {
 		this.order = order;
 	}
+
+	@Override
+	public String getFace() {
+		return face;
+	}
+
+	public void setFace(String face) {
+		this.face = face;
+	}
+
 }

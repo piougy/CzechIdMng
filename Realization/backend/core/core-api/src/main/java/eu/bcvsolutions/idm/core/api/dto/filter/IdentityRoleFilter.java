@@ -13,6 +13,7 @@ public class IdentityRoleFilter extends QuickFilter {
 	
     private UUID identityId;
     private UUID roleCatalogueId;
+    private Boolean valid;
 
     public UUID getIdentityId() {
         return identityId;
@@ -30,4 +31,12 @@ public class IdentityRoleFilter extends QuickFilter {
 		this.roleCatalogueId = roleCatalogueId;
 	}
 
+	public Boolean getValid() {
+		return valid;
+	}
+
+	public void setValid(Boolean valid) {
+		this.valid = valid;
+	}
+	
 }

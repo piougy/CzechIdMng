@@ -215,8 +215,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Override
 	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
+		
 		// Unfinished requests for same UID and system
-
 		List<VsRequestDto> duplicities = this.findDuplicities(request.getUid(), request.getSystem());
 		request.setState(VsRequestState.IN_PROGRESS);
 

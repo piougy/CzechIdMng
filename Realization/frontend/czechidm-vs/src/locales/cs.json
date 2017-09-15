@@ -40,7 +40,8 @@
   },
   "permission": {
     "group": {
-      "VSREQUEST": "Požadavky na virtuální systémy"
+      "VSREQUEST": "Požadavky na virtuálních systémech",
+      "VSACCOUNT": "Účty na virtuálních systémech"
     }
   },
   "content": {

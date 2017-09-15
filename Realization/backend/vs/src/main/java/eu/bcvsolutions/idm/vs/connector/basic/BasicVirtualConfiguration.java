@@ -17,10 +17,12 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
 public class BasicVirtualConfiguration implements IcConnectorConfigurationClass {
 
 	private static final long serialVersionUID = 1L;
+	public static final String FACE_IDENTITY_SELECT = "IDENTITY-SELECT";
+	public static final String FACE_ROLE_SELECT = "ROLE-SELECT";
 
 	private String[] attributes = { "firstName", "lastName", "email" };
-	private String[] implementers;
-	private String[] implementerRoles;
+	private UUID[] implementers;
+	private UUID[] implementerRoles;
 	private boolean resetPasswordSupported = false;
 	private boolean disableSupported = true;
 	private boolean requiredConfirmation = true;
@@ -44,21 +46,21 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.attributes = attributes;
 	}
 
-	@IcConfigurationClassProperty(order = 20, displayName = "Implementers", helpMessage = "For this implementers will be created realization task. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
-	public String[] getImplementers() {
+	@IcConfigurationClassProperty(order = 20, face = FACE_IDENTITY_SELECT, displayName = "Implementers", helpMessage = "For this implementers will be created realization task. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
+	public UUID[] getImplementers() {
 		return implementers;
 	}
 
-	public void setImplementers(String[] implementers) {
+	public void setImplementers(UUID[] implementers) {
 		this.implementers = implementers;
 	}
 
-	@IcConfigurationClassProperty(order = 30, displayName = "Roles of implementers", helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles (multivalue).")
-	public String[] getImplementerRoles() {
+	@IcConfigurationClassProperty(order = 30, face = FACE_ROLE_SELECT, displayName = "Roles of implementers", helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles (multivalue).")
+	public UUID[] getImplementerRoles() {
 		return implementerRoles;
 	}
 
-	public void setImplementerRoles(String[] realizatorRoles) {
+	public void setImplementerRoles(UUID[] realizatorRoles) {
 		this.implementerRoles = realizatorRoles;
 	}
 
@@ -95,18 +97,6 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 				throw new IcException(MessageFormat.format(
 						"BasicVirtualConfiguration validation problem: Attributes contains [{0}] attribute. This attribute name is reserved!",
 						name));
-			}
-		}
-
-		if(this.implementers != null){
-			for (String implementer : this.implementers) {
-				try {
-					UUID.fromString(implementer);
-				} catch (IllegalArgumentException ex) {
-					throw new IcException(MessageFormat.format(
-							"BasicVirtualConfiguration validation problem: Implementers must contains only String representation of UUID values. Implementer [{0}] cannot be cast to UUID!",
-							implementer));
-				}
 			}
 		}
 	}

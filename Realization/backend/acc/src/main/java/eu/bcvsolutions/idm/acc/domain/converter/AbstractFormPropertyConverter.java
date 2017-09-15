@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.domain.converter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.util.Assert;
 
@@ -50,6 +51,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 		attribute.setRequired(propertyConfiguration.isRequired());
 		attribute.setMultiple(isMultiple());
 		attribute.setDefaultValue(convertDefaultValue(propertyConfiguration));
+		attribute.setFaceType(propertyConfiguration.getFace());
 		return attribute;
 	}
 
@@ -123,6 +125,8 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 			// override for other data types
 			if (PersistentType.TEXT == getFormPropertyType()) {
 				value = valueList.toArray(new String[]{});
+			}else if(PersistentType.UUID == getFormPropertyType()) {
+				value = valueList.toArray(new UUID[]{});
 			} else {
 				value = valueList.toArray();
 			}

@@ -377,7 +377,8 @@
           "CURRENCY": "Měna",
           "TEXTAREA": "Textové pole (TextArea)",
           "RICHTEXTAREA": "WYSIWYG editor",
-          "IDENTITY-SELECT": "Výběr identit (SelectBox)"
+          "IDENTITY-SELECT": "Výběr identit (SelectBox)",
+          "ROLE-SELECT": "Výběr rolí (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."

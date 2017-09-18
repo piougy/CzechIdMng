@@ -88,10 +88,6 @@ public class PasswordChangeController {
 			@PathVariable String backendId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		//
-		// public password change password for all system including idm 
-		passwordChangeDto.setAll(true);
-		passwordChangeDto.setIdm(true);
-		//
 		IdmIdentityDto identity = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, backendId);
 		if (identity == null) {
 			// we don't result not found by security reasons, it public endpoint
@@ -105,6 +101,10 @@ public class PasswordChangeController {
 				loginDto.setUsername(identity.getUsername());
 				loginDto.setPassword(passwordChangeDto.getOldPassword());
 				loginDto = authenticationManager.authenticate(loginDto);
+				//
+				// public password change password for all system including idm 
+				passwordChangeDto.setAll(true);
+				passwordChangeDto.setIdm(true);
 			}
 		} catch(IdmAuthenticationException ex) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM, ex);

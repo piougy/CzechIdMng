@@ -164,7 +164,7 @@ class Profile extends Basic.AbstractContent {
     })
     .then(json => {
       if (!json.error) {
-        this.setNewPassword(json);
+        this.setNewPassword(json.content);
         this.setState({
           generatePasswordShowLoading: false,
           generatePassword: true

@@ -77,7 +77,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	@Override
 	@Transactional(readOnly = true)
 	public Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(UUID identityId) {
-		return getGrantedAuthoritiesForValidRoles(identityId, identityRoleService.findAllByIdentity(identityId));
+		return getGrantedAuthoritiesForValidRoles(identityId, identityRoleService.findValidRole(identityId, null).getContent());
 	}
 	
 	@Override

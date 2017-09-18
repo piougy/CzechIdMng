@@ -58,4 +58,12 @@ public interface IdmIdentityRoleService extends
 	 * @return
 	 */
 	Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable pageable);
+
+	/**
+	 * Find valid identity-roles in this moment. Includes check on contract validity. 
+	 * @param identityId
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmIdentityRoleDto> findValidRole(UUID identityId, Pageable pageable);
 }

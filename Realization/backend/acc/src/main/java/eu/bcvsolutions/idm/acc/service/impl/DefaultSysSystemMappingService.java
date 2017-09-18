@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -61,6 +62,14 @@ public class DefaultSysSystemMappingService extends
 		this.repository = repository;
 		this.syncConfigRepository = syncConfigRepository;
 		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	protected Page<SysSystemMapping> findEntities(SystemMappingFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override

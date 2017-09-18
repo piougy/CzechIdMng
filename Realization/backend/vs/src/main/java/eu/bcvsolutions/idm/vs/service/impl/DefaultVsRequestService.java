@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
@@ -67,14 +68,13 @@ import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
-import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeValueDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
  * Service for request in virtual system
@@ -215,9 +215,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Override
 	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
+		
 		// Unfinished requests for same UID and system
-
-		List<VsRequestDto> duplicities = this.findDuplicities(request.getUid(), request.getSystemId());
+		List<VsRequestDto> duplicities = this.findDuplicities(request.getUid(), request.getSystem());
 		request.setState(VsRequestState.IN_PROGRESS);
 
 		if (!CollectionUtils.isEmpty(duplicities)) {
@@ -305,7 +305,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			break;
 		}
 		case DELETE: {
-			VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystemId());
+			VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystem());
 			if (account == null) {
 				throw new VsException(VsResultCode.VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST,
 						ImmutableMap.of("uid", request.getUid()));
@@ -317,7 +317,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			VsRequestFilter filter = new VsRequestFilter();
 			filter.setCreatedBefore(request.getCreated());
 			filter.setUid(request.getUid());
-			filter.setSystemId(request.getSystemId());
+			filter.setSystemId(request.getSystem());
 			filter.setState(VsRequestState.IN_PROGRESS);
 			// Unresolved request created before this request
 			List<VsRequestDto> beforeRequests = this.find(filter, null).getContent();
@@ -345,7 +345,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request, "VS request cannot be null!");
 		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
 
-		return this.systemService.readConnectorObject(request.getSystemId(), request.getUid(),
+		return this.systemService.readConnectorObject(request.getSystem(), request.getUid(),
 				request.getConnectorObject().getObjectClass());
 	}
 
@@ -356,7 +356,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
 
 		// Find account by UID and System ID
-		VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystemId());
+		VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystem());
 		if (account == null) {
 			return null;
 		}
@@ -389,9 +389,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				VsAttributeDto vsAttribute = new VsAttributeDto(changedAttribute.getName(),
 						changedAttribute.isMultiValue(), true);
 				if (changedAttribute.isMultiValue()) {
-					changedAttribute.getValues().forEach(value -> {
-						vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
-					});
+					if (changedAttribute.getValues() != null) {
+						changedAttribute.getValues().forEach(value -> {
+							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
+						});
+					}
 				} else {
 					vsAttribute.setValue(
 							new VsAttributeValueDto(changedAttribute.getValue(), null, VsValueChangeType.ADDED));
@@ -408,19 +410,24 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), true);
 				IcAttribute changedAttribute = changeObject.getAttributeByName(currentAttribute.getName());
 				if (changedAttribute.isMultiValue()) {
-					changedAttribute.getValues().forEach(value -> {
-						if (currentAttribute.getValues().contains(value)) {
-							vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
-						} else {
-							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
-						}
-					});
-					currentAttribute.getValues().forEach(value -> {
-						if (!changedAttribute.getValues().contains(value)) {
-							vsAttribute.getValues()
-									.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
-						}
-					});
+					if (changedAttribute.getValues() != null) {
+						changedAttribute.getValues().forEach(value -> {
+							if (currentAttribute.getValues().contains(value)) {
+								vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
+							} else {
+								vsAttribute.getValues()
+										.add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
+							}
+						});
+					}
+					if (currentAttribute.getValues() != null) {
+						currentAttribute.getValues().forEach(value -> {
+							if (!changedAttribute.getValues().contains(value)) {
+								vsAttribute.getValues()
+										.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
+							}
+						});
+					}
 				} else {
 					Object changedValue = changedAttribute.getValue();
 					Object currentValue = currentAttribute.getValue();
@@ -438,9 +445,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				// Attribute was not changed
 				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), false);
 				if (currentAttribute.isMultiValue()) {
-					currentAttribute.getValues().forEach(value -> {
-						vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
-					});
+					if (currentAttribute.getValues() != null) {
+						currentAttribute.getValues().forEach(value -> {
+							vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
+						});
+					}
 				} else {
 					vsAttribute.setValue(
 							new VsAttributeValueDto(currentAttribute.getValue(), currentAttribute.getValue(), null));
@@ -492,7 +501,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		// System ID
 		if (filter.getSystemId() != null) {
-			predicates.add(builder.equal(root.get(VsRequest_.systemId), filter.getSystemId()));
+			predicates.add(builder.equal(root.get(VsRequest_.system).get(SysSystem_.id), filter.getSystemId()));
 		}
 
 		// State
@@ -545,7 +554,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		// We assume the request.UID is equals Identity user name!;
 		IdmIdentityDto identity = this.getIdentity(request);
-		SysSystemDto system = systemService.get(request.getSystemId());
+		SysSystemDto system = systemService.get(request.getSystem());
 		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
 
 		// send create notification
@@ -612,7 +621,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(previousRequest.getConnectorObject(), "Previous request connector object cannot be null!");
 
 		if ((!request.getUid().equals(previousRequest.getUid()))
-				|| (!request.getSystemId().equals(previousRequest.getSystemId()))
+				|| (!request.getSystem().equals(previousRequest.getSystem()))
 				|| request.getOperationType() != previousRequest.getOperationType()) {
 			return false;
 		}

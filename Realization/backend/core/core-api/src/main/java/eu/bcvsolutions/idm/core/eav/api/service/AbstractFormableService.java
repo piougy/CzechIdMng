@@ -27,7 +27,7 @@ public abstract class AbstractFormableService<DTO extends BaseDto, E extends For
 	private final FormService formService;
 	
 	@Autowired
-	public AbstractFormableService(AbstractEntityRepository<E, F> repository, EntityEventManager entityEventManager, FormService formService) {
+	public AbstractFormableService(AbstractEntityRepository<E> repository, EntityEventManager entityEventManager, FormService formService) {
 		super(repository, entityEventManager);
 		//
 		Assert.notNull(formService);

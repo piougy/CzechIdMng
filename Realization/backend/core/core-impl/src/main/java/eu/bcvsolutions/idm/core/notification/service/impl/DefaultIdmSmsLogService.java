@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmSmsLogService;
 public class DefaultIdmSmsLogService extends AbstractNotificationLogService<IdmSmsLogDto, IdmSmsLog, NotificationFilter> implements IdmSmsLogService {
 
     @Autowired
-    public DefaultIdmSmsLogService(AbstractEntityRepository<IdmSmsLog, NotificationFilter> repository) {
+    public DefaultIdmSmsLogService(AbstractEntityRepository<IdmSmsLog> repository) {
         super(repository);
     }
 

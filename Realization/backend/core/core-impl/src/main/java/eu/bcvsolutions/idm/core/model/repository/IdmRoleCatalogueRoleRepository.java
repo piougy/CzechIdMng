@@ -19,13 +19,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
  * @author Radek Tomiška
  *
  */
-public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository<IdmRoleCatalogueRole, RoleCatalogueRoleFilter> {
+public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository<IdmRoleCatalogueRole> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
-	@Override
 	@Query(value = "select e from IdmRoleCatalogueRole e " +
 	        " where" +
 	        " (?#{[0].roleCatalogueId} is null or e.roleCatalogue.id = ?#{[0].roleCatalogueId})" + 

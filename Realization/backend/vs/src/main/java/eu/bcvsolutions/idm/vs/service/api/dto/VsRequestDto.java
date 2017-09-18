@@ -40,8 +40,8 @@ public class VsRequestDto extends AbstractDto {
 	@ApiModelProperty(required = true, notes = "Unique account identifier. UID on system and for connector.")
 	private String uid;
 	@ApiModelProperty(required = true, notes = "CzechIdM system identifier. UID on system and for connector.")
-	@Embedded(dtoClass = SysSystemDto.class) //  use UUID to UUID converter 
-	private UUID systemId;
+	@Embedded(dtoClass = SysSystemDto.class)
+	private UUID system;
 	@ApiModelProperty(required = true, notes = "Connector identifier. UID on system and for connector.")
 	private String connectorKey;
 	private VsOperationType operationType;
@@ -67,12 +67,12 @@ public class VsRequestDto extends AbstractDto {
 		this.uid = uid;
 	}
 
-	public UUID getSystemId() {
-		return systemId;
+	public UUID getSystem() {
+		return system;
 	}
 
-	public void setSystemId(UUID systemId) {
-		this.systemId = systemId;
+	public void setSystem(UUID system) {
+		this.system = system;
 	}
 
 	public String getConnectorKey() {

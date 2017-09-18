@@ -208,8 +208,8 @@ public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<I
 			response = IdmPasswordValidationDto.class,
 			tags = { IdmPasswordPolicyController.TAG },
 			notes = "Returns generated password by default password policy.")
-	public String generateByDefaultPolicy() {
-		return passwordPolicyService.generatePasswordByDefault();
+	public Resource<String> generateByDefaultPolicy() {
+		return new Resource<>(passwordPolicyService.generatePasswordByDefault());
 	}
 	
 	/**

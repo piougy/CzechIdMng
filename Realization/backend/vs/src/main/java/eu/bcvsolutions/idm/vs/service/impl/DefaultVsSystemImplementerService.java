@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
@@ -88,7 +87,7 @@ public class DefaultVsSystemImplementerService
 			return null;
 		}
 		VsSystemImplementerFilter filter = new VsSystemImplementerFilter();
-		filter.setSystemId(request.getSystemId());
+		filter.setSystemId(request.getSystem());
 		List<VsSystemImplementerDto> requestImplementers = this.find(filter, null).getContent();
 		Set<IdmIdentityDto> identities = requestImplementers.stream()//
 				.filter(sysImp -> sysImp.getIdentity() != null)//

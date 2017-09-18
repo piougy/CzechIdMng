@@ -75,7 +75,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 //@Component - we want control create connector instances
-@IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.1.2", configurationClass = BasicVirtualConfiguration.class)
+@IcConnectorClass(displayName = "Virtual system connector", framework = "czechidm", name = "virtual-system-basic", version = "1.0.0", configurationClass = BasicVirtualConfiguration.class)
 public class BasicVirtualConnector implements VsVirtualConnector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BasicVirtualConnector.class);
@@ -712,7 +712,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		VsRequestDto request = new VsRequestDto();
 		request.setUid(uidString);
 		request.setState(VsRequestState.CONCEPT);
-		request.setSystemId(this.systemId);
+		request.setSystem(this.systemId);
 		request.setConfiguration(this.configuration);
 		request.setConnectorKey(connectorKey);
 		request.setConnectorObject(new IcConnectorObjectImpl(uidString, objectClass, attributes));
@@ -793,14 +793,14 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * @param implementersString
 	 * @return
 	 */
-	private List<IdmIdentityDto> loadImplementers(String[] implementersString) {
+	private List<IdmIdentityDto> loadImplementers(UUID[] implementersUUID) {
 		List<IdmIdentityDto> implementers = new ArrayList<>();
-		if (implementersString == null) {
+		if (implementersUUID == null) {
 			return implementers;
 		}
 
-		for (String implementer : implementersString) {
-			IdmIdentityDto identity = identityService.get(UUID.fromString(implementer));
+		for (UUID implementer : implementersUUID) {
+			IdmIdentityDto identity = identityService.get(implementer);
 			if (identity == null) {
 				throw new VsException(VsResultCode.VS_IMPLEMENTER_WAS_NOT_FOUND,
 						ImmutableMap.of("implementer", implementer));
@@ -814,19 +814,19 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * Load implementer roles by UUIDs in connector configuration. Throw
 	 * exception when identity not found.
 	 * 
-	 * @param implementerRolesString
+	 * @param implementerRolesUUID
 	 * @return
 	 */
-	private List<IdmRoleDto> loadImplementerRoles(String[] implementerRolesString) {
+	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID) {
 		List<IdmRoleDto> implementers = new ArrayList<>();
-		if (implementerRolesString == null || implementerRolesString.length == 0) {
+		if (implementerRolesUUID == null || implementerRolesUUID.length == 0) {
 			// Load default role from configuration
 			implementers.add(vsConfiguration.getDefaultRole());
 			return implementers;
 		}
 
-		for (String implementer : implementerRolesString) {
-			IdmRoleDto role = roleService.get(UUID.fromString(implementer));
+		for (UUID implementer : implementerRolesUUID) {
+			IdmRoleDto role = roleService.get(implementer);
 			if (role == null) {
 				throw new VsException(VsResultCode.VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND,
 						ImmutableMap.of("role", implementer));

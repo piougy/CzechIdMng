@@ -6,13 +6,14 @@
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
 		<version>7.4.0-SNAPSHOT</version>
+		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>idm-vs</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>CzechIdM Module Virtual system</name>
+	<name>CzechIdM Virtual system</name>
+	<description>Virtual system module for CzechIdM. Provides system connector for connect CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be realizate manually. Basicly virtual system for every active connector operation creates task for realizater (admin of real system).</description>
 
 	<build>
 		<plugins>
@@ -38,18 +39,18 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-core-impl</artifactId>
-			<version>7.4.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-core-test-api</artifactId>
-			<version>7.4.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-acc</artifactId>
-			<version>7.4.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -137,6 +138,4 @@
 			</build>
 		</profile>
 	</profiles>
-
-	<description>Virtual system module for CzechIdM. Provides system connector for connect CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be realizate manually. Basicly virtual system for every active connector operation creates task for realizater (admin of real system).</description>
 </project>

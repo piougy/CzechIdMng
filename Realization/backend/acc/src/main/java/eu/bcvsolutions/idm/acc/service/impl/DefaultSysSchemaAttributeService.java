@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoService<SysSchemaAttributeDto, SysSchemaAttribute, SchemaAttributeFilter>
 		implements SysSchemaAttributeService {
 
+	private final SysSchemaAttributeRepository repository;
 	private final EntityEventManager entityEventManager;
 	
 	@Autowired
@@ -39,7 +42,16 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoServic
 		//
 		Assert.notNull(entityEventManager);
 		//
+		this.repository = repository;
 		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	protected Page<SysSchemaAttribute> findEntities(SchemaAttributeFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override

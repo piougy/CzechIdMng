@@ -18,6 +18,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -108,6 +110,14 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			// throw error, or just log error and continue?
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
+	}
+	
+	@Override
+	protected Page<IdmScript> findEntities(ScriptFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

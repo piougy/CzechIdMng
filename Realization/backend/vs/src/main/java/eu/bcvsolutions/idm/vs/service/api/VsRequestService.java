@@ -20,16 +20,47 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 public interface VsRequestService
 		extends ReadWriteDtoService<VsRequestDto, VsRequestFilter>, AuthorizableService<VsRequestDto> {
 
+	/**
+	 * Execute new request. Publish event EXCECUTE.
+	 * @param request
+	 * @return
+	 */
 	IcUidAttribute execute(VsRequestDto request);
 
+	/**
+	 * Start of request - set state on In progress. Check duplicity and send notification.
+	 * @param request
+	 * @return
+	 */
 	IcUidAttribute internalStart(VsRequestDto request);
 
+	/**
+	 * Save request and set state to Concept.
+	 * @param request
+	 * @return
+	 */
 	VsRequestDto createRequest(VsRequestDto request);
 
+	/**
+	 * Internal execution. Propagate change in request to VsAccount (call connector).
+	 * @param request
+	 * @return
+	 */
 	IcUidAttribute internalExecute(VsRequestDto request);
 
+	/**
+	 * Realize request. Request will be marked as realized (only change state).
+	 * @param request
+	 * @return
+	 */
 	VsRequestDto realize(VsRequestDto request);
 
+	/**
+	 * Cancel request. Reason must be not null. Request will be only mark as cancel (change state)
+	 * @param request
+	 * @param reason
+	 * @return
+	 */
 	VsRequestDto cancel(VsRequestDto request, String reason);
 
 	/**

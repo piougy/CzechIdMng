@@ -16,13 +16,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningArchiveRepository extends AbstractEntityRepository<SysProvisioningArchive, ProvisioningOperationFilter> {
+public interface SysProvisioningArchiveRepository extends AbstractEntityRepository<SysProvisioningArchive> {
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
-	@Override
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
 			+ " ("

@@ -113,7 +113,7 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     return [
       {
         label: this.i18n('acc:entity.System.name'),
-        value: entity._embedded.systemId.id
+        value: entity._embedded.system.id
       },
       {
         label: this.i18n('vs:entity.VsRequest.uid.label'),

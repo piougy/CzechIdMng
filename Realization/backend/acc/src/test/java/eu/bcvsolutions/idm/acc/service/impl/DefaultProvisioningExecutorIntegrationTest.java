@@ -18,10 +18,10 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -134,7 +134,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		initSystem();
 		//
 		// create test provisioning context
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		SysSystemEntityDto systemEntity = new SysSystemEntityDto("oneUid", SystemEntityType.IDENTITY);
 		systemEntity.setSystem(system.getId());
 		systemEntity.setWish(true);
@@ -163,7 +163,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
 				.setSystemEntity(systemEntity.getId())
-				.setProvisioningContext(new ProvisioningContextDto(accoutObject, connectorObject));
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 		//
 		// check target account
@@ -201,7 +201,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		system = systemService.save(system);
 		//
 		// create test provisioning context
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		String systemEntityUid = "twoUid";
 		SysSystemEntityDto systemEntity = new SysSystemEntityDto(systemEntityUid, SystemEntityType.IDENTITY);
 		systemEntity.setSystem(system.getId());
@@ -228,7 +228,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
 				.setSystemEntity(systemEntity.getId())
-				.setProvisioningContext(new ProvisioningContextDto(accoutObject, connectorObject));
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		SysProvisioningOperationDto operation = provisioningExecutor.execute(operationBuilder.build());
 		// is necessary to get again operation from service
 		operation = sysProvisioningOperationService.get(operation.getId());
@@ -284,7 +284,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		system = systemService.save(system);
 		//
 		// create test provisioning context
-		ProvisioningContextDto context = new ProvisioningContextDto();
+		ProvisioningContext context = new ProvisioningContext();
 		String systemEntityUid = "threeUid";
 		SysSystemEntityDto systemEntity = new SysSystemEntityDto(systemEntityUid, SystemEntityType.IDENTITY);
 		systemEntity.setSystem(system.getId());
@@ -311,7 +311,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
 				.setSystemEntity(systemEntity.getId())
-				.setProvisioningContext(new ProvisioningContextDto(accoutObject, connectorObject));
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		SysProvisioningOperationDto operation = provisioningExecutor.execute(operationBuilder.build());
 		// is necessary to get again operation from service
 		operation = sysProvisioningOperationService.get(operation.getId());

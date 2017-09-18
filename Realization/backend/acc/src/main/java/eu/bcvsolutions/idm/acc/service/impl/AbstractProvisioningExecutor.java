@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -28,7 +29,6 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -461,7 +461,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(operationType).setSystemEntity(systemEntity.getId())
 				.setEntityIdentifier(entityId)
-				.setProvisioningContext(new ProvisioningContextDto(accountAttributes, connectorObject));
+				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 	}
 
@@ -596,7 +596,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntity.getId())
 				.setEntityIdentifier(entity == null ? null : entity.getId())
-				.setProvisioningContext(new ProvisioningContextDto(connectorObject));
+				.setProvisioningContext(new ProvisioningContext(connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 	}
 

@@ -190,6 +190,14 @@ module.exports = {
       'faceType': 'IDENTITY-SELECT',
       'component': require('./src/components/advanced/Form/IdentitySelectFormAttributeRenderer'),
       'labelKey': 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT'
+    },
+    {
+      'id': 'role-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'ROLE-SELECT',
+      'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.Role-SELECT'
     }
   ]
 };

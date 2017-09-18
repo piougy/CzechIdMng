@@ -14,9 +14,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Svanda
  *
  */
-public interface SysSchemaObjectClassRepository extends AbstractEntityRepository<SysSchemaObjectClass, SchemaObjectClassFilter> {
+public interface SysSchemaObjectClassRepository extends AbstractEntityRepository<SysSchemaObjectClass> {
 
-	@Override
 	@Query(value = "select e from SysSchemaObjectClass e" +
 	        " where" +
 	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +

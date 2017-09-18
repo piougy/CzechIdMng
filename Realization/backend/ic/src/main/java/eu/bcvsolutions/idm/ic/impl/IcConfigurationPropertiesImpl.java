@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
  */
 public class IcConfigurationPropertiesImpl implements IcConfigurationProperties {
 
+	private static final long serialVersionUID = -4173042364288421351L;
+	
 	List<IcConfigurationProperty> properties;
 
 	/**

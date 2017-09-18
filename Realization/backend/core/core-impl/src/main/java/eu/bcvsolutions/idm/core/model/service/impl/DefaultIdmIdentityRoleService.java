@@ -133,6 +133,32 @@ public class DefaultIdmIdentityRoleService
                     		));
 			predicates.add(builder.exists(roleCatalogueRoleSubquery));
 		}
+		// Only valid identity-role
+		if (filter.getValid() != null && filter.getValid()) {
+			final LocalDate today = LocalDate.now();
+			predicates.add(
+					builder.and(
+							builder.or(
+									builder.lessThanOrEqualTo(root.get(IdmIdentityRole_.validFrom), today),
+									builder.isNull(root.get(IdmIdentityRole_.validFrom))
+									),
+							builder.or(
+									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.validTill), today),
+									builder.isNull(root.get(IdmIdentityRole_.validTill))
+									)
+							)
+					);
+		}
+		// Only unvalid identity-role
+		if (filter.getValid() != null && !filter.getValid()) {
+			final LocalDate today = LocalDate.now();
+			predicates.add(
+					builder.or(
+							builder.lessThan(root.get(IdmIdentityRole_.validTill), today),
+							builder.greaterThan(root.get(IdmIdentityRole_.validFrom), today)
+							)
+					);
+		}
 		return predicates;
 	}
 	

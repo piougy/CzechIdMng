@@ -18,9 +18,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity, SystemEntityFilter> {
+public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity> {
 	
-	@Override
 	@Query(value = "select e from SysSystemEntity e" +
 	        " where" +
 	        " (lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" +

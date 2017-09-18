@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -18,9 +20,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningContextDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -69,6 +71,7 @@ public class DefaultSysProvisioningOperationService
 	private static final String ACCOUNT_OBJECT_PROPERTY_PREFIX = "sys:account:";
 	private static final String CONNECTOR_OBJECT_PROPERTY_PREFIX = "sys:connector:";
 	
+	private final SysProvisioningOperationRepository repository;
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysProvisioningBatchService batchService;
 	private final SysProvisioningBatchRepository batchRepository;
@@ -105,6 +108,7 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(provisioningRequestService);
 		Assert.notNull(batchRepository);
 		//
+		this.repository = repository;
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.batchService = batchService;
 		this.notificationManager = notificationManager;
@@ -114,6 +118,14 @@ public class DefaultSysProvisioningOperationService
 		this.modelMapper = modelMapper;
 		this.provisioningRequestService = provisioningRequestService;
 		this.batchRepository = batchRepository;
+	}
+	
+	@Override
+	protected Page<SysProvisioningOperation> findEntities(ProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override
@@ -129,6 +141,9 @@ public class DefaultSysProvisioningOperationService
 		
 		if (dto != null) {
 			dto.setRequest(requestService.findByOperationId(entity.getId()));
+			// copy => detach
+			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
+			// TODO: system to embedded
 		}
 		return dto;
 	}
@@ -320,8 +335,12 @@ public class DefaultSysProvisioningOperationService
 		SysProvisioningRequestDto request = operation.getRequest();
 		request.increaseAttempt();
 		request.setMaxAttempts(6); // TODO: from configuration
-		request.setResult(
-				new OperationResultDto.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build());
+		request.setResult(new OperationResult
+				.Builder(OperationState.EXCEPTION)
+				.setCode(resultModel.getStatusEnum())
+				.setModel(resultModel)
+				.setCause(ex)
+				.build());
 		//
 		request = requestService.save(request);
 		operation = save(operation);
@@ -353,7 +372,7 @@ public class DefaultSysProvisioningOperationService
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));
 		requestService.findByOperationId(operation.getId());
 		SysProvisioningRequestDto request = operation.getRequest();
-		request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).setModel(resultModel).build());
+		request.setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
 		request = requestService.save(request);
 		operation = save(operation);
 		//
@@ -364,14 +383,14 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	/**
-	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContextDto}. 
+	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContext}. 
 	 * 
 	 * TODO: don't update accountObject in provisioningOperation (needs attribute defensive clone)
 	 *
 	 * @param context
 	 * @return Returns values (key / value) to store in confidential storage. 
 	 */
-	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContextDto context) {
+	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContext context) {
 		try {
 			Map<String, Serializable> confidentialValues = new HashMap<>();
 			if (context == null) {
@@ -487,7 +506,7 @@ public class DefaultSysProvisioningOperationService
 	protected void deleteConfidentialStrings(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		//
-		ProvisioningContextDto context = provisioningOperation.getProvisioningContext();
+		ProvisioningContext context = provisioningOperation.getProvisioningContext();
 		if (context == null) {
 			return;
 		}

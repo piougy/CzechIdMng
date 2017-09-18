@@ -3,13 +3,10 @@ package eu.bcvsolutions.idm.acc.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
@@ -22,17 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public interface AccIdentityAccountRepository extends AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> {
-	
-	/**
-	 * @deprecated Use AccIdentityAccountService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<AccIdentityAccount> find(IdentityAccountFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use AccIdentityAccountService (uses criteria api)");
-	}
+public interface AccIdentityAccountRepository extends AbstractEntityRepository<AccIdentityAccount> {
 	
 	List<AccIdentityAccount> findAllByAccount_Id(UUID accountId);
 	

@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Archived provisioning operations
@@ -23,11 +26,23 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 public class DefaultSysProvisioningArchiveService
 		extends AbstractReadWriteDtoService<SysProvisioningArchiveDto, SysProvisioningArchive, ProvisioningOperationFilter> 
 		implements SysProvisioningArchiveService {
+	
+	private final SysProvisioningArchiveRepository repository;
 
 	@Autowired
 	public DefaultSysProvisioningArchiveService(
 			SysProvisioningArchiveRepository repository) {
 		super(repository);
+		//
+		this.repository = repository;
+	}
+	
+	@Override
+	protected Page<SysProvisioningArchive> findEntities(ProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

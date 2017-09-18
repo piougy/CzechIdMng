@@ -338,7 +338,8 @@
           "CURRENCY": "Currency",
           "TEXTAREA": "TextArea",
           "RICHTEXTAREA": "WYSIWYG editor",
-          "IDENTITY-SELECT": "Select identity (SelectBox)"
+          "IDENTITY-SELECT": "Select identity (SelectBox)",
+          "ROLE-SELECT": "Select role (SelectBox)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain attributes."

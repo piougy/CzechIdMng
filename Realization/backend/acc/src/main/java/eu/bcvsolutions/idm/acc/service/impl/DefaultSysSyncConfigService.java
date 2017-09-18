@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,6 +31,7 @@ public class DefaultSysSyncConfigService
 		extends AbstractReadWriteDtoService<SysSyncConfigDto, SysSyncConfig, SynchronizationConfigFilter>
 		implements SysSyncConfigService {
 
+	private final SysSyncConfigRepository repository;
 	private final SysSyncLogService synchronizationLogService;
 
 	@Autowired
@@ -38,7 +41,16 @@ public class DefaultSysSyncConfigService
 		//
 		Assert.notNull(synchronizationLogService);
 		//
+		this.repository = repository;
 		this.synchronizationLogService = synchronizationLogService;
+	}
+	
+	@Override
+	protected Page<SysSyncConfig> findEntities(SynchronizationConfigFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

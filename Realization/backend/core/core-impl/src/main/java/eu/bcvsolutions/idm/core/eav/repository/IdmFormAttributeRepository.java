@@ -3,13 +3,9 @@ package eu.bcvsolutions.idm.core.eav.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 
@@ -19,18 +15,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška 
  *
  */
-public interface IdmFormAttributeRepository extends AbstractEntityRepository<IdmFormAttribute, IdmFormAttributeFilter> {
-	
-	/**
-	 * @deprecated Use IdmFormAttributeService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmFormAttribute> find(IdmFormAttributeFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmFormAttributeService (uses criteria api)");
-	}
-	
+public interface IdmFormAttributeRepository extends AbstractEntityRepository<IdmFormAttribute> {
 	
 	/**
 	 * Attribute definition name is unique in one form definition

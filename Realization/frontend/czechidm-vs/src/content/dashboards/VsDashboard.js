@@ -1,5 +1,5 @@
 import React from 'react';
-import { Basic, Domain } from 'czechidm-core';
+import { Basic, Domain, Managers } from 'czechidm-core';
 import VsRequestTable from '../vs-request/VsRequestTable';
 
 /**
@@ -17,6 +17,9 @@ export default class VsDashboard extends Basic.AbstractContent {
   }
 
   render() {
+    if (!Managers.SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ']})) {
+      return null;
+    }
     const searchActive = new Domain.SearchParameters().setFilter('state', 'IN_PROGRESS');
     return (
       <Basic.Panel>

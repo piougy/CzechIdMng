@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoService<SysSchemaObjectClassDto, SysSchemaObjectClass, SchemaObjectClassFilter>
 		implements SysSchemaObjectClassService {
 
+	private final SysSchemaObjectClassRepository repository;
 	private final SysSchemaAttributeService sysSchemaAttributeService;
 	private final SysSystemMappingService systemMappingService;
 	
@@ -42,8 +45,17 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 		Assert.notNull(sysSchemaAttributeService, "Schema attribute service is required!");
 		Assert.notNull(systemMappingService);
 		//
+		this.repository = repository;
 		this.sysSchemaAttributeService = sysSchemaAttributeService;
 		this.systemMappingService = systemMappingService;
+	}
+	
+	@Override
+	protected Page<SysSchemaObjectClass> findEntities(SchemaObjectClassFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override

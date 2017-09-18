@@ -12,10 +12,13 @@ import java.util.stream.Collectors;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
@@ -40,6 +43,7 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 	
 	private final ApplicationContext applicationContext;
 	private List<AvailableServiceDto> services;
+	private IdmScriptAuthorityRepository repository;
 	
 	@Autowired
 	public DefaultIdmScriptAuthorityService(
@@ -49,7 +53,16 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 		//
 		Assert.notNull(applicationContext);
 		//
+		this.repository = repository;
 		this.applicationContext = applicationContext;
+	}
+	
+	@Override
+	protected Page<IdmScriptAuthority> findEntities(ScriptAuthorityFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override

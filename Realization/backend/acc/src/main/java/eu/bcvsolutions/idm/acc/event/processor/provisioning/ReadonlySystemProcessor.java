@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
-import eu.bcvsolutions.idm.acc.dto.OperationResultDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -20,6 +19,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -79,8 +79,7 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
 			SysProvisioningRequestDto request = provisioningOperation.getRequest();
-			request.setResult(
-					new OperationResultDto.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+			request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
 			request = requestService.save(request);
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);

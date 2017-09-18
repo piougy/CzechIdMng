@@ -33,7 +33,7 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	private final EntityEventManager entityEventManager;
 	
 	public AbstractEventableDtoService(
-			AbstractEntityRepository<E, F> repository,
+			AbstractEntityRepository<E> repository,
 			EntityEventManager entityEventManager
 			) {
 		super(repository);

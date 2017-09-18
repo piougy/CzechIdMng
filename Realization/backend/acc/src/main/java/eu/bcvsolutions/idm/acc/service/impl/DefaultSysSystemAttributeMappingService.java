@@ -12,6 +12,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -126,6 +128,14 @@ public class DefaultSysSystemAttributeMappingService
 		this.systemMappingService = systemMappingService;
 		//
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
+	}
+	
+	@Override
+	protected Page<SysSystemAttributeMapping> findEntities(SystemAttributeMappingFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override

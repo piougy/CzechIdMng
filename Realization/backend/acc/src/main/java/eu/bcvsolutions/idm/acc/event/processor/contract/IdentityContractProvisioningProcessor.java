@@ -20,13 +20,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Executes provisioning after identity contract is saved or deleted. 
- * Executes provisioning for all contract's subordinates (newly added and previous) - depends on configuration property.
+ * Executes provisioning for contract's identity and all contract's subordinates (newly added and previous) - depends on configuration property.
  * 
  * @author Radek Tomiška
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioning after identity contract is saved or deleted.")
+@Description("Executes provisioning for contract's identity and all contract's subordinates (newly added and previous) - depends on configuration property")
 public class IdentityContractProvisioningProcessor extends AbstractIdentityContractProvisioningProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-contract-provisioning-processor";

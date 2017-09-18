@@ -28,6 +28,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -70,23 +72,14 @@ public class DefaultIdmNotificationTemplateService extends
 	private static final String TEMPLATE_FILE_SUFIX = "idm.sec.core.notification.template.fileSuffix";
 	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmNotificationTemplateService.class);
-
-	// private static final String ENCODING = "UTF-8";
-
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationTemplateService.class);
+	//
 	private final IdmNotificationTemplateRepository repository;
-
 	private final VelocityEngine velocityEngine;
-
 	private final ApplicationContext applicationContext;
-
 	private final ConfigurationService configurationService;
-
 	private final IdmNotificationConfigurationRepository notificationConfigurationRepository;
-
 	private final SecurityService securityService;
-
 	private JAXBContext jaxbContext = null;
 
 	@Autowired
@@ -122,6 +115,14 @@ public class DefaultIdmNotificationTemplateService extends
 			// TODO throw error, or just log and continue?
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
+	}
+	
+	@Override
+	protected Page<IdmNotificationTemplate> findEntities(NotificationTemplateFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override

@@ -22,9 +22,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-public interface AccAccountRepository extends AbstractEntityRepository<AccAccount, AccountFilter> {
+public interface AccAccountRepository extends AbstractEntityRepository<AccAccount> {
 	
-	@Override
 	@Query(value = "select e from AccAccount e left join e.systemEntity se " +
 	        " where" +
 	        " (?#{[0].id} is null or e.id = ?#{[0].id})" +

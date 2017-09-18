@@ -51,7 +51,6 @@ public class VsSystemImplementer extends AbstractEntity {
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRole role;
-
 	
 	public IdmIdentity getIdentity() {
 		return identity;

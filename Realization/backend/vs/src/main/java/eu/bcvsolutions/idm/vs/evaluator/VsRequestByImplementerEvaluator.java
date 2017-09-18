@@ -72,11 +72,8 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 
 		UUID currentId = securityService.getCurrentId();
 
-		// Find all valid roles
-		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
-		identityRoleFilter.setValid(Boolean.TRUE);
-		identityRoleFilter.setIdentityId(currentId);
-		Set<UUID> roles = identityRoleService.find(identityRoleFilter, null).getContent()//
+		// Find all valid roles (includes check on contract validity)
+		Set<UUID> roles = identityRoleService.findValidRole(currentId, null).getContent()//
 				.stream()//
 				.map(IdmIdentityRoleDto::getRole)//
 				.collect(Collectors.toSet());
@@ -101,12 +98,9 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 		if (!hasAuthority(currentId, policy, permission)) {
 			return null;
 		}
-		
-		// Find all valid roles
-		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
-		identityRoleFilter.setValid(Boolean.TRUE);
-		identityRoleFilter.setIdentityId(currentId);
-		Set<UUID> roles = identityRoleService.find(identityRoleFilter, null).getContent()//
+
+		// Find all valid roles (includes check on contract validity)
+		Set<UUID> roles = identityRoleService.findValidRole(currentId, null).getContent()//
 				.stream()//
 				.map(IdmIdentityRoleDto::getRole)//
 				.collect(Collectors.toSet());

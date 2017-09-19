@@ -101,6 +101,8 @@ public class DefaultIdmIdentityRoleService
 		super.delete(dto, permission);
 	}
 	
+	
+	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityRoleFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
@@ -133,7 +135,7 @@ public class DefaultIdmIdentityRoleService
                     		));
 			predicates.add(builder.exists(roleCatalogueRoleSubquery));
 		}
-		// Only valid identity-role
+		// Only valid identity-role include check on contract validity too
 		if (filter.getValid() != null && filter.getValid()) {
 			final LocalDate today = LocalDate.now();
 			predicates.add(
@@ -145,6 +147,15 @@ public class DefaultIdmIdentityRoleService
 							builder.or(
 									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.validTill), today),
 									builder.isNull(root.get(IdmIdentityRole_.validTill))
+									)
+							,
+							builder.or(
+									builder.lessThanOrEqualTo(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validFrom), today),
+									builder.isNull(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validFrom))
+									),
+							builder.or(
+									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validTill), today),
+									builder.isNull(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validTill))
 									)
 							)
 					);
@@ -180,6 +191,15 @@ public class DefaultIdmIdentityRoleService
 	@Transactional(readOnly = true)
 	public Page<IdmIdentityRoleDto> findByAutomaticRole(UUID roleTreeNodeId, Pageable pageable) {
 		return toDtoPage(repository.findByRoleTreeNode_Id(roleTreeNodeId, pageable));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityRoleDto> findValidRole(UUID identityId, Pageable pageable) {
+		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
+		identityRoleFilter.setValid(Boolean.TRUE);
+		identityRoleFilter.setIdentityId(identityId);
+		return this.find(identityRoleFilter, pageable);
 	}
 
 	@Override

@@ -38,8 +38,8 @@ class RoleRequests extends Advanced.AbstractTableContent {
     return 'content.roleRequests';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['roles-menu', 'role-requests']);
+  getNavigationKey() {
+    return 'role-requests';
   }
 
   _showCreateDetail() {

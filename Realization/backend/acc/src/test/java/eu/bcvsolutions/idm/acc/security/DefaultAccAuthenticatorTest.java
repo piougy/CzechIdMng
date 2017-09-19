@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -82,9 +81,6 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmIdentityService identityService;
-	
-	@Autowired
-	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
@@ -154,7 +150,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(true);
 		passwordChangeDto.setNewPassword(new GuardedString("test"));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(USERNAME);
@@ -213,7 +209,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("1234"));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		passwordChangeDto = new PasswordChangeDto();
 		accs = new ArrayList<>();
@@ -222,7 +218,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("4321"));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		// bough password are right
 		LoginDto loginDto1 = new LoginDto();
@@ -271,7 +267,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setIdm(false);
 		passwordChangeDto.setNewPassword(new GuardedString(PASSWORD));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(USERNAME);

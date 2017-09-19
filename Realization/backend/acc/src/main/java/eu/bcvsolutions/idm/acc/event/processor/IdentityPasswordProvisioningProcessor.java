@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -33,19 +32,14 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 	public static final String PROCESSOR_NAME = "identity-password-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProvisioningProcessor.class);
 	private final ProvisioningService provisioningService;
-	private final IdmIdentityRepository identityRepository;
 	
 	@Autowired
-	public IdentityPasswordProvisioningProcessor(
-			ProvisioningService provisioningService, 
-			IdmIdentityRepository identityRepository) {
+	public IdentityPasswordProvisioningProcessor(ProvisioningService provisioningService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(provisioningService);
-		Assert.notNull(identityRepository);
 		//
 		this.provisioningService = provisioningService;
-		this.identityRepository = identityRepository;
 	}
 	
 	@Override
@@ -60,7 +54,7 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 		Assert.notNull(passwordChangeDto);
 		//
 		LOG.debug("Call provisioning for identity password [{}]", event.getContent().getUsername());
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

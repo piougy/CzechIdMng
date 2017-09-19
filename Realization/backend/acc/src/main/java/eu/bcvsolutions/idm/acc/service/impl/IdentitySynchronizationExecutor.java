@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -29,7 +28,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -47,7 +45,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -58,7 +55,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -75,39 +71,46 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		implements SynchronizationEntityExecutor {
 
 	private final IdmIdentityService identityService;
-	private final IdmIdentityRepository identityRepository;
 	private final AccIdentityAccountService identityAccoutnService;
 	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
-	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
+	public IdentitySynchronizationExecutor(
+			IcConnectorFacade connectorFacade, 
+			SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmIdentityService identityService, IdmIdentityRepository identityRepository,
-			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, SysSystemMappingService systemMappingService,
-			SysSyncConfigRepository synchronizationConfigRepository,
+			SysSyncConfigService synchronizationConfigService, 
+			SysSyncLogService synchronizationLogService,
+			SysSyncActionLogService syncActionLogService,
+			AccAccountService accountService,
+			SysSystemEntityService systemEntityService, 
+			ConfidentialStorage confidentialStorage,
+			FormService formService, 
+			IdmIdentityService identityService,
+			AccIdentityAccountService identityAccoutnService, 
+			SysSyncItemLogService syncItemLogService,
+			IdmIdentityRoleService identityRoleService, 
+			EntityEventManager entityEventManager,
+			GroovyScriptService groovyScriptService, 
+			WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityManager entityManager, 
+			SysSystemMappingService systemMappingService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSchemaAttributeService schemaAttributeService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, synchronizationConfigRepository,
+				workflowProcessInstanceService, entityManager, systemMappingService,
 				schemaObjectClassService, schemaAttributeService);
-
+		//
 		Assert.notNull(identityService, "Identity service is mandatory!");
 		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
 		Assert.notNull(identityRoleService, "Identity role service is mandatory!");
 		Assert.notNull(formService);
-
+		//
 		this.identityService = identityService;
 		this.identityAccoutnService = identityAccoutnService;
 		this.identityRoleService = identityRoleService;
-		this.identityRepository = identityRepository;
 	}
 
 	/**
@@ -149,9 +152,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentity identity = null;
+		IdmIdentityDto identity = null;
 		if (entityId != null) {
-			identity = identityRepository.findOne(entityId);
+			identity = identityService.get(entityId);
 		}
 		if (identity == null) {
 			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
@@ -171,13 +174,12 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 */
 	@Override
-	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
-		IdmIdentity identity = (IdmIdentity) entity;
+	protected void callProvisioningForEntity(IdmIdentityDto entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
-						identity.getId(), identity.getUsername()));
-		identityService.publish(new IdentityEvent(IdentityEventType.UPDATE, identityService.get(identity.getId())));
+						entity.getId(), entity.getUsername()));
+		identityService.publish(new IdentityEvent(IdentityEventType.UPDATE, entity));
 	}
 	
 	/**
@@ -187,17 +189,15 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @return
 	 */
 	@Override
-	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
-		IdmIdentity identity = (IdmIdentity) entity;
-		// Create DTO mock ... only for check if is identity new
-		IdmIdentityDto dummyDTO = new IdmIdentityDto(identity.getId());
-		boolean isNew = identityService.isNew(dummyDTO);
-		
+	protected IdmIdentityDto save(IdmIdentityDto entity, boolean skipProvisioning) {		
 		// Content will be set in service (we need do transform entity to DTO). 
 		// Here we set only dummy dto (null content is not allowed)
-		EntityEvent<IdmIdentityDto> event = new IdentityEvent(isNew ? IdentityEventType.CREATE : IdentityEventType.UPDATE, dummyDTO, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
+				identityService.isNew(entity) ? IdentityEventType.CREATE : IdentityEventType.UPDATE,
+				entity, 
+				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
 		
-		return identityService.publishIdentity(identity, event);
+		return identityService.publish(event).getContent();
 	}
 
 	/**
@@ -215,11 +215,11 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account) {
 		// We will create new Identity
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		// Fill Identity by mapped attribute
-		identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
+		identity = (IdmIdentityDto) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
 		// Create new Identity
-		identity = (IdmIdentity) this.saveEntity(identity, true);
+		identity = this.save(identity, true);
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true);
 		// Update confidential attribute (entity must be persisted first)
@@ -266,14 +266,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		SystemEntityType entityType = context.getEntityType();
 		
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentity identity = null;
+		IdmIdentityDto identity = null;
 		if (entityId != null) {
-			identity = identityRepository.findOne(entityId);
+			identity = identityService.get(entityId);
 		}
 		if (identity != null) {
 			// Update identity
-			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, false);
-			identity = (IdmIdentity) this.saveEntity(identity, true);
+			identity = fillEntity(mappedAttributes, uid, icAttributes, identity, false);
+			identity = this.save(identity, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false);
 			// Update confidential attribute (entity must be persisted
@@ -347,12 +347,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	public boolean supports(SystemEntityType delimiter) {
 		return SystemEntityType.IDENTITY == delimiter;
 	}
-
-	@Override
-	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		return identityRepository.findOne(entityId);
-	}
-
+	
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
 		return new IdentityAccountFilter();
@@ -369,15 +364,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		return new AccIdentityAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmIdentity now.
-	}
-
-	@Override
-	protected List<? extends AbstractEntity> findAllEntity() {
-		return Lists.newArrayList(identityRepository.findAll());
+	protected IdmIdentityService getService() {
+		return identityService;
 	}
 
 	@Override
@@ -391,7 +380,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	@Override
-	protected AbstractEntity findEntityByAttribute(String idmAttributeName, String value) {
+	protected IdmIdentityDto findByAttribute(String idmAttributeName, String value) {
 		CorrelationFilter filter = getEntityFilter();
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
@@ -405,7 +394,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
 		}
 		if (entities.size() == 1) {
-			return identityRepository.findOne(entities.get(0).getId());
+			return entities.get(0);
 		}
 		return null;
 	}

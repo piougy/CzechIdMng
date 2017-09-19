@@ -13,9 +13,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent.RoleCatalogueEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 
 /**
  * Persists role catalogue items.
@@ -30,18 +28,14 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleCatalogueSaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
-	private final IdmRoleCatalogueRepository catalogueRepository;
 	
 	@Autowired
-	public RoleCatalogueSaveProcessor(ApplicationContext applicationContext,
-			IdmRoleCatalogueRepository catalogueRepository) {
+	public RoleCatalogueSaveProcessor(ApplicationContext applicationContext) {
 		super(RoleCatalogueEventType.CREATE, RoleCatalogueEventType.UPDATE);
 		//
 		Assert.notNull(applicationContext);
-		Assert.notNull(catalogueRepository);
 		//
 		this.applicationContext = applicationContext;
-		this.catalogueRepository = catalogueRepository;
 	}
 
 	@Override
@@ -57,15 +51,15 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 			return new DefaultEventResult<>(event, this);
 		}
 		
-		doProvisioning(catalogueRepository.findOne(event.getContent().getId()));
+		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	private void doProvisioning(IdmRoleCatalogue node) {
-		LOG.debug("Call account managment (create accounts for all systems) for role catalogue [{}]", node.getCode());
-		getProvisioningService().createAccountsForAllSystems(node);
-		LOG.debug("Call provisioning for role catalogue [{}]", node.getCode());
-		getProvisioningService().doProvisioning(node);
+	private void doProvisioning(IdmRoleCatalogueDto catalogue) {
+		LOG.debug("Call account managment (create accounts for all systems) for role catalogue [{}]", catalogue.getCode());
+		getProvisioningService().createAccountsForAllSystems(catalogue);
+		LOG.debug("Call provisioning for role catalogue [{}]", catalogue.getCode());
+		getProvisioningService().doProvisioning(catalogue);
 	}
 
 	@Override

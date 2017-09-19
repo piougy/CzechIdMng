@@ -31,13 +31,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -62,7 +63,9 @@ public class DefaultSysRoleSystemAttributeService extends
 	@Autowired
 	private GroovyScriptService groovyScriptService;
 	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private FormService formService;
+	@Autowired
+	private IdmIdentityService identityService;
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
@@ -115,8 +118,8 @@ public class DefaultSysRoleSystemAttributeService extends
 		SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
 				.get(dto.getSystemAttributeMapping());
 		SysSystemMappingDto systemMapping = systemMappingService.get(systemAttributeMapping.getSystemMapping());
-		Class<?> entityType = systemMapping.getEntityType().getEntityType();
-		if (dto.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
+		Class<?extends Identifiable> entityType = systemMapping.getEntityType().getEntityType();
+		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			systeAttributeMappingService.createExtendedAttributeDefinition(dto, entityType);
 		}
 
@@ -133,10 +136,11 @@ public class DefaultSysRoleSystemAttributeService extends
 		filter.setRoleSystemId(dto.getRoleSystem());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		// TODO: move to filter and use distinct
-		List<IdmIdentity> identities = new ArrayList<>();
+		List<IdmIdentityDto> identities = new ArrayList<>();
 		identityAccounts.stream().forEach(identityAccount -> {
 			if (!identities.contains(identityAccount.getIdentity())) {
-				identities.add(identityRepository.findOne(identityAccount.getIdentity()));
+				// TODO: embedded
+				identities.add(identityService.get(identityAccount.getIdentity()));
 			}
 		});
 		identities.stream().forEach(identity -> {

@@ -15,11 +15,18 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
 
 /**
  * API for synchronization executor
+ * 
  * @author svandav
  *
  */
 public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> {
 
+	/**
+	 * Execute synchronization by given config
+	 * 
+	 * @param synchronizationConfigId
+	 * @return
+	 */
 	SysSyncConfigDto process(UUID synchronizationConfigId);
 
 	/**

@@ -1,35 +1,36 @@
 package eu.bcvsolutions.idm.acc.domain;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 
 /**
  * Type of entity on target system
+ * - its mapped to dto by underlying entity
  * 
  * @author Radek Tomiška
  *
  */
 public enum SystemEntityType {
 
-	IDENTITY(IdmIdentity.class),
-	ROLE(IdmRole.class),
-	TREE(IdmTreeNode.class),
-	ROLE_CATALOGUE(IdmRoleCatalogue.class);
+	IDENTITY(IdmIdentityDto.class),
+	ROLE(IdmRoleDto.class),
+	TREE(IdmTreeNodeDto.class),
+	ROLE_CATALOGUE(IdmRoleCatalogueDto.class);
 
-	private Class<? extends AbstractEntity> entityType;
+	private Class<? extends AbstractDto> entityType;
 
-	private SystemEntityType(Class<? extends AbstractEntity> entityType) {
+	private SystemEntityType(Class<? extends AbstractDto> entityType) {
 		this.entityType = entityType;
 	}
 
-	public Class<? extends AbstractEntity> getEntityType() {
+	public Class<? extends AbstractDto> getEntityType() {
 		return entityType;
 	}
 	
-	public static SystemEntityType getByClass(Class<? extends AbstractEntity> clazz) {
+	public static SystemEntityType getByClass(Class<? extends AbstractDto> clazz) {
 		for(SystemEntityType systemEntityType : SystemEntityType.values()){
 			if(systemEntityType.getEntityType().equals(clazz)){
 				return systemEntityType;

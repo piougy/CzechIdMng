@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -34,7 +33,6 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);
 	private ProvisioningService provisioningService;
-	private final IdmIdentityRepository identityRepository;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
@@ -45,7 +43,6 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 		Assert.notNull(identityRepository);
 		//
 		this.applicationContext = applicationContext;
-		this.identityRepository = identityRepository;
 	}
 	
 	@Override
@@ -60,11 +57,11 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 		if(skipProvisioning instanceof Boolean && (Boolean)skipProvisioning){
 			return new DefaultEventResult<>(event, this);
 		}
-		doProvisioning(identityRepository.findOne(event.getContent().getId()));
+		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	private void doProvisioning(IdmIdentity identity) {
+	private void doProvisioning(IdmIdentityDto identity) {
 		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		getProvisioningService().doProvisioning(identity);
 	}

@@ -144,17 +144,38 @@ public class DefaultFormService implements FormService {
 
 	@Override
 	public String getDefaultDefinitionType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType, "Owner type is required!");
-		// formable entity class was given
-		if (FormableEntity.class.isAssignableFrom(ownerType)) {
-			return ownerType.getCanonicalName();
-		}
 		// dto class was given
-		Class<?> ownerEntityType = lookupService.getEntityClass(ownerType);
-		if (!FormableEntity.class.isAssignableFrom(ownerEntityType)) {
+		Class<? extends FormableEntity> ownerEntityType = getFormableOwnerType(ownerType);
+		if (ownerEntityType == null) {
 			throw new IllegalArgumentException(String.format("Owner type [%s] has to generatize [FormableEntity]", ownerType));
 		}
 		return ownerEntityType.getCanonicalName();
+	}
+	
+	@Override
+	public boolean isFormable(Class<? extends Identifiable> ownerType) {
+		return getFormableOwnerType(ownerType) != null;
+	}
+	
+	/**
+	 * Returns {@link FormableEntity}
+	 * 
+	 * @param ownerType
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Class<? extends FormableEntity> getFormableOwnerType(Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerType, "Owner type is required!");
+		// formable entity class was given
+		if (FormableEntity.class.isAssignableFrom(ownerType)) {
+			return (Class<? extends FormableEntity>) ownerType;
+		}
+		// dto class was given
+		Class<?> ownerEntityType = lookupService.getEntityClass(ownerType);
+		if (FormableEntity.class.isAssignableFrom(ownerEntityType)) {
+			return (Class<? extends FormableEntity>) ownerEntityType;
+		}
+		return null;
 	}
 	
 	@Override
@@ -471,8 +492,8 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<IdmFormValueDto> getValues(Identifiable owner, String attributeName) {
-		return getValues(owner, null, attributeName);
+	public <O extends FormableEntity> List<IdmFormValueDto> getValues(Identifiable owner, String attributeCode) {
+		return getValues(owner, null, attributeCode);
 	}
 	
 	@Override
@@ -578,21 +599,22 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<? extends Identifiable> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
+	@SuppressWarnings("unchecked")
+	public <O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
 		Assert.notNull(ownerType, "Owner type is required!");
 		Assert.notNull(attribute, "Form attribute is required!");
 		if (attribute.isConfidential()) {
 			throw new UnsupportedOperationException(MessageFormat.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getCode()));
 		}
 		//
-		FormValueService<?> formValueService = (FormValueService<?>)formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
+		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
 		//
 		return formValueService.findOwners(attribute, persistentValue, pageable);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<? extends Identifiable> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable) {
+	public <O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable) {
 		IdmFormAttributeDto attribute = getAttribute(ownerType, attributeName);
 		Assert.notNull(attribute, MessageFormat.format("Attribute [{0}] does not exist in default form definition for owner [{1}]", attributeName, ownerType));
 		//

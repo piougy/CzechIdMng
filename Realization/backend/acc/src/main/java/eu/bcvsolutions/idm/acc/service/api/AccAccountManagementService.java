@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 public interface AccAccountManagementService {
 
@@ -12,7 +12,7 @@ public interface AccAccountManagementService {
 	 * @param identity
 	 * @return
 	 */
-	boolean resolveIdentityAccounts(IdmIdentity identity);
+	boolean resolveIdentityAccounts(IdmIdentityDto identity);
 
 	/**
 	 * Identity role is deleting, we have to delete linked identity accounts
@@ -29,5 +29,5 @@ public interface AccAccountManagementService {
 	 * @param roleSystem
 	 * @return
 	 */
-	String generateUID(AbstractEntity entity, SysRoleSystemDto roleSystem);
+	String generateUID(AbstractDto entity, SysRoleSystemDto roleSystem);
 }

@@ -10,16 +10,20 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
  * Processor for catch {@link IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID} - start account management for newly valid identityRoles
@@ -36,18 +40,23 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
-	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final IdmIdentityRoleService identityRoleService;
+	private final IdmIdentityContractService identityContractService;
 	
 	@Autowired
-	public IdentityRoleValidRequestProvisioningProcessor(ApplicationContext applicationContext,
-			IdmIdentityRoleRepository identityRoleRepository) {
+	public IdentityRoleValidRequestProvisioningProcessor(
+			ApplicationContext applicationContext,
+			IdmIdentityRoleService identityRoleService,
+			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID);
 		//
 		Assert.notNull(applicationContext);
-		Assert.notNull(identityRoleRepository);
+		Assert.notNull(identityRoleService);
+		Assert.notNull(identityContractService);
 		//
 		this.applicationContext = applicationContext;
-		this.identityRoleRepository =identityRoleRepository;
+		this.identityRoleService = identityRoleService;
+		this.identityContractService = identityContractService;
 	}
 	
 	@Override
@@ -56,21 +65,22 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 		//
 		// object identityRole is never null
 		UUID identityRoleId = event.getContent().getIdentityRole();
-		IdmIdentityRole identityRole = identityRoleRepository.findOne(identityRoleId);
+		IdmIdentityRoleDto identityRole = identityRoleService.get(identityRoleId);
 		//
 		if (identityRole == null) {
 			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{}]", event.getContent().getId());
 			return new DefaultEventResult<>(event, this);
 		}
 		//
-		IdmIdentityContract identityContract = identityRole.getIdentityContract();
+		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		if (identityContract != null) {
 			LOG.info("[IdentityRoleValidRequestProvisioningProcessor] Start with provisioning for identity role valid request id : [{}]", event.getContent().getId());
 			//
-			boolean requiredProvisioning = getAccountManagementService().resolveIdentityAccounts(identityContract.getIdentity());
+			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
+			boolean requiredProvisioning = getAccountManagementService().resolveIdentityAccounts(identity);
 			if (requiredProvisioning) {
 				// do provisioning, for newly valid role
-				getProvisioningService().doProvisioning(identityContract.getIdentity());
+				getProvisioningService().doProvisioning(identity);
 			}
 			//
 		} else {

@@ -28,8 +28,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -51,11 +51,10 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityContractService 
-		extends AbstractEventableDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>
+		extends AbstractFormableService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>
 		implements IdmIdentityContractService {
 
 	private final IdmIdentityContractRepository repository;
-	private final FormService formService;
 	private final TreeConfiguration treeConfiguration;
 	private final IdmTreeNodeRepository treeNodeRepository;
 	
@@ -66,14 +65,12 @@ public class DefaultIdmIdentityContractService
 			EntityEventManager entityEventManager,
 			TreeConfiguration treeConfiguration,
 			IdmTreeNodeRepository treeNodeRepository) {
-		super(repository, entityEventManager);
+		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(formService);
 		Assert.notNull(treeConfiguration);
 		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
-		this.formService = formService;
 		this.treeConfiguration = treeConfiguration;
 		this.treeNodeRepository = treeNodeRepository;
 	}
@@ -81,14 +78,6 @@ public class DefaultIdmIdentityContractService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITYCONTRACT, getEntityClass());
-	}
-	
-	@Override
-	public void deleteInternal(IdmIdentityContractDto dto) {
-		// TODO: eav dto
-		formService.deleteValues(getRepository().findOne(dto.getId()));
-		//
-		super.deleteInternal(dto);
 	}
 	
 	@Override

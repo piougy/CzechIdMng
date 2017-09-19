@@ -10,11 +10,8 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -29,13 +26,6 @@ public interface IdmTreeNodeService extends
 		EventableDtoService<IdmTreeNodeDto, IdmTreeNodeFilter>, 
 		ScriptEnabled, 
 		AuthorizableService<IdmTreeNodeDto> {
-	
-	/**
-	 * Will be removed after eav and synchronization refactoring
-	 * 
-	 */
-	@Deprecated
-	IdmTreeNode publishTreeNode(IdmTreeNode node, EntityEvent<IdmTreeNodeDto> event,  BasePermission... permission);
 	
 	/**
 	 * Method return all roots - @param treeType = null, or one root for treeType.

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,9 +33,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -47,7 +47,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 @Qualifier(value=RoleCatalogueProvisioningExecutor.NAME)
-public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecutor<IdmRoleCatalogue> {
+public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecutor<IdmRoleCatalogueDto> {
  
 	public static final String NAME = "roleCatalogueProvisioningService";
 	private final AccRoleCatalogueAccountService catalogueAccountService;
@@ -79,19 +79,19 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmRoleCatalogue entity, AttributeMapping attribute) {
-		Object idmValue = super.getAttributeValue(uid, entity, attribute);
+	protected Object getAttributeValue(String uid, IdmRoleCatalogueDto dto, AttributeMapping attribute) {
+		Object idmValue = super.getAttributeValue(uid, dto, attribute);
 
 		if (attribute.isEntityAttribute()
 				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
 			// For Tree we need do transform parent (IdmTreeNode) to resource
 			// parent format (UID of parent)
-			if (idmValue instanceof IdmRoleCatalogue) {
+			if (idmValue instanceof UUID) {
 				// Generally we expect IdmRoleCatalogue as parent (we will do
 				// transform)
 				RoleCatalogueAccountFilter catalogueAccountFilter = new RoleCatalogueAccountFilter();
 				catalogueAccountFilter.setSystemId(this.getSytemFromSchemaAttribute(attribute.getSchemaAttribute()).getId());
-				catalogueAccountFilter.setEntityId(((IdmRoleCatalogue) idmValue).getId());
+				catalogueAccountFilter.setEntityId((UUID) idmValue);
 				List<AccRoleCatalogueAccountDto> treeAccounts = catalogueAccountService.find(catalogueAccountFilter, null).getContent();
 				if (treeAccounts.isEmpty()) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND,
@@ -114,21 +114,21 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRoleCatalogue entity, SysSystemDto system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRoleCatalogueDto entity, SysSystemDto system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleCatalogue
 		return new ArrayList<>();
 	}
 	
-
 	@Override
+	@SuppressWarnings("unchecked")
 	protected EntityAccountFilter createEntityAccountFilter() {
 		return new RoleCatalogueAccountFilter();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
+	@SuppressWarnings("unchecked")
+	protected AccRoleCatalogueAccountService getEntityAccountService() {
 		return catalogueAccountService;
 	}
 
@@ -137,9 +137,8 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 		return new AccRoleCatalogueAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
+	protected IdmRoleCatalogueService getService() {
 		return catalogueService;
 	}
 

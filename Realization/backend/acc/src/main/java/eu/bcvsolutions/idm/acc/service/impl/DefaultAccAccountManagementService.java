@@ -40,11 +40,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
@@ -96,7 +96,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	}
 
 	@Override
-	public boolean resolveIdentityAccounts(IdmIdentity identity) {
+	public boolean resolveIdentityAccounts(IdmIdentityDto identity) {
 		Assert.notNull(identity);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
@@ -163,7 +163,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param identityAccountsToDelete
 	 * @param resolvedRolesForCreate
 	 */
-	private void resolveIdentityAccountForCreate(IdmIdentity identity, List<AccIdentityAccountDto> identityAccountList,
+	private void resolveIdentityAccountForCreate(IdmIdentityDto identity, List<AccIdentityAccountDto> identityAccountList,
 			List<IdmIdentityRole> identityRoles, List<AccIdentityAccountDto> identityAccountsToCreate,
 			List<AccIdentityAccountDto> identityAccountsToDelete) {
 		
@@ -234,7 +234,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @return
 	 */
 	@Override
-	public String generateUID(AbstractEntity entity, SysRoleSystemDto roleSystem) {
+	public String generateUID(AbstractDto entity, SysRoleSystemDto roleSystem) {
 		// Find attributes for this roleSystem
 		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
@@ -307,7 +307,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param identityAccountsToCreate
 	 * @return
 	 */
-	private UUID createAccountByRoleSystem(IdmIdentity identity, SysRoleSystemDto roleSystem,
+	private UUID createAccountByRoleSystem(IdmIdentityDto identity, SysRoleSystemDto roleSystem,
 			List<AccIdentityAccountDto> identityAccountsToCreate) {
 		String uid = generateUID(identity, roleSystem);
 		

@@ -6,10 +6,11 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * Interface for all relations between entity and account (for synchronization purpose)
+ * 
  * @author svandav
  *
  */
-public interface EntityAccountDto extends BaseDto{
+public interface EntityAccountDto extends BaseDto {
 
 	UUID getAccount();
 

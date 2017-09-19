@@ -26,6 +26,10 @@ All notable changes to this project will be documented in this file.
 - Application property **idm.pub.core.script.folder** was changed to **idm.sec.core.script.folder**.
 - Application property **idm.pub.core.script.fileSuffix** was changed to **idm.sec.core.script.fileSuffix**.
 
+##### Identity
+
+- Deprecated method ``IdmIdentityService#saveIdentity`` was removed. Use ``save``or ``publish`` method instead.
+
 ##### Event processiong
 
 - Added ``AbstractEventableDtoService`` for simplify services working with events. ``CoreEvent`` with ``CoreEventType`` is published by default now for save and delete event for all domain types (e.g. ``IdmIdentityDto``, ``IdmIdentityContractDto``, ``IdmRoleCatalogueDto``, ``IdmIdentityRoleDto`` ...). **Check [appropriate event type comparison](https://wiki.czechidm.com/devel/dev/architecture/events#event_types)** in your project.
@@ -106,6 +110,8 @@ All notable changes to this project will be documented in this file.
 - Tree type and node entities usage was removed - dto or id (uuid) is used now.
 
 #### Acc module
+
+- **Provisioning and synchronization was refactored to dto usage.** Check all ``ProvisioningEntityExecutor``, ``SynchronizationEntityExecutor`` usage in your project.
 
 ##### System service
 - Method **readObject** was replaced with **readConnectorObject**

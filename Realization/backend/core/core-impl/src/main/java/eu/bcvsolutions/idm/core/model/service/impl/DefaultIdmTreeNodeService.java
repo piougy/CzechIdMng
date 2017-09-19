@@ -26,12 +26,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -49,7 +48,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildTreeNodeIndexTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -61,7 +59,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("treeNodeService")
 public class DefaultIdmTreeNodeService 
-		extends AbstractEventableDtoService<IdmTreeNodeDto, IdmTreeNode, IdmTreeNodeFilter>
+		extends AbstractFormableService<IdmTreeNodeDto, IdmTreeNode, IdmTreeNodeFilter>
 		implements IdmTreeNodeService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmTreeNodeService.class);
@@ -70,7 +68,6 @@ public class DefaultIdmTreeNodeService
 	private final ConfigurationService configurationService;
 	private final LongRunningTaskManager longRunningTaskManager;
 	private final IdmIdentityContractRepository identityContractRepository;
-	private final FormService formService;
 	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
 	private final IdmTreeNodeForestContentService forestContentService;
 
@@ -85,13 +82,12 @@ public class DefaultIdmTreeNodeService
 		IdmIdentityContractRepository identityContractRepository,
 		DefaultBaseTreeService<IdmTreeNode> baseTreeService,
 		IdmTreeNodeForestContentService forestContentService) {
-		super(treeNodeRepository, entityEventManager);
+		super(treeNodeRepository, entityEventManager, formService);
 		//
 		Assert.notNull(treeTypeService);
 		Assert.notNull(configurationService);
 		Assert.notNull(longRunningTaskManager);
 		Assert.notNull(identityContractRepository);
-		Assert.notNull(formService);
 		Assert.notNull(baseTreeService);
 		Assert.notNull(forestContentService);
 		//
@@ -100,7 +96,6 @@ public class DefaultIdmTreeNodeService
 		this.configurationService = configurationService;
 		this.longRunningTaskManager = longRunningTaskManager;
 		this.identityContractRepository = identityContractRepository;
-		this.formService = formService;
 		this.baseTreeService = baseTreeService;
 		this.forestContentService = forestContentService;
 	}
@@ -152,21 +147,9 @@ public class DefaultIdmTreeNodeService
 		if (this.identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
-		// TODO: eav dto
-		formService.deleteValues(getRepository().findOne(treeNode.getId()));
 		//
 		forestContentService.deleteIndex(treeNode.getId());
 		super.deleteInternal(treeNode);
-	}
-	
-	@Override
-	@Transactional
-	@Deprecated
-	public IdmTreeNode publishTreeNode(IdmTreeNode node, EntityEvent<IdmTreeNodeDto> event,  BasePermission... permission) {
-		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(node);
-		event.setContent(toDto(node));
-		return toEntity(this.publish(event, permission).getContent());
 	}
 	
 	@Override

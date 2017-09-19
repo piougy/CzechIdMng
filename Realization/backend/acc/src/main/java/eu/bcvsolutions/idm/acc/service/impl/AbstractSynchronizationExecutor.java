@@ -1288,7 +1288,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		} else if (attribute.isExtendedAttribute()) {
 			try {
 				Serializable serializableValue = Serializable.class.cast(value);
-				List<? extends AbstractEntity> entities = (List<? extends AbstractEntity>) formService.findOwners(getEntityClass(), attribute.getIdmPropertyName(), serializableValue, null).getContent();
+				List<? extends FormableEntity> entities = formService.findOwners(getEntityClass(), attribute.getIdmPropertyName(), serializableValue, null).getContent();
 				if (CollectionUtils.isEmpty(entities)) {
 					return null;
 				}
@@ -1297,7 +1297,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 							ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
 				}
 				if (entities.size() == 1) {
-					return findById(entities.get(0).getId());
+					return findById((UUID) entities.get(0).getId());
 				}
 			} catch (ClassCastException e) {
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_BAD_VALUE,

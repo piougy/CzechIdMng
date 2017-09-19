@@ -200,13 +200,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
-		// TODO: remove this if after all dto services will be rewritten - remove getRepository().find(filter, pageable)
-//		if (!(this instanceof AuthorizableService)) {
-//			if (filter == null) {
-//				return getRepository().findAll(pageable);
-//			}
-//			return getRepository().find(filter, pageable);
-//		}
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
@@ -218,7 +211,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				}
 				//
 				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
-				if (!ObjectUtils.isEmpty(permission)) {					
+				if (!ObjectUtils.isEmpty(permission) && (AbstractReadDtoService.this instanceof AuthorizableService)) {					
 					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
 					if (authorizableType != null && authorizableType.getType() != null) {					
 						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permission));

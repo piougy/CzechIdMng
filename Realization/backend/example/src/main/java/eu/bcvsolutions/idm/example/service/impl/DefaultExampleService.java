@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 import eu.bcvsolutions.idm.example.config.domain.ExampleConfiguration;
 import eu.bcvsolutions.idm.example.dto.Pong;

@@ -22,9 +22,9 @@ import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
@@ -45,11 +45,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -111,7 +111,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
 		//
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(account.getId());
 		identityAccountService.find(filter, null).getContent()
 			.stream()
@@ -135,7 +135,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 */
 	@Override
 	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, IdmIdentityDto entity, SysSystemDto system, SystemEntityType entityType) {
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(entity.getId());
 		filter.setSystemId(system.getId());
 		filter.setOwnership(Boolean.TRUE);
@@ -184,7 +184,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			// identityRole
 
 			IdmIdentityRole identityRole = ((AccIdentityAccount)identityAccountInner).getIdentityRole();
-			RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 			roleSystemFilter.setRoleId(identityRole.getRole().getId());
 			roleSystemFilter.setSystemId(identityAccountInner.getAccount().getSystem().getId());
 			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
@@ -199,7 +199,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			}
 			if (!roleSystems.isEmpty()) {
 				SysRoleSystemDto roleSystem = roleSystems.get(0);
-				RoleSystemAttributeFilter roleSystemAttributeFilter = new RoleSystemAttributeFilter();
+				SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
 				roleSystemAttributeFilter.setRoleSystemId(roleSystem.getId());
 				List<SysRoleSystemAttributeDto> roleAttributes = roleSystemAttributeService
 						.find(roleSystemAttributeFilter, null).getContent();
@@ -225,8 +225,8 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected IdentityAccountFilter createEntityAccountFilter() {
-		return new IdentityAccountFilter();
+	protected AccIdentityAccountFilter createEntityAccountFilter() {
+		return new AccIdentityAccountFilter();
 	}
 	
 	@Override

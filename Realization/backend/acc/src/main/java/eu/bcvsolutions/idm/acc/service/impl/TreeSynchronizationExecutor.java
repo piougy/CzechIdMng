@@ -40,9 +40,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -73,7 +74,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -412,7 +412,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
 			List<SysSyncActionLogDto> actionLogs) {
 
-		TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+		AccTreeAccountFilter treeAccountFilter = new AccTreeAccountFilter();
 		treeAccountFilter.setAccountId(account.getId());
 		List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
 		if (treeAccounts.isEmpty()) {
@@ -506,7 +506,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			SysSchemaObjectClassDto schemaObjectClass = schemaObjectClassService.get(systemMapping.getObjectClass());
 			UUID systemId = schemaObjectClass.getSystem();
 			// Find account by UID from parent field
-			AccountFilter accountFilter = new AccountFilter();
+			AccAccountFilter accountFilter = new AccAccountFilter();
 			accountFilter.setUid(parentUid);
 			accountFilter.setSystemId(systemId);
 			transformedValue = null;
@@ -514,7 +514,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			if (!parentAccounts.isEmpty()) {
 				UUID parentAccount = parentAccounts.get(0).getId();
 				// Find relation between tree and account
-				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+				AccTreeAccountFilter treeAccountFilter = new AccTreeAccountFilter();
 				treeAccountFilter.setAccountId(parentAccount);
 				List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
 				if(!treeAccounts.isEmpty()){
@@ -558,7 +558,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new TreeAccountFilter();
+		return new AccTreeAccountFilter();
 	}
 
 	@Override

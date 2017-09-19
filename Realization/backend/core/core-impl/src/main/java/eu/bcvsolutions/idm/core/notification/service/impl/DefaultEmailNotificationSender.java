@@ -11,10 +11,10 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 
 /**
  * Sending emails to queue (email will be sent asynchronously)

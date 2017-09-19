@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -44,19 +44,19 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -311,10 +311,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
 			List<SysSyncActionLogDto> actionLogs) {
 
-		EntityAccountFilter identityAccountFilter = new IdentityAccountFilter();
+		EntityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService
-				.find((IdentityAccountFilter) identityAccountFilter, null).getContent();
+				.find((AccIdentityAccountFilter) identityAccountFilter, null).getContent();
 		if (identityAccounts.isEmpty()) {
 			addToItemLog(logItem, "Identity account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -350,7 +350,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new IdentityAccountFilter();
+		return new AccIdentityAccountFilter();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -376,7 +376,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 	@Override
 	protected CorrelationFilter getEntityFilter() {
-		return new IdentityFilter();
+		return new IdmIdentityFilter();
 	}
 
 	@Override
@@ -384,7 +384,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		CorrelationFilter filter = getEntityFilter();
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
-		List<IdmIdentityDto> entities = identityService.find((IdentityFilter) filter, null).getContent();
+		List<IdmIdentityDto> entities = identityService.find((IdmIdentityFilter) filter, null).getContent();
 		
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;

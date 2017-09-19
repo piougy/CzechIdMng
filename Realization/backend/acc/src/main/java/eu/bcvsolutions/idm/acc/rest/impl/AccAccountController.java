@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -53,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Account on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccAccountController extends DefaultReadWriteDtoController<AccAccountDto, AccountFilter> {
+public class AccAccountController extends DefaultReadWriteDtoController<AccAccountDto, AccAccountFilter> {
 	
 	protected static final String TAG = "Accounts";
 	
@@ -187,8 +187,8 @@ public class AccAccountController extends DefaultReadWriteDtoController<AccAccou
 	}
 	
 	@Override
-	protected AccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		AccountFilter filter = new AccountFilter();
+	protected AccAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
+		AccAccountFilter filter = new AccAccountFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setSystemEntityId(getParameterConverter().toUuid(parameters, "systemEntityId"));

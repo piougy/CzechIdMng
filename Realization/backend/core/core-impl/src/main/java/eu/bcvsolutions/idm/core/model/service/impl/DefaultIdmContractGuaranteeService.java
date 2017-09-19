@@ -8,14 +8,14 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmContractGuaranteeService 
-		extends AbstractReadWriteDtoService<IdmContractGuaranteeDto, IdmContractGuarantee, ContractGuaranteeFilter> 
+		extends AbstractReadWriteDtoService<IdmContractGuaranteeDto, IdmContractGuarantee, IdmContractGuaranteeFilter> 
 		implements IdmContractGuaranteeService {
 	
 	public DefaultIdmContractGuaranteeService(IdmContractGuaranteeRepository repository) {
@@ -38,7 +38,7 @@ public class DefaultIdmContractGuaranteeService
 	}
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmContractGuarantee> root, CriteriaQuery<?> query, CriteriaBuilder builder, ContractGuaranteeFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmContractGuarantee> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmContractGuaranteeFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// contract id
 		if (filter.getIdentityContractId() != null) {

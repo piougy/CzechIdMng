@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -49,7 +49,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Schema configuration",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysSchemaObjectClassController extends AbstractReadWriteDtoController<SysSchemaObjectClassDto, SchemaObjectClassFilter> {
+public class SysSchemaObjectClassController extends AbstractReadWriteDtoController<SysSchemaObjectClassDto, SysSchemaObjectClassFilter> {
 
 	protected static final String TAG = "System schema - object classes";
 	
@@ -180,8 +180,8 @@ public class SysSchemaObjectClassController extends AbstractReadWriteDtoControll
 	}
 	
 	@Override
-	protected SchemaObjectClassFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
+	protected SysSchemaObjectClassFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSchemaObjectClassFilter filter = new SysSchemaObjectClassFilter();
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setObjectClassName(getParameterConverter().toString(parameters, "objectClassName"));
 		return filter;

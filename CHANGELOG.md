@@ -25,6 +25,88 @@ All notable changes to this project will be documented in this file.
 - Application property **idm.pub.core.notification.template.fileSuffix** was changed to **idm.sec.core.notification.template.fileSuffix**.
 - Application property **idm.pub.core.script.folder** was changed to **idm.sec.core.script.folder**.
 - Application property **idm.pub.core.script.fileSuffix** was changed to **idm.sec.core.script.fileSuffix**.
+- **All service interface were moved into core api module**. Check service imports in your project:
+  - ``IdmAuthorizationPolicyService``
+  - ``IdmConceptRoleRequestService``
+  - ``IdmContractGuaranteeService``
+  - ``IdmConfigurationService``
+  - ``IdmIdentityContractService``
+  - ``IdmIdentityRoleValidRequestService``
+  - ``IdmIdentityRoleService``
+  - ``IdmIdentityService``
+  - ``IdmPasswordPolicyService``
+  - ``IdmPasswordService``
+  - ``IdmRoleCatalogueRoleService``
+  - ``IdmRoleCatalogueService``
+  - ``IdmRoleGuaranteeService``
+  - ``IdmRoleRequestService``
+  - ``IdmRoleService``
+  - ``IdmRoleTreeNodeService``
+  - ``IdmScriptAuthorityService``
+  - ``IdmScriptService``
+  - ``IdmTreeNodeService``
+  - ``IdmTreeTypeService``
+  - ``ConsoleNotificationSender``
+  - ``Emailer``
+  - ``EmailNotificationSender``
+  - ``IdmConsoleLogService``
+  - ``IdmEmailLogService``
+  - ``IdmNotificationConfigurationService``
+  - ``IdmNotificationLogService``
+  - ``IdmNotificationRecipientService``
+  - ``IdmNotificationTemplateService``
+  - ``IdmSmsLogService``
+  - ``IdmWebsocketLogService``
+  - ``NotificationManager``
+  - ``NotificationSender``
+  - ``WebsocketNotificationSender``
+  - ``IdmLongRunningTaskService``
+  - ``IdmProcessedTaskItemService``
+  - ``IdmScheduledTaskService``
+  - ``IdmAuditService``
+  - ``IdmLoggingEventExceptionService``
+  - ``IdmLoggingEventPropertyService``
+  - ``IdmLoggingEventService``
+  - ``GrantedAuthoritiesFactory``
+  - ``JwtAuthenticationService``
+  - ``LoginService``
+  - ``AuthenticationFilter``
+
+- **Idm** prefix was added to all core service filters and all filters were moved to copre api module. Check filters usage in you project:
+  - ``RoleFilter`` was renamed to ``IdmRoleFilter`` and moved to core api module
+  - ``TreeNodeFilter`` was renamed to ``IdmTreeNodeFilter`` and moved to core api module
+  - ``TreeNodeFilter`` was renamed to ``IdmTreeNodeFilter`` and moved to core api module
+  - ``FormDefinitionFilter`` was renamed to ``IdmFormDefinitionFilter`` and moved to core api module
+  - ``FormAttributeFilter`` was renamed to ``IdmFormAttributeFilter`` and moved to core api module
+  - ``FormValueFilter`` was renamed to ``IdmFormValueFilter`` and moved to core api module
+  - ``AuditFilter`` was renamed to ``IdmAuditFilter`` and moved to core api module
+  - ``AuthorizationPolicyFilter`` was renamed to ``IdmAuthorizationPolicyFilter``
+  - ``ConceptRoleRequestFilter`` was renamed to ``IdmConceptRoleRequestFilter``
+  - ``ContractGuaranteeFilter`` was renamed to ``IdmContractGuaranteeFilter``
+  - ``IdentityContractFilter`` was renamed to ``IdmIdentityContractFilter``
+  - ``IdentityFilter`` was renamed to ``IdmIdentityFilter``
+  - ``IdentityRoleFilter`` was renamed to ``IdmIdentityRoleFilter``
+  - ``LoggingEventExceptionFilter`` was renamed to ``IdmLoggingEventExceptionFilter`` and moved to core api module
+  - ``LoggingEventFilter`` was renamed to ``IdmLoggingEventFilter`` and moved to core api module
+  - ``LoggingEventPropertyFilter`` was renamed to ``IdmLoggingEventPropertyFilter`` and moved to core api module
+  - ``PasswordFilter`` was renamed to ``IdmPasswordFilter``
+  - ``PasswordPolicyFilter`` was renamed to ``IdmPasswordPolicyFilter``
+  - ``RoleCatalogueFilter`` was renamed to ``IdmRoleCatalogueFilter``
+  - ``RoleCatalogueRoleFilter`` was renamed to ``IdmRoleCatalogueRoleFilter``
+  - ``RoleGuaranteeFilter`` was renamed to ``IdmRoleGuaranteeFilter``
+  - ``RoleRequestFilter`` was renamed to ``IdmRoleRequestFilter``
+  - ``RoleTreeNodeFilter`` was renamed to ``IdmRoleTreeNodeFilter``
+  - ``ScriptAuthorityFilter`` was renamed to ``IdmScriptAuthorityFilter``
+  - ``ScriptFilter`` was renamed to ``IdmScriptFilter``
+  - ``LongRunningTaskFilter`` was renamed to ``IdmLongRunningTaskFilter``
+  - ``IdmProcessedTaskItemFilter` was moved to core api module.
+  - ``NotificationFilter`` was renamed to ``IdmNotificationFilter`` and moved to core api module
+  - ``NotificationRecipientFilter`` was renamed to ``IdmNotificationRecipientFilter`` and moved to core api module
+  - ``NotificationTemplateFilter`` was renamed to ``IdmNotificationTemplateFilter`` and moved to core api module
+  - ```` was renamed to ````
+
+- ``EnabledAcpect`` class was renamed to ``EnabledAspect``
+
 
 ##### Identity
 
@@ -102,16 +184,47 @@ All notable changes to this project will be documented in this file.
 - Form attribute has new field ``faceType`` with contains information about attribute rendering on FE. Persistent types ``TEXTAREA``, ``RICHTEXTAREA``, ``CURRENCY`` were removed and appropriate face types were added. ``Change script V1_00_029__eav-add-face-type.sql`` is provided - provide the same change script in your module, if extended attributes was added to custom entity. Face type can be added in custom module for change (add) attribute rendered - its used mainly for select boxes.
 - Persistent type ``UUID`` was added - entity identifiers can be saved into form value.
 
+##### Audit
+
+- ``IdmLoggingEventDto`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto`` package.
+- ``IdmLoggingEventExceptionDto`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto`` package.
+- ``IdmLoggingEventPropertyDto`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto`` package.
+- ``IdmAuditDto`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto`` package.
+- ``IdmAuditDiffDto`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto`` package.
+- ``IdmAuditFilter`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto.filter`` package.
+- ``IdmLoggingEventExceptionFilter`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto.filter`` package.
+- ``IdmLoggingEventFilter`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto.filter`` package.
+- ``IdmLoggingEventPropertyFilter`` was moved to ``eu.bcvsolutions.idm.core.api.audit.dto.filter`` package.
 
 ##### TestHelper
 
-- **``TestHelper``** interface was moved to core test api module.
+- **``TestHelper``** interface and **``DefaultTestHelper``** implementation was moved to core test api module. TestHelper is reused in acc module now.
 - Role entity usage was removed - dto or role id (uuid) is used now.
 - Tree type and node entities usage was removed - dto or id (uuid) is used now.
 
 #### Acc module
 
 - **Provisioning and synchronization was refactored to dto usage.** Check all ``ProvisioningEntityExecutor``, ``SynchronizationEntityExecutor`` usage in your project.
+
+- **Acc** prefix was added to all acc service filters. Check filters usage in you project:
+- ``AccountFilter`` was renamed to ``AccAccountFilter``
+- ``IdentityAccountFilter`` was renamed to ``AccIdentityAccountFilter``
+- ``ProvisioningOperationFilter`` was renamed to ``SysProvisioningOperationFilter``
+- ``ProvisioningRequestFilter`` was renamed to ``SysProvisioningRequestFilter``
+- ``RoleAccountFilter`` was renamed to ``AccRoleAccountFilter``
+- ``RoleCatalogueAccountFilter`` was renamed to ``AccRoleCatalogueAccountFilter``
+- ``RoleSystemAttributeFilter`` was renamed to ``SysRoleSystemAttributeFilter``
+- ``RoleSystemFilter`` was renamed to ``SysRoleSystemFilter``
+- ``SchemaAttributeFilter`` was renamed to ``SysSchemaAttributeFilter``
+- ``SchemaObjectClassFilter`` was renamed to ``SysSchemaObjectClassFilter``
+- ``SyncActionLogFilter`` was renamed to ``SysSyncActionLogFilter``
+- ``SynchronizationConfigFilter`` was renamed to ``SysSyncConfigFilter``
+- ``SynchronizationLogFilter`` was renamed to ``SysSyncLogFilter``
+- ``SyncItemLogFilter`` was renamed to ``SysSyncItemLogFilter``
+- ``SystemAttributeMappingFilter`` was renamed to ``SysSystemAttributeMappingFilter``
+- ``SystemEntityFilter`` was renamed to ``SysSystemEntityFilter``
+- ``SystemMappingFilter`` was renamed to ``SysSystemMappingFilter``
+- ``TreeAccountFilter`` was renamed to ``AccTreeAccountFilter``
 
 ##### System service
 - Method **readObject** was replaced with **readConnectorObject**
@@ -148,6 +261,7 @@ All notable changes to this project will be documented in this file.
 - Don't use **AccRoleAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
 - Added authorization policies support for tree accounts. Added new tab to tree node detail with assigned tree accounts. Added new permission group ``TREEACCOUNT``.
 - Don't use **AccTreeAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
+- ``AccAccountManagementService`` uses dto - check service usage in your project.
 
 ##### Provisioning
 

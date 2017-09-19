@@ -4,8 +4,8 @@ import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.core.security.api.exception.ModuleDisabledException;

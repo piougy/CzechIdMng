@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleValidRequestRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 
 /**
  * Default implementation {@link IdmIdentityRoleValidRequestService}

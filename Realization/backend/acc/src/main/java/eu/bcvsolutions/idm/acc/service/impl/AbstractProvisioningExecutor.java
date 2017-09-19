@@ -38,9 +38,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -64,9 +64,9 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -279,7 +279,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 					return false;
 				}
 				// Check if system for this account support change password
-				AccountFilter accountFilter =  new AccountFilter();
+				AccAccountFilter accountFilter =  new AccAccountFilter();
 				accountFilter.setSupportChangePassword(Boolean.TRUE);
 				accountFilter.setId(entityAccount.getAccount());
 				List<AccAccountDto> accountsChecked = accountService.find(accountFilter, null).getContent();
@@ -874,7 +874,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 	}
 
 	protected List<SysSystemMappingDto> findSystemMappingsForEntityType(DTO dto, SystemEntityType entityType) {
-		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setEntityType(entityType);
 		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
 		return systemMappingService.find(mappingFilter, null).getContent();
@@ -938,7 +938,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 	}
 
 	protected AccAccountDto getAccountSystemEntity(UUID systemEntity) {
-		AccountFilter filter = new AccountFilter();
+		AccAccountFilter filter = new AccAccountFilter();
 		filter.setSystemEntityId(systemEntity);
 		List<AccAccountDto> accounts = this.accountService.find(filter, null).getContent();
 		if (accounts.isEmpty()) {

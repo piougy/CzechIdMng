@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -57,7 +57,7 @@ import io.swagger.annotations.AuthorizationScope;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysProvisioningOperationController
-		extends AbstractReadDtoController<SysProvisioningOperationDto, ProvisioningOperationFilter> {
+		extends AbstractReadDtoController<SysProvisioningOperationDto, SysProvisioningOperationFilter> {
 
 	protected static final String TAG = "Provisioning - queue";
 	//

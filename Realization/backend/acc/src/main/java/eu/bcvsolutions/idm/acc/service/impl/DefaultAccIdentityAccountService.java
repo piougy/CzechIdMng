@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
@@ -49,7 +49,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("accIdentityAccountService")
 public class DefaultAccIdentityAccountService extends
-		AbstractReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccount, IdentityAccountFilter> implements AccIdentityAccountService {
+		AbstractReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccount, AccIdentityAccountFilter> implements AccIdentityAccountService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
 	
@@ -137,7 +137,7 @@ public class DefaultAccIdentityAccountService extends
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<AccIdentityAccount> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, IdentityAccountFilter filter) {
+			CriteriaBuilder builder, AccIdentityAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		if (filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.account).get(AccAccount_.id), filter.getAccountId()));

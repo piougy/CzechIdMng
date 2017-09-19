@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -32,8 +32,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -83,7 +83,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
 
-		RoleAccountFilter filter = new RoleAccountFilter();
+		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setAccountId(account.getId());
 		List<AccRoleAccountDto> entityAccoutnList = roleAccountService.find(filter, null).getContent();
 		if (entityAccoutnList == null) {
@@ -119,8 +119,8 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected RoleAccountFilter createEntityAccountFilter() {
-		return new RoleAccountFilter();
+	protected AccRoleAccountFilter createEntityAccountFilter() {
+		return new AccRoleAccountFilter();
 	}
 
 	@Override

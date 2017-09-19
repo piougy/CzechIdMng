@@ -27,12 +27,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
@@ -527,7 +527,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
 		helper.createContractGuarantee(contract.getId(), identity.getId());
 		//
-		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setIdentityContractId(contract.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());
@@ -546,7 +546,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
 		helper.createContractGuarantee(contract.getId(), identity.getId());
 		//
-		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());

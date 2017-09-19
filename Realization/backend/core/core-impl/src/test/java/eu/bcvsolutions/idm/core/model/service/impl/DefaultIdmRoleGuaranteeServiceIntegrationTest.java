@@ -16,8 +16,8 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -66,7 +66,7 @@ public class DefaultIdmRoleGuaranteeServiceIntegrationTest extends AbstractInteg
 		roleGuarantee.setGuarantee(guarantee3.getId());
 		roleGuaranteeService.save(roleGuarantee);
 		//
-		RoleGuaranteeFilter filter = new RoleGuaranteeFilter();
+		IdmRoleGuaranteeFilter filter = new IdmRoleGuaranteeFilter();
 		filter.setRole(role.getId());
 		List<IdmRoleGuaranteeDto> list = roleGuaranteeService.find(filter, null).getContent();
 		assertEquals(3, list.size());
@@ -102,7 +102,7 @@ public class DefaultIdmRoleGuaranteeServiceIntegrationTest extends AbstractInteg
 		roleGuarantee.setGuarantee(guarantee.getId());
 		roleGuaranteeService.save(roleGuarantee);
 		//
-		RoleGuaranteeFilter filter = new RoleGuaranteeFilter();
+		IdmRoleGuaranteeFilter filter = new IdmRoleGuaranteeFilter();
 		filter.setGuarantee(guarantee.getId());
 		List<IdmRoleGuaranteeDto> list = roleGuaranteeService.find(filter, null).getContent();
 		assertEquals(3, list.size());

@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service("sysSystemEntityService")
-public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<SysSystemEntityDto, SysSystemEntity, SystemEntityFilter> implements SysSystemEntityService {
+public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<SysSystemEntityDto, SysSystemEntity, SysSystemEntityFilter> implements SysSystemEntityService {
 
 	private final SysSystemEntityRepository repository;
 	private final AccAccountRepository accountRepository;
@@ -54,7 +54,7 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<S
 	}
 	
 	@Override
-	protected Page<SysSystemEntity> findEntities(SystemEntityFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSystemEntity> findEntities(SysSystemEntityFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}

@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleCatalogueAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccRoleCatalogueAccount;
 import eu.bcvsolutions.idm.acc.entity.AccRoleCatalogueAccount_;
@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service
 public class DefaultAccRoleCatalogueAccountService
-		extends AbstractReadWriteDtoService<AccRoleCatalogueAccountDto, AccRoleCatalogueAccount, RoleCatalogueAccountFilter>
+		extends AbstractReadWriteDtoService<AccRoleCatalogueAccountDto, AccRoleCatalogueAccount, AccRoleCatalogueAccountFilter>
 		implements AccRoleCatalogueAccountService {
 
 	private final AccAccountService accountService;
@@ -72,7 +72,7 @@ public class DefaultAccRoleCatalogueAccountService
 		// We check if exists another (ownership) identityAccounts, if not
 		// then
 		// we will delete account
-		RoleCatalogueAccountFilter filter = new RoleCatalogueAccountFilter();
+		AccRoleCatalogueAccountFilter filter = new AccRoleCatalogueAccountFilter();
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
@@ -92,7 +92,7 @@ public class DefaultAccRoleCatalogueAccountService
 	}
 
 	@Override
-	protected List<Predicate> toPredicates(Root<AccRoleCatalogueAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleCatalogueAccountFilter filter) {
+	protected List<Predicate> toPredicates(Root<AccRoleCatalogueAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, AccRoleCatalogueAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		if(filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccRoleCatalogueAccount_.account).get(AccAccount_.id), filter.getAccountId()));

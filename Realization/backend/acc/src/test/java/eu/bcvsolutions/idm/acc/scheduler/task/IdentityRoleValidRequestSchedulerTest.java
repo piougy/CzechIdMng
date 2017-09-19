@@ -24,8 +24,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -41,19 +41,19 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -112,7 +112,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// provisioning is not executed
 		createAndSaveIdentityRole(identityContract, role, null, validFrom);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentity = identityAccountService.find(filter, null).getContent().get(0);
 		// it must exists
@@ -133,7 +133,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// provisioning is not executed
 		createAndSaveIdentityRole(identityContract, role, null, validFrom);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
@@ -154,7 +154,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// provisioning is not executed, role isn't valid from now
 		createAndSaveIdentityRole(identityContract, role, null, validFrom);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
@@ -252,7 +252,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		assertEquals(0, list.size());
 		
 		for (IdmIdentityDto identity : identities) {
-			IdentityAccountFilter filter = new IdentityAccountFilter();
+			AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 			filter.setIdentityId(identity.getId());
 			List<AccIdentityAccountDto> accountsList = identityAccountService.find(filter, null).getContent();
 			assertEquals(false, accountsList.isEmpty());
@@ -333,7 +333,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		systemMapping.setObjectClass(objectClasses.get(0).getId());
 		systemMapping = mappingService.save(systemMapping);
 		
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		for(SysSchemaAttributeDto schemaAttr : schemaAttributesPage) {

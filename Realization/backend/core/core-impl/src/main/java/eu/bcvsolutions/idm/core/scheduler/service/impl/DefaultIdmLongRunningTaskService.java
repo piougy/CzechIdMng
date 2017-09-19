@@ -21,12 +21,12 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmLongRunningTaskService
-	extends AbstractReadWriteDtoService<IdmLongRunningTaskDto, IdmLongRunningTask, LongRunningTaskFilter>
+	extends AbstractReadWriteDtoService<IdmLongRunningTaskDto, IdmLongRunningTask, IdmLongRunningTaskFilter>
 	implements IdmLongRunningTaskService {
 	
 	private final IdmLongRunningTaskRepository repository;
@@ -67,7 +67,7 @@ public class DefaultIdmLongRunningTaskService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmLongRunningTask> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, LongRunningTaskFilter filter) {
+			CriteriaBuilder builder, IdmLongRunningTaskFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"

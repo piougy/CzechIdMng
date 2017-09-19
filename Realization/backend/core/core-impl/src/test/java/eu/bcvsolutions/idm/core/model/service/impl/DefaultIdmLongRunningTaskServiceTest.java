@@ -11,10 +11,10 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -44,7 +44,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 
 	@Test
 	public void statefulFilterTest(){
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_01_M";
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
@@ -75,7 +75,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 
 	@Test
 	public void runningFilterTest(){
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_02_M";
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
@@ -93,7 +93,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 
 	@Test
 	public void typeFilterTest(){
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_03_M";
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
@@ -109,7 +109,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 
 	@Test
 	public void textFilterTest(){
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_04_M";
 		String type1 = "Type00001";
 		String type2 = "Type00002";
@@ -151,7 +151,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 
 	@Test
 	public void datesFilterTest(){
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_05_M";
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
@@ -177,7 +177,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 
 	@Test
 	public void operationStateFilterTest(){
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_06_M";
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);

@@ -58,12 +58,12 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
@@ -541,7 +541,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		List<SysSyncActionLogDto> actionsLog = new ArrayList<>();
 		try {
 
-			SyncActionLogFilter actionFilter = new SyncActionLogFilter();
+			SysSyncActionLogFilter actionFilter = new SysSyncActionLogFilter();
 			actionFilter.setSynchronizationLogId(log.getId());
 			actionsLog.addAll(syncActionLogService.find(actionFilter, null).getContent());
 			itemContext.addActionLogs(actionsLog);
@@ -604,7 +604,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 	 */
 	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet, SysSyncConfigDto config,
 			SysSystemDto system, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
-		AccountFilter accountFilter = new AccountFilter();
+		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setSystemId(system.getId());
 		
 		List<AccAccountDto> accounts = accountService.find(accountFilter, null).getContent();
@@ -827,7 +827,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		}
 
 		// Synchronization can not be running twice
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(config.getId());
 		logFilter.setRunning(Boolean.TRUE);
 		if (!synchronizationLogService.find(logFilter, null).getContent().isEmpty()) {
@@ -848,7 +848,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		}
 
 		SystemEntityType entityType = mapping.getEntityType();
-		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> mappedAttributes = systemAttributeMappingService.find(attributeHandlingFilter, null)
 				.getContent();
@@ -1541,7 +1541,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 	private AccAccountDto findAccount(String uid, SystemEntityType entityType, SysSystemEntityDto systemEntity,
 			SysSystemDto system, SysSyncItemLogDto logItem) {
 
-		AccountFilter accountFilter = new AccountFilter();
+		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setSystemId(system.getId());
 		List<AccAccountDto> accounts = null;
 		if (systemEntity != null) {
@@ -1581,7 +1581,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 	}
 
 	private SysSystemEntityDto findSystemEntity(String uid, SysSystemDto system, SystemEntityType entityType) {
-		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
+		SysSystemEntityFilter systemEntityFilter = new SysSystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
 		systemEntityFilter.setUid(uid);

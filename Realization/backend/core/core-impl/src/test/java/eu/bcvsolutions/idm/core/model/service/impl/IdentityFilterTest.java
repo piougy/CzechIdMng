@@ -18,9 +18,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -54,7 +54,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testUsernameFilter(){
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName001","ThisIsTestName001","ThisIsTestName001@gemail.eu", "000000001", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setUsername(person.getUsername());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		assertEquals("Wrong Username",1, result.getTotalElements());
@@ -64,7 +64,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testFirstnameFilter(){
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName002","ThisIsTestName002","ThisIsTestName002@gemail.eu", "000000002", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setFirstName(person.getFirstName());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		assertEquals("Wrong Firstname",1, result.getTotalElements());
@@ -74,7 +74,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testLastnameFilter(){
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName003","ThisIsTestName003","ThisIsTestName003@gemail.eu", "000000003", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setLastName(person.getLastName());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		assertEquals("Wrong Lastname",1, result.getTotalElements());
@@ -84,7 +84,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testDisabledFilter(){
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName004","ThisIsTestName004","ThisIsTestName004@gemail.eu", "000000004", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setDisabled(false);
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		person.setDisabled(true);
@@ -98,7 +98,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testPropertyValueFilter(){
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName012","ThisIsTestName012","ThisIsTestName012@gemail.eu", "100000012", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setProperty(IdmIdentity_.username.getName());
 		filter.setValue(person.getUsername());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
@@ -134,7 +134,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmRoleDto somerole = testHelper.createRole();
 		testHelper.createIdentityRole(contract,somerole);
 		UUID roleId = somerole.getId();
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setRoles(Collections.singletonList(roleId));
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		assertEquals("Wrong Roles",1, result.getTotalElements());
@@ -153,7 +153,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		testHelper.createIdentityContact(person,node1);
 		//contract.setGuarantee(manager_id);
 		//IdmIdentityContractDto contract2 = idmIdentityContractService.save(contract);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(manager_id);
 		filter.setSubordinatesByTreeType(type1.getId());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
@@ -175,7 +175,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		testHelper.createIdentityContact(person,node1);
 		//contract.setGuarantee(manager_id);
 		//IdmIdentityContractDto contract2 = idmIdentityContractService.save(contract);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		//filter.setIncludeGuarantees(true);
 		filter.setManagersFor(person_id);
 		filter.setManagersByTreeType(type1.getId());
@@ -196,7 +196,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node2);
 		testHelper.createContractGuarantee(contract.getId(),manager2.getId());
 		testHelper.createIdentityContact(manager,node1);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(person.getId());
 		filter.setIncludeGuarantees(true);
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
@@ -238,7 +238,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		// node1 UUID
 		UUID node1id = node1.getId();
 		// test
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setFirstName(person1.getFirstName());
 		filter.setRecursively(true);
 		filter.setTreeNode(node1id);
@@ -256,7 +256,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeNodeDto node = testHelper.createTreeNode(type,"ThisIsTestNode002",null);
 		UUID typeUuid = type.getId();
 		testHelper.createIdentityContact(person,node);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setTreeType(typeUuid);
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		assertEquals("Wrong TreeType",1, result.getTotalElements());
@@ -269,7 +269,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeNodeDto node = testHelper.createTreeNode(type,"ThisIsTestNode003",null);
 		UUID nodeUuid = node.getId();
 		testHelper.createIdentityContact(person,node);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setTreeNode(nodeUuid);
 		filter.setRecursively(false);
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
@@ -278,7 +278,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 
 	@Test
 	public void testNothingToFind(){
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setFirstName("Adolf");
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter,null);
 		assertEquals("Wrong blank filter",0, result.getTotalElements());
@@ -291,7 +291,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		getIdmIdentity("tn00","tn00","tn01@a.eu", "000000001", false);
 		getIdmIdentity("tn001","tn00","tn01@a.eu", "000000001", false);
 
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setFirstName(person1.getFirstName());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter,null);
 		assertEquals("Wrong more to find filter",3, result.getTotalElements());
@@ -303,7 +303,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmIdentityDto person2 = getIdmIdentity("tn01","tn01","tn02@a.eu", "000010001", false);
 		IdmIdentityDto person3 = getIdmIdentity("tn01","tn01","tn02@a.eu", "000010001", false);
 		getIdmIdentity("tn0001","tn01","tn02@a.eu", "000010001", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setFirstName(person1.getFirstName());
 		filter.setLastName(person2.getLastName());
 		filter.setDisabled(false);
@@ -325,7 +325,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		testHelper.createTreeNode(type2,"nodeName002",null);
 		testHelper.createIdentityContact(person1,node1);
 		testHelper.createIdentityContact(person1,node1);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setFirstName(person1.getFirstName());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter,null);
 		assertEquals("Wrong sameButDiff filter",2, result.getTotalElements());
@@ -340,7 +340,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmIdentityDto person2 = getIdmIdentity("a1testuser","b2testuser","b2testuser@a.eu", "333010003", false);
 		IdmIdentityDto person3 = getIdmIdentity("a1testuser","b2testuser","b3testuser@a.eu", "333010004", false);
 		IdmIdentityDto person4 = getIdmIdentity("a2testuser","b3testuser","b4testuser@a.eu", "333010005", false);
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setText(person1.getFirstName());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter,null);
 		assertEquals("Wrong Text filter - firstname",3, result.getTotalElements());

@@ -28,17 +28,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  *
  */
 public class DefaultIdmPasswordPolicyService
-		extends AbstractReadWriteDtoService<IdmPasswordPolicyDto, IdmPasswordPolicy, PasswordPolicyFilter>
+		extends AbstractReadWriteDtoService<IdmPasswordPolicyDto, IdmPasswordPolicy, IdmPasswordPolicyFilter>
 		implements IdmPasswordPolicyService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmPasswordPolicyService.class);
@@ -99,7 +99,7 @@ public class DefaultIdmPasswordPolicyService
 	}
 	
 	@Override
-	protected Page<IdmPasswordPolicy> findEntities(PasswordPolicyFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmPasswordPolicy> findEntities(IdmPasswordPolicyFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return getRepository().findAll(pageable);
 		}

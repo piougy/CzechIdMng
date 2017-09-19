@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.service.LoginService;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 
 @Component
 @Enabled(CoreModuleDescriptor.MODULE_ID)

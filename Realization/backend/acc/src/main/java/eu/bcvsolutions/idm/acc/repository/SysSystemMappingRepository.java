@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -30,5 +30,5 @@ public interface SysSystemMappingRepository extends AbstractEntityRepository<Sys
 			" and" +
 			" (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})"
 			)
-	Page<SysSystemMapping> find(SystemMappingFilter filter, Pageable pageable);
+	Page<SysSystemMapping> find(SysSystemMappingFilter filter, Pageable pageable);
 }

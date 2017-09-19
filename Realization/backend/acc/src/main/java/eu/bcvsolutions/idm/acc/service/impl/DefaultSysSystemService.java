@@ -28,12 +28,12 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
@@ -218,14 +218,14 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 					ImmutableMap.of("system", system.getName()));
 		}
 		// delete synchronization configs
-		SynchronizationConfigFilter synchronizationConfigFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter synchronizationConfigFilter = new SysSyncConfigFilter();
 		synchronizationConfigFilter.setSystemId(system.getId());
 		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
 			synchronizationConfigService.delete(config);
 		});
 		
 		// delete schema
-		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
+		SysSchemaObjectClassFilter filter = new SysSchemaObjectClassFilter();
 		filter.setSystemId(system.getId());
 		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
 			objectClassService.delete(schemaObjectClass);
@@ -365,7 +365,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		}
 
 		// Load existing object class from system
-		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
+		SysSchemaObjectClassFilter objectClassFilter = new SysSchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
 		List<SysSchemaObjectClassDto> sysObjectClassesInSystem = null;
 		Page<SysSchemaObjectClassDto> page = objectClassService.find(objectClassFilter, null);
@@ -409,7 +409,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 			List<SysSchemaAttributeDto> attributesInSystem = null;
 			// Load existing attributes for existing object class in system
 			if (sysObjectClass.getId() != null) {
-				SchemaAttributeFilter attFilter = new SchemaAttributeFilter();
+				SysSchemaAttributeFilter attFilter = new SysSchemaAttributeFilter();
 				attFilter.setSystemId(system.getId());
 				attFilter.setObjectClassId(sysObjectClass.getId());
 
@@ -491,7 +491,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		}
 		
 		// Duplicate schema
-		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
+		SysSchemaObjectClassFilter objectClassFilter = new SysSchemaObjectClassFilter();
 		objectClassFilter.setSystemId(id);
 		objectClassService.find(objectClassFilter, null).getContent().stream().forEach(schema -> {
 			UUID originalSchemaId = schema.getId();
@@ -499,7 +499,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 					schemaAttributesCache);
 
 			// Duplicate mapped attributes
-			SystemMappingFilter systemMappingFilter = new SystemMappingFilter();
+			SysSystemMappingFilter systemMappingFilter = new SysSystemMappingFilter();
 			systemMappingFilter.setSystemId(id);
 			systemMappingService.find(systemMappingFilter, null).getContent().stream().filter(mapping -> {
 				
@@ -607,7 +607,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		clonedSchema.setSystem(system.getId());
 		SysSchemaObjectClassDto schema = objectClassService.save(clonedSchema);
 
-		SchemaAttributeFilter schemaAttributesFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributesFilter = new SysSchemaAttributeFilter();
 		schemaAttributesFilter.setObjectClassId(id);
 		attributeService.find(schemaAttributesFilter, null).forEach(schemaAttribute -> {
 			UUID originalSchemaAttributId = schemaAttribute.getId();
@@ -638,7 +638,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		SysSystemMappingDto mapping = this.systemMappingService.save(clonedMapping);
 
 		// Clone mapped attributes
-		SystemAttributeMappingFilter attributesFilter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter attributesFilter = new SysSystemAttributeMappingFilter();
 		attributesFilter.setSystemMappingId(id);
 		systemAttributeMappingService.find(attributesFilter, null).forEach(attribute -> {
 			UUID originalAttributeId = attribute.getId();
@@ -710,7 +710,7 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 	 * @return
 	 */
 	private List<SysSyncConfigDto> findSyncConfigs(UUID id) {
-		SynchronizationConfigFilter syncConfigFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
 		syncConfigFilter.setSystemId(id);
 		return synchronizationConfigService.find(syncConfigFilter, null).getContent();
 	}

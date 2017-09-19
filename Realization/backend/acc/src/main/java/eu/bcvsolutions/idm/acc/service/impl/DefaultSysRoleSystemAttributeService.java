@@ -18,8 +18,8 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -36,10 +36,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -50,7 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysRoleSystemAttributeService extends
-		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, RoleSystemAttributeFilter>
+		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, SysRoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysRoleSystemAttributeService.class);
@@ -87,7 +87,7 @@ public class DefaultSysRoleSystemAttributeService extends
 	}
 	
 	@Override
-	protected Page<SysRoleSystemAttribute> findEntities(RoleSystemAttributeFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysRoleSystemAttribute> findEntities(SysRoleSystemAttributeFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -99,7 +99,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		// Check if exist some else attribute which is defined like unique
 		// identifier
 		if (dto.isUid()) {
-			RoleSystemAttributeFilter filter = new RoleSystemAttributeFilter();
+			SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
 			filter.setIsUid(Boolean.TRUE);
 			filter.setRoleSystemId(dto.getRoleSystem());
 
@@ -132,7 +132,7 @@ public class DefaultSysRoleSystemAttributeService extends
 
 		// RoleSystemAttribute was changed. We need do ACC management for all
 		// connected identities
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setRoleSystemId(dto.getRoleSystem());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		// TODO: move to filter and use distinct

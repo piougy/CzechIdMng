@@ -16,14 +16,14 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 
 
@@ -150,7 +150,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 	 * @return
 	 */
 	private List<IdmScriptAuthorityDto> getScriptAuthorityForScript(UUID scriptId) {
-		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
+		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(scriptId);
 		return scriptAuthorityService.find(filter, null).getContent();
 	}

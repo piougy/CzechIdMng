@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent.SchemaAttributeEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -49,7 +49,7 @@ public class SchemaAttributeDeleteProcessor extends CoreEventProcessor<SysSchema
 	public EventResult<SysSchemaAttributeDto> process(EntityEvent<SysSchemaAttributeDto> event) {
 		SysSchemaAttributeDto schemaAttribute = event.getContent();
 		// remove all handled attributes
-		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSchemaAttributeId(schemaAttribute.getId());
 		systeAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
 			systeAttributeMappingService.delete(systemAttributeMapping);

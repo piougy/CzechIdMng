@@ -25,25 +25,25 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.service.impl.DefaultIdmNotificationTemplateService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -120,7 +120,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		notificationManager.send(TOPIC, new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		notificationManager.send(TOPIC, new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setNotificationType(IdmNotificationLog.class);
 		assertEquals(2, notificationLogService.find(filter, null).getTotalElements());
 
@@ -138,7 +138,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		// create templates
 		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
 
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 
 		filter.setSender(InitTestData.TEST_USER_2);
 		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
@@ -165,7 +165,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	public void testEmailFilterBySent() {
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		//
 		// create templates
 		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
@@ -185,7 +185,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
 		//
-		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
 		filter.setText(TEST_TEMPLATE);
 		//
 		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
@@ -209,7 +209,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 			configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
 		}
 		//
-		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
 		filter.setText(TEST_TEMPLATE);
 		//
 		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
@@ -244,7 +244,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
 		//
-		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
 		filter.setText(TEST_TEMPLATE);
 		//
 		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
@@ -289,7 +289,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
 		//
-		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
 		filter.setText(TEST_TEMPLATE);
 		//
 		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
@@ -343,7 +343,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void textFilterTest(){
 		IdmIdentityDto identity = helper.createIdentity();
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		//
 		// create templates
 		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate1", "testSubject");
@@ -368,7 +368,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void senderFilterTest(){
 		IdmIdentityDto sender = helper.createIdentity();
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		IdmNotificationDto notification = new IdmNotificationDto();
 		notification.setIdentitySender(sender.getId());
 		//
@@ -386,7 +386,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void parentFilterText(){
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		IdmNotificationDto notification = new IdmNotificationDto();
 		IdmNotificationDto parentNotification = new IdmNotificationDto();
 		// prepare template and message
@@ -420,7 +420,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
 		notificationManager.send(message, identities);
 
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setState(NotificationState.ALL);
 		Page<IdmNotificationLogDto> result = notificationLogService.find(filter, null);
 		assertEquals("Wrong state ALL", 1, result.getTotalElements());

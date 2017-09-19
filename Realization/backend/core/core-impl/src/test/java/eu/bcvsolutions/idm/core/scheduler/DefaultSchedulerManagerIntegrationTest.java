@@ -14,7 +14,6 @@ import java.util.function.Function;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
-import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -25,10 +24,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -45,8 +44,6 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 
 	@Autowired
 	private ApplicationContext context;
-	@Autowired
-	private Scheduler scheduler;
 	@Autowired
 	private ConfigurationService configurationService;
 	@Autowired

@@ -16,18 +16,19 @@ public interface AccAccountManagementService {
 
 	/**
 	 * Identity role is deleting, we have to delete linked identity accounts
+	 * 
 	 * @param entity
 	 */
-	void deleteIdentityAccount(IdmIdentityRoleDto entity);
+	void deleteIdentityAccount(IdmIdentityRoleDto identityRole);
 	
 	/**
-	 * Return UID for this entity and roleSystem. First will be find and use
+	 * Return UID for this dto and roleSystem. First will be find and use
 	 * transform script from roleSystem attribute. If isn't UID attribute for
 	 * roleSystem defined, then will be use default UID attribute handling.
 	 * 
-	 * @param identity
+	 * @param dto
 	 * @param roleSystem
 	 * @return
 	 */
-	String generateUID(AbstractDto entity, SysRoleSystemDto roleSystem);
+	String generateUID(AbstractDto dto, SysRoleSystemDto roleSystem);
 }

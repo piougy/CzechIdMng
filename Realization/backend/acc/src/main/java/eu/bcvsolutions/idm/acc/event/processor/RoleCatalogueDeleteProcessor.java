@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.filter.RoleCatalogueAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleCatalogueAccountService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -43,7 +43,7 @@ public class RoleCatalogueDeleteProcessor extends CoreEventProcessor<IdmRoleCata
 
 	@Override
 	public EventResult<IdmRoleCatalogueDto> process(EntityEvent<IdmRoleCatalogueDto> event) {
-		RoleCatalogueAccountFilter filter = new RoleCatalogueAccountFilter();
+		AccRoleCatalogueAccountFilter filter = new AccRoleCatalogueAccountFilter();
 		filter.setEntityId(event.getContent().getId());
 		catalogueAccountService.find(filter, null).forEach(treeAccount -> {
 			catalogueAccountService.delete(treeAccount);

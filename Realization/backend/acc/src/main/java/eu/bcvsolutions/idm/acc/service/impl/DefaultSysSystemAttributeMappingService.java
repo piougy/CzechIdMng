@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -72,7 +72,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 public class DefaultSysSystemAttributeMappingService
-		extends AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SystemAttributeMappingFilter>
+		extends AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SysSystemAttributeMappingFilter>
 		implements SysSystemAttributeMappingService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
@@ -131,7 +131,7 @@ public class DefaultSysSystemAttributeMappingService
 	}
 	
 	@Override
-	protected Page<SysSystemAttributeMapping> findEntities(SystemAttributeMappingFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSystemAttributeMapping> findEntities(SysSystemAttributeMappingFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}

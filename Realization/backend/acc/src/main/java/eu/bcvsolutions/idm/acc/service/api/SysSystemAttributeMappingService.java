@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SysSystemAttributeMappingService extends ReadWriteDtoService<SysSystemAttributeMappingDto, SystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMappingDto> {
+public interface SysSystemAttributeMappingService extends ReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMappingDto> {
 	
 	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
 	public static final String SYSTEM_KEY = "system";

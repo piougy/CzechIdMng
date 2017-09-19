@@ -7,12 +7,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmSmsLogDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmSmsLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmSmsLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmSmsLogService;
 
 /**
  * This class exists just to provide basic functionality connected to sending sms notifications

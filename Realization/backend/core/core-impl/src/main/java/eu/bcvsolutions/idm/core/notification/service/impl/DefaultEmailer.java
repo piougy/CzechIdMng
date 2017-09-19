@@ -25,13 +25,13 @@ import org.springframework.util.ObjectUtils;
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.domain.SendOperation;
-import eu.bcvsolutions.idm.core.notification.service.api.Emailer;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.notification.api.service.Emailer;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 
 /**
  * Default email sender implementation

@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleCatalogueAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -35,8 +35,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -89,7 +89,7 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 			if (idmValue instanceof UUID) {
 				// Generally we expect IdmRoleCatalogue as parent (we will do
 				// transform)
-				RoleCatalogueAccountFilter catalogueAccountFilter = new RoleCatalogueAccountFilter();
+				AccRoleCatalogueAccountFilter catalogueAccountFilter = new AccRoleCatalogueAccountFilter();
 				catalogueAccountFilter.setSystemId(this.getSytemFromSchemaAttribute(attribute.getSchemaAttribute()).getId());
 				catalogueAccountFilter.setEntityId((UUID) idmValue);
 				List<AccRoleCatalogueAccountDto> treeAccounts = catalogueAccountService.find(catalogueAccountFilter, null).getContent();
@@ -123,7 +123,7 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	@Override
 	@SuppressWarnings("unchecked")
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new RoleCatalogueAccountFilter();
+		return new AccRoleCatalogueAccountFilter();
 	}
 
 	@Override

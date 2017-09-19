@@ -27,11 +27,11 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**

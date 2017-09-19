@@ -28,14 +28,14 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -62,7 +62,7 @@ import io.swagger.annotations.AuthorizationScope;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmConceptRoleRequestController
-		extends AbstractReadWriteDtoController<IdmConceptRoleRequestDto, ConceptRoleRequestFilter> {
+		extends AbstractReadWriteDtoController<IdmConceptRoleRequestDto, IdmConceptRoleRequestFilter> {
 
 	protected static final String TAG = "Role Request - concepts";
 	private final SecurityService securityService;
@@ -127,7 +127,7 @@ public class IdmConceptRoleRequestController
 	}	
 	
 	@Override
-	public Page<IdmConceptRoleRequestDto> find(ConceptRoleRequestFilter filter, Pageable pageable,
+	public Page<IdmConceptRoleRequestDto> find(IdmConceptRoleRequestFilter filter, Pageable pageable,
 			BasePermission permission) {
 		// check access
 		if (!securityService.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_ADMIN)) {
@@ -249,8 +249,8 @@ public class IdmConceptRoleRequestController
 	}
 
 	@Override
-	protected ConceptRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
+	protected IdmConceptRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));

@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningRequestFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningRequestFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysProvisioningRequestService
-		extends AbstractReadWriteDtoService<SysProvisioningRequestDto, SysProvisioningRequest, ProvisioningRequestFilter>
+		extends AbstractReadWriteDtoService<SysProvisioningRequestDto, SysProvisioningRequest, SysProvisioningRequestFilter>
 		implements SysProvisioningRequestService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningRequestService.class);
@@ -44,7 +44,7 @@ public class DefaultSysProvisioningRequestService
 	}
 	
 	@Override
-	protected Page<SysProvisioningRequest> findEntities(ProvisioningRequestFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysProvisioningRequest> findEntities(SysProvisioningRequestFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -53,7 +53,7 @@ public class DefaultSysProvisioningRequestService
 
 	@Override
 	public SysProvisioningRequestDto findByOperationId(UUID operationId) {
-		ProvisioningRequestFilter filter = new ProvisioningRequestFilter();
+		SysProvisioningRequestFilter filter = new SysProvisioningRequestFilter();
 		filter.setOperationId(operationId);
 		List<SysProvisioningRequestDto> requests = this.find(filter, null).getContent();
 		if (requests.isEmpty()) {
@@ -69,7 +69,7 @@ public class DefaultSysProvisioningRequestService
 
 	@Override
 	public Page<SysProvisioningRequestDto> findByBatchId(UUID batchId,  Pageable pageable) {
-		ProvisioningRequestFilter filter = new ProvisioningRequestFilter();
+		SysProvisioningRequestFilter filter = new SysProvisioningRequestFilter();
 		filter.setBatchId(batchId);
 		return this.find(filter, pageable);
 	}

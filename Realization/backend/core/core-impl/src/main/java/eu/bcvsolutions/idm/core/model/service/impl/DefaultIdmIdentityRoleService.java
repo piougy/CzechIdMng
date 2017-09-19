@@ -20,10 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -36,7 +37,6 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -48,7 +48,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityRoleService 
-		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>
+		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
 		implements IdmIdentityRoleService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
@@ -104,7 +104,7 @@ public class DefaultIdmIdentityRoleService
 	
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityRoleFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
@@ -196,7 +196,7 @@ public class DefaultIdmIdentityRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmIdentityRoleDto> findValidRole(UUID identityId, Pageable pageable) {
-		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 		identityRoleFilter.setValid(Boolean.TRUE);
 		identityRoleFilter.setIdentityId(identityId);
 		return this.find(identityRoleFilter, pageable);

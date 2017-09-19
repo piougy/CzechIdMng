@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationRecipientFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationRecipientService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationRecipientService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultIdmNotificationRecipientService 
-		extends AbstractReadWriteDtoService<IdmNotificationRecipientDto, IdmNotificationRecipient, NotificationRecipientFilter> 
+		extends AbstractReadWriteDtoService<IdmNotificationRecipientDto, IdmNotificationRecipient, IdmNotificationRecipientFilter> 
 		implements IdmNotificationRecipientService {
 
 	private IdmNotificationRecipientRepository repository;
@@ -34,7 +34,7 @@ public class DefaultIdmNotificationRecipientService
     }
 
     @Override
-	protected Page<IdmNotificationRecipient> findEntities(NotificationRecipientFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmNotificationRecipient> findEntities(IdmNotificationRecipientFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}

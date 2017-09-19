@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -22,5 +22,5 @@ public interface SysSyncItemLogRepository extends AbstractEntityRepository<SysSy
 	        " and" +
 	        " (lower(e.displayName) like ?#{[0].displayName == null ? '%' : '%'.concat([0].displayName.toLowerCase()).concat('%')})"
 			)
-	Page<SysSyncItemLog> find(SyncItemLogFilter filter, Pageable pageable);
+	Page<SysSyncItemLog> find(SysSyncItemLogFilter filter, Pageable pageable);
 }

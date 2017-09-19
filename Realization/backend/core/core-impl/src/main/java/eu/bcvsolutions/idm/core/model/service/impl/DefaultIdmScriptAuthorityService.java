@@ -21,15 +21,15 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.api.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptAuthorityRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service("scriptAuthorityService")
-public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthority, ScriptAuthorityFilter> implements IdmScriptAuthorityService {
+public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthority, IdmScriptAuthorityFilter> implements IdmScriptAuthorityService {
 	
 	private final ApplicationContext applicationContext;
 	private List<AvailableServiceDto> services;
@@ -58,7 +58,7 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 	}
 	
 	@Override
-	protected Page<IdmScriptAuthority> findEntities(ScriptAuthorityFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmScriptAuthority> findEntities(IdmScriptAuthorityFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return getRepository().findAll(pageable);
 		}
@@ -89,7 +89,7 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 
 	@Override
 	public void deleteAllByScript(UUID scriptId) {
-		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
+		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(scriptId);
 		//
 		// remove internal by id each script authority

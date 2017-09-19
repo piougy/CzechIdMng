@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccTreeAccount;
 import eu.bcvsolutions.idm.acc.entity.AccTreeAccount_;
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("accTreeAccountService")
 public class DefaultAccTreeAccountService
-		extends AbstractReadWriteDtoService<AccTreeAccountDto, AccTreeAccount, TreeAccountFilter>
+		extends AbstractReadWriteDtoService<AccTreeAccountDto, AccTreeAccount, AccTreeAccountFilter>
 		implements AccTreeAccountService {
 
 	private final AccAccountService accountService;
@@ -73,7 +73,7 @@ public class DefaultAccTreeAccountService
 		// We check if exists another (ownership) identityAccounts, if not
 		// then
 		// we will delete account
-		TreeAccountFilter filter = new TreeAccountFilter();
+		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
@@ -93,7 +93,7 @@ public class DefaultAccTreeAccountService
 	}
 
 	@Override
-	protected List<Predicate> toPredicates(Root<AccTreeAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, TreeAccountFilter filter) {
+	protected List<Predicate> toPredicates(Root<AccTreeAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, AccTreeAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if(filter.getAccountId() != null) {

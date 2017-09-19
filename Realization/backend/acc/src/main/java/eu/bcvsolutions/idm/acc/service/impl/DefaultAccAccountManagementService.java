@@ -24,11 +24,11 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -99,7 +99,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	public boolean resolveIdentityAccounts(IdmIdentityDto identity) {
 		Assert.notNull(identity);
 
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> identityAccountList = identityAccountService.find(filter, null).getContent();
 
@@ -173,7 +173,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}).forEach(identityRole -> {
 			
 			IdmRole role = identityRole.getRole();
-			RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 			roleSystemFilter.setRoleId(role.getId());
 			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
@@ -236,7 +236,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	@Override
 	public String generateUID(AbstractDto entity, SysRoleSystemDto roleSystem) {
 		// Find attributes for this roleSystem
-		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
+		SysRoleSystemAttributeFilter roleSystemAttrFilter = new SysRoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
 		List<SysRoleSystemAttributeDto> attributes = roleSystemAttributeService.find(roleSystemAttrFilter, null)
 				.getContent();
@@ -280,7 +280,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// attribute handling
 		SysSchemaObjectClassDto objectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		SysSystemDto system = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
-		SystemAttributeMappingFilter systeAttributeMappingFilter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter systeAttributeMappingFilter = new SysSystemAttributeMappingFilter();
 		systeAttributeMappingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> schemaHandlingAttributes = systemAttributeMappingService
 				.find(systeAttributeMappingFilter, null).getContent();
@@ -290,7 +290,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 	@Override
 	public void deleteIdentityAccount(IdmIdentityRoleDto entity) {
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityRoleId(entity.getId());
 		Page<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null);
 		List<AccIdentityAccountDto> identityAccountList = identityAccounts.getContent();
@@ -323,7 +323,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			accountId = sameAccountOptional.get().getAccount();
 		}else{
 			// If account is not in list accounts to create, then we will search in database
-			AccountFilter accountFilter = new AccountFilter();
+			AccAccountFilter accountFilter = new AccAccountFilter();
 			accountFilter.setUid(uid);
 			accountFilter.setSystemId(roleSystem.getSystem());
 			List<AccAccountDto> sameAccounts = accountService.find(accountFilter, null).getContent();

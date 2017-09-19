@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
@@ -45,7 +45,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -64,7 +64,7 @@ import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
  */
 @Service
 public class DefaultSysProvisioningOperationService
-		extends AbstractReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperation, ProvisioningOperationFilter> implements SysProvisioningOperationService {
+		extends AbstractReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperation, SysProvisioningOperationFilter> implements SysProvisioningOperationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningOperationService.class);
 	private static final String CONFIDENTIAL_KEY_PATTERN = "%s:%s:%d";
@@ -121,7 +121,7 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	protected Page<SysProvisioningOperation> findEntities(ProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysProvisioningOperation> findEntities(SysProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}

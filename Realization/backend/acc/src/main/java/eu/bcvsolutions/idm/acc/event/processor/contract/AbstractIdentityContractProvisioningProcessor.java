@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
 /**
  * Identity Ccontract provisioning super class
@@ -45,7 +45,7 @@ public abstract class AbstractIdentityContractProvisioningProcessor extends Abst
 	 * @return
 	 */
 	protected List<IdmIdentityDto> findAllSubordinates(UUID identityId) {
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(identityId);
 		return identityService.find(filter, null).getContent();
 	}

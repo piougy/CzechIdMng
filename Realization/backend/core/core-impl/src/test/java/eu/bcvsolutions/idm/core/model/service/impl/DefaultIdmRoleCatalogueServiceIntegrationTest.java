@@ -18,9 +18,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -179,7 +179,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		catalogue4.setName("NameCat004");
 		roleCatalogueService.save(catalogue4);
 
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setText("NameCat00");
 		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong text filter count", 3,result.getTotalElements());
@@ -192,7 +192,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
 		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
 
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setCode(catalogue.getCode());
 		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong code count", 1,result.getTotalElements());
@@ -215,7 +215,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
 		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
 
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName(catalogue.getName());
 		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong name count", 1,result.getTotalElements());
@@ -248,7 +248,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		catalogue5.setParent(catalogue4.getId());
 		roleCatalogueService.save(catalogue5);
 
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setParent(catalogueId);
 		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong parent count", 2,result.getTotalElements());

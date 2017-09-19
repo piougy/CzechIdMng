@@ -34,12 +34,12 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
@@ -120,7 +120,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		objectClass.setSystem(system.getId());
 		objectClass.setObjectClassName("obj_class");
 		objectClass = schemaObjectClassService.save(objectClass);	
-		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
+		SysSchemaObjectClassFilter objectClassFilter = new SysSchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
 		// schema attribute
 		SysSchemaAttributeDto schemaAttribute = new SysSchemaAttributeDto();
@@ -128,7 +128,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		schemaAttribute.setName("name");
 		schemaAttribute.setClassType("class");
 		schemaAttribute = schemaAttributeService.save(schemaAttribute);
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());	
 		// system entity handling
 		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
@@ -137,7 +137,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping = systemMappingService.save(systemMapping);
-		SystemMappingFilter entityHandlingFilter = new SystemMappingFilter();
+		SysSystemMappingFilter entityHandlingFilter = new SysSystemMappingFilter();
 		entityHandlingFilter.setSystemId(system.getId());
 		// schema attribute handling
 		SysSystemAttributeMappingDto schemaAttributeHandling = new SysSystemAttributeMappingDto();
@@ -146,7 +146,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandling.setName("name");
 		schemaAttributeHandling.setIdmPropertyName("name");
 		schemaAttributeHandling = systemAttributeMappingService.save(schemaAttributeHandling);
-		SystemAttributeMappingFilter schemaAttributeHandlingFilter = new SystemAttributeMappingFilter(); 
+		SysSystemAttributeMappingFilter schemaAttributeHandlingFilter = new SysSystemAttributeMappingFilter(); 
 		schemaAttributeHandlingFilter.setSystemId(system.getId());		
 		// role system
 		IdmRoleDto role = helper.createRole();
@@ -155,7 +155,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		roleSystem.setRole(role.getId());
 		roleSystem.setSystemMapping(systemMapping.getId());
 		roleSystem = roleSystemService.save(roleSystem);
-		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 		roleSystemFilter.setRoleId(role.getId());
 		// role system attributes
 		SysRoleSystemAttributeDto roleSystemAttribute = new SysRoleSystemAttributeDto();
@@ -381,7 +381,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	public void duplicateSystem(){
 		// create test system
 		SysSystemDto system = helper.createTestResourceSystem(true);
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		// Number of schema attributes on original system
 		int numberOfSchemaAttributesOrig = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
@@ -411,7 +411,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		String syncName = "test-sync-config";
 		// create test system
 		SysSystemDto system = helper.createTestResourceSystem(true);
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		// Number of schema attributes on original system
 		int numberOfSchemaAttributesOrig = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
@@ -419,7 +419,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// Number of mapping attributes on original system
 		int numberOfMappingAttributesOrig = systemAttributeMappingService.findBySystemMapping(mappingOrig).size();
 		
-		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mappingOrig.getId());
 		
 		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
@@ -469,7 +469,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(numberOfMappingAttributesOrig, numberOfMappingAttributes);
 		
 		// check synchronization config
-		SynchronizationConfigFilter syncFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter syncFilter = new SysSyncConfigFilter();
 		syncFilter.setSystemId(duplicatedSystem.getId());
 		List<SysSyncConfigDto> configs = syncConfigService.find(syncFilter, null).getContent();
 		Assert.assertEquals(1, configs.size());

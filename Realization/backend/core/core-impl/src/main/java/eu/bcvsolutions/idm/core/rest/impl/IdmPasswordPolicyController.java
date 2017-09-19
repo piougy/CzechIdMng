@@ -23,13 +23,13 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -50,7 +50,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with password policies",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<IdmPasswordPolicyDto, PasswordPolicyFilter> {
+public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<IdmPasswordPolicyDto, IdmPasswordPolicyFilter> {
 	
 	protected static final String TAG = "Password policies";
 	private final IdmPasswordPolicyService passwordPolicyService;

@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service("accAccountService")
-public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAccountDto, AccAccount, AccountFilter>
+public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAccountDto, AccAccount, AccAccountFilter>
 		implements AccAccountService {
 	
 	private final AccAccountRepository accountRepository;
@@ -66,7 +66,7 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 	}
 	
 	@Override
-	protected Page<AccAccount> findEntities(AccountFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<AccAccount> findEntities(AccAccountFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return accountRepository.findAll(pageable);
 		}
@@ -138,7 +138,7 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		Assert.notNull(uid, "UID cannot be null!");
 		Assert.notNull(systemId, "System ID cannot be null!");
 		
-		AccountFilter filter = new AccountFilter();
+		AccAccountFilter filter = new AccAccountFilter();
 		filter.setUid(uid);
 		filter.setSystemId(systemId);
 		

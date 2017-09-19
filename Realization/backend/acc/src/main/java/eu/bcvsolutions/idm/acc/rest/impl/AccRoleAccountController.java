@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -52,7 +52,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Assigned role accoutns on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccRoleAccountController extends AbstractReadWriteDtoController<AccRoleAccountDto, RoleAccountFilter> {
+public class AccRoleAccountController extends AbstractReadWriteDtoController<AccRoleAccountDto, AccRoleAccountFilter> {
 	
 	protected static final String TAG = "Role accounts";
 
@@ -206,8 +206,8 @@ public class AccRoleAccountController extends AbstractReadWriteDtoController<Acc
 	}
 
 	@Override
-	protected RoleAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleAccountFilter filter = new RoleAccountFilter();
+	protected AccRoleAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
+		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
 		filter.setRoleId(getParameterConverter().toEntityUuid(parameters, "role", IdmRole.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));

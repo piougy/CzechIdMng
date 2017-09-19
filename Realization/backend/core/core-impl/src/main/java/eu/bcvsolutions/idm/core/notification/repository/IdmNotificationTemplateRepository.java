@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 
 /**
@@ -26,7 +26,7 @@ public interface IdmNotificationTemplateRepository extends AbstractEntityReposit
         	+ ") "
         	+ "AND "
         		+ " ?#{[0].unmodifiable} is null or e.unmodifiable = ?#{[0].unmodifiable} ")
-	Page<IdmNotificationTemplate> find(NotificationTemplateFilter filter, Pageable pageable);
+	Page<IdmNotificationTemplate> find(IdmNotificationTemplateFilter filter, Pageable pageable);
 
 	/**
 	 * Find one {@link IdmNotificationTemplate} by name given in parameter

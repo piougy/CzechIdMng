@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -50,14 +50,14 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRoleDto
 	@Override
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 		// delete mapped roles
-		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 		roleSystemFilter.setRoleId(event.getContent().getId());
 		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
 			roleSystemService.delete(roleSystem);
 		});
 		//
 		// delete relations on account (includes delete of account	)
-		RoleAccountFilter filter = new RoleAccountFilter();
+		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setRoleId(event.getContent().getId());
 		roleAccountService.find(filter, null).forEach(roleAccount -> {
 			roleAccountService.delete(roleAccount);

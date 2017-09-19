@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -36,7 +36,7 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	        + " and"
 			+ " (?#{[0].idmPropertyName} is null or lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
 			)
-	Page<SysSystemAttributeMapping> find(SystemAttributeMappingFilter filter, Pageable pageable);
+	Page<SysSystemAttributeMapping> find(SysSystemAttributeMappingFilter filter, Pageable pageable);
 	
 	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
 			+ "e.authenticationAttribute = true "

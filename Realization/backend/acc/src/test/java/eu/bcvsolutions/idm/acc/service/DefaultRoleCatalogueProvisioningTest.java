@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -35,12 +35,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 
@@ -115,7 +115,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test(expected = ProvisioningException.class) // Provisioning tree in incorrect order
 	public void provisioningB_CreateAccounts_withException() {
 
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -140,7 +140,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test
 	public void provisioningC_CreateAccounts_correct() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 		
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -173,7 +173,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test
 	public void provisioningD_UpdateAccount() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 		
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -202,7 +202,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test(expected=ResultCodeException.class)
 	public void provisioningE_DeleteAccount_IntegrityException() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 		
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -216,7 +216,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test
 	public void provisioningF_DeleteAccount() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P12");
 		IdmRoleCatalogueDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeOne);
@@ -278,7 +278,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	
 
 	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 
 		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);

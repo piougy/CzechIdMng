@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
@@ -51,14 +51,14 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -285,10 +285,10 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUnlink(AccAccountDto account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
 			List<SysSyncActionLogDto> actionLogs) {
 
-		EntityAccountFilter roleAccountFilter = new RoleAccountFilter();
+		EntityAccountFilter roleAccountFilter = new AccRoleAccountFilter();
 		roleAccountFilter.setAccountId(account.getId());
 		List<AccRoleAccountDto> roleAccounts = roleAccoutnService
-				.find((RoleAccountFilter) roleAccountFilter, null).getContent();
+				.find((AccRoleAccountFilter) roleAccountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
 			addToItemLog(logItem, "Role account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -345,7 +345,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new RoleAccountFilter();
+		return new AccRoleAccountFilter();
 	}
 
 	@SuppressWarnings("rawtypes")

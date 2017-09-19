@@ -4,7 +4,7 @@ import com.google.common.annotations.Beta;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface AccIdentityAccountService extends 
-		ReadWriteDtoService<AccIdentityAccountDto, IdentityAccountFilter>, 
+		ReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccountFilter>, 
 		ScriptEnabled,
 		AuthorizableService<AccIdentityAccountDto> {
 

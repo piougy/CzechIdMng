@@ -10,8 +10,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 
 /**
  * Sending notifications over Camel

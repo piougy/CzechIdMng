@@ -150,8 +150,7 @@ public class DefaultVsSystemService implements VsSystemService {
 				attributeMapping.setUid(false);
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName(IdmIdentity_.disabled.getName());
-				attributeMapping.setTransformToResourceScript("return String.valueOf(!attributeValue);");
-				attributeMapping.setTransformFromResourceScript("return !attributeValue;");
+				attributeMapping.setTransformToResourceScript("return !attributeValue;");
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(systemMapping.getId());

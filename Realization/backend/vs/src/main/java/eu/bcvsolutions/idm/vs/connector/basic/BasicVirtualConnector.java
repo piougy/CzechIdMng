@@ -198,9 +198,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 					uidValue, systemId));
 		}
 
-		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
-
 		// Update UID - if is different
+		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
 		if (uidAttribute != null) {
 			Object attributeUidValue = uidAttribute.getValue();
 			if (!(attributeUidValue instanceof String)) {
@@ -217,6 +216,20 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 				// process update UID in system entity (ACC module) will not
 				// works!)
 				updateSystemEntity(uidValue, attributeUidValue);
+			}
+		}
+
+		// Update ENABLE - if is different
+		IcAttribute enableAttribute = geAttribute(attributes, IcAttributeInfo.ENABLE);
+		if (enableAttribute != null && this.virtualConfiguration.isDisableSupported()) {
+			Object attributeEnableValue = enableAttribute.getValue();
+			if (!(attributeEnableValue instanceof Boolean)) {
+				throw new IcException(
+						MessageFormat.format("ENABLE attribute value [{0}] must be Boolean!", attributeEnableValue));
+			}
+			if (account.isEnable() != (Boolean) attributeEnableValue) {
+				account.setEnable((Boolean) attributeEnableValue);
+				account = accountService.save(account);
 			}
 		}
 
@@ -356,6 +369,12 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		vsAttributes.add(uidAttribute);
 
 		if (account != null) {
+
+			// Create enable attribute
+			if (this.virtualConfiguration.isDisableSupported()) {
+				IcAttributeImpl enableAttribute = new IcAttributeImpl(IcAttributeInfo.ENABLE, account.isEnable());
+				vsAttributes.add(enableAttribute);
+			}
 			// Attributes from definition and configuration
 			UUID accountId = account.getId();
 			Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
@@ -517,19 +536,20 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		attributes.add(attributeUid);
 
-		// Create UID schema attribute
-		IcAttributeInfoImpl attributeDisabled = new IcAttributeInfoImpl();
-		attributeDisabled.setClassType(Boolean.class.getName());
-		attributeDisabled.setCreateable(true);
-		attributeDisabled.setMultivalued(false);
-		attributeDisabled.setName(IcAttributeInfo.ENABLE);
-		attributeDisabled.setNativeName(VsAccount_.enable.getName());
-		attributeDisabled.setReadable(true);
-		attributeDisabled.setRequired(false);
-		attributeDisabled.setReturnedByDefault(false);
-		attributeDisabled.setUpdateable(true);
-
-		attributes.add(attributeDisabled);
+		// Create ENABLE schema attribute
+		if (this.virtualConfiguration.isDisableSupported()) {
+			IcAttributeInfoImpl attributeDisabled = new IcAttributeInfoImpl();
+			attributeDisabled.setClassType(Boolean.class.getName());
+			attributeDisabled.setCreateable(true);
+			attributeDisabled.setMultivalued(false);
+			attributeDisabled.setName(IcAttributeInfo.ENABLE);
+			attributeDisabled.setNativeName(VsAccount_.enable.getName());
+			attributeDisabled.setReadable(true);
+			attributeDisabled.setRequired(false);
+			attributeDisabled.setReturnedByDefault(true);
+			attributeDisabled.setUpdateable(true);
+			attributes.add(attributeDisabled);
+		}
 
 		// Attributes from definition and configuration
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
@@ -743,7 +763,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		// Search system-implementers to delete (for identity)
 		List<VsSystemImplementerDto> systemImplementersToDelete = systemImplementers.stream().filter(sysImplementer -> {
-			return sysImplementer.getIdentity() != null && !implementersFromConfig.contains(new IdmIdentityDto(sysImplementer.getIdentity()));
+			return sysImplementer.getIdentity() != null
+					&& !implementersFromConfig.contains(new IdmIdentityDto(sysImplementer.getIdentity()));
 		}).collect(Collectors.toList());
 
 		// Search implementers to add (for identity)
@@ -762,7 +783,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		// Search system-implementers to delete (for role)
 		systemImplementersToDelete.addAll(systemImplementers.stream().filter(sysImplementer -> {
-			return sysImplementer.getRole() != null && !rolesFromConfig.contains(new IdmRoleDto(sysImplementer.getRole()));
+			return sysImplementer.getRole() != null
+					&& !rolesFromConfig.contains(new IdmRoleDto(sysImplementer.getRole()));
 		}).collect(Collectors.toList()));
 
 		// Search implementers to add (for role)

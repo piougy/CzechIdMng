@@ -172,7 +172,7 @@ class VsRequestDetail extends Basic.AbstractContent {
   /**
    * Create value (highlights changes) cell for attributes table
    */
-  _getWishValueCell( old = false, { rowIndex, data}) {
+  _getWishValueCell( old = false, showChanges = true, { rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || (!entity.value && !entity.values)) {
       return '';
@@ -181,7 +181,7 @@ class VsRequestDetail extends Basic.AbstractContent {
       const listResult = [];
       for (const item of entity.values) {
         const value = old ? item.oldValue : item.value;
-        if (!old && item.change) {
+        if (!old && item.change && showChanges) {
           listResult.push(<Basic.Label
             key={value}
             level={VsValueChangeType.getLevel(item.change)}
@@ -197,7 +197,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
 
     const value = old ? entity.value.oldValue : entity.value.value;
-    if (!old && entity.value.change) {
+    if (!old && entity.value.change && showChanges) {
       return (<Basic.Label
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
         level={VsValueChangeType.getLevel(entity.value.change)}
@@ -274,17 +274,17 @@ class VsRequestDetail extends Basic.AbstractContent {
                 </Basic.Row>
                 <Basic.Row>
                   <Basic.Col lg={ 12 }>
-                    <Basic.LabelWrapper rendered={isInProgress} readOnly label={this.i18n('wishAttributes') + ':'}>
+                    <Basic.LabelWrapper readOnly label={this.i18n('wishAttributes') + ':'}>
                       <Basic.Alert
                         level="warning"
                         icon="trash"
-                        rendered={isDeleteOperation}
+                        rendered={isDeleteOperation && isInProgress}
                         style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
                         text={this.i18n('alert.accountShouldBeDeleted')}/>
                       <Basic.Alert
                         level="success"
                         icon="ok"
-                        rendered={isCreateOperation}
+                        rendered={isCreateOperation && isInProgress}
                         style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
                         text={this.i18n('alert.accountShouldBeCreated')}/>
                       <Basic.Table
@@ -294,8 +294,8 @@ class VsRequestDetail extends Basic.AbstractContent {
                         rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) ? 'warning' : ''; }}
                         className="table-bordered">
                         <Basic.Column property="name" header={this.i18n('label.property')}/>
-                        <Basic.Column property="value" header={this.i18n('label.targetValue')} cell={this._getWishValueCell.bind(this, false)}/>
-                        <Basic.Column property="oldValue" rendered={isInProgress} header={this.i18n('label.oldValue')} cell={this._getWishValueCell.bind(this, true)}/>
+                        <Basic.Column property="value" header={this.i18n('label.targetValue')} cell={this._getWishValueCell.bind(this, false, isInProgress)}/>
+                        <Basic.Column property="oldValue" rendered={isInProgress} header={this.i18n('label.oldValue')} cell={this._getWishValueCell.bind(this, true, false)}/>
                       </Basic.Table>
                     </Basic.LabelWrapper>
                   </Basic.Col>

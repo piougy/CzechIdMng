@@ -76,7 +76,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.resetPasswordSupported = changePasswordSupported;
 	}
 
-	@IcConfigurationClassProperty(order = 50, displayName = "Supports account disable/enable", helpMessage = "Not implemented yet!")
+	@IcConfigurationClassProperty(order = 35, displayName = "Supports account disable/enable")
 	public boolean isDisableSupported() {
 		return disableSupported;
 	}

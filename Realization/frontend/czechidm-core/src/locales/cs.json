@@ -2404,6 +2404,7 @@
         "message": "Zpráva",
         "textMessage": "Zpráva (text)",
         "htmlMessage": "Zpráva (html)",
+        "renderedHtmlMessage": "Zpráva (vykreslné html)",
         "model": "Zpráva (model)"
       },
       "sender": "Odesílatel",

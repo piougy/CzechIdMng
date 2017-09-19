@@ -1,7 +1,9 @@
 import VsRequestService from './VsRequestService';
+import VsSystemService from './VsSystemService';
 
 const ServiceRoot = {
-  VsRequestService
+  VsRequestService,
+  VsSystemService
 };
 
 ServiceRoot.version = '0.1.0';

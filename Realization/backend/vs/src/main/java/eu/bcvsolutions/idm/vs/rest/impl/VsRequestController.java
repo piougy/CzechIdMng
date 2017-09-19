@@ -54,16 +54,10 @@ import io.swagger.annotations.AuthorizationScope;
 public class VsRequestController extends AbstractReadWriteDtoController<VsRequestDto, VsRequestFilter> {
 
 	protected static final String TAG = "Requests";
-	//
-	private final VsRequestRepository repository;
 
 	@Autowired
-	public VsRequestController(VsRequestService service, VsRequestRepository repository) {
+	public VsRequestController(VsRequestService service) {
 		super(service);
-		//
-		Assert.notNull(repository);
-		//
-		this.repository = repository;
 	}
 
 	@Override

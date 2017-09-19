@@ -2,9 +2,14 @@ import React from 'react';
 import Helmet from 'react-helmet';
 //
 import { Basic, Domain } from 'czechidm-core';
-import { Managers, SystemTable } from 'czechidm-acc';
+import { Managers} from 'czechidm-acc';
+import VsSystemTable from './VsSystemTable';
 
-
+/**
+ * Virtual systems
+ *
+ * @author Vít Švanda
+ */
 export default class VsSystems extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -36,7 +41,7 @@ export default class VsSystems extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <SystemTable
+          <VsSystemTable
             uiKey="vs_system_table"
             manager={this.systemManager}
             forceSearchParameters={new Domain.SearchParameters().setFilter('virtual', true)}

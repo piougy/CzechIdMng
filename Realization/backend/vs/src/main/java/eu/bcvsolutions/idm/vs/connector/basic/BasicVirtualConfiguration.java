@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.exception.IcException;
@@ -19,8 +20,10 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	private static final long serialVersionUID = 1L;
 	public static final String FACE_IDENTITY_SELECT = "IDENTITY-SELECT";
 	public static final String FACE_ROLE_SELECT = "ROLE-SELECT";
-
-	private String[] attributes = { "firstName", "lastName", "email" };
+	public static final  String[] DEFAULT_ATTRIBUTES = { IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName(),
+			IdmIdentity_.email.getName(), IdmIdentity_.titleAfter.getName(), IdmIdentity_.titleBefore.getName(),
+			IdmIdentity_.phone.getName() };
+	private String[] attributes = DEFAULT_ATTRIBUTES;
 	private UUID[] implementers;
 	private UUID[] implementerRoles;
 	private boolean resetPasswordSupported = false;

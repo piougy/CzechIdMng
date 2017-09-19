@@ -41,7 +41,7 @@ class SystemDetail extends Basic.AbstractContent {
    */
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if (entity && entity.id !== nextProps.entity.id) {
+    if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
       this._initForm(nextProps.entity);
     }
   }

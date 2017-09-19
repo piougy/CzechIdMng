@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 
 /**
  * Email log service
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
  */
 @Service
 public class DefaultIdmEmailLogService 
-		extends AbstractNotificationLogService<IdmEmailLogDto, IdmEmailLog, NotificationFilter> 
+		extends AbstractNotificationLogService<IdmEmailLogDto, IdmEmailLog, IdmNotificationFilter> 
 		implements IdmEmailLogService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmEmailLogService.class);

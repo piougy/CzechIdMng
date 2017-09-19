@@ -2,13 +2,15 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+
 /**
  * Interface for all entity - account filters
  * 
  * @author svandav
  * @author Radek Tomiška
  */
-public interface EntityAccountFilter {
+public interface EntityAccountFilter extends BaseFilter {
 	
 	Boolean isOwnership();
 

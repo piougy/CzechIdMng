@@ -25,8 +25,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.security.authentication.impl.DefaultAccAuthenticator;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -42,11 +42,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -82,9 +81,6 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmIdentityService identityService;
-	
-	@Autowired
-	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
@@ -140,7 +136,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		// account management and provisioning
 		irdto = identityRoleService.save(irdto);
 		//		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> accounts = identityAccountService.find(filter, null).getContent();
 		
@@ -154,7 +150,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(true);
 		passwordChangeDto.setNewPassword(new GuardedString("test"));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(USERNAME);
@@ -170,7 +166,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	public void loginAgainstTwoAccount() {
 		IdmIdentityDto identity = identityService.getByUsername(USERNAME);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());	
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		
@@ -213,7 +209,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("1234"));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		passwordChangeDto = new PasswordChangeDto();
 		accs = new ArrayList<>();
@@ -222,7 +218,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("4321"));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		// bough password are right
 		LoginDto loginDto1 = new LoginDto();
@@ -271,7 +267,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setIdm(false);
 		passwordChangeDto.setNewPassword(new GuardedString(PASSWORD));
 		// change password for system
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(USERNAME);
@@ -297,7 +293,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		systemMapping.setObjectClass(objectClasses.get(0).getId());
 		final SysSystemMappingDto entityHandlingResult = systemEntityHandlingService.save(systemMapping);
 		
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		SysSystemAttributeMappingDto attributeHandlingLastName = new SysSystemAttributeMappingDto();
 		SysSystemAttributeMappingDto attributeHandlingPassword = new SysSystemAttributeMappingDto();

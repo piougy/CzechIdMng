@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.repository.filter.BaseFilterBuilder;
@@ -62,7 +62,7 @@ public class FilterBuilderUnitTest extends AbstractUnitTest {
 		assertTrue(filterBuilder.supports(new FilterKey(IdmRole.class, FILTER_NAME)));
 	}
 	
-	private class TestIdentityFilterBuilder extends BaseFilterBuilder<IdmIdentity, IdentityFilter> {
+	private class TestIdentityFilterBuilder extends BaseFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 		
 		@Override
 		public String getName() {
@@ -71,12 +71,12 @@ public class FilterBuilderUnitTest extends AbstractUnitTest {
 
 		@Override
 		public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-				IdentityFilter filter) {
+				IdmIdentityFilter filter) {
 			return null;
 		}
 
 		@Override
-		public Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable) {
+		public Page<IdmIdentity> find(IdmIdentityFilter filter, Pageable pageable) {
 			return null;
 		}
 		

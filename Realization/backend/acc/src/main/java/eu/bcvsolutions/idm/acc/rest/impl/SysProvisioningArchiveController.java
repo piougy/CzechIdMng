@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -49,7 +49,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Archived provisioning operations (completed, canceled)",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysProvisioningArchiveController extends AbstractReadDtoController<SysProvisioningArchiveDto, ProvisioningOperationFilter> {
+public class SysProvisioningArchiveController extends AbstractReadDtoController<SysProvisioningArchiveDto, SysProvisioningOperationFilter> {
 
 	protected static final String TAG = "Provisioning - archive";
 	

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.example.config.domain.ExampleConfiguration;
 import eu.bcvsolutions.idm.example.dto.Pong;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;

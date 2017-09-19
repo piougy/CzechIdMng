@@ -16,8 +16,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.repository.SysSyncLogRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysSyncLogService
-		extends AbstractReadWriteDtoService<SysSyncLogDto, SysSyncLog, SynchronizationLogFilter>
+		extends AbstractReadWriteDtoService<SysSyncLogDto, SysSyncLog, SysSyncLogFilter>
 		implements SysSyncLogService {
 
 	private final SysSyncLogRepository repository;
@@ -55,7 +55,7 @@ public class DefaultSysSyncLogService
 	}
 	
 	@Override
-	protected Page<SysSyncLog> findEntities(SynchronizationLogFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSyncLog> findEntities(SysSyncLogFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -71,7 +71,7 @@ public class DefaultSysSyncLogService
 	}
 
 	@Override
-	public Page<SysSyncLogDto> find(SynchronizationLogFilter filter, Pageable pageable, BasePermission... permission) {
+	public Page<SysSyncLogDto> find(SysSyncLogFilter filter, Pageable pageable, BasePermission... permission) {
 		Page<SysSyncLogDto> logs = super.find(filter, pageable, permission);
 		
 		for (SysSyncLogDto log : logs) {
@@ -112,7 +112,7 @@ public class DefaultSysSyncLogService
 		checkAccess(this.getEntity(syncLog.getId()), permission);
 		//
 		// remove all synchronization action logs
-		SyncActionLogFilter filter = new SyncActionLogFilter();
+		SysSyncActionLogFilter filter = new SysSyncActionLogFilter();
 		filter.setSynchronizationLogId(syncLog.getId());
 		syncActionLogService.find(filter, null).forEach(log -> {
 			syncActionLogService.delete(log);
@@ -130,7 +130,7 @@ public class DefaultSysSyncLogService
 	private List<SysSyncActionLogDto> getActionsForLog(UUID logId) {
 		Assert.notNull(logId);
 		//
-		SyncActionLogFilter filter = new SyncActionLogFilter();
+		SysSyncActionLogFilter filter = new SysSyncActionLogFilter();
 		filter.setSynchronizationLogId(logId);
 		return syncActionLogService.find(filter, null).getContent();
 	}

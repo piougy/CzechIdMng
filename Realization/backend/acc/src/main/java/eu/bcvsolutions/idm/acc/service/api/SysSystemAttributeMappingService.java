@@ -10,8 +10,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -22,7 +23,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SysSystemAttributeMappingService extends ReadWriteDtoService<SysSystemAttributeMappingDto, SystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMappingDto> {
+public interface SysSystemAttributeMappingService extends ReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMappingDto> {
 	
 	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
 	public static final String SYSTEM_KEY = "system";
@@ -54,7 +55,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @param attributeMapping
 	 * @return transformed value
 	 */
-	Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping, AbstractEntity entity);
+	Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping, AbstractDto entity);
 	
 	/**
 	 * Do transformation given value to value for IDM system
@@ -67,7 +68,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 */
 	Object transformValueFromResource(Object value, AttributeMapping attributeMapping,  List<IcAttribute> icAttributes );
 
-	Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystemDto system);
+	Object transformValueToResource(String uid, Object value, String script, AbstractDto entity, SysSystemDto system);
 
 	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystemDto system);
 
@@ -76,9 +77,9 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * Update exist attribute definition is not supported.
 	 * 
 	 * @param attributeMapping
-	 * @param entityType
+	 * @param ownerType
 	 */
-	void createExtendedAttributeDefinition(AttributeMapping attributeMapping, Class<?> entityType);
+	void createExtendedAttributeDefinition(AttributeMapping attributeMapping, Class<? extends Identifiable> ownerType);
 	
 	/**
 	 * Create instance of IC attribute for given name. Given idm value will be
@@ -111,7 +112,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	Object getAttributeValue(String uid, AbstractEntity entity, AttributeMapping attributeHandling);
+	Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling);
 
 	/**
 	 * Generate UID from UID attribute
@@ -119,7 +120,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @param uidAttribute
 	 * @return
 	 */
-	String generateUid(AbstractEntity entity, SysSystemAttributeMappingDto uidAttribute);
+	String generateUid(AbstractDto entity, SysSystemAttributeMappingDto uidAttribute);
 
 	/**
 	 * Return UID attribute from list of mapped attributes

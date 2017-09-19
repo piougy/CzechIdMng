@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -44,8 +44,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -54,7 +55,6 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -72,7 +72,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 public class DefaultSysSystemAttributeMappingService
-		extends AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SystemAttributeMappingFilter>
+		extends AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SysSystemAttributeMappingFilter>
 		implements SysSystemAttributeMappingService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
@@ -131,7 +131,7 @@ public class DefaultSysSystemAttributeMappingService
 	}
 	
 	@Override
-	protected Page<SysSystemAttributeMapping> findEntities(SystemAttributeMappingFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSystemAttributeMapping> findEntities(SysSystemAttributeMappingFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -154,14 +154,14 @@ public class DefaultSysSystemAttributeMappingService
 
 	@Override
 	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
-			AbstractEntity entity) {
+			AbstractDto entity) {
 		Assert.notNull(attributeMapping);
 		return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
 				getSystemFromAttributeMapping(attributeMapping));
 	}
 
 	@Override
-	public Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystemDto system) {
+	public Object transformValueToResource(String uid, Object value, String script, AbstractDto entity, SysSystemDto system) {
 		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ACCOUNT_UID, uid);
@@ -226,8 +226,8 @@ public class DefaultSysSystemAttributeMappingService
 			groovyScriptService.validateScript(dto.getTransformToResourceScript());
 		}
 		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
-		Class<?> entityType = systemMappingDto.getEntityType().getEntityType();
-		if (dto.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
+		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getEntityType();
+		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
 		return super.save(dto, permission);
@@ -236,19 +236,17 @@ public class DefaultSysSystemAttributeMappingService
 	/**
 	 * Check on exists EAV definition for given attribute. If the definition not exist, then we try create it.
 	 * @param entity
-	 * @param entityType
+	 * @param ownerType
 	 */
 	@Override
 	@Transactional
-	@SuppressWarnings("unchecked")
-	public void createExtendedAttributeDefinition(AttributeMapping entity, Class<?> entityType) {
-		Class<? extends FormableEntity> ownerClass = (Class<? extends FormableEntity>)entityType;
-		IdmFormAttributeDto attribute = formService.getAttribute(ownerClass, entity.getIdmPropertyName());
+	public void createExtendedAttributeDefinition(AttributeMapping entity, Class<? extends Identifiable> ownerType) {
+		IdmFormAttributeDto attribute = formService.getAttribute(ownerType, entity.getIdmPropertyName());
 		if (attribute == null) {
 			log.info(MessageFormat.format(
 					"IdmFormAttribute for identity and property {0} not found. We will create definition now.",
 					entity.getIdmPropertyName()));
-			formService.saveAttribute(ownerClass, convertMappingAttribute(entity));
+			formService.saveAttribute(ownerType, convertMappingAttribute(entity));
 		}		
 	}
 	
@@ -389,12 +387,12 @@ public class DefaultSysSystemAttributeMappingService
 	 * @throws InvocationTargetException
 	 */
 	@Override
-	public Object getAttributeValue(String uid, AbstractEntity entity, AttributeMapping attributeHandling) {
+	public Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling) {
 		Object idmValue = null;
 		//
 		SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attributeHandling);
 		//
-		if (attributeHandling.isExtendedAttribute() && entity != null && FormableEntity.class.isAssignableFrom(entity.getClass())) {
+		if (attributeHandling.isExtendedAttribute() && entity != null && formService.isFormable(entity.getClass())) {
 			List<IdmFormValueDto> formValues = formService.getValues(entity, attributeHandling.getIdmPropertyName());
 			if (formValues.isEmpty()) {
 				idmValue = null;
@@ -439,7 +437,7 @@ public class DefaultSysSystemAttributeMappingService
 	}
 	
 	@Override
-	public String generateUid(AbstractEntity entity, SysSystemAttributeMappingDto uidAttribute){
+	public String generateUid(AbstractDto entity, SysSystemAttributeMappingDto uidAttribute){
 		Object uid = this.getAttributeValue(null, entity, uidAttribute);
 		if(uid == null) {
 			SysSystemDto systemEntity = getSystemFromAttributeMapping(uidAttribute);

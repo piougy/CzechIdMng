@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysSystemMappingService extends
-		AbstractReadWriteDtoService<SysSystemMappingDto, SysSystemMapping, SystemMappingFilter> implements SysSystemMappingService {
+		AbstractReadWriteDtoService<SysSystemMappingDto, SysSystemMapping, SysSystemMappingFilter> implements SysSystemMappingService {
 
 	private final SysSystemMappingRepository repository;
 	private final SysSyncConfigRepository syncConfigRepository;
@@ -65,7 +65,7 @@ public class DefaultSysSystemMappingService extends
 	}
 	
 	@Override
-	protected Page<SysSystemMapping> findEntities(SystemMappingFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSystemMapping> findEntities(SysSystemMappingFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -76,7 +76,7 @@ public class DefaultSysSystemMappingService extends
 	public List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation, SystemEntityType entityType){
 		Assert.notNull(system);
 		
-		SystemMappingFilter filter = new SystemMappingFilter();
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(system.getId());
 		filter.setOperationType(operation);
 		filter.setEntityType(entityType);
@@ -88,7 +88,7 @@ public class DefaultSysSystemMappingService extends
 	public List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass, SystemOperationType operation, SystemEntityType entityType){
 		Assert.notNull(objectClass);
 		
-		SystemMappingFilter filter = new SystemMappingFilter();
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setObjectClassId(objectClass.getId());
 		filter.setOperationType(operation);
 		filter.setEntityType(entityType);

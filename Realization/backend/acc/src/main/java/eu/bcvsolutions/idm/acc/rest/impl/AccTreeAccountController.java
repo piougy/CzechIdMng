@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -51,11 +51,11 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Assigned tree node accounts on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccTreeAccountController extends AbstractReadWriteDtoController<AccTreeAccountDto, TreeAccountFilter> {
+public class AccTreeAccountController extends AbstractReadWriteDtoController<AccTreeAccountDto, AccTreeAccountFilter> {
 	protected static final String TAG = "Tree accounts";
 
 	@Autowired
-	public AccTreeAccountController(ReadWriteDtoService<AccTreeAccountDto, TreeAccountFilter> service) {
+	public AccTreeAccountController(ReadWriteDtoService<AccTreeAccountDto, AccTreeAccountFilter> service) {
 		super(service);
 	}
 	
@@ -204,8 +204,8 @@ public class AccTreeAccountController extends AbstractReadWriteDtoController<Acc
 	}
 
 	@Override
-	protected TreeAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		TreeAccountFilter filter = new TreeAccountFilter();
+	protected AccTreeAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
+		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
 		filter.setRoleSystemId(getParameterConverter().toUuid(parameters, "roleSystemId"));
 		filter.setTreeNodeId(getParameterConverter().toUuid(parameters, "treeNodeId"));

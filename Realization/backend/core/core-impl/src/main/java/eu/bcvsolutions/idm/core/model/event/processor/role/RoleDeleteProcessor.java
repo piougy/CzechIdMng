@@ -13,22 +13,22 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Deletes role - ensures referential integrity.
@@ -87,7 +87,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
 		}
 		// remove related automatic roles
-		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
+		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setRoleId(role.getId());
 		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
 			try {
@@ -101,7 +101,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> {
 			}
 		});
 		// Find all concepts and remove relation on role
-		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
+		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleId(role.getId());
 		conceptRoleRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
 			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
@@ -124,7 +124,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> {
 			conceptRoleRequestService.save(concept);
 		});
 		// remove all policies
-		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
+		IdmAuthorizationPolicyFilter policyFilter = new IdmAuthorizationPolicyFilter();
 		policyFilter.setRoleId(role.getId());
 		authorizationPolicyService.find(policyFilter, null).forEach(dto -> {
 			authorizationPolicyService.delete(dto);

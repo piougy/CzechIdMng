@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -49,7 +49,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Assign system to role",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysRoleSystemController extends DefaultReadWriteDtoController<SysRoleSystemDto, RoleSystemFilter> {
+public class SysRoleSystemController extends DefaultReadWriteDtoController<SysRoleSystemDto, SysRoleSystemFilter> {
 	
 	protected static final String TAG = "Role system - mappings";
 	
@@ -180,8 +180,8 @@ public class SysRoleSystemController extends DefaultReadWriteDtoController<SysRo
 	}
 	
 	@Override
-	protected RoleSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleSystemFilter filter = new RoleSystemFilter();
+	protected SysRoleSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		return filter;

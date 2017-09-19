@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleCatalogueAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleCatalogueAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -51,7 +51,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Assigned role catalogue accounts on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccRoleCatalogueAccountController extends AbstractReadWriteDtoController<AccRoleCatalogueAccountDto, RoleCatalogueAccountFilter> {
+public class AccRoleCatalogueAccountController extends AbstractReadWriteDtoController<AccRoleCatalogueAccountDto, AccRoleCatalogueAccountFilter> {
 
 	protected static final String TAG = "Role catalogue accounts";
 
@@ -205,8 +205,8 @@ public class AccRoleCatalogueAccountController extends AbstractReadWriteDtoContr
 	}
 
 	@Override
-	protected RoleCatalogueAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleCatalogueAccountFilter filter = new RoleCatalogueAccountFilter();
+	protected AccRoleCatalogueAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
+		AccRoleCatalogueAccountFilter filter = new AccRoleCatalogueAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
 		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogueId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));

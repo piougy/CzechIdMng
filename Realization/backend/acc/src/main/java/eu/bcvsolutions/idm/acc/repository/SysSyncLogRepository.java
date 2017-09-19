@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -22,5 +22,5 @@ public interface SysSyncLogRepository extends AbstractEntityRepository<SysSyncLo
 			" AND"+
 	        " (?#{[0].running} is null or e.running = ?#{[0].running})"
 			)
-	Page<SysSyncLog> find(SynchronizationLogFilter filter, Pageable pageable);
+	Page<SysSyncLog> find(SysSyncLogFilter filter, Pageable pageable);
 }

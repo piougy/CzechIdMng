@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmConsoleLogDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmConsoleLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmConsoleLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
 
 /**
  * Console log service
@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
  */
 @Service
 public class DefaultIdmConsoleLogService 
-		extends AbstractNotificationLogService<IdmConsoleLogDto, IdmConsoleLog, NotificationFilter> 
+		extends AbstractNotificationLogService<IdmConsoleLogDto, IdmConsoleLog, IdmNotificationFilter> 
 		implements IdmConsoleLogService {
 	
 	@Autowired

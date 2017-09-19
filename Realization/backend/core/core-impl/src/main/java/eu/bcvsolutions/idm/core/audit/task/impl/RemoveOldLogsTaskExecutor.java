@@ -14,12 +14,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventExceptionService;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventPropertyService;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent_;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventExceptionService;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventPropertyService;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
 /**
@@ -57,7 +57,7 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 			return Boolean.TRUE;
 		}
 		//
-		LoggingEventFilter filter = new LoggingEventFilter();
+		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
 		filter.setTill(DateTime.now().minusDays(days.intValue()));
 		Page<IdmLoggingEventDto> loggingEvents = loggingEventService.find(
 				filter, new PageRequest(0, 100, new Sort(IdmLoggingEvent_.timestmp.getName())));

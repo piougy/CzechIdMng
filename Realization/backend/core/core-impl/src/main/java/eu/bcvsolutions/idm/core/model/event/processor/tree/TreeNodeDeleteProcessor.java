@@ -9,17 +9,17 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 
 /**
  * Deletes tree node - ensures referential integrity.
@@ -61,7 +61,7 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		IdmTreeNodeDto treeNode = event.getContent();
 		// remove related automatic roles
-		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
+		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setTreeNodeId(treeNode.getId());
 		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
 			try {

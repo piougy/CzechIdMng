@@ -16,8 +16,8 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
@@ -34,9 +34,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  * @param <DTO> {@link IdmNotificationDto} type
  * @param <E> {@link IdmNotification} type 
- * @param <F> {@link NotificationFilter} type (mainly {@link NotificationFilter} itself)
+ * @param <F> {@link IdmNotificationFilter} type (mainly {@link IdmNotificationFilter} itself)
  */
-public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E extends IdmNotification, F extends NotificationFilter>  
+public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E extends IdmNotification, F extends IdmNotificationFilter>  
 		extends AbstractReadWriteDtoService<DTO, E, F>
 		implements AuthorizableService<IdmNotificationDto> {
 

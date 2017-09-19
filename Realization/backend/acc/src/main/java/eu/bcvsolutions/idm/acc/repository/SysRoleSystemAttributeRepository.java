@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -21,7 +21,7 @@ public interface SysRoleSystemAttributeRepository extends AbstractEntityReposito
 
 	@Query(value = "select e from SysRoleSystemAttribute e" + " where"
 			+ " (?#{[0].roleSystemId} is null or e.roleSystem.id = ?#{[0].roleSystemId})")
-	Page<SysRoleSystemAttribute> find(RoleSystemAttributeFilter filter, Pageable pageable);
+	Page<SysRoleSystemAttribute> find(SysRoleSystemAttributeFilter filter, Pageable pageable);
 	
 	/**
 	 * Delete attributes of given roleSystem

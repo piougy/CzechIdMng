@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningRequestFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningRequestFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -26,7 +26,7 @@ public interface SysProvisioningRequestRepository extends AbstractEntityReposito
     		+ " ("
     			+ " ?#{[0].batchId} is null or e.batch.id = ?#{[0].batchId}"
     		+ ") ")
-	Page<SysProvisioningRequest> find(ProvisioningRequestFilter filter, Pageable pageable);
+	Page<SysProvisioningRequest> find(SysProvisioningRequestFilter filter, Pageable pageable);
 	
 	/**
 	 * Deletes given operation request (one to one).

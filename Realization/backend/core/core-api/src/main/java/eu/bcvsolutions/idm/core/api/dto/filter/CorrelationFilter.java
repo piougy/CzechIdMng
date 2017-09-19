@@ -5,7 +5,7 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
  *
  * @author svandav
  */
-public interface CorrelationFilter {
+public interface CorrelationFilter extends BaseFilter {
 
     String getProperty();
 

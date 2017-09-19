@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent.SystemMappingEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -56,14 +56,14 @@ public class SystemMappingDeleteProcessor extends CoreEventProcessor<SysSystemMa
 		SysSystemMappingDto systemMapping = event.getContent();
 		//
 		// remove all handled attributes
-		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemMappingId(systemMapping.getId());
 		systemAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
 			systemAttributeMappingService.delete(systemAttributeMapping);
 		});
 		//
 		// delete mapped roles
-		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 		roleSystemFilter.setSystemMappingId(systemMapping.getId());
 		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
 			roleSystemService.delete(roleSystem);

@@ -14,7 +14,7 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  */
 @Component
 public class EavCodeSubordinatesFilter 
-		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> {
+		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
 	protected static final String PROPERTY_FORM_DEFINITION = "formDefinition";
 	protected static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
@@ -50,7 +50,7 @@ public class EavCodeSubordinatesFilter
 	
 	@Override
 	public String getName() {
-		return IdentityFilter.PARAMETER_SUBORDINATES_FOR;
+		return IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR;
 	}
 	
 	@Autowired
@@ -67,7 +67,7 @@ public class EavCodeSubordinatesFilter
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		if (filter.getSubordinatesFor() == null) {
 			return null;
 		}

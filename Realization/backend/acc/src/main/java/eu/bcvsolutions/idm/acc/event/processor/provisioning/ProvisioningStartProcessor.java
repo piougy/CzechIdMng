@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -61,8 +61,9 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 			LOG.info("Account [{}] is in protection, but cancel attribute is TRUE. Provisioning is not skipped.", account.getUid());
 		}
 
-		provisioningService.doInternalProvisioning(account,
-				(AbstractEntity) event.getProperties().get(ProvisioningService.ENTITY_PROPERTY_NAME));
+		provisioningService.doInternalProvisioning(
+				account,
+				(AbstractDto) event.getProperties().get(ProvisioningService.DTO_PROPERTY_NAME));
 		return new DefaultEventResult<>(event, this);
 	}
 

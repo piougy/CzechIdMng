@@ -17,14 +17,14 @@ import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -78,7 +78,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		Assert.notEmpty(recipients, "Test need some recipients");
 
 		// Test before notify
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setNotificationType(IdmNotificationLog.class);
 		filter.setRecipient(recipients.get(0).getUsername());
 
@@ -111,7 +111,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		Assert.notEmpty(recipients, "Test need some recipients");
 
 		// Test before notify
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
 		
 		String changedValue = "changed" + UUID.randomUUID();
@@ -143,7 +143,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		Assert.notEmpty(recipients, "Test need some recipients");
 
 		// Test before notify
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
 
 		String changedValue = "changed" + UUID.randomUUID();
@@ -172,7 +172,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		Assert.notEmpty(recipients, "Test need some recipients");
 
 		// Test before notify
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
 		
 		String changedValue = "changed" + UUID.randomUUID();

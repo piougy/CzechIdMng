@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -24,8 +24,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service
-public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<SysRoleSystemDto, SysRoleSystem, RoleSystemFilter> implements SysRoleSystemService {
+public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<SysRoleSystemDto, SysRoleSystem, SysRoleSystemFilter> implements SysRoleSystemService {
 
 	private final SysRoleSystemRepository repository;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
@@ -61,7 +61,7 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 	}
 	
 	@Override
-	protected Page<SysRoleSystem> findEntities(RoleSystemFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysRoleSystem> findEntities(SysRoleSystemFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -88,7 +88,7 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		Assert.notNull(dto.getRole(), "Role cannot be null!");
 		Assert.notNull(dto.getSystem(), "System cannot be null!");
 		
-		RoleSystemFilter filter = new RoleSystemFilter();
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 	    filter.setRoleId(dto.getRole());
 	    filter.setSystemId(dto.getSystem());
 	    

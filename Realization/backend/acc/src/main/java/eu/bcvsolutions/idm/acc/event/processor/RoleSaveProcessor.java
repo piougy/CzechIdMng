@@ -15,9 +15,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -35,19 +33,14 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRoleDto> 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleSaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
-	private final IdmRoleRepository repository;
 
 	@Autowired
-	public RoleSaveProcessor(
-			ApplicationContext applicationContext,
-			IdmRoleRepository repository) {
+	public RoleSaveProcessor(ApplicationContext applicationContext) {
 		super(RoleEventType.CREATE, RoleEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
-		Assert.notNull(repository);
 		//
 		this.applicationContext = applicationContext;
-		this.repository = repository;
 	}
 
 	@Override
@@ -66,10 +59,9 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRoleDto> 
 		return new DefaultEventResult<>(event, this);
 	}
 
-	private void doProvisioning(IdmRoleDto roleDto) {
-		IdmRole role = repository.findOne(roleDto.getId());
+	private void doProvisioning(IdmRoleDto role) {
 		LOG.debug("Call account managment (create accounts for all systems) for role [{}]", role.getCode());
-		getProvisioningService().createAccountsForAllSystems(repository.findOne(role.getId()));
+		getProvisioningService().createAccountsForAllSystems(role);
 		LOG.debug("Call provisioning for role [{}]", role.getCode());
 		getProvisioningService().doProvisioning(role);
 	}

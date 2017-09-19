@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -55,7 +55,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSyncConfigController
-		extends AbstractReadWriteDtoController<SysSyncConfigDto, SynchronizationConfigFilter> {
+		extends AbstractReadWriteDtoController<SysSyncConfigDto, SysSyncConfigFilter> {
 
 	protected static final String TAG = "Synchronization - configurations";
 	//
@@ -273,8 +273,8 @@ public class SysSyncConfigController
 	}
 
 	@Override
-	protected SynchronizationConfigFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SynchronizationConfigFilter filter = new SynchronizationConfigFilter();	
+	protected SysSyncConfigFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSyncConfigFilter filter = new SysSyncConfigFilter();	
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		return filter;
 	}

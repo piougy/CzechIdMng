@@ -9,15 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.FlashMessage;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmWebsocketLogDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmWebsocketLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.WebsocketNotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmWebsocketLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.WebsocketNotificationSender;
 
 /**
  * Send messages through websocket

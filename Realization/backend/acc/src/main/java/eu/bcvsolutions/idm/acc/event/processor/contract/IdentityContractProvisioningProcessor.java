@@ -11,11 +11,11 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -43,7 +43,8 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 	@Override
 	@SuppressWarnings("unchecked")
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
-		IdmIdentity identity = (IdmIdentity) lookupService.lookupEntity(IdmIdentity.class, event.getContent().getIdentity());
+		// TODO: embedded?
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, event.getContent().getIdentity());
 		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		provisioningService.doProvisioning(identity);
 		//
@@ -62,7 +63,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 				});
 			if (originalSubordinates != null) {
 				originalSubordinates.forEach(originalSubordinateId -> {
-					IdmIdentity originalSubordinate = (IdmIdentity) lookupService.lookupEntity(IdmIdentity.class, originalSubordinateId);
+					IdmIdentityDto originalSubordinate = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, originalSubordinateId);
 					LOG.debug("Call provisioning for identity's [{}] previous subordinate [{}]", identity.getUsername(), originalSubordinate.getUsername());
 					provisioningService.doProvisioning(originalSubordinate);
 				});

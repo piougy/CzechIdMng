@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 
 /**
  * HR process - enable identity's contract process. The processes is started
@@ -36,7 +36,7 @@ public class HrEnableContractProcess extends AbstractWorkflowStatefulExecutor<Id
 	 */
 	@Override
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValid(Boolean.TRUE);
 		filter.setDisabled(Boolean.FALSE);
 		return identityContractService.find(filter, pageable);

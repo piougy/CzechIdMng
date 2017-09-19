@@ -5,7 +5,7 @@ import java.util.Map;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningOperationService extends ReadWriteDtoService<SysProvisioningOperationDto, ProvisioningOperationFilter> {
+public interface SysProvisioningOperationService extends ReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperationFilter> {
 
 	/**
 	 * Returns fully loaded AccountObject with guarded string.

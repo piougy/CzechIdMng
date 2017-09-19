@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -64,7 +64,7 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	public EventResult<IdmTreeTypeDto> process(EntityEvent<IdmTreeTypeDto> event) {
 		IdmTreeTypeDto treeType = event.getContent();
 		Asserts.notNull(treeType, "TreeType must be set!");
-		SystemMappingFilter filter = new SystemMappingFilter();
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setTreeTypeId(treeType.getId());
 		
 		List<SysSystemMappingDto> mappings = systemMappingService.find(filter, null).getContent();

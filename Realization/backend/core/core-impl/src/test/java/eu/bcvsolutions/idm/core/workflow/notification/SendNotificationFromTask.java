@@ -14,11 +14,11 @@ import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
@@ -62,7 +62,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		processInstanceService.startProcess(WF_1_ENABLED_PROCESS_KEY, null, InitTestData.TEST_USER_1, null, null);
 		//
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());
 		filter.setNotificationType(IdmNotificationLog.class);
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
@@ -86,7 +86,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		processInstanceService.startProcess(WF_3_DISABLED_PROCESS_KEY, null, InitTestData.TEST_USER_1, null, null);
 		//
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		//
@@ -101,7 +101,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		processInstanceService.startProcess(WF_2_FORM_DISABLED_PROCESS_KEY, null, InitTestData.TEST_USER_1, null, null);
 		//
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		//

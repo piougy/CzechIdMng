@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,7 +47,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmLoggingEventController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmLoggingEventController extends AbstractReadDtoController<IdmLoggingEventDto, LoggingEventFilter> {
+public class IdmLoggingEventController extends AbstractReadDtoController<IdmLoggingEventDto, IdmLoggingEventFilter> {
 
 	protected static final String TAG = "Logging events";
 	

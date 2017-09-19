@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -37,7 +37,7 @@ public interface SysProvisioningOperationRepository extends AbstractEntityReposi
         	+ " (?#{[0].systemEntityUid} is null or e.systemEntity.uid = ?#{[0].systemEntityUid})"
         	+ " and "
         	+ " (?#{[0].resultState} is null or e.requestEntity.result.state = ?#{[0].resultState})")
-	Page<SysProvisioningOperation> find(ProvisioningOperationFilter filter, Pageable pageable);
+	Page<SysProvisioningOperation> find(SysProvisioningOperationFilter filter, Pageable pageable);
 	
 	/**
 	 * Counts active provisioning operations by given 

@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -53,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Raw entities on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysSystemEntityController extends AbstractReadWriteDtoController<SysSystemEntityDto, SystemEntityFilter> {
+public class SysSystemEntityController extends AbstractReadWriteDtoController<SysSystemEntityDto, SysSystemEntityFilter> {
 
 	protected static final String TAG = "System entities";
 	
@@ -196,8 +196,8 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 	}
 	
 	@Override
-	protected SystemEntityFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SystemEntityFilter filter = new SystemEntityFilter();
+	protected SysSystemEntityFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSystemEntityFilter filter = new SysSystemEntityFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setEntityType(getParameterConverter().toEnum(parameters, "entityType", SystemEntityType.class));

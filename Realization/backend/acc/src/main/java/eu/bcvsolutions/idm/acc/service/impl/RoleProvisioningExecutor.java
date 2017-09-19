@@ -15,8 +15,8 @@ import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
+import eu.bcvsolutions.idm.acc.entity.AccRoleAccount_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
@@ -30,11 +30,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -45,11 +44,11 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 @Qualifier(value = RoleProvisioningExecutor.NAME)
-public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRole> {
+public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRoleDto> {
  
 	public static final String NAME = "roleProvisioningService";
 	private final AccRoleAccountService roleAccountService;
-	private final IdmRoleRepository roleRepository;
+	private final IdmRoleService roleService;
 	
 	@Autowired
 	public RoleProvisioningExecutor(
@@ -64,7 +63,6 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 			AccAccountService accountService, 
 			AccRoleAccountService roleAccountService,
 			ProvisioningExecutor provisioningExecutor, 
-			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager, 
 			SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
@@ -77,37 +75,36 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 				systemAttributeMappingService, roleService);
 		//
 		Assert.notNull(roleAccountService);
-		Assert.notNull(roleRepository);
 		//
 		this.roleAccountService = roleAccountService;
-		this.roleRepository = roleRepository;
+		this.roleService = roleService;
 	}
 	
 	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
 
-		RoleAccountFilter filter = new RoleAccountFilter();
+		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setAccountId(account.getId());
-		List<? extends EntityAccountDto> entityAccoutnList = roleAccountService.find(filter, null).getContent();
+		List<AccRoleAccountDto> entityAccoutnList = roleAccountService.find(filter, null).getContent();
 		if (entityAccoutnList == null) {
 			return;
 		}
 		entityAccoutnList.stream().filter(entityAccount -> {
 			return entityAccount.isOwnership();
 		}).forEach((roleAccount) -> {
-			doProvisioning(account, roleRepository.findOne(roleAccount.getEntity()));
+			doProvisioning(account, DtoUtils.getEmbedded(roleAccount, AccRoleAccount_.role, IdmRoleDto.class));
 		});
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRole entity, SysSystemDto system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRoleDto entity, SysSystemDto system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleNode
 		return new ArrayList<>();
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmRole entity, AttributeMapping attribute) {
+	protected Object getAttributeValue(String uid, IdmRoleDto entity, AttributeMapping attribute) {
 		Object idmValue = super.getAttributeValue(uid, entity, attribute);
 
 		if (attribute.isEntityAttribute()
@@ -121,13 +118,14 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	}
 
 	@Override
-	protected EntityAccountFilter createEntityAccountFilter() {
-		return new RoleAccountFilter();
+	@SuppressWarnings("unchecked")
+	protected AccRoleAccountFilter createEntityAccountFilter() {
+		return new AccRoleAccountFilter();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
+	@SuppressWarnings("unchecked")
+	protected AccRoleAccountService getEntityAccountService() {
 		return roleAccountService;
 	}
 
@@ -136,10 +134,9 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 		return new AccRoleAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmRole now
+	protected IdmRoleService getService() {
+		return roleService;
 	}
 
 	@Override

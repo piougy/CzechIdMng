@@ -25,9 +25,9 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -41,11 +41,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -142,7 +142,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		// account management and provisioning
 		irdto = identityRoleService.save(irdto);
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		iaccFilter.setIdentityRoleId(irdto.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(iaccFilter, null).getContent();
@@ -197,7 +197,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		// account management and provisioning
 		IdmIdentityRoleDto irCreated = identityRoleService.save(irdto);
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		iaccFilter.setIdentityRoleId(irCreated.getId());
 		AccIdentityAccountDto identityAccount = identityAccountService.find(iaccFilter, null).getContent().get(0);
@@ -251,7 +251,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	@Test
 	public void defaultAccountEntitySystemExist() {
-		SystemEntityFilter filter = new SystemEntityFilter();
+		SysSystemEntityFilter filter = new SysSystemEntityFilter();
 		filter.setEntityType(SystemEntityType.IDENTITY);
 		filter.setUid("x" + IDENTITY_USERNAME);
 		Assert.assertEquals("SystemEntity must be after account was created!", 1,
@@ -265,13 +265,13 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertNotNull("Idenitity have to exists on target system (before account will be delete)",
 				createdAccount);
 
-		AccountFilter accountFilter = new AccountFilter();
+		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setUid("x" + IDENTITY_USERNAME);
 		Assert.assertEquals("Account needs to exist befor will be delete", 1,
 				accountService.find(accountFilter, null).getContent().size());
 
 		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
-		IdentityRoleFilter irfilter = new IdentityRoleFilter();
+		IdmIdentityRoleFilter irfilter = new IdmIdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
 		IdmIdentityRoleDto identityRoleToDelete = identityRoleService.find(irfilter, null).getContent().get(0);
 
@@ -282,7 +282,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertEquals("Account must not be after was deleted", 0,
 				accountService.find(accountFilter, null).getContent().size());
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		Assert.assertEquals("Idenitity account have to not exists after account was deleted!", 0,
 				identityAccountService.find(iaccFilter, null).getContent().size());
@@ -297,7 +297,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	@Test
 	public void defaultAccountRemovedEntitySystemExist() {
-		SystemEntityFilter filter = new SystemEntityFilter();
+		SysSystemEntityFilter filter = new SysSystemEntityFilter();
 		filter.setEntityType(SystemEntityType.IDENTITY);
 		filter.setUid("x" + IDENTITY_USERNAME);
 		Assert.assertEquals("SystemEntity must not be after account was deleted!", 0,
@@ -307,7 +307,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	@Test
 	public void overloadedAttributeChangePassword() {
 		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(
@@ -362,7 +362,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		// account management and provisioning
 		IdmIdentityRoleDto irCreated = identityRoleService.save(irdto);
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		iaccFilter.setIdentityRoleId(irCreated.getId());
 		AccIdentityAccountDto identityAccount = identityAccountService.find(iaccFilter, null).getContent().get(0);
@@ -393,7 +393,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		// account management and provisioning
 		identityRoleService.save(irdto);
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		// Now we have to identity roles (role_overloading_first_name and
 		// role_overloading_last_name) and identity accounts
@@ -437,7 +437,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		// account management and provisioning
 		identityRoleService.save(irdto);
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		// Now we have to identity roles (role_overloading_first_name and
 		// role_overloading_last_name and role_overloading_y_account) and
@@ -461,7 +461,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertNotNull("Account for this identity have to be found!",
 				helper.findResource("x" + IDENTITY_USERNAME));
 
-		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		AccIdentityAccountFilter iaccFilter = new AccIdentityAccountFilter();
 		iaccFilter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		iaccFilter.setIdentityId(identity.getId());
 		// Now we have to identity roles (role_overloading_first_name and
@@ -471,7 +471,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertEquals("Idenitity accounts have to exists (four items) after account management was started!", 4,
 				identityAccounts.size());
 
-		IdentityRoleFilter irfilter = new IdentityRoleFilter();
+		IdmIdentityRoleFilter irfilter = new IdmIdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
 		identityRoleService.find(irfilter, null).getContent().forEach(identityRole -> {
 			identityRoleService.delete(identityRole);

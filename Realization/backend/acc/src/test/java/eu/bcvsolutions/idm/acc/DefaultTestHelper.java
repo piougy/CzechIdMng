@@ -2,12 +2,12 @@ package eu.bcvsolutions.idm.acc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
@@ -31,33 +31,22 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Acc / Provisioning test helper
  * 
  * @author Radek Tomiška
  */
-@Component
-public class DefaultTestHelper implements TestHelper {
+@Primary
+@Component("accTestHelper")
+public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestHelper implements TestHelper {
 	
-	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmIdentityService identityService;
-	@Autowired private IdmIdentityContractService identityContractService;
-	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
@@ -67,35 +56,6 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
 	@Autowired private SysSystemRepository systemRepository;
-
-	@Override
-	public IdmIdentityDto createIdentity() {
-		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("test" + "-" + UUID.randomUUID());
-		identity.setFirstName("Test");
-		identity.setLastName("Identity");
-		identity.setPassword(new GuardedString("password"));
-		return identityService.save(identity);
-	}
-	
-	@Override
-	public IdmRoleDto createRole() {
-		IdmRoleDto role = new IdmRoleDto();
-		role.setName("test" + "-" + UUID.randomUUID());
-		return roleService.save(role);
-	}
-	
-	@Override
-	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role) {
-		return createIdentityRole(identityContractService.getPrimeContract(identity.getId()), role);
-	}
-	
-	private IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role) {
-		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole.setIdentityContract(identityContract.getId());
-		identityRole.setRole(role.getId());
-		return identityRoleService.save(identityRole);
-	}
 	
 	/**
 	 * Create test system connected to same database (using configuration from dataSource)
@@ -213,7 +173,7 @@ public class DefaultTestHelper implements TestHelper {
 		systemMapping.setObjectClass(objectClasses.get(0).getId());
 		systemMapping = systemMappingService.save(systemMapping);
 
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		
 		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);

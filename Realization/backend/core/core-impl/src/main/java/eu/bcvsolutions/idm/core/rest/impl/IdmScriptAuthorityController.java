@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -53,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Allowed services and clasess in scripts",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<IdmScriptAuthorityDto, ScriptAuthorityFilter>{
+public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<IdmScriptAuthorityDto, IdmScriptAuthorityFilter>{
 	
 	protected static final String TAG = "Script authorities";
 	private final IdmScriptAuthorityService service;

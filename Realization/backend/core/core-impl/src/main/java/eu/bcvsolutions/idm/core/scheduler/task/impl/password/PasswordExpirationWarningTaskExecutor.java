@@ -21,15 +21,15 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatefulExecutor;
 
 /**
@@ -70,7 +70,7 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 
 	@Override
 	public Page<IdmPasswordDto> getItemsToProcess(Pageable pageable) {
-		PasswordFilter filter = new PasswordFilter();
+		IdmPasswordFilter filter = new IdmPasswordFilter();
 		filter.setValidTill(expiration);
 		Page<IdmPasswordDto> result =  passwordService.find(filter, pageable);
 		return result;

@@ -13,14 +13,12 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
@@ -32,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška
  */
 public class DefaultIdmPasswordService
-		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, PasswordFilter>
+		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
 		implements IdmPasswordService {
 
 	private final IdmPasswordRepository repository;
@@ -46,7 +44,7 @@ public class DefaultIdmPasswordService
 	}
 	
 	@Override
-	protected Page<IdmPassword> findEntities(PasswordFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmPassword> findEntities(IdmPasswordFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return getRepository().findAll(pageable);
 		}

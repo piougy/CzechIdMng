@@ -44,13 +44,13 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.jaxb.IdmNotificationTemplateType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -65,7 +65,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  */
 @Service("notificationTemplateService")
 public class DefaultIdmNotificationTemplateService extends
-		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, NotificationTemplateFilter>
+		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, IdmNotificationTemplateFilter>
 		implements IdmNotificationTemplateService {
 
 	private static final String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
@@ -118,7 +118,7 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 	
 	@Override
-	protected Page<IdmNotificationTemplate> findEntities(NotificationTemplateFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmNotificationTemplate> findEntities(IdmNotificationTemplateFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -276,7 +276,7 @@ public class DefaultIdmNotificationTemplateService extends
 
 	@Override
 	public List<IdmNotificationTemplateDto> findAllSystemTemplates() {
-		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
 		filter.setUnmodifiable(Boolean.TRUE);
 		return this.find(filter, null).getContent().stream().collect(Collectors.toList());
 	}

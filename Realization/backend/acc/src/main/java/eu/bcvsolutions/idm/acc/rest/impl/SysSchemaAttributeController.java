@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -49,7 +49,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Schema attribute configuration",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysSchemaAttributeController extends AbstractReadWriteDtoController<SysSchemaAttributeDto, SchemaAttributeFilter> {
+public class SysSchemaAttributeController extends AbstractReadWriteDtoController<SysSchemaAttributeDto, SysSchemaAttributeFilter> {
 
 	protected static final String TAG = "System schema - attributes";
 	
@@ -181,8 +181,8 @@ public class SysSchemaAttributeController extends AbstractReadWriteDtoController
 	}
 	
 	@Override
-	protected SchemaAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SchemaAttributeFilter filter = new SchemaAttributeFilter();
+	protected SysSchemaAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();
 		filter.setObjectClassId(getParameterConverter().toUuid(parameters, "objectClassId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setName(getParameterConverter().toString(parameters, "name"));

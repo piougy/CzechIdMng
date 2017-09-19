@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysProvisioningArchiveService
-		extends AbstractReadWriteDtoService<SysProvisioningArchiveDto, SysProvisioningArchive, ProvisioningOperationFilter> 
+		extends AbstractReadWriteDtoService<SysProvisioningArchiveDto, SysProvisioningArchive, SysProvisioningOperationFilter> 
 		implements SysProvisioningArchiveService {
 	
 	private final SysProvisioningArchiveRepository repository;
@@ -38,7 +38,7 @@ public class DefaultSysProvisioningArchiveService
 	}
 	
 	@Override
-	protected Page<SysProvisioningArchive> findEntities(ProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysProvisioningArchive> findEntities(SysProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}

@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount_;
@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service
 public class DefaultAccRoleAccountService
-		extends AbstractReadWriteDtoService<AccRoleAccountDto, AccRoleAccount, RoleAccountFilter>
+		extends AbstractReadWriteDtoService<AccRoleAccountDto, AccRoleAccount, AccRoleAccountFilter>
 		implements AccRoleAccountService {
 
 	private final AccAccountService accountService;
@@ -72,7 +72,7 @@ public class DefaultAccRoleAccountService
 		// We check if exists another (ownership) identityAccounts, if not
 		// then
 		// we will delete account
-		RoleAccountFilter filter = new RoleAccountFilter();
+		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
@@ -93,7 +93,7 @@ public class DefaultAccRoleAccountService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<AccRoleAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			RoleAccountFilter filter) {
+			AccRoleAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if(filter.getAccountId() != null) {

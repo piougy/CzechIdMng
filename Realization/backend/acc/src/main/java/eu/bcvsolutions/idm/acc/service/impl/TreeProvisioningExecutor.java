@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,8 +22,9 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
+import eu.bcvsolutions.idm.acc.entity.AccTreeAccount_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -36,11 +38,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -51,11 +53,11 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 @Qualifier(value=TreeProvisioningExecutor.NAME)
-public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTreeNode> {
+public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTreeNodeDto> {
  
 	public static final String NAME = "treeProvisioningService";
 	private final AccTreeAccountService treeAccountService;
-	private final IdmTreeNodeRepository treeNodeRepository;
+	private final IdmTreeNodeService treeNodeService;
 	
 	@Autowired
 	public TreeProvisioningExecutor(
@@ -70,56 +72,56 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			AccAccountService accountService, 
 			AccTreeAccountService treeAccountService,
 			ProvisioningExecutor provisioningExecutor, 
-			IdmTreeNodeRepository treeNodeRepository,
 			EntityEventManager entityEventManager, 
 			SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService) {
+			IdmRoleService roleService,
+			IdmTreeNodeService treeNodeService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService,
 				schemaObjectClassService, systemAttributeMappingService,
 				roleService);
-
+		//
 		Assert.notNull(treeAccountService);
-		Assert.notNull(treeNodeRepository);
+		Assert.notNull(treeNodeService);
 		//
 		this.treeAccountService = treeAccountService;
-		this.treeNodeRepository = treeNodeRepository;
+		this.treeNodeService = treeNodeService;
 	}
 	
 	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
 
-		TreeAccountFilter filter = new TreeAccountFilter();
+		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setAccountId(account.getId());
-		List<? extends EntityAccountDto> treeAccoutnList = treeAccountService.find(filter, null).getContent();
+		List<AccTreeAccountDto> treeAccoutnList = treeAccountService.find(filter, null).getContent();
 		if (treeAccoutnList == null) {
 			return;
 		}
 		treeAccoutnList.stream().filter(treeAccount -> {
 			return treeAccount.isOwnership();
 		}).forEach((treeAccount) -> {
-			doProvisioning(account, treeNodeRepository.findOne(treeAccount.getEntity()));
+			doProvisioning(account, DtoUtils.getEmbedded(treeAccount, AccTreeAccount_.treeNode, IdmTreeNodeDto.class));
 		});
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmTreeNode entity, AttributeMapping attribute) {
+	protected Object getAttributeValue(String uid, IdmTreeNodeDto entity, AttributeMapping attribute) {
 		Object idmValue = super.getAttributeValue(uid, entity, attribute);
 
 		if (attribute.isEntityAttribute()
 				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
 			// For Tree we need do transform parent (IdmTreeNode) to resource
 			// parent format (UID of parent)
-			if (idmValue instanceof IdmTreeNode) {
+			if (idmValue instanceof UUID) {
 				// Generally we expect IdmTreeNode as parent (we will do
 				// transform)
-				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+				AccTreeAccountFilter treeAccountFilter = new AccTreeAccountFilter();
 				treeAccountFilter.setSystemId(this.getSytemFromSchemaAttribute(attribute.getSchemaAttribute()).getId());
-				treeAccountFilter.setTreeNodeId(((IdmTreeNode) idmValue).getId());
+				treeAccountFilter.setTreeNodeId(((UUID) idmValue));
 				List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
 				if (treeAccounts.isEmpty()) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND,
@@ -142,30 +144,31 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmTreeNode entity, SysSystemDto system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmTreeNodeDto entity, SysSystemDto system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for TreeNode
 		return new ArrayList<>();
 	}
 	
 	@Override
-	protected List<SysSystemMappingDto> findSystemMappingsForEntityType(IdmTreeNode entity, SystemEntityType entityType) {
-		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+	protected List<SysSystemMappingDto> findSystemMappingsForEntityType(IdmTreeNodeDto entity, SystemEntityType entityType) {
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setEntityType(entityType);
-		mappingFilter.setTreeTypeId(entity.getTreeType().getId());
+		mappingFilter.setTreeTypeId(entity.getTreeType());
 		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
 		List<SysSystemMappingDto> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
 		return systemMappings;
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new TreeAccountFilter();
+		return new AccTreeAccountFilter();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
+	@SuppressWarnings("unchecked")
+	protected AccTreeAccountService getEntityAccountService() {
 		return treeAccountService;
 	}
 
@@ -174,10 +177,9 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 		return new AccTreeAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmTreeNode now
+	protected IdmTreeNodeService getService() {
+		return treeNodeService;
 	}
 
 	@Override

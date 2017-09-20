@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.test.api;
 
+import java.io.File;
 import java.util.Observer;
 
 import com.nilhcem.fakesmtp.core.exception.BindPortException;
@@ -48,9 +49,11 @@ public class AbstractNotificationTest extends AbstractIntegrationTest {
 
 	/**
 	 * Stop smpt server, this operation take a while.
+	 * Before stop smtp server remove all mails in received-emails directory.
 	 * 
 	 */
 	protected void stopSmtpServer() {
+		removeReceivedEmails();
 		SMTPServerHandler.INSTANCE.stopServer();
 	}
 
@@ -72,5 +75,22 @@ public class AbstractNotificationTest extends AbstractIntegrationTest {
 	 */
 	protected boolean isRunning() {
 		return SMTPServerHandler.INSTANCE.getSmtpServer().isRunning();
+	}
+	
+	/**
+	 * Method remove directory with emails
+	 * TODO: set memory mode
+	 */
+	protected void removeReceivedEmails() {
+		File index = new File("received-emails");
+		
+		if (index.exists() && index.isDirectory()) {
+			String [] files = index.list();
+			for (String file : files) {
+				File currentFile = new File(index.getPath(),file);
+				currentFile.delete();
+			}
+			index.delete();
+		}
 	}
 }

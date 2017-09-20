@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
-import eu.bcvsolutions.idm.core.workflow.notification.SendNotificationFromTask;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.test.api.AbstractNotificationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -49,6 +48,8 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 	public static final String TOPIC = "idm:smtpTest";
 	public static final String TEST_TEMPLATE = "testTemplate";
 	public static final String FROM = "idm-test@bcvsolutions.eu";
+	public static final String TO_WF = "testUserSmtpServer1";
+	public static final String WF_NAME = "testNotificationSmtp";
 
 	@Autowired
 	private TestHelper helper;
@@ -139,14 +140,14 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 		this.addObserver(observer);
 		int currentEmails = observer.getEmails().size();
 
-		IdmIdentityDto identity = identityService.getByUsername(SendNotificationFromTask.WF_TEST_IDENTITY_01);
+		IdmIdentityDto identity = identityService.getByUsername(TO_WF);
 		if (identity == null) {
-			identity = helper.createIdentity(SendNotificationFromTask.WF_TEST_IDENTITY_01);
+			identity = helper.createIdentity(TO_WF);
 		}
 		identity.setEmail("example@example.tld");
 		identity = identityService.save(identity);
 
-		processInstanceService.startProcess(SendNotificationFromTask.WF_1_ENABLED_PROCESS_KEY, null,
+		processInstanceService.startProcess(WF_NAME, null,
 				InitTestData.TEST_USER_1, null, null);
 		// email is send by apache camel asynchronously
 		if (observer.getEmails().size() == currentEmails) {

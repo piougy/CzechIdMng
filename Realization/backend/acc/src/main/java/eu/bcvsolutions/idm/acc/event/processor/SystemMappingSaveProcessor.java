@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -57,22 +58,27 @@ public class SystemMappingSaveProcessor extends CoreEventProcessor<SysSystemMapp
 	public EventResult<SysSystemMappingDto> process(EntityEvent<SysSystemMappingDto> event) {
 		SysSystemMappingDto dto = event.getContent();
 		//
-		// check only for new, for existing mapping is disabled change entity type
-		if (systemMappingService.isNew(dto) && dto.getOperationType() == SystemOperationType.PROVISIONING
-				&& dto.getEntityType() == SystemEntityType.IDENTITY) {			
+		// for tree type is possible has more than one provisioning, bot only for one tree type
+		if (dto.getOperationType() == SystemOperationType.PROVISIONING && dto.getEntityType() == SystemEntityType.TREE) {
+			SysSchemaObjectClassDto schema = schemaObjectClassService.get(dto.getObjectClass());
+			//
+			List<SysSystemMappingDto> anotherMapping = getMapping(dto.getEntityType(), schema.getSystem(), dto.getTreeType());
+			// if list not empty throw error with duplicate mapping
+			if (!anotherMapping.isEmpty()) {
+				throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_FOR_ENTITY_EXISTS);
+			}
+		} else if (systemMappingService.isNew(dto) && dto.getOperationType() == SystemOperationType.PROVISIONING) {
+			// check only for new, for existing mapping is disabled change entity type
 			// it is not possible get schema from embedded - new entity
 			SysSchemaObjectClassDto schema = schemaObjectClassService.get(dto.getObjectClass());
 			//
 			// check if exists mapping
-			SysSystemMappingFilter filter = new SysSystemMappingFilter();
-			filter.setEntityType(SystemEntityType.IDENTITY);
-			filter.setOperationType(SystemOperationType.PROVISIONING);
-			filter.setSystemId(schema.getSystem());
-			List<SysSystemMappingDto> anotherMapping = systemMappingService.find(filter, null).getContent();
+			List<SysSystemMappingDto> anotherMapping = getMapping(dto.getEntityType(), schema.getSystem(), null);
 			// if list not empty throw error with duplicate mapping
 			if (!anotherMapping.isEmpty()) {
-				throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_FOR_IDENTIY_EXISTS);
+				throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_FOR_ENTITY_EXISTS);
 			}
+			
 		}
 		//
 		dto = systemMappingService.saveInternal(dto);
@@ -80,6 +86,15 @@ public class SystemMappingSaveProcessor extends CoreEventProcessor<SysSystemMapp
 		event.setContent(dto);
 		//
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	private List<SysSystemMappingDto> getMapping(SystemEntityType entityType, UUID systemId, UUID treeTypeId) {
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
+		filter.setEntityType(entityType);
+		filter.setTreeTypeId(treeTypeId);
+		filter.setOperationType(SystemOperationType.PROVISIONING);
+		filter.setSystemId(systemId);
+		return systemMappingService.find(filter, null).getContent();
 	}
 
 	@Override

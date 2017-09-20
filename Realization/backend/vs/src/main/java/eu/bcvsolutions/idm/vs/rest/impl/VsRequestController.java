@@ -146,12 +146,8 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> cancel(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
-			@RequestBody(required = true) String reason) {
-		// TODO correct convert to String
-		if (reason.startsWith("\"") && reason.endsWith("\"")) {
-			reason = reason.substring(1, reason.length() - 2);
-		}
-		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason);
+			@ApiParam(value = "Reason in request DTO. Reason must be filled!", required = true) @RequestBody(required = true) VsRequestDto reason) {
+		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason.getReason());
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 

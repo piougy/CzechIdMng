@@ -75,7 +75,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   cancel(id, reason) {
     return Services.RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}/cancel`, reason)
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}/cancel`, {reason})
       .then(response => {
         return response.json();
       })

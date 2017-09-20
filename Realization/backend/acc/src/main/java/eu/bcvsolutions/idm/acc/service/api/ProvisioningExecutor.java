@@ -1,9 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import org.springframework.transaction.event.TransactionalEventListener;
-
-import com.google.common.annotations.Beta;
-
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 
@@ -24,16 +20,6 @@ public interface ProvisioningExecutor {
 	 * @return
 	 */
 	SysProvisioningOperationDto execute(SysProvisioningOperationDto provisioningOperation);
-	
-	/**
-	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
-	 * 
-	 * @param provisioningOperation
-	 * @return
-	 */
-	@Beta
-	@TransactionalEventListener
-	SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 * Cancel the resource operation.

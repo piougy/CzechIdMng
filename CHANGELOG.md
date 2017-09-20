@@ -19,8 +19,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-#### Core module
+- CGLIB for creating proxies are enforced by default. Now is possible to use annotations on methods, which is not defined in service interface. Prevent to use some logic in service constructors and always define annotations in implementation class, [read more](https://www.credera.com/blog/technology-insights/open-source-technology-insights/aspect-oriented-programming-in-spring-boot-part-2-spring-jdk-proxies-vs-cglib-vs-aspectj/). 
 
+#### Core module
 - Application property **idm.pub.core.notification.template.folder** was changed to **idm.sec.core.notification.template.folder**.
 - Application property **idm.pub.core.notification.template.fileSuffix** was changed to **idm.sec.core.notification.template.fileSuffix**.
 - Application property **idm.pub.core.script.folder** was changed to **idm.sec.core.script.folder**.

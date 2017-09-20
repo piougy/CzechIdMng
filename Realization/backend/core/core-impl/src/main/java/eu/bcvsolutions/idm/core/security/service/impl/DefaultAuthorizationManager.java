@@ -71,6 +71,8 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public <E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission) {
+		Assert.notNull(permission);
+		//
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
 		//
 		service.getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
@@ -169,6 +171,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	@Override
 	public <E extends Identifiable> boolean evaluate(E entity, BasePermission... permission) {
 		Assert.notNull(entity);
+		Assert.notNull(permission);
 		//
 		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass())) {
 			if (!supportsEntityType(policy, entity.getClass())) {

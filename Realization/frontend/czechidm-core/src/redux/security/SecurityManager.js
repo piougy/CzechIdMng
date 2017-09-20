@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 //
-import { AuthenticateService, LocalizationService } from '../../services';
+import { AuthenticateService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import ConfigLoader from '../../utils/ConfigLoader';
 

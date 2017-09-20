@@ -15,9 +15,9 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  */
 public interface VsConfiguration extends Configurable {
 
-	static final String PROPERTY_DEFAULT_ROLE = 
+	public static final String PROPERTY_DEFAULT_ROLE = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.role.default";
-	static final String DEFAULT_DEFAULT_ROLE = "superAdminRole";
+	public static final String DEFAULT_ROLE = "superAdminRole";
 	
 	@Override
 	default String getConfigurableType() {

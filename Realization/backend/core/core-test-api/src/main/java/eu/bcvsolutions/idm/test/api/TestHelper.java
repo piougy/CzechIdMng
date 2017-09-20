@@ -254,4 +254,13 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRoleDto... roles);
+
+	/**
+	 * Assign roles through role request (manual, execute immediately)
+	 * @param contract
+	 * @param startInNewTransaction
+	 * @param roles
+	 * @return
+	 */
+	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
 }

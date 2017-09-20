@@ -254,6 +254,11 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRoleDto... roles) {
+		return this.assignRoles(contract, true, roles);
+	}
+	
+	@Override
+	public IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles) {
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		roleRequest.setApplicant(contract.getIdentity());
 		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
@@ -273,7 +278,10 @@ public class DefaultTestHelper implements TestHelper {
 			conceptRoleRequestService.save(conceptRoleRequest);
 		}
 		//
-		return roleRequestService.startRequest(roleRequest.getId(), false);		
+		if(startInNewTransaction) {
+			return roleRequestService.startRequest(roleRequest.getId(), false);
+		}
+		return roleRequestService.startRequestInternal(roleRequest.getId(), false);
 	}
 
 	@Override

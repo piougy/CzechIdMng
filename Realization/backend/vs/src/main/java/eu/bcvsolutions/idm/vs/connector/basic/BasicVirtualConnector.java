@@ -128,7 +128,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 			throw new IcException("System cannot be null (for virtual system)");
 		}
 
-		// TODO: This is big workaround how mark SysSystem as virtual
+		// TODO: This is workaround how mark SysSystem as virtual
 		if (!system.isVirtual()) {
 			system.setVirtual(true);
 			system = this.systemService.save(system);

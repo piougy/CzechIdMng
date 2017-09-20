@@ -6,12 +6,10 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;

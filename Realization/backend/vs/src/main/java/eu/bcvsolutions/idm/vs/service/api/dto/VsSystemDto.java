@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.vs.service.api.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,23 +34,35 @@ public class VsSystemDto extends AbstractDto {
 	private List<UUID> implementers;
 	@ApiModelProperty(required = false, notes = "Roles where his identities will be implementers for this system.")
 	private List<UUID> implementerRoles;
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public List<UUID> getImplementers() {
+		if (implementers == null) {
+			implementers = new ArrayList<>();
+		}
 		return implementers;
 	}
+
 	public void setImplementers(List<UUID> implementers) {
 		this.implementers = implementers;
 	}
+
 	public List<UUID> getImplementerRoles() {
+		if (implementerRoles == null) {
+			implementerRoles = new ArrayList<>();
+		}
 		return implementerRoles;
 	}
+
 	public void setImplementerRoles(List<UUID> implementerRoles) {
 		this.implementerRoles = implementerRoles;
 	}
-	
+
 }

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.vs.repository.filter;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;

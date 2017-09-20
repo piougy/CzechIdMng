@@ -11,6 +11,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 public class WorkflowProcessInstanceDto implements BaseDto{
 
+	private static final long serialVersionUID = -719948059760251573L;
+	
 	protected String processDefinitionId;
 	protected String processDefinitionKey;
 	protected String processDefinitionName;

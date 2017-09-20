@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.ic.service.api;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

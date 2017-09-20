@@ -136,7 +136,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 
 		// Add list of implementers
-		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem());
 		request.setImplementers(implementers);
 		if (request.isTrimmed()) {
 			// request.setConnectorObject(null);
@@ -208,7 +208,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		// Save new request
 		req.setState(VsRequestState.CONCEPT);
-		VsRequestDto request = this.save(req, IdmBasePermission.CREATE);
+		VsRequestDto request = this.save(req);
 		return this.get(request.getId());
 	}
 
@@ -542,8 +542,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
+		Assert.notNull(request, "VS request cannot be null for send notification!");
 
-		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem());
 		if (implementers.isEmpty()) {
 			// We do not have any implementers ... we don`t have anyone to send
 			// notification

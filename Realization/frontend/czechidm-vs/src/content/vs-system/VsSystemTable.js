@@ -76,7 +76,6 @@ export default class VsSystemTable extends SystemTable {
     );
   }
 
-
   render() {
     const {show, showLoading} = this.state;
     const parentRender = super.render();

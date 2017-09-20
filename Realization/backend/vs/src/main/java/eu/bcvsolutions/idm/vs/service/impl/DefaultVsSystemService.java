@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -131,7 +131,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		systemMapping.setObjectClass(schema.getId());
 		systemMapping = systemMappingService.save(systemMapping);
 
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null).getContent();
 		List<String> defaultAttributes = Lists.newArrayList(BasicVirtualConfiguration.DEFAULT_ATTRIBUTES);

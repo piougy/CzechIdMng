@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -64,7 +63,8 @@ import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
  */
 @Service
 public class DefaultSysProvisioningOperationService
-		extends AbstractReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperation, SysProvisioningOperationFilter> implements SysProvisioningOperationService {
+		extends AbstractReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperation, SysProvisioningOperationFilter> 
+		implements SysProvisioningOperationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningOperationService.class);
 	private static final String CONFIDENTIAL_KEY_PATTERN = "%s:%s:%d";
@@ -79,7 +79,6 @@ public class DefaultSysProvisioningOperationService
 	private final ConfidentialStorage confidentialStorage;
 	private final SysProvisioningRequestService requestService;
 	private final SysSystemService systemService;
-	private final ModelMapper modelMapper;
 	private final SysProvisioningRequestService provisioningRequestService;
 
 	@Autowired
@@ -92,7 +91,6 @@ public class DefaultSysProvisioningOperationService
 			ConfidentialStorage confidentialStorage,
 			SysProvisioningRequestService requestService,
 			SysSystemService systemService,
-			ModelMapper modelMapper,
 			SysProvisioningRequestService provisioningRequestService,
 			SysProvisioningBatchRepository batchRepository) {
 		super(repository);
@@ -104,7 +102,6 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(requestService);
 		Assert.notNull(systemService);
-		Assert.notNull(modelMapper);
 		Assert.notNull(provisioningRequestService);
 		Assert.notNull(batchRepository);
 		//
@@ -115,7 +112,6 @@ public class DefaultSysProvisioningOperationService
 		this.confidentialStorage = confidentialStorage;
 		this.requestService = requestService;
 		this.systemService = systemService;
-		this.modelMapper = modelMapper;
 		this.provisioningRequestService = provisioningRequestService;
 		this.batchRepository = batchRepository;
 	}
@@ -130,20 +126,13 @@ public class DefaultSysProvisioningOperationService
 	
 	@Override
 	protected SysProvisioningOperationDto toDto(SysProvisioningOperation entity, SysProvisioningOperationDto dto) {
-		if (entity == null) {
-			return null;
-		}
-		if (dto == null) {
-			dto = modelMapper.map(entity, getDtoClass());
-		} else {
-			modelMapper.map(entity, dto);
-		}
-		
+		dto = super.toDto(entity, dto);
+		//
 		if (dto != null) {
 			dto.setRequest(requestService.findByOperationId(entity.getId()));
 			// copy => detach
 			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
-			// TODO: system to embedded
+			// TODO: system to embedded?
 		}
 		return dto;
 	}

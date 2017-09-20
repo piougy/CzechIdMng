@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import _ from 'lodash';
 import moment from 'moment';
 //

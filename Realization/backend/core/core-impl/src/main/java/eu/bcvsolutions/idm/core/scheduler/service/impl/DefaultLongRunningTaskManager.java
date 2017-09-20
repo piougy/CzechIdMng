@@ -11,6 +11,7 @@ import java.util.concurrent.FutureTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -148,9 +149,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	/**
-	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly.
+	 * Executes given inited task asynchronously. 
+	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly
+	 * 
+	 * @param futureTask
 	 */
-	@Override
+	@TransactionalEventListener
 	public <V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
 		Assert.notNull(futureTask.getExecutor());

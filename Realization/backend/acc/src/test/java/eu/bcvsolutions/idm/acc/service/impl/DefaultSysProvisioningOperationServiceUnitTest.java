@@ -66,7 +66,6 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 				confidentialStorage,
 				requestService,
 				systemService,
-				modelMapper,
 				provisioningRequestService,
 				batchRepository);
 	}

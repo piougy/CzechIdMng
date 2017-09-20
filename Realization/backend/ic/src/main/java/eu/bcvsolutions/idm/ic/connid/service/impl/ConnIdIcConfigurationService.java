@@ -337,7 +337,6 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public Class<? extends IcConnector> getConnectorClass(IcConnectorInstance connectorInstance) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

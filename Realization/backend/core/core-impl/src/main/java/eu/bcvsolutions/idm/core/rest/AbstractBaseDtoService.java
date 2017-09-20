@@ -65,75 +65,59 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public DTO get(Serializable id, BasePermission... permission) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Page<DTO> find(Pageable pageable, BasePermission... permission) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission... permission) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Set<String> getPermissions(Serializable id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
 	public Class<? extends BaseEntity> getEntityClass() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 
 	@Override
 	public DTO save(DTO dto, BasePermission... permission) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Iterable<DTO> saveAll(Iterable<DTO> dtos, BasePermission... permission) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void delete(DTO dto, BasePermission... permission) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void deleteById(Serializable id, BasePermission... permission) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public DTO saveInternal(DTO dto) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void deleteInternal(DTO dto) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void deleteInternalById(Serializable id) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

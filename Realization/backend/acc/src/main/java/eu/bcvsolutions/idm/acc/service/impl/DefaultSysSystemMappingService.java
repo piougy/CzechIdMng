@@ -7,12 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
@@ -23,13 +19,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
-import eu.bcvsolutions.idm.acc.event.SystemMappingEvent.SystemMappingEventType;
-import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -43,25 +35,19 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysSystemMappingService extends
-		AbstractReadWriteDtoService<SysSystemMappingDto, SysSystemMapping, SysSystemMappingFilter> implements SysSystemMappingService {
+	AbstractEventableDtoService<SysSystemMappingDto, SysSystemMapping, SysSystemMappingFilter> implements SysSystemMappingService {
 
 	private final SysSystemMappingRepository repository;
-	private final SysSyncConfigRepository syncConfigRepository;
-	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultSysSystemMappingService(
 			SysSystemMappingRepository repository,
-			SysSyncConfigRepository syncConfigRepository,
 			EntityEventManager entityEventManager) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
-		Assert.notNull(syncConfigRepository);
 		Assert.notNull(entityEventManager);
 		//
 		this.repository = repository;
-		this.syncConfigRepository = syncConfigRepository;
-		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -94,20 +80,6 @@ public class DefaultSysSystemMappingService extends
 		filter.setEntityType(entityType);
 		Page<SysSystemMappingDto> page = toDtoPage(repository.find(filter, null));
 		return page.getContent();
-	}
-	
-	@Override
-	@Transactional
-	public void delete(SysSystemMappingDto systemMapping, BasePermission... permission) {
-		Assert.notNull(systemMapping);
-		//
-		checkAccess(this.getEntity(systemMapping.getId()), permission);
-		// 
-		if (syncConfigRepository.countBySystemMapping(getEntity(systemMapping.getId())) > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("mapping", systemMapping.getName()));
-		}
-		//
-		entityEventManager.process(new SystemMappingEvent(SystemMappingEventType.DELETE, systemMapping));
 	}
 	
 	@Override

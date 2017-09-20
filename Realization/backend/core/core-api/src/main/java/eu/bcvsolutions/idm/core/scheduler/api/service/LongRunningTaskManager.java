@@ -3,10 +3,6 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.transaction.event.TransactionalEventListener;
-
-import com.google.common.annotations.Beta;
-
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 
 /**
@@ -29,16 +25,6 @@ public interface LongRunningTaskManager {
 	 * @return
 	 */
 	<V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor);
-	
-	/**
-	 * Executes given inited task asynchronously. 
-	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly
-	 * 
-	 * @param futureTask
-	 */
-	@Beta
-	@TransactionalEventListener
-	<V> void executeInternal(LongRunningFutureTask<V> futureTask);
 	
 	/**
 	 * * Executes given task asynchronously

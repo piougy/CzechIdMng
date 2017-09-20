@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -96,9 +97,10 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * If this attribute don't exist, found attribute flagged as UID, this attribute must exists.
 	 * 
 	 * @param systemId
+	 * @param entityType
 	 * @return
 	 */
-	SysSystemAttributeMappingDto getAuthenticationAttribute(UUID systemId);
+	SysSystemAttributeMappingDto getAuthenticationAttribute(UUID systemId, SystemEntityType entityType);
 
 	/**
 	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -19,5 +20,12 @@ public interface SysSyncConfigService extends ReadWriteDtoService<SysSyncConfigD
 	 * @return
 	 */
 	boolean isRunning(SysSyncConfigDto config);
-
+	
+	/**
+	 * Return count of {@link SysSyncConfigDto} for {@link SysSystemMappingDto}
+	 * 
+	 * @param mappingDto
+	 * @return
+	 */
+	Long countBySystemMapping(SysSystemMappingDto mappingDto);
 }

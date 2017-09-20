@@ -44,6 +44,8 @@ public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 		if (identityFilter.getUsername() != null) {
 			// in identities can be more UUID, we search for all
 			identitiesIds = getAuditRepository().findDistinctOwnerIdByOwnerTypeAndOwnerCode(IdmIdentity.class.getName(), identityFilter.getUsername());
+			// remove null values
+			identitiesIds.removeAll(Collections.singleton(null));
 			// no entity found for this username return empty list
 			if (identitiesIds.isEmpty()) {
 				return new PageImpl<>(Collections.emptyList());

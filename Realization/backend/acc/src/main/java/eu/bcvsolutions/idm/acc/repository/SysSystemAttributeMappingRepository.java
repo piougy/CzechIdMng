@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -43,16 +44,22 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			+ "AND "
 			+ "e.systemMapping.operationType = :operationType "
 			+ "AND "
-			+ "e.systemMapping.objectClass.system.id = :systemId ")
-	SysSystemAttributeMapping findAuthenticationAttribute(@Param("systemId") UUID systemId, @Param("operationType") SystemOperationType operationType);
+			+ "e.systemMapping.objectClass.system.id = :systemId "
+			+ "AND "
+			+ "e.systemMapping.entityType = :entityType")
+	SysSystemAttributeMapping findAuthenticationAttribute(@Param("systemId") UUID systemId,
+			@Param("operationType") SystemOperationType operationType, @Param("entityType") SystemEntityType entityType);
 	
 	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
 			+ "e.uid = true "
 			+ "AND "
 			+ "e.systemMapping.operationType = :operationType "
 			+ "AND "
-			+ "e.systemMapping.objectClass.system.id = :systemId ")
-	SysSystemAttributeMapping findUidAttribute(@Param("systemId") UUID systemId, @Param("operationType") SystemOperationType operationType);
+			+ "e.systemMapping.objectClass.system.id = :systemId "
+			+ "AND "
+			+ "(:entityType is null or e.systemMapping.entityType = :entityType)")
+	SysSystemAttributeMapping findUidAttribute(@Param("systemId") UUID systemId,
+			@Param("operationType") SystemOperationType operationType, @Param("entityType")  SystemEntityType entityType);
 	
 	/**
 	 * Single mapped attribute in given mapping by given name

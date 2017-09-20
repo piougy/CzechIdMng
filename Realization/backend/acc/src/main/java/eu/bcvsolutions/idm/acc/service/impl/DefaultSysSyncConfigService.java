@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
@@ -88,6 +89,13 @@ public class DefaultSysSyncConfigService
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;
+	}
+
+	@Override
+	public Long countBySystemMapping(SysSystemMappingDto mappingDto) {
+		Assert.notNull(mappingDto);
+		Assert.notNull(mappingDto.getId());
+		return repository.countByCorrelationAttribute_Id(mappingDto.getId());
 	}
 
 

@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -257,7 +258,7 @@ public class DefaultSysSystemAttributeMappingService
 		SysSystemAttributeMapping entity = this.getEntity(dto.getId());
 		Assert.notNull(entity);
 		//
-		if (syncConfigRepository.countByCorrelationAttribute(entity) > 0) {
+		if (syncConfigRepository.countByCorrelationAttribute_Id(dto.getId()) > 0) {
 			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", dto.getName()));
 		}
 		if (syncConfigRepository.countByFilterAttribute(entity) > 0) {
@@ -364,12 +365,14 @@ public class DefaultSysSystemAttributeMappingService
 	}
 
 	@Override
-	public SysSystemAttributeMappingDto getAuthenticationAttribute(UUID systemId) {
+	public SysSystemAttributeMappingDto getAuthenticationAttribute(UUID systemId, SystemEntityType entityType) {
+		Assert.notNull(systemId);
+		Assert.notNull(entityType);
 		// authentication attribute is only from provisioning operation type
-		SysSystemAttributeMappingDto attr = toDto(this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING));
+		SysSystemAttributeMappingDto attr = toDto(this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
 		// defensive, if authentication attribute don't exists find attribute flagged as UID
 		if (attr == null) {
-			return toDto(this.repository.findUidAttribute(systemId, SystemOperationType.PROVISIONING));
+			return toDto(this.repository.findUidAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
 		}
 		return attr;
 	}

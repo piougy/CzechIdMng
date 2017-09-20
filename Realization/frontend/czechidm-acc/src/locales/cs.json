@@ -1071,6 +1071,10 @@
       "title": "Mapování systému [{{mapping}}] nemůže být smazáno",
       "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na stejném systému!"
     },
+    "SYSTEM_MAPPING_FOR_IDENTIY_EXISTS": {
+      "title": "Mapování nemůže být uloženo",
+      "message": "Mapování porvisioningu pro identity již existuje!"
+    },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Atribut [{{attribute}}] nemůže být smazán",
       "message": "Atribut [{{attribute}}] nemůže být smazán. Je použit v synchronizaci na stejném systému!"

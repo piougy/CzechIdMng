@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +14,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
- * Synchronization config repository
+ * Synchronization config repository 
+ * 
+ * TODO: refactor methods countByTokenAttribute, countByFilterAttribute, countBySystemMapping attributes to UUID
  * 
  * @author Svanda
  *
@@ -30,7 +34,7 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	@Query("select count(e) from SysSyncLog e where e.synchronizationConfig = :config and e.running = TRUE")
 	int runningCount(@Param("config") SysSyncConfig config);
 	
-	Long countByCorrelationAttribute(@Param("correlationAttribute") SysSystemAttributeMapping entity);	
+	Long countByCorrelationAttribute_Id(@Param("correlationAttribute") UUID correlationAttribute);	
 	
 	Long countByTokenAttribute(@Param("tokenAttribute") SysSystemAttributeMapping entity);	
 	

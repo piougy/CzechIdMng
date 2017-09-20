@@ -24,7 +24,7 @@ public class SystemMappingEvent  extends CoreEvent<SysSystemMappingDto> {
 	 *
 	 */
 	public enum SystemMappingEventType implements EventType {
-		DELETE;
+		CREATE, UPDATE, DELETE;
 	}
 	
 	public SystemMappingEvent(SystemMappingEventType operation, SysSystemMappingDto content) {

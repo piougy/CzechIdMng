@@ -9,15 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
-import groovy.lang.MissingPropertyException;
 
 public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 

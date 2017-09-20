@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -30,8 +30,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -127,7 +127,7 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		roleSystem.setRole(role.getId());
 		roleSystem.setSystemMapping(systemMapping.getId());
 		roleSystemService.save(roleSystem);
-		RoleSystemFilter filter = new RoleSystemFilter();
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(role.getId());
 		
 		assertNotNull(roleService.getByCode(role.getName()));

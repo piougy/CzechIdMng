@@ -33,13 +33,15 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassesType;
@@ -47,8 +49,6 @@ import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServiceType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServicesType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptType;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -60,7 +60,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  *
  */
 @Service("scriptService")
-public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, ScriptFilter>
+public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, IdmScriptFilter>
 		implements IdmScriptService {
 
 	private static final String SCRIPT_FOLDER = "idm.sec.core.script.folder";
@@ -113,7 +113,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	}
 	
 	@Override
-	protected Page<IdmScript> findEntities(ScriptFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmScript> findEntities(IdmScriptFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return getRepository().findAll(pageable);
 		}
@@ -216,7 +216,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			backupFolder.mkdirs();
 		}
 		//
-		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
+		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(dto.getId());
 		IdmScriptType type = dtoToType(dto, this.scriptAuthorityService.find(filter, null).getContent());
 		//

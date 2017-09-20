@@ -20,14 +20,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -107,7 +107,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		//
 		roleService.delete(role);
 		//
-		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
+		IdmAuthorizationPolicyFilter policyFilter = new IdmAuthorizationPolicyFilter();
 		policyFilter.setRoleId(role.getId());
 		assertEquals(0, authorizationPolicyService.find(policyFilter, null).getTotalElements());
 	}

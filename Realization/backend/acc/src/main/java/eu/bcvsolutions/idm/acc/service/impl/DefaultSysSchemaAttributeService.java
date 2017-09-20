@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent;
 import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent.SchemaAttributeEventType;
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service
-public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoService<SysSchemaAttributeDto, SysSchemaAttribute, SchemaAttributeFilter>
+public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoService<SysSchemaAttributeDto, SysSchemaAttribute, SysSchemaAttributeFilter>
 		implements SysSchemaAttributeService {
 
 	private final SysSchemaAttributeRepository repository;
@@ -47,7 +47,7 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoServic
 	}
 	
 	@Override
-	protected Page<SysSchemaAttribute> findEntities(SchemaAttributeFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSchemaAttribute> findEntities(SysSchemaAttributeFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}

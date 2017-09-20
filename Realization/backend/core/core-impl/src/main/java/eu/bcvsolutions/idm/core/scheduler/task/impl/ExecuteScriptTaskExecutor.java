@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.script.evaluator.DefaultSystemScriptEvaluator;
 

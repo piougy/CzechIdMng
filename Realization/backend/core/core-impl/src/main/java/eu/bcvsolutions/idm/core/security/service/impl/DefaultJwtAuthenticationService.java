@@ -11,10 +11,10 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.service.JwtAuthenticationService;
-import eu.bcvsolutions.idm.core.security.service.LoginService;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
 

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -50,7 +50,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSyncLogController
-		extends AbstractReadWriteDtoController<SysSyncLogDto, SynchronizationLogFilter> {
+		extends AbstractReadWriteDtoController<SysSyncLogDto, SysSyncLogFilter> {
 
 	protected static final String TAG = "Synchronization - logs";
 	
@@ -140,8 +140,8 @@ public class SysSyncLogController
 	}
 
 	@Override
-	protected SynchronizationLogFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SynchronizationLogFilter filter = new SynchronizationLogFilter();
+	protected SysSyncLogFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSyncLogFilter filter = new SysSyncLogFilter();
 		filter.setSynchronizationConfigId(getParameterConverter().toUuid(parameters, "synchronizationConfigId"));
 		return filter;
 	}

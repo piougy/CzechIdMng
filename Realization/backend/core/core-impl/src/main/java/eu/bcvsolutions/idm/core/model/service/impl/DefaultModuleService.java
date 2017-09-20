@@ -128,7 +128,7 @@ public class DefaultModuleService implements ModuleService {
 	}
 
 	/**
-	 * Returns module property by {@link eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService} conventions.
+	 * Returns module property by {@link eu.bcvsolutions.idm.core.api.service.IdmConfigurationService} conventions.
 	 * 
 	 * @param moduleId
 	 * @param property

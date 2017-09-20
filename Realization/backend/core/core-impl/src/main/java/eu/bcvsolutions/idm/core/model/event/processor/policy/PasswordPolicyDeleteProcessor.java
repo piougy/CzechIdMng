@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 
 /**
  * Default password policy processor for delete entity

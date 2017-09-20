@@ -21,8 +21,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 /**
  * Creates common test entities
  * 
- * TODO: include in abstract integration test => then will be usable in other modules
- * 
  * @author Radek Tomiška
  *
  */

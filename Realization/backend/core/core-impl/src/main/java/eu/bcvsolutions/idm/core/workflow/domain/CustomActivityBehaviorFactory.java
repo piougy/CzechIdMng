@@ -9,8 +9,8 @@ import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
 import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 
 /**
  * 

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -57,7 +57,7 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        	  + " and sa.name = '" + ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME + "'"
 	        	+ " )" +
         	" )")
-	Page<AccAccount> find(AccountFilter filter, Pageable pageable);
+	Page<AccAccount> find(AccAccountFilter filter, Pageable pageable);
 	
 	Long countBySystem(@Param("system") SysSystem system);
 	

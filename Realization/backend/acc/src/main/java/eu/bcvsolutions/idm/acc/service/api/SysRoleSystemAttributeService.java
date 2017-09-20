@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
@@ -10,6 +10,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author svandav
  *
  */
-public interface SysRoleSystemAttributeService extends ReadWriteDtoService<SysRoleSystemAttributeDto, RoleSystemAttributeFilter> {
+public interface SysRoleSystemAttributeService extends ReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttributeFilter> {
 	
 }

@@ -30,9 +30,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -194,7 +194,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	public SysSyncConfigDto stopSynchronization(SysSyncConfigDto config){
 		Assert.notNull(config);
 		// Synchronization must be running
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(config.getId());
 		logFilter.setRunning(Boolean.TRUE);
 		List<SysSyncLogDto> logs  = synchronizationLogService.find(logFilter, null).getContent();
@@ -234,7 +234,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 
-		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
 				.getContent();
@@ -274,7 +274,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		AccAccountDto account = accountService.get(accountId);
 
-		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
+		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
 				.getContent();
@@ -354,7 +354,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 	
 	private SysSystemEntityDto findSystemEntity(String uid, SysSystemDto system, SystemEntityType entityType) {
-		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
+		SysSystemEntityFilter systemEntityFilter = new SysSystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
 		systemEntityFilter.setUid(uid);

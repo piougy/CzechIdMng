@@ -30,10 +30,11 @@ import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
@@ -53,9 +54,6 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -68,12 +66,11 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityService
-		extends AbstractEventableDtoService<IdmIdentityDto, IdmIdentity, IdentityFilter> 
+		extends AbstractFormableService<IdmIdentityDto, IdmIdentity, IdmIdentityFilter> 
 		implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 
-	private final FormService formService;
 	private final IdmIdentityRepository repository;
 	private final IdmRoleService roleService;
 	private final IdmAuthorityChangeRepository authChangeRepository;
@@ -88,15 +85,13 @@ public class DefaultIdmIdentityService
 			EntityEventManager entityEventManager,
 			IdmAuthorityChangeRepository authChangeRepository,
 			RoleConfiguration roleConfiguration	) {
-		super(repository, entityEventManager);
+		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(formService);
 		Assert.notNull(roleService);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(authChangeRepository);
 		Assert.notNull(roleConfiguration);
 		//
-		this.formService = formService;
 		this.repository = repository;
 		this.roleService = roleService;
 		this.authChangeRepository = authChangeRepository;
@@ -122,33 +117,7 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
-	@Transactional
-	@Deprecated
-	public IdmIdentity saveIdentity(IdmIdentity identity) {
-		return toEntity(save(toDto(identity)), null);
-	}
-	
-	@Override
-	@Transactional
-	@Deprecated
-	public IdmIdentity publishIdentity(IdmIdentity identity, EntityEvent<IdmIdentityDto> event,  BasePermission... permission) {
-		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(identity);
-		event.setContent(toDto(identity));
-		return toEntity(this.publish(event, permission).getContent());
-	}
-	
-	@Override
-	@Transactional
-	public void deleteInternal(IdmIdentityDto dto) {
-		// TODO: eav dto
-		formService.deleteValues(getRepository().findOne(dto.getId()));
-		//
-		super.deleteInternal(dto);
-	}
-	
-	@Override
-	protected List<Predicate> toPredicates(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
@@ -351,7 +320,7 @@ public class DefaultIdmIdentityService
 	public List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType) {
 		Assert.notNull(forIdentity, "Identity id is required.");
 		//		
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(forIdentity);
 		filter.setManagersByTreeType(byTreeType);
 		//

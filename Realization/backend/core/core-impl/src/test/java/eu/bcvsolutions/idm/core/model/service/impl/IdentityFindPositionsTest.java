@@ -19,13 +19,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**

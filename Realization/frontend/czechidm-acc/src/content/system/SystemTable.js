@@ -74,6 +74,22 @@ export class SystemTable extends Advanced.AbstractTableContent {
     });
   }
 
+  getTableButtons(showAddButton) {
+    return (
+      [
+        <Basic.Button
+          level="success"
+          key="add_button"
+          className="btn-xs"
+          onClick={this.showDetail.bind(this, { })}
+          rendered={Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton}>
+          <Basic.Icon type="fa" icon="plus"/>
+          {' '}
+          {this.i18n('button.add')}
+        </Basic.Button>
+      ]);
+  }
+
   render() {
     const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
     const { filterOpened } = this.state;
@@ -115,20 +131,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
-          buttons={
-            [
-              <Basic.Button
-                level="success"
-                key="add_button"
-                className="btn-xs"
-                onClick={this.showDetail.bind(this, { })}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
-              </Basic.Button>
-            ]
-          }
+          buttons = {this.getTableButtons(showAddButton)}
           _searchParameters={ this.getSearchParameters() }
           >
 
@@ -183,3 +186,4 @@ function select(state, component) {
 }
 
 export default connect(select, null, null, { withRef: true })(SystemTable);
+export {SystemTable};

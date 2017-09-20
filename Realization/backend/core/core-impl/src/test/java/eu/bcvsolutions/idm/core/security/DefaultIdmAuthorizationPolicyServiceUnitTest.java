@@ -10,10 +10,10 @@ import org.mockito.Mock;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 

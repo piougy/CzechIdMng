@@ -62,6 +62,33 @@
       "label": "List",
       "title": "Virtual systems"
     },
+    "vs-system": {
+      "name": {
+        "label": "Name",
+        "placeholder": ""
+      },
+      "implementers": {
+        "label": "Implementers",
+        "placeholder": "Users in IdM who will be realized requests"
+      },
+      "implementerRoles": {
+        "label": "Roles with implementers",
+        "placeholder": "Users in the IdM who have assigned these roles will be realized requests"
+      },
+      "label": "List",
+      "title": "Virtual systems",
+      "action": {
+        "create": {
+          "message": "For create new virtual system fill his name and choose implementers:",
+          "header": "Creating new virtual system",
+          "success": "Virtual system [{{system}}] was successesd created"
+        }
+      },
+      "button": {
+        "cancel": "Cancel",
+        "create": "Create system"
+      }
+    },
     "vs-requests": {
       "header": "Requests",
       "label": "Requests",

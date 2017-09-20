@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatefulExecutor;
 
 /**
@@ -51,7 +51,7 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 
 	@Override
 	public Page<IdmPasswordDto> getItemsToProcess(Pageable pageable) {
-		PasswordFilter filter = new PasswordFilter();
+		IdmPasswordFilter filter = new IdmPasswordFilter();
 		filter.setValidTill(expiration);
 		return passwordService.find(filter, pageable);
 	}

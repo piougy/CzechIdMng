@@ -23,12 +23,12 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Automatic roles recount while identity contract is saved, updated or deleted / disabled.

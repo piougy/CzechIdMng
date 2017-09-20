@@ -14,9 +14,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -79,7 +79,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		contract4.setPosition("Position104");
 		service.save(contract4);
 
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setText("Position00");
 		Page<IdmIdentityContractDto> result = service.find(filter,null);
 		assertEquals("Wrong Text",3,result.getTotalElements());
@@ -98,7 +98,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
 		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity,node2);
 
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setIdentity(identity.getId());
 		Page<IdmIdentityContractDto> result = service.find(filter,null);
 		assertEquals("Wrong Identity",3,result.getTotalElements());
@@ -124,7 +124,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityContractDto contract3 = helper.createIdentityContact(identity3,node3,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2016-05-05"));
 		IdmIdentityContractDto contract4 = helper.createIdentityContact(identity4,node4,org.joda.time.LocalDate.parse("2018-05-05"),org.joda.time.LocalDate.parse("2025-05-05"));
 
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValidFrom(contract.getValidFrom());
 		Page<IdmIdentityContractDto> result = service.find(filter,null);
 		assertTrue(result.getContent().contains(contract));
@@ -168,7 +168,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		contract2.setExterne(false);
 		service.save(contract2);
 
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setExterne(true);
 		Page<IdmIdentityContractDto> result = service.find(filter,null);
 		assertTrue(result.getContent().contains(contract));
@@ -197,7 +197,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		contract2.setMain(false);
 		service.save(contract2);
 
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setMain(true);
 		Page<IdmIdentityContractDto> result = service.find(filter,null);
 		assertTrue(result.getContent().contains(contract));

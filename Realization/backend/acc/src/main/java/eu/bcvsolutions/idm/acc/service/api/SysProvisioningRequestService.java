@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningRequestFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningRequestFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  *
  */
 public interface SysProvisioningRequestService
-		extends ReadWriteDtoService<SysProvisioningRequestDto, ProvisioningRequestFilter> {
+		extends ReadWriteDtoService<SysProvisioningRequestDto, SysProvisioningRequestFilter> {
 
 	/**
 	 * Return request for operation id.

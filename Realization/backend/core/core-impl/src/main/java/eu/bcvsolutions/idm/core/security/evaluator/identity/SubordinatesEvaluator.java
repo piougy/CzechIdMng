@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
@@ -40,9 +40,9 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		if (!securityService.isAuthenticated()) {
 			return null;
 		}
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(securityService.getAuthentication().getCurrentIdentity().getId());
-		return filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_SUBORDINATES_FOR).getPredicate(root, query, builder, filter);
+		return filterManager.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR).getPredicate(root, query, builder, filter);
 	}
 	
 	@Override
@@ -51,9 +51,9 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		if (entity == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(entity.getId());
-		boolean isManager = filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_MANAGERS_FOR).find(filter, null).getContent()
+		boolean isManager = filterManager.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_MANAGERS_FOR).find(filter, null).getContent()
 				.stream()
 				.anyMatch(identity -> {
 			return identity.getUsername().equals(securityService.getUsername());

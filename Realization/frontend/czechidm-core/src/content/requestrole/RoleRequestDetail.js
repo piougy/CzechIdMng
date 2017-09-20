@@ -41,6 +41,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     return 'content.roleRequestDetail';
   }
 
+  getNavigationKey() {
+    return 'role-requests';
+  }
+
   componentWillReceiveProps(nextProps) {
     const { _request } = nextProps;
     const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
@@ -55,6 +59,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
     this._initComponentCurrentRoles(this.props);
     if (this.refs.description) {

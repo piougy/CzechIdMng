@@ -20,17 +20,17 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.notification.SendNotificationFromTask;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -153,7 +153,7 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 			observer.waitForMails();
 		}
 
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());
 		filter.setNotificationType(IdmNotificationLog.class);
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();

@@ -20,18 +20,18 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 
 /**
  * Long running task for remove automatic roles from identities.
@@ -60,7 +60,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		super.validate(task);
 		//
 		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
-		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
 		service.find(filter, null).forEach(longRunningTask -> {
@@ -128,7 +128,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			return Boolean.FALSE;
 		}
 		// Find all concepts and remove relation on role tree
-		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
+		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleTreeNodeId(roleTreeNode.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
 			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());

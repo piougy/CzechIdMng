@@ -211,8 +211,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.cancel.bind(this), disabled: false },
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.cancel.bind(this), disabled: false }
             ]
           }
           _searchParameters={ this.getSearchParameters() }

@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 
 /**
  * Notification log service
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogServi
  */
 @Service("notificationLogService")
 public class DefaultIdmNotificationLogService 
-		extends AbstractNotificationLogService<IdmNotificationLogDto, IdmNotificationLog, NotificationFilter> 
+		extends AbstractNotificationLogService<IdmNotificationLogDto, IdmNotificationLog, IdmNotificationFilter> 
 		implements IdmNotificationLogService {
 
 	@Autowired

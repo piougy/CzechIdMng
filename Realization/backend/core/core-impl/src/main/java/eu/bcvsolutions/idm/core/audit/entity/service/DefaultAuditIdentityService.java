@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.audit.dto.filter.AuditEntityFilter;
@@ -50,7 +50,7 @@ public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 			}
 		}
 		//
-		AuditFilter auditFilter = new AuditFilter();
+		IdmAuditFilter auditFilter = new IdmAuditFilter();
 		auditFilter.setFrom(identityFilter.getFrom());
 		auditFilter.setTill(identityFilter.getTill());
 		auditFilter.setOwnerType(IdmIdentity.class.getName());

@@ -14,9 +14,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 

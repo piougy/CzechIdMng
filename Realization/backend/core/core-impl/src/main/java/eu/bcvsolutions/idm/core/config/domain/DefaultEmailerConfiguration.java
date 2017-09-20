@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * Configuration for {@link eu.bcvsolutions.idm.core.notification.service.api.Emailer}.
+ * Configuration for {@link eu.bcvsolutions.idm.core.notification.api.service.Emailer}.
  * 
  * @author Radek Tomiška
  *

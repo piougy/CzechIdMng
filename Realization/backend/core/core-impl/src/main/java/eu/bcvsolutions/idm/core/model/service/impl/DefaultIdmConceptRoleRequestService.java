@@ -22,9 +22,10 @@ import com.google.common.base.Strings;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -33,7 +34,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -48,7 +48,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  */
 @Service("conceptRoleRequestService")
 public class DefaultIdmConceptRoleRequestService
-		extends AbstractReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequest, ConceptRoleRequestFilter>
+		extends AbstractReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequest, IdmConceptRoleRequestFilter>
 		implements IdmConceptRoleRequestService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConceptRoleRequestService.class);
@@ -146,7 +146,7 @@ public class DefaultIdmConceptRoleRequestService
 	}
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmConceptRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, ConceptRoleRequestFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmConceptRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmConceptRoleRequestFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if (filter.getRoleRequestId() != null) {

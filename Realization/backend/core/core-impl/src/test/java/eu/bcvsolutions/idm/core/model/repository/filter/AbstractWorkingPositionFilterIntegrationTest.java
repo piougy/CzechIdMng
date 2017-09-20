@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -103,11 +103,11 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		helper.createContractGuarantee(helper.createIdentityContact(subordinateThree).getId(), managerOne.getId());
 	}
 	
-	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdentityFilter> builder) {
+	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdmIdentityFilter> builder) {
 		//
 		// tests
 		// all managers - for subordinate one
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setIncludeGuarantees(true);
 		List<IdmIdentity> managers = builder.find(filter, null).getContent();
@@ -118,7 +118,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertEquals(4, managers.size());
 		//
 		// find contract managers
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByContract(contractOne.getId());
 		managers = builder.find(filter, null).getContent();
@@ -127,7 +127,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, guaranteeThree));
 		//
 		// find contract managers by without guarantees
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByContract(contractOne.getId());
 		filter.setIncludeGuarantees(false);
@@ -136,7 +136,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, managerOne));
 		//
 		// manager by tree structures
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByTreeType(structureOne.getId());
 		managers = builder.find(filter, null).getContent();
@@ -148,7 +148,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, managerTwo));
 		//
 		// all manager - for subordinate one
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateTwo.getId());
 		managers = builder.find(filter, null).getContent();
 		assertEquals(2, managers.size());
@@ -156,29 +156,29 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, guaranteeFour));
 	}
 	
-	protected void testSubordinatesBuilder(FilterBuilder<IdmIdentity, IdentityFilter> builder) {
-		IdentityFilter filter = new IdentityFilter();
+	protected void testSubordinatesBuilder(FilterBuilder<IdmIdentity, IdmIdentityFilter> builder) {
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(managerOne.getId());
 		List<IdmIdentity> subordinates = builder.find(filter, null).getContent();
 		assertEquals(2, subordinates.size());
 		assertTrue(contains(subordinates, subordinateOne));
 		assertTrue(contains(subordinates, subordinateThree));
 		//
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(managerOne.getId());
 		filter.setSubordinatesByTreeType(structureOne.getId());
 		subordinates = builder.find(filter, null).getContent();
 		assertEquals(1, subordinates.size());
 		assertTrue(contains(subordinates, subordinateOne));
 		//
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(guaranteeFour.getId());
 		subordinates = builder.find(filter, null).getContent();
 		assertEquals(2, subordinates.size());
 		assertTrue(contains(subordinates, subordinateOne));
 		assertTrue(contains(subordinates, subordinateTwo));
 		//
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(invalidManager.getId());
 		subordinates = builder.find(filter, null).getContent();
 		assertTrue(subordinates.isEmpty());

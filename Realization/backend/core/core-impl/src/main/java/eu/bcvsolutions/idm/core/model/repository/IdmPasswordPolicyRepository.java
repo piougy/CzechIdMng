@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
@@ -114,7 +114,7 @@ public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<Id
 		        	+ "?#{[0].defaultPolicy} is null "
 		        	+ "or e.defaultPolicy = ?#{[0].defaultPolicy}"
 	        	+ ")")
-	Page<IdmPasswordPolicy> find(PasswordPolicyFilter filter, Pageable pageable);
+	Page<IdmPasswordPolicy> find(IdmPasswordPolicyFilter filter, Pageable pageable);
 	
 
 	@Query(value = "SELECT e FROM IdmPasswordPolicy e "

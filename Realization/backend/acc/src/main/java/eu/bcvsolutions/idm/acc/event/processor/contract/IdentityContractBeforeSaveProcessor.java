@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -41,7 +41,7 @@ public class IdentityContractBeforeSaveProcessor extends AbstractIdentityContrac
 			// set original subordinates as Set<UUID>
 			HashSet<UUID> originalSubordinates = findAllSubordinates(event.getContent().getIdentity())
 					.stream()
-					.map(IdmIdentity::getId)
+					.map(IdmIdentityDto::getId)
 					.collect(Collectors.toCollection(HashSet::new));
 			event.getProperties().put(IdentityContractProvisioningProcessor.PROPERTY_PREVIOUS_SUBORDINATES, originalSubordinates);
 			LOG.debug("Previous subordinates found [{}]", originalSubordinates.size());

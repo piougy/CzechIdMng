@@ -36,8 +36,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -59,7 +59,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -328,7 +328,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 			List<SysSchemaAttributeDto> schemaAttributes = findSchemaAttributes(system, schemaObjectClassDto);
 			
-			ProvisioningOperationFilter filter = new  ProvisioningOperationFilter();
+			SysProvisioningOperationFilter filter = new  SysProvisioningOperationFilter();
 			filter.setEntityIdentifier(provisioningOperation.getEntityIdentifier());
 			filter.setEntityType(provisioningOperation.getEntityType());
 			filter.setResultState(OperationState.EXECUTED);
@@ -527,7 +527,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 */
 	private List<SysSchemaAttributeDto> findSchemaAttributes(SysSystemDto system, SysSchemaObjectClassDto objectClass) {
 		
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		schemaAttributeFilter.setObjectClassId(objectClass.getId());
 		return schemaAttributeService.find(schemaAttributeFilter, null).getContent();

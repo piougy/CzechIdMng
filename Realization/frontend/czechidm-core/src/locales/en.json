@@ -2347,6 +2347,7 @@
         "message": "Message",
         "textMessage": "Message (text)",
         "htmlMessage": "Message (html)",
+        "renderedHtmlMessage": "Message (rendered html)",
         "model": "Message (model)"
       },
       "sender": "Sender",

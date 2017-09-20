@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -28,9 +27,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -46,65 +44,68 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
-public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
+public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmRoleDto>
 		implements SynchronizationEntityExecutor {
 
 	private final IdmRoleService roleService;
 	private final AccRoleAccountService roleAccoutnService;
-	private final IdmRoleRepository roleRepository;
 	public final static String ROLE_TYPE_FIELD = "roleType";
 
 	@Autowired
-	public RoleSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
+	public RoleSynchronizationExecutor(
+			IcConnectorFacade connectorFacade, 
+			SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmRoleService roleService,
-			AccRoleAccountService roleAccoutnService, SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService roleRoleService, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, IdmRoleRepository roleRepository, SysSystemMappingService systemMappingService,
-			SysSyncConfigRepository synchronizationConfigRepository,
+			SysSyncConfigService synchronizationConfigService, 
+			SysSyncLogService synchronizationLogService,
+			SysSyncActionLogService syncActionLogService, 
+			AccAccountService accountService,
+			SysSystemEntityService systemEntityService, 
+			ConfidentialStorage confidentialStorage,
+			FormService formService, 
+			IdmRoleService roleService,
+			AccRoleAccountService roleAccoutnService, 
+			SysSyncItemLogService syncItemLogService,
+			IdmIdentityRoleService roleRoleService, 
+			EntityEventManager entityEventManager,
+			GroovyScriptService groovyScriptService, 
+			WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityManager entityManager,
+			SysSystemMappingService systemMappingService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSchemaAttributeService schemaAttributeService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, synchronizationConfigRepository,
+				workflowProcessInstanceService, entityManager, systemMappingService,
 				schemaObjectClassService, schemaAttributeService);
-
+		//
 		Assert.notNull(roleService, "Identity service is mandatory!");
 		Assert.notNull(roleAccoutnService, "Identity account service is mandatory!");
 		Assert.notNull(roleRoleService, "Identity role service is mandatory!");
-		Assert.notNull(roleRepository);
-
+		//
 		this.roleService = roleService;
 		this.roleAccoutnService = roleAccoutnService;
-		this.roleRepository = roleRepository;
 	}
 
 	/**
@@ -145,9 +146,9 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRole entity = null;
+		IdmRoleDto entity = null;
 		if (entityId != null) {
-			entity = roleRepository.findOne(entityId);
+			entity = roleService.get(entityId);
 		}
 		if (entity == null) {
 			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
@@ -166,13 +167,13 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
-		IdmRole role = (IdmRole) entity;
+	@Override
+	protected void callProvisioningForEntity(IdmRoleDto entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Call provisioning (process RoleEventType.SAVE) for role ({0}) with username ({1}).",
-						role.getId(), role.getName()));
-		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, roleService.get(role.getId()))).getContent();
+						entity.getId(), entity.getName()));
+		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, entity)).getContent();
 	}
 
 	/**
@@ -189,12 +190,12 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account) {
 		// We will create new Role
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new role.");
-		IdmRole role = new IdmRole();
+		IdmRoleDto role = new IdmRoleDto();
 		// Fill Role by mapped attribute
-		role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, true);
+		role = fillEntity(mappedAttributes, uid, icAttributes, role, true);
 		
 		// Create new Role
-		role = (IdmRole) this.saveEntity(role, true);
+		role = this.save(role, true);
 		
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, true);
@@ -240,14 +241,14 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRole role = null;
+		IdmRoleDto role = null;
 		if (entityId != null) {
-			role = roleRepository.findOne(entityId);
+			role = roleService.get(entityId);
 		}
 		if (role != null) {
 			// Update role
-			role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, false);
-			this.saveEntity(role, true);
+			role = fillEntity(mappedAttributes, uid, icAttributes, role, false);
+			this.save(role, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, false);
 			// Update confidential attribute (entity must be persisted
@@ -284,10 +285,10 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUnlink(AccAccountDto account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
 			List<SysSyncActionLogDto> actionLogs) {
 
-		EntityAccountFilter roleAccountFilter = new RoleAccountFilter();
+		EntityAccountFilter roleAccountFilter = new AccRoleAccountFilter();
 		roleAccountFilter.setAccountId(account.getId());
 		List<AccRoleAccountDto> roleAccounts = roleAccoutnService
-				.find((RoleAccountFilter) roleAccountFilter, null).getContent();
+				.find((AccRoleAccountFilter) roleAccountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
 			addToItemLog(logItem, "Role account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -326,17 +327,15 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	@Override
-	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
-		IdmRole role = (IdmRole) entity;
-		// Create DTO mock ...
-		IdmRoleDto dummyDTO = new IdmRoleDto(role.getId());
-		boolean isNew = roleService.isNew(dummyDTO);
-		
+	protected IdmRoleDto save(IdmRoleDto entity, boolean skipProvisioning) {		
 		// Content will be set in service (we need do transform entity to DTO). 
 		// Here we set only dummy dto (null content is not allowed)
-		EntityEvent<IdmRoleDto> event = new RoleEvent(isNew ? RoleEventType.CREATE : RoleEventType.UPDATE, dummyDTO, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		EntityEvent<IdmRoleDto> event = new RoleEvent(
+				roleService.isNew(entity) ? RoleEventType.CREATE : RoleEventType.UPDATE, 
+				entity, 
+				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
 		
-		return roleService.publishRole(role, event);
+		return roleService.publish(event).getContent();
 	}
 
 	@Override
@@ -345,13 +344,8 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		return roleRepository.findOne(entityId);
-	}
-
-	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new RoleAccountFilter();
+		return new AccRoleAccountFilter();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -365,15 +359,9 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return new AccRoleAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmRole now.
-	}
-
-	@Override
-	protected List<? extends AbstractEntity> findAllEntity() {
-		return Lists.newArrayList(roleRepository.findAll());
+	protected IdmRoleService getService() {
+		return roleService;
 	}
 
 	@Override
@@ -387,7 +375,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	protected AbstractEntity findEntityByAttribute(String idmAttributeName, String value) {
+	protected IdmRoleDto findByAttribute(String idmAttributeName, String value) {
 		CorrelationFilter filter = getEntityFilter();
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
@@ -402,7 +390,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
 		}
 		if (entities.size() == 1) {
-			return roleRepository.findOne(entities.get(0).getId());
+			return entities.get(0);
 		}
 		return null;
 	}

@@ -13,21 +13,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventPropertyDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventPropertyFilter;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventPropertyDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventPropertyFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventPropertyService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventProperty;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventProperty_;
 import eu.bcvsolutions.idm.core.audit.entity.key.IdmLoggingEventPropertyPrimaryKey;
 import eu.bcvsolutions.idm.core.audit.repository.IdmLoggingEventPropertyRepository;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventPropertyService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 @Service
 public class DefaultIdmLoggingEventPropertyService extends
-		AbstractReadDtoService<IdmLoggingEventPropertyDto, IdmLoggingEventProperty, LoggingEventPropertyFilter>
+		AbstractReadDtoService<IdmLoggingEventPropertyDto, IdmLoggingEventProperty, IdmLoggingEventPropertyFilter>
 		implements IdmLoggingEventPropertyService {
 
 	private final IdmLoggingEventPropertyRepository repository;
@@ -41,7 +41,7 @@ public class DefaultIdmLoggingEventPropertyService extends
 
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmLoggingEventProperty> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, LoggingEventPropertyFilter filter) {
+			CriteriaBuilder builder, IdmLoggingEventPropertyFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 
 		if (filter.getEventId() != null) {
@@ -83,7 +83,7 @@ public class DefaultIdmLoggingEventPropertyService extends
 		Assert.isTrue(id instanceof IdmLoggingEventPropertyPrimaryKey);
 		IdmLoggingEventPropertyPrimaryKey primaryKey = (IdmLoggingEventPropertyPrimaryKey) id;
 		//
-		LoggingEventPropertyFilter filter = new LoggingEventPropertyFilter();
+		IdmLoggingEventPropertyFilter filter = new IdmLoggingEventPropertyFilter();
 		filter.setEventId(primaryKey.getEventId());
 		filter.setMappedKey(primaryKey.getMappedKey());
 		//

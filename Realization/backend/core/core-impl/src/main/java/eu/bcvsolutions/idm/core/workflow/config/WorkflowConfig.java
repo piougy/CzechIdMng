@@ -20,7 +20,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
 import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUuidEventListener;

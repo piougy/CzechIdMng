@@ -34,20 +34,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -58,12 +62,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -84,7 +84,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with identities",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
+public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdmIdentityFilter> {
 
 	protected static final String TAG = "Identities";
 	//
@@ -365,7 +365,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		IdentityRoleFilter filter = new IdentityRoleFilter();
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setIdentityId(identity.getId());		
 		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ);
 		//
@@ -571,17 +571,17 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	}
 	
 	@Override
-	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdentityFilter filter = new IdentityFilter(parameters);
+	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmIdentityFilter filter = new IdmIdentityFilter(parameters);
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
-		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setTreeNode(getParameterConverter().toEntityUuid(parameters, "treeNodeId", IdmTreeNode.class));
 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		filter.setTreeType(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
+		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
 		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {

@@ -10,14 +10,14 @@ import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmRoleGuaranteeService 
-		extends AbstractReadWriteDtoService<IdmRoleGuaranteeDto, IdmRoleGuarantee, RoleGuaranteeFilter> 
+		extends AbstractReadWriteDtoService<IdmRoleGuaranteeDto, IdmRoleGuarantee, IdmRoleGuaranteeFilter> 
 		implements IdmRoleGuaranteeService {
 	
 	@Autowired
@@ -43,7 +43,7 @@ public class DefaultIdmRoleGuaranteeService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleGuarantee> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			RoleGuaranteeFilter filter) {
+			IdmRoleGuaranteeFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// role

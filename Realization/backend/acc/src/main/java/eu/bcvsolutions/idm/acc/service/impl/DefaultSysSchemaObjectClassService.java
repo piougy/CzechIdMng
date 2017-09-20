@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service
-public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoService<SysSchemaObjectClassDto, SysSchemaObjectClass, SchemaObjectClassFilter>
+public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoService<SysSchemaObjectClassDto, SysSchemaObjectClass, SysSchemaObjectClassFilter>
 		implements SysSchemaObjectClassService {
 
 	private final SysSchemaObjectClassRepository repository;
@@ -51,7 +51,7 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 	}
 	
 	@Override
-	protected Page<SysSchemaObjectClass> findEntities(SchemaObjectClassFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSchemaObjectClass> findEntities(SysSchemaObjectClassFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -64,7 +64,7 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 		Assert.notNull(schemaObjectClass);
 		//
 		// remove all schema attributes for 
-		SchemaAttributeFilter filter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();
 		filter.setObjectClassId(schemaObjectClass.getId());
 		sysSchemaAttributeService.find(filter, null).forEach(schemaAttribute -> {
 			sysSchemaAttributeService.delete(schemaAttribute);

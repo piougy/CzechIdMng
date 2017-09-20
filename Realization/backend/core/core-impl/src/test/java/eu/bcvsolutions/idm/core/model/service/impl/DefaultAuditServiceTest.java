@@ -28,16 +28,16 @@ import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -246,7 +246,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void auditQuickSearch() {
-		AuditFilter filter = new AuditFilter();
+		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setModifier("admin");
 		filter.setType(IdmRole.class.getSimpleName());
 

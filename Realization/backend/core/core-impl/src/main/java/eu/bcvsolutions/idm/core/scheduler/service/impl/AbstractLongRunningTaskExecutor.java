@@ -22,8 +22,8 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Template for long running task executor. This template persists long running tasks.

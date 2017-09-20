@@ -9,22 +9,22 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
 
 /**
@@ -96,13 +96,13 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentityDto> 
 		});
 		// contract guaratee - set to null
 		// delete contract guarantees
-		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
 		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
 		});
 		// remove role guarantee
-		RoleGuaranteeFilter roleGuaranteeFilter = new RoleGuaranteeFilter();
+		IdmRoleGuaranteeFilter roleGuaranteeFilter = new IdmRoleGuaranteeFilter();
 		roleGuaranteeFilter.setGuarantee(identity.getId());
 		roleGuaranteeService.find(roleGuaranteeFilter, null).forEach(roleGuarantee -> {
 			roleGuaranteeService.delete(roleGuarantee);
@@ -115,7 +115,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentityDto> 
 		deleteAuthorityChange(identity);
 		
 		// Delete all role requests where is this identity applicant
-		RoleRequestFilter roleRequestFilter = new RoleRequestFilter();
+		IdmRoleRequestFilter roleRequestFilter = new IdmRoleRequestFilter();
 		roleRequestFilter.setApplicantId(identity.getId());
 		roleRequestService.find(roleRequestFilter, null).forEach(request ->{
 			roleRequestService.delete(request);

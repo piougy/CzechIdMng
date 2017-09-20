@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**

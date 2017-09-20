@@ -3,19 +3,18 @@ package eu.bcvsolutions.idm.acc;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * TODO: Reuse core TestHelper after all core dto refactoring
+ * Reuses core TestHelper and adds acc spec. methods
  * 
  * @author Radek Tomiška
  *
  */
-public interface TestHelper {
+public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	
 	static final String ATTRIBUTE_MAPPING_NAME = "__NAME__";
 	static final String ATTRIBUTE_MAPPING_ENABLE = "__ENABLE__";
@@ -23,29 +22,6 @@ public interface TestHelper {
 	static final String ATTRIBUTE_MAPPING_FIRSTNAME = "FIRSTNAME";
 	static final String ATTRIBUTE_MAPPING_LASTNAME = "LASTNAME";
 	static final String ATTRIBUTE_MAPPING_EMAIL = "EMAIL";
-	
-	/**
-	 * Creates test identity with random username
-	 * 
-	 * @return
-	 */
-	IdmIdentityDto createIdentity();
-	
-	/**
-	 * Creates role with random name
-	 * 
-	 * @return
-	 */
-	IdmRoleDto createRole();
-	
-	/**
-	 * Creates assigned identity's role directly (without approving etc.)
-	 * 
-	 * @param identity
-	 * @param role
-	 * @return
-	 */
-	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role);
 	
 	/**
 	 * Prepares conntector and system for fiven table name.

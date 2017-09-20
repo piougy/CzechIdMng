@@ -10,8 +10,8 @@ import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.repository.SysSyncActionLogRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 @Service
 public class DefaultSysSyncActionLogService extends
-		AbstractReadWriteDtoService<SysSyncActionLogDto, SysSyncActionLog, SyncActionLogFilter> implements SysSyncActionLogService {
+		AbstractReadWriteDtoService<SysSyncActionLogDto, SysSyncActionLog, SysSyncActionLogFilter> implements SysSyncActionLogService {
 
 	private final SysSyncActionLogRepository repository;
 	private final SysSyncItemLogService syncItemLogService;
@@ -46,7 +46,7 @@ public class DefaultSysSyncActionLogService extends
 	}
 	
 	@Override
-	protected Page<SysSyncActionLog> findEntities(SyncActionLogFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSyncActionLog> findEntities(SysSyncActionLogFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -60,7 +60,7 @@ public class DefaultSysSyncActionLogService extends
 		checkAccess(this.getEntity(syncLog.getId()), permission);
 		//
 		// remove all synchronization item logs
-		SyncItemLogFilter filter = new SyncItemLogFilter();
+		SysSyncItemLogFilter filter = new SysSyncItemLogFilter();
 		filter.setSyncActionLogId(syncLog.getId());
 		syncItemLogService.find(filter, null).forEach(log -> {
 			syncItemLogService.delete(log);

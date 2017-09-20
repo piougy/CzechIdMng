@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -50,7 +50,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSyncItemLogController
-		extends AbstractReadWriteDtoController<SysSyncItemLogDto, SyncItemLogFilter> {
+		extends AbstractReadWriteDtoController<SysSyncItemLogDto, SysSyncItemLogFilter> {
 
 	protected static final String TAG = "Synchronization - log items";
 	
@@ -141,8 +141,8 @@ public class SysSyncItemLogController
 	}
 
 	@Override
-	protected SyncItemLogFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SyncItemLogFilter filter = new SyncItemLogFilter();
+	protected SysSyncItemLogFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSyncItemLogFilter filter = new SysSyncItemLogFilter();
 		filter.setSyncActionLogId(getParameterConverter().toUuid(parameters, "syncActionLogId"));
 		filter.setDisplayName(getParameterConverter().toString(parameters, "displayName"));
 		return filter;

@@ -20,10 +20,10 @@ import com.google.common.base.Strings;
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
@@ -41,8 +41,6 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -53,11 +51,10 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmRoleService 
-		extends AbstractEventableDtoService<IdmRoleDto, IdmRole, IdmRoleFilter> 
+		extends AbstractFormableService<IdmRoleDto, IdmRole, IdmRoleFilter> 
 		implements IdmRoleService {
 
 	private final IdmRoleRepository repository;
-	private final FormService formService;
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final ConfigurationService configurationService;
 	private final RoleConfiguration roleConfiguration;
@@ -72,15 +69,13 @@ public class DefaultIdmRoleService
 			FormService formService,
 			ConfigurationService configurationService,
 			RoleConfiguration roleConfiguration) {
-		super(repository, entityEventManager);
+		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(formService);
 		Assert.notNull(configurationService);
 		Assert.notNull(roleConfiguration);
 		Assert.notNull(roleCatalogueRoleRepository);
 		//
 		this.repository = repository;
-		this.formService = formService;
 		this.configurationService = configurationService;
 		this.roleConfiguration = roleConfiguration;
 		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
@@ -106,16 +101,6 @@ public class DefaultIdmRoleService
 		}
 		return entity;
 	}
-	
-	@Override
-	@Transactional
-	@Deprecated
-	public IdmRole publishRole(IdmRole role, EntityEvent<IdmRoleDto> event,  BasePermission... permission) {
-		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(role);
-		event.setContent(toDto(role));
-		return toEntity(this.publish(event, permission).getContent());
-	}
 
 	/**
 	 * @deprecated use {@link #getByCode(String)}
@@ -131,15 +116,6 @@ public class DefaultIdmRoleService
 	@Transactional(readOnly = true)
 	public IdmRoleDto getByCode(String name) {
 		return toDto(repository.findOneByCode(name));
-	}
-	
-	@Override
-	@Transactional
-	public void deleteInternal(IdmRoleDto dto) {
-		// TODO: eav dto
-		formService.deleteValues(getRepository().findOne(dto.getId()));
-		//
-		super.deleteInternal(dto);
 	}
 	
 	@Override

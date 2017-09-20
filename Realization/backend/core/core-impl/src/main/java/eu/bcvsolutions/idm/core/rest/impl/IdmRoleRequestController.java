@@ -33,15 +33,15 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -65,7 +65,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmRoleRequestController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmRoleRequestController extends AbstractReadWriteDtoController<IdmRoleRequestDto, RoleRequestFilter>{
+public class IdmRoleRequestController extends AbstractReadWriteDtoController<IdmRoleRequestDto, IdmRoleRequestFilter>{
 
 	protected static final String TAG = "Role Request - requests";
 	//
@@ -306,15 +306,15 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		ConceptRoleRequestFilter filter = conceptRoleRequestController.toFilter(parameters);
+		IdmConceptRoleRequestFilter filter = conceptRoleRequestController.toFilter(parameters);
 		filter.setRoleRequestId(entity.getId());
 		//
 		return toResources(conceptRoleRequestController.find(filter, pageable, IdmBasePermission.READ), IdmRoleRequestDto.class);
 	}
 
 	@Override
-	protected RoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleRequestFilter filter = new RoleRequestFilter();
+	protected IdmRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
 		filter.setApplicant(getParameterConverter().toString(parameters, "applicant"));
 		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
 

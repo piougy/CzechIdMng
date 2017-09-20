@@ -23,12 +23,12 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -77,7 +77,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 		assertEquals(TEST_SCRIPT_CODE_1, script1.getCode());
 		assertEquals(TEST_SCRIPT_CODE_2, script2.getCode());
 
-		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
+		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(script1.getId());
 		List<IdmScriptAuthorityDto> authorities = scriptAuthorityService.find(filter, null).getContent();
 
@@ -95,7 +95,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 		assertNotNull(script1);
 
-		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
+		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(script1.getId());
 		List<IdmScriptAuthorityDto> authorities = scriptAuthorityService.find(filter, null).getContent();
 

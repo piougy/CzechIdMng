@@ -24,7 +24,7 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.security.auth.filter.AuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.auth.filter.AuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
 
 /**

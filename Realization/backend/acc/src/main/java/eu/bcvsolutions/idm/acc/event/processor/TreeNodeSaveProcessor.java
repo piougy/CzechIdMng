@@ -15,9 +15,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -35,19 +33,14 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeNodeSaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
-	private final IdmTreeNodeRepository repository;
 	
 	@Autowired
-	public TreeNodeSaveProcessor(
-			ApplicationContext applicationContext,
-			IdmTreeNodeRepository repository) {
+	public TreeNodeSaveProcessor(ApplicationContext applicationContext) {
 		super(TreeNodeEventType.CREATE, TreeNodeEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
-		Assert.notNull(repository);
 		//
 		this.applicationContext = applicationContext;
-		this.repository = repository;
 	}
 	
 	@Override
@@ -66,8 +59,7 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	private void doProvisioning(IdmTreeNodeDto nodeDto) {
-		IdmTreeNode node = repository.findOne(nodeDto.getId());
+	private void doProvisioning(IdmTreeNodeDto node) {
 		LOG.debug("Call account managment (create accounts for all systems) for tree node [{}]", node.getCode());
 		getProvisioningService().createAccountsForAllSystems(node);
 		LOG.debug("Call provisioning for tree node [{}]", node.getCode());

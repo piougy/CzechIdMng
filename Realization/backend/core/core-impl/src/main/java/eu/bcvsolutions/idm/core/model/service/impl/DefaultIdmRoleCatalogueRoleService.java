@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service("roleCatalogueRoleService")
 public class DefaultIdmRoleCatalogueRoleService 
-		extends AbstractReadWriteDtoService<IdmRoleCatalogueRoleDto,IdmRoleCatalogueRole, RoleCatalogueRoleFilter> 
+		extends AbstractReadWriteDtoService<IdmRoleCatalogueRoleDto,IdmRoleCatalogueRole, IdmRoleCatalogueRoleFilter> 
 		implements IdmRoleCatalogueRoleService {
 	
 	private final IdmRoleCatalogueRoleRepository repository;
@@ -43,7 +43,7 @@ public class DefaultIdmRoleCatalogueRoleService
 	}
 	
 	@Override
-	protected Page<IdmRoleCatalogueRole> findEntities(RoleCatalogueRoleFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<IdmRoleCatalogueRole> findEntities(IdmRoleCatalogueRoleFilter filter, Pageable pageable, BasePermission... permission) {
 		if (filter == null) {
 			return getRepository().findAll(pageable);
 		}

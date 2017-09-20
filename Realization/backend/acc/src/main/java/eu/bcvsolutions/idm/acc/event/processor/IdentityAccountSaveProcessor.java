@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -85,7 +85,7 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 
 
 	private List<AccIdentityAccountDto> findIdentityAccounts(UUID account) {
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 

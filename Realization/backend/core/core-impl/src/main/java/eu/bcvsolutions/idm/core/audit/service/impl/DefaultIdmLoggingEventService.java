@@ -16,15 +16,15 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent_;
 import eu.bcvsolutions.idm.core.audit.repository.IdmLoggingEventRepository;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service
 public class DefaultIdmLoggingEventService
-		extends AbstractReadDtoService<IdmLoggingEventDto, IdmLoggingEvent, LoggingEventFilter>
+		extends AbstractReadDtoService<IdmLoggingEventDto, IdmLoggingEvent, IdmLoggingEventFilter>
 		implements IdmLoggingEventService {
 
 	private final IdmLoggingEventRepository repository;
@@ -53,7 +53,7 @@ public class DefaultIdmLoggingEventService
 
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmLoggingEvent> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			LoggingEventFilter filter) {
+			IdmLoggingEventFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if (StringUtils.isNotEmpty(filter.getText())) {
@@ -133,7 +133,7 @@ public class DefaultIdmLoggingEventService
 	@Override
 	protected IdmLoggingEvent getEntity(Serializable id, BasePermission... permission) {
 		Assert.notNull(id);
-		LoggingEventFilter filter = new LoggingEventFilter();
+		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
 		filter.setId(Long.valueOf(id.toString()));
 		List<IdmLoggingEventDto> entities = this.find(filter, null, permission).getContent();
 		if (entities.isEmpty()) {

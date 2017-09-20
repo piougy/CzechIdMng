@@ -28,11 +28,11 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -54,7 +54,7 @@ import io.swagger.annotations.AuthorizationScope;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmNotificationLogController
-		extends AbstractReadWriteDtoController<IdmNotificationLogDto, NotificationFilter> {
+		extends AbstractReadWriteDtoController<IdmNotificationLogDto, IdmNotificationFilter> {
 
 	protected static final String TAG = "Notification logs - all";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmNotificationLogController.class);
@@ -185,8 +185,8 @@ public class IdmNotificationLogController
 	}
 	
 	@Override
-	protected NotificationFilter toFilter(MultiValueMap<String, Object> parameters) {
-		NotificationFilter filter = new NotificationFilter();
+	protected IdmNotificationFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setSender(getParameterConverter().toString(parameters, "sender"));
 		filter.setRecipient(getParameterConverter().toString(parameters, "recipient"));

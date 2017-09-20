@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 
 /**
  * Role dto lookup (codeable)

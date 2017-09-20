@@ -62,6 +62,33 @@
       "label": "Seznam",
       "title": "Virtuální systémy"
     },
+    "vs-system": {
+      "name": {
+        "label": "Název",
+        "placeholder": ""
+      },
+      "implementers": {
+        "label": "Realizátoři",
+        "placeholder": "Uživatelé v IdM, kteří budou realizovat požadavky"
+      },
+      "implementerRoles": {
+        "label": "Role s realizátory",
+        "placeholder": "Uživatelé v IdM, kteří mají přiřazené tyto role budou realizátory požadavků"
+      },
+      "label": "Seznam",
+      "title": "Virtuální systémy",
+      "action": {
+        "create": {
+          "message": "Pokud chcete vytvořit nový virtuální systém, zadejte jeho jméno a realizátory:",
+          "header": "Vytvoření nového virtuální systému",
+          "success": "Virtuální systém [{{system}}] byl úspěšně vytvořen"
+        }
+      },
+      "button": {
+        "cancel": "Zrušit",
+        "create": "Vytvořit systém"
+      }
+    },
     "vs-requests": {
       "header": "Požadavky",
       "label": "Požadavky",

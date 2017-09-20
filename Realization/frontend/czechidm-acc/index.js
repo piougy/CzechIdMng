@@ -1,5 +1,5 @@
 import * as Managers from './src/redux';
-import SystemTable from './src/content/system/SystemTable';
+import {SystemTable} from './src/content/system/SystemTable';
 
 const ModuleRoot = {
   Managers,

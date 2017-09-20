@@ -82,9 +82,11 @@ public class VsRequest extends AbstractEntity {
 	// Limitation: We can use only one mapping on same entity type. When we
 	// using two relations on same entity (duplicant and previous for example),
 	// then we have exception with unsaved entity in second relation!
+	@Audited
 	@Column(name = "duplicate_to_request_id")
 	private UUID duplicateToRequest;
 
+	@Audited
 	@ManyToOne
 	@JoinColumn(name = "previous_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in

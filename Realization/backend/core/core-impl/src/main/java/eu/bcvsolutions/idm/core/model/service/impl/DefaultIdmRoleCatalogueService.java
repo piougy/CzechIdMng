@@ -23,11 +23,14 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -38,10 +41,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueForestContentService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildRoleCatalogueIndexTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -57,7 +57,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("roleCatalogueService")
 public class DefaultIdmRoleCatalogueService 
-		extends AbstractEventableDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, RoleCatalogueFilter> 
+		extends AbstractEventableDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, IdmRoleCatalogueFilter> 
 		implements IdmRoleCatalogueService {
 	
 	private final IdmRoleCatalogueRepository repository;
@@ -174,7 +174,7 @@ public class DefaultIdmRoleCatalogueService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleCatalogue> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			RoleCatalogueFilter filter) {
+			IdmRoleCatalogueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {

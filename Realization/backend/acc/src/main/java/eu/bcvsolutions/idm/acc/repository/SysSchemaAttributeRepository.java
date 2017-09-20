@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -25,5 +25,5 @@ public interface SysSchemaAttributeRepository extends AbstractEntityRepository<S
 	        + " (?#{[0].systemId} is null or e.objectClass.system.id = ?#{[0].systemId})"
 			+ " and"
 			+ " (?#{[0].name} is null or e.name = ?#{[0].name})")
-	Page<SysSchemaAttribute> find(SchemaAttributeFilter filter, Pageable pageable);
+	Page<SysSchemaAttribute> find(SysSchemaAttributeFilter filter, Pageable pageable);
 }

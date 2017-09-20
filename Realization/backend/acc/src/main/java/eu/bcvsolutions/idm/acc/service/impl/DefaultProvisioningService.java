@@ -20,17 +20,18 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
  * Service for do provisioning
+ * 
  * @author svandav
  *
  */
-@Service
+@Service("provisioningService")
 public class DefaultProvisioningService implements ProvisioningService {
 
 	private final SysSystemEntityService systemEntityService;
@@ -47,7 +48,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public void doProvisioning(AbstractEntity entity) {
+	public void doProvisioning(AbstractDto entity) {
 		Assert.notNull(entity);
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioning(entity);		
 	}
@@ -60,14 +61,14 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public void doProvisioning(AccAccountDto account, AbstractEntity entity) {
+	public void doProvisioning(AccAccountDto account, AbstractDto entity) {
 		Assert.notNull(account);
 		Assert.notNull(entity);
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioning(account, entity);
 	}
 	
 	@Override
-	public void doInternalProvisioning(AccAccountDto account, AbstractEntity entity) {
+	public void doInternalProvisioning(AccAccountDto account, AbstractDto entity) {
 		Assert.notNull(account);
 		Assert.notNull(entity);
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doInternalProvisioning(account, entity);
@@ -80,7 +81,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public void changePassword(AbstractEntity entity, PasswordChangeDto passwordChange) {
+	public void changePassword(AbstractDto entity, PasswordChangeDto passwordChange) {
 		Assert.notNull(entity);
 		//
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).changePassword(entity, passwordChange);
@@ -88,7 +89,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 
 	@Override
 	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
-			ProvisioningOperationType operationType, AbstractEntity entity) {
+			ProvisioningOperationType operationType, AbstractDto entity) {
 		Assert.notNull(entity);
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
 	}
@@ -101,7 +102,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractEntity entity,
+	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractDto entity,
 			SysSystemDto system, SystemEntityType entityType) {
 		Assert.notNull(entityType);
 		return this.getExecutor(entityType).resolveMappedAttributes(account, entity, system, entityType);
@@ -115,7 +116,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public void createAccountsForAllSystems(AbstractEntity entity) {
+	public void createAccountsForAllSystems(AbstractDto entity) {
 		Assert.notNull(entity);
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).createAccountsForAllSystems(entity);
 	}
@@ -125,10 +126,10 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	private ProvisioningEntityExecutor<AbstractEntity> getExecutor(SystemEntityType entityType){
+	private ProvisioningEntityExecutor<AbstractDto> getExecutor(SystemEntityType entityType){
 		
 		@SuppressWarnings("unchecked")
-		ProvisioningEntityExecutor<AbstractEntity> executor =  (ProvisioningEntityExecutor<AbstractEntity>) pluginExecutors.getPluginFor(entityType);
+		ProvisioningEntityExecutor<AbstractDto> executor =  (ProvisioningEntityExecutor<AbstractDto>) pluginExecutors.getPluginFor(entityType);
 		if (executor == null) {
 			throw new UnsupportedOperationException(
 					MessageFormat.format("Provisioning executor for SystemEntityType {0} is not supported!", entityType));

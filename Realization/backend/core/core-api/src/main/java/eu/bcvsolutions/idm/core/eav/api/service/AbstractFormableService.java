@@ -27,7 +27,10 @@ public abstract class AbstractFormableService<DTO extends BaseDto, E extends For
 	private final FormService formService;
 	
 	@Autowired
-	public AbstractFormableService(AbstractEntityRepository<E> repository, EntityEventManager entityEventManager, FormService formService) {
+	public AbstractFormableService(
+			AbstractEntityRepository<E> repository,
+			EntityEventManager entityEventManager,
+			FormService formService) {
 		super(repository, entityEventManager);
 		//
 		Assert.notNull(formService);
@@ -46,7 +49,7 @@ public abstract class AbstractFormableService<DTO extends BaseDto, E extends For
 	public void deleteInternal(DTO dto) {
 		formService.deleteValues(dto);
 		//
-		super.delete(dto);
+		super.deleteInternal(dto);
 	}
 	
 	/**

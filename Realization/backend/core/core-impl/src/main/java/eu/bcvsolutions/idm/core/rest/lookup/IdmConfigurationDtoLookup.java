@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 
 /**
  * Configuration item dto lookup

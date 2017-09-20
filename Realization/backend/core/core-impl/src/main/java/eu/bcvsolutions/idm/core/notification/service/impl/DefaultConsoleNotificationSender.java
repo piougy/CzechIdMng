@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmConsoleLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.api.service.ConsoleNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmConsoleLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
-import eu.bcvsolutions.idm.core.notification.service.api.ConsoleNotificationSender;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
 
 /**
  * Prints notification to console and persists log

@@ -26,10 +26,12 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
@@ -38,8 +40,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -53,7 +53,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmAuthorizationPolicyService 
-		extends AbstractReadWriteDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicy, AuthorizationPolicyFilter> 
+		extends AbstractReadWriteDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicy, IdmAuthorizationPolicyFilter> 
 		implements IdmAuthorizationPolicyService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmAuthorizationPolicyService.class);
@@ -124,7 +124,7 @@ public class DefaultIdmAuthorizationPolicyService
 	}
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmAuthorizationPolicy> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicyFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmAuthorizationPolicy> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmAuthorizationPolicyFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// role id
 		if (filter.getRoleId() != null) {
@@ -177,7 +177,7 @@ public class DefaultIdmAuthorizationPolicyService
 			return Collections.<IdmAuthorizationPolicyDto>emptyList();
 		}
 		//
-		AuthorizationPolicyFilter filter = new AuthorizationPolicyFilter();
+		IdmAuthorizationPolicyFilter filter = new IdmAuthorizationPolicyFilter();
 		filter.setRoleId(defaultRole.getId());
 		filter.setDisabled(Boolean.FALSE);
 		if(entityType != null) { // optional

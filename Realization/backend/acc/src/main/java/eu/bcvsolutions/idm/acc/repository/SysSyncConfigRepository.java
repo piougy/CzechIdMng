@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -25,7 +25,7 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 			" and"+
 			 " (?#{[0].name} is null or e.name = ?#{[0].name})"
 			)
-	Page<SysSyncConfig> find(SynchronizationConfigFilter filter, Pageable pageable);
+	Page<SysSyncConfig> find(SysSyncConfigFilter filter, Pageable pageable);
 	
 	@Query("select count(e) from SysSyncLog e where e.synchronizationConfig = :config and e.running = TRUE")
 	int runningCount(@Param("config") SysSyncConfig config);

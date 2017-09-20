@@ -29,11 +29,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -42,7 +43,6 @@ import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -64,7 +64,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmIdentityContractController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityContractController extends AbstractReadWriteDtoController<IdmIdentityContractDto, IdentityContractFilter> {
+public class IdmIdentityContractController extends AbstractReadWriteDtoController<IdmIdentityContractDto, IdmIdentityContractFilter> {
 	
 	protected static final String TAG = "Contracts";
 	private final IdmFormDefinitionController formDefinitionController;
@@ -345,8 +345,8 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	}
 	
 	@Override
-	protected IdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdentityContractFilter filter = new IdentityContractFilter(parameters);
+	protected IdmIdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class));
 		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));

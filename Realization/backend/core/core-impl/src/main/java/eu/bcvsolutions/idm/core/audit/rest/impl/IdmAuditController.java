@@ -26,17 +26,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDiffDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDiffDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -60,7 +60,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmAuditController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, AuditFilter> {
+public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, IdmAuditFilter> {
 
 	protected static final String TAG = "Audit";
 	//

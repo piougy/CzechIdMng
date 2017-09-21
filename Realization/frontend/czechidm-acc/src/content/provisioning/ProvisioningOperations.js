@@ -106,6 +106,21 @@ class ProvisioningOperations extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Transforma account or connector object value into FE property values
+   *
+   * @param  {object} objectValue
+   * @return {string}
+   */
+  _toPropertyValue(objectValue) {
+    if (_.isArray(objectValue)) {
+      return objectValue.join(', ');
+    } else if (_.isObject(objectValue)) {
+      return JSON.stringify(objectValue);
+    }
+    return objectValue;
+  }
+
   render() {
     const { forceSearchParameters, columns, uiKey } = this.props;
     const { detail, retryDialog } = this.state;
@@ -117,19 +132,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
         if (!accountObject.hasOwnProperty(schemaAttributeId)) {
           continue;
         }
-        let content = '';
-        const propertyValue = accountObject[schemaAttributeId];
-        if (_.isArray(propertyValue)) {
-          content = propertyValue.join(', ');
-        } else if (_.isObject(propertyValue)) {
-          content = JSON.stringify(propertyValue);
-        } else {
-          content = propertyValue;
-        }
-
         accountData.push({
           property: schemaAttributeId,
-          value: content
+          value: this._toPropertyValue(accountObject[schemaAttributeId])
         });
       }
     }
@@ -140,7 +145,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
       connectorObject.attributes.forEach(attribute => {
         connectorData.push({
           property: attribute.name,
-          value: attribute.values.join(', ')
+          value: this._toPropertyValue(attribute.values)
         });
       });
     }

@@ -17,14 +17,9 @@ export default class RefreshButton extends Basic.AbstractContextComponent {
     if (!rendered) {
       return null;
     }
-    if (!onClick) {
-      return (
-        <span>Please, define onClick method on detail button</span>
-      );
-    }
     // default detail title
     const _title = title || this.i18n('button.refresh');
-
+    //
     return (
       <Basic.Button
         className="btn-xs"
@@ -34,6 +29,11 @@ export default class RefreshButton extends Basic.AbstractContextComponent {
         showLoading={ showLoading }
         style={{ marginLeft: 3 }}>
         <Basic.Icon value="fa:refresh" showLoading={ showLoading }/>
+        {
+          onClick
+          ||
+          <span>Please, define onClick method on detail button</span>
+        }
       </Basic.Button>
     );
   }

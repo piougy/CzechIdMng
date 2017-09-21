@@ -121,6 +121,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
         const propertyValue = accountObject[schemaAttributeId];
         if (_.isArray(propertyValue)) {
           content = propertyValue.join(', ');
+        } else if (_.isObject(propertyValue)) {
+          content = JSON.stringify(propertyValue);
         } else {
           content = propertyValue;
         }

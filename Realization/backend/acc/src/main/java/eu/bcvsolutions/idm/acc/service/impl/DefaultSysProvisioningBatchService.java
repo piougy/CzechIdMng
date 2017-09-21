@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -30,7 +31,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultSysProvisioningBatchService
-		extends AbstractReadWriteDtoService<SysProvisioningBatchDto, SysProvisioningBatch, EmptyFilter> implements SysProvisioningBatchService {
+		extends AbstractReadWriteDtoService<SysProvisioningBatchDto, SysProvisioningBatch, EmptyFilter> 
+		implements SysProvisioningBatchService {
 
 	private final SysProvisioningBatchRepository repository;
 	
@@ -69,7 +71,16 @@ public class DefaultSysProvisioningBatchService
 		calendar.add(Calendar.SECOND, secInterval);
 		
 		return new DateTime(calendar.getTime());
-	}	
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<SysProvisioningBatchDto> findBatchesToProcess(Boolean virtualSystem, Pageable pageable) {
+		if (virtualSystem == null) {
+			return toDtoPage(repository.findByOperationState(OperationState.CREATED, pageable));
+		}
+		return toDtoPage(repository.findByVirtualSystemAndOperationState(virtualSystem, OperationState.CREATED, pageable));
+	}
 	
 	@Override
 	@Transactional(readOnly = true)

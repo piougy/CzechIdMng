@@ -1273,7 +1273,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 	 * @param icAttributes
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	protected DTO findByCorrelationAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Assert.notNull(attribute);
 		Assert.notNull(icAttributes);

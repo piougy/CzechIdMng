@@ -93,6 +93,10 @@
 
 	<repositories>
 		<repository>
+        <id>maven-centrals</id>
+        <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+		<repository>
 			<id>nexus</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 		</repository>
@@ -100,9 +104,13 @@
 			<id>nexus-public</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
 			<snapshots>
-		      <enabled>false</enabled>
+	      <enabled>false</enabled>
 		    </snapshots>
 		</repository>
+		<repository>
+        <id>jcenter-releases</id>
+        <url>http://jcenter.bintray.com</url>
+    </repository>
 	</repositories>
 
 	<pluginRepositories>

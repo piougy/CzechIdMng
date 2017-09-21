@@ -83,9 +83,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-
-public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSystemDto, SysSystem, SysSystemFilter>
-
+public class DefaultSysSystemService 
+		extends AbstractReadWriteDtoService<SysSystemDto, SysSystem, SysSystemFilter>
 		implements SysSystemService {
 
 	private final SysSystemRepository systemRepository;

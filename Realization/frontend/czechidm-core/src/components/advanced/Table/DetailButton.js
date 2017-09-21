@@ -3,6 +3,8 @@ import * as Basic from '../../basic';
 
 /**
  * Detail button for advaced table row
+ *
+ * @author Radek Tomiška
  */
 class DetailButton extends Basic.AbstractContextComponent {
 
@@ -27,9 +29,9 @@ class DetailButton extends Basic.AbstractContextComponent {
       <Basic.Button
         type="button"
         level="default"
-        title={_title}
+        title={ _title }
         titlePlacement="bottom"
-        onClick={onClick}
+        onClick={ onClick }
         className="btn-xs">
         <Basic.Icon type="fa" icon="search"/>
       </Basic.Button>
@@ -38,7 +40,15 @@ class DetailButton extends Basic.AbstractContextComponent {
 }
 
 DetailButton.propTypes = {
-  rendered: PropTypes.bool
+  rendered: PropTypes.bool,
+  /**
+   * onClick callback
+   */
+  onClick: PropTypes.func.isRequired,
+  /**
+   * Buttons tooltip, otherwise default 'button.detail' will be used
+   */
+  title: PropTypes.text
 };
 DetailButton.defaultProps = {
   rendered: true

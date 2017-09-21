@@ -8,9 +8,12 @@ import * as Utils from '../../../utils';
 import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
+import RefreshButton from './RefreshButton';
 
 /**
  * Table component with header and columns.
+ *
+ * @author Radek Tomiška
  */
 class AdvancedTable extends Basic.AbstractContextComponent {
 
@@ -408,15 +411,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   searchParameters={ _searchParameters }
                   forceSearchParameters={ forceSearchParameters }/>
 
-                <Basic.Button
-                  className="btn-xs"
-                  title={ this.i18n('button.refresh') }
-                  titlePlacement="bottom"
-                  showLoading={ _showLoading }
+                <RefreshButton
                   onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }
-                  style={{ marginLeft: 3 }}>
-                  <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
-                </Basic.Button>
+                  title={ this.i18n('button.refresh') }
+                  showLoading={ _showLoading }/>
               </div>
               <div className="clearfix"></div>
             </div>

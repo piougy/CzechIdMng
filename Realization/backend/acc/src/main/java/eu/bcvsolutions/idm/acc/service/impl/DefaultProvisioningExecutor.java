@@ -84,8 +84,10 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
-		SysSystemEntityDto systemEntityDto = systemEntityService.get(provisioningOperation.getSystemEntity());
-		SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system, SysSystemDto.class);
+		// get system entity from service, in provisioning operation may not exist
+		SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity());
+		Assert.notNull(systemEntity);
+		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system, SysSystemDto.class);
 		Assert.notNull(system);
 		//
 		if (provisioningOperationService.isNew(provisioningOperation)) {
@@ -96,8 +98,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				batch = batchService.save(new SysProvisioningBatchDto());
 				request.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 			} else {
-				// get system entity from service, in provisioning operation may not exist
-				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity());
+				
 				// put to queue
 				// TODO: maybe putting into queue has to run after disable and readonly system
 				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
@@ -126,7 +127,11 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		}
 		//
 		// execute - after original transaction is commited
-		entityEventManager.publishEvent(provisioningOperation);
+		// only if system supports synchronous processing
+		// TODO: password change should be synchronous?
+		if (!system.isQueue()) {
+			entityEventManager.publishEvent(provisioningOperation);
+		}
 		//
 		return provisioningOperation;
 	}
@@ -158,18 +163,23 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
-	public void execute(SysProvisioningBatchDto batch) {
+	public OperationResult execute(SysProvisioningBatchDto batch) {
 		Assert.notNull(batch);
 		batch = batchService.get(batch.getId());
-		//		
+		//	
+		OperationResult result = null;
 		for (SysProvisioningRequestDto request : requestService.getByTimelineAndBatchId(batch.getId())) {
 			// It not possible to get operation from embedded, because missing request
 			SysProvisioningOperationDto provisioningOperation = provisioningOperationService.get(request.getOperation());
 			SysProvisioningOperationDto operation = executeInternal(provisioningOperation); // not run in transaction
+			result = operation.getResult();
 			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
-				return;
+				// stop processing next requests
+				return result;
 			}
 		}
+		// last processed request state (previous requests will be OperationState.EXECUTED)
+		return result;
 	}
 
 	@Override

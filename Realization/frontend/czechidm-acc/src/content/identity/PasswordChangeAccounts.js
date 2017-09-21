@@ -12,6 +12,8 @@ const accountManager = new AccountManager();
 
 /**
  * In this component include password change and send props with account options
+ *
+ * @author Ondřej Kopr
  */
 class PasswordChangeAccounts extends Basic.AbstractContent {
 
@@ -44,7 +46,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     ];
 
     accounts.forEach(acc => {
-      const niceLabel = acc.uid + ' (' + acc._embedded.system.name + ')';
+      const niceLabel = acc._embedded.system.name + ' (' + acc.uid + ')';
       options.push({
         value: acc.id,
         niceLabel

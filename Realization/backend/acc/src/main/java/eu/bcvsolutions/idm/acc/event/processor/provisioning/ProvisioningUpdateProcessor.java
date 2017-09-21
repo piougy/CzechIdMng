@@ -52,11 +52,11 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		if (!connectorObject.getAttributes().isEmpty()) { 
-			// TODO: appropriate message - provisioning is not executed - attributes don't change
 			SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 			return connectorFacade.updateObject(system.getConnectorInstance(), connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
-			
+		} else {
+			// TODO: appropriate message - provisioning is not executed - attributes don't change
 		}
 		return null;
 	}

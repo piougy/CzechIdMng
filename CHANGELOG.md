@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- CGLIB for creating proxies are enforced by default. Now is possible to use annotations on methods, which is not defined in service interface. Prevent to use some logic in service constructors and always define annotations in implementation class, [read more](https://www.credera.com/blog/technology-insights/open-source-technology-insights/aspect-oriented-programming-in-spring-boot-part-2-spring-jdk-proxies-vs-cglib-vs-aspectj/). 
+- CGLIB for creating proxies are enforced by default. Now is possible to use annotations on methods, which is not defined in service interface. Prevent to use some logic in service constructors and always define annotations in implementation class, [read more](https://www.credera.com/blog/technology-insights/open-source-technology-insights/aspect-oriented-programming-in-spring-boot-part-2-spring-jdk-proxies-vs-cglib-vs-aspectj/). Make sure you have ``spring.aop.proxy-target-class=true`` property configured in your project.
 
 #### Core module
 - Application property **idm.pub.core.notification.template.folder** was changed to **idm.sec.core.notification.template.folder**.
@@ -290,4 +290,5 @@ All notable changes to this project will be documented in this file.
 - ``BaseFilter`` template and ``find(F filter, Pageable pageable)`` method was removed from ``BaseEntityRepository``. Use service layer with criteria api for find dtos.
 
 ##### Long running tasks
-- From [AbstractLongRunningTaskExecutor](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-impl/src/main/java/eu/bcvsolutions/idm/core/scheduler/service/impl/AbstractLongRunningTaskExecutor.java) was removed deprecated method getParameterNames, replace this method from your project with method getPropertyNames.
+- From ``AbstractLongRunningTaskExecutor`` was removed deprecated method ``getParameterNames``, replace this method from your project with method ``getPropertyNames``.
+- From ``AbstractScheduledTaskInitializer`` was removed method ``getLOG()``.

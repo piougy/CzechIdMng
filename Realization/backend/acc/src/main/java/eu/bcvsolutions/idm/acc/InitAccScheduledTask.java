@@ -1,24 +1,24 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.acc;
 
 import java.io.InputStream;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.scheduler.config.AbstractScheduledTaskInitializer;
 
 /**
- * Test initializer for test scheduled tasks
+ * Acc long running tasks
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 @Component
 @DependsOn("initApplicationData")
-public class InitTestScheduledTask extends AbstractScheduledTaskInitializer {
+@ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
+public class InitAccScheduledTask extends AbstractScheduledTaskInitializer {
 
-	public static String TEST_MODULE = "core-test";
-	private static String TEST_SCHEDULED_TASK_XML = "IdmTestScheduledTasks.xml";
+	private static final String ACC_SCHEDULED_TASK_XML = "AccScheduledTasks.xml";
 	
 	@Override
 	protected InputStream getTasksInputStream() {
@@ -26,13 +26,8 @@ public class InitTestScheduledTask extends AbstractScheduledTaskInitializer {
 	}
 
 	@Override
-	protected String getModule() {
-		return TEST_MODULE;
-	}
-
-	@Override
 	protected String getTasksXmlPath() {
-		return DEFAULT_RESOURCE + TEST_SCHEDULED_TASK_XML;
+		return DEFAULT_RESOURCE + ACC_SCHEDULED_TASK_XML;
 	}
 
 }

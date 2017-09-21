@@ -483,8 +483,8 @@
       "help": "Active provisioning operations create, update and delete, will not be executed."
     },
       "queue": {
-        "label": "Supports queue",
-        "help": "Active provisioning operations create, update and delete, will run through the queue."
+        "label": "Asynchronous provisioning",
+        "help": "Active provisioning operations (create, update, delete etc.), will run through the queue asynchronously. Queue processing interval is configurable by long running task (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Connector",
@@ -1067,7 +1067,7 @@
     },
     "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
       "title": "Mapping can not be saved",
-      "message": "Provisioning mapping for this type of entity already exists!"
+      "message": "Provisioning mapping for system [{{system}}] and type of entity  [{{entityType}}] already exists!"
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Attribute [{{attribute}}] cannot be removed",

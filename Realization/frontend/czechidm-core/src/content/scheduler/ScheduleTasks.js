@@ -47,6 +47,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
   componentDidMount() {
     this.selectNavigationItems(['system', 'scheduler', 'scheduler-schedule-tasks']);
     this.context.store.dispatch(manager.fetchSupportedTasks());
+    this._fetchTasks();
+  }
+
+  _fetchTasks() {
     this.context.store.dispatch(manager.fetchTasks());
   }
 
@@ -275,6 +279,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               {' '}
               {this.i18n('button.add')}
             </Basic.Button>
+
+            <Advanced.RefreshButton onClick={ this._fetchTasks.bind(this) } showLoading={ showLoading }/>
           </div>
           <div className="clearfix"></div>
         </Basic.Toolbar>

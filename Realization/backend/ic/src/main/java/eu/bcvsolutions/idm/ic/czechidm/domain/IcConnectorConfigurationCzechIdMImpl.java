@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
  */
 public class IcConnectorConfigurationCzechIdMImpl extends IcConnectorConfigurationImpl {
 
+	private static final long serialVersionUID = 2432534903507720352L;
 	/**
 	 * Id of CzechIdM system. From this system is connector call
 	 */

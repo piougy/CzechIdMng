@@ -82,12 +82,12 @@ public class DefaultVsSystemImplementerService
 	}
 
 	@Override
-	public List<IdmIdentityDto> findRequestImplementers(VsRequestDto request) {
-		if (request == null) {
+	public List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId) {
+		if (vsSystemId == null) {
 			return null;
 		}
 		VsSystemImplementerFilter filter = new VsSystemImplementerFilter();
-		filter.setSystemId(request.getSystem());
+		filter.setSystemId(vsSystemId);
 		List<VsSystemImplementerDto> requestImplementers = this.find(filter, null).getContent();
 		Set<IdmIdentityDto> identities = requestImplementers.stream()//
 				.filter(sysImp -> sysImp.getIdentity() != null)//

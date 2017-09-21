@@ -34,7 +34,7 @@ public class DefaultVsConfiguration
 	
 	@Override
 	public IdmRoleDto getDefaultRole() {
-		String roleCode = getConfigurationService().getValue(PROPERTY_DEFAULT_ROLE, DEFAULT_DEFAULT_ROLE);
+		String roleCode = getConfigurationService().getValue(PROPERTY_DEFAULT_ROLE, DEFAULT_ROLE);
 		if (StringUtils.isBlank(roleCode)) {
 			LOG.debug("Default role for virtual systems is not configuration, returning null. Change configuration [{}]", PROPERTY_DEFAULT_ROLE);
 			return null;

@@ -168,7 +168,14 @@ public class DefaultSysSystemService extends AbstractReadWriteDtoService<SysSyst
 		if (dto.getConnectorKey() == null) {
 			dto.setConnectorKey(new SysConnectorKeyDto());
 		}
-		//
+		if(!isNew(dto)){
+			// Check if is connector changed
+			SysSystemDto oldSystem = this.get(dto.getId());
+			if(!dto.getConnectorKey().equals(oldSystem.getConnectorKey())){
+				// If is connector changed, we set virtual to false. (Virtual connectors set this attribute on true by themselves)
+				dto.setVirtual(false);
+			}
+		}
 		SysSystemDto newSystem = super.save(dto, permission);
 		//
 		// after save entity save password to confidential storage

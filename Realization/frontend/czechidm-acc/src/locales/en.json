@@ -1065,6 +1065,10 @@
       "title": "System mapping [{{mapping}}] cannot be removed",
       "message": "System mapping [{{mapping}}] cannot be removed. It's used for synchronization of the same system!"
     },
+    "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
+      "title": "Mapping can not be saved",
+      "message": "Provisioning mapping for this type of entity already exists!"
+    },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Attribute [{{attribute}}] cannot be removed",
       "message": "Attribute [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"

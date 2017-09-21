@@ -148,8 +148,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", loginDto.getUsername()));
 		}
 		//
-		// search authentication attribute for system with provisioning mapping
-		SysSystemAttributeMappingDto attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId());
+		// search authentication attribute for system with provisioning mapping, only for identity
+		SysSystemAttributeMappingDto attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId(), SystemEntityType.IDENTITY);
 		//
 		if (attribute == null) {
 			// attribute MUST exist

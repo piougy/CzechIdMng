@@ -38,7 +38,6 @@ import eu.bcvsolutions.idm.vs.repository.VsAccountRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
-import net.bytebuddy.dynamic.loading.PackageDefinitionStrategy.Definition;
 
 /**
  * Service for account in virtual system

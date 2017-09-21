@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
-import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
@@ -146,12 +144,8 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> cancel(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
-			@RequestBody(required = true) String reason) {
-		// TODO correct convert to String
-		if (reason.startsWith("\"") && reason.endsWith("\"")) {
-			reason = reason.substring(1, reason.length() - 2);
-		}
-		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason);
+			@ApiParam(value = "Reason in request DTO. Reason must be filled!", required = true) @RequestBody(required = true) VsRequestDto reason) {
+		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason.getReason());
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 

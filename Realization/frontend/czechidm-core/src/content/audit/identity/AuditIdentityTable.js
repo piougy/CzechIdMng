@@ -55,6 +55,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   _getAdvancedFilter() {
+    const { singleUserMod } = this.props;
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
         <Basic.AbstractForm ref="filterForm">
@@ -75,10 +76,11 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row>
+          <Basic.Row rendered={!singleUserMod}>
             <div className="col-lg-4">
               <Advanced.Filter.TextField
                 className="pull-right"
+                rendered={!singleUserMod}
                 ref="username"
                 placeholder={this.i18n('content.audit.identities.username')}
                 returnProperty="username"/>
@@ -92,6 +94,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
             </div>
             <div className="col-lg-4">
               <Advanced.Filter.TextField
+                rendered={!singleUserMod}
                 ref="id"
                 placeholder={this.i18n('content.audit.identities.identityId')}/>
             </div>
@@ -101,6 +104,14 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
               <Advanced.Filter.TextField
                 ref="changedAttributes"
                 placeholder={this.i18n('entity.Audit.changedAttributes')}/>
+            </div>
+            <div className="col-lg-4">
+              <Advanced.Filter.TextField
+                rendered={singleUserMod}
+                className="pull-right"
+                ref="modifier"
+                placeholder={this.i18n('content.audit.identities.modifier')}
+                returnProperty="modifier"/>
             </div>
           </Basic.Row>
         </Basic.AbstractForm>
@@ -118,7 +129,12 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   _getForceSearchParameters() {
-    return new SearchParameters('entity').setFilter('entityClass', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
+    const { username } = this.props;
+    let forceSearchParameters = new SearchParameters('entity').setFilter('entityClass', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity'); // TODO: this isn't best way, hard writen class
+    if (username) {
+      forceSearchParameters = forceSearchParameters.setFilter('username', username);
+    }
+    return forceSearchParameters;
   }
 
   _getNiceLabelForOwner(ownerType, ownerCode) {
@@ -129,7 +145,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey } = this.props;
+    const { uiKey, singleUserMod } = this.props;
     //
     return (
       <div>
@@ -183,7 +199,10 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Advanced.Column property="ownerCode" face="text"
+          <Advanced.Column
+            property="ownerCode"
+            face="text"
+            rendered={!singleUserMod}
             cell={
               ({ rowIndex, data }) => {
                 return this._getNiceLabelForOwner(data[rowIndex].ownerType, data[rowIndex].ownerCode);
@@ -221,10 +240,13 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
 }
 
 AuditIdentityTable.propTypes = {
-  uiKey: PropTypes.string.isRequired
+  uiKey: PropTypes.string.isRequired,
+  username: PropTypes.string,
+  singleUserMod: PropTypes.boolean
 };
 
 AuditIdentityTable.defaultProps = {
+  singleUserMod: false
 };
 
 function select(state, component) {

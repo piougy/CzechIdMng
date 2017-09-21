@@ -61,7 +61,7 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-
+ 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();

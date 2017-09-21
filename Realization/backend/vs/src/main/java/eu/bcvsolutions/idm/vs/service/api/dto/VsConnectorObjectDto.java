@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.vs.service.api.dto;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.validation.constraints.Size;
 

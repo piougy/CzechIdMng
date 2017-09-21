@@ -260,7 +260,7 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 
 		// Realize create request
 		super.logout();
-		loginService.login(new LoginDto(USER_ONE_NAME, new GuardedString("password")));
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
 		request = requestService.realize(createRequest);
 		// Realize update request
 		request = requestService.realize(changeRequest);

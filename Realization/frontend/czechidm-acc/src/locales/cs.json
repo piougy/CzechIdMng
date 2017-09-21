@@ -1073,7 +1073,7 @@
     },
     "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
       "title": "Mapování nemůže být uloženo",
-      "message": "Mapování provisioningu pro tento typ entity již existuje!"
+      "message": "Mapování provisioningu pro systém [{{system}}] a typ entity [{{entityType}}] již existuje!"
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Atribut [{{attribute}}] nemůže být smazán",

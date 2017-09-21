@@ -75,8 +75,11 @@ public class DefaultSysProvisioningBatchService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<SysProvisioningBatchDto> findBatchesToProcess(Pageable pageable) {
-		return toDtoPage(repository.findByOperationState(OperationState.CREATED, pageable));
+	public Page<SysProvisioningBatchDto> findBatchesToProcess(Boolean virtualSystem, Pageable pageable) {
+		if (virtualSystem == null) {
+			return toDtoPage(repository.findByOperationState(OperationState.CREATED, pageable));
+		}
+		return toDtoPage(repository.findByVirtualSystemAndOperationState(virtualSystem, OperationState.CREATED, pageable));
 	}
 	
 	@Override

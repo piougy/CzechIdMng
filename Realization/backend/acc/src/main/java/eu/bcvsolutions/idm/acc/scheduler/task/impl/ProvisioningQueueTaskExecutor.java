@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,10 +35,13 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningQueueTaskExecutor.class);
 	@Autowired private ProvisioningExecutor provisioningExecutor;	
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
+	private static final String PARAMETER_VIRTUAL = "virtualSystem";
+	private Boolean virtualSystem; // virtual system
 	
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
+		virtualSystem = getParameterConverter().toBoolean(properties, PARAMETER_VIRTUAL);
 		LOG.debug("Processing created provisioning operation in queue.");
 	}
 
@@ -45,8 +49,8 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	public Page<SysProvisioningBatchDto> getItemsToProcess(Pageable pageable) {
 		// we are changing state, so wee need to set pageable at start always
 		// TODO: we can add Sort by some priority (CREATE ... etc.)
-		// TODO: we can add alghoritm to reduce / merge provisioning operations by system entity
-		return provisioningBatchService.findBatchesToProcess(new PageRequest(0, 100));
+		// TODO: we can add algorithm to reduce / merge provisioning operations by system entity
+		return provisioningBatchService.findBatchesToProcess(virtualSystem, new PageRequest(0, 100));
 	}
 
 	@Override
@@ -63,5 +67,27 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 		} finally {
 			LOG.debug("Created batch [{}] from queue was processed",  dto.getId());
 		}
-	}	
+	}
+	
+	@Override
+	public List<String> getPropertyNames() {
+		List<String> parameters = super.getPropertyNames();
+		parameters.add(PARAMETER_VIRTUAL);
+		return parameters;
+	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> properties = super.getProperties();
+		properties.put(PARAMETER_VIRTUAL, virtualSystem);
+		return properties;
+	}
+	
+	public void setVirtual(boolean virtual) {
+		this.virtualSystem = virtual;
+	}
+	
+	public Boolean getVirtual() {
+		return virtualSystem;
+	}
 }

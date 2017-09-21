@@ -49,6 +49,22 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	Page<SysProvisioningBatch> findByOperationState(@Param("state") OperationState state, Pageable pageable);
 	
 	/**
+	 * Returns batches by their system is virtual and request's state
+	 * 
+	 * @param state
+	 * @param pageable
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e where exists (select r.id from SysProvisioningRequest r"
+			+ " where"
+			+ " r.batch = e"
+			+ " and"
+			+ " r.operation.systemEntity.system.virtual = :virtualSystem"
+			+ " and"
+			+ " r.result.state = :state)")
+	Page<SysProvisioningBatch>  findByVirtualSystemAndOperationState(@Param("virtualSystem") Boolean virtualSystem, @Param("state") OperationState state, Pageable pageable);
+	
+	/**
 	 * Returns unprocessed planned batches
 	 * 
 	 * @param date

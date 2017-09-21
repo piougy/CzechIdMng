@@ -28,10 +28,11 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	/**
 	 * Gets batches to process (cteated requests)
 	 * 
+	 * @param virtualSystem true - virtual system only, false - normat system, null - all systems
 	 * @param pageable
 	 * @return
 	 */
-	Page<SysProvisioningBatchDto> findBatchesToProcess(Pageable pageable);
+	Page<SysProvisioningBatchDto> findBatchesToProcess(Boolean virtualSystem, Pageable pageable);
 	
 	/**
 	 * Gets batches to retry

@@ -483,7 +483,7 @@
       "help": "Active provisioning operations create, update and delete, will not be executed."
     },
       "queue": {
-        "label": "Asynchronous probisioning",
+        "label": "Asynchronous provisioning",
         "help": "Active provisioning operations (create, update, delete etc.), will run through the queue asynchronously. Queue processing interval is configurable by long running task (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {

@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { AuditManager } from '../../redux';
 
 const auditManager = new AuditManager();
@@ -47,20 +48,6 @@ export class AuditDetailTable extends Basic.AbstractContent {
     return null;
   }
 
-  /**
-   * Method set nice label for value from audit version
-   * TODO: link to detail of UUID?
-   */
-  _prepareValue(value) {
-    if (typeof value === 'boolean') {
-      return value ? 'true' : 'false'; // TODO? localized?
-    } else if (value === null) {
-      return 'null';
-    }
-
-    return value;
-  }
-
   _prepareData(revisionValues) {
     const transformData = [];
     let index = 0;
@@ -71,7 +58,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
             if (revisionValues[key].hasOwnProperty(keySec)) {
               const row = {
                 'key': keySec,
-                'value': this._prepareValue(revisionValues[key][keySec])
+                'value': revisionValues[key][keySec]
               };
               transformData[index] = row;
 
@@ -81,7 +68,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
         } else {
           const row = {
             key,
-            'value': this._prepareValue(revisionValues[key])
+            'value': revisionValues[key]
           };
           transformData[index] = row;
 
@@ -114,10 +101,38 @@ export class AuditDetailTable extends Basic.AbstractContent {
           }}>
           <Basic.Column
             property="key"
-            header={this.i18n('entity.Audit.key')}/>
+            header={ this.i18n('entity.Audit.key') }/>
           <Basic.Column
             property="value"
-            header={this.i18n('entity.Audit.value')}/>
+            header={ this.i18n('entity.Audit.value') }
+            cell={
+              ({ data, rowIndex }) => {
+                const rowData = data[rowIndex];
+                const propertyName = rowData.key;
+                const propertyValue = rowData.value;
+                //
+                if (typeof propertyValue === 'boolean') {
+                  return propertyValue ? 'true' : 'false'; // TODO? localized?
+                } else if (propertyValue === null) {
+                  return 'null';
+                }
+                // reserver audit constants
+                if ((propertyName === 'modifier' || propertyName === 'creator' || propertyName === 'originalModifier' || propertyName === 'originalCreator')
+                    && propertyValue !== '[SYSTEM]' && propertyValue !== '[GUEST]') {
+                  return (
+                    <Advanced.EntityInfo entityType="identity" entityIdentifier={ propertyValue } face="popover" />
+                  );
+                }
+                if (Advanced.EntityInfo.getComponent(propertyName)) {
+                  return (
+                    <Advanced.EntityInfo entityType={ propertyName } entityIdentifier={ propertyValue } face="popover" />
+                  );
+                }
+                return (
+                  <span>{ propertyValue }</span>
+                );
+              }
+            }/>
         </Basic.Table>
       </div>
     );

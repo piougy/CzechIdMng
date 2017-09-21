@@ -5,6 +5,8 @@ import AdvancedColumn from './Column';
 
 /**
  * Component that defines the attributes of table column.
+ *
+ * @author Radek Tomiška
  */
 class AdvancedColumnLink extends AbstractComponent {
 

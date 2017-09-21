@@ -489,8 +489,8 @@
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
       },
       "queue": {
-        "label": "Podporuje frontu",
-        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu."
+        "label": "Asynchronní provisioning",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání atd.) budou probíhat přes frontu asynchronně. Interval zpracování operací ve frontě je konfigurovatelný prostřednitvím dlouho trvající úlohy (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Konektor",

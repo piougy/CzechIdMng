@@ -15,8 +15,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.InitCoreScheduledTask;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
@@ -37,10 +39,10 @@ import eu.bcvsolutions.idm.core.scheduler.jaxb.IdmScheduledTasksType;
  */
 public abstract class AbstractScheduledTaskInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitCoreScheduledTask.class);
 	protected static final String DEFAULT_RESOURCE = "eu/bcvsolutions/idm/tasks/";
 
-	@Autowired
-	private SchedulerManager schedulerService;
+	@Autowired private SchedulerManager schedulerService;
 
 	protected JAXBContext jaxbContext = null;
 
@@ -67,18 +69,13 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 	protected abstract InputStream getTasksInputStream();
 
 	/**
-	 * Return instance of {@link org.slf4j.Logger}.
-	 * 
-	 * @return
-	 */
-	protected abstract org.slf4j.Logger getLOG();
-
-	/**
 	 * Return module id from module descriptor.
 	 * 
 	 * @return
 	 */
-	protected abstract String getModule();
+	protected String getModule() {
+		return EntityUtils.getModule(this.getClass());
+	}
 
 	protected abstract String getTasksXmlPath();
 
@@ -90,7 +87,7 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 	 */
 	protected void initScheduledTask(InputStream tasksInputStream) {
 		if (tasksInputStream == null) {
-			getLOG().warn("For module: [{}] is empty parameter 'tasksInputStream', skip init tasks for this module.",
+			LOG.warn("For module: [{}] is empty parameter 'tasksInputStream', skip init tasks for this module.",
 					getModule());
 		}
 		Unmarshaller jaxbUnmarshaller = null;
@@ -109,26 +106,26 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 				for (IdmScheduledTaskType taskType : tasks.getTasks()) {
 					try {
 						Task task = typeToTask(taskType);
-						getLOG().debug("Task with type [{}] is successfully initialized. Try to save.",
+						LOG.debug("Task with type [{}] is successfully initialized. Try to save.",
 								taskType.getTaskType());
 
 						if (existSimilarTask(task, allExistingTasks)) {
-							getLOG().debug("Task with type [{}] already exist, skip save this task.",
+							LOG.debug("Task with type [{}] already exist, skip save this task.",
 									taskType.getTaskType());
 							continue;
 						}
-						getLOG().info("Create new task with type [{}].", taskType.getTaskType());
+						LOG.info("Create new task with type [{}].", taskType.getTaskType());
 						task = schedulerService.createTask(task);
 						createAndSaveTriggers(task, taskType);
 					} catch (ClassNotFoundException e) {
-						getLOG().error(
+						LOG.error(
 								"Scheduled task with task type [{}] can't be init. Skip this task. Error message: [{}]",
 								taskType.getTaskType(), e.getMessage());
 					}
 				}
 			}
 		} catch (JAXBException e) {
-			getLOG().error("Scheduled task type validation failed, file name: {}, module: {}, error message: {}",
+			LOG.error("Scheduled task type validation failed, file name: {}, module: {}, error message: {}",
 					getTasksXmlPath(), getModule(), e.getLocalizedMessage());
 		}
 	}
@@ -181,13 +178,13 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 				try {
 					newTrigger = getTrigger(trigger);
 				} catch (ClassNotFoundException e) {
-					getLOG().error(
+					LOG.error(
 							"Trigger type: [{}], not exist. Skip init this trigger for task id: [{}]. Error message: [{}]",
 							trigger.getType(), task.getId(), e.getMessage());
 					continue;
 				}
 				if (newTrigger != null) {
-					getLOG().info("Create new trigger for task id: [{}]. Trigger type: [{}].", task.getId(),
+					LOG.info("Create new trigger for task id: [{}]. Trigger type: [{}].", task.getId(),
 							trigger.getType());
 					schedulerService.createTrigger(task.getId(), newTrigger);
 				}
@@ -218,7 +215,7 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 			cronTrigger.setCron(triggerType.getCron());
 			return cronTrigger;
 		} else {
-			getLOG().error(
+			LOG.error(
 					"Trigger type: [{}] is not implemented, please override method getTrigger from AbstractScheduledTaskInitializer. "
 							+ "This trigger will be skipped.",
 					triggerType.getType());

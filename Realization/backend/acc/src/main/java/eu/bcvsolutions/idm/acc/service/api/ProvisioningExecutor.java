@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Entry point to all provisioning operations.
@@ -32,9 +33,9 @@ public interface ProvisioningExecutor {
 	 *  Executes operations in given batch.
 	 * 
 	 * @param batch executed batch
-	 * @return
+	 * @return last processed request result (previous requests will be OperationState.EXECUTED)
 	 */
-	void execute(SysProvisioningBatchDto batch);
+	OperationResult execute(SysProvisioningBatchDto batch);
 	
 	/**
 	 * Cancel operations in batch.

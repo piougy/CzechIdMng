@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -32,6 +33,20 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			+ " and"
 			+ " o.systemEntity.uid = ?#{[0].systemEntity.uid}")
 	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
+	
+	/**
+	 * Returns batches by their request's state
+	 * 
+	 * @param state
+	 * @param pageable
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e where exists (select r.id from SysProvisioningRequest r"
+			+ " where"
+			+ " r.batch = e"
+			+ " and"
+			+ " r.result.state = :state)")
+	Page<SysProvisioningBatch> findByOperationState(@Param("state") OperationState state, Pageable pageable);
 	
 	/**
 	 * Returns unprocessed planned batches

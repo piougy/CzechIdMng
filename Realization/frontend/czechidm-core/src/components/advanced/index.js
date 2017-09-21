@@ -1,6 +1,7 @@
 import Table from './Table/Table';
 import Column from './Table/Column';
 import ColumnLink from './Table/ColumnLink';
+import RefreshButton from './Table/RefreshButton';
 import IdentityInfo from './IdentityInfo/IdentityInfo';
 import Navigation from './Navigation/Navigation';
 import TabPanel from './TabPanel/TabPanel';
@@ -33,6 +34,7 @@ const Components = {
   Table,
   Column,
   ColumnLink,
+  RefreshButton,
   IdentityInfo,
   Navigation,
   TabPanel,

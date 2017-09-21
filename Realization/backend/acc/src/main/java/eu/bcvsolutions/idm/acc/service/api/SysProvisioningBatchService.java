@@ -26,6 +26,14 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	DateTime calculateNextAttempt(SysProvisioningRequestDto request);
 	
 	/**
+	 * Gets batches to process (cteated requests)
+	 * 
+	 * @param pageable
+	 * @return
+	 */
+	Page<SysProvisioningBatchDto> findBatchesToProcess(Pageable pageable);
+	
+	/**
 	 * Gets batches to retry
 	 * 
 	 * @param date

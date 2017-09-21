@@ -29,6 +29,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -243,7 +245,17 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		// Delete identity
 		this.getItself().deleteInNewTransaction(userOne, identityService);
 
-		requests = requestService.find(requestFilter, null).getContent();
+		// Test read rights (none requests can be returned for UserOne)
+		IdmIdentityDto userTwo = helper.createIdentity("vsUserTwo");
+		super.logout();
+		loginService.login(new LoginDto(userTwo.getUsername(), new GuardedString("password")));
+		requests = requestService.find(requestFilter, null, IdmBasePermission.READ).getContent();
+		Assert.assertEquals("We found request without correct rights!", 0, requests.size());
+		
+		// Test read rights (3 requests must be returned for UserImplementer)
+		super.logout();
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
+		requests = requestService.find(requestFilter, null, IdmBasePermission.READ).getContent();
 		Assert.assertEquals(3, requests.size());
 		VsRequestDto changeRequest = requests.stream().filter(
 				req -> VsRequestState.IN_PROGRESS == req.getState() && VsOperationType.UPDATE == req.getOperationType())
@@ -259,8 +271,6 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		Assert.assertNotNull("Request with create not found!", createRequest);
 
 		// Realize create request
-		super.logout();
-		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
 		request = requestService.realize(createRequest);
 		// Realize update request
 		request = requestService.realize(changeRequest);

@@ -177,6 +177,17 @@ public interface TestHelper {
 	IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission);
 	
 	/**
+	 * Creates specific permission evaluator authorization policy 
+	 * @param role
+	 * @param groupPermission
+	 * @param authorizableType
+	 * @param evaluatorType
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createSpecificPolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, String evaluatorType, BasePermission... permission);
+	
+	/**
 	 * Creates assigned identity's role directly (without approving etc.)
 	 * 
 	 * @param identity
@@ -263,4 +274,5 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
+
 }

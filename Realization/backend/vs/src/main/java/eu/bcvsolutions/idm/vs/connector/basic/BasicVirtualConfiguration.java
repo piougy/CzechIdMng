@@ -20,7 +20,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	private static final long serialVersionUID = 1L;
 	public static final String FACE_IDENTITY_SELECT = "IDENTITY-SELECT";
 	public static final String FACE_ROLE_SELECT = "ROLE-SELECT";
-	public static final  String[] DEFAULT_ATTRIBUTES = { IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName(),
+	public static final String[] DEFAULT_ATTRIBUTES = { IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName(),
 			IdmIdentity_.email.getName(), IdmIdentity_.titleAfter.getName(), IdmIdentity_.titleBefore.getName(),
 			IdmIdentity_.phone.getName() };
 	private String[] attributes = DEFAULT_ATTRIBUTES;

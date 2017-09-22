@@ -346,8 +346,6 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 	
 	@Override
 	protected VsAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		VsAccountFilter filter = new VsAccountFilter();
-		
-		return filter;
+		return new VsAccountFilter();
 	}
 }

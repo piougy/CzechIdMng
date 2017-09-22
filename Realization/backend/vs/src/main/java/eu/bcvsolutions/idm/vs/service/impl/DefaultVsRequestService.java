@@ -245,8 +245,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		if (request.isExecuteImmediately()) {
 			// Request will be realized now
-			IcUidAttribute result = internalExecute(request);
-			return result;
+			return internalExecute(request);
 		}
 
 		// Find previous request ... not matter on operation type. Simple get
@@ -563,7 +562,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				.setLevel(NotificationLevel.INFO)
 				.addParameter("requestAttributes",
 						request.getConnectorObject() != null ? request.getConnectorObject().getAttributes() : null)
-				.addParameter("wishAttributes", wish != null ? wish.getAttributes() : null)//
+				.addParameter("wishAttributes", wish.getAttributes())//
 				.addParameter("fullName", identityService.getNiceLabel(identity))//
 				.addParameter("identity", identity)//
 				.addParameter("url", getUrl(request))//

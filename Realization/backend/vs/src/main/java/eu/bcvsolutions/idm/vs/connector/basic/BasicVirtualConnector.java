@@ -425,9 +425,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 			return null;
 		}
 
-		IcSchemaImpl schema = generateSchema();
-
-		return schema;
+		return generateSchema();
 	}
 
 	/**

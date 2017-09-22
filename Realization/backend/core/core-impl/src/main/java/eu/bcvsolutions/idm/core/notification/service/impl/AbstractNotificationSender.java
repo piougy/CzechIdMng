@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -57,25 +58,25 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	
 	@Override
 	@Transactional
-	public N send(IdmMessageDto message, IdmIdentityDto recipient) {
+	public List<N> send(IdmMessageDto message, IdmIdentityDto recipient) {
 		return send(DEFAULT_TOPIC, message, recipient);
 	}
 
 	@Override
 	@Transactional
-	public N send(IdmMessageDto message, List<IdmIdentityDto> recipients) {
+	public List<N> send(IdmMessageDto message, List<IdmIdentityDto> recipients) {
 		return send(DEFAULT_TOPIC, message, recipients);
 	}
 
 	@Override
 	@Transactional
-	public N send(String topic, IdmMessageDto message, IdmIdentityDto recipient) {
+	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto recipient) {
 		return send(topic, message, Lists.newArrayList(recipient));
 	}
 	
 	@Override
 	@Transactional
-	public N send(String topic, IdmMessageDto message) {
+	public List<N> send(String topic, IdmMessageDto message) {
 		Assert.notNull(securityService, "Security service is required for this operation");
 		Assert.notNull(topic, "Message topic can not be null.");
 		Assert.notNull(message, "Message can not be null.");
@@ -94,32 +95,35 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 
 	@Override
 	@Transactional
-	public N send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients) {
+	public List<N> send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients) {
 		Assert.notNull(message, "Message is required");
+		List<N> sendMessages = new ArrayList<>();
 		//
-		final IdmNotificationLogDto notification = new IdmNotificationLogDto();
-		notification.setTopic(topic);
+		List<IdmNotificationRecipientDto> notificationRecipients = new ArrayList<>();
+		recipients.forEach(recipient ->{
+			notificationRecipients.add(new IdmNotificationRecipientDto(recipient.getId()));
+	    	});
 		//
-		notification.setMessage(message);
-		// transform message parent
-		recipients.forEach(recipient ->
-			{
-				notification.getRecipients().add(new IdmNotificationRecipientDto(notification.getId(), recipient.getId()));
-			});
-		// try to find template
-		if (message.getTemplate() == null) {
-			message.setTemplate(notificationTemplateService.resolveTemplate(notification.getTopic(), message.getLevel(), notification.getType()));
-		}
-		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
-		final IdmMessageDto notificationMessage = notification.getMessage(); // set build message back to message
+		List<IdmNotificationLogDto> notifications = notificationTemplateService.prepareNotifications(topic, message);
 		//
-		// check if exist text for message, TODO: send only with subject?
-		if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
-			LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
+		if (notifications.isEmpty()) {
+			LOG.info("No notifications for [topic:{}] found. Any message will not be sent.", topic);
+			// no notifications found
 			return null;
 		}
 		//
-		return send(notification);
+		// iterate over all prepared notifications, set recipients and send them 
+		for (IdmNotificationLogDto notification : notifications) {
+			final IdmMessageDto notificationMessage = notification.getMessage();
+			if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
+				LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
+				notifications.remove(notification);
+			}
+			notification.setRecipients(notificationRecipients);
+			//
+			sendMessages.add(send(notification));
+		}
+		return sendMessages;
 	}
 
 	/**

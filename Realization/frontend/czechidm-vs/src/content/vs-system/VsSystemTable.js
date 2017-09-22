@@ -18,7 +18,6 @@ const vsSystemService = new VsSystemService();
  */
 export default class VsSystemTable extends SystemTable {
 
-
   _createNewSystem(event) {
     if (event) {
       event.preventDefault();
@@ -43,7 +42,11 @@ export default class VsSystemTable extends SystemTable {
   }
 
   _showModal() {
-    this.setState({show: true});
+    this.setState({show: true}, () => {
+      if (this.refs.name) {
+        this.refs.name.focus();
+      }
+    });
   }
   _closeModal() {
     this.setState({show: false});

@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -66,8 +67,8 @@ ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 	List<IdmNotificationTemplateDto> findAllSystemTemplates();
 
 	/**
-	 * Method find template for topic and level with help by notification
-	 * cofiguration.
+	 * Method find template for topic, level and notification type.
+	 * If template isn't found this method return null.
 	 * 
 	 * @param topic
 	 * @param level
@@ -75,4 +76,15 @@ ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 	 * @return
 	 */
 	IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType);
+	
+	/**
+	 * Method return all founded {@link IdmNotificationLogDto} for this topic
+	 * and given {@link IdmMessageDto}. Method resolve wildcards, template and text message in
+	 * {@link IdmMessageDto}.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @return
+	 */
+	List<IdmNotificationLogDto> prepareNotifications(String topic, IdmMessageDto message);
 }

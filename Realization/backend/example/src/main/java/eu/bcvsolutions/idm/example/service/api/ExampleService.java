@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.example.service.api;
 
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import java.util.List;
+
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.example.dto.Pong;
 
 /**
@@ -31,5 +33,5 @@ public interface ExampleService {
 	 * 
 	 * @param message
 	 */
-	IdmNotificationDto sendNotification(String message);
+	List<IdmNotificationLogDto> sendNotification(String message);
 }

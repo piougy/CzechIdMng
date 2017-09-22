@@ -183,14 +183,19 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission) {
+	public IdmAuthorizationPolicyDto createSpecificPolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, String evaluatorType, BasePermission... permission) {
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role);
-		dto.setEvaluatorType("eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator");
+		dto.setEvaluatorType(evaluatorType);
 		dto.setGroupPermission(groupPermission == null ? null : groupPermission.getName());
 		dto.setAuthorizableType(authorizableType == null ? null : authorizableType.getCanonicalName());
 		dto.setPermissions(permission);
 		return authorizationPolicyService.save(dto);
+	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission) {
+		return this.createSpecificPolicy(role, groupPermission, authorizableType, "eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator", permission);
 	}
 	
 	@Override

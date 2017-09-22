@@ -131,6 +131,12 @@ All notable changes to this project will be documented in this file.
 
 - The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource is maintained.
 
+##### Notifications
+
+- Api [NotificationSender](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-api/src/main/java/eu/bcvsolutions/idm/core/notification/api/service/NotificationSender.java) was changed. Now are returned all notifications that is sent. Also mechanism of sending with topic was fixed. Check your project notification configuration.
+- Method resolveTemplate in [IdmNotificationTemplateService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-api/src/main/java/eu/bcvsolutions/idm/core/notification/api/service/IdmNotificationTemplateService.java) was changed. Now this method return only found template, wildcard is not returned anymore.
+
+
 ##### Role
 
 - Role agenda was refactored to dto usage. Search **``IdmRoleService``** usage in your project - **all methods works with dto**, entity service methods were removed (e.q. ``findSecured``). **In workflow ``roleSevice.get(roleId, null)`` method has to be used**.

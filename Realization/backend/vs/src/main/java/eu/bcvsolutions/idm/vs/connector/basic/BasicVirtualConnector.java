@@ -104,7 +104,6 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IcConnectorConfiguration configuration;
 	private IdmFormDefinitionDto formDefinition;
-	private String virtualSystemKey;
 	private String connectorKey;
 	private UUID systemId;
 
@@ -145,7 +144,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		virtualConfiguration.validate();
 
 		connectorKey = info.getConnectorKey().getFullName();
-		virtualSystemKey = MessageFormat.format("{0}:systemId={1}", connectorKey, systemId.toString());
+		String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", connectorKey, systemId.toString());
 		String type = VsAccount.class.getName();
 
 		// Create/Update form definition and attributes

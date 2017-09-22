@@ -21,13 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -52,12 +57,16 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	
 	protected static final String TAG = "Scripts";
 	private final IdmScriptService service;
+	private final NotificationManager notificationManager;
+	private final IdmIdentityService identityService;
 	
 	@Autowired
-	public IdmScriptController(IdmScriptService service) {
+	public IdmScriptController(IdmScriptService service, NotificationManager notificationManager, IdmIdentityService identityService) {
 		super(service);
 		//
 		this.service = service;
+		this.notificationManager = notificationManager;
+		this.identityService = identityService;
 	}
 	
 	@Override
@@ -136,6 +145,8 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Script's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
+		IdmIdentityDto dto = identityService.getByUsername("kopr");
+		notificationManager.send("aaa", new IdmMessageDto.Builder().setLevel(NotificationLevel.INFO).build(), dto);
 		return super.get(backendId);
 	}
 	

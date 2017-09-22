@@ -17,6 +17,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -37,12 +38,14 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
@@ -285,11 +288,6 @@ public class DefaultIdmNotificationTemplateService extends
 	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType) {
 		IdmNotificationConfiguration configuration = notificationConfigurationRepository
 				.findByTopicAndLevelAndNotificationType(topic, level, notificationType);
-
-		// if configurations is empty try to wildcard with null level
-		if (configuration == null) {
-			configuration = notificationConfigurationRepository.findWildcardForTopic(topic);
-		}
 		if (configuration == null) {
 			return null;
 		}
@@ -363,6 +361,92 @@ public class DefaultIdmNotificationTemplateService extends
 		}
 		//
 		return deployNewAndBackupOld(dto, foundType.get(0));
+	}
+
+	@Override
+	public List<IdmNotificationLogDto> prepareNotifications(String topic, IdmMessageDto message) {
+		Assert.notNull(message);
+		List<IdmNotificationLogDto> notifications = new ArrayList<>();
+		IdmMessageDto finalMessage = null;
+		//
+		// 1. Priority - Own message in IdmMessage has biggest priority than otherwise settings
+		// 2. Priority - Template from IdmMessage has second biggest priority
+		// 3. Priority - Get message from configuration by topic
+		//
+		// html, text and subject is not empty use them
+		if (!StringUtils.isEmpty(message.getSubject()) && 
+				(!StringUtils.isEmpty(message.getHtmlMessage()) || !StringUtils.isEmpty(message.getTextMessage()))) {
+			finalMessage = message;
+		} else if (message.getTemplate() != null) {
+			// exist template in message
+			finalMessage = this.buildMessage(message, false);
+		}
+		//
+		// find all configuration by topic and level
+		List<IdmNotificationConfiguration> configurations = notificationConfigurationRepository.findByTopicAndLevel(topic, message.getLevel());
+		// if configurations is empty, found all wild cards
+		if (configurations.isEmpty()) {
+			configurations = notificationConfigurationRepository.findWildcardsForTopic(topic);
+		}
+		//
+		// if configurations still empty and exists final message send only his message
+		if (configurations.isEmpty() && finalMessage != null) {
+			// this state is possible send message to topic that hasn't set any configurations
+			IdmNotificationLogDto notification = new IdmNotificationLogDto();
+			notification.setTopic(topic);
+			IdmMessageDto newMessage = creteMessage(message.getTemplate(), message.getLevel(), message.getModel(), message.getParameters());
+			notification.setMessage(this.buildMessage(newMessage, false));
+			notifications.add(notification);
+			return notifications;
+		}
+		//
+		// send message for every found configuration
+		for (IdmNotificationConfiguration config : configurations) {
+			IdmNotificationLogDto notification = new IdmNotificationLogDto();
+			notification.setTopic(topic);
+			//
+			// finalMessage exists, use them for all message
+			if (finalMessage != null) {
+				notification.setMessage(finalMessage);				
+			} else {
+				// finalMessage doesn't exist solve template by config
+				IdmNotificationTemplateDto template = null;
+				//
+				if (config.getTemplate() == null) {
+					// template in config doesn't exist, try resolve by configuration
+					template = this.resolveTemplate(topic, config.getLevel(), config.getNotificationType());
+				} else {
+					// get template from config
+					template = this.get(config.getTemplate());
+				}
+				//
+				// create and build new message
+				IdmMessageDto newMessage = creteMessage(template, message.getLevel(), message.getModel(), message.getParameters());
+				notification.setMessage(this.buildMessage(newMessage, false));
+			}
+			// add notification to list
+			notifications.add(notification);
+		}
+		return notifications;
+	}
+	
+	/**
+	 * Create {@link IdmMessageDto} for notifications
+	 * 
+	 * @param template
+	 * @param level
+	 * @param model
+	 * @param parameters
+	 * @return
+	 */
+	private IdmMessageDto creteMessage(IdmNotificationTemplateDto template, NotificationLevel level, ResultModel model, Map<String, Object> parameters) {
+		// create and build new message
+		IdmMessageDto newMessage = new IdmMessageDto();
+		newMessage.setLevel(level);
+		newMessage.setTemplate(template);
+		newMessage.setParameters(parameters);
+		newMessage.setModel(model);
+		return newMessage;
 	}
 
 	/**
@@ -516,5 +600,6 @@ public class DefaultIdmNotificationTemplateService extends
 		// transform new
 		oldTemplate = typeToDto(newTemplate, oldTemplate);
 		return this.save(oldTemplate);
-	}	
+	}
+
 }

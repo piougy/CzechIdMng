@@ -63,4 +63,13 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * Inits default notification configuration from all module descriptors.
 	 */
 	void initDefaultTopics();
+	
+	/**
+	 * Method find all match configurations for topic and level.
+	 * 
+	 * @param topic
+	 * @param level
+	 * @return
+	 */
+	List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level);
 }

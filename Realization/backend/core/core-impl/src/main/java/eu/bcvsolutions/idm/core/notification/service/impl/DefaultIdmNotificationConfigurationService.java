@@ -160,4 +160,9 @@ public class DefaultIdmNotificationConfigurationService
 		return toDto(this.repository.findByTopicAndLevelAndNotificationType(topic, level, notificationType));
 	}
 
+	@Override
+	public List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level) {
+		return toDtos(repository.findByTopicAndLevel(topic, level), false);
+	}
+
 }

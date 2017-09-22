@@ -43,7 +43,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipient
 	 * @return sent IdmNotificationDto or ex
 	 */
-	N send(IdmMessageDto message, IdmIdentityDto recipient);
+	List<N> send(IdmMessageDto message, IdmIdentityDto recipient);
 	
 	/**
 	 * Sends given message to given identities.
@@ -52,7 +52,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipients
 	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(IdmMessageDto message, List<IdmIdentityDto> recipients);
+	List<N> send(IdmMessageDto message, List<IdmIdentityDto> recipients);
 	
 	/**
 	 * Sends given message with given topic to given identity.
@@ -62,7 +62,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipient
 	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmMessageDto message, IdmIdentityDto recipient);
+	List<N> send(String topic, IdmMessageDto message, IdmIdentityDto recipient);
 	
 	/**
 	 * Sends given message with given topic to given identities.
@@ -72,7 +72,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipients
 	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients);
+	List<N> send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients);
 	
 	/**
 	 * Sends given notification
@@ -89,5 +89,5 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param message
 	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmMessageDto message);
+	List<N> send(String topic, IdmMessageDto message);
 }

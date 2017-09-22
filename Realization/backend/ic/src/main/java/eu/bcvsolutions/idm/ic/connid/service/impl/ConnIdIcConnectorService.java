@@ -253,7 +253,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			@Override
 			public void handleResult(SearchResult result) {
 				// VS TODO: For all my tests was search result Null and this method (handle result) was not called!
-				log.debug("SearchResul was returned (pagination): cookie: " + result.getPagedResultsCookie() + "  --- remaining paged results: "+result.getRemainingPagedResults());
+				log.debug("SearchResul was returned (pagination): cookie: {}  --- remaining paged results: {}", result.getPagedResultsCookie(), result.getRemainingPagedResults());
 			}
 		};
 		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
@@ -272,7 +272,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		SearchResult searchResutl = conn.search(objectClass, filter, handler, options);
 		// For all my tests was search result Null.
 		if(searchResutl != null){
-			log.debug("SearchResul was returned (pagination): cookie: " + options.getPagedResultsCookie() + "  --- offset: "+options.getPagedResultsOffset());
+			log.debug("SearchResul was returned (pagination): cookie: {}  --- offset: {}", options.getPagedResultsCookie(), options.getPagedResultsOffset());
 			String cookie = searchResutl.getPagedResultsCookie();
 			int remainingResult = searchResutl.getRemainingPagedResults();
 			if(remainingResult > 0 && cookie != null){

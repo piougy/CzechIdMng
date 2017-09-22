@@ -55,7 +55,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 @Service
 public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ConnIdIcConfigurationService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CzechIdMIcConfigurationService.class);
 
 	// Cached local connectorInfos
 	private Set<IcConnectorInfo> connectorInfos;
@@ -104,7 +104,6 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<IcConnectorInfo> getAvailableLocalConnectors() {
-		connectorInfos = null;
 		if (connectorInfos == null) {
 			connectorInfos = new HashSet<>();
 			connectorsConfigurations = new HashMap<>();

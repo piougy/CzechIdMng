@@ -166,7 +166,7 @@ public final class IcSyncDeltaImpl implements IcSyncDelta {
 			if (!token.equals(other.token)) {
 				return false;
 			}
-			if (!deltaType.equals(other.deltaType)) {
+			if (deltaType != other.deltaType) {
 				return false;
 			}
 			if (previousUid == null) {

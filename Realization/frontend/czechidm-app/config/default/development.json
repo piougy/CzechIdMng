@@ -20,5 +20,9 @@
   "recaptcha": {
     "enabled": true,
     "siteKey": "todo"
+  },
+  "locale": {
+    "supported": ["cs", "en"],
+    "fallback": "cs"
   }
 }

@@ -107,6 +107,7 @@ All notable changes to this project will be documented in this file.
   - ```` was renamed to ````
 
 - ``EnabledAcpect`` class was renamed to ``EnabledAspect``
+- FE: improved external frentend configuration. All config properties can be changed without application build. Check external configuration in your project and move ``serverUrl`` property into config object.
 
 
 ##### Identity
@@ -129,6 +130,12 @@ All notable changes to this project will be documented in this file.
 ##### Confidential storage
 
 - The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource is maintained.
+
+##### Notifications
+
+- Api [NotificationSender](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-api/src/main/java/eu/bcvsolutions/idm/core/notification/api/service/NotificationSender.java) was changed. Now are returned all notifications that is sent. Also mechanism of sending with topic was fixed. Check your project notification configuration.
+- Method resolveTemplate in [IdmNotificationTemplateService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-api/src/main/java/eu/bcvsolutions/idm/core/notification/api/service/IdmNotificationTemplateService.java) was changed. Now this method return only found template, wildcard is not returned anymore.
+
 
 ##### Role
 

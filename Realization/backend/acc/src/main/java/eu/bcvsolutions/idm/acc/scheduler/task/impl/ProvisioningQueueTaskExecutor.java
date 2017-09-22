@@ -3,13 +3,14 @@ package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -33,31 +34,56 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatef
 public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulExecutor<SysProvisioningBatchDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningQueueTaskExecutor.class);
+	private static final String PARAMETER_VIRTUAL = "virtualSystem";
+	//
 	@Autowired private ProvisioningExecutor provisioningExecutor;	
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
-	private static final String PARAMETER_VIRTUAL = "virtualSystem";
-	private Boolean virtualSystem; // virtual system
+	@Autowired
+	@Qualifier("longRunningTaskItemExecutor")
+	private Executor executor;
+	//
+	private Boolean virtualSystem; // configured virtual system
+	private Long start;
+	
 	
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		virtualSystem = getParameterConverter().toBoolean(properties, PARAMETER_VIRTUAL);
 		LOG.debug("Processing created provisioning operation in queue.");
+		start = System.currentTimeMillis();
+	}
+	
+	@Override
+	protected Boolean end(Boolean result, Exception ex) {
+		System.out.println("...... duration: " + (System.currentTimeMillis() - start));
+		//
+		return super.end(result, ex);
 	}
 
 	@Override
 	public Page<SysProvisioningBatchDto> getItemsToProcess(Pageable pageable) {
-		// we are changing state, so wee need to set pageable at start always
+		// TODO: we want to execute provisioning in more threads - we aren't using pagination here to prevent collisions
 		// TODO: we can add Sort by some priority (CREATE ... etc.)
 		// TODO: we can add algorithm to reduce / merge provisioning operations by system entity
-		return provisioningBatchService.findBatchesToProcess(virtualSystem, new PageRequest(0, 100));
+		return provisioningBatchService.findBatchesToProcess(virtualSystem, null);
 	}
 
 	@Override
 	public Optional<OperationResult> processItem(SysProvisioningBatchDto dto) {
 		LOG.debug("Start processinig created batch [{}] from queue.",  dto.getId());
 		try {
-			return Optional.of(provisioningExecutor.execute(dto));
+			// TODO: async
+//			FutureTask<OperationResult> futureTask = new FutureTask<>(new Callable<OperationResult>() {
+//				@Override
+//				public OperationResult call() throws Exception {
+//					LOG.error(".... +: " + dto.getId());
+//					return provisioningExecutor.execute(dto);
+//				}				
+//			});
+//			executor.execute(futureTask);
+//			return Optional.of(new OperationResult.Builder(OperationState.RUNNING).build());
+			return Optional.of(provisioningExecutor.execute(dto));		
 		} catch (Exception ex) {
 			// just for sure - execute should return appropriate result always
 			LOG.error("Process [{}] batch from queue failed", dto.getId(), ex);

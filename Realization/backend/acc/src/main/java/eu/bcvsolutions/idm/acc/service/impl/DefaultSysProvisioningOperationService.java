@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
@@ -80,6 +81,7 @@ public class DefaultSysProvisioningOperationService
 	private final SysProvisioningRequestService requestService;
 	private final SysSystemService systemService;
 	private final SysProvisioningRequestService provisioningRequestService;
+	private final SecurityService securityService;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
@@ -92,7 +94,8 @@ public class DefaultSysProvisioningOperationService
 			SysProvisioningRequestService requestService,
 			SysSystemService systemService,
 			SysProvisioningRequestService provisioningRequestService,
-			SysProvisioningBatchRepository batchRepository) {
+			SysProvisioningBatchRepository batchRepository,
+			SecurityService securityService) {
 		super(repository);
 		//
 		Assert.notNull(provisioningRequestRepository);
@@ -104,6 +107,7 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(systemService);
 		Assert.notNull(provisioningRequestService);
 		Assert.notNull(batchRepository);
+		Assert.notNull(securityService);
 		//
 		this.repository = repository;
 		this.provisioningArchiveService = provisioningArchiveService;
@@ -114,6 +118,7 @@ public class DefaultSysProvisioningOperationService
 		this.systemService = systemService;
 		this.provisioningRequestService = provisioningRequestService;
 		this.batchRepository = batchRepository;
+		this.securityService = securityService;
 	}
 	
 	@Override
@@ -366,9 +371,11 @@ public class DefaultSysProvisioningOperationService
 		operation = save(operation);
 		//
 		LOG.debug(resultModel.toString());
-		notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
-				.setModel(resultModel)
-				.build());
+		if (securityService.getCurrentId() != null) { // TODO: check account owner
+			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
+					.setModel(resultModel)
+					.build());
+		}
 	}
 	
 	/**

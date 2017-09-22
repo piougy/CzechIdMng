@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
@@ -52,6 +53,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	@Mock private ModelMapper modelMapper;
 	@Mock private SysProvisioningRequestService provisioningRequestService;
 	@Mock private SysProvisioningBatchRepository batchRepository;
+	@Mock private SecurityService securityService;
 	//
 	private DefaultSysProvisioningOperationService service;
 
@@ -67,7 +69,8 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 				requestService,
 				systemService,
 				provisioningRequestService,
-				batchRepository);
+				batchRepository,
+				securityService);
 	}
 	
 	@Test

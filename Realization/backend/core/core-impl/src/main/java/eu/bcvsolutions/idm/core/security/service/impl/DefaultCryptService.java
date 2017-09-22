@@ -11,6 +11,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -57,8 +58,21 @@ public class DefaultCryptService implements CryptService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCryptService.class);
 	private ConfigurationService configurationService; // configuration service is initialized by autowire helper
-	private Cipher encryptCipher;
-	private Cipher decryptCipher;
+	private static Cipher encryptCipher;
+	private static Cipher decryptCipher;
+	
+	@PostConstruct
+	private void init() {
+		try {
+			decryptCipher = initCipher(Cipher.DECRYPT_MODE);
+			encryptCipher = initCipher(Cipher.ENCRYPT_MODE);
+			LOG.info("Initializing Cipher succeeded - Confidetial storage will be crypted.");
+		} catch (InvalidKeyException e) {
+			decryptCipher = null;
+			encryptCipher = null;
+			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ",e.getMessage());
+		}
+	}
 	
 	@Override
 	public String encryptString(String value) {
@@ -75,7 +89,6 @@ public class DefaultCryptService implements CryptService {
 	@Override
 	public byte[] decrypt(byte[] value) {
 		byte[] decryptValue = null;
-		initCiphers();
 		// cipher isn't initialized
 		if (decryptCipher == null) {
 			return value;
@@ -93,7 +106,6 @@ public class DefaultCryptService implements CryptService {
 	@Override
 	public byte[] encrypt(byte[] value) {
 		byte[] encryptValue = null;
-		initCiphers();
 		// cipher isn't initialized
 		if (encryptCipher == null) {
 			return value;
@@ -107,25 +119,6 @@ public class DefaultCryptService implements CryptService {
 		}
 		
 		return encryptValue;
-	}
-	
-	/**
-	 * Method initialized both ciphers. Decrypt and encrypt
-	 */
-	private void initCiphers() {
-		// ciphers are intialized
-		if (decryptCipher != null && encryptCipher != null) {
-			return;
-		}
-		// init ciphers
-		try {
-			decryptCipher = initCipher(Cipher.DECRYPT_MODE);
-			encryptCipher = initCipher(Cipher.ENCRYPT_MODE);
-		} catch (InvalidKeyException e) {
-			decryptCipher = null;
-			encryptCipher = null;
-			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ",e.getMessage());
-		}
 	}
 	
 	/**

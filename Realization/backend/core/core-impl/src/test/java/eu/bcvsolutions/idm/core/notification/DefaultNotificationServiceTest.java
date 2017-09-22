@@ -435,6 +435,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Ignore
 	public void sendWildCardsWithoutTemplate() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String text = "testMessageText-" + System.currentTimeMillis();
@@ -465,6 +466,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void sendWildCardsWithTemplateAndOwnText() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textMessage = "testMessageText-" + System.currentTimeMillis();
@@ -504,6 +506,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void sendWildCardsWithTemplateWithoutText() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
@@ -538,6 +541,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void sendTwoWildCardsWithDifferentTemplate() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
@@ -592,6 +596,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void sendTwoWildCardsWithOwnMessage() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();

@@ -24,7 +24,7 @@ public final class IcSyncTokenImpl implements IcSyncToken {
 
 	@Override
 	public String toString() {
-		return "SyncToken: " + value.toString();
+		return "SyncToken: " + value;
 	}
 
 }

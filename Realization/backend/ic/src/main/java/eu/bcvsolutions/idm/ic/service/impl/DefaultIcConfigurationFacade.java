@@ -47,7 +47,6 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	 */
 	@Override
 	public Map<String, Set<IcConnectorInfo>> getAvailableLocalConnectors() {
-		icLocalConnectorInfos = null;
 		if (icLocalConnectorInfos == null) {
 			icLocalConnectorInfos = new HashMap<>();
 			for (IcConfigurationService config : icConfigs.values()) {

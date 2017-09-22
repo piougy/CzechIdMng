@@ -240,7 +240,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			return;
 		}
 
-		doProvisioning(systemEntity, dto, dto == null ? null : dto.getId(), operationType, finalAttributes);
+		doProvisioning(systemEntity, dto, dto.getId(), operationType, finalAttributes);
 	}
 
 	@Override

@@ -106,6 +106,11 @@ public class DefaultVsSystemService implements VsSystemService {
 		IdmFormAttributeDto implementerRolesFormAttr = connectorFormDef
 				.getMappedAttributeByCode(IMPLEMENTER_ROLES_PROPERTY);
 		formService.saveValues(system, implementerRolesFormAttr, new ArrayList<>(vsSystem.getImplementerRoles()));
+		if(!vsSystem.getAttributes().isEmpty()) {
+			IdmFormAttributeDto attributesFormAttr = connectorFormDef
+					.getMappedAttributeByCode(ATTRIBUTES_PROPERTY);
+			formService.saveValues(system, attributesFormAttr, new ArrayList<>(vsSystem.getAttributes()));
+		}
 		
 		// Generate schema
 		List<SysSchemaObjectClassDto> schemas = this.systemService.generateSchema(system);
@@ -113,7 +118,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		Assert.notNull(schemaAccount, "We cannot found schema for ACCOUNT!");
 		
 		// Create mapping by default attributes
-		this.createDefaultMapping(system, schemaAccount);
+		this.createDefaultMapping(system, schemaAccount, vsSystem);
 		
 		return this.systemService.get(system.getId());
 	}
@@ -122,8 +127,9 @@ public class DefaultVsSystemService implements VsSystemService {
 	 * Create default mapping for virtual system by given default attributes
 	 * @param system
 	 * @param schema
+	 * @param vsSystem 
 	 */
-	private void createDefaultMapping(SysSystemDto system, SysSchemaObjectClassDto schema){
+	private void createDefaultMapping(SysSystemDto system, SysSchemaObjectClassDto schema, VsSystemDto vsSystem){
 		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("Default provisioning");
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
@@ -134,7 +140,8 @@ public class DefaultVsSystemService implements VsSystemService {
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null).getContent();
-		List<String> defaultAttributes = Lists.newArrayList(BasicVirtualConfiguration.DEFAULT_ATTRIBUTES);
+		ArrayList<String> defaultAttributes = Lists.newArrayList(BasicVirtualConfiguration.DEFAULT_ATTRIBUTES);
+		List<String> attributes = vsSystem.getAttributes().isEmpty() ? defaultAttributes : vsSystem.getAttributes();
 		for(SysSchemaAttributeDto schemaAttr : schemaAttributes) {
 			if (IcAttributeInfo.NAME.equals(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
@@ -155,7 +162,7 @@ public class DefaultVsSystemService implements VsSystemService {
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
-			} else if (defaultAttributes.contains(schemaAttr.getName())) {
+			} else if (attributes.contains(schemaAttr.getName()) && defaultAttributes.contains(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setUid(false);
 				attributeMapping.setEntityAttribute(true);

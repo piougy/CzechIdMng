@@ -34,6 +34,8 @@ public class VsSystemDto extends AbstractDto {
 	private List<UUID> implementers;
 	@ApiModelProperty(required = false, notes = "Roles where his identities will be implementers for this system.")
 	private List<UUID> implementerRoles;
+	@ApiModelProperty(required = false, notes = "Attributes of systems, if is null then will be used default attributes")
+	private List<String> attributes;
 
 	public String getName() {
 		return name;
@@ -65,4 +67,14 @@ public class VsSystemDto extends AbstractDto {
 		this.implementerRoles = implementerRoles;
 	}
 
+	public List<String> getAttributes() {
+		if(attributes == null){
+			attributes = new ArrayList<>();
+		}
+		return attributes;
+	}
+
+	public void setAttributes(List<String> attributes) {
+		this.attributes = attributes;
+	}
 }

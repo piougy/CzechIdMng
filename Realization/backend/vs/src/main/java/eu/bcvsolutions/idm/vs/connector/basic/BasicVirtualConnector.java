@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -152,9 +154,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		formDefinition = updateFormDefinition(virtualSystemKey, type, system, virtualConfiguration);
 
 		// Update identity and role implementers relations
-
 		updateSystemImplementers(this.virtualConfiguration, this.systemId);
-
 	}
 
 	@Override
@@ -757,7 +757,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		// Load implementers from config
 		List<IdmIdentityDto> implementersFromConfig = this.loadImplementers(virtualConfiguration.getImplementers());
 		// Load roles from config
-		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles());
+		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles(), implementersFromConfig);
 
 		List<VsSystemImplementerDto> systemImplementersToAdd = new ArrayList<>();
 
@@ -837,11 +837,12 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * exception when identity not found.
 	 * 
 	 * @param implementerRolesUUID
+	 * @param implementersFromConfig 
 	 * @return
 	 */
-	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID) {
+	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID, List<IdmIdentityDto> implementersFromConfig) {
 		List<IdmRoleDto> implementers = new ArrayList<>();
-		if (implementerRolesUUID == null || implementerRolesUUID.length == 0) {
+		if ((implementerRolesUUID == null || implementerRolesUUID.length == 0) && CollectionUtils.isEmpty(implementersFromConfig)) {
 			// Load default role from configuration
 			implementers.add(vsConfiguration.getDefaultRole());
 			return implementers;

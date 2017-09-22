@@ -107,6 +107,7 @@ All notable changes to this project will be documented in this file.
   - ```` was renamed to ````
 
 - ``EnabledAcpect`` class was renamed to ``EnabledAspect``
+- FE: improved external frentend configuration. All config properties can be changed without application build. Check external configuration in your project and move ``serverUrl`` property into config object.
 
 
 ##### Identity

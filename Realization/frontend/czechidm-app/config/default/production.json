@@ -8,5 +8,9 @@
   "recaptcha": {
     "enabled": false,
     "siteKey": "todo"
+  },
+  "locale": {
+    "supported": ["cs", "en"],
+    "fallback": "cs"
   }
 }

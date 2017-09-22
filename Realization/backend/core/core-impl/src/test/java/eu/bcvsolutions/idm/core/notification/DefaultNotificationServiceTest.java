@@ -435,7 +435,6 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Ignore
 	public void sendWildCardsWithoutTemplate() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String text = "testMessageText-" + System.currentTimeMillis();
@@ -466,13 +465,14 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void sendWildCardsWithTemplateAndOwnText() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textMessage = "testMessageText-" + System.currentTimeMillis();
 		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
 		//
 		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setName(textTemplate);
+		template.setCode(textTemplate);
 		template.setBodyHtml(textTemplate);
 		template.setBodyText(textTemplate);
 		template.setSubject(textTemplate);
@@ -506,12 +506,13 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void sendWildCardsWithTemplateWithoutText() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
 		//
 		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setName(textTemplate);
+		template.setCode(textTemplate);
 		template.setBodyHtml(textTemplate);
 		template.setBodyText(textTemplate);
 		template.setSubject(textTemplate);
@@ -541,19 +542,22 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void sendTwoWildCardsWithDifferentTemplate() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
 		String textTemplate2 = "testMessageTemplate2-" + System.currentTimeMillis();
 		//
 		IdmNotificationTemplateDto template1 = new IdmNotificationTemplateDto();
+		template1.setName(textTemplate1);
+		template1.setCode(textTemplate1);
 		template1.setBodyHtml(textTemplate1);
 		template1.setBodyText(textTemplate1);
 		template1.setSubject(textTemplate1);
 		template1 = notificationTemplateService.save(template1);
 		//
 		IdmNotificationTemplateDto template2 = new IdmNotificationTemplateDto();
+		template2.setName(textTemplate2);
+		template2.setCode(textTemplate2);
 		template2.setBodyHtml(textTemplate2);
 		template2.setBodyText(textTemplate2);
 		template2.setSubject(textTemplate2);
@@ -582,21 +586,29 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		assertEquals(2, notifications.size());
 		//
-		
-		IdmNotificationLogDto notificationConsole = notifications.stream().filter(not -> not.getType().equals(IdmConsoleLog.NOTIFICATION_TYPE)).findFirst().get();
-		IdmNotificationLogDto notificationEmail = notifications.stream().filter(not -> not.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)).findFirst().get();
-
+		//
+		int orderConsole = 0;
+		int orderEmail = 1;
+		// we didn't know order
+		if (!notifications.get(0).getMessage().getHtmlMessage().equals(textTemplate2)) {
+			// email first
+			orderConsole = 1;
+			orderEmail = 0;
+		}
+		//
+		// Notification has different text
+		IdmNotificationLogDto notificationConsole = notifications.get(orderConsole);
 		assertEquals(textTemplate2, notificationConsole.getMessage().getHtmlMessage());
 		assertEquals(textTemplate2, notificationConsole.getMessage().getSubject());
 		assertEquals(textTemplate2, notificationConsole.getMessage().getTextMessage());
-		
+		//
+		IdmNotificationLogDto notificationEmail= notifications.get(orderEmail);
 		assertEquals(textTemplate1, notificationEmail.getMessage().getHtmlMessage());
 		assertEquals(textTemplate1, notificationEmail.getMessage().getSubject());
 		assertEquals(textTemplate1, notificationEmail.getMessage().getTextMessage());
 	}
 
 	@Test
-	@Ignore
 	public void sendTwoWildCardsWithOwnMessage() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
@@ -604,12 +616,16 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		String textMessage = "testMessageText-" + System.currentTimeMillis();
 		//
 		IdmNotificationTemplateDto template1 = new IdmNotificationTemplateDto();
+		template1.setName(textTemplate1);
+		template1.setCode(textTemplate1);
 		template1.setBodyHtml(textTemplate1);
 		template1.setBodyText(textTemplate1);
 		template1.setSubject(textTemplate1);
 		template1 = notificationTemplateService.save(template1);
 		//
 		IdmNotificationTemplateDto template2 = new IdmNotificationTemplateDto();
+		template2.setName(textTemplate2);
+		template2.setCode(textTemplate2);
 		template2.setBodyHtml(textTemplate2);
 		template2.setBodyText(textTemplate2);
 		template2.setSubject(textTemplate2);
@@ -641,17 +657,17 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		assertEquals(2, notifications.size());
 		//
-		
-		IdmNotificationLogDto notificationConsole = notifications.stream().filter(not -> not.getType().equals(IdmConsoleLog.NOTIFICATION_TYPE)).findFirst().get();
-		IdmNotificationLogDto notificationEmail = notifications.stream().filter(not -> not.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)).findFirst().get();
-
-		assertEquals(textMessage, notificationConsole.getMessage().getHtmlMessage());
-		assertEquals(textMessage, notificationConsole.getMessage().getSubject());
-		assertEquals(textMessage, notificationConsole.getMessage().getTextMessage());
-		
-		assertEquals(textMessage, notificationEmail.getMessage().getHtmlMessage());
-		assertEquals(textMessage, notificationEmail.getMessage().getSubject());
-		assertEquals(textMessage, notificationEmail.getMessage().getTextMessage());
+		// bouth notifacations has same text
+		IdmNotificationLogDto notification1 = notifications.get(0);
+		IdmNotificationLogDto notification2 = notifications.get(1);
+		//
+		assertEquals(textMessage, notification1.getMessage().getHtmlMessage());
+		assertEquals(textMessage, notification1.getMessage().getSubject());
+		assertEquals(textMessage, notification1.getMessage().getTextMessage());
+		//
+		assertEquals(textMessage, notification2.getMessage().getHtmlMessage());
+		assertEquals(textMessage, notification2.getMessage().getSubject());
+		assertEquals(textMessage, notification2.getMessage().getTextMessage());
 	}
 
 	private IdmNotificationTemplateDto createTestTemplate(String body, String subject) {

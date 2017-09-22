@@ -389,7 +389,7 @@ public class DefaultIdmNotificationTemplateService extends
 			configurations = notificationConfigurationRepository.findWildcardsForTopic(topic);
 		}
 		//
-		// if configurations still empty and exists final message send only his message
+		// if configurations still empty and exists final message send only his message, this message will be sent without type
 		if (configurations.isEmpty() && finalMessage != null) {
 			// this state is possible send message to topic that hasn't set any configurations
 			IdmNotificationLogDto notification = new IdmNotificationLogDto();
@@ -404,6 +404,7 @@ public class DefaultIdmNotificationTemplateService extends
 		for (IdmNotificationConfiguration config : configurations) {
 			IdmNotificationLogDto notification = new IdmNotificationLogDto();
 			notification.setTopic(topic);
+			notification.setType(config.getNotificationType());
 			//
 			// finalMessage exists, use them for all message
 			if (finalMessage != null) {

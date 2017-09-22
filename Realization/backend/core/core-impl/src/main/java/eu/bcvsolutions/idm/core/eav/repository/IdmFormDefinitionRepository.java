@@ -11,7 +11,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.rest.projection.IdmFormDefinitionExcerpt;
 
 /**
  * Form definition repository
@@ -23,7 +22,6 @@ import eu.bcvsolutions.idm.core.eav.rest.projection.IdmFormDefinitionExcerpt;
 		collectionResourceRel = "formDefinitions", // 
 		path = "form-definitions", //
 		itemResourceRel = "formDefinition", //
-		excerptProjection = IdmFormDefinitionExcerpt.class,
 		exported = false)
 public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition> {
 	

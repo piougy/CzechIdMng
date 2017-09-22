@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
@@ -40,6 +41,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigur
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
@@ -430,6 +432,221 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		filter.setState(NotificationState.PARTLY);
 		result = notificationLogService.find(filter, null);
 		assertEquals("Wrong state PARTLY", 0, result.getTotalElements());
+	}
+	
+	@Test
+	public void sendWildCardsWithoutTemplate() {
+		String topic = "testTopic-" + System.currentTimeMillis();
+		String text = "testMessageText-" + System.currentTimeMillis();
+		//
+		IdmIdentityDto identity = helper.createIdentity();
+		// create config, for email, topic and without level = wildcard
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(topic); // topic
+		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
+		config = notificationConfigurationService.save(config);
+		//
+		// set all text into message
+		List<IdmNotificationLogDto> notifications = notificationManager.send(topic, 
+				new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS) // set level
+				.setHtmlMessage(text)
+				.setTextMessage(text)
+				.setSubject(text)
+				.build(),
+				identity);
+		//
+		assertEquals(1, notifications.size());
+		//
+		IdmNotificationLogDto notification = notifications.get(0);
+		assertEquals(text, notification.getMessage().getHtmlMessage());
+		assertEquals(text, notification.getMessage().getSubject());
+		assertEquals(text, notification.getMessage().getTextMessage());
+	}
+
+	@Test
+	public void sendWildCardsWithTemplateAndOwnText() {
+		String topic = "testTopic-" + System.currentTimeMillis();
+		String textMessage = "testMessageText-" + System.currentTimeMillis();
+		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
+		//
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setBodyHtml(textTemplate);
+		template.setBodyText(textTemplate);
+		template.setSubject(textTemplate);
+		template = notificationTemplateService.save(template);
+		//
+		IdmIdentityDto identity = helper.createIdentity();
+		// create config, for email, topic, template and without level = wildcard
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(topic); // topic
+		config.setTemplate(template.getId()); // template
+		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
+		config = notificationConfigurationService.save(config);
+		//
+		// set all text into message
+		List<IdmNotificationLogDto> notifications = notificationManager.send(topic, 
+				new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS) // set level
+				.setHtmlMessage(textMessage)
+				.setTextMessage(textMessage)
+				.setSubject(textMessage)
+				.build(),
+				identity);
+		//
+		assertEquals(1, notifications.size());
+		//
+		IdmNotificationLogDto notification = notifications.get(0);
+		// topic has own template, but in message is set text
+		assertEquals(textMessage, notification.getMessage().getHtmlMessage());
+		assertEquals(textMessage, notification.getMessage().getSubject());
+		assertEquals(textMessage, notification.getMessage().getTextMessage());
+	}
+
+	@Test
+	public void sendWildCardsWithTemplateWithoutText() {
+		String topic = "testTopic-" + System.currentTimeMillis();
+		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
+		//
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setBodyHtml(textTemplate);
+		template.setBodyText(textTemplate);
+		template.setSubject(textTemplate);
+		template = notificationTemplateService.save(template);
+		//
+		IdmIdentityDto identity = helper.createIdentity();
+		// create config, for email, topic, template and without level = wildcard
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(topic); // topic
+		config.setTemplate(template.getId()); // template
+		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
+		config = notificationConfigurationService.save(config);
+		//
+		List<IdmNotificationLogDto> notifications = notificationManager.send(topic, 
+				new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS) // set level
+				.build(),
+				identity);
+		//
+		assertEquals(1, notifications.size());
+		//
+		IdmNotificationLogDto notification = notifications.get(0);
+		// topic has own template and in message isnt set text
+		assertEquals(textTemplate, notification.getMessage().getHtmlMessage());
+		assertEquals(textTemplate, notification.getMessage().getSubject());
+		assertEquals(textTemplate, notification.getMessage().getTextMessage());
+	}
+
+	@Test
+	public void sendTwoWildCardsWithDifferentTemplate() {
+		String topic = "testTopic-" + System.currentTimeMillis();
+		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
+		String textTemplate2 = "testMessageTemplate2-" + System.currentTimeMillis();
+		//
+		IdmNotificationTemplateDto template1 = new IdmNotificationTemplateDto();
+		template1.setBodyHtml(textTemplate1);
+		template1.setBodyText(textTemplate1);
+		template1.setSubject(textTemplate1);
+		template1 = notificationTemplateService.save(template1);
+		//
+		IdmNotificationTemplateDto template2 = new IdmNotificationTemplateDto();
+		template2.setBodyHtml(textTemplate2);
+		template2.setBodyText(textTemplate2);
+		template2.setSubject(textTemplate2);
+		template2 = notificationTemplateService.save(template2);
+		//
+		IdmIdentityDto identity = helper.createIdentity();
+		// create config, for email, topic, template and without level = wildcard
+		NotificationConfigurationDto config1 = new NotificationConfigurationDto();
+		config1.setTopic(topic); // topic
+		config1.setTemplate(template1.getId()); // template
+		config1.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
+		config1 = notificationConfigurationService.save(config1);
+		//
+		// create second config, for console, topic, template and without level = wildcard
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(topic); // same topic
+		config.setTemplate(template2.getId()); // different template
+		config.setNotificationType(IdmConsoleLog.NOTIFICATION_TYPE); // console
+		config = notificationConfigurationService.save(config);
+		//
+		List<IdmNotificationLogDto> notifications = notificationManager.send(topic, 
+				new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS) // set level
+				.build(),
+				identity);
+		//
+		assertEquals(2, notifications.size());
+		//
+		
+		IdmNotificationLogDto notificationConsole = notifications.stream().filter(not -> not.getType().equals(IdmConsoleLog.NOTIFICATION_TYPE)).findFirst().get();
+		IdmNotificationLogDto notificationEmail = notifications.stream().filter(not -> not.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)).findFirst().get();
+
+		assertEquals(textTemplate2, notificationConsole.getMessage().getHtmlMessage());
+		assertEquals(textTemplate2, notificationConsole.getMessage().getSubject());
+		assertEquals(textTemplate2, notificationConsole.getMessage().getTextMessage());
+		
+		assertEquals(textTemplate1, notificationEmail.getMessage().getHtmlMessage());
+		assertEquals(textTemplate1, notificationEmail.getMessage().getSubject());
+		assertEquals(textTemplate1, notificationEmail.getMessage().getTextMessage());
+	}
+
+	@Test
+	public void sendTwoWildCardsWithOwnMessage() {
+		String topic = "testTopic-" + System.currentTimeMillis();
+		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
+		String textTemplate2 = "testMessageTemplate2-" + System.currentTimeMillis();
+		String textMessage = "testMessageText-" + System.currentTimeMillis();
+		//
+		IdmNotificationTemplateDto template1 = new IdmNotificationTemplateDto();
+		template1.setBodyHtml(textTemplate1);
+		template1.setBodyText(textTemplate1);
+		template1.setSubject(textTemplate1);
+		template1 = notificationTemplateService.save(template1);
+		//
+		IdmNotificationTemplateDto template2 = new IdmNotificationTemplateDto();
+		template2.setBodyHtml(textTemplate2);
+		template2.setBodyText(textTemplate2);
+		template2.setSubject(textTemplate2);
+		template2 = notificationTemplateService.save(template2);
+		//
+		IdmIdentityDto identity = helper.createIdentity();
+		// create config, for email, topic, template and without level = wildcard
+		NotificationConfigurationDto config1 = new NotificationConfigurationDto();
+		config1.setTopic(topic); // topic
+		config1.setTemplate(template1.getId()); // template
+		config1.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
+		config1 = notificationConfigurationService.save(config1);
+		//
+		// create second config, for console, topic, template and without level = wildcard
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(topic); // same topic
+		config.setTemplate(template2.getId()); // different template
+		config.setNotificationType(IdmConsoleLog.NOTIFICATION_TYPE); // console
+		config = notificationConfigurationService.save(config);
+		//
+		List<IdmNotificationLogDto> notifications = notificationManager.send(topic, 
+				new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS) // set level
+				.setHtmlMessage(textMessage)
+				.setTextMessage(textMessage)
+				.setSubject(textMessage)
+				.build(),
+				identity);
+		//
+		assertEquals(2, notifications.size());
+		//
+		
+		IdmNotificationLogDto notificationConsole = notifications.stream().filter(not -> not.getType().equals(IdmConsoleLog.NOTIFICATION_TYPE)).findFirst().get();
+		IdmNotificationLogDto notificationEmail = notifications.stream().filter(not -> not.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)).findFirst().get();
+
+		assertEquals(textMessage, notificationConsole.getMessage().getHtmlMessage());
+		assertEquals(textMessage, notificationConsole.getMessage().getSubject());
+		assertEquals(textMessage, notificationConsole.getMessage().getTextMessage());
+		
+		assertEquals(textMessage, notificationEmail.getMessage().getHtmlMessage());
+		assertEquals(textMessage, notificationEmail.getMessage().getSubject());
+		assertEquals(textMessage, notificationEmail.getMessage().getTextMessage());
 	}
 
 	private IdmNotificationTemplateDto createTestTemplate(String body, String subject) {

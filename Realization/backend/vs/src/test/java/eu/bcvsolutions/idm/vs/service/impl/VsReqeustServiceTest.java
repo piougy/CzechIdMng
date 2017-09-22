@@ -43,6 +43,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.vs.TestHelper;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
@@ -102,6 +110,8 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 	private IdmFormAttributeService formAttributeService;
 	@Autowired
 	private SysSystemEntityService systemEntityService;
+	@Autowired
+	private IcConnectorFacade connectorFacade;
 
 	@Before
 	public void init() {
@@ -110,7 +120,7 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 
 	@After
 	public void logout() {
-		this.deleteAll(USER_ONE_NAME,USER_ONE_CHANGED_NAME, USER_IMPLEMENTER_NAME, ROLE_ONE_NAME);
+		this.deleteAll(USER_ONE_NAME, USER_ONE_CHANGED_NAME, USER_IMPLEMENTER_NAME, ROLE_ONE_NAME);
 		super.logout();
 	}
 
@@ -139,6 +149,47 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
 		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
 		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+	}
+
+	@Test
+	public void systemAccountFilterTest() {
+
+		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
+		this.assignRoleSystem(system, helper.createIdentity(USER_ONE_NAME), ROLE_ONE_NAME);
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(system.getId());
+		requestFilter.setUid(USER_ONE_NAME);
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		VsRequestDto request = requests.get(0);
+		Assert.assertEquals(USER_ONE_NAME, request.getUid());
+		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		VsAccountDto account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNull("Account must be null, because request was not realized yet!", account);
+		// We try realize the request
+		super.logout();
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
+		request = requestService.realize(request);
+		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
+		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+
+		IcConnectorConfiguration configuration = systemService.getConnectorConfiguration(system);
+		IcObjectClass objectClass = new IcObjectClassImpl("__ACCOUNT__");
+		List<String> uids = new ArrayList<>();
+		connectorFacade.search(system.getConnectorInstance(), configuration, objectClass, null, new IcResultsHandler() {
+
+			@Override
+			public boolean handle(IcConnectorObject connectorObject) {
+				uids.add(connectorObject.getUidValue());
+				return true;
+			}
+		});
+		Assert.assertEquals(1, uids.size());
+		Assert.assertEquals(USER_ONE_NAME, uids.get(0));
 	}
 
 	@Test
@@ -495,9 +546,9 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		Assert.assertTrue(findCorrectChangedLastName);
 
 	}
-	
+
 	@Test
-	public void checkUsernameTest() {
+	public void changeUidTest() {
 		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
 
 		IdmIdentityDto userOne = helper.createIdentity(USER_ONE_NAME);
@@ -547,19 +598,19 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 						&& VsValueChangeType.UPDATED == attr.getValue().getChange())
 				.findFirst().isPresent();
 		Assert.assertTrue(findCorrectChangedUserName);
-		
+
 		SysSystemEntityFilter systemEntityFilter = new SysSystemEntityFilter();
 		systemEntityFilter.setSystemId(system.getId());
 		systemEntityFilter.setUid(USER_ONE_NAME);
-		boolean oldUserNameExist = !systemEntityService.find(systemEntityFilter,  null).getContent().isEmpty();
+		boolean oldUserNameExist = !systemEntityService.find(systemEntityFilter, null).getContent().isEmpty();
 		Assert.assertTrue(oldUserNameExist);
 		// Realize change username
 		requestService.realize(requests.get(0));
 		// We expects change UID in SystemEntity.UID
-		oldUserNameExist = !systemEntityService.find(systemEntityFilter,  null).getContent().isEmpty();
+		oldUserNameExist = !systemEntityService.find(systemEntityFilter, null).getContent().isEmpty();
 		Assert.assertTrue(!oldUserNameExist);
 		systemEntityFilter.setUid(USER_ONE_CHANGED_NAME);
-		boolean changedUserNameExist = !systemEntityService.find(systemEntityFilter,  null).getContent().isEmpty();
+		boolean changedUserNameExist = !systemEntityService.find(systemEntityFilter, null).getContent().isEmpty();
 		Assert.assertTrue(changedUserNameExist);
 	}
 
@@ -597,7 +648,8 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		return system;
 	}
 
-	public void deleteAll(String userOneName, String userOneChangedName, String userImplementerName, String roleOneName) {
+	public void deleteAll(String userOneName, String userOneChangedName, String userImplementerName,
+			String roleOneName) {
 		if (identityService.getByUsername(userOneName) != null) {
 			identityService.delete(identityService.getByUsername(userOneName));
 		}

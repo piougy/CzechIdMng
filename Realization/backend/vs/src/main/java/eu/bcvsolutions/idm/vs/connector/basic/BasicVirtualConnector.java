@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
+import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
@@ -492,7 +493,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * @param pageable
 	 */
 	private void searchByPage(IcResultsHandler handler, Pageable pageable) {
-		Page<VsAccountDto> resultsPage = accountService.find(pageable);
+		VsAccountFilter accountFilter = new VsAccountFilter();
+		accountFilter.setSystemId(systemId);
+		Page<VsAccountDto> resultsPage = accountService.find(accountFilter, pageable);
 		List<VsAccountDto> results = resultsPage.getContent();
 		results.forEach(account -> {
 			boolean canContinue = handler

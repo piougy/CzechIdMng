@@ -757,7 +757,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		// Load implementers from config
 		List<IdmIdentityDto> implementersFromConfig = this.loadImplementers(virtualConfiguration.getImplementers());
 		// Load roles from config
-		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles(), implementersFromConfig);
+		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles(),
+				implementersFromConfig);
 
 		List<VsSystemImplementerDto> systemImplementersToAdd = new ArrayList<>();
 
@@ -833,19 +834,23 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	}
 
 	/**
-	 * Load implementer roles by UUIDs in connector configuration. Throw
-	 * exception when identity not found.
+	 * Load implementer roles by UUIDs in connector configuration. If none role
+	 * are set and none direct implementers are set, then will be used default
+	 * role. Throw exception when identity not found.
 	 * 
 	 * @param implementerRolesUUID
-	 * @param implementersFromConfig 
+	 * @param implementersFromConfig
 	 * @return
 	 */
-	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID, List<IdmIdentityDto> implementersFromConfig) {
-		List<IdmRoleDto> implementers = new ArrayList<>();
-		if ((implementerRolesUUID == null || implementerRolesUUID.length == 0) && CollectionUtils.isEmpty(implementersFromConfig)) {
-			// Load default role from configuration
-			implementers.add(vsConfiguration.getDefaultRole());
-			return implementers;
+	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID,
+			List<IdmIdentityDto> implementersFromConfig) {
+		List<IdmRoleDto> implementerRoles = new ArrayList<>();
+		if ((implementerRolesUUID == null || implementerRolesUUID.length == 0)) {
+			if (CollectionUtils.isEmpty(implementersFromConfig)) {
+				// Load default role from configuration
+				implementerRoles.add(vsConfiguration.getDefaultRole());
+			}
+			return implementerRoles;
 		}
 
 		for (UUID implementer : implementerRolesUUID) {
@@ -854,9 +859,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 				throw new VsException(VsResultCode.VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND,
 						ImmutableMap.of("role", implementer));
 			}
-			implementers.add(role);
+			implementerRoles.add(role);
 		}
-		return implementers;
+		return implementerRoles;
 	}
 
 	/**

@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.joda.time.LocalDateTime;
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -99,7 +97,7 @@ public class SysSyncLogDto extends AbstractDto implements Loggable {
 			StringBuilder builder = new StringBuilder();
 			if (this.log != null) {
 				builder.append(this.log);
-				builder.append("\n" + SysSyncItemLog.LOG_SEPARATOR + "\n");
+				builder.append("\n" + Loggable.LOG_SEPARATOR + "\n");
 			}
 			builder.append(text);
 			this.setLog(builder.toString());

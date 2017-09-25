@@ -219,7 +219,6 @@ public class DefaultSysSystemAttributeMappingService
 			this.repository.clearIsUidAttribute(dto.getSystemMapping(), dto.getId());
 		}
 		// We will do script validation (on compilation errors), before save
-
 		if (dto.getTransformFromResourceScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformFromResourceScript());
 		}

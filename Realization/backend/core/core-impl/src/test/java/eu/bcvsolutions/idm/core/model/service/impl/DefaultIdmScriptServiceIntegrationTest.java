@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 
-public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationTest {
 
 	private static final String TEST_SCRIPT_CODE_1 = "testScript1";
 	private static final String TEST_SCRIPT_CODE_2 = "testScript2";

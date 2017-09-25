@@ -160,7 +160,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 					CoreResultCode.SCRIPT_XML_FILE_NOT_FOUND.name());
 		}
 	}
-	
+
 	@Test
 	public void tryRedepoloyScript() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, TEST_BACKUP_FOLDER);

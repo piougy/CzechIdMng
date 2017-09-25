@@ -43,22 +43,25 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	private Executor executor;
 	//
 	private Boolean virtualSystem; // configured virtual system
-	private Long start;
-	
 	
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		virtualSystem = getParameterConverter().toBoolean(properties, PARAMETER_VIRTUAL);
-		LOG.debug("Processing created provisioning operation in queue.");
-		start = System.currentTimeMillis();
+	}
+	
+	@Override
+	protected boolean start() {
+		LOG.debug("Start processing created provisioning operation in queue.");
+		//
+		return super.start();
 	}
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		System.out.println("...... duration: " + (System.currentTimeMillis() - start));
-		//
-		return super.end(result, ex);
+		result = super.end(result, ex);
+		LOG.debug("End processing created provisioning operation in queue.");
+		return result;
 	}
 
 	@Override
@@ -73,7 +76,7 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	public Optional<OperationResult> processItem(SysProvisioningBatchDto dto) {
 		LOG.debug("Start processinig created batch [{}] from queue.",  dto.getId());
 		try {
-			// TODO: async
+			// TODO: multi thread
 //			FutureTask<OperationResult> futureTask = new FutureTask<>(new Callable<OperationResult>() {
 //				@Override
 //				public OperationResult call() throws Exception {

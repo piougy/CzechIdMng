@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.acc;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
@@ -75,6 +78,15 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	SysSystemMappingDto getDefaultMapping(SysSystemDto system);
 	
 	/**
+	 * Returns default mapping - provisioning, identity
+	 * 
+	 * @see #createSystem(String, boolean)
+	 * @param systemId
+	 * @return
+	 */
+	SysSystemMappingDto getDefaultMapping(UUID systemId);
+	
+	/**
 	 * Assing system to given role with default mapping (provisioning, identity)
 	 * 
 	 * @see #getDefaultMapping(SysSystem)
@@ -91,4 +103,12 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	TestResource findResource(String uid);
+	
+	/**
+	 * Creates system entity (IDENTITY) with random name on given system
+	 * 
+	 * @param system
+	 * @return
+	 */
+	SysSystemEntityDto createSystemEntity(SysSystemDto system);
 }

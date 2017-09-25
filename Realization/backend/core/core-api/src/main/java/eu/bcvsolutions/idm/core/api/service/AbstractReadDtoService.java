@@ -371,9 +371,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		//
 		if (this instanceof AuthorizableService) {
 			AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
-			BasePermission[] permissions = trimNull(permission);
-			if (!ObjectUtils.isEmpty(permissions) && authorizableType != null && authorizableType.getType() != null && !getAuthorizationManager().evaluate(entity, permissions)) {
-				throw new ForbiddenEntityException(entity.getId(), permissions);
+			if (authorizableType != null && authorizableType.getType() != null) {
+				BasePermission[] permissions = trimNull(permission);
+				if (!ObjectUtils.isEmpty(permissions) && !getAuthorizationManager().evaluate(entity, permissions)) {
+					throw new ForbiddenEntityException(entity.getId(), permissions);
+				}
 			}
 		}
 		return entity;

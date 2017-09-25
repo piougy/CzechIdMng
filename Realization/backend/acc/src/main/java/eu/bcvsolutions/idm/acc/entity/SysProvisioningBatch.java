@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.entity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -70,33 +69,5 @@ public class SysProvisioningBatch extends AbstractEntity {
 	
 	public void removeRequest(SysProvisioningRequest request) {
 		requests.remove(request);
-	}
-
-	/**
-	 * Returns requests sorted by oldest to newest. 
-	 */
-	@JsonIgnore
-	public List<SysProvisioningRequest> getRequestsByTimeline() {
-		List<SysProvisioningRequest> sortedList = new ArrayList<>(getRequests());
-		Collections.sort(sortedList, (a, b) -> a.getCreated().compareTo(b.getCreated()));
-		return Collections.unmodifiableList(sortedList);
-	}
-	
-	/**
-	 * Returns oldest request.
-	 */
-	@JsonIgnore
-	public SysProvisioningRequest getFirstRequest() {
-		List<SysProvisioningRequest> requests = getRequestsByTimeline();
-		return (requests.isEmpty()) ? null : requests.get(0);
-	}
-	
-	/**
-	 * Returns newest request.
-	 */
-	@JsonIgnore
-	public SysProvisioningRequest getLastRequest() {
-		List<SysProvisioningRequest> requests = getRequestsByTimeline();
-		return (requests.isEmpty()) ? null : requests.get(requests.size() - 1);
 	}
 }

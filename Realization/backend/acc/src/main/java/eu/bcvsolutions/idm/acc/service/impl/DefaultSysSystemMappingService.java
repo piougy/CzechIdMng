@@ -59,11 +59,18 @@ public class DefaultSysSystemMappingService extends
 	}
 	
 	@Override
-	public List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation, SystemEntityType entityType){
+	public List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation, SystemEntityType entityType) {
 		Assert.notNull(system);
-		
+		//
+		return findBySystemId(system.getId(), operation, entityType);
+	}
+	
+	@Override
+	public List<SysSystemMappingDto> findBySystemId(UUID systemId, SystemOperationType operation, SystemEntityType entityType) {
+		Assert.notNull(systemId);
+		//
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
-		filter.setSystemId(system.getId());
+		filter.setSystemId(systemId);
 		filter.setOperationType(operation);
 		filter.setEntityType(entityType);
 		Page<SysSystemMappingDto> page = toDtoPage(repository.find(filter, null));

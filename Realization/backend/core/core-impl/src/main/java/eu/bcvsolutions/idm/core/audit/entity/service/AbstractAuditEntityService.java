@@ -117,7 +117,7 @@ public abstract class AbstractAuditEntityService implements Plugin<Class<? exten
 	protected List<IdmAudit> getRevisionFromList(List<Object[]> entities) {
 		List<IdmAudit> result = new ArrayList<>();
 		for (Object[] entity : entities) {
-			if (!result.contains(getUUID((IdmAudit) entity[REVISION_DATA]))) {
+			if (!result.contains((IdmAudit) entity[REVISION_DATA])) {
 				result.add((IdmAudit) entity[REVISION_DATA]);
 			}
 		}

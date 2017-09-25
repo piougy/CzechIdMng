@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
-import java.util.Map;
-
 import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
@@ -35,11 +33,11 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 	private DateTime start;	
 	
 	@Override
-	public void init(Map<String, Object> properties) {
-		super.init(properties);
-		//
+	protected boolean start() {
 		start = new DateTime();
 		LOG.debug("Retry provisioning executor was inintialized for all next attmepts old than [{}]", start);
+		//
+		return super.start();
 	}
 	
 	@Override

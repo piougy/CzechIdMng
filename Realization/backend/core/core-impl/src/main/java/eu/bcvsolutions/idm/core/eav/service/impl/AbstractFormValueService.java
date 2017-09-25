@@ -84,8 +84,10 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Override
 	protected IdmFormValueDto toDto(E entity) {
 		IdmFormValueDto dto = super.toDto(entity);
-		dto.setOwnerId(entity.getOwner().getId());
-		dto.setOwnerType(entity.getOwner().getClass());
+		if (dto != null && entity != null) {
+			dto.setOwnerId(entity.getOwner().getId());
+			dto.setOwnerType(entity.getOwner().getClass());
+		}
 		return dto;
 	}
 	

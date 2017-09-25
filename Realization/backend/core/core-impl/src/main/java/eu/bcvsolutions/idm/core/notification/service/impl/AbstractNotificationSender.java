@@ -117,7 +117,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 			final IdmMessageDto notificationMessage = notification.getMessage();
 			if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
 				LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
-				notifications.remove(notification);
+				continue;
 			}
 			notification.setRecipients(notificationRecipients);
 			//

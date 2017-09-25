@@ -11,8 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.activiti.engine.impl.util.json.JSONObject;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.Before;
@@ -24,6 +22,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 
+/**
+ * Abstract rest test - using mock mvc
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Ignore
 public abstract class AbstractRestTest extends AbstractIntegrationTest {
 
@@ -57,8 +61,7 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 				.andReturn().getResponse().getContentAsString();
 	}
 
-	public List<LinkedHashMap<String, Object>> getEmbeddedList(String nameEmbeddedList, String json)
-			throws JsonParseException, JsonMappingException, IOException {
+	public List<LinkedHashMap<String, Object>> getEmbeddedList(String nameEmbeddedList, String json) throws IOException {
 		JSONObject tObject = new JSONObject(json);
 		String embeddedString = tObject.get("_embedded").toString();
 		tObject = new JSONObject(embeddedString);
@@ -66,12 +69,11 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 		String listString = tObject.get(nameEmbeddedList).toString();
 
 		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readValue(listString, new TypeReference<List<LinkedHashMap<String, Object>>>() {
-		});
+		return mapper.readValue(listString, new TypeReference<List<LinkedHashMap<String, Object>>>() {});
 	}
 
 	private String getPageableAndParameters(String anotherParameters, Long size, Long page, String sort, String order) {
-		StringBuilder pageable = new StringBuilder("");
+		StringBuilder pageable = new StringBuilder();
 		if (anotherParameters != null && !anotherParameters.isEmpty()) {
 			pageable.append('?');
 			pageable.append(anotherParameters);
@@ -103,7 +105,7 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 			pageable.append("sort=");
 			pageable.append(sort);
 			if (order != null) {
-				pageable.append(",");
+				pageable.append(',');
 				pageable.append(order);
 			}
 		}

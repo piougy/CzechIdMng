@@ -149,6 +149,7 @@ public class DefaultCryptService implements CryptService {
 						key = in.readLine();
 						if (key == null || key.isEmpty()) {
 							LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
+							return null;
 						}
 						return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 					} catch (IOException e) {

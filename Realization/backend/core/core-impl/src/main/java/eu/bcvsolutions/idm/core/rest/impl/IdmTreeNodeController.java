@@ -424,7 +424,7 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
 		IdmTreeNodeDto dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", dto));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);

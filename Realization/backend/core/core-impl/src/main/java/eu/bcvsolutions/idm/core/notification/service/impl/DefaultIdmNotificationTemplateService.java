@@ -103,7 +103,7 @@ public class DefaultIdmNotificationTemplateService extends
 		VelocityEngine velocityEngine = new VelocityEngine();
 		// Initialization apache velocity
 		velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, LOG);
-		velocityEngine.setProperty(RuntimeConstants.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL, true);
+		velocityEngine.setProperty(RuntimeConstants.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL, Boolean.TRUE);
 		velocityEngine.init();
 		this.velocityEngine = velocityEngine;
 		this.configurationService = configurationService;

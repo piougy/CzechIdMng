@@ -85,7 +85,7 @@ public class UuidToUuidConverter implements Converter<UUID, UUID> {
 				}
 			}
 		}
-		return (UUID)context.getSource();
+		return context == null ? null : (UUID) context.getSource();
 	}
 	
 	private LookupService getLookupService() {

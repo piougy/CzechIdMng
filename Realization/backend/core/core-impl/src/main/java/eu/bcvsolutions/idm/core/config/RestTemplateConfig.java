@@ -70,7 +70,7 @@ public class RestTemplateConfig {
 		try {
 			port = Integer.parseInt(split[1]);
 		} catch (NumberFormatException ex) {
-			throw new ResultCodeException(CoreResultCode.WRONG_PROXY_CONFIG);
+			throw new ResultCodeException(CoreResultCode.WRONG_PROXY_CONFIG, ex);
 		}
 
 		return new Proxy(Type.HTTP, new InetSocketAddress(host, port));

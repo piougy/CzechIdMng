@@ -124,7 +124,7 @@ public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
 		Map<String, Object> map = parser.parseMap(jwt.getClaims());
 		if (map.containsKey(HttpFilterUtils.JWT_EXP) && map.get(HttpFilterUtils.JWT_EXP) instanceof Integer) {
 			Integer intValue = (Integer) map.get(HttpFilterUtils.JWT_EXP);
-			map.put(HttpFilterUtils.JWT_EXP, new Long(intValue));
+			map.put(HttpFilterUtils.JWT_EXP, Long.valueOf(intValue));
 		}
 		return map;
 	}

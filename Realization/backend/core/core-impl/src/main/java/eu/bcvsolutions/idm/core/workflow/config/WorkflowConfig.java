@@ -32,8 +32,8 @@ import eu.bcvsolutions.idm.core.workflow.listener.TaskSendNotificationEventListe
  * {@link EmailNotificationSender}) - support for custom form types (decisions etc.) -
  * support for custom activiti event listeners
  * 
- * @author svanda, tomiska
- *
+ * @author svanda
+ * @author Radek Tomiška
  */
 @Configuration
 public class WorkflowConfig {

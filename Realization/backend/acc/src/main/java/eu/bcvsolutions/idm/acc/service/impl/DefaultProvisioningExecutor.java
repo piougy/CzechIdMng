@@ -156,8 +156,12 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
-		EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
-		return context.getContent();
+		try {
+			EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
+			return context.getContent();
+		} catch (Exception ex) {
+			return provisioningOperationService.handleFailed(provisioningOperation, ex);
+		}
 	}
 	
 	@Override

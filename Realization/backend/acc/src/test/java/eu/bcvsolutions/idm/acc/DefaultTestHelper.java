@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -236,9 +238,16 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	
 	@Override
 	public SysSystemMappingDto getDefaultMapping(SysSystemDto system) {
-		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
+		Assert.notNull(system);
+		//
+		return getDefaultMapping(system.getId());
+	}
+	
+	@Override
+	public SysSystemMappingDto getDefaultMapping(UUID systemId) {
+		List<SysSystemMappingDto> mappings = systemMappingService.findBySystemId(systemId, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 		if(mappings.isEmpty()) {
-			throw new CoreException(String.format("Default mapping for system[%s] not found", system.getId()));
+			throw new CoreException(String.format("Default mapping for system[%s] not found", systemId));
 		}
 		//
 		return mappings.get(0);

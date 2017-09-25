@@ -7,9 +7,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +27,21 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor;
+import eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -69,6 +80,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager; 
 	@Autowired private IdmLongRunningTaskService longRunningTaskService; 
+	@Autowired private SysProvisioningRequestService provisioningRequestService;
+	@Autowired private SysProvisioningBatchRepository provisioningBatchRepository;
+	@Autowired private SysProvisioningBatchService provisioningBatchService;
+	@Autowired private SysProvisioningOperationRepository provisioningOperationRepository;
+	@Autowired private TestProvisioningExceptionProcessor testProvisioningExceptionProcessor;
 	//	
 	private SysProvisioningOperationService provisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
@@ -94,7 +110,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		ProvisioningAttributeDto passwordAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
 		//
 		// create test provisioning context
-		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system);
+		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 		String uid = (String) accoutObject.get(usernameAttribute);
@@ -143,7 +159,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		ProvisioningAttributeDto passwordAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
 		//
 		// create test provisioning context
-		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system);
+		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 		String uid = (String) accoutObject.get(usernameAttribute);
@@ -215,7 +231,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		ProvisioningAttributeDto passwordAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
 		//
 		// create test provisioning context
-		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system);
+		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 		String uid = (String) accoutObject.get(usernameAttribute);
@@ -285,7 +301,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		system = systemService.save(system);
 		//
 		// create test provisioning context
-		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system);
+		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 		Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 		String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
 		//
@@ -318,7 +334,121 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(helper.findResource(uid));
 	}
 	
-	private Map<ProvisioningAttributeDto, Object> createAccountObject(SysSystemEntityDto systemEntity) {
+	@Test
+	public void testClearProvisioningRequestAndBatchOnReadonlySystem() {
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		system.setReadonly(true);
+		system = systemService.save(system);
+		String firstname = "firstname";
+		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, firstname);
+		Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
+		String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
+		//
+		// publish event
+		SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation); // 1 - create
+		// is necessary to get again operation from service - operation is not resulted because processing is called after transaction ends
+		operation = provisioningOperationService.get(operation.getId());
+		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
+		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), operation.getResult().getModel().getStatusEnum());
+		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
+		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 2)); // 2 - update
+		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 3)); // 3 - update
+		//
+		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
+		assertTrue(systemEntity.isWish());
+		assertNull(helper.findResource(uid));
+		//
+		// check batch
+		SysProvisioningBatch batch = provisioningBatchRepository.findBatch(provisioningOperationRepository.findOne(operation.getId()));
+		Assert.assertNotNull(batch);
+		//
+		// check provisioning operation requests
+		List<SysProvisioningRequestDto> requests = provisioningRequestService.findByBatchId(batch.getId(), null).getContent();
+		Assert.assertEquals(3, requests.size());
+		//
+		// execute first operation - create
+		system.setReadonly(false);
+		system = systemService.save(system);
+		operation = provisioningExecutor.execute(operation);
+		//
+		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
+		assertFalse(systemEntity.isWish());
+		TestResource resource = helper.findResource(uid);
+		assertNotNull(resource);
+		Assert.assertEquals(firstname, resource.getFirstname());
+		Assert.assertEquals(2, provisioningRequestService.findByBatchId(batch.getId(), null).getContent().size());
+		//
+		// execute whole batch
+		provisioningExecutor.execute(provisioningBatchService.get(batch.getId()));
+		//
+		resource = helper.findResource(uid);
+		Assert.assertEquals(firstname + 3, resource.getFirstname());
+		Assert.assertEquals(0, provisioningRequestService.findByBatchId(batch.getId(), null).getTotalElements());
+		Assert.assertNull(provisioningOperationRepository.findOne(operation.getId()));
+		Assert.assertNull(provisioningBatchService.get(batch.getId()));
+	}
+	
+	@Test
+	public void testRetryProvisioning() {
+		testProvisioningExceptionProcessor.setDisabled(false);
+		try {
+			SysSystemDto system = helper.createTestResourceSystem(true);
+			SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
+			Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
+			String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
+			DateTime now = new DateTime();
+			//
+			// publish event
+			SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation);
+			// is necessary to get again operation from service - operation is not resulted because processing is called after transaction ends
+			operation = provisioningOperationService.get(operation.getId());
+			SysProvisioningBatch batch = provisioningBatchRepository.findBatch(provisioningOperationRepository.findOne(operation.getId()));
+			Assert.assertEquals(OperationState.EXCEPTION, operation.getResultState());
+			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), operation.getResult().getModel().getStatusEnum());
+			Assert.assertEquals(1, operation.getRequest().getCurrentAttempt());
+			Assert.assertTrue(operation.getRequest().getMaxAttempts() > 1);
+			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
+			SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
+			Assert.assertTrue(systemEntity.isWish());
+			Assert.assertNull(helper.findResource(uid));
+			//
+			batch.setNextAttempt(new DateTime());
+			provisioningBatchRepository.save(batch);
+			//
+			// retry - the same exception expected
+			RetryProvisioningTaskExecutor retryProvisioningTaskExecutor = new RetryProvisioningTaskExecutor();
+			Boolean result = longRunningTaskManager.executeSync(retryProvisioningTaskExecutor);
+			Assert.assertTrue(result);
+			operation = provisioningOperationService.get(operation.getId());
+			batch = provisioningBatchRepository.findBatch(provisioningOperationRepository.findOne(operation.getId()));
+			Assert.assertEquals(2, operation.getRequest().getCurrentAttempt());
+			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
+			//
+			batch.setNextAttempt(new DateTime());
+			provisioningBatchRepository.save(batch);
+			//
+			// retry - expected success now
+			testProvisioningExceptionProcessor.setDisabled(true);
+			retryProvisioningTaskExecutor = new RetryProvisioningTaskExecutor();
+			result = longRunningTaskManager.executeSync(retryProvisioningTaskExecutor);
+			Assert.assertTrue(result);
+			//
+			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
+			Assert.assertFalse(systemEntity.isWish());
+			Assert.assertNotNull(helper.findResource(uid));
+			Assert.assertNull(provisioningBatchService.get(batch.getId()));
+		} finally {
+			testProvisioningExceptionProcessor.setDisabled(true);
+		}
+	}
+	
+	/**
+	 * Provisioning content - account object
+	 * 
+	 * @param systemEntity
+	 * @return
+	 */
+	private Map<ProvisioningAttributeDto, Object> createAccountObject(SysSystemEntityDto systemEntity, String firstname) {
 		ProvisioningAttributeDto nameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME);
 		ProvisioningAttributeDto firstNameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
 		ProvisioningAttributeDto lastNameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
@@ -326,7 +456,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();		
 		accoutObject.put(nameAttribute, systemEntity.getUid());
-		accoutObject.put(firstNameAttribute, "firstOne");
+		accoutObject.put(firstNameAttribute, firstname == null ? "firstOne" : firstname);
 		accoutObject.put(lastNameAttribute, "lastOne");
 		accoutObject.put(passwordAttribute, new GuardedString("password"));
 		//
@@ -339,10 +469,10 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	 * @param system
 	 * @return
 	 */
-	private SysProvisioningOperationDto createProvisioningOperation(SysSystemDto system) {
+	private SysProvisioningOperationDto createProvisioningOperation(SysSystemDto system, String firstname) {
 		ProvisioningContext context = new ProvisioningContext();
 		SysSystemEntityDto systemEntity = helper.createSystemEntity(system);
-		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
+		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity, firstname);
 		context.setAccountObject(accoutObject);
 		//
 		// prepare provisioning operation
@@ -351,6 +481,22 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
+				.setSystemEntity(systemEntity.getId())
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
+		return operationBuilder.build();
+	}
+	
+	private SysProvisioningOperationDto updateProvisioningOperation(SysSystemEntityDto systemEntity, String firstname) {
+		ProvisioningContext context = new ProvisioningContext();
+		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity, firstname);
+		context.setAccountObject(accoutObject);
+		//
+		// prepare provisioning operation
+		SysSystemMappingDto systemMapping = helper.getDefaultMapping(systemEntity.getSystem());
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setOperationType(ProvisioningOperationType.UPDATE)
 				.setSystemEntity(systemEntity.getId())
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		return operationBuilder.build();
@@ -365,6 +511,4 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// load attribute mapping is not needed now - name is the same on both (tree) sides
 		return new ProvisioningAttributeDto(name, AttributeMappingStrategyType.SET);
 	}
-	
-	// TODO: batch test - create, update, update, delete - all has to be processed, batch needs to be cleared
 }

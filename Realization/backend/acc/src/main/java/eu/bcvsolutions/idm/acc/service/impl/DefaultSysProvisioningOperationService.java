@@ -316,7 +316,7 @@ public class DefaultSysProvisioningOperationService
 	
 	@Override
 	@Transactional
-	public void handleFailed(SysProvisioningOperationDto operation, Exception ex) {
+	public SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex) {
 		SysSystemDto system = systemService.get(operation.getSystem());
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
 				ImmutableMap.of(
@@ -347,15 +347,18 @@ public class DefaultSysProvisioningOperationService
 			batch = batchService.save(batch);
 		}
 		//
-		notificationManager.send(
-				AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
-				.setModel(resultModel)
-				.build());
+		if (securityService.getCurrentId() != null) { // TODO: check account owner
+			notificationManager.send(
+					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
+					.setModel(resultModel)
+					.build());
+		}
+		return operation;
 	}
 	
 	@Override
 	@Transactional
-	public void handleSuccessful(SysProvisioningOperationDto operation) {
+	public SysProvisioningOperationDto handleSuccessful(SysProvisioningOperationDto operation) {
 		SysSystemDto system = systemService.get(operation.getSystem());
 		ResultModel resultModel = new DefaultResultModel(
 				AccResultCode.PROVISIONING_SUCCEED, 
@@ -376,6 +379,7 @@ public class DefaultSysProvisioningOperationService
 					.setModel(resultModel)
 					.build());
 		}
+		return operation;
 	}
 	
 	/**

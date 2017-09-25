@@ -35,7 +35,8 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	List<String> getPropertyNames();
 	
 	/**
-	 * Initialize task executor before task is processed
+	 * Initialize task executor before task is processed.
+	 * Look out: init is called by scheduler with configured task properties. 
 	 * 
 	 * @param context
 	 */

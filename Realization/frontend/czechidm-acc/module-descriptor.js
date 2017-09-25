@@ -91,7 +91,16 @@ module.exports = {
             'order': 70,
             'path': '/system/:entityId/provisioning',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
-          }
+          },
+          {
+            'id': 'system-provisioning-break-config',
+            'type': 'TAB',
+            'icon': 'fa:hand-paper-o',
+            'labelKey': 'acc:content.system.breakConfig.title',
+            'order': 80,
+            'path': '/system/:entityId/break-configs',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
         ]
       },
       {

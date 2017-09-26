@@ -299,6 +299,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			break;
 		}
 		case UPDATE: {
+			VsAccountDto account = accountService.findByUidSystem(request.getUid(), request.getSystem());
+			if (account == null) {
+				throw new VsException(VsResultCode.VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST,
+						ImmutableMap.of("uid", request.getUid()));
+			}
 			result = virtualConnector.internalUpdate(new IcUidAttributeImpl(null, request.getUid(), null),
 					request.getConnectorObject().getObjectClass(), request.getConnectorObject().getAttributes());
 			break;

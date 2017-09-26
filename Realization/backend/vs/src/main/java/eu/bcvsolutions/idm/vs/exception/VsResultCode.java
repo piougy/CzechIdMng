@@ -15,6 +15,7 @@ public enum VsResultCode implements ResultCode {
 	VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND(HttpStatus.BAD_REQUEST, "Implementer role for UUID [%s] not found!"),
 	VS_REQUEST_REALIZE_WRONG_STATE(HttpStatus.BAD_REQUEST, "For realize must be request in state: [%s], but he is in state: [%s]!"),
 	VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST(HttpStatus.BAD_REQUEST, "Virtual system account with UID [%s] was not found. You have to relized 'create' request first!"),
+	VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST(HttpStatus.BAD_REQUEST, "Virtual system account with UID [%s] was not found. You have to relized 'create' request first!"),
 	VS_REQUEST_CANCEL_WRONG_STATE(HttpStatus.BAD_REQUEST, "For cancel must be request in state: [%s], but he is in state: [%s]!");
 	
 	

@@ -78,7 +78,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 //@Component - we want control create connector instances
-@IcConnectorClass(displayName = "Virtual system connector", framework = "czechidm", name = "virtual-system-basic", version = "1.0.0", configurationClass = BasicVirtualConfiguration.class)
+@IcConnectorClass(displayName = "Virtual system connector", framework = "czechidm", name = "virtual-system-basic", version = "1.0.1", configurationClass = BasicVirtualConfiguration.class)
 public class BasicVirtualConnector implements VsVirtualConnector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BasicVirtualConnector.class);

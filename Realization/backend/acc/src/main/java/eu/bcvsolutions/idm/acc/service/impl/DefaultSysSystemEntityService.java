@@ -10,9 +10,11 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
@@ -63,23 +65,34 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<S
 	
 	@Override
 	@Transactional
-	public void delete(SysSystemEntityDto systemDto, BasePermission... permission) {
-		Assert.notNull(systemDto);
+	public void delete(SysSystemEntityDto systemEntityDto, BasePermission... permission) {
+		Assert.notNull(systemEntityDto);
 		//
-		if (provisioningOperationRepository.countBySystemEntity(this.getEntity(systemDto.getId())) > 0) {
-			SysSystemDto system = DtoUtils.getEmbedded(systemDto, SysSystemEntity_.system, SysSystemDto.class);
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(systemEntityDto.getSystem());
+		filter.setEntityType(systemEntityDto.getEntityType());
+		filter.setSystemEntityUid(systemEntityDto.getUid());
+		if (provisioningOperationRepository.find(filter, null).getTotalElements() > 0) {
+			SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system, SysSystemDto.class);
 			throw new ResultCodeException(AccResultCode.SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS,
-					ImmutableMap.of("uid", systemDto.getUid(), "system", system.getName()));
+					ImmutableMap.of("uid", systemEntityDto.getUid(), "system", system.getName()));
 		}
 		//
 		// clear accounts - only link, can be rebuild
-		accountRepository.clearSystemEntity(systemDto.getId());
+		accountRepository.clearSystemEntity(systemEntityDto.getId());
 		//
-		super.delete(systemDto, permission);
+		super.delete(systemEntityDto, permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid) {
+		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(system.getId(), entityType, uid));
 	}
 
 	@Override
-	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid) {
-		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(system.getId(), entityType, uid));
+	@Transactional(readOnly = true)
+	public SysSystemEntityDto getByProvisioningOperation(ProvisioningOperation operation) {
+		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(operation.getSystem(), operation.getEntityType(), operation.getSystemEntityUid()));
 	}
 }

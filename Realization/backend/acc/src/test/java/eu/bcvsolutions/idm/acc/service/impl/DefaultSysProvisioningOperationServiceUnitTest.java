@@ -20,10 +20,8 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -43,15 +41,12 @@ import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVerifiableUnitTest {
 	
 	@Mock private SysProvisioningOperationRepository repository;
-	@Mock private SysProvisioningRequestRepository provisioningRequestRepository;
 	@Mock private SysProvisioningArchiveService provisioningArchiveService;
 	@Mock private SysProvisioningBatchService batchService;
 	@Mock private NotificationManager notificationManager;
 	@Mock private ConfidentialStorage confidentialStorage;
-	@Mock private SysProvisioningRequestService requestService;
 	@Mock private SysSystemService systemService;
 	@Mock private ModelMapper modelMapper;
-	@Mock private SysProvisioningRequestService provisioningRequestService;
 	@Mock private SysProvisioningBatchRepository batchRepository;
 	@Mock private SecurityService securityService;
 	//
@@ -61,15 +56,11 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	public void init() {		
 		service = new DefaultSysProvisioningOperationService(
 				repository,
-				provisioningRequestRepository, 
 				provisioningArchiveService, 
 				batchService, 
 				notificationManager, 
 				confidentialStorage,
-				requestService,
 				systemService,
-				provisioningRequestService,
-				batchRepository,
 				securityService);
 	}
 	

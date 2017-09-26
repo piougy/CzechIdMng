@@ -261,13 +261,13 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   }
                   <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
                   {
-                    (!detail.entity.request || !detail.entity.request.nextAttempt)
+                    (!detail.entity.nextAttempt)
                     ||
                     <div>
                       <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt', {
-                        currentAttempt: detail.entity.request.currentAttempt,
-                        maxAttempts: detail.entity.request.maxAttempts,
-                        nextAttempt: moment(detail.entity.request.nextAttempt).format(this.i18n('format.datetime'))
+                        currentAttempt: detail.entity.currentAttempt,
+                        maxAttempts: detail.entity.maxAttempts,
+                        nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
                       })}}/>
                     </div>
                   }

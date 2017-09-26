@@ -2,8 +2,12 @@ package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -40,6 +44,11 @@ public abstract class AbstractIdentityPasswordProcessor extends CoreEventProcess
 		//
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto);
+			return new DefaultEventResult.Builder<>(event, this).setResult(
+					new OperationResult.Builder(OperationState.EXECUTED)
+						.setModel(new DefaultResultModel(CoreResultCode.ACCEPTED, "idm ok"))
+						.build()
+					).build();
 		}
 		return new DefaultEventResult<>(event, this);
 	}

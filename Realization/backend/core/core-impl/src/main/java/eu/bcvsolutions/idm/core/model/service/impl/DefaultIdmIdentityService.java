@@ -60,8 +60,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * Operations with IdmIdentity
  * - supports {@link IdentityEvent}
  * 
- * TODO: role dto
- * 
  * @author Radek Tomiška
  *
  */
@@ -241,7 +239,7 @@ public class DefaultIdmIdentityService
 				new IdentityEvent(
 						IdentityEventType.PASSWORD,
 						identity, 
-						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));	
+						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));
 	}
 	
 	@Override

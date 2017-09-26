@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -17,12 +17,20 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 public interface SysSystemEntityService extends ReadWriteDtoService<SysSystemEntityDto, SysSystemEntityFilter>, ScriptEnabled {
 
 	/**
-	 * Returns {@link SysSystemEntity} by given system, entityType, and uid
+	 * Returns {@link SysSystemEntityDto} by given system, entityType, and uid
 	 * 
 	 * @param uid
 	 * @param entityType
 	 * @return
 	 */
 	SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid);
+	
+	/**
+	 * Returns {@link SysSystemEntityDto} by given provisioning operation
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	SysSystemEntityDto getByProvisioningOperation(ProvisioningOperation operation);
 	
 }

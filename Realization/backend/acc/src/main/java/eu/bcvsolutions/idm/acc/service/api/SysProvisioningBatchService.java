@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -23,7 +25,7 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	 * 
 	 * @return Date of the next attempt. Null if there should be no next attempt 
 	 */
-	DateTime calculateNextAttempt(SysProvisioningRequestDto request);
+	DateTime calculateNextAttempt(SysProvisioningOperationDto request);
 	
 	/**
 	 * Gets batches to process (cteated requests)
@@ -42,4 +44,14 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	 * @return
 	 */
 	Page<SysProvisioningBatchDto> findBatchesToRetry(DateTime date, Pageable pageable);
+	
+	/**
+	 * Find batch by operation
+	 * 
+	 * @param systemId
+	 * @param entityIdentifier
+	 * @param systemEntityUid
+	 * @return
+	 */
+	SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, String systemEntityUid);
 }

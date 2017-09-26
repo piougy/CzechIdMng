@@ -3029,6 +3029,10 @@
       "title": "Úloha již byla provedena",
       "message": "Úloha [{{taskId}}] již byla provedena - nelze ji spustit dvakrát."
     },
+    "LONG_RUNNING_TASK_IS_RUNNING": {
+      "title": "Úloha již je spuštěna",
+      "message": "Úloha [{{taskId}}] již je spuštěna - nelze ji spustit dvakrát."
+    },
     "FOREST_INDEX_DISABLED": {
       "title": "Index je vypnutý",
       "message": "Indexování stromových struktur je vypnuté. Je možné ho zapnout konfigurační položkou {{property}}."

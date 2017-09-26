@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
@@ -50,7 +51,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
- * Service for control account management
+ * Service for control account management.
+ * Iccount management is supported for {@link SystemEntityType#IDENTITY} only.
  * 
  * @author svandav
  *
@@ -341,6 +343,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private UUID createAccount(String uid, SysRoleSystemDto roleSystem) {
 		AccAccountDto account = new AccAccountDto();
 		account.setUid(uid);
+		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setAccountType(AccountType.PERSONAL);
 		account.setSystem(roleSystem.getSystem());
 		account = accountService.save(account);

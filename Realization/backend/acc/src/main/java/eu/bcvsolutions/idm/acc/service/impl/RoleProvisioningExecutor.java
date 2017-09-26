@@ -138,9 +138,4 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	protected IdmRoleService getService() {
 		return roleService;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.ROLE == delimiter;
-	}
 }

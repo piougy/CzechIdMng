@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -32,10 +31,16 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	
 	private ProvisioningEventType operationType;
 	private ProvisioningContext provisioningContext;
-	@Embedded(dtoClass = SysSystemEntityDto.class)
-	private UUID systemEntity; // account, etc.
+	@Embedded(dtoClass = SysSystemDto.class)
+	private UUID system;
+	private SystemEntityType entityType;
 	private UUID entityIdentifier;
-	private SysProvisioningRequestDto request;
+	private String systemEntityUid; // account uid, etc.
+	private int currentAttempt = 0;
+	private int maxAttempts;
+	private OperationResult result;
+	@Embedded(dtoClass = SysProvisioningBatchDto.class)
+	private UUID batch;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -53,14 +58,6 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.provisioningContext = provisioningContext;
 	}
 
-	public UUID getSystemEntity() {
-		return systemEntity;
-	}
-
-	public void setSystemEntity(UUID systemEntity) {
-		this.systemEntity = systemEntity;
-	}
-
 	public UUID getEntityIdentifier() {
 		return entityIdentifier;
 	}
@@ -69,60 +66,80 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.entityIdentifier = entityIdentifier;
 	}
 
-	public SysProvisioningRequestDto getRequest() {
-		return request;
-	}
-
-	public void setRequest(SysProvisioningRequestDto request) {
-		this.request = request;
-	}
-
 	/**
 	 * systemDto is get by {@link DtoUtils#getEmbedded}
 	 */
 	@Override
 	public UUID getSystem() {
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class, null);
-		if (systemEntity == null) {
-			return null;
-		}
-		return systemEntity.getSystem();
+		return system;
+	}
+	
+	public void setSystem(UUID system) {
+		this.system = system;
 	}
 
 	@Override
 	public SystemEntityType getEntityType() {
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class, null);
-		if (systemEntity == null) {
-			return null;
-		}
-		return systemEntity.getEntityType();
+		return entityType;
+	}
+	
+	public void setEntityType(SystemEntityType entityType) {
+		this.entityType = entityType;
 	}
 
 	@Override
 	public String getSystemEntityUid() {
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(this, SysProvisioningOperation_.systemEntity, SysSystemEntityDto.class, null);
-		if (systemEntity == null) {
-			return null;
-		}
-		return systemEntity.getUid();
+		return systemEntityUid;
+	}
+	
+	public void setSystemEntityUid(String systemEntityUid) {
+		this.systemEntityUid = systemEntityUid;
 	}
 
 	@Override
 	public OperationState getResultState() {
-		if (this.request == null) {
+		if (this.result == null) {
 			return null;
 		}
-		return request.getResult().getState();
+		return getResult().getState();
+	}
+	
+	public int getCurrentAttempt() {
+		return currentAttempt;
+	}
+
+	public void setCurrentAttempt(int currentAttempt) {
+		this.currentAttempt = currentAttempt;
+	}
+
+	public int getMaxAttempts() {
+		return maxAttempts;
+	}
+
+	public void setMaxAttempts(int maxAttempts) {
+		this.maxAttempts = maxAttempts;
 	}
 
 	@Override
 	public OperationResult getResult() {
-		if (this.request == null) {
-			return null;
-		}
-		return request.getResult();
+		return result;
 	}
 
+	public void setResult(OperationResult result) {
+		this.result = result;
+	}
+
+	public UUID getBatch() {
+		return batch;
+	}
+
+	public void setBatch(UUID batch) {
+		this.batch = batch;
+	}
+	
+	public void increaseAttempt() {
+		this.currentAttempt++;
+	}
 	
 	/**
 	 * New {@link SysProvisioningOperationDto} builder.
@@ -134,7 +151,9 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		private ProvisioningEventType operationType;
 		private ProvisioningContext provisioningContext;
 		private UUID entityIdentifier;
-		private UUID systemEntity;
+		private UUID system;
+		private SystemEntityType entityType;
+		private String systemEntityUid;
 		
 		public Builder setOperationType(ProvisioningEventType operationType) {
 			this.operationType = operationType;
@@ -179,8 +198,25 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			return this;
 		}
 		
-		public Builder setSystemEntity(UUID systemEntity) {
-			this.systemEntity = systemEntity;
+		public Builder setSystemEntity(SysSystemEntityDto systemEntity) {
+			this.system = systemEntity.getSystem();
+			this.entityType = systemEntity.getEntityType();
+			this.systemEntityUid = systemEntity.getUid();
+			return this;
+		}
+		
+		public Builder setEntityType(SystemEntityType entityType) {
+			this.entityType = entityType;
+			return this;
+		}
+		
+		public Builder setSystem(UUID system) {
+			this.system = system;
+			return this;
+		}
+		
+		public Builder setSystemEntityUid(String systemEntityUid) {
+			this.systemEntityUid = systemEntityUid;
 			return this;
 		}
 		
@@ -192,7 +228,9 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		public SysProvisioningOperationDto build() {
 			SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
 			provisioningOperation.setOperationType(operationType);
-			provisioningOperation.setSystemEntity(systemEntity);
+			provisioningOperation.setSystem(system);
+			provisioningOperation.setSystemEntityUid(systemEntityUid);
+			provisioningOperation.setEntityType(entityType);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
 			provisioningOperation.setProvisioningContext(provisioningContext);
 			return provisioningOperation;

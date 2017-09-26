@@ -23,9 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -56,6 +59,8 @@ import io.swagger.annotations.AuthorizationScope;;
 public class AccAccountController extends DefaultReadWriteDtoController<AccAccountDto, AccAccountFilter> {
 	
 	protected static final String TAG = "Accounts";
+	//
+	@Autowired private SysSystemEntityService systemEntityService;
 	
 	@Autowired
 	public AccAccountController(AccAccountService accountService) {
@@ -187,6 +192,17 @@ public class AccAccountController extends DefaultReadWriteDtoController<AccAccou
 	}
 	
 	@Override
+	protected AccAccountDto validateDto(AccAccountDto dto) {
+		dto = super.validateDto(dto);
+		// preset entity type
+		if (dto.getSystemEntity() != null) {
+			SysSystemEntityDto systemEntity = systemEntityService.get(dto.getSystemEntity());
+			dto.setEntityType(systemEntity.getEntityType());
+		}		
+		return dto;
+	}
+	
+	@Override
 	protected AccAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AccAccountFilter filter = new AccAccountFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
@@ -204,7 +220,8 @@ public class AccAccountController extends DefaultReadWriteDtoController<AccAccou
 		filter.setAccountType(getParameterConverter().toEnum(parameters, "accountType", AccountType.class));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		filter.setSupportChangePassword(getParameterConverter().toBoolean(parameters, "supportChangePassword"));
-		
+		filter.setEntityType(getParameterConverter().toEnum(parameters, "entityType", SystemEntityType.class));
+		//
 		return filter;
 	}
 }

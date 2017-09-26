@@ -41,15 +41,17 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * 
 	 * @param operation
 	 * @param ex
+	 * @return
 	 */
-	void handleFailed(SysProvisioningOperationDto operation, Exception ex);
+	SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex);
 	
 	/**
 	 * Called when operation succeeded. 
 	 * 
 	 * @param operation
+	 * @return
 	 */
-	void handleSuccessful(SysProvisioningOperationDto operation);
+	SysProvisioningOperationDto handleSuccessful(SysProvisioningOperationDto operation);
 	
 	/**
 	 * Creates account object property key into confidential storage

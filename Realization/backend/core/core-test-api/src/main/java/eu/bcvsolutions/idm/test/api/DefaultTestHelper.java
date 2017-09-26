@@ -299,7 +299,12 @@ public class DefaultTestHelper implements TestHelper {
 		return idmRoleCatalogueService.save(roleCatalogue);
 	}
 	
-	private String createName() {
+	/**
+	 * Creates random unique name
+	 * 
+	 * @return
+	 */
+	protected String createName() {
 		return "test" + "-" + UUID.randomUUID();
 	}
 }

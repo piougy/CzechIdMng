@@ -178,7 +178,7 @@ public class DefaultEmailer implements Emailer {
 	 * @author Ondrej Kopr <kopr@xyxy.cz>
 	 *
 	 */
-	private class DefaultSendOperation implements SendOperation {
+	private static class DefaultSendOperation implements SendOperation {
 		private final IdmEmailLogDto emailLog;
 		private final Endpoint endpoint;
 		private final Exchange exchange;

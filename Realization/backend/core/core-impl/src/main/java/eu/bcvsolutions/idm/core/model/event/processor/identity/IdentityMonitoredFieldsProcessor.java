@@ -159,10 +159,12 @@ public class IdentityMonitoredFieldsProcessor extends CoreEventProcessor<IdmIden
 
     /**
      * Pojo bean keep information about changed fields
+     * 
      * @author svandav
      *
      */
-	public class ChangedField {
+	public static class ChangedField {
+		
 		private String name;
 		private String oldValue;
 		private String newValue;

@@ -15,7 +15,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.InitCoreScheduledTask;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -39,7 +38,7 @@ import eu.bcvsolutions.idm.core.scheduler.jaxb.IdmScheduledTasksType;
  */
 public abstract class AbstractScheduledTaskInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitCoreScheduledTask.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractScheduledTaskInitializer.class);
 	protected static final String DEFAULT_RESOURCE = "eu/bcvsolutions/idm/tasks/";
 
 	@Autowired private SchedulerManager schedulerService;

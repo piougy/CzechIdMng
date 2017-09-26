@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -66,6 +68,7 @@ import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
+import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
@@ -151,9 +154,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		formDefinition = updateFormDefinition(virtualSystemKey, type, system, virtualConfiguration);
 
 		// Update identity and role implementers relations
-
 		updateSystemImplementers(this.virtualConfiguration, this.systemId);
-
 	}
 
 	@Override
@@ -492,7 +493,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * @param pageable
 	 */
 	private void searchByPage(IcResultsHandler handler, Pageable pageable) {
-		Page<VsAccountDto> resultsPage = accountService.find(pageable);
+		VsAccountFilter accountFilter = new VsAccountFilter();
+		accountFilter.setSystemId(systemId);
+		Page<VsAccountDto> resultsPage = accountService.find(accountFilter, pageable);
 		List<VsAccountDto> results = resultsPage.getContent();
 		results.forEach(account -> {
 			boolean canContinue = handler
@@ -754,7 +757,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		// Load implementers from config
 		List<IdmIdentityDto> implementersFromConfig = this.loadImplementers(virtualConfiguration.getImplementers());
 		// Load roles from config
-		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles());
+		List<IdmRoleDto> rolesFromConfig = this.loadImplementerRoles(virtualConfiguration.getImplementerRoles(),
+				implementersFromConfig);
 
 		List<VsSystemImplementerDto> systemImplementersToAdd = new ArrayList<>();
 
@@ -830,18 +834,23 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	}
 
 	/**
-	 * Load implementer roles by UUIDs in connector configuration. Throw
-	 * exception when identity not found.
+	 * Load implementer roles by UUIDs in connector configuration. If none role
+	 * are set and none direct implementers are set, then will be used default
+	 * role. Throw exception when identity not found.
 	 * 
 	 * @param implementerRolesUUID
+	 * @param implementersFromConfig
 	 * @return
 	 */
-	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID) {
-		List<IdmRoleDto> implementers = new ArrayList<>();
-		if (implementerRolesUUID == null || implementerRolesUUID.length == 0) {
-			// Load default role from configuration
-			implementers.add(vsConfiguration.getDefaultRole());
-			return implementers;
+	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID,
+			List<IdmIdentityDto> implementersFromConfig) {
+		List<IdmRoleDto> implementerRoles = new ArrayList<>();
+		if ((implementerRolesUUID == null || implementerRolesUUID.length == 0)) {
+			if (CollectionUtils.isEmpty(implementersFromConfig)) {
+				// Load default role from configuration
+				implementerRoles.add(vsConfiguration.getDefaultRole());
+			}
+			return implementerRoles;
 		}
 
 		for (UUID implementer : implementerRolesUUID) {
@@ -850,9 +859,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 				throw new VsException(VsResultCode.VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND,
 						ImmutableMap.of("role", implementer));
 			}
-			implementers.add(role);
+			implementerRoles.add(role);
 		}
-		return implementers;
+		return implementerRoles;
 	}
 
 	/**

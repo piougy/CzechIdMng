@@ -132,7 +132,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		}
 		//
 		try {
-			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass.toString()), parameters, pageable), getDtoClass());
+			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass), parameters, pageable), getDtoClass());
 		} catch (ClassNotFoundException e) {
 			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", entityClass), e);
 		}

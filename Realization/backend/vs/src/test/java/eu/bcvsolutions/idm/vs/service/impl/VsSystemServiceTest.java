@@ -102,9 +102,9 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 	 */
 	public void checkSpecificImplementerRoleTest() {
 
-		String userTwoName = "vsUserTwo";
+		String userOneName = "vsUserOne";
 		String roleOneName = "vsRoleOne";
-		IdmIdentityDto userTwo = helper.createIdentity(userTwoName);
+		IdmIdentityDto userTwo = helper.createIdentity(userOneName);
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 		helper.assignRoles(helper.getPrimeContract(userTwo.getId()), false, roleOne);
 		
@@ -116,7 +116,7 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 
 		List<IdmIdentityDto> implementes = systemImplementersService.findRequestImplementers(system.getId());
 		Assert.assertEquals(1, implementes.size());
-		Assert.assertEquals(userTwoName, implementes.get(0).getUsername());
+		Assert.assertEquals(userOneName, implementes.get(0).getUsername());
 	}
 
 }

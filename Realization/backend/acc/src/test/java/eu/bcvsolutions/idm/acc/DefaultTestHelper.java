@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -29,6 +32,7 @@ import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -56,6 +60,7 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
 	@Autowired private SysSystemRepository systemRepository;
+	@Autowired private SysSystemEntityService systemEntityService;
 	
 	/**
 	 * Create test system connected to same database (using configuration from dataSource)
@@ -233,9 +238,16 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	
 	@Override
 	public SysSystemMappingDto getDefaultMapping(SysSystemDto system) {
-		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
+		Assert.notNull(system);
+		//
+		return getDefaultMapping(system.getId());
+	}
+	
+	@Override
+	public SysSystemMappingDto getDefaultMapping(UUID systemId) {
+		List<SysSystemMappingDto> mappings = systemMappingService.findBySystemId(systemId, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 		if(mappings.isEmpty()) {
-			throw new CoreException(String.format("Default mapping for system[%s] not found", system.getId()));
+			throw new CoreException(String.format("Default mapping for system[%s] not found", systemId));
 		}
 		//
 		return mappings.get(0);
@@ -257,5 +269,13 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public TestResource findResource(String uid) {
 		return entityManager.find(TestResource.class, uid);
+	}
+	
+	@Override
+	public SysSystemEntityDto createSystemEntity(SysSystemDto system) {
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto(createName(), SystemEntityType.IDENTITY);
+		systemEntity.setSystem(system.getId());
+		systemEntity.setWish(true);
+		return systemEntityService.save(systemEntity);
 	}
 }

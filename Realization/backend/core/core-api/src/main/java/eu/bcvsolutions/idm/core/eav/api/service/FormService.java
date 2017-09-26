@@ -203,7 +203,7 @@ public interface FormService extends ScriptEnabled {
 	 * @param values
 	 * @return persisted values
 	 */
-	<O extends FormableEntity> IdmFormInstanceDto saveFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values);
+	IdmFormInstanceDto saveFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values);
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
@@ -213,7 +213,7 @@ public interface FormService extends ScriptEnabled {
 	 * @param persistentValue raw values
 	 * @return persisted values
 	 */
-	<O extends FormableEntity> List<IdmFormValueDto> saveValues(Identifiable owner, IdmFormAttributeDto attribute, List<Serializable> persistentValues);
+	List<IdmFormValueDto> saveValues(Identifiable owner, IdmFormAttributeDto attribute, List<Serializable> persistentValues);
 	List<IdmFormValueDto> saveValues(UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, List<Serializable> persistentValues);
 	
 	/**
@@ -293,7 +293,7 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
 	 */
-	<O extends FormableEntity> IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition);
+	IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition);
 	
 	/**
 	 * Returns attribute values by attributeName from given definition, or empty collection
@@ -305,7 +305,7 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
 	 */
-	<O extends FormableEntity> List<IdmFormValueDto> getValues(Identifiable owner, IdmFormDefinitionDto formDefinition, String attributeCode);
+	List<IdmFormValueDto> getValues(Identifiable owner, IdmFormDefinitionDto formDefinition, String attributeCode);
 	List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormDefinitionDto formDefinition, String attributeCode);
 	
 	/**
@@ -316,7 +316,7 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 * @throws IllegalArgumentException if attribute is not given
 	 */
-	<O extends FormableEntity> List<IdmFormValueDto> getValues(Identifiable owner, IdmFormAttributeDto attribute);
+	List<IdmFormValueDto> getValues(Identifiable owner, IdmFormAttributeDto attribute);
 	List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute);
 	
 	/**
@@ -328,7 +328,7 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 * @throws IllegalArgumentException if main definition does not exist
 	 */
-	<O extends FormableEntity> List<IdmFormValueDto> getValues(Identifiable owner, String attributeCode);
+	List<IdmFormValueDto> getValues(Identifiable owner, String attributeCode);
 	List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType, String attributeCode);
 	
 	/**
@@ -355,7 +355,7 @@ public interface FormService extends ScriptEnabled {
 	 * @param <O> values owner
 	 * @return
 	 */
-	<O extends FormableEntity> void deleteValues(Identifiable owner, IdmFormDefinitionDto formDefinition);
+	void deleteValues(Identifiable owner, IdmFormDefinitionDto formDefinition);
 	
 	/**
 	 * Deletes form values by given owner and form attribute
@@ -363,7 +363,7 @@ public interface FormService extends ScriptEnabled {
 	 * @param owner
 	 * @param formAttribute
 	 */
-	<O extends FormableEntity> void deleteValues(Identifiable owner, IdmFormAttributeDto formAttribute);
+	void deleteValues(Identifiable owner, IdmFormAttributeDto formAttribute);
 	
 	/**
 	 * Returns key in confidential storage for given extended attribute and owner

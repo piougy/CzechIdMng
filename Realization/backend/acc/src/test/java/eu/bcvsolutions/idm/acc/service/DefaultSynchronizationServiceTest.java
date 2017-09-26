@@ -67,7 +67,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -1272,6 +1274,34 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	@Transactional
+	/**
+	 * Testing problem on Postgres, where cannot be save 0x00 to TEXT column.
+	 * Problem solving converter between entity and DTO (StringToStringConverter)
+	 */
+	public void escape0x00FromStringTest() {
+		String errorString0x00 = "\0x00";
+		
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		SysSyncLogDto log = new SysSyncLogDto();
+		log.setSynchronizationConfig(syncConfigCustom.getId());
+		log.setLog(errorString0x00);
+		log.setToken(errorString0x00);
+		syncLogService.save(log);
+		syncConfigCustom.setName(errorString0x00);
+		syncConfigCustom.setToken(errorString0x00);
+		syncConfigService.save(syncConfigCustom);
+		
+	}
+	
 	
 	private SysSyncConfigDto setSyncConfigForEav(String configName) {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();

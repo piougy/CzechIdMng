@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 
-public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationTest {
 
 	private static final String TEST_SCRIPT_CODE_1 = "testScript1";
 	private static final String TEST_SCRIPT_CODE_2 = "testScript2";
@@ -160,7 +160,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 					CoreResultCode.SCRIPT_XML_FILE_NOT_FOUND.name());
 		}
 	}
-	
+
 	@Test
 	public void tryRedepoloyScript() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, TEST_BACKUP_FOLDER);

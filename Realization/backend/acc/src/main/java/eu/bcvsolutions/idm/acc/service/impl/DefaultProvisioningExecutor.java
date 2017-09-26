@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Entry point to all provisioning operations.
@@ -53,6 +54,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final NotificationManager notificationManager;
 	private final SysProvisioningRequestService requestService;
 	private final SysSystemEntityService systemEntityService;
+	private final SecurityService securityService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -62,13 +64,15 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			SysProvisioningBatchService batchService,
 			NotificationManager notificationManager,
 			SysProvisioningRequestService requestService,
-			SysSystemEntityService systemEntityService) {
+			SysSystemEntityService systemEntityService,
+			SecurityService securityService) {
 		Assert.notNull(entityEventManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(batchService);
 		Assert.notNull(notificationManager);
 		Assert.notNull(requestService);
 		Assert.notNull(systemEntityService);
+		Assert.notNull(securityService);
 		//
 		this.entityEventManager = entityEventManager;
 		this.provisioningOperationService = provisioningOperationService;
@@ -76,6 +80,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		this.notificationManager = notificationManager;
 		this.requestService = requestService;
 		this.systemEntityService = systemEntityService;
+		this.securityService = securityService;
 	}
 
 	@Override
@@ -117,11 +122,13 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			//
 			//
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
-				notificationManager.send(
-						AccModuleDescriptor.TOPIC_PROVISIONING,
-						new IdmMessageDto.Builder(NotificationLevel.INFO)
-						.setModel(request.getResult().getModel())
-						.build());
+				if (securityService.getCurrentId() != null) { // TODO: check logged identity and account owner
+					notificationManager.send(
+							AccModuleDescriptor.TOPIC_PROVISIONING,
+							new IdmMessageDto.Builder(NotificationLevel.INFO)
+							.setModel(request.getResult().getModel())
+							.build());
+				}
 				return provisioningOperation;
 			}
 		}
@@ -149,8 +156,12 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
-		EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
-		return context.getContent();
+		try {
+			EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
+			return context.getContent();
+		} catch (Exception ex) {
+			return provisioningOperationService.handleFailed(provisioningOperation, ex);
+		}
 	}
 	
 	@Override

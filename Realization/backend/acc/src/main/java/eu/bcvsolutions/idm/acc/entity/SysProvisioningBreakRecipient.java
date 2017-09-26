@@ -12,6 +12,7 @@ import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
  * Entity that store information about recipient for
@@ -44,6 +45,15 @@ public class SysProvisioningBreakRecipient extends AbstractEntity {
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentity identity;
+	
+	@Audited
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private IdmRole role;
 
 	public SysProvisioningBreakConfig getBreakConfig() {
 		return breakConfig;
@@ -59,6 +69,14 @@ public class SysProvisioningBreakRecipient extends AbstractEntity {
 
 	public void setIdentity(IdmIdentity identity) {
 		this.identity = identity;
+	}
+
+	public IdmRole getRole() {
+		return role;
+	}
+
+	public void setRole(IdmRole role) {
+		this.role = role;
 	}
 
 }

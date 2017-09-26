@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
 /**
  * DTO for {@link SysProvisioningBreakRecipient}
@@ -25,6 +26,8 @@ public class SysProvisioningBreakRecipientDto extends AbstractDto {
 	private UUID breakConfig;
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID identity;
+	@Embedded(dtoClass = IdmRoleDto.class)
+	private UUID role;
 
 	public UUID getBreakConfig() {
 		return breakConfig;
@@ -42,4 +45,11 @@ public class SysProvisioningBreakRecipientDto extends AbstractDto {
 		this.identity = identity;
 	}
 
+	public UUID getRole() {
+		return role;
+	}
+
+	public void setRole(UUID role) {
+		this.role = role;
+	}
 }

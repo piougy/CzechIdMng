@@ -149,8 +149,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			return provisioningOperation;
 		}
 		//
-		entityEventManager.publishEvent(provisioningOperation);
-		return provisioningOperation;
+		return executeInternal(provisioningOperation);
 	}
 	
 	/**
@@ -170,8 +169,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
 			return context.getContent();
 		} catch (ProvisioningException ex) { // TODO: result code exceptions? or all exceptions?
-			provisioningOperationService.handleFailed(provisioningOperation, ex);
-			throw ex;
+			return provisioningOperationService.handleFailed(provisioningOperation, ex);
 		}
 	}
 	

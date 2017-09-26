@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
@@ -73,7 +75,6 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -274,14 +275,14 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 		Assert.notNull(dto);
 		Assert.notNull(dto.getId(), "Password can be changed, when dto is already persisted.");
 		Assert.notNull(passwordChange);
-		List<OperationResult> results = new ArrayList<>();
+		List<SysProvisioningOperationDto> preparedOperations = new ArrayList<>();
 		//
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(dto.getId());
 		List<? extends EntityAccountDto> entityAccountList = getEntityAccountService().find(filter, null)
 				.getContent();
 		if (entityAccountList == null) {
-			return results;
+			return Collections.<OperationResult>emptyList();
 		}
 		
 		// Distinct by accounts
@@ -315,7 +316,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 
 		// Clear accounts in DTO ... we will set only success changed
 		passwordChange.setAccounts(null);
-		
+		Map<UUID, UUID> operationAccounts = new HashMap<>();
 		accounts.forEach(accountId -> {
 			AccAccountDto account = accountService.get(accountId);
 			// find uid from system entity or from account
@@ -344,15 +345,26 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
 			
 			// Change password on target system
-			results.add(doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
-					ProvisioningOperationType.UPDATE, dto));
-			// Add success changed password account
-			passwordChange.getAccounts().add(account.getId().toString());
+			SysProvisioningOperationDto operation = prepareProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
+					ProvisioningOperationType.UPDATE, dto);
+			preparedOperations.add(operation);
+			operationAccounts.put(operation.getId(), account.getId());
 		});
 		passwordChange.setNewPassword(null);
 		passwordChange.setOldPassword(null);
 		//
-		return results;
+		// execute prepated operations
+		return preparedOperations
+			.stream()
+			.map(operation -> {
+				OperationResult result = provisioningExecutor.executeSync(operation).getResult();
+				if (result.getState() == OperationState.EXECUTED) {
+					// Add success changed password account
+					passwordChange.getAccounts().add(operationAccounts.get(operation.getId()).toString());
+				}
+				return result;
+			})
+			.collect(Collectors.toList());
 	}
 
 	@Override
@@ -578,9 +590,15 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 	protected Object getAttributeValue(String uid, DTO dto, AttributeMapping attribute) {
 		return attributeMappingService.getAttributeValue(uid, dto, attribute);
 	}
-
+	
 	@Override
 	public OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
+			Object value, ProvisioningOperationType operationType, DTO dto) {
+		return provisioningExecutor.execute(prepareProvisioningForAttribute(systemEntity, attributeMapping, value, operationType, dto)).getResult();
+	}
+
+	
+	private SysProvisioningOperationDto prepareProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
 			Object value, ProvisioningOperationType operationType, DTO dto) {
 
 		Assert.notNull(systemEntity);
@@ -617,11 +635,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 				.setEntityIdentifier(dto == null ? null : dto.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));
 		// 
-		if (icAttributeForCreate instanceof IcPasswordAttribute) { // TODO: configurable by provisioned attribute, now is passwords synchronous only
-			return provisioningExecutor.executeSync(operationBuilder.build()).getResult();
-		} else {
-			return provisioningExecutor.execute(operationBuilder.build()).getResult();
-		}
+		return operationBuilder.build();
 	}
 
 	@Override

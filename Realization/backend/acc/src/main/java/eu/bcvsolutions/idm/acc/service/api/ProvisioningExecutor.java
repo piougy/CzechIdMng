@@ -23,7 +23,7 @@ public interface ProvisioningExecutor {
 	SysProvisioningOperationDto execute(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
-	 * Execute operation synchronously after original transaction ends.
+	 * Execute operation synchronously without queue and waiting to transaction ends.
 	 * 
 	 * @param provisioningOperation
 	 * @return

@@ -201,7 +201,11 @@
   "error": {
     "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
       "title": "Account [{{uid}}] on target system cannot be deleted",
-      "message": "Account [{{uid}}] on target system cannot be deleted, becouse was not found. Make sure you first realized a request for account create! "
+      "message": "Account [{{uid}}] on target system cannot be deleted, because was not found. Make sure you first realized a 'create' request for account! "
+    },
+    "VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST": {
+      "title": "Account [{{uid}}] on target system cannot be updated",
+      "message": "Account [{{uid}}] on target system cannot be updated, because was not found. Make sure you first realized a 'create' request for account! "
     },
     "VS_IMPLEMENTER_WAS_NOT_FOUND": {
       "title": "Implementer for virtual system was not found!",

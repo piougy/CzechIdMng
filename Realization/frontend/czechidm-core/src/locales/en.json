@@ -959,8 +959,8 @@
       }
     },
     "tree": {
-      "header": "Organizational tree",
-      "title": "Organizational tree",
+      "header": "Tree structures",
+      "title": "Tree structures",
       "filter": {
         "parentId": {
           "label": "Superior element"

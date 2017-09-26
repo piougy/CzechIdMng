@@ -139,7 +139,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		if (this.getClass().isAnnotationPresent(DisallowConcurrentExecution.class)) {
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 			filter.setTaskType(getName());
-			filter.setRunning(true);
+			filter.setRunning(Boolean.TRUE);
 			if (service.find(filter, null).getTotalElements() > 0) {
 				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", getName()));
 			}

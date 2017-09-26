@@ -73,6 +73,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -615,8 +616,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntity)
 				.setEntityIdentifier(dto == null ? null : dto.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));
-		// TODO: configurable by provisioned attribute
-		return provisioningExecutor.executeSync(operationBuilder.build()).getResult();
+		// 
+		if (icAttributeForCreate instanceof IcPasswordAttribute) { // TODO: configurable by provisioned attribute, now is passwords synchronous only
+			return provisioningExecutor.executeSync(operationBuilder.build()).getResult();
+		} else {
+			return provisioningExecutor.execute(operationBuilder.build()).getResult();
+		}
 	}
 
 	@Override

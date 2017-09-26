@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 
@@ -57,7 +57,7 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
-	private ProvisioningOperationType operationType;
+	private ProvisioningEventType operationType;
 
 	@Audited
 	@NotNull
@@ -126,11 +126,11 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 		this.disabled = disabled;
 	}
 
-	public ProvisioningOperationType getOperationType() {
+	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(ProvisioningOperationType operationType) {
+	public void setOperationType(ProvisioningEventType operationType) {
 		this.operationType = operationType;
 	}
 

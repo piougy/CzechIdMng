@@ -38,7 +38,6 @@ public class SysProvisioningBreakRecipient extends AbstractEntity {
 	private SysProvisioningBreakConfig breakConfig;
 
 	@Audited
-	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
@@ -47,7 +46,6 @@ public class SysProvisioningBreakRecipient extends AbstractEntity {
 	private IdmIdentity identity;
 	
 	@Audited
-	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in

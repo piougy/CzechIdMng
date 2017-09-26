@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  */
 @Component
 @Description("Persist identity's password.")
-public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor{
+public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-password-processor";
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";

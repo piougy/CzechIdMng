@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.acc.dto;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -28,14 +28,13 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 	private Long period;
 	private boolean operationDisabled = false;
 	private boolean disabled;
-	private ProvisioningOperationType operationType;
+	private ProvisioningEventType operationType;
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
 	private UUID emailTemplateWarning;
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
 	private UUID emailTemplateDisabled;
-	private List<UUID> recipients;
 
 	public Integer getWarningLimit() {
 		return warningLimit;
@@ -53,6 +52,11 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 		this.disableLimit = disableLimit;
 	}
 
+	/**
+	 * Get period in MIN
+	 * 
+	 * @return
+	 */
 	public Long getPeriod() {
 		return period;
 	}
@@ -77,11 +81,11 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 		this.disabled = disabled;
 	}
 
-	public ProvisioningOperationType getOperationType() {
+	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(ProvisioningOperationType operationType) {
+	public void setOperationType(ProvisioningEventType operationType) {
 		this.operationType = operationType;
 	}
 
@@ -109,12 +113,32 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 		this.emailTemplateDisabled = emailTemplateDisabled;
 	}
 
-	public List<UUID> getRecipients() {
-		return recipients;
+	/**
+	 * Return period to another time unit.
+	 * 
+	 * @param timeUnit
+	 * @return
+	 */
+	public Long getPeriod(TimeUnit timeUnit) {
+		if (getPeriod() == null) {
+			return null;
+		}
+		if (timeUnit == TimeUnit.DAYS) {
+			return TimeUnit.DAYS.convert(getPeriod(), TimeUnit.MINUTES);
+		} else if (timeUnit == TimeUnit.HOURS) {
+			return TimeUnit.HOURS.convert(getPeriod(), TimeUnit.MINUTES);
+		} else if (timeUnit == TimeUnit.MICROSECONDS) {
+			return TimeUnit.MICROSECONDS.convert(getPeriod(), TimeUnit.MINUTES);
+		} else if (timeUnit == TimeUnit.MILLISECONDS) {
+			return TimeUnit.MILLISECONDS.convert(getPeriod(), TimeUnit.MINUTES);
+		} else if (timeUnit == TimeUnit.MINUTES) {
+			return TimeUnit.MINUTES.convert(getPeriod(), TimeUnit.MINUTES);
+		} else if (timeUnit == TimeUnit.NANOSECONDS) {
+			return TimeUnit.NANOSECONDS.convert(getPeriod(), TimeUnit.MINUTES);
+		} else if (timeUnit == TimeUnit.SECONDS) {
+			return TimeUnit.SECONDS.convert(getPeriod(), TimeUnit.MINUTES);
+		} else {
+			return getPeriod();
+		}
 	}
-
-	public void setRecipients(List<UUID> recipients) {
-		this.recipients = recipients;
-	}
-
 }

@@ -33,7 +33,9 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String MODULE_ID = "acc";
 	public static final String TOPIC_PROVISIONING = String.format("%s:provisioning", MODULE_ID);
 	public static final String TOPIC_NEW_PASSWORD = String.format("%s:newPassword", MODULE_ID);
-	
+	public static final String TOPIC_PROVISIONING_BREAK_WARNING = String.format("%s:provisioningBreakWarning", MODULE_ID);
+	public static final String TOPIC_PROVISIONING_BREAK_DISABLE = String.format("%s:provisioningBreakDisable", MODULE_ID);
+
 	@Autowired
 	private IdmNotificationTemplateService templateService;
 	
@@ -55,6 +57,12 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 		//
 		configs.add(new NotificationConfigurationDto(TOPIC_NEW_PASSWORD, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains new password and information about new account.", templateService.getTemplateByCode("newPassword").getId()));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_PROVISIONING_BREAK_WARNING, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains warning with information about provisioning operation.", null));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_PROVISIONING_BREAK_DISABLE, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about blocked system for provisioning operation.", null));
 		return configs;
 	}
 

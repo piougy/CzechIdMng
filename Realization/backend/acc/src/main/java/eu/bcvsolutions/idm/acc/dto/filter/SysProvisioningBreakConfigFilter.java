@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
@@ -18,7 +18,7 @@ public class SysProvisioningBreakConfigFilter implements BaseFilter {
 	private Integer warningLimit;
 	private Integer disableLimit;
 	private Long period;
-	private ProvisioningOperationType operationType;
+	private ProvisioningEventType operationType;
 	private UUID systemId;
 
 	public Integer getWarningLimit() {
@@ -45,11 +45,11 @@ public class SysProvisioningBreakConfigFilter implements BaseFilter {
 		this.period = period;
 	}
 
-	public ProvisioningOperationType getOperationType() {
+	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(ProvisioningOperationType operationType) {
+	public void setOperationType(ProvisioningEventType operationType) {
 		this.operationType = operationType;
 	}
 

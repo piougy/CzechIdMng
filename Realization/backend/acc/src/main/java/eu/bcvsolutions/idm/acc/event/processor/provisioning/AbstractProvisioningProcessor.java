@@ -103,7 +103,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			IcUidAttribute resultUid = processInternal(provisioningOperation, connectorConfig);
 			// update system entity, when identifier on target system differs
 			if (resultUid != null && resultUid.getUidValue() != null) {
-				SysSystemEntityDto systemEntity = systemEntityService.get(provisioningOperation.getSystemEntity());
+				SysSystemEntityDto systemEntity = systemEntityService.getByProvisioningOperation(provisioningOperation);
 				if(!systemEntity.getUid().equals(resultUid.getUidValue()) || systemEntity.isWish()) {
 					systemEntity.setUid(resultUid.getUidValue());
 					systemEntity.setWish(false);

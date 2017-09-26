@@ -14,13 +14,21 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 public interface ProvisioningExecutor {
 
 	/**
-	 *  Executes the resource operation. If the operation fails, it creates a resource request and saves
-	 * it to the queue.
+	 * Executes the resource operation. If the operation fails, it creates a resource request and saves
+	 * it to the queue. If system's using queue, operation will be processed asynchronously.
 	 * 
 	 * @param provisioningOperation executed operation
 	 * @return
 	 */
 	SysProvisioningOperationDto execute(SysProvisioningOperationDto provisioningOperation);
+	
+	/**
+	 * Execute operation synchronously after original transaction ends.
+	 * 
+	 * @param provisioningOperation
+	 * @return
+	 */
+	SysProvisioningOperationDto executeSync(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 * Cancel the resource operation.

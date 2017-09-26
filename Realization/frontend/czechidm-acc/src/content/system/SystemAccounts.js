@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { AccountManager, SystemEntityManager, SystemManager } from '../../redux';
@@ -22,6 +21,10 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      ...this.state,
+      systemEntity: null
+    };
   }
 
   getManager() {
@@ -41,12 +44,12 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity) {
-    const entityFormData = _.merge({}, entity, {
-      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId,
-      systemEntity: entity._embedded && entity._embedded.systemEntity ? entity._embedded.systemEntity.id : null
-    });
-    super.showDetail(entityFormData, () => {
-      this.refs.uid.focus();
+    this.setState({
+      systemEntity: entity.systemEntity
+    }, ()=> {
+      super.showDetail(entity, () => {
+        this.refs.uid.focus();
+      });
     });
   }
 
@@ -63,10 +66,16 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
     super.afterSave(entity, error);
   }
 
+  onChangeSystemEntity(systemEntity) {
+    this.setState({
+      systemEntity
+    });
+  }
+
   render() {
     const { entityId } = this.props.params;
     const { _showLoading } = this.props;
-    const { detail } = this.state;
+    const { detail, systemEntity } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
 
@@ -111,21 +120,32 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <div className="col-lg-4">
-                      <Advanced.Filter.EnumSelectBox
-                        ref="accountType"
-                        placeholder={this.i18n('acc:entity.Account.accountType')}
-                        enum={AccountTypeEnum}/>
-                    </div>
-                    <div className="col-lg-4">
+                  <Basic.Row>
+                    <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4 text-right">
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="accountType"
+                        placeholder={ this.i18n('acc:entity.Account.accountType') }
+                        enum={ AccountTypeEnum }/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="entityType"
+                        placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
+                        enum={ SystemEntityTypeEnum }/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+
+                    </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
@@ -144,7 +164,20 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="accountType" header={this.i18n('acc:entity.Account.accountType')} width="75px" sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column
+              property="accountType"
+              header={ this.i18n('acc:entity.Account.accountType') }
+              width={ 75 }
+              sort
+              face="enum"
+              enumClass={ AccountTypeEnum } />
+            <Advanced.Column
+              property="entityType"
+              header={ this.i18n('acc:entity.SystemEntity.entityType') }
+              width={ 75 }
+              sort
+              face="enum"
+              enumClass={ SystemEntityTypeEnum }/>
             <Advanced.ColumnLink
               to={
                 ({ rowIndex, data }) => {
@@ -192,12 +225,18 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                   ref="systemEntity"
                   manager={systemEntityManager}
                   label={this.i18n('acc:entity.Account.systemEntity')}
-                  forceSearchParameters={forceSystemEntitySearchParameters}/>
+                  forceSearchParameters={forceSystemEntitySearchParameters}
+                  onChange={ this.onChangeSystemEntity.bind(this) }/>
                 <Basic.EnumSelectBox
                   ref="accountType"
                   enum={AccountTypeEnum}
                   label={this.i18n('acc:entity.Account.accountType')}
                   required/>
+                <Basic.EnumSelectBox
+                  ref="entityType"
+                  enum={ SystemEntityTypeEnum }
+                  label={ this.i18n('acc:entity.SystemEntity.entityType') }
+                  hidden={ systemEntity }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

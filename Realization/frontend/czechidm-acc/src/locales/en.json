@@ -484,7 +484,7 @@
     },
       "queue": {
         "label": "Asynchronous provisioning",
-        "help": "Active provisioning operations (create, update, delete etc.), will run through the queue asynchronously. Queue processing interval is configurable by long running task (ProvisioningQueueTaskExecutor)."
+        "help": "Active provisioning operations (create, update, delete), will run through the queue asynchronously. Change password operation will be still synchronous. Queue processing interval is configurable by long running task (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Connector",

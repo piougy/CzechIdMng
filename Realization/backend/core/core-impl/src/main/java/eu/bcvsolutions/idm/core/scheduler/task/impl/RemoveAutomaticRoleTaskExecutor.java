@@ -56,7 +56,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	 * Automatic role removal can be start, if previously LRT ended.
 	 */
 	@Override
-	protected void validate(IdmLongRunningTaskDto task) {
+	public void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
 		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());

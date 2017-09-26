@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -33,6 +34,7 @@ public class AccAccountDto extends AbstractDto {
 	private boolean inProtection;
 	private DateTime endOfProtection;
 	private String realUid;
+	private SystemEntityType entityType;
 
 	public String getUid() {
 		return uid;
@@ -107,5 +109,13 @@ public class AccAccountDto extends AbstractDto {
 
 	public void setRealUid(String realUid) {
 		this.realUid = realUid;
+	}
+	
+	public SystemEntityType getEntityType() {
+		return entityType;
+	}
+	
+	public void setEntityType(SystemEntityType entityType) {
+		this.entityType = entityType;
 	}
 }

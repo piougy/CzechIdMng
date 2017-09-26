@@ -11,10 +11,8 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -44,25 +42,21 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysSystemService systemService;
-	private final SysProvisioningRequestService requestService;
 	
 	@Autowired
 	public ReadonlySystemProcessor(
 			NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService,
-			SysSystemService systemService,
-			SysProvisioningRequestService requestService) {
+			SysSystemService systemService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(systemService);
-		Assert.notNull(requestService);
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
 		this.systemService = systemService;
-		this.requestService = requestService;
 	}
 	
 	@Override
@@ -78,10 +72,8 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 		if (system.isReadonly()) {
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
-			SysProvisioningRequestDto request = provisioningOperation.getRequest();
-			request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+			provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
-			request = requestService.save(request);
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());

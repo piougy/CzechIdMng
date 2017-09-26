@@ -539,12 +539,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		return transformedValue;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.TREE == delimiter;
-	}
-
+	
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected ReadWriteDtoService getEntityAccountService() {

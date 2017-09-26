@@ -63,7 +63,7 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 			//
 			if (ProvisioningEventType.DELETE == event.getType()) {
 				// We successfully deleted account on target system. We need to delete system entity
-				systemEntityService.deleteById(provisioningOperation.getSystemEntity());
+				systemEntityService.delete(systemEntityService.getByProvisioningOperation(provisioningOperation));
 			}		
 		}
 		return new DefaultEventResult<>(event, this, isClosable());

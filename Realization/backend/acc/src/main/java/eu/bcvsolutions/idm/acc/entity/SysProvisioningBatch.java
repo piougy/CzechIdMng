@@ -1,17 +1,11 @@
 package eu.bcvsolutions.idm.acc.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.joda.time.DateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -32,12 +26,6 @@ public class SysProvisioningBatch extends AbstractEntity {
 	
 	@Column(name = "next_attempt")
 	private DateTime nextAttempt;
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "batch")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<SysProvisioningRequest> requests = new ArrayList<>();
 
 	public DateTime getNextAttempt() {
 		return nextAttempt;
@@ -45,29 +33,5 @@ public class SysProvisioningBatch extends AbstractEntity {
 
 	public void setNextAttempt(DateTime nextAttempt) {
 		this.nextAttempt = nextAttempt;
-	}
-	
-	public void setRequests(List<SysProvisioningRequest> requests) {
-		this.requests = requests;
-	}
-	
-	public List<SysProvisioningRequest> getRequests() {
-		if (requests == null) {
-			requests = new ArrayList<>();
-		}
-		return requests;
-	}
-	
-	public void addRequest(SysProvisioningRequest request) {
-		if (requests.contains(request)) {
-			return;
-		}
-		
-		requests.add(request);
-		request.setBatch(this);
-	}
-	
-	public void removeRequest(SysProvisioningRequest request) {
-		requests.remove(request);
 	}
 }

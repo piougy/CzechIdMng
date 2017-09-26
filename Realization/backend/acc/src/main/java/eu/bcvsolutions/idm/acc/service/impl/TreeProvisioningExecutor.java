@@ -181,9 +181,4 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	protected IdmTreeNodeService getService() {
 		return treeNodeService;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.TREE == delimiter;
-	}
 }

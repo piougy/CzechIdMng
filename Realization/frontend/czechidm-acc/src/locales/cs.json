@@ -490,7 +490,7 @@
       },
       "queue": {
         "label": "Asynchronní provisioning",
-        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání atd.) budou probíhat přes frontu asynchronně. Interval zpracování operací ve frontě je konfigurovatelný prostřednitvím dlouho trvající úlohy (ProvisioningQueueTaskExecutor)."
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu asynchronně. Změna hesla bude probíhat nadále synchronně. Interval zpracování operací ve frontě je konfigurovatelný prostřednitvím dlouho trvající úlohy (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Konektor",

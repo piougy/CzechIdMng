@@ -3,7 +3,10 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Long running task administration
@@ -18,7 +21,8 @@ public interface LongRunningTaskManager {
 	void init();
 
 	/**
-	 * * Executes given task asynchronously
+	 * Executes given task asynchronously.
+	 * Created long running task instance is accessible by returned {@link LongRunningFutureTask#getExecutor()}.
 	 * 
 	 * @param <V> expected result type
 	 * @param taskExecutor
@@ -27,7 +31,8 @@ public interface LongRunningTaskManager {
 	<V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor);
 	
 	/**
-	 * * Executes given task asynchronously
+	 * Executes given task synchronously.
+	 * Created long running task instance is accessible by returned {@link LongRunningTaskExecutor#getLongRunningTaskId()}.
 	 * 
 	 * @param <V> expected result type
 	 * @param taskExecutor
@@ -66,7 +71,32 @@ public interface LongRunningTaskManager {
 	LongRunningFutureTask<?> processCreated(UUID longRunningTaskId);
 	
 	/**
-	 * Schedule {@link #processCreated()} only
+	 * Returns long running task by id. Authorization policies are evaluated (if given).
+	 * 
+	 * @param longRunningTaskId
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	void scheduleProcessCreated();
+	IdmLongRunningTaskDto getLongRunningTask(UUID longRunningTaskId, BasePermission... permission);
+	
+	/**
+	 * Returns underlying long running task for given taskExecutor. Authorization policies are evaluated (if given).
+	 * 
+	 * @param taskExecutor
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmLongRunningTaskDto getLongRunningTask(LongRunningTaskExecutor<?> taskExecutor, BasePermission... permission);
+	
+	/**
+	 * Returns underlying long running task for given future task. Authorization policies are evaluated (if given).
+	 * 
+	 * @param futureTask
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission);
 }

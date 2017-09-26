@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+
 /**
  * Long running task executor
  * 
@@ -121,4 +123,11 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	 * @param longRunningTask
 	 */
 	void setLongRunningTaskId(UUID taskId);
+	
+	/**
+	 * Validates task before start e.q. if task already running or to prevent run task concurrently.
+	 * 
+	 * @param task persisted task to validate
+	 */
+	void validate(IdmLongRunningTaskDto task);
 }

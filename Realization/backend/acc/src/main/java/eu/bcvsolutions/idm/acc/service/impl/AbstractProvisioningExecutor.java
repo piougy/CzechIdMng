@@ -63,6 +63,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -147,6 +148,20 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.roleSystemService = roleSystemService;
 		this.roleService = roleService;
+	}
+	
+	/**
+	 * Returns entity type for this provisioning executor
+	 * 
+	 * @return
+	 */
+	protected SystemEntityType getEntityType() {
+		return SystemEntityType.getByClass(getService().getDtoClass());
+	}
+	
+	@Override
+	public boolean supports(SystemEntityType delimiter) {
+		return getEntityType() == delimiter;
 	}
 
 	@Override
@@ -254,17 +269,18 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	public void changePassword(DTO dto, PasswordChangeDto passwordChange) {
+	public List<OperationResult> changePassword(DTO dto, PasswordChangeDto passwordChange) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getId(), "Password can be changed, when dto is already persisted.");
 		Assert.notNull(passwordChange);
+		List<OperationResult> results = new ArrayList<>();
 		//
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(dto.getId());
 		List<? extends EntityAccountDto> entityAccountList = getEntityAccountService().find(filter, null)
 				.getContent();
 		if (entityAccountList == null) {
-			return;
+			return results;
 		}
 		
 		// Distinct by accounts
@@ -327,13 +343,15 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
 			
 			// Change password on target system
-			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
-					ProvisioningOperationType.UPDATE, dto);
+			results.add(doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
+					ProvisioningOperationType.UPDATE, dto));
 			// Add success changed password account
 			passwordChange.getAccounts().add(account.getId().toString());
 		});
 		passwordChange.setNewPassword(null);
 		passwordChange.setOldPassword(null);
+		//
+		return results;
 	}
 
 	@Override
@@ -459,7 +477,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName()), null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
-				.setOperationType(operationType).setSystemEntity(systemEntity.getId())
+				.setOperationType(operationType).setSystemEntity(systemEntity)
 				.setEntityIdentifier(entityId)
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
@@ -561,7 +579,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
+	public OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
 			Object value, ProvisioningOperationType operationType, DTO dto) {
 
 		Assert.notNull(systemEntity);
@@ -594,10 +612,11 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
-				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntity.getId())
+				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntity)
 				.setEntityIdentifier(dto == null ? null : dto.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));
-		provisioningExecutor.execute(operationBuilder.build());
+		// TODO: configurable by provisioned attribute
+		return provisioningExecutor.executeSync(operationBuilder.build()).getResult();
 	}
 
 	@Override
@@ -893,6 +912,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 		account.setSystem(systemId);
 		account.setAccountType(AccountType.PERSONAL);
 		account.setUid(uid);
+		account.setEntityType(getEntityType());
 		account = accountService.save(account);
 		// Create new entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccountDto();

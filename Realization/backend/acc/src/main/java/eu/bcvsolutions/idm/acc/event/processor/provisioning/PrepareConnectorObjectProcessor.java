@@ -31,7 +31,6 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -42,7 +41,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -93,7 +91,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
-	private final SysProvisioningRequestService requestService;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -106,8 +103,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSystemAttributeMappingService attributeMappingService,
 			SysSchemaAttributeService schemaAttributeService,
 			SysProvisioningArchiveService provisioningArchiveService,
-			SysSchemaObjectClassService schemaObjectClassService,
-			SysProvisioningRequestService requestService) {
+			SysSchemaObjectClassService schemaObjectClassService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
@@ -120,7 +116,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		Assert.notNull(schemaAttributeService);
 		Assert.notNull(provisioningArchiveService);
 		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(requestService);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -131,7 +126,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.schemaAttributeService = schemaAttributeService;
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.schemaObjectClassService = schemaObjectClassService;
-		this.requestService = requestService;
 	}
 	
 	@Override
@@ -198,9 +192,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							"objectClass", objectClass.getType()));
 			}
 			LOG.error(resultModel.toString(), ex);
-			SysProvisioningRequestDto request = provisioningOperation.getRequest();
-			request.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-			request = requestService.save(request);
+			provisioningOperation.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			//

@@ -1,9 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -72,10 +76,34 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	String createConnectorObjectPropertyKey(IcAttribute property, int index);
 	
 	/**
-	 * Method find {@link SysProvisioningBatchDto} by {@link SysProvisioningOperationDto}.
+	 * Return opertaions for batch id.
 	 * 
-	 * @param dto
+	 * @param batchId
 	 * @return
 	 */
-	SysProvisioningBatchDto findBatch(SysProvisioningOperationDto dto);
+	Page<SysProvisioningOperationDto> findByBatchId(UUID batchId, Pageable pageable);
+
+	/**
+	 * Returns operations for batch id sorted by oldest to newest.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	List<SysProvisioningOperationDto> getByTimelineAndBatchId(UUID batchId);
+
+	/**
+	 * Method returns oldest operation for batch id.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	SysProvisioningOperationDto getFirstOperationByBatchId(UUID batchId);
+
+	/**
+	 * Method return newest operation by batch id.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	SysProvisioningOperationDto getLastOperationByBatchId(UUID batchId);
 }

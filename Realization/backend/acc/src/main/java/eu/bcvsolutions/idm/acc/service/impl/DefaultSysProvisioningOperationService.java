@@ -3,14 +3,19 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -23,18 +28,14 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -75,38 +76,27 @@ public class DefaultSysProvisioningOperationService
 	private final SysProvisioningOperationRepository repository;
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysProvisioningBatchService batchService;
-	private final SysProvisioningBatchRepository batchRepository;
 	private final NotificationManager notificationManager;
 	private final ConfidentialStorage confidentialStorage;
-	private final SysProvisioningRequestService requestService;
 	private final SysSystemService systemService;
-	private final SysProvisioningRequestService provisioningRequestService;
 	private final SecurityService securityService;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
 			SysProvisioningOperationRepository repository,
-			SysProvisioningRequestRepository provisioningRequestRepository,
 			SysProvisioningArchiveService provisioningArchiveService,
 			SysProvisioningBatchService batchService,
 			NotificationManager notificationManager,
 			ConfidentialStorage confidentialStorage,
-			SysProvisioningRequestService requestService,
 			SysSystemService systemService,
-			SysProvisioningRequestService provisioningRequestService,
-			SysProvisioningBatchRepository batchRepository,
 			SecurityService securityService) {
 		super(repository);
 		//
-		Assert.notNull(provisioningRequestRepository);
 		Assert.notNull(provisioningArchiveService);
 		Assert.notNull(batchService);
 		Assert.notNull(notificationManager);
 		Assert.notNull(confidentialStorage);
-		Assert.notNull(requestService);
 		Assert.notNull(systemService);
-		Assert.notNull(provisioningRequestService);
-		Assert.notNull(batchRepository);
 		Assert.notNull(securityService);
 		//
 		this.repository = repository;
@@ -114,10 +104,7 @@ public class DefaultSysProvisioningOperationService
 		this.batchService = batchService;
 		this.notificationManager = notificationManager;
 		this.confidentialStorage = confidentialStorage;
-		this.requestService = requestService;
 		this.systemService = systemService;
-		this.provisioningRequestService = provisioningRequestService;
-		this.batchRepository = batchRepository;
 		this.securityService = securityService;
 	}
 	
@@ -134,7 +121,6 @@ public class DefaultSysProvisioningOperationService
 		dto = super.toDto(entity, dto);
 		//
 		if (dto != null) {
-			dto.setRequest(requestService.findByOperationId(entity.getId()));
 			// copy => detach
 			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
 			// TODO: system to embedded?
@@ -153,20 +139,11 @@ public class DefaultSysProvisioningOperationService
 	public SysProvisioningOperationDto save(SysProvisioningOperationDto dto, BasePermission... permission) {
 		// replace guarded strings to confidential strings (save to persist)
 		Map<String, Serializable> confidentialValues = replaceGuardedStrings(dto.getProvisioningContext());
-		//
-		// ger request before save
-		SysProvisioningRequestDto requestDto = dto.getRequest();
 		// save operation
 		dto = super.save(dto);
 		// save prepared guarded strings into confidential storage 
 		for(Entry<String, Serializable> entry : confidentialValues.entrySet()) {
 			confidentialStorage.save(dto.getId(), SysProvisioningOperation.class, entry.getKey(), entry.getValue());
-		}
-		// set operation id to request, save and set back to operation
-		if (requestDto != null) {
-			requestDto.setOperation(dto.getId());
-			requestDto = requestService.save(requestDto);
-			dto.setRequest(requestDto);
 		}
 		//
 		return dto;
@@ -182,18 +159,45 @@ public class DefaultSysProvisioningOperationService
 		//
 		// create archived operation
 		provisioningArchiveService.archive(provisioningOperation);	
-		//
-		SysProvisioningRequestDto request = provisioningOperation.getRequest();
-
-		SysProvisioningBatchDto batch = batchService.get(request.getBatch());
 		
-		if (requestService.findByBatchId(batch.getId(), null).getNumberOfElements() <= 1) {
+		SysProvisioningBatchDto batch = batchService.get(provisioningOperation.getBatch());
+		
+		if (findByBatchId(batch.getId(), null).getNumberOfElements() <= 1) {
 			batchService.delete(batch);
 		}
-		provisioningRequestService.delete(request);
-		provisioningOperation.setRequest(null);
 		//
 		super.delete(provisioningOperation);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<SysProvisioningOperationDto> findByBatchId(UUID batchId,  Pageable pageable) {
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setBatchId(batchId);
+		return this.find(filter, pageable);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<SysProvisioningOperationDto> getByTimelineAndBatchId(UUID batchId) {
+		// sort from higher created
+		List<SysProvisioningOperationDto> sortedList = this.findByBatchId(batchId, new PageRequest(0, Integer.MAX_VALUE,
+				new Sort(Direction.ASC, SysProvisioningOperation_.created.getName()))).getContent();
+		return Collections.unmodifiableList(sortedList);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public SysProvisioningOperationDto getFirstOperationByBatchId(UUID batchId) {
+		List<SysProvisioningOperationDto> requests = getByTimelineAndBatchId(batchId);
+		return (requests.isEmpty()) ? null : requests.get(0);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public SysProvisioningOperationDto getLastOperationByBatchId(UUID batchId) {
+		List<SysProvisioningOperationDto> requests = getByTimelineAndBatchId(batchId);
+		return (requests.isEmpty()) ? null : requests.get(requests.size() - 1);
 	}
 	
 	/**
@@ -326,24 +330,22 @@ public class DefaultSysProvisioningOperationService
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));			
 		LOG.error(resultModel.toString(), ex);
 		//
-		SysProvisioningRequestDto request = operation.getRequest();
-		request.increaseAttempt();
-		request.setMaxAttempts(6); // TODO: from configuration
-		request.setResult(new OperationResult
+		operation.increaseAttempt();
+		operation.setMaxAttempts(6); // TODO: from configuration
+		operation.setResult(new OperationResult
 				.Builder(OperationState.EXCEPTION)
 				.setCode(resultModel.getStatusEnum())
 				.setModel(resultModel)
 				.setCause(ex)
 				.build());
 		//
-		request = requestService.save(request);
 		operation = save(operation);
 		//
 		// calculate next attempt
-		SysProvisioningRequestDto firstRequest = requestService.getFirstRequestByBatchId(request.getBatch());
-		if (firstRequest.equals(request)) {
-			SysProvisioningBatchDto batch = batchService.get(request.getBatch());
-			batch.setNextAttempt(batchService.calculateNextAttempt(request));
+		SysProvisioningOperationDto firstOperation = getFirstOperationByBatchId(operation.getBatch());
+		if (firstOperation.equals(operation)) {
+			SysProvisioningBatchDto batch = batchService.get(operation.getBatch());
+			batch.setNextAttempt(batchService.calculateNextAttempt(operation));
 			batch = batchService.save(batch);
 		}
 		//
@@ -367,10 +369,7 @@ public class DefaultSysProvisioningOperationService
 						"system", system.getName(),
 						"operationType", operation.getOperationType(),
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));
-		requestService.findByOperationId(operation.getId());
-		SysProvisioningRequestDto request = operation.getRequest();
-		request.setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
-		request = requestService.save(request);
+		operation.setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
 		operation = save(operation);
 		//
 		LOG.debug(resultModel.toString());
@@ -565,14 +564,5 @@ public class DefaultSysProvisioningOperationService
 				});	
 			});
 		}
-	}
-
-	@Override
-	public SysProvisioningBatchDto findBatch(SysProvisioningOperationDto dto) {
-		SysProvisioningBatch entity = batchRepository.findBatch(this.toEntity(dto));
-		if (entity == null) {
-			return null;
-		}
-		return batchService.get(entity.getId());
 	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
@@ -33,7 +32,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 		@Index(name = "idx_sys_s_l_config", columnList = "synchronization_config_id")})
 public class SysSyncLog extends AbstractEntity  {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSyncLog.class);
 	private static final long serialVersionUID = -5447620157233410338L;
 
 	@NotNull

@@ -17,13 +17,11 @@ import eu.bcvsolutions.idm.acc.dto.SysBlockedOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -56,7 +54,6 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	private final SysProvisioningBreakConfigService breakConfigService;
 	private final SysProvisioningBreakRecipientService breakRecipientService;
 	private final NotificationManager notificationManager;
-	private final SysProvisioningRequestService requestService;
 	private final SysProvisioningOperationService provisioningOperationService;
 
 	@Autowired
@@ -64,7 +61,6 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			SysProvisioningBreakConfigService breakConfigService,
 			SysProvisioningBreakRecipientService breakRecipientService,
 			NotificationManager notificationManager,
-			SysProvisioningRequestService requestService,
 			SysProvisioningOperationService provisioningOperationService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
@@ -72,14 +68,12 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 		Assert.notNull(breakConfigService);
 		Assert.notNull(breakRecipientService);
 		Assert.notNull(notificationManager);
-		Assert.notNull(requestService);
 		Assert.notNull(provisioningOperationService);
 		//
 		this.systemService = systemService;
 		this.breakConfigService = breakConfigService;
 		this.breakRecipientService = breakRecipientService;
 		this.notificationManager = notificationManager;
-		this.requestService = requestService;
 		this.provisioningOperationService = provisioningOperationService;
 	}
 
@@ -188,11 +182,9 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	 * @return
 	 */
 	private SysProvisioningOperationDto blockOperation(SysProvisioningOperationDto provisioningOperation, SysSystemDto system) {
-		SysProvisioningRequestDto request = provisioningOperation.getRequest();
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_BLOCKED, 
 				ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
-		request.setResult(new OperationResult.Builder(OperationState.BLOCKED).setModel(resultModel).build());
-		request = requestService.save(request);
+		provisioningOperation.setResult(new OperationResult.Builder(OperationState.BLOCKED).setModel(resultModel).build());
 		//
 		provisioningOperation = provisioningOperationService.save(provisioningOperation);
 		//

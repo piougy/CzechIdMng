@@ -1,10 +1,17 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidatorFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -29,7 +36,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadDtoService<DTO, E, F> implements ReadWriteDtoService<DTO, F> {
-
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoService.class);
+	//
+	@Autowired(required = false) // optional dependency for support automatic JSR303 validations
+	private ValidatorFactory validatorFactory;
+	
 	public AbstractReadWriteDtoService(AbstractEntityRepository<E> repository) {
 		super(repository);
 	}
@@ -63,12 +75,19 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Transactional
 	public DTO saveInternal(DTO dto) {
 		Assert.notNull(dto);
+		dto = validateDto(dto);
 		//
 		E persistedEntity = null;
 		if (dto.getId() != null) {
 			persistedEntity = this.getEntity(dto.getId());
 		}
-		E entity = getRepository().save(toEntity(dto, persistedEntity));
+		// convert to entity
+		E entity = toEntity(dto, persistedEntity);
+		// valitade
+		entity = validateEntity(entity);
+		// then persist
+		entity = getRepository().save(entity);
+		// finally convert to dto
 		return toDto(entity);
 	}
 
@@ -122,6 +141,48 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		if (dto != null) {
 			deleteInternal(dto);
 		}
+	}
+	
+	/**
+	 * Validates JRS303 before dto is saved
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	protected DTO validateDto(DTO dto) {
+		return validate(dto);
+	}
+	
+	/**
+	 * Validates JRS303 before entity is saved
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	protected E validateEntity(E entity) {
+		return validate(entity);
+	}
+	
+	/**
+	 * Validates JRS303 before object is saved
+	 * 
+	 * @param object
+	 * @return
+	 */
+	private <T extends Object> T validate(T object) {
+		Assert.notNull(object);
+		//
+		if (validatorFactory == null) {
+			LOG.debug("JSR303 Validation are disabled. Configure validation factory properly.");
+			return object;
+		}
+		Set<ConstraintViolation<T>> errors = validatorFactory.getValidator().validate(object);
+		if(!errors.isEmpty()) {
+			throw new ConstraintViolationException(
+					MessageFormat.format("Validation failed for [{0}], errors [{1}]", object.getClass().getSimpleName(), errors),
+					errors);
+		}
+		return object;
 	}
 
 }

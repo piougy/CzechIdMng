@@ -118,11 +118,16 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	 * autowire without qualifier
 	 */
 	@Bean
-	@Primary
-	Validator validator() {
+	LocalValidatorFactoryBean validatorFactory() {
 		return new LocalValidatorFactoryBean();
 	}
 
+	@Bean
+	@Primary
+	Validator validator() {
+		return validatorFactory();
+	}
+	
 	/**
 	 * Adds joda time json module
 	 */

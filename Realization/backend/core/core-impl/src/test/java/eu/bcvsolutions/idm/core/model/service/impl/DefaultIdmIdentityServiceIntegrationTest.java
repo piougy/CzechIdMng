@@ -6,11 +6,14 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
+import javax.validation.ConstraintViolationException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
@@ -151,6 +154,17 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(defaultContract.getIdentity(), contracts.get(0).getIdentity());
 		assertEquals(defaultContract.getPosition(), contracts.get(0).getPosition());
 		assertEquals(defaultContract.getWorkPosition(), contracts.get(0).getWorkPosition());
+	}
+	
+	@Transactional
+	@Test(expected = ConstraintViolationException.class)
+	public void testIdentityJSR303Validations() {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		String username = "validation_test_" + System.currentTimeMillis();
+		identity.setUsername(username);
+		identity.setLastName("Identity");
+		identity.setEmail("email_wrong");
+		identity = identityService.save(identity);
 	}
 
 }

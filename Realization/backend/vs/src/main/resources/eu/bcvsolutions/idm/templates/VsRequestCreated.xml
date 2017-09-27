@@ -45,8 +45,9 @@ New virtual system request (for realization) was created and send to implementer
     #end
 
     ## Print table of attributes (with highlight changes)
-    #macro( printAttributes $atts )
+    #macro( printAttributes $atts $loc)
       #set($showNewColumn = true)
+      #set($locEng = 'ENG')
       #set($operationTypeDelete = 'DELETE')
       #if($operationTypeDelete == $request.getOperationType())
         #set($showNewColumn = false)
@@ -54,11 +55,32 @@ New virtual system request (for realization) was created and send to implementer
       <table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
         <tbody>
           <tr style="height: 15px;">
-            <td style="background-color: #5cb85c; min-width: 150px;"><span style="font-size: 12pt; color: #ffffff;"><strong>Název atributu</strong></span></td>
+            <td style="background-color: #5cb85c; min-width: 150px;"><span style="font-size: 12pt; color: #ffffff;">
+				<strong>
+					#if($locEng == $loc)
+						Attribute name
+					#else
+						Název atributu
+					#end
+				</strong></span></td>
             #if($showNewColumn)
-              <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;"><strong>Cílová hodnota</strong></span></td>
+              <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;">
+				  <strong>
+				   #if($locEng == $loc)
+						Target value
+				   #else
+						Cílová hodnota
+				   #end	
+				  </strong></span></td>
             #end
-            <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;"><strong>Původní hodnota</strong></span></td>
+            <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;">
+				<strong>
+					#if($locEng == $loc)
+						Previous value
+				   #else
+						Předchozí hodnota
+				   #end
+				</strong></span></td>
           </tr>
           #foreach( $attribute in $atts )
             <tr style="#if($attribute.isChanged()) background-color: #faf2cc; #end height: 25px;">
@@ -123,12 +145,68 @@ New virtual system request (for realization) was created and send to implementer
     #if($previousUrl)
     <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
     border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
-          Pro tento účet a systém, existuje nevyřešený požadavek nebo požadavky. Detail posledního požadavku je <a href='$previousUrl'>zde</a>.
+          Pro tento účet a systém, existuje nevyřešený požadavek nebo požadavky. Věnujte pozornost přednostně předchozím požadavkům. Detail posledního požadavku je <a href='$previousUrl'>zde</a>.
     </div>
     #end
     Cílový stav na systému (pro účet <b>$request.getUid()</b>):<br/>
     <br/>
-    #printAttributes($wishAttributes )
+    #printAttributes($wishAttributes 'CZ')
+    <br />
+
+    <div style="display: block; margin: 30px auto; max-width: 400px;">
+        CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+    </div>
+    
+    <div style="display: block; margin: 30px auto; max-width: 800px;">
+        ----------------------------------------------------------------- English version -----------------------------------------------------------------
+    </div>
+    
+    <br/>Hello,<br />
+    was created request to implement change for account '<b>$request.getUid()</b>' on virtual system '<b>$systemName</b>'.<br />
+    <br />
+
+    Contact information: <br />
+    Name: <b>$fullName</b><br />
+    Phone:
+    #if($identity.getPhone())
+      <b>$identity.getPhone()</b>
+    #end
+    <br />
+    Email:
+    #if($identity.getEmail())
+      <b>$identity.getEmail()</b>
+    #end
+    <br />
+    <br />
+    #set($operationTypeDelete = 'DELETE')
+    #if($operationTypeDelete == $request.getOperationType())
+      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #f2dede; color: #a94442; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
+       The account is to be removed from the target system.
+      </div>
+    #end
+    #set($operationTypeDelete = 'CREATE')
+    #if($operationTypeDelete == $request.getOperationType())
+      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #dff0d8; color: #3c763d; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #d6e9c6;">
+      The account is to be created on the target system.
+      </div>
+    #end
+    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+    border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+        <b>Ensure that required changes will be maked.</b><br/>
+        <br/>
+        You can confirm or deny realization <a href='$url'>here</a>.
+    </div>
+    #if($previousUrl)
+    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
+    border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
+          For this account and system, there is a pending request or requirements. Prioritize previous requirements. The detail of the last request is <a href='$previousUrl'>here</a>.
+    </div>
+    #end
+    Target state on the target system (for account <b>$request.getUid()</b>):<br/>
+    <br/>
+    #printAttributes($wishAttributes 'ENG')
     <br />
 
     <div style="display: block; margin: 30px auto; max-width: 400px;">

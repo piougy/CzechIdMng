@@ -1478,6 +1478,7 @@
         "message": {
           "wrongUser": "Change password to subordinates is not allowed",
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
+          "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
         },
         "button": {
@@ -2099,6 +2100,7 @@
         "label": "Authority type",
         "help": ""
       },
+      "name": "Name",
       "className": "Class name",
       "service": "Service name"
     },

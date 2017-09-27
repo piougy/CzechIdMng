@@ -835,6 +835,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
 		roleSystem.setRole(roleOne.getId());
 		roleSystem.setSystem(system.getId());
+		roleSystem.setSystemMapping(systemMapping.getId());
 		roleSystem = roleSystemService.save(roleSystem);
 
 		SysRoleSystemAttributeDto overloadedOne = new SysRoleSystemAttributeDto();

@@ -9,9 +9,9 @@
 -->
 <tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
 	<task>
-		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor</taskType>
 		<description>Default</description>
 		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor</taskType>
 		
 		<triggers>
 			<trigger>
@@ -23,9 +23,9 @@
 	</task>
 	
 	<task>
-		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor</taskType>
 		<description>Default</description>
 		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor</taskType>
 		
 		<triggers>
 			<trigger>

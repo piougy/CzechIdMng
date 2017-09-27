@@ -111,9 +111,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				if (securityService.getCurrentId() != null) { // TODO: check logged identity and account owner
 					notificationManager.send(
 							AccModuleDescriptor.TOPIC_PROVISIONING,
-							new IdmMessageDto.Builder(NotificationLevel.INFO)
-							.setModel(provisioningOperation.getResult().getModel())
-							.build());
+							new IdmMessageDto.Builder(NotificationLevel.WARNING)
+								.setModel(provisioningOperation.getResult().getModel())
+								.build());
 				}
 			}
 		}

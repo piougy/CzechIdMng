@@ -324,19 +324,19 @@ class ProvisioningOperations extends Basic.AbstractContent {
           backdrop="static">
           <Basic.Modal.Header closeButton text={this.i18n(`action.${retryDialog.bulkActionValue}.header`, { count: retryDialog.ids.length})}/>
           <Basic.Modal.Body>
-            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.batchMessage`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
+            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.message`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
           </Basic.Modal.Body>
-
           <Basic.Modal.Footer>
             <Basic.Button
-              level="success"
-              onClick={this.onRetry.bind(this, true)}>
-              {this.i18n(`action.${retryDialog.bulkActionValue}.button.batch`)}
+              level="warning"
+              onClick={this.onRetry.bind(this, false)}>
+              {this.i18n(`action.${retryDialog.bulkActionValue}.button.selected`)}
             </Basic.Button>
           </Basic.Modal.Footer>
           <Basic.Modal.Body>
-            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.message`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
+            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.batchMessage`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
           </Basic.Modal.Body>
+
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
@@ -344,9 +344,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
               {this.i18n('button.close')}
             </Basic.Button>
             <Basic.Button
-              level="warning"
-              onClick={this.onRetry.bind(this, false)}>
-              {this.i18n(`action.${retryDialog.bulkActionValue}.button.selected`)}
+              level="success"
+              onClick={this.onRetry.bind(this, true)}>
+              {this.i18n(`action.${retryDialog.bulkActionValue}.button.batch`)}
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>

@@ -141,18 +141,29 @@ class PasswordChangeForm extends Basic.AbstractContent {
       if (json.accounts.length > 0 && accounts) {
         accounts += ', ';
       }
-
+      //
+      // success accounts
       const optionsNames = [];
       json.accounts.forEach(obj => {
         optionsNames.push(
           accountOptions[_.findKey(accountOptions, ['value', obj])].niceLabel
         );
       });
-      accounts += optionsNames.join();
+      accounts += optionsNames.join(', ');
+      //
+      // failed accounts
+      const failedAccounts = _.difference(requestData.accounts, json.accounts)
+        .map(account => {
+          return accountOptions[_.findKey(accountOptions, ['value', account])].niceLabel;
+        }).join(', ');
+      //
+      if (accounts) {
+        this.addMessage({ message: this.i18n('message.success', { accounts, username: entityId }) });
+      }
+      if (failedAccounts) {
+        this.addMessage({ level: 'warning', message: this.i18n('message.failed', { accounts: failedAccounts, username: entityId }) });
+      }
 
-      this.addMessage({
-        message: this.i18n('message.success', { accounts, username: entityId })
-      });
       this.setState({
         validationError: null
       });

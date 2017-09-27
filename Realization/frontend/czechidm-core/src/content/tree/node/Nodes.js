@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
-import { TreeNodeManager, TreeTypeManager } from '../../../redux';
+import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
 import NodeTable from './NodeTable';
 import uuid from 'uuid';
 
@@ -45,15 +45,15 @@ class Nodes extends Basic.AbstractContent {
     } else {
       const searchParameters = this.getTypeManager().getDefaultSearchParameters().setName('autocomplete');
       this.context.store.dispatch(this.getTypeManager().fetchEntities(searchParameters, uiKey, (types) => {
-        const isNoType = types._embedded.treeTypes.length === 0 ? true : false;
+        const isNoType = !types || types._embedded.treeTypes.length === 0 ? true : false;
 
-        if (!isNoType) {
-          this.props.history.push('/tree/nodes/', {type: types._embedded.treeTypes[0].id});
+        if (types && !isNoType) {
+          this.props.history.push('/tree/nodes/', { type: types._embedded.treeTypes[0].id });
         }
 
         this.setState({
           showLoading: false,
-          type: types._embedded.treeTypes[0],
+          type: types ? types._embedded.treeTypes[0] : null,
           isNoType
         });
       }));
@@ -101,7 +101,12 @@ class Nodes extends Basic.AbstractContent {
               <NodeTable treeNodeManager={this.getManager()} type={type} activeTab={2}/>
               :
               <div className="alert alert-info">
-                {this.i18n('content.tree.typeNotFound')} <a href="#" className="alert-link" onClick={this.newType.bind(this)}>{this.i18n('content.tree.newType')}</a>
+                { this.i18n('content.tree.typeNotFound') }
+                {
+                  !SecurityManager.hasAuthority('TREE_TYPE_CREATE')
+                  ||
+                  <a href="#" className="alert-link" onClick={this.newType.bind(this)}>{this.i18n('content.tree.newType')}</a>
+                }
               </div>
             }
           </span>

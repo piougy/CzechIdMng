@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.rest.impl.IdmLongRunningTaskController;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -336,7 +337,7 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		Set<String> permissions = service.getPermissions(treeType.getId());
-		if (!permissions.contains(IdmBasePermission.AUTOCOMPLETE.name()) && !permissions.contains(IdmBasePermission.READ.name())) {
+		if (!PermissionUtils.hasAnyPermission(permissions, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ)) {
 			throw new ForbiddenEntityException(treeType.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
 		}
 		//

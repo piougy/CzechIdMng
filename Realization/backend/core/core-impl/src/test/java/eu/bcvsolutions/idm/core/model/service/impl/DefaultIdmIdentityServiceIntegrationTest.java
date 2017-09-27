@@ -162,14 +162,9 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "validation_test_" + System.currentTimeMillis();
 		identity.setUsername(username);
-		identity.setPassword(new GuardedString("heslo")); // confidential storage
-		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity.setEmail("email_wrong");
 		identity = identityService.save(identity);
-		
-		
-		System.out.println("... end");
 	}
 
 }

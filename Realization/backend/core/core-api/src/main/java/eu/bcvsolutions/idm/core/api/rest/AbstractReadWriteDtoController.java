@@ -5,8 +5,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +41,12 @@ import io.swagger.annotations.Authorization;
 public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoController.class);
+	//
 	@Autowired(required = false) // optional dependency for support patch method
 	private RequestResourceResolver requestResourceResolver;
+	@Autowired(required = false) // optional dependency for support automatic JSR303 validations
+	private ValidatorFactory validatorFactory;
 
 	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
@@ -52,15 +54,18 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	
 	/**
 	 * Invokes JSR 303 validations programmatically (its needed for patch method).
-	 * Its called before save method.
+	 * Its called before save method. 
+	 * Validations are invoked in service layer too, but wee want to shorten processing.
 	 *  
-	 * @param entity
+	 * @param dto
 	 * @return
 	 */
 	protected DTO validateDto(DTO dto) {
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-	    Validator validator = factory.getValidator();
-		Set<ConstraintViolation<DTO>> errors = validator.validate(dto);
+		if (validatorFactory == null) {
+			LOG.debug("JSR303 Validation are disabled. Configure validation factory properly.");
+			return dto;
+		}
+		Set<ConstraintViolation<DTO>> errors = validatorFactory.getValidator().validate(dto);
 		if(!errors.isEmpty()) {
 			throw new ConstraintViolationException("Validation failed for dto [" + getDtoClass().getSimpleName() +"]", errors);
 		}

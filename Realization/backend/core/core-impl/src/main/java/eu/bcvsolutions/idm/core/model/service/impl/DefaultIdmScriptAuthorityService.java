@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
@@ -33,7 +32,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmScriptAuthorityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
- * Deafault implementation for {@link IdmScriptAuthorityService}
+ * Default implementation for {@link IdmScriptAuthorityService}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -107,9 +106,9 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 		//
 		for (Entry<String, ScriptEnabled> entry : services.entrySet()) {
 			if (serviceName == null || serviceName.isEmpty()) {
-				result.add(new AvailableServiceDto(entry.getKey(), getServiceClassName(entry.getValue())));
+				result.add(new AvailableServiceDto(entry.getKey()));
 			} else if (entry.getKey().matches(".*" + serviceName + ".*")) {
-				result.add(new AvailableServiceDto(entry.getKey(), getServiceClassName(entry.getValue())));
+				result.add(new AvailableServiceDto(entry.getKey()));
 			}
 		}
 		//
@@ -122,15 +121,6 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 		this.services = result;
 		return this.services;
 	}
-	
-	/**
-	 * Method get service class name from proxy
-	 * @param value
-	 * @return
-	 */
-	private String getServiceClassName(Object value) {
-		return AopUtils.getTargetClass(value).getName();
-	}
 
 	@Override
 	public boolean isServiceReachable(String serviceName, String className) {
@@ -138,8 +128,7 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 		return !this.findServices(null).stream()
 				.filter(
 						service -> (
-								service.getServiceName().equals(serviceName) &&
-								service.getServiceClass().equals(className)
+								service.getServiceName().equals(serviceName)
 								)
 						).collect(Collectors.toList()).isEmpty();
 	}

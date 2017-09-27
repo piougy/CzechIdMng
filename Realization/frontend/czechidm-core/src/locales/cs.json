@@ -2156,6 +2156,7 @@
         "label": "Typ autority",
         "help": ""
       },
+      "name": "Název",
       "className": "Jméno třídy",
       "service": "Jméno služby"
     },

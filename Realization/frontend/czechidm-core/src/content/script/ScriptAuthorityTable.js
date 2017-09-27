@@ -96,6 +96,10 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
       _showLoading: true
     }, this.refs.form.processStarted());
 
+    // if type == SERVICE remove unless attribute className
+    if (ScriptAuthorityTypeEnum.findSymbolByKey(entity.type) === ScriptAuthorityTypeEnum.SERVICE) {
+      delete entity.className;
+    }
     // set script id into script authority
     entity.script = script.id;
 
@@ -147,7 +151,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
         const service = services._embedded.availableServices[index];
         const row = {
           niceLabel: service.serviceName,
-          value: service.serviceClass
+          value: service.serviceName
         };
         servicesOptions.push(row);
       }
@@ -179,7 +183,6 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.service.setValue(entity.niceLabel);
   }
 
   closeDetail(entity, event) {
@@ -277,8 +280,18 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
           <Advanced.Column property="type"
             header={ this.i18n('entity.ScriptAuthority.type.label') }
             sort face="enum" enumClass={ScriptAuthorityTypeEnum}/>
-          <Advanced.Column property="className" sort />
-          <Advanced.Column property="service" sort />
+          <Advanced.Column
+            property="name"
+            sort
+            cell={
+              ({ rowIndex, data }) => {
+                if (ScriptAuthorityTypeEnum.findSymbolByKey(data[rowIndex].type) === ScriptAuthorityTypeEnum.SERVICE) {
+                  return data[rowIndex].service;
+                }
+                return data[rowIndex].className;
+              }
+            }
+            />
         </Advanced.Table>
 
         <Basic.Modal
@@ -300,33 +313,27 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
                   <div className="col-lg-12">
                     <Basic.EnumSelectBox
                       ref="type"
+                      clearable={false}
                       enum={ScriptAuthorityTypeEnum}
                       onChange={ this.onChangeType.bind(this) }
                       label={ this.i18n('entity.ScriptAuthority.type.label') }
                       palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
                       helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
-                    {
-                      detail.isService
-                      ?
-                      <Basic.EnumSelectBox
-                        required
-                        searchable
-                        ref="className"
-                        onChange={ this.onChangeService.bind(this) }
-                        options={this.getOptions(availableServices)}
-                        label={ this.i18n('entity.ScriptAuthority.type.label') }
-                        palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
-                        helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
-                      :
-                      <Basic.TextField
-                        required
-                        ref="className"
-                        label={this.i18n('entity.ScriptAuthority.className')}
-                        max={2000}/>
-                    }
-                    <Basic.TextField
-                      hidden
+                    <Basic.EnumSelectBox
+                      required={detail.isService}
+                      searchable
                       ref="service"
+                      hidden={!detail.isService}
+                      onChange={ this.onChangeService.bind(this) }
+                      options={this.getOptions(availableServices)}
+                      label={ this.i18n('entity.ScriptAuthority.type.label') }
+                      palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
+                      helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
+                    <Basic.TextField
+                      required={!detail.isService}
+                      hidden={detail.isService}
+                      ref="className"
+                      label={this.i18n('entity.ScriptAuthority.className')}
                       max={2000}/>
                   </div>
                 </Basic.Row>

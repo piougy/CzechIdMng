@@ -2099,6 +2099,7 @@
         "label": "Authority type",
         "help": ""
       },
+      "name": "Name",
       "className": "Class name",
       "service": "Service name"
     },

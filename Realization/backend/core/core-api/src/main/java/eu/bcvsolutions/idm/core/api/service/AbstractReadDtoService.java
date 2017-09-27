@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -44,6 +42,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Provide additional methods to retrieve DTOs and entities using the pagination
@@ -213,7 +212,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				}
 				//
 				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
-				BasePermission[] permissions = trimNull(permission);
+				BasePermission[] permissions = PermissionUtils.trimNull(permission);
 				if (!ObjectUtils.isEmpty(permissions) && (AbstractReadDtoService.this instanceof AuthorizableService)) {					
 					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
 					if (authorizableType != null && authorizableType.getType() != null) {					
@@ -372,7 +371,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		if (this instanceof AuthorizableService) {
 			AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
 			if (authorizableType != null && authorizableType.getType() != null) {
-				BasePermission[] permissions = trimNull(permission);
+				BasePermission[] permissions = PermissionUtils.trimNull(permission);
 				if (!ObjectUtils.isEmpty(permissions) && !getAuthorizationManager().evaluate(entity, permissions)) {
 					throw new ForbiddenEntityException(entity.getId(), permissions);
 				}
@@ -402,25 +401,5 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
-	}
-	
-	/**
-	 * Returns permission list without {@code null} permissions. 
-	 * 
-	 * TODO: move to utils
-	 * 
-	 * @param permissions
-	 * @return
-	 */
-	protected BasePermission[] trimNull(BasePermission... permissions) {
-		if(ObjectUtils.isEmpty(permissions)) {
-			return null;
-		}
-		return Lists.newArrayList(permissions)
-			.stream()
-			.filter(permission -> {
-				return permission != null;
-			})
-			.toArray(BasePermission[]::new);
 	}
 }

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
@@ -20,6 +21,7 @@ public class AccAccountFilter extends QuickFilter {
 	private AccountType accountType;
 	private Boolean ownership;
 	private Boolean supportChangePassword;
+	private SystemEntityType entityType;  
 	
 	public UUID getSystemEntityId() {
 		return systemEntityId;
@@ -76,5 +78,12 @@ public class AccAccountFilter extends QuickFilter {
 	public void setSupportChangePassword(Boolean supportChangePassword) {
 		this.supportChangePassword = supportChangePassword;
 	}
-
+	
+	public void setEntityType(SystemEntityType entityType) {
+		this.entityType = entityType;
+	}
+	
+	public SystemEntityType getEntityType() {
+		return entityType;
+	}
 }

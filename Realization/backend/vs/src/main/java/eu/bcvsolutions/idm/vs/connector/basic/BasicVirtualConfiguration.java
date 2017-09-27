@@ -31,7 +31,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	private boolean requiredConfirmation = true;
 	private String[] reservedNames = { "uid", "__NAME__", "enable", "__ENABLE__", "__PASSWORD__" };
 
-	@IcConfigurationClassProperty(order = 5, displayName = "Required confirmation by the implementer", helpMessage = "All requests will be solved immediately. None notification will be sent to implementers.")
+	@IcConfigurationClassProperty(order = 5, displayName = "Required confirmation by the implementer", helpMessage = "If is not checked, then all requests will be solved immediately. None notification will be sent to implementers.")
 	public boolean isRequiredConfirmation() {
 		return requiredConfirmation;
 	}
@@ -67,7 +67,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.implementerRoles = realizatorRoles;
 	}
 
-	@IcConfigurationClassProperty(order = 40, displayName = "Supports password reset", helpMessage = "Not implemented yet!")
+	// Not implemented yet! @IcConfigurationClassProperty(order = 40, displayName = "Supports password reset")
 	public boolean isResetPasswordSupported() {
 		return resetPasswordSupported;
 	}

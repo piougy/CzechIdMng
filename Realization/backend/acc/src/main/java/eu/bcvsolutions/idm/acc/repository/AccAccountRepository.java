@@ -56,7 +56,9 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        	  + " and sm.operationType = 'PROVISIONING'"
 	        	  + " and sa.name = '" + ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME + "'"
 	        	+ " )" +
-        	" )")
+        	" )" +
+        	" and" +
+	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
 	Page<AccAccount> find(AccAccountFilter filter, Pageable pageable);
 	
 	Long countBySystem(@Param("system") SysSystem system);

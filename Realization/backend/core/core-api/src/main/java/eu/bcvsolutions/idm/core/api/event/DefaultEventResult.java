@@ -1,12 +1,17 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Default event result holder
@@ -23,6 +28,7 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 	private boolean closed;
 	private boolean suspended;
 	private int processedOrder;
+	private List<OperationResult> results;
 	
 	public DefaultEventResult(EntityEvent<E> event, EntityEventProcessor<E> processor, boolean closed) {
 		Assert.notNull(event);
@@ -42,6 +48,7 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 	protected DefaultEventResult(Builder<E> builder) {
 		this(builder.event, builder.processor, builder.closed);
 		this.suspended = builder.suspended;
+		this.results = builder.results;
 	}
 
 	@Override
@@ -73,6 +80,18 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 		return processedOrder;
 	}
 	
+	@Override
+	public List<OperationResult> getResults() {
+		if (results == null) {
+			results = new ArrayList<>();
+		}
+		return results;
+	}
+	
+	public void setResults(List<OperationResult> results) {
+		this.results = results;
+	}
+	
 	/**
 	 * {@link DefaultEventResult} builder
 	 * 
@@ -85,6 +104,7 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 		// optional	
 		private boolean closed;
 		private boolean suspended;
+		private List<OperationResult> results;
 		
 		public Builder(EntityEvent<E> event, EntityEventProcessor<E> processor) {
 			this.event = event;
@@ -101,8 +121,19 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 			return this;
 		}
 		
+		public Builder<E> setResult(OperationResult result) {
+			return setResults(result == null ? null : Lists.newArrayList(result));
+		}
+		
+		public Builder<E> setResults(List<OperationResult> results) {
+			this.results = results;
+			return this;
+		}
+		
 		public DefaultEventResult<E> build() {
 			return new DefaultEventResult<>(this);
 		}
+		
+		
 	}
 }

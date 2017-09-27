@@ -244,10 +244,4 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	protected ReadWriteDtoService<IdmIdentityDto, ?> getService() {
 		return identityService;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.IDENTITY == delimiter;
-	}
-
 }

@@ -959,8 +959,8 @@
       }
     },
     "tree": {
-      "header": "Organizational tree",
-      "title": "Organizational tree",
+      "header": "Tree structures",
+      "title": "Tree structures",
       "filter": {
         "parentId": {
           "label": "Superior element"
@@ -2967,6 +2967,10 @@
     "LONG_RUNNING_TASK_IS_PROCESSED": {
       "title": "Task is already processed",
       "message": "Task [{{taskId}}] is already processed - can not be started twice."
+    },
+    "LONG_RUNNING_TASK_IS_RUNNING": {
+      "title": "Task is already running",
+      "message": "Task [{{taskId}}] is already running - can not be started twice."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is inactive",

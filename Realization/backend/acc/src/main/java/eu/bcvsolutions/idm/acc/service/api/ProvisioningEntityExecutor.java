@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
@@ -61,10 +62,12 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	/**
 	 * 
 	 * Change password for selected identity accounts.
+	 * 
 	 * @param identity
 	 * @param passwordChange
+	 * @result result for each provisioned account
 	 */
-	void changePassword(DTO dto, PasswordChangeDto passwordChange);
+	List<OperationResult> changePassword(DTO dto, PasswordChangeDto passwordChange);
 	
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
@@ -75,8 +78,9 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * @param system
 	 * @param operationType
 	 * @param dto
+	 * @result result
 	 */
-	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
+	OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, DTO dto);
 	
 	/**

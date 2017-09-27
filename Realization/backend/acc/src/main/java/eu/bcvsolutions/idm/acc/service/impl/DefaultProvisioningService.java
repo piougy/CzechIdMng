@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
@@ -81,17 +82,17 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public void changePassword(AbstractDto entity, PasswordChangeDto passwordChange) {
+	public List<OperationResult> changePassword(AbstractDto entity, PasswordChangeDto passwordChange) {
 		Assert.notNull(entity);
 		//
-		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).changePassword(entity, passwordChange);
+		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).changePassword(entity, passwordChange);
 	}
 
 	@Override
-	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
+	public OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, AbstractDto entity) {
 		Assert.notNull(entity);
-		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
+		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
 	}
 
 	@Override

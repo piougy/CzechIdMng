@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -80,7 +82,7 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		// if dto exists add real uid
 		if (newDto != null) {
 			if (newDto.getSystemEntity() != null) {
-				SysSystemEntityDto systemEntity = systemEntityService.get(newDto.getSystemEntity());
+				SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(newDto, AccAccount_.systemEntity, SysSystemEntityDto.class);				
 				newDto.setRealUid(systemEntity.getUid());
 			} else {
 				// If system entity do not exist, then return uid from account.
@@ -88,12 +90,6 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 			}
 		}
 		return newDto;
-	}
-
-	@Override
-	@Transactional
-	public AccAccountDto save(AccAccountDto entity, BasePermission... permission) {
- 		return super.save(entity, permission);
 	}
 
 	@Override
@@ -123,8 +119,10 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 			if (provisioningService == null) {
 				provisioningService = applicationContext.getBean(ProvisioningService.class);
 			}
-			SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
-			this.provisioningService.doDeleteProvisioning(account, systemEntityDto.getEntityType(), entityId);
+			if (account.getSystemEntity() != null) {
+				SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
+				this.provisioningService.doDeleteProvisioning(account, systemEntityDto.getEntityType(), entityId);
+			}
 		}
 	}
 

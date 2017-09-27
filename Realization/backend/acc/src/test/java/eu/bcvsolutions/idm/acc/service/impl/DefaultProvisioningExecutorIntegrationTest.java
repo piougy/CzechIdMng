@@ -26,29 +26,24 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningRequestService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -78,12 +73,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired private IcConnectorFacade connectorFacade;
 	@Autowired private ConfidentialStorage confidentialStorage;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
-	@Autowired private LongRunningTaskManager longRunningTaskManager; 
-	@Autowired private IdmLongRunningTaskService longRunningTaskService; 
-	@Autowired private SysProvisioningRequestService provisioningRequestService;
-	@Autowired private SysProvisioningBatchRepository provisioningBatchRepository;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
-	@Autowired private SysProvisioningOperationRepository provisioningOperationRepository;
 	@Autowired private TestProvisioningExceptionProcessor testProvisioningExceptionProcessor;
 	//	
 	private SysProvisioningOperationService provisioningOperationService;
@@ -317,7 +308,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		provisioningQueueExecutor.setVirtual(true);
 		Boolean result = longRunningTaskManager.executeSync(provisioningQueueExecutor);
 		assertTrue(result);
-		IdmLongRunningTaskDto lrt = longRunningTaskService.get(provisioningQueueExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto lrt = longRunningTaskManager.getLongRunningTask(provisioningQueueExecutor.getLongRunningTaskId());
 		assertEquals(0L, lrt.getCount().longValue());
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertTrue(systemEntity.isWish());
@@ -327,7 +318,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		provisioningQueueExecutor = new ProvisioningQueueTaskExecutor();
 		result = longRunningTaskManager.executeSync(provisioningQueueExecutor);
 		assertTrue(result);
-		lrt = longRunningTaskService.get(provisioningQueueExecutor.getLongRunningTaskId());
+		lrt = longRunningTaskManager.getLongRunningTask(provisioningQueueExecutor);
 		assertEquals(1L, lrt.getCount().longValue());
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertFalse(systemEntity.isWish());
@@ -335,7 +326,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	}
 	
 	@Test
-	public void testClearProvisioningRequestAndBatchOnReadonlySystem() {
+	public void testClearProvisioningBatchOnReadonlySystem() {
 		SysSystemDto system = helper.createTestResourceSystem(true);
 		system.setReadonly(true);
 		system = systemService.save(system);
@@ -359,11 +350,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNull(helper.findResource(uid));
 		//
 		// check batch
-		SysProvisioningBatch batch = provisioningBatchRepository.findBatch(provisioningOperationRepository.findOne(operation.getId()));
+		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
 		Assert.assertNotNull(batch);
 		//
 		// check provisioning operation requests
-		List<SysProvisioningRequestDto> requests = provisioningRequestService.findByBatchId(batch.getId(), null).getContent();
+		List<SysProvisioningOperationDto> requests = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		Assert.assertEquals(3, requests.size());
 		//
 		// execute first operation - create
@@ -376,15 +367,15 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		TestResource resource = helper.findResource(uid);
 		assertNotNull(resource);
 		Assert.assertEquals(firstname, resource.getFirstname());
-		Assert.assertEquals(2, provisioningRequestService.findByBatchId(batch.getId(), null).getContent().size());
+		Assert.assertEquals(2, provisioningOperationService.findByBatchId(batch.getId(), null).getContent().size());
 		//
 		// execute whole batch
-		provisioningExecutor.execute(provisioningBatchService.get(batch.getId()));
+		provisioningExecutor.execute(batch);
 		//
 		resource = helper.findResource(uid);
 		Assert.assertEquals(firstname + 3, resource.getFirstname());
-		Assert.assertEquals(0, provisioningRequestService.findByBatchId(batch.getId(), null).getTotalElements());
-		Assert.assertNull(provisioningOperationRepository.findOne(operation.getId()));
+		Assert.assertEquals(0, provisioningOperationService.findByBatchId(batch.getId(), null).getTotalElements());
+		Assert.assertNull(provisioningOperationService.get(operation.getId()));
 		Assert.assertNull(provisioningBatchService.get(batch.getId()));
 	}
 	
@@ -402,30 +393,30 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation);
 			// is necessary to get again operation from service - operation is not resulted because processing is called after transaction ends
 			operation = provisioningOperationService.get(operation.getId());
-			SysProvisioningBatch batch = provisioningBatchRepository.findBatch(provisioningOperationRepository.findOne(operation.getId()));
+			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
 			Assert.assertEquals(OperationState.EXCEPTION, operation.getResultState());
 			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), operation.getResult().getModel().getStatusEnum());
-			Assert.assertEquals(1, operation.getRequest().getCurrentAttempt());
-			Assert.assertTrue(operation.getRequest().getMaxAttempts() > 1);
+			Assert.assertEquals(1, operation.getCurrentAttempt());
+			Assert.assertTrue(operation.getMaxAttempts() > 1);
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 			SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 			Assert.assertTrue(systemEntity.isWish());
 			Assert.assertNull(helper.findResource(uid));
 			//
 			batch.setNextAttempt(new DateTime());
-			provisioningBatchRepository.save(batch);
+			provisioningBatchService.save(batch);
 			//
 			// retry - the same exception expected
 			RetryProvisioningTaskExecutor retryProvisioningTaskExecutor = new RetryProvisioningTaskExecutor();
 			Boolean result = longRunningTaskManager.executeSync(retryProvisioningTaskExecutor);
 			Assert.assertTrue(result);
 			operation = provisioningOperationService.get(operation.getId());
-			batch = provisioningBatchRepository.findBatch(provisioningOperationRepository.findOne(operation.getId()));
-			Assert.assertEquals(2, operation.getRequest().getCurrentAttempt());
+			batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
+			Assert.assertEquals(2, operation.getCurrentAttempt());
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 			//
 			batch.setNextAttempt(new DateTime());
-			provisioningBatchRepository.save(batch);
+			provisioningBatchService.save(batch);
 			//
 			// retry - expected success now
 			testProvisioningExceptionProcessor.setDisabled(true);
@@ -481,7 +472,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystemEntity(systemEntity.getId())
+				.setSystemEntity(systemEntity)
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		return operationBuilder.build();
 	}
@@ -497,7 +488,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(ProvisioningOperationType.UPDATE)
-				.setSystemEntity(systemEntity.getId())
+				.setSystemEntity(systemEntity)
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		return operationBuilder.build();
 	}

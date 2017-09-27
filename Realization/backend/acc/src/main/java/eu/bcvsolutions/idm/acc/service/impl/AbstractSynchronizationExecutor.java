@@ -200,6 +200,20 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.schemaAttributeService = schemaAttributeService;
 	}
+	
+	/**
+	 * Returns entity type for this synchronization executor
+	 * 
+	 * @return
+	 */
+	protected SystemEntityType getEntityType() {
+		return SystemEntityType.getByClass(getService().getDtoClass());
+	}
+	
+	@Override
+	public boolean supports(SystemEntityType delimiter) {
+		return getEntityType() == delimiter;
+	}
 
 	@Override
 	public SysSyncConfigDto process(UUID synchronizationConfigId) {
@@ -1178,6 +1192,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		account.setSystem(system.getId());
 		account.setAccountType(AccountType.PERSONAL);
 		account.setUid(uid);
+		account.setEntityType(getEntityType());
 		return account;
 	}
 

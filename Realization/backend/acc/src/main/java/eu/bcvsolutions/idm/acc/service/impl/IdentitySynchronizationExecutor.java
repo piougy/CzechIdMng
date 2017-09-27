@@ -342,11 +342,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		});
 		return;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.IDENTITY == delimiter;
-	}
 	
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {

@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Entity event processor result
@@ -48,4 +51,11 @@ public interface EventResult<E extends Serializable> extends Serializable {
 	 * @return
 	 */
 	int getProcessedOrder();
+	
+	/**
+	 * Processed event results, or empty list. Never returns {@code null}.
+	 * 
+	 * @return
+	 */
+	List<OperationResult> getResults();
 }

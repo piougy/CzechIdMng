@@ -141,9 +141,4 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	protected IdmRoleCatalogueService getService() {
 		return catalogueService;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.ROLE_CATALOGUE == delimiter;
-	}
 }

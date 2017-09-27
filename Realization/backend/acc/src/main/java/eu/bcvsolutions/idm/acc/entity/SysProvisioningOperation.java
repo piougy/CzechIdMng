@@ -2,28 +2,29 @@ package eu.bcvsolutions.idm.acc.entity;
 
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
- * Persisted "active" provisioning operation. Any operation has request and batch.
+ * Persisted "active" provisioning operation. Any operation has batch and operation result.
  * 
  * @author Radek Tomiška
  *
@@ -32,8 +33,11 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Table(name = "sys_provisioning_operation", indexes = {
 		@Index(name = "idx_sys_p_o_created", columnList = "created"),
 		@Index(name = "idx_sys_p_o_operation_type", columnList = "operation_type"),
-		@Index(name = "idx_sys_p_o_entity_sys_e_id", columnList = "system_entity_id"),
-		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier")
+		@Index(name = "idx_sys_p_o_system", columnList = "system_id"),
+		@Index(name = "idx_sys_p_o_entity_type", columnList = "entity_type"),
+		@Index(name = "idx_sys_p_o_uid", columnList = "system_entity_uid"),
+		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier"),
+		@Index(name = "idx_sys_pro_oper_batch_id", columnList = "provisioning_batch_id")
 		})
 public class SysProvisioningOperation extends AbstractEntity {
 
@@ -50,18 +54,37 @@ public class SysProvisioningOperation extends AbstractEntity {
 	
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysSystemEntity systemEntity; // account, etc.
+	private SysSystem system;
+	
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "entity_type", nullable = false)
+	private SystemEntityType entityType;
+	
+	@NotNull
+	@Column(name = "system_entity_uid")
+	private String systemEntityUid; // account uid, etc.
 	
 	@Column(name = "entity_identifier")
 	private UUID entityIdentifier;
 	
-	@OneToOne(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@Column(name = "current_attempt")
+	private int currentAttempt = 0;
+
+	@Column(name = "max_attempts")
+	private int maxAttempts;
+
+	@Embedded
+	private OperationResult result;
+
+	@ManyToOne
+	@JoinColumn(name = "provisioning_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysProvisioningRequest requestEntity; // its there only for filtering in jpa query
+	private SysProvisioningBatch batch;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -70,35 +93,29 @@ public class SysProvisioningOperation extends AbstractEntity {
 	public void setOperationType(ProvisioningEventType operationType) {
 		this.operationType = operationType;
 	}
-
-	
-	public SysSystemEntity getSystemEntity() {
-		return systemEntity;
-	}
-	
-	public void setSystemEntity(SysSystemEntity systemEntity) {
-		this.systemEntity = systemEntity;
-	}
 	
 	public SysSystem getSystem() {
-		if (systemEntity == null) {
-			return null;
-		}
-		return systemEntity.getSystem();
+		return system;
+	}
+	
+	public void setSystem(SysSystem system) {
+		this.system = system;
 	}
 
 	public SystemEntityType getEntityType() {
-		if (systemEntity == null) {
-			return null;
-		}
-		return systemEntity.getEntityType();
+		return entityType;
 	}	
 	
+	public void setEntityType(SystemEntityType entityType) {
+		this.entityType = entityType;
+	}
+	
 	public String getSystemEntityUid() {
-		if (systemEntity == null) {
-			return null;
-		}
-		return systemEntity.getUid();
+		return systemEntityUid;
+	}
+	
+	public void setSystemEntityUid(String systemEntityUid) {
+		this.systemEntityUid = systemEntityUid;
 	}
 
 	public UUID getEntityIdentifier() {
@@ -117,79 +134,46 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.provisioningContext = provisioningContext;
 	}
 	
-	/**
-	 * New {@link SysProvisioningOperation} builder.
-	 * 
-	 * @author Radek Tomiška
-	 *
-	 */
-//	public static class Builder {
-//		private ProvisioningEventType operationType;
-//		private ProvisioningContext provisioningContext;
-//		private UUID entityIdentifier;
-//		private SysSystemEntity systemEntity;
-//		
-//		public Builder setOperationType(ProvisioningEventType operationType) {
-//			this.operationType = operationType;
-//			return this;
-//		}
-//		
-//		/**
-//		 * Maps {@linkAccountOperationType} to {@link ProvisioningEventType}.
-//		 * @param operationType
-//		 * @return
-//		 */
-//		public Builder setOperationType(ProvisioningOperationType operationType) {
-//			switch (operationType) {
-//				case CREATE: {
-//					this.operationType = ProvisioningEventType.CREATE;
-//					break;
-//				}
-//				case UPDATE: {
-//					this.operationType = ProvisioningEventType.UPDATE;
-//					break;
-//				}
-//				case DELETE: {
-//					this.operationType = ProvisioningEventType.DELETE;
-//					break;
-//				}
-//				default: {
-//					throw new UnsupportedOperationException(MessageFormat.format("Account operation type [{}] is not supported for provisioning", operationType));
-//				}
-//			}
-//			
-//			return this;
-//		}
-//		
-//		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
-//			this.provisioningContext = provisioningContext;
-//			return this;
-//		}
-//		
-//		
-//		public Builder setEntityIdentifier(UUID entityIdentifier) {
-//			this.entityIdentifier = entityIdentifier;
-//			return this;
-//		}
-//		
-//		public Builder setSystemEntity(SysSystemEntity systemEntity) {
-//			this.systemEntity = systemEntity;
-//			return this;
-//		}
-//		
-//		/**
-//		 * Returns newly constructed SysProvisioningOperation object.
-//		 * 
-//		 * @return
-//		 */
-//		public SysProvisioningOperation build() {
-//			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
-//			provisioningOperation.setOperationType(operationType);
-//			provisioningOperation.setSystemEntity(systemEntity);
-//			provisioningOperation.setEntityIdentifier(entityIdentifier);
-//			provisioningOperation.setProvisioningContext(provisioningContext);
-//			return provisioningOperation;
-//		}
-//	}
+	public int getCurrentAttempt() {
+		return currentAttempt;
+	}
+
+	public void setCurrentAttempt(int attempt) {
+		this.currentAttempt = attempt;
+	}
+
+	public void increaseAttempt() {
+		this.currentAttempt++;
+	}
+
+	public int getMaxAttempts() {
+		return maxAttempts;
+	}
+
+	public void setMaxAttempts(int maxAttempts) {
+		this.maxAttempts = maxAttempts;
+	}
+
+	public SysProvisioningBatch getBatch() {
+		return batch;
+	}
+
+	public void setBatch(SysProvisioningBatch batch) {
+		this.batch = batch;
+	}
 	
+	public OperationResult getResult() {
+		return result;
+	}
+	
+	public void setResult(OperationResult result) {
+		this.result = result;
+	}
+	
+	public DateTime getNextAttempt() {
+		if (batch == null) {
+			return null;
+		}
+		return batch.getNextAttempt();
+	}
 }

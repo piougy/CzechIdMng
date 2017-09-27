@@ -211,6 +211,10 @@
       "title": "Nelze smazat účet [{{uid}}] na virtuálním systému",
       "message": "Účet [{{uid}}] na vyrtuálním systému nelze smazat, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovali požadavek na jeho vytvoření! "
     },
+    "VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST": {
+      "title": "Nelze upravit účet [{{uid}}] na virtuálním systému",
+      "message": "Účet [{{uid}}] na vyrtuálním systému nelze upravit, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovali požadavek na jeho vytvoření! "
+    },
     "VS_IMPLEMENTER_WAS_NOT_FOUND": {
       "title": "Realizátor pro virtuální systém nebyl nalezen!",
       "message": "Realizátor pro identitifákor [{{implementer}}] pro vyrtuální systém nebyl nalzen! "

@@ -339,11 +339,6 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.ROLE == delimiter;
-	}
-
-	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
 		return new AccRoleAccountFilter();
 	}

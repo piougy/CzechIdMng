@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatef
  *
  */
 @Service
+@DisallowConcurrentExecution
 @Description("Test long running task")
 @ConditionalOnProperty(prefix = "idm.pub.app", name = "stage", havingValue = "development")
 public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {

@@ -13,29 +13,18 @@ public class AvailableServiceDto  {
 
 	private String serviceName;
 	
-	private String serviceClass;
-	
 	public AvailableServiceDto() {
 	}
 
-	public AvailableServiceDto(String serviceName, String serviceClass) {
+	public AvailableServiceDto(String serviceName) {
 		this.serviceName = serviceName;
-		this.serviceClass = serviceClass;
 	}
 	
 	public String getServiceName() {
 		return serviceName;
 	}
 
-	public String getServiceClass() {
-		return serviceClass;
-	}
-
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
-	}
-
-	public void setServiceClass(String serviceClass) {
-		this.serviceClass = serviceClass;
 	}
 }

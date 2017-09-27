@@ -444,6 +444,7 @@ class SelectBox extends AbstractFormComponent {
     return (
         <Select
           ref="selectComponent"
+          filterOptions={false}
           isLoading={isLoading}
           value={value}
           onChange={this.onChange}

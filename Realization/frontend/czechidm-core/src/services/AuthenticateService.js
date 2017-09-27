@@ -144,6 +144,9 @@ export default class AuthenticateService {
    * @return {object} userContext
    */
   static getUserContext() {
+    if (!AuthenticateService.getSecurityStore()) {
+      return null;
+    }
     return AuthenticateService.getSecurityStore().userContext;
   }
 

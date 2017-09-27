@@ -87,18 +87,22 @@ public class IdmMessageDto extends AbstractDto {
 
     private void initWithModel(Builder builder) {
         model = builder.model;
-        this.htmlMessage = builder.model.getMessage();
-        this.textMessage = builder.model.getMessage();
-        this.subject = builder.model.getStatusEnum();
-        this.parameters = builder.model.getParameters();
+        htmlMessage = builder.model.getMessage();
+        textMessage = builder.model.getMessage();
+        subject = builder.model.getStatusEnum();
+        parameters = builder.model.getParameters();
         //
         // set level from model, override level
-        if (model.getStatus().is5xxServerError()) {
-            level = NotificationLevel.ERROR;
-        } else if (model.getStatus().is2xxSuccessful()) {
-            level = NotificationLevel.SUCCESS;
-        } else {
-            level = NotificationLevel.WARNING;
+        // TODO: this is duplicate wit builder method ...
+        level = builder.level; // higher priority
+        if (level == null) { 
+	        if (model.getStatus().is5xxServerError()) {
+	            level = NotificationLevel.ERROR;
+	        } else if (model.getStatus().is2xxSuccessful()) {
+	            level = NotificationLevel.SUCCESS;
+	        } else {
+	            level = NotificationLevel.WARNING;
+	        }
         }
     }
 

@@ -100,9 +100,10 @@ class PasswordChange extends Basic.AbstractContent {
     .then(() => {
       this.setState({
         validationError: null
+      }, () => {
+        this.login(username, password);
+        this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
       });
-      this.login(username, password);
-      this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
     })
     .catch(error => {
       if (error.message === 'IDENTITY_NOT_FOUND') {

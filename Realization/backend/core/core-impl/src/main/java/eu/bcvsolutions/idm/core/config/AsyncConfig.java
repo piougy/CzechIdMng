@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
+import com.google.common.annotations.Beta;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
@@ -48,6 +50,7 @@ public class AsyncConfig implements AsyncConfigurer {
 	 * 
 	 * @return
 	 */
+	@Beta
 	@Bean(name = "longRunningTaskItemExecutor")
 	public Executor longRunningTaskItemExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -57,7 +60,7 @@ public class AsyncConfig implements AsyncConfigurer {
 		executor.setThreadNamePrefix("provisioning-task-executor-");
 		executor.initialize();
 		executor.setWaitForTasksToCompleteOnShutdown(true);
-		// TODO: reject policy
+		// TODO: reject policy configuration
 		//
 		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
 	}

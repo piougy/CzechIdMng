@@ -592,9 +592,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 	}
 	
 	@Override
-	public OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
+	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
 			Object value, ProvisioningOperationType operationType, DTO dto) {
-		return provisioningExecutor.execute(prepareProvisioningForAttribute(systemEntity, attributeMapping, value, operationType, dto)).getResult();
+		provisioningExecutor.execute(prepareProvisioningForAttribute(systemEntity, attributeMapping, value, operationType, dto));
 	}
 
 	

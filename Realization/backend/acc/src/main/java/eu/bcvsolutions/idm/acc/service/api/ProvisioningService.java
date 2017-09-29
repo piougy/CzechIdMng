@@ -95,9 +95,8 @@ public interface ProvisioningService {
 	 * @param system
 	 * @param operationType
 	 * @param dto
-	 * @return result
 	 */
-	OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
+	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, AbstractDto dto);
 	
 	/**

@@ -526,6 +526,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			List<? extends AttributeMapping> attributes) {
 		AccAccountDto account = getAccountSystemEntity(systemEntity.getId());
 		String uid = systemEntity.getUid();
+		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system, SysSystemDto.class);
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
 		 
 		// delete - account attributes is not needed
@@ -546,7 +547,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 				Object uidValue = getAttributeValue(uid, dto, attribute);
 				if (!(uidValue instanceof String)) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
-							ImmutableMap.of("uid", uidValue));
+							ImmutableMap.of("uid", uidValue, "system", system.getName()));
 				}
 				updateAccountUid(account, uid, (String)uidValue);
 				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute, schemaAttributeDto.getName()), uidValue);
@@ -570,7 +571,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 					.createProvisioningAttributeKey(attributeParent, schemaAttributeParent.getName());
 			if (!schemaAttributeParent.isMultivalued()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
-						ImmutableMap.of("object", uid, "attribute", schemaAttributeParent.getName()));
+						ImmutableMap.of("object", uid, "attribute", schemaAttributeParent.getName(), "system", system.getName()));
 			}
 
 			List<Object> mergedValues = new ArrayList<>();

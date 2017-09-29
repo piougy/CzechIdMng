@@ -139,7 +139,7 @@
           "success": "Configuration of synchronization [{{name}}] was successfully saved"
         },
         "button": {
-          "saveAndStartSynchronization": "Save and run configuration"
+          "saveAndStartSynchronization": "Save and run sync"
         },
         "tabs": {
           "basicConfiguration": {

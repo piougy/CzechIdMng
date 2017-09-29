@@ -41,7 +41,7 @@ return false;
 	</services>
 	<allowClasses>
 		<allowClass>
-			<className>eu.bcvsolutions.idm.acc.entity.AccAccount</className>
+			<className>eu.bcvsolutions.idm.acc.dto.AccAccountDto</className>
 		</allowClass>
 	</allowClasses>
 </script>

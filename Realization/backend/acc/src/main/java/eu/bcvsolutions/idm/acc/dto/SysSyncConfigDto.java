@@ -18,8 +18,6 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
- * TODO: add @Embedded for correlationAttribute, tokenAttribute,
- *         filterAttribute, systemMapping
  */
 
 @Relation(collectionRelation = "synchronizationConfigs")

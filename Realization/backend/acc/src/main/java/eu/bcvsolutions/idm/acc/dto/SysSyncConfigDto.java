@@ -25,11 +25,11 @@ public class SysSyncConfigDto extends AbstractDto {
 
 	private static final long serialVersionUID = 7425419787855747415L;
 
-	private boolean enabled;
+	private boolean enabled = true;
 	private String name;
 	private String description;
-	private boolean reconciliation;
-	private boolean customFilter;
+	private boolean reconciliation = false;
+	private boolean customFilter = false;
 	private String token;
 	private String customFilterScript;
 	private String rootsFilterScript;
@@ -39,13 +39,13 @@ public class SysSyncConfigDto extends AbstractDto {
 	private UUID tokenAttribute;
 	@Embedded(dtoClass = SysSystemAttributeMappingDto.class)
 	private UUID filterAttribute;
-	private IcFilterOperationType filterOperation;
+	private IcFilterOperationType filterOperation = IcFilterOperationType.GREATER_THAN;
 	@Embedded(dtoClass = SysSystemMappingDto.class)
 	private UUID systemMapping;
-	private SynchronizationLinkedActionType linkedAction;
-	private SynchronizationUnlinkedActionType unlinkedAction;
-	private SynchronizationMissingEntityActionType missingEntityAction;
-	private ReconciliationMissingAccountActionType missingAccountAction;
+	private SynchronizationLinkedActionType linkedAction = SynchronizationLinkedActionType.UPDATE_ENTITY;
+	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ACCOUNT;
+	private SynchronizationMissingEntityActionType missingEntityAction = SynchronizationMissingEntityActionType.CREATE_ENTITY;
+	private ReconciliationMissingAccountActionType missingAccountAction = ReconciliationMissingAccountActionType.IGNORE;
 	private String linkedActionWfKey;
 	private String unlinkedActionWfKey;
 	private String missingEntityActionWfKey;

@@ -76,7 +76,7 @@ export default class VsRequestManager extends Managers.EntityManager {
           if (callback) {
             callback();
           }
-          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.realize.success', { record: realizedEntity.uid }) });
+          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.realize.success', { count: 1, record: realizedEntity.uid }) });
         } else {
           detail.setState({
             showLoading: false
@@ -173,7 +173,10 @@ export default class VsRequestManager extends Managers.EntityManager {
         if (ids.length !== 1) {
           dispatch(this.stopBulkAction());
         } else {
-          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.cancel.success') });
+          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.cancel.success', {
+            count: 1,
+            record: this.getNiceLabel(this.getEntity(detail.context.store.getState(), ids[0])) } )
+          });
         }
       });
     }, () => {

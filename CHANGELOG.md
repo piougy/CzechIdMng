@@ -114,7 +114,7 @@ All notable changes to this project will be documented in this file.
 ##### Identity
 
 - Deprecated method ``IdmIdentityService#saveIdentity`` was removed. Use ``save``or ``publish`` method instead.
-- Method `IdmIdentityService#passwordChange`` don't modify given password change dto - results was added.  
+- Method ``IdmIdentityService#passwordChange`` don't modify given password change dto - results was added.  
 
 ##### Event processiong
 

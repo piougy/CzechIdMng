@@ -1185,6 +1185,7 @@
     "scripts": {
       "header": "Definice skriptů",
       "title": "Definice skriptů",
+      "label": "Definice skriptů",
       "edit": {
         "title": "Detail skriptu",
         "header": "{{name}} detail skriptu"
@@ -1335,7 +1336,8 @@
         "header": "Další údaje",
         "title": "Další údaje",
         "save": {
-          "success": "Údaje role [{{name}}] byly úspěšně uloženy."
+          "success": "Údaje role [{{name}}] byly úspěšně uloženy.",
+          "start": "Execute request"
         },
         "error" : {
           "notFound": "Definice dalších atributů pro roli nebyla nalezena."
@@ -1386,11 +1388,6 @@
         "evaluator": {
           "default": "Bude použit výchozí typ vyhodnocení pro zvolenou agendu. Agenda nepodporuje jiné typy vyhodnocení."
         }
-      },
-      "accounts": {
-        "header": "Účty na systémech",
-        "title": "$t(content.identity.accounts.header)",
-        "empty": "Nenalezeny žádné účty na koncových systémech."
       }
     },
     "identity": {
@@ -1398,7 +1395,6 @@
         "profile": "Osobní údaje",
         "password": "Změna hesla",
         "roles": "Přiřazené role",
-        "accounts": "Účty na systémech",
         "approve": "Schvaluji role",
         "subordinates": "Podřízení",
         "positions": "Pracovně právní vztahy",
@@ -1582,11 +1578,6 @@
       },
       "identityRoleDetail": {
         "label": "Detail záznamu"
-      },
-      "accounts": {
-        "header": "Účty na systémech",
-        "title": "$t(content.identity.accounts.header)",
-        "empty": "Nenalezeny žádné účty na koncových systémech."
       },
       "identityContracts": {
         "header": "Pracovně právní vztahy",
@@ -2135,7 +2126,6 @@
       "parent": {
         "name": "Nadřazená složka v katalogu"
       }
-
     },
     "Script": {
       "name": "Název skriptu",

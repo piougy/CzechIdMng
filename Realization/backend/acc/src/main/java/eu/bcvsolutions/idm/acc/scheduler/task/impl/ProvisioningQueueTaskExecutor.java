@@ -3,12 +3,10 @@ package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executor;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +36,6 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	//
 	@Autowired private ProvisioningExecutor provisioningExecutor;	
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
-	@Autowired
-	@Qualifier("longRunningTaskItemExecutor")
-	private Executor executor;
 	//
 	private Boolean virtualSystem; // configured virtual system
 	

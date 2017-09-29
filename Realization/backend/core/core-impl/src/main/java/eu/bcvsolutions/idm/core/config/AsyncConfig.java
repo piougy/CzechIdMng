@@ -12,8 +12,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
-import com.google.common.annotations.Beta;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
@@ -41,26 +39,6 @@ public class AsyncConfig implements AsyncConfigurer {
 		executor.setQueueCapacity(11);
 		executor.setThreadNamePrefix("base-task-executor-");
 		executor.initialize();
-		//
-		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
-	}
-	
-	/**
-	 * Executor for LRT items. Item can be processed asynchronously - want to control pool usage.
-	 * 
-	 * @return
-	 */
-	@Beta
-	@Bean(name = "longRunningTaskItemExecutor")
-	public Executor longRunningTaskItemExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(10);
-		executor.setMaxPoolSize(20);
-		executor.setThreadGroupName("provisioning-task-executor");
-		executor.setThreadNamePrefix("provisioning-task-executor-");
-		executor.initialize();
-		executor.setWaitForTasksToCompleteOnShutdown(true);
-		// TODO: reject policy configuration
 		//
 		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
 	}

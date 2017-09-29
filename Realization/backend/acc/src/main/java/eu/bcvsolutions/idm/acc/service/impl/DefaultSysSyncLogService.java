@@ -94,7 +94,7 @@ public class DefaultSysSyncLogService
 				
 				@Override
 				protected void configure() {
-					map().setSyncActionLogs(null);
+					this.skip().setSyncActionLogs(null);
 				}
 			});
 		}

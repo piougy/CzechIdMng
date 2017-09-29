@@ -17,7 +17,6 @@ CzechIdM manages user accounts, roles, groups, organizational rankings, and thei
   - Nightly build: [idm.war](http://download.czechidm.com/CzechIdM/nightly/current/idm.war)
   - Online demo: http://demo.czechidm.com/
   - BugTrack tool Redmine: https://redmine.czechidm.com/projects/czechidmng
-  - GitHub: https://github.com/bcvsolutions/CzechIdMng
   - Contact options, Google groups and more: https://wiki.czechidm.com/support
 
 ## Used technologies

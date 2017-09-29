@@ -10,6 +10,7 @@ import com.google.common.annotations.Beta;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -45,8 +46,9 @@ public interface IdmIdentityService extends
 	 * 
 	 * @param identity
 	 * @param passwordChangeDto
+	 * @return - change on accounts
 	 */
-	void passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto);
+	List<OperationResult> passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto);
 	
 	
 	/**

@@ -114,6 +114,7 @@ All notable changes to this project will be documented in this file.
 ##### Identity
 
 - Deprecated method ``IdmIdentityService#saveIdentity`` was removed. Use ``save``or ``publish`` method instead.
+- Method `IdmIdentityService#passwordChange`` don't modify given password change dto - results was added.  
 
 ##### Event processiong
 
@@ -279,7 +280,9 @@ All notable changes to this project will be documented in this file.
 - Entity **SysProvisioningArchive was transformed to SysProvisioningArchiveDto**. Update all places where call from your project [SysProvisioningArchiveService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/acc/src/main/java/eu/bcvsolutions/idm/acc/service/api/SysProvisioningArchiveService.java). The service now uses only DTO.
 - Entity **SysProvisioningOperation was transformed to SysProvisioningOperationDto**. Update all places where call from your project [SysProvisioningOperationService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/acc/src/main/java/eu/bcvsolutions/idm/acc/service/api/SysProvisioningOperationService.java). The service now uses only DTO.
 - Entity **SysProvisioningRequest was removed** - use ``SysProvisioningOperation`` and ``SysProvisioningOperationDto``.
-- Method **SysProvisioningBatch findBatch(SysProvisioningOperation operation)** from service [SysProvisioningBatchService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/acc/src/main/java/eu/bcvsolutions/idm/acc/service/api/SysProvisioningBatchService.java) was moved to service [SysProvisioningOperationService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/acc/src/main/java/eu/bcvsolutions/idm/acc/service/api/SysProvisioningOperationService.java), update all places where you call method **findBatch** to new service.
+- Method **SysProvisioningBatch findBatch(SysProvisioningOperation operation)** from service ``SysProvisioningBatchService`` was moved into service ``SysProvisioningOperationService``, update all places where you call method **findBatch** to new service.
+- Password provisioning was improved - operation results are returned now, without input password dto is changed.
+- Provisioning operation table is sorted by created date descended.
 
 ### Removed
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,8 +62,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -313,10 +316,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 				accounts.add(entityAccount.getAccount());
 			}
 		});
-
-		// Clear accounts in DTO ... we will set only success changed
-		passwordChange.setAccounts(null);
-		Map<UUID, UUID> operationAccounts = new HashMap<>();
+		Map<UUID, AccAccountDto> operationAccounts = new HashMap<>(); // operationId / account
 		accounts.forEach(accountId -> {
 			AccAccountDto account = accountService.get(accountId);
 			// find uid from system entity or from account
@@ -348,7 +348,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			SysProvisioningOperationDto operation = prepareProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
 					ProvisioningOperationType.UPDATE, dto);
 			preparedOperations.add(operation);
-			operationAccounts.put(operation.getId(), account.getId());
+			operationAccounts.put(operation.getId(), account);
 		});
 		passwordChange.setNewPassword(null);
 		passwordChange.setOldPassword(null);
@@ -357,12 +357,28 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 		return preparedOperations
 			.stream()
 			.map(operation -> {
-				OperationResult result = provisioningExecutor.executeSync(operation).getResult();
-				if (result.getState() == OperationState.EXECUTED) {
+				SysProvisioningOperationDto result = provisioningExecutor.executeSync(operation);
+				Map<String, Object> parameters = new LinkedHashMap<String, Object>();
+				AccAccountDto account = operationAccounts.get(operation.getId());
+				SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+				//
+				parameters.put("account", ImmutableMap.of(
+						"id", account.getId().toString(),
+						"uid", account.getUid(),
+						"realUid", account.getRealUid(),
+						"systemId", system.getId(),
+						"systemName", system.getName()));
+				if (result.getResult().getState() == OperationState.EXECUTED) {
 					// Add success changed password account
-					passwordChange.getAccounts().add(operationAccounts.get(operation.getId()).toString());
+					return new OperationResult
+							.Builder(OperationState.EXECUTED)
+							.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS, parameters))
+							.build();
 				}
-				return result;
+				return new OperationResult
+						.Builder(result.getResult().getState())
+						.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED, parameters))
+						.build();
 			})
 			.collect(Collectors.toList());
 	}

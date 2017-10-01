@@ -233,8 +233,12 @@ class NotificationDetail extends Basic.AbstractContent {
                 <Basic.TextArea ref="htmlMessage" rows="10" readOnly={!isNew} hidden={!isNew && !notification.message.htmlMessage} />
               </div>
             </Basic.Tab>
-            <Basic.Tab eventKey={2} title={this.i18n('entity.Notification.message.renderedHtmlMessage')} className="bordered">
-              <div style={{padding: '10px'}}>
+            <Basic.Tab
+              eventKey={ 2 }
+              title={ this.i18n('entity.Notification.message.renderedHtmlMessage') }
+              className="bordered"
+              rendered={ !isNew }>
+              <div style={{ padding: '10px' }}>
                 <span dangerouslySetInnerHTML={{ __html: formData.htmlMessage || '' }}/>
               </div>
             </Basic.Tab>

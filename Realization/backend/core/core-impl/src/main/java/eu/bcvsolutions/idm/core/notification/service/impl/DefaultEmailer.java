@@ -108,7 +108,6 @@ public class DefaultEmailer implements Emailer {
 
 	}
 	
-	@Override
 	@TransactionalEventListener
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void sendInternal(SendOperation sendOperation) {

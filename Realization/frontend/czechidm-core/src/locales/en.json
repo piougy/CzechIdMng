@@ -2392,7 +2392,7 @@
     "NotificationConfiguration": {
       "_type": "Configure notification",
       "topic": "$t(entity.Notification.topic)",
-      "level": "Type",
+      "level": "Level",
       "notificationType": "Channel",
       "template": "Template",
       "description": "Description"

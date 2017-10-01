@@ -160,7 +160,7 @@ public class IdmNotificationLogController
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_CREATE, description = ""),
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_UPDATE, description = "")})
 				})
-	public IdmNotificationLogDto postDto(@RequestBody @NotNull IdmNotificationLogDto dto) {
+	public IdmNotificationLogDto postDto(@RequestBody @NotNull IdmNotificationLogDto dto) {		
 		LOG.debug("Notification log [{}] was created and notification will be send.", dto);
 		final IdmNotificationLogDto result = notificationManager.send(dto);
 		// TODO: send method should result notification or ex to prevent another loading

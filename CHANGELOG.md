@@ -135,8 +135,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Notifications
 
-- Api [NotificationSender](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-api/src/main/java/eu/bcvsolutions/idm/core/notification/api/service/NotificationSender.java) was changed. Now are returned all notifications that is sent. Also mechanism of sending with topic was fixed. Check your project notification configuration.
-- Method resolveTemplate in [IdmNotificationTemplateService](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-api/src/main/java/eu/bcvsolutions/idm/core/notification/api/service/IdmNotificationTemplateService.java) was changed. Now this method return only found template, wildcard is not returned anymore.
+- Api ``NotificationSender`` was changed. Now are returned all notifications that is sent. Also mechanism of sending with topic was fixed. Check your project notification configuration.
 
 
 ##### Role

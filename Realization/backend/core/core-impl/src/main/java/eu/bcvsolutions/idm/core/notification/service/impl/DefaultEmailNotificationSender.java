@@ -122,6 +122,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 			emailLog.getRecipients().add(cloneRecipient(emailLog, recipient));
 		});
 		emailLog.setIdentitySender(notification.getIdentitySender());
+		emailLog.setType(IdmEmailLog.NOTIFICATION_TYPE);
 		return emailLogService.save(emailLog);
 	}
 	

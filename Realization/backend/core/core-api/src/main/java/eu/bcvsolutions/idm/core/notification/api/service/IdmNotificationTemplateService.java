@@ -78,12 +78,13 @@ ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 	IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType);
 	
 	/**
-	 * Method return all founded {@link IdmNotificationLogDto} for this topic
+	 * Method returns all founded {@link IdmNotificationLogDto} for this topic
 	 * and given {@link IdmMessageDto}. Method resolve wildcards, template and text message in
 	 * {@link IdmMessageDto}.
 	 * 
 	 * @param topic
 	 * @param message
+	 * @param notificationType e.g. email, sms
 	 * @return
 	 */
 	List<IdmNotificationLogDto> prepareNotifications(String topic, IdmMessageDto message);

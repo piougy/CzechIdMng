@@ -55,10 +55,11 @@ import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
  *
  */
 @DependsOn(CoreFlywayConfig.NAME)
-@Component("initApplicationData")
+@Component(InitApplicationData.NAME)
 public class InitApplicationData implements ApplicationListener<ContextRefreshedEvent> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitApplicationData.class);
+	public static final String NAME = "initApplicationData";
 	public static final String ADMIN_USERNAME = "admin";
 	public static final String ADMIN_PASSWORD = "admin";
 	public static final String ADMIN_ROLE = "superAdminRole";

@@ -2,9 +2,15 @@ package eu.bcvsolutions.idm.core.api.domain;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
@@ -21,6 +27,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  */
 public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 
+	@Autowired(required = false)
+	private IdmNotificationTemplateService notificationTemplateService; // optional dependency
+	
 	@Override
 	public boolean supports(String delimiter) {
 		return getId().equals(delimiter);
@@ -127,6 +136,26 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	@Override
 	public boolean isDocumentationAvailable() {
 		return false;
+	}
+	
+	/**
+	 * Returns notification template by given code 
+	 * @param code
+	 * @return
+	 * @throws IllegalArgumentException if template by given code is not found
+	 */
+	protected UUID getNotificationTemplateId(String code) {
+		Assert.hasLength(code);
+		//
+		IdmNotificationTemplateDto notificationTemplate = notificationTemplateService.getTemplateByCode(code);
+		if (notificationTemplate == null) {
+			throw new IllegalArgumentException(String.format(
+					"System template with code [%s] for module [%s] not found. Check template's path configuration [%s].", 
+					code, 
+					getId(),
+					IdmNotificationTemplateService.TEMPLATE_FOLDER));
+		}
+		return notificationTemplate.getId();
 	}
 	
 }

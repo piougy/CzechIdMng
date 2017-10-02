@@ -11,13 +11,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Integration test for IdentityRoleExpirationTaskExecutor
@@ -64,7 +64,7 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 	
 	private void prepareData() {
 		// Role
-		IdmRole role = testHelper.createRole();
+		IdmRoleDto role = testHelper.createRole();
 		
 		// Identity
 		identity = testHelper.createIdentity();

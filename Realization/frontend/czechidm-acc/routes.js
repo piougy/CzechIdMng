@@ -129,7 +129,8 @@ module.exports = {
       childRoutes: [
         {
           path: 'accounts',
-          component: require('./src/content/identity/IdentityAccounts')
+          component: require('./src/content/identity/IdentityAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYACCOUNT_READ'] } ]
         },
         {
           path: 'provisioning',
@@ -156,6 +157,11 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
       childRoutes: [
         {
+          path: 'accounts',
+          component: require('./src/content/role/RoleAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
+        },
+        {
           path: 'systems',
           component: require('./src/content/role/RoleSystems'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
@@ -179,6 +185,35 @@ module.exports = {
           path: 'systems/:roleSystemId/attributes/:attributeId/new',
           component: require('./src/content/role/RoleSystemAttributeDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'tree',
+      childRoutes: [
+        {
+          path: 'nodes/:entityId',
+          component: require('czechidm-core/src/content/tree/node/Node'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ],
+          childRoutes: [
+            {
+              path: 'accounts',
+              component: require('./src/content/tree/TreeAccounts'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREEACCOUNT_READ'] } ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: 'role-catalogue/:entityId',
+      component: require('czechidm-core/src/content/rolecatalogue/RoleCatalogue'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'accounts',
+          component: require('./src/content/rolecatalogue/RoleCatalogueAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEACCOUNT_READ'] } ]
         }
       ]
     },

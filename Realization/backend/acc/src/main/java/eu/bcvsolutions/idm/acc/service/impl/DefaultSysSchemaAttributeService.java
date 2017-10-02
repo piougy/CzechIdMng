@@ -2,22 +2,24 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
+import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent;
+import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent.SchemaAttributeEventType;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Default schema attributes
@@ -26,55 +28,47 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  *
  */
 @Service
-public class DefaultSysSchemaAttributeService extends AbstractReadWriteEntityService<SysSchemaAttribute, SchemaAttributeFilter>
+public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoService<SysSchemaAttributeDto, SysSchemaAttribute, SysSchemaAttributeFilter>
 		implements SysSchemaAttributeService {
 
-	private final SysSystemAttributeMappingService systeAttributeMappingService;
-	private final EntityManager entityManager;
-
+	private final SysSchemaAttributeRepository repository;
+	private final EntityEventManager entityEventManager;
+	
 	@Autowired
 	public DefaultSysSchemaAttributeService(
 			SysSchemaAttributeRepository repository,
-			SysSystemAttributeMappingService systeAttributeMappingService,
-			EntityManager entityManager) {
+			EntityEventManager entityEventManager) {
 		super(repository);
 		//
-		Assert.notNull(systeAttributeMappingService);
-		Assert.notNull(entityManager);
+		Assert.notNull(entityEventManager);
 		//
-		this.systeAttributeMappingService = systeAttributeMappingService;
-		this.entityManager = entityManager;
+		this.repository = repository;
+		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	protected Page<SysSchemaAttribute> findEntities(SysSchemaAttributeFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override
 	@Transactional
-	public void delete(SysSchemaAttribute schemaAttribute) {
+	public void delete(SysSchemaAttributeDto schemaAttribute, BasePermission... permission) {
 		Assert.notNull(schemaAttribute);
-		// 
-		// remove all handled attributes
-		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
-		filter.setSchemaAttributeId(schemaAttribute.getId());
-		systeAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
-			systeAttributeMappingService.delete(systemAttributeMapping);
-		});
 		//
-		super.delete(schemaAttribute);
+		checkAccess(this.getEntity(schemaAttribute.getId()), permission);
+		//
+		entityEventManager.process(new SchemaAttributeEvent(SchemaAttributeEventType.DELETE, schemaAttribute));
 	}
 	
 	@Override
-	@Transactional
-	public SysSchemaAttribute save(SysSchemaAttribute entity) {
-		// TODO Auto-generated method stub
-		return super.save(entity);
-	}
-	
-	@Override
-	public SysSchemaAttribute clone(UUID id) {
-		SysSchemaAttribute original = this.get(id);
+	public SysSchemaAttributeDto clone(UUID id) {
+		SysSchemaAttributeDto original = this.get(id);
 		Assert.notNull(original, "Schema attribute must be found!");
-		
-		// We do detach this entity (and set id to null)
-		entityManager.detach(original);
+
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;

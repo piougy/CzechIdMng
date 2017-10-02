@@ -75,9 +75,129 @@ module.exports = {
     {
       'id': 'identity-contract-info',
       'type': 'entity-info',
-      'entityType': ['identityContract', 'IdmIdentityContract'],
+      'entityType': ['contract', 'identityContract', 'IdmIdentityContract'],
       'component': require('./src/components/advanced/IdentityContractInfo/IdentityContractInfo').default,
       'manager': require('./src/redux').IdentityContractManager
+    },
+    {
+      'id': 'text-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'TEXT',
+      'faceType': 'TEXT',
+      'component': require('./src/components/advanced/Form/TextFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.TEXT'
+    },
+    {
+      'id': 'char-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'CHAR',
+      'faceType': 'CHAR',
+      'component': require('./src/components/advanced/Form/CharFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.CHAR'
+    },
+    {
+      'id': 'int-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'INT',
+      'faceType': 'INT',
+      'component': require('./src/components/advanced/Form/IntFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.INT'
+    },
+    {
+      'id': 'long-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'LONG',
+      'faceType': 'LONG',
+      'component': require('./src/components/advanced/Form/LongFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.LONG'
+    },
+    {
+      'id': 'double-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'DOUBLE',
+      'faceType': 'DOUBLE',
+      'component': require('./src/components/advanced/Form/DoubleFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.DOUBLE'
+    },
+    {
+      'id': 'currency-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'DOUBLE',
+      'faceType': 'CURRENCY',
+      'component': require('./src/components/advanced/Form/CurrencyFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.CURRENCY'
+    },
+    {
+      'id': 'boolean-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'BOOLEAN',
+      'faceType': 'BOOLEAN',
+      'component': require('./src/components/advanced/Form/BooleanFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.BOOLEAN'
+    },
+    {
+      'id': 'date-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'DATE',
+      'faceType': 'DATE',
+      'component': require('./src/components/advanced/Form/DateFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.DATE'
+    },
+    {
+      'id': 'datetime-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'DATETIME',
+      'faceType': 'DATETIME',
+      'component': require('./src/components/advanced/Form/DateTimeFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.DATETIME'
+    },
+    {
+      'id': 'textarea-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'TEXT',
+      'faceType': 'TEXTAREA',
+      'component': require('./src/components/advanced/Form/TextAreaFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.TEXTAREA'
+    },
+    {
+      'id': 'richtextarea-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'TEXT',
+      'faceType': 'RICHTEXTAREA',
+      'component': require('./src/components/advanced/Form/RichTextAreaFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.RICHTEXTAREA'
+    },
+    {
+      'id': 'bytearray-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'BYTEARRAY',
+      'faceType': 'BYTEARRAY',
+      'component': require('./src/components/advanced/Form/ByteArrayFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.BYTEARRAY'
+    },
+    {
+      'id': 'uuid-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'UUID',
+      'component': require('./src/components/advanced/Form/UuidFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.UUID'
+    },
+    {
+      'id': 'identity-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'IDENTITY-SELECT',
+      'component': require('./src/components/advanced/Form/IdentitySelectFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT'
+    },
+    {
+      'id': 'role-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'ROLE-SELECT',
+      'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
     }
   ]
 };

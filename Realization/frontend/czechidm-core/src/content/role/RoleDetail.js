@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, IdentityManager, RoleCatalogueManager } from '../../redux';
+import { RoleManager, IdentityManager, RoleCatalogueManager, SecurityManager } from '../../redux';
 
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
@@ -92,16 +92,14 @@ class RoleDetail extends Basic.AbstractContent {
       if (entity.subRoles) {
         entity.subRoles = entity.subRoles.map(subRoleId => {
           return {
-            sub: roleManager.getSelfLink(subRoleId)
+            sub: subRoleId
           };
         });
       }
       if (entity.guarantees) {
         entity.guarantees = entity.guarantees.map(guaranteeId => {
           return {
-            guarantee: {
-              id: guaranteeId
-            }
+            guarantee: guaranteeId
           };
         });
       }
@@ -109,9 +107,7 @@ class RoleDetail extends Basic.AbstractContent {
       if (entity.roleCatalogues) {
         entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogue => {
           return {
-            roleCatalogue: {
-              id: roleCatalogue.id
-            }
+            roleCatalogue: roleCatalogue.id
           };
         });
       }
@@ -172,15 +168,16 @@ class RoleDetail extends Basic.AbstractContent {
   render() {
     const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
+    //
     return (
       <div>
-        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
+        <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
 
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic')} />
+        <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
+          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }>
+            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic') } />
 
-            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
                 ref="form"
                 showLoading={ _showLoading || showLoading }
@@ -263,7 +260,12 @@ class RoleDetail extends Basic.AbstractContent {
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
-                <Basic.MenuItem eventKey="2" onClick={this.save.bind(this, 'NEW')}>{this.i18n('button.createNew')}</Basic.MenuItem>
+                <Basic.MenuItem
+                  eventKey="2"
+                  onClick={ this.save.bind(this, 'NEW') }
+                  rendered={ SecurityManager.hasAuthority('ROLE_CREATE') }>
+                  { this.i18n('button.saveAndNew') }
+                </Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>

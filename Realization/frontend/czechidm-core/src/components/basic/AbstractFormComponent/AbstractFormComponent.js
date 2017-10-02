@@ -13,15 +13,16 @@ class AbstractFormComponent extends AbstractContextComponent {
     super(props, context);
     this.onChange = this.onChange.bind(this);
     this.isValid = this.isValid.bind(this);
-    const value = this.props.value ? this.normalizeValue(this.props.value) : null;
-
-    this.state = { value,
-                  showValidationError: false, // Validation error not show on UI
-                  formReadOnly: false,
-                  formDisabled: false};
+    this.state = {
+      value: null,
+      showValidationError: false, // Validation error not show on UI
+      formReadOnly: false,
+      formDisabled: false
+    };
   }
 
   componentDidMount() {
+    this._resolveValue(this.props);
     this._resolveReadOnly(this.props);
     this._resolveDisabled(this.props);
     this._resolveValidation(this.props);
@@ -51,6 +52,11 @@ class AbstractFormComponent extends AbstractContextComponent {
 
   normalizeValue(value) {
     return value;
+  }
+
+  _resolveValue(props) {
+    const value = props.value ? this.normalizeValue(props.value) : null;
+    this.setState({ value });
   }
 
   _resolveReadOnly(props) {

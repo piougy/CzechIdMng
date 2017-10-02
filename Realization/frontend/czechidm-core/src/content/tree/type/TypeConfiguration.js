@@ -45,7 +45,7 @@ class TreeTypeConfiguration extends Basic.AbstractContent {
     const { treeTypeId } = this.state;
     //
     if (treeTypeId) {
-      this.context.store.dispatch(this.treeTypeManager.fetchConfigurations(treeTypeId, `${UI_KEY}-${treeTypeId}`));
+      this.context.store.dispatch(this.treeTypeManager.fetchConfigurations(treeTypeId, `${UI_KEY}-${treeTypeId}`, () => {}));
     }
   }
 

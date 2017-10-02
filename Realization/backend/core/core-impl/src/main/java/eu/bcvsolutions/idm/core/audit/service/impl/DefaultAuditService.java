@@ -49,9 +49,10 @@ import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -59,7 +60,6 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.audit.entity.service.AbstractAuditEntityService;
 import eu.bcvsolutions.idm.core.audit.repository.IdmAuditRepository;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -72,7 +72,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service
-public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto, IdmAudit, AuditFilter> implements IdmAuditService {
+public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto, IdmAudit, IdmAuditFilter> implements IdmAuditService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuditService.class);
 	
@@ -99,6 +99,14 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	}
 	
 	@Override
+	protected Page<IdmAudit> findEntities(IdmAuditFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return auditRepository.find(filter, pageable);
+	}
+	
+	@Override
 	public <T> T findRevision(Class<T> classType, UUID entityId, Long revisionNumber) throws RevisionDoesNotExistException  {
 		return this.find(classType, entityId, revisionNumber);
 	}
@@ -121,7 +129,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	
 	@Override
 	public <T> List<IdmAuditDto> findRevisions(Class<T> classType, UUID entityId) {
-		AuditFilter filter = new AuditFilter();
+		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setEntityId(entityId);
 		filter.setType(classType.getName());
 		Pageable page = new PageRequest(0, Integer.MAX_VALUE, new Sort("timestamp"));
@@ -231,7 +239,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 	@Override
 	public Page<IdmAuditDto> findRevisionsForEntity(String entityClass, UUID entityId, Pageable pageable) {
-		AuditFilter filter = new AuditFilter();
+		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setType(entityClass);
 		filter.setEntityId(entityId);
 		return this.find(filter, pageable);

@@ -13,9 +13,9 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent.ProvisioningEventType;
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
 /**
  * Deletes identity account
@@ -45,25 +45,25 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	private final AccAccountService accountService;
 	private final SysSystemMappingService systemMappingService;
 	private final EntityEventManager entityEventManager;
-	private final IdmIdentityRepository identityRepository;
+	private final IdmIdentityService identityService;
 
 	@Autowired
 	public IdentityAccountDeleteProcessor(AccIdentityAccountService service, AccAccountService accountService,
 			SysSystemMappingService systemMappingService, EntityEventManager entityEventManager,
-			IdmIdentityRepository identityRepository) {
+			IdmIdentityService identityService) {
 		super(IdentityAccountEventType.DELETE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(accountService);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(identityRepository);
+		Assert.notNull(identityService);
 		//
 		this.service = service;
 		this.accountService = accountService;
 		this.systemMappingService = systemMappingService;
 		this.entityEventManager = entityEventManager;
-		this.identityRepository = identityRepository;
+		this.identityService = identityService;
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	public EventResult<AccIdentityAccountDto> process(EntityEvent<AccIdentityAccountDto> event) {
 		AccIdentityAccountDto entity = event.getContent();
 		UUID account = entity.getAccount();
-		AccAccount accountEntity = accountService.get(account);
+		AccAccountDto accountDto = accountService.get(account);
 		Assert.notNull(account, "Account cannot be null!");
 
 		// We check if exists another (ownership) identity-accounts, if not
@@ -89,16 +89,16 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				.get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
 
 		// Is account protection activated on system mapping?
-		if (systemMappingService.isEnabledProtection(accountEntity)) {
+		if (systemMappingService.isEnabledProtection(accountDto)) {
 			if (!moreIdentityAccounts && entity.isOwnership()) {
 				// This identity account is last ... protection will be
 				// activated
-				activateProtection(accountEntity);
-				accountService.save(accountEntity);
+				activateProtection(accountDto);
+				accountDto = accountService.save(accountDto);
 				entity.setRoleSystem(null);
 				entity.setIdentityRole(null);
 				service.save(entity);
-				doProvisioningSkipAccountProtection(accountEntity, entity.getEntity());
+				doProvisioningSkipAccountProtection(accountDto, entity.getEntity());
 
 				// If is account in protection, then we will not delete
 				// identity-account
@@ -126,7 +126,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 						service.delete(identityAccount);
 					});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
+			accountService.delete(accountDto, deleteTargetAccount, entity.getEntity());
 		}
 
 		return new DefaultEventResult<>(event, this);
@@ -138,22 +138,22 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	 * @param account
 	 * @param entity
 	 */
-	private void doProvisioningSkipAccountProtection(AccAccount account, UUID entity) {
+	private void doProvisioningSkipAccountProtection(AccAccountDto account, UUID entity) {
 		entityEventManager.process(new ProvisioningEvent(ProvisioningEventType.START, account,
-				ImmutableMap.of(ProvisioningService.ENTITY_PROPERTY_NAME, identityRepository.findOne(entity),
+				ImmutableMap.of(ProvisioningService.DTO_PROPERTY_NAME, identityService.get(entity),
 						ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION, Boolean.TRUE)));
 
 	}
 
 	private List<AccIdentityAccountDto> findIdentityAccounts(UUID account) {
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
 		return service.find(filter, null).getContent();
 	}
 
-	private void activateProtection(AccAccount accountEntity) {
+	private void activateProtection(AccAccountDto accountEntity) {
 		Integer daysInterval = systemMappingService.getProtectionInterval(accountEntity);
 		accountEntity.setInProtection(true);
 		if (daysInterval == null) {

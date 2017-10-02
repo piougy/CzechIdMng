@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -27,17 +26,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract, IdentityContractFilter> {
-
-	/**
-	 * @deprecated Use IdmIdentityContractService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmIdentityContract> find(IdentityContractFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmIdentityContractService (uses criteria api)");
-	}
+public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract> {
 	
 	List<IdmIdentityContract> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
 	
@@ -69,9 +58,21 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			+ " ( e.validFrom is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validFrom <= :date ))")
 	List<IdmIdentityContract> findAllValidContracts(@Param("identityId") UUID identityId, @Param("date") LocalDate date, @Param("onlyExterne") Boolean onlyExterne);
 	
+	/**
+	 * @deprecated use {@link #countByWorkPosition_Id(UUID)}
+	 */
+	@Deprecated
 	Long countByWorkPosition(@Param("treeNode") IdmTreeNode treeNode);
 	
+	Long countByWorkPosition_Id(@Param("treeNodeId") UUID treeNodeId);
+	
+	/**
+	 * @deprecated use {@link #countByWorkPosition_TreeType_Id(UUID)}
+	 */
+	@Deprecated
 	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
+	
+	Long countByWorkPosition_TreeType_Id(UUID treeTypeId);
 
 	/**
 	 * Removes all contracts of given identity

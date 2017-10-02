@@ -132,7 +132,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	@SuppressWarnings("unchecked")
 	public DTO getDto(Serializable backendId) {
-		if(lookupService == null) {
+		if (lookupService == null) {
 			return getService().get(backendId, IdmBasePermission.READ);
 		}
 		DTO dto = (DTO) lookupService.lookupDto(getDtoClass(), backendId);
@@ -152,8 +152,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
-				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
         @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
@@ -182,8 +180,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
-				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
         @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
@@ -213,8 +209,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
-				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
         @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
@@ -321,6 +315,10 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			filterConverter = new FilterConverter(lookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	protected LookupService getLookupService() {
+		return lookupService;
 	}
 	
 	/**

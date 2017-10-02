@@ -3,19 +3,18 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 
 /**
  * Target system configuration service 
@@ -23,9 +22,12 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, CodeableService<SysSystem>, CloneableService<SysSystem> {
+public interface SysSystemService extends 
+		ReadWriteDtoService<SysSystemDto, SysSystemFilter>, 
+		CodeableService<SysSystemDto>, CloneableService<SysSystemDto> {
 	
 	public static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
+	public static final String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 	
 	/**
 	 * Generate and persist schema to system. 
@@ -35,7 +37,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param system
 	 * @return all schemas on system
 	 */
-	List<SysSchemaObjectClass> generateSchema(SysSystem system);
+	List<SysSchemaObjectClassDto> generateSchema(SysSystemDto system);
 	
 	/**
 	 * Returns connector configuration for given system
@@ -43,7 +45,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param system
 	 * @return
 	 */
-	IcConnectorConfiguration getConnectorConfiguration(SysSystem system);
+	IcConnectorConfiguration getConnectorConfiguration(SysSystemDto system);
 	
 	/**
 	 * Returns form definition to given connector key. If no definition for connector type is found, then new definition is created by connector properties.
@@ -51,37 +53,36 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param connectorKey
 	 * @return
 	 */
-	IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance);
+	IdmFormDefinitionDto getConnectorFormDefinition(IcConnectorInstance connectorInstance);
 	
 	/**
 	 * Check if is connector works fine 
 	 * @param system
 	 */
-	void checkSystem(SysSystem system);
+	void checkSystem(SysSystemDto system);
 	
 	//
 	// TODO: move to test after FE form implementation
 	@Deprecated
 	IcConnectorKey getTestConnectorKey();
 	@Deprecated
-	SysSystem createTestSystem();
+	SysSystemDto createTestSystem();
 	
 	/**
-	 * Return {@link IcConnectorObject} (object from system)  for entityUID
-	 * 
-	 * @param system
-	 * @param operation
-	 * @param systemEntityUid
-	 * @param entityType
+	 * Read connector object by given UID. Method call directly connector (AccAccount or SysSystemEntity is not required).
+	 * @param systemId
+	 * @param uid
+	 * @param objectClass
 	 * @return
 	 */
-	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute);
+	IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass);
 
 	/**
 	 * Duplicate (create/persist new) system with all configurations
 	 * @param id
 	 * @return 
 	 */
-	SysSystem duplicate(UUID id);
+	SysSystemDto duplicate(UUID id);
+
 
 }

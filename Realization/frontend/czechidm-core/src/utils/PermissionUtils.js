@@ -13,14 +13,14 @@ export default class PermissionUtils {
    *
    * @param  {state} state - application state
    * @param  {string} uiKey - ui key for loading indicator etc.
-   * @return {arrayOf(permission)} what logged user can do with ui key and underlying entity
+   * @return {arrayOf(permission)} what logged user can do with ui key and underlying entity or null, if permissions are not loaded
    */
   static getPermissions(state, uiKey) {
     const uiState = UiUtils.getUiState(state, uiKey);
     if (!uiState) {
       return false;
     }
-    return uiState.permissions || [];
+    return uiState.permissions;
   }
 
   /**

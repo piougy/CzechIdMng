@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -22,8 +23,9 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Template for long running task executor. This template persists long running tasks.
@@ -62,13 +64,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Override
 	public String getDescription() {
 		return AutowireHelper.getBeanDescription(this.getClass());
-	}
-	
-	
-	@Override
-	@Deprecated
-	public List<String> getParameterNames() {
-		return getPropertyNames();
 	}
 	
 	/**
@@ -128,9 +123,10 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	/**
 	 * Validates task before start e.q. if task already running or to prevent run task concurrently.
 	 * 
-	 * @param task
+	 * @param task persisted task to validate
 	 */
-	protected void validate(IdmLongRunningTaskDto task) {
+	@Override
+	public void validate(IdmLongRunningTaskDto task) {
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
 		//
 		if (task.isRunning()) {
@@ -138,6 +134,15 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		}
 		if (!OperationState.isRunnable(task.getResultState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
+		}
+		// 
+		if (this.getClass().isAnnotationPresent(DisallowConcurrentExecution.class)) {
+			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+			filter.setTaskType(getName());
+			filter.setRunning(Boolean.TRUE);
+			if (service.find(filter, null).getTotalElements() > 0) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", getName()));
+			}
 		}
 	}
 	

@@ -2,10 +2,9 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 
 /**
@@ -22,7 +21,7 @@ public interface FormPropertyManager {
 	 * @param propertyConfiguration
 	 * @return
 	 */
-	IdmFormAttribute toFormAttribute(IcConfigurationProperty propertyConfiguration);
+	IdmFormAttributeDto toFormAttribute(IcConfigurationProperty propertyConfiguration);
 
 	/**
 	 * Returns filled connector property from eav
@@ -31,7 +30,7 @@ public interface FormPropertyManager {
 	 * @param formValues
 	 * @return
 	 */
-	IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<AbstractFormValue<SysSystem>> formValues);
+	IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues);
 	
 	/**
 	 * Returns eav persistent type for given configurationPropertyType

@@ -4,8 +4,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -19,21 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,9 +47,9 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController
+@RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/provisioning-batches")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/provisioning-batches")
 @Api(
 		value = SysProvisioningBatchController.TAG, 
 		tags = SysProvisioningBatchController.TAG, 
@@ -57,16 +57,16 @@ import io.swagger.annotations.AuthorizationScope;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysProvisioningBatchController
-		extends AbstractReadEntityController<SysProvisioningBatch, EmptyFilter> {
+		extends AbstractReadDtoController<SysProvisioningBatchDto, EmptyFilter> {
 
 	protected static final String TAG = "Provisioning - batch";
 	//
 	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
-	public SysProvisioningBatchController(LookupService entityLookupService,
+	public SysProvisioningBatchController(SysProvisioningBatchService service,
 			ProvisioningExecutor provisioningExecutor) {
-		super(entityLookupService);
+		super(service);
 		//
 		Assert.notNull(provisioningExecutor);
 		//
@@ -89,9 +89,8 @@ public class SysProvisioningBatchController
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@ResponseBody
@@ -109,9 +108,8 @@ public class SysProvisioningBatchController
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@Override
@@ -131,9 +129,8 @@ public class SysProvisioningBatchController
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Provisioning batch's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 
 	@ResponseBody
@@ -152,9 +149,8 @@ public class SysProvisioningBatchController
 			notes = "Retry all provisioning operations in given batch - retry all active operations in queue grouped by system entity ordered by incomming date.")
 	public ResponseEntity<?> retry(
 			@ApiParam(value = "Provisioning batch's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
-		SysProvisioningBatch batch = getEntity(backendId);
+			@PathVariable @NotNull String backendId) {
+		SysProvisioningBatchDto batch = getDto(backendId);
 		if (batch == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
@@ -178,9 +174,8 @@ public class SysProvisioningBatchController
 			notes = "Cancel all provisioning operations in given batch - cancel all active operations in queue grouped by system entity.")
 	public ResponseEntity<Void> cancel(
 			@ApiParam(value = "Provisioning batch's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
-		SysProvisioningBatch batch = getEntity(backendId);
+			@PathVariable @NotNull String backendId) {
+		SysProvisioningBatchDto batch = getDto(backendId);
 		if (batch == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}

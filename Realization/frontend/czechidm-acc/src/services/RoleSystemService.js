@@ -7,12 +7,14 @@ export default class RoleSystemService extends Services.AbstractService {
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';
-    }
-    if (!entity._embedded) {
-      return `${entity.role.name} - ${entity.system.name} (${entity.systemMapping.entityType})`;
     }
     return `${entity._embedded.role.name} - ${entity._embedded.system.name} (${entity._embedded.systemMapping.entityType})`;
   }

@@ -1,0 +1,38 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+/** 
+  * Init default acc tasks.
+  *
+  * @author Radek Tomiška 
+  * 
+  **/ 
+-->
+<tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
+	<task>
+		<description>Default</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor</taskType>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 0/5 * * * ?</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>
+	</task>
+	
+	<task>
+		<description>Default</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor</taskType>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 0/5 * * * ?</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>
+	</task>
+</tasks>

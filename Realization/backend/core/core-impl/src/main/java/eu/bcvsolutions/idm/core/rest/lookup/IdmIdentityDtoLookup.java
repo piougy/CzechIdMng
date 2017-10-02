@@ -6,8 +6,14 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
+/**
+ * Identity do lookup
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
 public class IdmIdentityDtoLookup extends CodeableDtoLookup<IdmIdentityDto>{
 

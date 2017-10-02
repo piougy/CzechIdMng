@@ -7,6 +7,11 @@ export default class RoleSystemAttributeService extends Services.AbstractService
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

@@ -9,11 +9,13 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 
 /**
- * Idetifiable by code lookup
+ * Idebtifiable by code (codeable) lookup
  * 
  * @param <E>
  * @author Radek Tomiška
+ * @deprecated use {@link CodeableDtoLookup}
  */
+@Deprecated
 public class CodeableServiceEntityLookup<E extends BaseEntity> extends AbstractEntityLookup<E>{
 	
 	private CodeableService<E> service;

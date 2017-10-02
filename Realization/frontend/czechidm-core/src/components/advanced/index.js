@@ -1,6 +1,7 @@
 import Table from './Table/Table';
 import Column from './Table/Column';
 import ColumnLink from './Table/ColumnLink';
+import RefreshButton from './Table/RefreshButton';
 import IdentityInfo from './IdentityInfo/IdentityInfo';
 import Navigation from './Navigation/Navigation';
 import TabPanel from './TabPanel/TabPanel';
@@ -11,6 +12,7 @@ import DetailButton from './Table/DetailButton';
 import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
 import EavContent from './Form/EavContent';
+import AbstractFormAttributeRenderer from './Form/AbstractFormAttributeRenderer';
 import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
@@ -26,11 +28,13 @@ import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTem
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
+import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo.js';
 
 const Components = {
   Table,
   Column,
   ColumnLink,
+  RefreshButton,
   IdentityInfo,
   Navigation,
   TabPanel,
@@ -44,6 +48,7 @@ const Components = {
   DetailButton,
   EavForm,
   EavContent,
+  AbstractFormAttributeRenderer,
   PasswordField,
   RichTextArea,
   AbstractTableContent,
@@ -57,7 +62,8 @@ const Components = {
   NotificationTemplateInfo,
   ScriptArea,
   RoleSelect,
-  Recaptcha
+  Recaptcha,
+  IdentitiesInfo
 };
 
 Components.version = '0.0.1';

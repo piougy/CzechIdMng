@@ -17,8 +17,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.DisplayTool;
 import org.dom4j.CDATA;
@@ -27,6 +29,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -34,20 +38,22 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.jaxb.IdmNotificationTemplateType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -58,34 +64,25 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * is in constructor.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 @Service("notificationTemplateService")
 public class DefaultIdmNotificationTemplateService extends
-		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, NotificationTemplateFilter>
+		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, IdmNotificationTemplateFilter>
 		implements IdmNotificationTemplateService {
 
-	private static final String TEMPLATE_FOLDER = "idm.pub.core.notification.template.folder";
-	private static final String TEMPLATE_FILE_SUFIX = "idm.pub.core.notification.template.fileSuffix";
+	private static final String TEMPLATE_FILE_SUFIX = "idm.sec.core.notification.template.fileSuffix";
 	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmNotificationTemplateService.class);
-
-	// private static final String ENCODING = "UTF-8";
-
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationTemplateService.class);
+	//
 	private final IdmNotificationTemplateRepository repository;
-
 	private final VelocityEngine velocityEngine;
-
 	private final ApplicationContext applicationContext;
-
 	private final ConfigurationService configurationService;
-
 	private final IdmNotificationConfigurationRepository notificationConfigurationRepository;
-
 	private final SecurityService securityService;
-
 	private JAXBContext jaxbContext = null;
 
 	@Autowired
@@ -106,6 +103,7 @@ public class DefaultIdmNotificationTemplateService extends
 		VelocityEngine velocityEngine = new VelocityEngine();
 		// Initialization apache velocity
 		velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, LOG);
+		velocityEngine.setProperty(RuntimeConstants.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL, Boolean.TRUE);
 		velocityEngine.init();
 		this.velocityEngine = velocityEngine;
 		this.configurationService = configurationService;
@@ -120,6 +118,14 @@ public class DefaultIdmNotificationTemplateService extends
 			// TODO throw error, or just log and continue?
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
+	}
+	
+	@Override
+	protected Page<IdmNotificationTemplate> findEntities(IdmNotificationTemplateFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 	
 	@Override
@@ -145,9 +151,9 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmNotificationTemplateDto getTemplateByCode(String code) {
-		final IdmNotificationTemplate entity = this.repository.findOneByCode(code);
-		return toDto(entity);
+		return toDto(this.repository.findOneByCode(code));
 	}
 
 	/**
@@ -273,25 +279,21 @@ public class DefaultIdmNotificationTemplateService extends
 
 	@Override
 	public List<IdmNotificationTemplateDto> findAllSystemTemplates() {
-		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
 		filter.setUnmodifiable(Boolean.TRUE);
 		return this.find(filter, null).getContent().stream().collect(Collectors.toList());
 	}
 
 	@Override
 	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType) {
+		// find all configuration by topic and level
 		IdmNotificationConfiguration configuration = notificationConfigurationRepository
 				.findByTopicAndLevelAndNotificationType(topic, level, notificationType);
-
-		// if configurations is empty try to wildcard with null level
+		// if configurations is empty, found a wild card configuration
 		if (configuration == null) {
-			configuration = notificationConfigurationRepository.findWildcardForTopic(topic);
+			configuration = notificationConfigurationRepository.findByTopicAndNotificationTypeAndLevelIsNull(topic, notificationType);
 		}
-		if (configuration == null) {
-			return null;
-		}
-		final IdmNotificationTemplate entity = configuration.getTemplate();
-		return toDto(entity);
+		return toDto(configuration.getTemplate());
 	}
 
 	@Override
@@ -360,6 +362,92 @@ public class DefaultIdmNotificationTemplateService extends
 		}
 		//
 		return deployNewAndBackupOld(dto, foundType.get(0));
+	}
+
+	@Override
+	public List<IdmNotificationLogDto> prepareNotifications(String topic, IdmMessageDto message) {
+		Assert.notNull(message);
+		List<IdmNotificationLogDto> notifications = new ArrayList<>();
+		//
+		// find all configuration by topic and level
+		List<IdmNotificationConfiguration> configurations = notificationConfigurationRepository
+				.findByTopicAndLevel(topic, message.getLevel());
+		// if configurations is empty, found a wild card configuration
+		if (configurations.isEmpty()) {
+			configurations = notificationConfigurationRepository.findByTopicAndLevelIsNull(topic);
+		}
+		//
+		// if configurations still empty and exists final message send only his message, this message will be sent without type
+		if (configurations.isEmpty()) {
+			// this state is possible send message to topic that hasn't set any configurations
+			IdmNotificationLogDto notification = new IdmNotificationLogDto();
+			notification.setTopic(topic);
+			IdmMessageDto newMessage = creteMessage(message.getTemplate(), message.getLevel(), message.getModel(), message.getParameters());
+			notification.setMessage(this.buildMessage(newMessage, false));
+			notifications.add(notification);
+			return notifications;
+		}
+		
+		//
+		// 1. Priority - Own message in IdmMessage has biggest priority than otherwise settings
+		// 2. Priority - Template from IdmMessage has second biggest priority
+		// 3. Priority - Get message from configuration by topic
+		//
+		// html, text and subject is not empty use them
+		for (IdmNotificationConfiguration configuration : configurations) {
+			IdmMessageDto finalMessage = null;
+			if (message.getTemplate() != null) {
+				// exist template in message
+				finalMessage = this.buildMessage(message, false);
+			} else if (configuration.getTemplate() != null) {			
+				finalMessage = this.buildMessage(
+						creteMessage(
+							this.get(configuration.getTemplate()), 
+							message.getLevel(), 
+							message.getModel(), 
+							message.getParameters())
+						, false);
+			} else {
+				finalMessage = message;
+			}
+			if (!StringUtils.isEmpty(message.getSubject())) {
+				finalMessage.setSubject(message.getSubject());
+			}
+			if (!StringUtils.isEmpty(message.getTextMessage())) {
+				finalMessage.setTextMessage(message.getTextMessage());
+			}
+			if (!StringUtils.isEmpty(message.getHtmlMessage())) {
+				finalMessage.setHtmlMessage(message.getHtmlMessage());
+			}
+			//
+			// send message for every found configuration
+			IdmNotificationLogDto notification = new IdmNotificationLogDto();
+			notification.setTopic(topic);
+			notification.setType(configuration.getNotificationType());
+			notification.setMessage(finalMessage);
+			notifications.add(notification);
+		}
+		//
+		return notifications;
+	}
+	
+	/**
+	 * Create {@link IdmMessageDto} for notifications
+	 * 
+	 * @param template
+	 * @param level
+	 * @param model
+	 * @param parameters
+	 * @return
+	 */
+	private IdmMessageDto creteMessage(IdmNotificationTemplateDto template, NotificationLevel level, ResultModel model, Map<String, Object> parameters) {
+		// create and build new message
+		IdmMessageDto newMessage = new IdmMessageDto();
+		newMessage.setLevel(level);
+		newMessage.setTemplate(template);
+		newMessage.setParameters(parameters);
+		newMessage.setModel(model);
+		return newMessage;
 	}
 
 	/**
@@ -513,5 +601,6 @@ public class DefaultIdmNotificationTemplateService extends
 		// transform new
 		oldTemplate = typeToDto(newTemplate, oldTemplate);
 		return this.save(oldTemplate);
-	}	
+	}
+
 }

@@ -8,18 +8,17 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 
 /**
- * Tree node
+ * Tree node dto
  *
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "treeNodes")
-public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable {
+public class IdmTreeNodeDto extends AbstractDto implements Disableable {
 
     private static final long serialVersionUID = 1337282508070610164L;
     @NotEmpty
@@ -34,8 +33,16 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable
     @Embedded(dtoClass = IdmTreeTypeDto.class)
     private UUID treeType;
     private boolean disabled;
+    private long lft; // forest index
+	private long rgt; // forest index
 
-    @Override
+	public IdmTreeNodeDto() {
+	}
+	
+	public IdmTreeNodeDto(UUID id) {
+		super(id);
+	}
+	
     public String getCode() {
         return code;
     }
@@ -75,4 +82,29 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
+    
+    public long getLft() {
+		return lft;
+	}
+
+	public void setLft(long lft) {
+		this.lft = lft;
+	}
+
+	public long getRgt() {
+		return rgt;
+	}
+
+	public void setRgt(long rgt) {
+		this.rgt = rgt;
+	}
+
+	/**
+	 * Children count based on index
+	 * 
+	 * @return
+	 */
+	public Integer getChildrenCount() {
+		return (int) ((rgt - lft) / 2);
+	}
 }

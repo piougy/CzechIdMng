@@ -1,36 +1,64 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.hateoas.core.Relation;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
-
-import java.util.List;
-
-import org.springframework.hateoas.core.Relation;
 
 /**
  * Dto for role
  *
  * @author svandav
+ * @author Radek Tomiška
  */
 @Relation(collectionRelation = "roles")
-public class IdmRoleDto extends AbstractDto implements Disableable {
+public class IdmRoleDto extends AbstractDto implements Disableable, Codeable {
 
     private static final long serialVersionUID = 1L;
 
+    @NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
     private String name;
     private boolean disabled;
     private boolean canBeRequested;
-    private Long version;
-    private RoleType roleType;
+    private RoleType roleType = RoleType.TECHNICAL;
     private int priority = 0;
     private boolean approveRemove;
+    @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
+    //
     private List<IdmRoleCompositionDto> subRoles;
+    @JsonProperty(access = Access.READ_ONLY)
     private List<IdmRoleCompositionDto> superiorRoles;
-    private List<IdmRoleAuthorityDto> authorities;
+    private List<IdmRoleGuaranteeDto> guarantees;
+    private List<IdmRoleCatalogueRoleDto> roleCatalogues;
 
+    public IdmRoleDto() {
+	}
+    
+    public IdmRoleDto(UUID id) {
+    	super(id);
+	}
+    
     public String getName() {
         return name;
+    }
+    
+    @Override
+    public String getCode() {
+    	return getName();
     }
 
     public void setName(String name) {
@@ -45,14 +73,6 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
         this.disabled = disabled;
     }
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
     public RoleType getRoleType() {
         return roleType;
     }
@@ -63,14 +83,6 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
 
     public int getPriority() {
         return priority;
-    }
-
-    public List<IdmRoleAuthorityDto> getAuthorities() {
-        return authorities;
-    }
-
-    public void setAuthorities(List<IdmRoleAuthorityDto> authorities) {
-        this.authorities = authorities;
     }
 
     public void setPriority(int priority) {
@@ -87,6 +99,9 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
     }
 
     public List<IdmRoleCompositionDto> getSubRoles() {
+    	if (subRoles == null) {
+    		subRoles = new ArrayList<>();
+    	}
         return subRoles;
     }
 
@@ -95,6 +110,9 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
     }
 
     public List<IdmRoleCompositionDto> getSuperiorRoles() {
+    	if (superiorRoles == null) {
+    		superiorRoles = new ArrayList<>();
+    	}
         return superiorRoles;
     }
 
@@ -116,5 +134,27 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
     
     public void setCanBeRequested(boolean canBeRequested) {
 		this.canBeRequested = canBeRequested;
+	}
+
+	public List<IdmRoleGuaranteeDto> getGuarantees() {
+		if (guarantees == null) {
+			guarantees = new ArrayList<>();
+		}
+		return guarantees;
+	}
+
+	public void setGuarantees(List<IdmRoleGuaranteeDto> guarantees) {
+		this.guarantees = guarantees;
+	}
+
+	public List<IdmRoleCatalogueRoleDto> getRoleCatalogues() {
+		if (roleCatalogues == null) {
+			roleCatalogues = new ArrayList<>();
+		}
+		return roleCatalogues;
+	}
+
+	public void setRoleCatalogues(List<IdmRoleCatalogueRoleDto> roleCatalogues) {
+		this.roleCatalogues = roleCatalogues;
 	}
 }

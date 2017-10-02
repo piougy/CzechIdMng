@@ -13,13 +13,11 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
 import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -39,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_arch_entity_identifier", columnList = "entity_identifier"),
 		@Index(name = "idx_sys_p_o_arch_uid", columnList = "system_entity_uid")
 		})
-public class SysProvisioningArchive extends AbstractEntity implements ProvisioningOperation {
+public class SysProvisioningArchive extends AbstractEntity {
 
 	private static final long serialVersionUID = -6191740329296942394L;
 	
@@ -78,7 +76,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 * 
 	 * @return
 	 */
-	@Override
 	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
@@ -92,7 +89,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 * 
 	 * @return
 	 */
-	@Override
 	public SysSystem getSystem() {
 		return system;
 	}
@@ -106,7 +102,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 * 
 	 * @return
 	 */
-	@Override
 	public SystemEntityType getEntityType() {
 		return entityType;
 	}
@@ -120,7 +115,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 * 
 	 * @return
 	 */
-	@Override
 	public UUID getEntityIdentifier() {
 		return entityIdentifier;
 	}
@@ -134,7 +128,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 * 
 	 * @return
 	 */
-	@Override
 	public String getSystemEntityUid() {
 		return systemEntityUid;
 	}
@@ -143,7 +136,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 		this.systemEntityUid = systemEntityUid;
 	}
 	
-	@Override
 	public OperationState getResultState() {
 		if (result != null) {
 			return result.getState();
@@ -159,7 +151,6 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 		}
 	}
 	
-	@Override
 	public OperationResult getResult() {
 		return result;
 	}
@@ -168,94 +159,11 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 		this.result = result;
 	}
 	
-	@Override
 	public ProvisioningContext getProvisioningContext() {
 		return provisioningContext;
 	}
 	
 	public void setProvisioningContext(ProvisioningContext provisioningContext) {
 		this.provisioningContext = provisioningContext;
-	}
-	
-	/**
-	 * New {@link SysProvisioningArchive} builder.
-	 * 
-	 * @author Radek Tomiška
-	 *
-	 */
-	public static class Builder {
-		private ProvisioningEventType operationType;
-		private SysSystem system;
-		private ProvisioningContext provisioningContext;
-		private SystemEntityType entityType;
-		private UUID entityIdentifier;
-		private String systemEntityUid;
-		private OperationResult result;
-		
-		public Builder() {
-		}
-		
-		public Builder(ProvisioningOperation provisioningOperation) {
-			this.operationType = provisioningOperation.getOperationType();
-			this.system = provisioningOperation.getSystem();
-			this.provisioningContext = provisioningOperation.getProvisioningContext();
-			this.entityType = provisioningOperation.getEntityType();
-			this.entityIdentifier = provisioningOperation.getEntityIdentifier();
-			this.systemEntityUid = provisioningOperation.getSystemEntityUid();
-			this.result = provisioningOperation.getResult();
-		}
-		
-		public Builder setOperationType(ProvisioningEventType operationType) {
-			this.operationType = operationType;
-			return this;
-		}
-		
-		public Builder setSystem(SysSystem system) {
-			this.system = system;
-			return this;
-		}
-		
-		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
-			this.provisioningContext = provisioningContext;
-			return this;
-		}
-		
-		public Builder setEntityType(SystemEntityType entityType) {
-			this.entityType = entityType;
-			return this;
-		}
-		
-		public Builder setEntityIdentifier(UUID entityIdentifier) {
-			this.entityIdentifier = entityIdentifier;
-			return this;
-		}
-		
-		public Builder setSystemEntityUid(String systemEntityUid) {
-			this.systemEntityUid = systemEntityUid;
-			return this;
-		}
-		
-		public Builder setResult(OperationResult result) {
-			this.result = result;
-			return this;
-		}
-		
-		/**
-		 * Returns newly constructed SysProvisioningArchive object.
-		 * 
-		 * @return
-		 */
-		public SysProvisioningArchive build() {
-			SysProvisioningArchive provisioningArchive = new SysProvisioningArchive();
-			provisioningArchive.setOperationType(operationType);
-			provisioningArchive.setSystem(system);
-			provisioningArchive.setSystemEntityUid(systemEntityUid);
-			provisioningArchive.setEntityType(entityType);
-			provisioningArchive.setEntityIdentifier(entityIdentifier);
-			provisioningArchive.setProvisioningContext(provisioningContext);
-			provisioningArchive.setResult(result);
-			return provisioningArchive;
-		}
-	}
-	
+	}	
 }

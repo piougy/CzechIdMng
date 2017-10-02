@@ -5,14 +5,14 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 
 /**
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
  */
 @Component("accTreeNodeDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeNode> {
+public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeNodeDto> {
 	
 	public static final String PROCESSOR_NAME = "tree-node-delete-processor";
 	private final AccTreeAccountService treeAccountService;
@@ -43,8 +43,8 @@ public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	}
 
 	@Override
-	public EventResult<IdmTreeNode> process(EntityEvent<IdmTreeNode> event) {
-		TreeAccountFilter filter = new TreeAccountFilter();
+	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
+		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setTreeNodeId(event.getContent().getId());
 		treeAccountService.find(filter, null).forEach(treeAccount -> {
 			treeAccountService.delete(treeAccount);

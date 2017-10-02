@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -17,19 +16,18 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -38,13 +36,19 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
@@ -52,59 +56,71 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  * Service for do Identity provisioning
  * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 @Service
 @Qualifier(value=IdentityProvisioningExecutor.NAME)
-public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<IdmIdentity> {
+public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<IdmIdentityDto> {
  
 	public static final String NAME = "identityProvisioningService";
 	private final AccIdentityAccountService identityAccountService;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
-	private final AccAccountManagementService accountManagementService;
+	private final IdmRoleService roleService;
+	private final IdmIdentityService identityService;
 	
 	@Autowired
-	public IdentityProvisioningExecutor(SysSystemMappingService systemMappingService,
-			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
-			SysSystemService systemService, SysRoleSystemService roleSystemService,
+	public IdentityProvisioningExecutor(
+			SysSystemMappingService systemMappingService,
+			SysSystemAttributeMappingService attributeMappingService, 
+			IcConnectorFacade connectorFacade,
+			SysSystemService systemService, 
+			SysRoleSystemService roleSystemService,
 			AccAccountManagementService accountManagementService,
-			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccIdentityAccountService identityAccountService,
+			SysRoleSystemAttributeService roleSystemAttributeService, 
+			SysSystemEntityService systemEntityService,
+			AccAccountService accountService, 
+			AccIdentityAccountService identityAccountService,
 			AccIdentityAccountRepository identityAccountRepository,
 			ProvisioningExecutor provisioningExecutor,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSchemaAttributeService schemaAttributeService,
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			IdmRoleService roleService,
+			IdmIdentityService identityService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor, entityEventManager);
-		
+				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
+				systemAttributeMappingService, roleService);
+		//
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
-		Assert.notNull(accountManagementService);
 		Assert.notNull(identityAccountRepository);
-		
+		Assert.notNull(roleService);
+		Assert.notNull(identityService);
+		//
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
-		this.accountManagementService = accountManagementService;
 		this.identityAccountRepository = identityAccountRepository;
+		this.roleService = roleService;
+		this.identityService = identityService;
 	}
 	
-	public void doProvisioning(AccAccount account) {
+	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
-
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		//
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
-		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
-		if (idenittyAccoutnList == null) {
-			return;
-		}
-		idenittyAccoutnList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership();
-		}).forEach((identityAccount) -> {
-			doProvisioning(account, identityAccount.getIdentity());
-		});
+		identityAccountService.find(filter, null).getContent()
+			.stream()
+			.filter(identityAccount -> {
+				return identityAccount.isOwnership();
+			})
+			.forEach((identityAccount) -> {
+				doProvisioning(account, DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identity, IdmIdentityDto.class));
+			});
 	}
 
 	/**
@@ -118,21 +134,23 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * @return
 	 */
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, IdmIdentity entity, SysSystem system, SystemEntityType entityType) {
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, IdmIdentityDto entity, SysSystemDto system, SystemEntityType entityType) {
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(entity.getId());
 		filter.setSystemId(system.getId());
 		filter.setOwnership(Boolean.TRUE);
 		filter.setAccountId(account.getId());
 
 		// All identity account with flag ownership on true
-		List<AccIdentityAccount> idenityAccoutnList = identityAccountRepository.find(filter, null).getContent();
-		if (idenityAccoutnList == null) {
-			return null;
-		}
+		List<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null).getContent()
+				.stream()
+				.map(dto -> {
+					return identityAccountRepository.findOne(dto.getId());
+				})
+				.collect(Collectors.toList());
 
 		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, idenityAccoutnList, entityType);
+		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, identityAccounts, entityType);
 
 		// All default mapped attributes from system
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
@@ -152,36 +170,38 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * @return
 	 */
 	@Deprecated
-	private List<SysRoleSystemAttribute> findOverloadingAttributesIdentity(IdmIdentity entity, SysSystem system,
+	private List<SysRoleSystemAttributeDto> findOverloadingAttributesIdentity(IdmIdentityDto entity, SysSystemDto system,
 			List<? extends EntityAccount> idenityAccoutnList, SystemEntityType entityType) {
 
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = new ArrayList<>();
 
 		idenityAccoutnList.stream().filter(ia -> {
 			return ((AccIdentityAccount)ia).getIdentityRole() != null && ia.getAccount().getSystem() != null
-					&& ia.getAccount().getSystem().equals(system) 
+					&& ia.getAccount().getSystem().getId().equals(system.getId())  // Beware identity accouts is there entity not DTO's
 					&& ia.isOwnership();
 		}).forEach((identityAccountInner) -> {
 			// All identity account with same system and with filled
 			// identityRole
 
 			IdmIdentityRole identityRole = ((AccIdentityAccount)identityAccountInner).getIdentityRole();
-			RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 			roleSystemFilter.setRoleId(identityRole.getRole().getId());
 			roleSystemFilter.setSystemId(identityAccountInner.getAccount().getSystem().getId());
-			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
+			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
 			if (roleSystems.size() > 1) {
-				SysRoleSystem roleSystem = roleSystems.get(0);
+				SysRoleSystemDto roleSystem = roleSystems.get(0);
+				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+				SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_DUPLICATE_ROLE_MAPPING,
-						ImmutableMap.of("role", roleSystem.getRole().getName(), "system",
-								roleSystem.getSystem().getName(), "entityType", entityType));
+						ImmutableMap.of("role", roleDto.getName(), "system",
+								systemDto.getName(), "entityType", entityType));
 			}
 			if (!roleSystems.isEmpty()) {
-				SysRoleSystem roleSystem = roleSystems.get(0);
-				RoleSystemAttributeFilter roleSystemAttributeFilter = new RoleSystemAttributeFilter();
+				SysRoleSystemDto roleSystem = roleSystems.get(0);
+				SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
 				roleSystemAttributeFilter.setRoleSystemId(roleSystem.getId());
-				List<SysRoleSystemAttribute> roleAttributes = roleSystemAttributeService
+				List<SysRoleSystemAttributeDto> roleAttributes = roleSystemAttributeService
 						.find(roleSystemAttributeFilter, null).getContent();
 
 				if (!CollectionUtils.isEmpty(roleAttributes)) {
@@ -198,19 +218,20 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * Can use after transform identityAccount to DTO
 	 */
 	@Override
-	protected List<SysRoleSystemAttribute> findOverloadingAttributes(IdmIdentity entity, SysSystem system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmIdentityDto entity, SysSystemDto system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		return null;
 	}
 
 	@Override
-	protected EntityAccountFilter createEntityAccountFilter() {
-		return new IdentityAccountFilter();
+	@SuppressWarnings("unchecked")
+	protected AccIdentityAccountFilter createEntityAccountFilter() {
+		return new AccIdentityAccountFilter();
 	}
-
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
+	@SuppressWarnings("unchecked")
+	protected AccIdentityAccountService getEntityAccountService() {
 		return identityAccountService;
 	}
 
@@ -219,15 +240,8 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		return new AccIdentityAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmIdentity now.
+	protected ReadWriteDtoService<IdmIdentityDto, ?> getService() {
+		return identityService;
 	}
-
-	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.IDENTITY == delimiter;
-	}
-
 }

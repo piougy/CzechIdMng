@@ -3,15 +3,12 @@ package eu.bcvsolutions.idm.core.scheduler.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.scheduler.dto.filter.IdmProcessedTaskItemFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmProcessedTaskItem;
 
 /**
@@ -20,15 +17,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmProcessedTaskItem;
  * @author Jan Helbich
  *
  */
-public interface IdmProcessedTaskItemRepository
-	extends AbstractEntityRepository<IdmProcessedTaskItem, IdmProcessedTaskItemFilter> {
-
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmProcessedTaskItem> find(IdmProcessedTaskItemFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmProcessedTaskItemService (uses criteria api)");
-	}
+public interface IdmProcessedTaskItemRepository extends AbstractEntityRepository<IdmProcessedTaskItem> {
 	
 	@Transactional
 	@Modifying

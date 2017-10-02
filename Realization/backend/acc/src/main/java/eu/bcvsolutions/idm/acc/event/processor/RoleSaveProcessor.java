@@ -9,12 +9,12 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accRoleSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioning after role is saved.")
-public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
+public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRoleDto> {
 
 	public static final String PROCESSOR_NAME = "role-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleSaveProcessor.class);
@@ -49,7 +49,7 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	}
 
 	@Override
-	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
+	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
 		
 		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
@@ -59,11 +59,11 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 		return new DefaultEventResult<>(event, this);
 	}
 
-	private void doProvisioning(IdmRole node) {
-		LOG.debug("Call account managment (create accounts for all systems) for role [{}]", node.getName());
-		getProvisioningService().createAccountsForAllSystems(node);
-		LOG.debug("Call provisioning for role [{}]", node.getName());
-		getProvisioningService().doProvisioning(node);
+	private void doProvisioning(IdmRoleDto role) {
+		LOG.debug("Call account managment (create accounts for all systems) for role [{}]", role.getCode());
+		getProvisioningService().createAccountsForAllSystems(role);
+		LOG.debug("Call provisioning for role [{}]", role.getCode());
+		getProvisioningService().doProvisioning(role);
 	}
 
 	@Override

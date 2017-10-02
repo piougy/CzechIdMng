@@ -92,6 +92,17 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>install czechidm-vs dependencies</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+							<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-vs</workingDirectory>
+							<installDirectory>target</installDirectory>
+						</configuration>
+					</execution>
+					<execution>
 						<id>make all modules together</id>
 						<goals>
 							<goal>gulp</goal>

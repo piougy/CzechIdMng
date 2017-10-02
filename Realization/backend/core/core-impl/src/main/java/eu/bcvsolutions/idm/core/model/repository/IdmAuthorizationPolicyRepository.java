@@ -4,15 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 
@@ -22,17 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
  * @author Radek Tomiška
  *
  */
-public interface IdmAuthorizationPolicyRepository extends AbstractEntityRepository<IdmAuthorizationPolicy, AuthorizationPolicyFilter> {
-	
-	/**
-	 * @deprecated Use IdmAuthorizationPolicyService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmAuthorizationPolicyService (uses criteria api)");
-	}
+public interface IdmAuthorizationPolicyRepository extends AbstractEntityRepository<IdmAuthorizationPolicy> {
 	
 	/**
 	 * Returns all valid policies for given identity and entity type. 

@@ -8,14 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.Description;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.forest.index.repository.TypeableForestContentRepository;
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 
 /**
  * Tree structures nodes
@@ -23,26 +19,17 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@RepositoryRestResource(
-	collectionResourceRel = "treeNodes",
-	path = "tree-nodes",
-	itemResourceRel = "treeNode",
-	collectionResourceDescription = @Description("Tree nodes"),
-	itemResourceDescription = @Description("Tree nodes"),
-	excerptProjection = IdmTreeNodeExcerpt.class,
-	exported = false
-)
-public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter>, TypeableForestContentRepository<IdmTreeNode, UUID> {
-
+public interface IdmTreeNodeRepository extends 
+		AbstractEntityRepository<IdmTreeNode>, 
+		TypeableForestContentRepository<IdmTreeNode, UUID> {
+	
 	/**
-	 * @deprecated use IdmTreeNodeService (uses criteria api)
+	 * Nodes by tree type.
+	 * 
+	 * @param treeTypeId
+	 * @return
 	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmTreeNodeService (uses criteria api)");
-	}
+	Page<IdmTreeNode> findByTreeType_Id(UUID treeTypeId, Pageable pageable);
 
 	/**
 	 * If parent is not given, then roots of given tree type is returned. Returns direct children only.

@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -29,11 +30,11 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
@@ -99,10 +100,10 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		LOG.debug("Call validate password for systems and default password policy for identity username [{}]",
 				event.getContent().getUsername());
 		//
-		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<>();
+		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<>();
 		//
 		// Find user accounts
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		//
@@ -128,7 +129,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		}
 		//
 		// get default password policy
-		IdmPasswordPolicy defaultPasswordPolicy = this.passwordPolicyService
+		IdmPasswordPolicyDto defaultPasswordPolicy = this.passwordPolicyService
 				.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 		//
 		if (passwordChangeDto.isIdm() && defaultPasswordPolicy != null) {
@@ -141,8 +142,13 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 					|| passwordChangeDto.getAccounts().contains(identityAccount.getAccount().toString()));
 		}).forEach(identityAccount -> {
 			// get validate password policy from system
-			IdmPasswordPolicy passwordPolicy = identityAccountRepository.findOne(identityAccount.getId()).getAccount()
+			// TODO: change to DTO after refactoring
+			IdmPasswordPolicy passwordPolicyEntity = identityAccountRepository.findOne(identityAccount.getId()).getAccount()
 					.getSystem().getPasswordPolicyValidate();
+			IdmPasswordPolicyDto passwordPolicy = null;
+			if (passwordPolicyEntity != null) {
+				passwordPolicy = passwordPolicyService.get(passwordPolicyEntity.getId());
+			}
 			// if passwordPolicy is null use default password policy for
 			// validate
 			if (passwordPolicy == null) {

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -42,7 +41,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 })
 public class IdmTreeNode 
 		extends AbstractEntity 
-		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmForestIndexEntity, UUID>, FormableEntity, Disableable, Codeable {
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmForestIndexEntity, UUID>, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";
@@ -94,7 +93,7 @@ public class IdmTreeNode
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
-	private String externalId;
+	private String externalId; // TODO: obsolete, to remove
 
 	public String getName() {
 		return name;
@@ -216,7 +215,7 @@ public class IdmTreeNode
 	}
 	
 	/**
-	 * Returns forest tree type from tree type code
+	 * Returns forest tree type from tree type id
 	 * 
 	 * @param treeType
 	 * @return
@@ -224,6 +223,18 @@ public class IdmTreeNode
 	public static String toForestTreeType(IdmTreeType treeType) {
 		Assert.notNull(treeType);
 		//
-		return String.format("%s%s", TREE_TYPE_PREFIX, treeType.getId());
+		return toForestTreeType(treeType.getId());
+	}
+	
+	/**
+	 * Returns forest tree type from tree type id
+	 * 
+	 * @param treeType
+	 * @return
+	 */
+	public static String toForestTreeType(UUID treeTypeId) {
+		Assert.notNull(treeTypeId);
+		//
+		return String.format("%s%s", TREE_TYPE_PREFIX, treeTypeId);
 	}
 }

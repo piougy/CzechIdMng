@@ -14,7 +14,7 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
@@ -37,11 +37,11 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  */
 @Component
 public class DefaultManagersFilter 
-		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> {
+		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
 	@Override
 	public String getName() {
-		return IdentityFilter.PARAMETER_MANAGERS_FOR;
+		return IdmIdentityFilter.PARAMETER_MANAGERS_FOR;
 	}
 	
 	@Autowired
@@ -50,7 +50,7 @@ public class DefaultManagersFilter
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		if (filter.getManagersFor() == null) {
 			return null;
 		}

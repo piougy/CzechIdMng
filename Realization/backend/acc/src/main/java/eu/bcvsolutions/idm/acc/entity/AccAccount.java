@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -49,6 +50,10 @@ public class AccAccount extends AbstractEntity {
 	@Size(min = 1, max = DefaultFieldLengths.UID)
 	@Column(name = "uid", length = DefaultFieldLengths.UID, nullable = false)
 	private String uid;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "entity_type")
+	private SystemEntityType entityType;
 	
 	@Audited
 	@NotNull
@@ -146,21 +151,11 @@ public class AccAccount extends AbstractEntity {
 		return uid;
 	}
 	
-	/**
-	 * Check if account is in protection. Validate end of protection too.
-	 * 
-	 * @param account
-	 * @return
-	 */
-	public boolean isAccountProtectedAndValid() {
-		if (this.isInProtection()) {
-			if (this.getEndOfProtection() == null) {
-				return true;
-			}
-			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfterNow()) {
-				return true;
-			}
-		}
-		return false;
+	public SystemEntityType getEntityType() {
+		return entityType;
+	}
+	
+	public void setEntityType(SystemEntityType entityType) {
+		this.entityType = entityType;
 	}
 }

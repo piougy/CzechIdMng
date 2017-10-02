@@ -1,14 +1,14 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
  * Synchronization log service
  * @author svandav
  *
  */
-public interface SysSyncLogService extends ReadWriteEntityService<SysSyncLog, SynchronizationLogFilter> {
+public interface SysSyncLogService extends ReadWriteDtoService<SysSyncLogDto, SysSyncLogFilter> {
 
 }

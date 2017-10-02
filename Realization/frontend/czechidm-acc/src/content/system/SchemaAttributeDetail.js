@@ -60,7 +60,6 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
 
   save(event) {
     const formEntity = this.refs.form.getData();
-    formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
     //
     super.save(formEntity, event);
   }

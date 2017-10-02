@@ -22,6 +22,7 @@ import org.springframework.core.annotation.Order;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
+import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 
@@ -60,8 +61,13 @@ public class ModelMapperConfig {
 		// modifierId), but with same value as first field, then mapper will be
 		// set converted value from first field (applicant) to second field (IdmIdentity to UUID) ->
 		// Class cast exception will be throw.
-		Converter<UUID, UUID> uuidToUiid = new UuidToUuidConverter();
+		
+		//  + Additionally this converter allows load DTO (by UUID) and put him to embedded map.
+		Converter<UUID, UUID> uuidToUiid = new UuidToUuidConverter(applicationContext);
 		modeler.createTypeMap(UUID.class, UUID.class).setConverter(uuidToUiid);
+		
+		// Converter for resolve problem with 0x00 character in Postgress.
+		 modeler.createTypeMap(String.class, String.class).setConverter(new StringToStringConverter());
 
 		// Condition for property ... if is property list and dto is trimmed,
 		// then will be not used (set null)

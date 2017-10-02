@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +11,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 
 /**
  * Persists provisioning operation batches
@@ -29,7 +31,8 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  */
 @Service
 public class DefaultSysProvisioningBatchService
-		extends AbstractReadWriteEntityService<SysProvisioningBatch, EmptyFilter> implements SysProvisioningBatchService {
+		extends AbstractReadWriteDtoService<SysProvisioningBatchDto, SysProvisioningBatch, EmptyFilter> 
+		implements SysProvisioningBatchService {
 
 	private final SysProvisioningBatchRepository repository;
 	
@@ -38,35 +41,9 @@ public class DefaultSysProvisioningBatchService
 			SysProvisioningBatchRepository repository) {
 		super(repository);
 		//
+		Assert.notNull(repository);
+		//
 		this.repository = repository;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public SysProvisioningBatch get(Serializable id) {
-		SysProvisioningBatch batch = super.get(id);
-		// TODO: remove batch requests list
-		if(batch != null) {
-			batch.getRequests().size();
-		}
-		return batch;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public SysProvisioningBatch findBatch(SysProvisioningOperation operation) {
-		SysProvisioningBatch batch = repository.findBatch(operation);
-		// TODO: remove batch requests list
-		if(batch != null) {
-			batch.getRequests().size();
-		}
-		return batch;
-	}
-	
-	@Override
-	@Transactional
-	public SysProvisioningBatch save(SysProvisioningBatch entity) {
-		return super.save(entity);
 	}
 	
 	/**
@@ -75,7 +52,7 @@ public class DefaultSysProvisioningBatchService
 	 * @return Date of the next attempt. Null if there should be no next attempt 
 	 */
 	@Override
-	public DateTime calculateNextAttempt(SysProvisioningRequest request) {		
+	public DateTime calculateNextAttempt(SysProvisioningOperationDto request) {		
 		if (request.getCurrentAttempt() >= request.getMaxAttempts()) return null;
 		if (request.getCurrentAttempt() == 0) return new DateTime();
 		
@@ -88,11 +65,26 @@ public class DefaultSysProvisioningBatchService
 		calendar.add(Calendar.SECOND, secInterval);
 		
 		return new DateTime(calendar.getTime());
-	}	
+	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<SysProvisioningBatch> findBatchesToRetry(DateTime date, Pageable pageable) {
-		return repository.findByNextAttemptLessThanEqual(date, pageable);
+	public Page<SysProvisioningBatchDto> findBatchesToProcess(Boolean virtualSystem, Pageable pageable) {
+		if (virtualSystem == null) {
+			return toDtoPage(repository.findByOperationState(OperationState.CREATED, pageable));
+		}
+		return toDtoPage(repository.findByVirtualSystemAndOperationState(virtualSystem, OperationState.CREATED, pageable));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<SysProvisioningBatchDto> findBatchesToRetry(DateTime date, Pageable pageable) {
+		return toDtoPage(repository.findByNextAttemptLessThanEqual(date, pageable));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, String systemEntityUid) {
+		return toDto(repository.findBatch(systemId, entityIdentifier, systemEntityUid));
 	}
 }

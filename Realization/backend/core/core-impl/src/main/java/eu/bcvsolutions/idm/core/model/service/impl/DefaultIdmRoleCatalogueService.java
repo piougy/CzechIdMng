@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -23,11 +24,14 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -36,25 +40,15 @@ import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
-import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent;
-import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent.RoleCatalogueEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleCatalogueDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleCatalogueSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueForestContentService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildRoleCatalogueIndexTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Implementation of @IdmRoleCatalogueService
- *
- * TODO: baseTreeService - refactor to dto usage
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -62,17 +56,15 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("roleCatalogueService")
 public class DefaultIdmRoleCatalogueService 
-		extends AbstractReadWriteDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, RoleCatalogueFilter> 
+		extends AbstractEventableDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, IdmRoleCatalogueFilter> 
 		implements IdmRoleCatalogueService {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleCatalogueService.class);
 	private final IdmRoleCatalogueRepository repository;
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService;
 	private final IdmRoleCatalogueForestContentService forestContentService;
 	private final IdmConfigurationService configurationService;
 	private final LongRunningTaskManager longRunningTaskManager;
-	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmRoleCatalogueService(
@@ -83,14 +75,13 @@ public class DefaultIdmRoleCatalogueService
 			IdmConfigurationService configurationService,
 			LongRunningTaskManager longRunningTaskManager,
 			EntityEventManager entityEventManager) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(baseTreeService);
 		Assert.notNull(roleCatalogueRoleRepository);
 		Assert.notNull(forestContentService);
 		Assert.notNull(configurationService);
 		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(entityEventManager);
 		//
 		this.repository = repository;
 		this.baseTreeService = baseTreeService;
@@ -98,7 +89,6 @@ public class DefaultIdmRoleCatalogueService
 		this.forestContentService = forestContentService;
 		this.configurationService = configurationService;
 		this.longRunningTaskManager = longRunningTaskManager;
-		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -110,24 +100,6 @@ public class DefaultIdmRoleCatalogueService
 	@Transactional(readOnly = true)
 	public IdmRoleCatalogueDto getByCode(String code) {
 		return toDto(repository.findOneByCode(code));
-	}
-	
-	/**
-	 * Publish {@link RoleCatalogueEvent} only.
-	 * 
-	 * @see {@link RoleCatalogueSaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmRoleCatalogueDto save(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
-		Assert.notNull(roleCatalogue);
-		checkAccess(toEntity(roleCatalogue, null), permission);
-		if (isNew(roleCatalogue)) { // create
-			LOG.debug("Saving new role catalogue [{}]", roleCatalogue.getCode());
-			return entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.CREATE, roleCatalogue)).getContent();
-		}
-		LOG.debug("Saving role catalogue [{}]", roleCatalogue.getCode());
-		return entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.UPDATE, roleCatalogue)).getContent();
 	}
 	
 	@Override
@@ -145,25 +117,6 @@ public class DefaultIdmRoleCatalogueService
 		IdmForestIndexEntity index = forestContentService.updateIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
 		roleCatalogue = super.saveInternal(roleCatalogue);
 		return setForestIndex(roleCatalogue, index);
-	}
-	
-	/**
-	 * Publish {@link RoleCatalogueEvent} only.
-	 * 
-	 * @see {@link RoleCatalogueDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
-		Assert.notNull(roleCatalogue);
-		checkAccess(this.getEntity(roleCatalogue.getId()), permission);
-		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), new PageRequest(0, 1));
-		if (nodes.getTotalElements() != 0) {
-			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getCode()));
-		}
-		//
-		LOG.debug("Deleting role catalogue [{}]", roleCatalogue.getCode());
-		entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.DELETE, roleCatalogue));
 	}
 	
 	@Override
@@ -220,7 +173,7 @@ public class DefaultIdmRoleCatalogueService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleCatalogue> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			RoleCatalogueFilter filter) {
+			IdmRoleCatalogueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
@@ -242,14 +195,16 @@ public class DefaultIdmRoleCatalogueService
 			Subquery<IdmRoleCatalogue> subquery = query.subquery(IdmRoleCatalogue.class);
 			Root<IdmRoleCatalogue> subRoot = subquery.from(IdmRoleCatalogue.class);
 			subquery.select(subRoot);
+			Path<IdmForestIndexEntity> forestIndexPath = subRoot.get(IdmRoleCatalogue_.forestIndex);
 			subquery.where(builder.and(
 				builder.equal(subRoot.get(AbstractEntity_.id), filter.getParent()),
 				// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
 				// In order to do that, we must shrink the boundaries of query so it is true only for subtree of given node.
 				// Remember that between clause looks like this a >= x <= b, where a and b are boundaries, in our case lft+1 and rgt-1.
+				
 				builder.between(root.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft),
-					builder.sum(subRoot.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 1L),
-					builder.diff(subRoot.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.rgt), 1L))));
+					builder.sum(forestIndexPath.get(IdmForestIndexEntity_.lft), 1L),
+					builder.diff(forestIndexPath.get(IdmForestIndexEntity_.rgt), 1L))));
 			predicates.add(builder.exists(subquery));
 		}
 		return predicates;
@@ -288,6 +243,5 @@ public class DefaultIdmRoleCatalogueService
 			roleCatalogue.setRgt(index.getRgt());
 		}
 		return roleCatalogue;
-	}
-	
+	}	
 }

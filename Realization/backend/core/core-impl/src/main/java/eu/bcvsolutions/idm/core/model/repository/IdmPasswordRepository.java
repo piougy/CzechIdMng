@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 
@@ -18,9 +18,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
  * @author Radek Tomiška
  *
  */
-public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassword, PasswordFilter> {
+public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassword> {
 	
-	@Override
 	@Query(value = ""
 			+ "SELECT e FROM #{#entityName} e"
 	        + " WHERE"
@@ -33,7 +32,7 @@ public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassw
 	        + " (?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId})"
 	        + " AND"
 	        + " (?#{[0].mustChange} is null or e.mustChange = ?#{[0].mustChange})")
-	Page<IdmPassword> find(PasswordFilter filter, Pageable pageable);
+	Page<IdmPassword> find(IdmPasswordFilter filter, Pageable pageable);
 	
 	IdmPassword findOneByIdentity_Id(@Param("identityId") UUID identityId);
 }

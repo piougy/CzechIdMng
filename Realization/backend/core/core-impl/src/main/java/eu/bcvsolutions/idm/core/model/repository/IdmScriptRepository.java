@@ -5,22 +5,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 
 /**
  * Repository for scripts.
  * @see {@link IdmScript}
- * @see {@link ScriptFilter}
+ * @see {@link IdmScriptFilter}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
-public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript, ScriptFilter> {
+public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript> {
 
-	@Override
 	@Query(value = "select e from IdmScript e" +
 	        " where"
 	        + " ("
@@ -44,7 +43,7 @@ public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript,
 	        	+ " ?#{[0].code} is null"
 	        	+ " or e.code = ?#{[0].code}"
 	        + ") ")
-	Page<IdmScript> find(ScriptFilter filter, Pageable pageable);
+	Page<IdmScript> find(IdmScriptFilter filter, Pageable pageable);
 	
 	IdmScript findOneByName(@Param("name") String name);
 	

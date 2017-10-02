@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.ic.service.api;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -19,7 +19,7 @@ public interface IcConfigurationFacade {
 	 * Return available local connectors for all IC implementations
 	 *
 	 */
-	Map<String, List<IcConnectorInfo>> getAvailableLocalConnectors();
+	Map<String, Set<IcConnectorInfo>> getAvailableLocalConnectors();
 
 	/**
 	 * Return list of available remote connectors for IcConnectorServer
@@ -27,7 +27,7 @@ public interface IcConfigurationFacade {
 	 * @param server
 	 * @return
 	 */
-	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance);
+	Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance);
 
 	/**
 	 * Return all registered IC configuration service implementations

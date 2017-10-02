@@ -29,8 +29,6 @@ public enum IcSyncDeltaTypeEnum {
      * <p/>
      * Experimental type to support better event mechanism where it's possible.
      *
-     * @see #CREATE_OR_UPDATE
-     * @since 1.4
      */
     CREATE,
 

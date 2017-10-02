@@ -34,6 +34,6 @@ public class AccServiceConfiguration {
 	public SysSystemFormValueService systemFormValueService(
 			AbstractFormValueRepository<SysSystem, SysSystemFormValue> repository, 
 			ConfidentialStorage confidentialStorage, EntityManager entityManager) {
-		return new DefaultSysSystemFormValueService(repository, confidentialStorage, entityManager) {};
+		return new DefaultSysSystemFormValueService(repository, confidentialStorage);
 	}
 }

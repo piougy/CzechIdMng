@@ -11,10 +11,10 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 
 /**
  * Sending emails to queue (email will be sent asynchronously)
@@ -68,6 +68,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	}
 	
 	@Override
+	@Transactional
 	public IdmEmailLogDto send(IdmMessageDto message, String[] emails) {
 		Assert.notNull(message);
 		Assert.notNull(emails);
@@ -89,6 +90,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	}
 
 	@Override
+	@Transactional
 	public IdmEmailLogDto send(IdmMessageDto message, String email) {
 		Assert.notNull(email);
 		//
@@ -120,6 +122,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 			emailLog.getRecipients().add(cloneRecipient(emailLog, recipient));
 		});
 		emailLog.setIdentitySender(notification.getIdentitySender());
+		emailLog.setType(IdmEmailLog.NOTIFICATION_TYPE);
 		return emailLogService.save(emailLog);
 	}
 	

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -51,8 +51,8 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 		return Boolean.TRUE;
 	}
 	
-	private SysSyncConfig getConfig() {
-		SysSyncConfig config = service.get(synchronizationId);
+	private SysSyncConfigDto getConfig() {
+		SysSyncConfigDto config = service.get(synchronizationId);
 		//
 		if (config == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_NOT_FOUND,
@@ -62,8 +62,8 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	}
 	
 	@Override
-	public List<String> getParameterNames() {
-		List<String> params = super.getParameterNames();
+	public List<String> getPropertyNames() {
+		List<String> params = super.getPropertyNames();
 		params.add(PARAMETER_UUID);
 		return params;
 	}

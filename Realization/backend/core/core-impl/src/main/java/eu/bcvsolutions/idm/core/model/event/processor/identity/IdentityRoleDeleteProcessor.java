@@ -12,16 +12,16 @@ import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 
 /**
  * Delete identity role
@@ -68,7 +68,7 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 		IdmIdentityRoleDto identityRole = event.getContent();
 
 		// Find all concepts and remove relation on identity role
-		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
+		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityRoleId(identityRole.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
 			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());

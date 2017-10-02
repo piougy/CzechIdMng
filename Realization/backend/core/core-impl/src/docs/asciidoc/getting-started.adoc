@@ -1,6 +1,6 @@
 == Getting started
 
-https://wiki.czechidm.com/getting_started[Getting started^]
+https://wiki.czechidm.com/getting-started[Getting started^]
 
 
 

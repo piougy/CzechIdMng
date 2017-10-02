@@ -61,9 +61,9 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/role-catalogue/${uuidId}/?new=1`);
+      this.context.router.push(`/role-catalogue/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push('/role-catalogue/' + entity.id);
+      this.context.router.push(`/role-catalogue/${entity.id}/detail`);
     }
   }
 

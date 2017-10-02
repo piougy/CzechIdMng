@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-import _ from 'lodash';
 //
 import * as Advanced from '../../components/advanced';
 import * as Basic from '../../components/basic';
@@ -11,7 +10,8 @@ import { IdentityService } from '../../services';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
 import ValidationMessage from './ValidationMessage';
 
-const RESOURCE_IDM = '0:CzechIdM';
+const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
+const RESOURCE_IDM = `0:${IDM_NAME}`;
 
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
@@ -82,7 +82,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { entityId, accountOptions, userContext } = this.props;
+    const { entityId, userContext } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -137,30 +137,33 @@ class PasswordChangeForm extends Basic.AbstractContent {
       return json;
     })
     .then(json => {
-      let accounts = (json.idm) ? 'CzechIdM' : '';
-      if (json.accounts.length > 0 && accounts) {
-        accounts += ', ';
+      const successAccounts = [];
+      const failedAccounts = [];
+      json.forEach(result => {
+        const account = result.model.parameters.account;
+        const accountName = `${account.idm ? IDM_NAME : account.systemName} (${account.uid})`;
+        //
+        if (result.model.statusCode === 200) { // success
+          successAccounts.push(accountName);
+        } else {
+          failedAccounts.push(accountName);
+        }
+      });
+      if (successAccounts.length > 0) {
+        this.addMessage({ message: this.i18n('message.success', { accounts: successAccounts.join(', '), username: entityId }) });
+      }
+      if (failedAccounts.length > 0) {
+        this.addMessage({ level: 'warning', message: this.i18n('message.failed', { accounts: failedAccounts.join(', '), username: entityId }) });
       }
 
-      const optionsNames = [];
-      json.accounts.forEach(obj => {
-        optionsNames.push(
-          accountOptions[_.findKey(accountOptions, ['value', obj])].niceLabel
-        );
-      });
-      accounts += optionsNames.join();
-
-      this.addMessage({
-        message: this.i18n('message.success', { accounts, username: entityId })
-      });
       this.setState({
         validationError: null
+      }, () => {
+        // new token has to be set to security to prevent user logout
+        this.context.store.dispatch(securityManager.reloadToken());
+        //
+        this.refs.form.processEnded();
       });
-      // new token has to be set to security to prevent user logout
-      this.context.store.dispatch(securityManager.reloadToken());
-      //
-      this.refs.form.processEnded();
-
       // TODO: do we want reset password input after change?
       /* this.refs.form.setData({
         accounts: formData.accounts,

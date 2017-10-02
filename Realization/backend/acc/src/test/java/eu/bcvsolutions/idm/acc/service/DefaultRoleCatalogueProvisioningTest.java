@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -13,7 +12,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
@@ -24,12 +22,12 @@ import com.google.common.collect.ImmutableList;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -37,12 +35,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 
@@ -73,13 +71,11 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Autowired
 	private EntityManager entityManager;
 	@Autowired
-	private ApplicationContext applicationContext;
-	@Autowired
 	private IdmRoleCatalogueService treeNodeService;
 	@Autowired
 	private FormService formService;
 	//
-	private SysSystem system;
+	private SysSystemDto system;
 
 	@Before
 	public void init() {
@@ -119,7 +115,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test(expected = ProvisioningException.class) // Provisioning tree in incorrect order
 	public void provisioningB_CreateAccounts_withException() {
 
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -144,7 +140,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test
 	public void provisioningC_CreateAccounts_correct() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 		
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -177,7 +173,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test
 	public void provisioningD_UpdateAccount() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 		
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -206,7 +202,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test(expected=ResultCodeException.class)
 	public void provisioningE_DeleteAccount_IntegrityException() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P1");
 		
 		IdmRoleCatalogueDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
@@ -220,7 +216,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	@Test
 	public void provisioningF_DeleteAccount() {
 		
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName("P12");
 		IdmRoleCatalogueDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeOne);
@@ -247,20 +243,20 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 		// key to EAV
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
-		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
-		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "keyColumn".equals(value.getFormAttribute().getCode());}).findFirst().get();
-		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("ID"));
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormAttributeDto attributeKeyColumn = savedFormDefinition.getMappedAttributeByCode("keyColumn");
+		formService.saveValues(system, attributeKeyColumn, ImmutableList.of("ID"));
+
 		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		
 		// Create synchronization mapping
-		SysSystemMapping syncSystemMapping = new SysSystemMapping();
+		SysSystemMappingDto syncSystemMapping = new SysSystemMappingDto();
 		syncSystemMapping.setName("default_" + System.currentTimeMillis());
 		syncSystemMapping.setEntityType(SystemEntityType.ROLE_CATALOGUE);
 		syncSystemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		syncSystemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping syncMapping = systemMappingService.save(syncSystemMapping);
+		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
+		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 
 		createMapping(system, syncMapping);
 
@@ -281,55 +277,51 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	}
 	
 
-	private void createMapping(SysSystem system, final SysSystemMapping entityHandlingResult) {
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if (TestHelper.ATTRIBUTE_MAPPING_NAME.equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setUid(true);
 				attributeHandlingName.setEntityAttribute(false);
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				// For provisioning .. we need create UID
 				attributeHandlingName.setTransformToResourceScript("if(uid){return uid;}\nreturn entity.getCode();");
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("CODE".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("code");
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 			
 			} else if ("PARENT".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("parent");
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("NAME".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("name");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			}
 		});
-	}
-
-	private DefaultRoleCatalogueProvisioningTest getBean() {
-		return applicationContext.getBean(this.getClass());
 	}
 }

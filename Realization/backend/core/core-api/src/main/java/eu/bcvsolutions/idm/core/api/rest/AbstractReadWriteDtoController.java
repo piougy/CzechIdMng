@@ -1,7 +1,13 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidatorFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,8 +19,11 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +32,7 @@ import io.swagger.annotations.Authorization;
 /**
  * CRUD operations for DTO
  * 
+ * @see DataFilter
  * @param <DTO> dto type
  * @param <F> filter type
  * @author Svanda
@@ -30,9 +40,48 @@ import io.swagger.annotations.Authorization;
  */
 public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoController.class);
+	//
+	@Autowired(required = false) // optional dependency for support patch method
+	private RequestResourceResolver requestResourceResolver;
+	@Autowired(required = false) // optional dependency for support automatic JSR303 validations
+	private ValidatorFactory validatorFactory;
 
 	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
+	}
+	
+	/**
+	 * Invokes JSR 303 validations programmatically (its needed for patch method).
+	 * Its called before save method. 
+	 * Validations are invoked in service layer too, but wee want to shorten processing.
+	 *  
+	 * @param dto
+	 * @return
+	 */
+	protected DTO validateDto(DTO dto) {
+		if (validatorFactory == null) {
+			LOG.debug("JSR303 Validation are disabled. Configure validation factory properly.");
+			return dto;
+		}
+		Set<ConstraintViolation<DTO>> errors = validatorFactory.getValidator().validate(dto);
+		if(!errors.isEmpty()) {
+			throw new ConstraintViolationException("Validation failed for dto [" + getDtoClass().getSimpleName() +"]", errors);
+		}
+		return dto;
+	}
+	
+	/**
+	 * Save (Creates / updates) given DTO - are called by putDto / postDto / patchDto methods
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	public DTO saveDto(DTO dto, BasePermission... permission) {
+		Assert.notNull(dto, "DTO is required");
+		//
+		return getService().save(validateDto(dto), permission);
 	}
 
 	/**
@@ -57,7 +106,8 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public DTO postDto(DTO dto) {
 		ReadWriteDtoService<DTO, F> service = getService();
-		return service.save(dto, service.isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
+		//
+		return saveDto(dto, service.isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
 	}
 
 	/**
@@ -89,9 +139,8 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param dto
 	 * @return
 	 */
-	public DTO putDto(DTO dto) {
-		Assert.notNull(dto, "DTO is required");
-		return getService().save(dto, IdmBasePermission.UPDATE);
+	public DTO putDto(DTO dto) {		
+		return saveDto(dto, IdmBasePermission.UPDATE);
 	}
 
 	/**
@@ -102,9 +151,28 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
-	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest)
+	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest) 
 			throws HttpMessageNotReadableException {
-		throw new ResultCodeException(CoreResultCode.NOT_IMPLEMENTED, ImmutableMap.of("method", "patch method"));
+		if (requestResourceResolver == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_SUPPORTED, ImmutableMap.of("method", "patch method"));
+		}
+		//
+		DTO updateDto = getDto(backendId);
+		if (updateDto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		updateDto = patchDto((DTO) requestResourceResolver.resolve(nativeRequest, getDtoClass(), updateDto));
+		return new ResponseEntity<>(toResource(updateDto), HttpStatus.OK);
+	}
+	
+	/**
+	 * Patch given DTO
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	public DTO patchDto(DTO dto) {
+		return saveDto(dto, IdmBasePermission.UPDATE);
 	}
 
 	/**

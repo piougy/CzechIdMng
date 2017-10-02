@@ -16,6 +16,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
@@ -23,15 +24,30 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
+import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.FormValueService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
@@ -52,19 +68,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
@@ -78,15 +81,16 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmProcessedTaskItemRepository;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmScheduledTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmScheduledTaskService;
@@ -143,7 +147,7 @@ public class IdmServiceConfiguration {
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
-	@Autowired private List<? extends FormValueService<?, ?>> formValueServices;
+	@Autowired private List<? extends FormValueService<?>> formValueServices;
 	@Autowired private List<? extends FilterBuilder<?, ?>> filterBuilders;
 	@Autowired private List<? extends EntityLookup<?>> entityLookups;
 	@Autowired private List<? extends DtoLookup<?>> dtoLookups;
@@ -156,7 +160,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(CryptService.class)
 	public CryptService cryptService() {
-		return new DefaultCryptService();
+		return new DefaultCryptService(environment);
 	}
 	
 	/**
@@ -326,8 +330,7 @@ public class IdmServiceConfiguration {
 				roleCatalogueRoleRepository,
 				entityEventManager(), 
 				formService(), 
-				configurationService(), 
-				filterManager(), 
+				configurationService(),
 				roleConfiguration());
 	}
 	
@@ -405,6 +408,28 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Configuration for tree structures
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(TreeConfiguration.class)
+	public TreeConfiguration treeConfiguration() {
+		return new DefaultTreeConfiguration(lookupService());
+	}
+	
+	/**
+	 * Tree type service
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmTreeTypeService.class)
+	public IdmTreeTypeService treeTypeService() {
+		return new DefaultIdmTreeTypeService(treeTypeRepository, configurationService(), treeConfiguration(), entityEventManager());
+	}
+	
+	/**
 	 * Automatic role service
 	 * 
 	 * @return
@@ -437,7 +462,12 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityContractService.class)
 	public IdmIdentityContractService identityContractService() {
-		return new DefaultIdmIdentityContractService(identityContractRepository, formService(), entityEventManager(), treeTypeRepository, treeNodeRepository);
+		return new DefaultIdmIdentityContractService(
+				identityContractRepository,
+				formService(),
+				entityEventManager(),
+				treeConfiguration(),
+				treeNodeRepository);
 	}
 	
 	/**

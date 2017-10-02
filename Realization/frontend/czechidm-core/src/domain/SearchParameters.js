@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Immutable from 'immutable';
+import ConfigLoader from '../utils/ConfigLoader';
 
 /**
  * Immutable search representation - filter, sort, pageable.
@@ -9,7 +10,7 @@ import Immutable from 'immutable';
  */
 export default class SearchParameters {
 
-  constructor(name = null, page = 0, size = SearchParameters.DEFAUT_SIZE) {
+  constructor(name = null, page = 0, size = SearchParameters.getDefaultSize()) {
     this.name = name;
     this.page = page;
     this.size = size;
@@ -53,10 +54,10 @@ export default class SearchParameters {
   /**
    * Pageable size
    *
-   * @param {number} size = SearchParameters.DEFAUT_SIZE
+   * @param {number} size = SearchParameters.DEFAULT_SIZE
    * @return {SearchParameters} new copy
    */
-  setSize(size = SearchParameters.DEFAUT_SIZE) {
+  setSize(size = SearchParameters.getDefaultSize()) {
     const newState = this._clone();
     newState.size = size;
     return newState;
@@ -285,6 +286,15 @@ export default class SearchParameters {
     }
     return one.equals(two);
   }
+
+  /**
+   * Returns configured page size or constant DEFAULT_SIZE
+   *
+   * @return {int} default page size
+   */
+  static getDefaultSize() {
+    return ConfigLoader.getConfig('pagination.size', SearchParameters.DEFAULT_SIZE);
+  }
 }
 
 /**
@@ -301,7 +311,7 @@ SearchParameters.NAME_AUTOCOMPLETE = 'autocomplete';
  * Default page size
  * @type {Number}
  */
-SearchParameters.DEFAUT_SIZE = 10;
+SearchParameters.DEFAULT_SIZE = 10;
 /**
  * Maximum page size
  * @type {Number}

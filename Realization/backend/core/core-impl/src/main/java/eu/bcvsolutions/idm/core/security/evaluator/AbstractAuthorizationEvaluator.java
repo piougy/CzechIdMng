@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Abstract authorization evaluator template.
@@ -117,10 +118,8 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	@Override
 	public boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission) {
 		Assert.notEmpty(permission);
-		Set<String> permissions = getPermissions(authorizable, policy);
 		//		
-		return permissions.contains(IdmBasePermission.ADMIN.getName())
-				|| hasPermission(permissions, permission);
+		return PermissionUtils.hasPermission(getPermissions(authorizable, policy), permission);
 	}
 	
 	@Override
@@ -137,21 +136,8 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	protected boolean hasPermission(AuthorizationPolicy policy, BasePermission... permission) {
 		Assert.notNull(permission);
-		Set<String> permissions = policy.getPermissions();
 		//
-		return permissions.contains(IdmBasePermission.ADMIN.getName())
-				|| hasPermission(permissions, permission);
-	}
-	
-	/**
-	 * Returns true, when permissions have all given permission
-	 * 
-	 * @param permissions
-	 * @param permission permissions to evaluate (AND)
-	 * @return
-	 */
-	protected boolean hasPermission(Collection<String> permissions, BasePermission... permission) {
-		return permissions.containsAll(Arrays.stream(permission).map(Object::toString).collect(Collectors.toList()));
+		return PermissionUtils.hasPermission(policy.getPermissions(), permission);
 	}
 	
 	/**

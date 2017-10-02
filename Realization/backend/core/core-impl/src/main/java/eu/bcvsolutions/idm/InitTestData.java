@@ -17,17 +17,17 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
@@ -86,21 +86,21 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
-			IdmTreeNode rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent().get(0);
+			IdmRoleDto superAdminRole = this.roleService.getByCode(InitApplicationData.ADMIN_ROLE);
+			IdmTreeNodeDto rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
 				//
-				IdmRole role1 = new IdmRole();
+				IdmRoleDto role1 = new IdmRoleDto();
 				role1.setName(TEST_USER_ROLE);
 				role1 = this.roleService.save(role1);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role1.getId()));
 				//
-				IdmRole role2 = new IdmRole();
+				IdmRoleDto role2 = new IdmRoleDto();
 				role2.setName(TEST_CUSTOM_ROLE);
-				List<IdmRoleComposition> subRoles = new ArrayList<>();
-				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
+				List<IdmRoleCompositionDto> subRoles = new ArrayList<>();
+				subRoles.add(new IdmRoleCompositionDto(role2.getId(), superAdminRole.getId()));
 				role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
@@ -124,19 +124,19 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				testUser2 = this.identityService.save(testUser2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
 			
-				IdmTreeType type = new IdmTreeType();
+				IdmTreeTypeDto type = new IdmTreeTypeDto();
 				type.setCode("ROOT_TYPE");
 				type.setName("ROOT_TYPE");
-				this.treeTypeService.save(type);
+				type = this.treeTypeService.save(type);
 				
 				
-				IdmTreeNode organization = new IdmTreeNode();
+				IdmTreeNodeDto organization = new IdmTreeNodeDto();
 				organization.setCode("test");
 				organization.setName("Organization Test");
 				organization.setCreator("ja");
-				organization.setParent(rootOrganization);
-				organization.setTreeType(type);
-				this.treeNodeService.save(organization);
+				organization.setParent(rootOrganization.getId());
+				organization.setTreeType(type.getId());
+				organization = this.treeNodeService.save(organization);
 				
 				IdmIdentityContractDto identityWorkPosition2 = new IdmIdentityContractDto();
 				identityWorkPosition2.setIdentity(testUser1.getId());

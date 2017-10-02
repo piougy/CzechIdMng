@@ -3,13 +3,13 @@ package eu.bcvsolutions.idm.acc.domain.converter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
 
@@ -39,10 +39,10 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	}
 	
 	@Override
-	public IdmFormAttribute toFormAttribute(IcConfigurationProperty propertyConfiguration) {
+	public IdmFormAttributeDto toFormAttribute(IcConfigurationProperty propertyConfiguration) {
 		Assert.notNull(propertyConfiguration);
 		//
-		IdmFormAttribute attribute = new IdmFormAttribute();
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
 		attribute.setCode(propertyConfiguration.getName());
 		attribute.setName(propertyConfiguration.getDisplayName());
 		attribute.setDescription(propertyConfiguration.getHelpMessage());
@@ -51,11 +51,12 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 		attribute.setRequired(propertyConfiguration.isRequired());
 		attribute.setMultiple(isMultiple());
 		attribute.setDefaultValue(convertDefaultValue(propertyConfiguration));
+		attribute.setFaceType(propertyConfiguration.getFace());
 		return attribute;
 	}
 
 	@Override
-	public IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<AbstractFormValue<SysSystem>> formValues) {
+	public IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
 		Assert.notNull(propertyConfiguration);
 		//
 		IcConfigurationPropertyImpl property = new IcConfigurationPropertyImpl();
@@ -94,7 +95,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	 * @param formValues
 	 * @return
 	 */
-	protected Object toConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, List<AbstractFormValue<SysSystem>> formValues) {
+	protected Object toConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
 		if (formValues == null || formValues.isEmpty()) {
 			return null;
 		}
@@ -113,10 +114,10 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected Object convertMultipleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, List<AbstractFormValue<SysSystem>> formValues) {
+	protected Object convertMultipleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
 		Object value = null;
 		List valueList = new ArrayList<>();
-		for (AbstractFormValue<SysSystem> formValue : formValues) {
+		for (IdmFormValueDto formValue : formValues) {
 			valueList.add(convertSingleConnectorPropertyValue(propertyConfiguration, formValue));
 		}
 		if (!valueList.isEmpty()) {
@@ -124,6 +125,8 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 			// override for other data types
 			if (PersistentType.TEXT == getFormPropertyType()) {
 				value = valueList.toArray(new String[]{});
+			}else if(PersistentType.UUID == getFormPropertyType()) {
+				value = valueList.toArray(new UUID[]{});
 			} else {
 				value = valueList.toArray();
 			}
@@ -138,7 +141,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	 * @param formValue
 	 * @return
 	 */
-	protected Object convertSingleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, AbstractFormValue<SysSystem> formValue) {	
+	protected Object convertSingleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, IdmFormValueDto formValue) {	
 		if (formValue == null) {
 			return null;
 		}

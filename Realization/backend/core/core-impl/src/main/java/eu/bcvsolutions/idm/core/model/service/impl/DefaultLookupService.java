@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
-import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableServiceEntityLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultDtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultEntityLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
@@ -25,7 +24,6 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
-import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
  * Provide entity services through whole application. 
@@ -71,25 +69,12 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId) { // vracim entitu  - class muze by entita i dto
 		DtoLookup<BaseDto> lookup = getDtoLookup(identifiableType);
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType));
 		}
 		return lookup.lookup(entityId);
-	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass) {
-		return (ReadEntityService<E, ?>) getService(entityClass);
-	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass) {
-		return (S) getService(entityClass);
 	}
 	
 	@Override
@@ -108,21 +93,17 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
-	public <I extends BaseEntity> EntityLookup<I> getEntityLookup(Class<? extends Identifiable> identifiableType) {			
-		Class<I> entityClass = (Class<I>) getEntityClass(identifiableType);
+	@SuppressWarnings({ "unchecked" })
+	public <E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<? extends Identifiable> identifiableType) {			
+		Class<E> entityClass = (Class<E>) getEntityClass(identifiableType);
 		if (entityClass == null) {
 			LOG.debug("Service for identifiable type [{}] is not found, lookup not found", identifiableType);
 			return null;
 		}
 		//
-		EntityLookup<I> lookup = (EntityLookup<I>) entityLookups.getPluginFor(entityClass);
+		EntityLookup<E> lookup = (EntityLookup<E>) entityLookups.getPluginFor(entityClass);
 		if (lookup == null) {
-			Object service = getService(identifiableType);
-			if ((service instanceof ReadEntityService) && (service instanceof CodeableService)) {
-				return new CodeableServiceEntityLookup<I>((CodeableService)service);
-			}
-			return new DefaultEntityLookup<I>(entityManager, entityClass);
+			return new DefaultEntityLookup<E>(entityManager, entityClass, getDtoLookup(identifiableType));
 		}
 		return lookup;	
 	}
@@ -146,17 +127,14 @@ public class DefaultLookupService implements LookupService {
 		return lookup;
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
-	private Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType) {
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes"})
+	public Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType) {
 		Object service = getService(identifiableType);
 		if (service == null) {
 			return null;
 		}
-		//
-		if (service instanceof ReadDtoService) {
-			return ((ReadDtoService) service).getEntityClass();
-		}		
-		return ((ReadEntityService) service).getEntityClass();
+		return ((ReadDtoService) service).getEntityClass();
 	}
 	
 	/**
@@ -168,9 +146,6 @@ public class DefaultLookupService implements LookupService {
 	@SuppressWarnings({ "unchecked" })
 	private Object getService(Class<? extends Identifiable> identifiableType) {
 		if (!services.containsKey(identifiableType)) {
-			context.getBeansOfType(ReadEntityService.class).values().forEach(s -> {
-				services.put(s.getEntityClass(), s);
-			});
 			context.getBeansOfType(ReadDtoService.class).values().forEach(s -> {
 				services.put(s.getEntityClass(), s);
 				services.put(s.getDtoClass(), s);

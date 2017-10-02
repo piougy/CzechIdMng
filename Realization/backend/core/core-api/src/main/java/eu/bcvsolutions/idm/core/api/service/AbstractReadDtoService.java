@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -38,8 +39,10 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Provide additional methods to retrieve DTOs and entities using the pagination
@@ -69,10 +72,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	//
 	private AuthorizationManager authorizationManager;
 	private FilterManager filterManager;
-	private final AbstractEntityRepository<E, F> repository;
+	private final AbstractEntityRepository<E> repository;
 
 	@SuppressWarnings("unchecked")
-	public AbstractReadDtoService(AbstractEntityRepository<E, F> repository) {
+	public AbstractReadDtoService(AbstractEntityRepository<E> repository) {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractReadDtoService.class);
 		entityClass = (Class<E>) genericTypes[1];
 		filterClass = (Class<F>) genericTypes[2];
@@ -93,7 +96,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
-	protected AbstractEntityRepository<E, F> getRepository() {
+	protected AbstractEntityRepository<E> getRepository() {
 		return repository;
 	}
 
@@ -154,10 +157,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props. 
 	 * Transforms given filter to jpa predicate, never returns null.
 	 * 
-	 * @param filter
 	 * @param root
 	 * @param query
 	 * @param builder
+	 * @param filter
 	 * @return
 	 */
 	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, F filter) {
@@ -172,6 +175,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * AbstractEntity uuid or uuid as string could be given.
 	 */
 	protected E getEntity(Serializable id, BasePermission... permission) {
+		if (id instanceof Identifiable) {
+			// dto or entity could be given
+			id = ((Identifiable) id).getId();
+		}
+		//
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and
@@ -193,13 +201,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
-		// TODO: remove this if after all dto services will be rewritten - remove getRepository().find(filter, pageable)
-		if (!(this instanceof AuthorizableService)) {
-			if (filter == null) {
-				return getRepository().findAll(pageable);
-			}
-			return getRepository().find(filter, pageable);
-		}
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
@@ -211,8 +212,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				}
 				//
 				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
-				if (!ObjectUtils.isEmpty(permission) && ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType().getType() != null) {
-					predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permission));
+				BasePermission[] permissions = PermissionUtils.trimNull(permission);
+				if (!ObjectUtils.isEmpty(permissions) && (AbstractReadDtoService.this instanceof AuthorizableService)) {					
+					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
+					if (authorizableType != null && authorizableType.getType() != null) {					
+						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permissions));
+					}
 				}
 				//
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
@@ -345,8 +350,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			modelMapper.map(dto, entity);
 			return entity;
 		}
-		E createdEntity = modelMapper.map(dto, entityClass);
-		return createdEntity;
+		return modelMapper.map(dto, entityClass);
 	}
 	
 	@Override
@@ -363,11 +367,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			return null;
 		}
 		//
-		if (!ObjectUtils.isEmpty(permission) 
-				&& this instanceof AuthorizableService 
-				&& ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType().getType() != null
-				&& !getAuthorizationManager().evaluate(entity, permission)) {
-			throw new ForbiddenEntityException(entity.getId());
+		if (this instanceof AuthorizableService) {
+			AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
+			if (authorizableType != null && authorizableType.getType() != null) {
+				BasePermission[] permissions = PermissionUtils.trimNull(permission);
+				if (!ObjectUtils.isEmpty(permissions) && !getAuthorizationManager().evaluate(entity, permissions)) {
+					throw new ForbiddenEntityException(entity.getId(), permissions);
+				}
+			}
 		}
 		return entity;
 	}

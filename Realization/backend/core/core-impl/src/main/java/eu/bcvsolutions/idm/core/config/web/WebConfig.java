@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.config.web;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
@@ -10,12 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
-import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.rest.webmvc.json.DomainObjectReader;
-import org.springframework.data.rest.webmvc.mapping.Associations;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
@@ -36,7 +29,8 @@ import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
 /**
- * Web configurations - we are reusing spring data rest web configuration
+ * Web configurations - we are reusing spring data rest web configuration,
+ * but rest endpoins are exposed ourself
  * 
  * TODO: its not only web configuration ...
  * 
@@ -46,9 +40,6 @@ import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 @Configuration
 @AutoConfigureAfter({ CoreFlywayConfig.class })
 public class WebConfig extends RepositoryRestMvcConfiguration {
-
-	@PersistenceContext
-	private EntityManager entityManager;
 
 	@Bean
 	public FilterRegistrationBean corsFilter() {
@@ -127,11 +118,16 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	 * autowire without qualifier
 	 */
 	@Bean
-	@Primary
-	Validator validator() {
+	LocalValidatorFactoryBean validatorFactory() {
 		return new LocalValidatorFactoryBean();
 	}
 
+	@Bean
+	@Primary
+	Validator validator() {
+		return validatorFactory();
+	}
+	
 	/**
 	 * Adds joda time json module
 	 */
@@ -142,30 +138,6 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		return mapper;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.data.rest.webmvc.config.
-	 * RepositoryRestMvcConfiguration
-	 * #configureRepositoryRestConfiguration(org.springframework.data.rest.core.
-	 * config.RepositoryRestConfiguration)
-	 */
-	@Override
-	protected void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-		// we like ids ...
-		entityManager.getMetamodel().getEntities().forEach(entityType -> {
-			config.exposeIdsFor(entityType.getJavaType());
-		});
-		// conventional base api endpoint. TODO: define version here?
-		config.setBasePath(BaseDtoController.BASE_PATH);
-		// it will be usefull for some clients (e.g. for putting new / updated
-		// resource to client storage - redux etc.)
-		config.setReturnBodyForPutAndPost(Boolean.TRUE);
-		// Only repositories annotated with @(Repository)RestResource are
-		// exposed, unless their exported flag is set to false.
-		config.setRepositoryDetectionStrategy(RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED);
-	}
-
 	/**
 	 * JSR-303 only for now
 	 */
@@ -174,14 +146,5 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		Validator validator = validator();
 		validatingListener.addValidator("beforeCreate", validator);
 		validatingListener.addValidator("beforeSave", validator);
-	}
-
-	/**
-	 * We want to assemble embedded object to not exported repositories too.
-	 */
-	@Bean
-	@Override
-	public Associations associationLinks() {
-		return new NotExportedAssociations(resourceMappings(), config());
 	}
 }

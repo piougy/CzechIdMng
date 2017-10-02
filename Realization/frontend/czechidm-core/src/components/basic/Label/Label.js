@@ -22,8 +22,9 @@ class Label extends AbstractComponent {
   }
 
   render() {
-    const { level, title, text, className, icon, rendered, showLoading, ...others } = this.props;
-    if (!rendered || !text) {
+    const { level, title, text, value, className, icon, rendered, showLoading, ...others } = this.props;
+    const _text = text || value;
+    if (!rendered || !_text) {
       return null;
     }
     const classNames = classnames(
@@ -32,13 +33,13 @@ class Label extends AbstractComponent {
       className
     );
     return (
-      <span className={classNames} {...others}>
+      <span className={classNames} title={title} {...others}>
         {
           showLoading
           ?
           <Icon type="fa" icon="refresh" showLoading/>
           :
-          text
+          _text
         }
       </span>
     );
@@ -54,7 +55,11 @@ Label.propTypes = {
   /**
    * Label text content
    */
-  text: PropTypes.string
+  text: PropTypes.string,
+  /**
+   * Label text content (text alias - text has higher priority)
+   */
+  value: PropTypes.string
 };
 
 Label.defaultProps = {

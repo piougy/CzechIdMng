@@ -20,9 +20,6 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -68,7 +65,6 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	private int priority = 0;
 
 	@Audited
-	@NotNull
 	@Column(name = "approve_remove", nullable = false)
 	private boolean approveRemove = false;
 	
@@ -76,26 +72,22 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
-	
-	@JsonManagedReference
+
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> subRoles;
 	
-	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> superiorRoles;
-	
-	@JsonManagedReference
+
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleGuarantee> guarantees;
-	
-	@JsonManagedReference
+
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	

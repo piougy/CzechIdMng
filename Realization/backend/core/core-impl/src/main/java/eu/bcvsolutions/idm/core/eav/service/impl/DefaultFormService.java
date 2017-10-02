@@ -1,9 +1,8 @@
-	package eu.bcvsolutions.idm.core.eav.service.impl;
+package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,21 +18,20 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.Lists;
-
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.FormValueService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 
 /**
  * Work with form definitions, attributes and their values
@@ -46,7 +44,7 @@ public class DefaultFormService implements FormService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormService.class);
 	private final IdmFormDefinitionService formDefinitionService;
 	private final IdmFormAttributeService formAttributeService;
-	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
+	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
 	private final EntityEventManager entityEventManager;
 	private final LookupService lookupService;
 	
@@ -54,7 +52,7 @@ public class DefaultFormService implements FormService {
 	public DefaultFormService(
 			IdmFormDefinitionService formDefinitionService,
 			IdmFormAttributeService formAttributeService,
-			List<? extends FormValueService<?, ?>> formValueServices,
+			List<? extends FormValueService<?>> formValueServices,
 			EntityEventManager entityEventManager,
 			LookupService lookupService) {
 		Assert.notNull(formDefinitionService);
@@ -72,19 +70,19 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition getDefinition(String type) {
+	public IdmFormDefinitionDto getDefinition(String type) {
 		return this.getDefinition(type, null);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmFormDefinition> getDefinitions(String type) {
+	public List<IdmFormDefinitionDto> getDefinitions(String type) {
 		return formDefinitionService.findAllByType(type);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition getDefinition(String type, String code) {
+	public IdmFormDefinitionDto getDefinition(String type, String code) {
 		if (StringUtils.isEmpty(code)) {
 			formDefinitionService.findOneByMain(type);
 		}
@@ -93,73 +91,118 @@ public class DefaultFormService implements FormService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass) {
-		return getDefinition(ownerClass, null);		
+	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerType) {
+		return getDefinition(ownerType, null);		
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmFormDefinition> getDefinitions(Class<? extends FormableEntity> ownerClass) {
-		return getDefinitions(getDefaultDefinitionType(ownerClass));	
+	public List<IdmFormDefinitionDto> getDefinitions(Class<? extends Identifiable> ownerType) {
+		return getDefinitions(getDefaultDefinitionType(ownerType));	
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String code) {
-		Assert.notNull(ownerClass, "Owner class is required!");
+	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerType, String code) {
+		Assert.notNull(ownerType, "Owner type is required!");
 		//
-		return getDefinition(getDefaultDefinitionType(ownerClass), code);
+		return getDefinition(getDefaultDefinitionType(ownerType), code);
 	}
 	
 	/**
 	 * Return default form definition, if no definition was given. Returns given definition otherwise.
 	 * 
-	 * @param ownerClass
-	 * @param definition
+	 * @param ownerType
+	 * @param formDefinitionId
 	 * @return
 	 * @throws IllegalArgumentException if default definition does not exist and no definition was given.
 	 */
-	private IdmFormDefinition checkDefaultDefinition(Class<? extends FormableEntity> ownerClass, IdmFormDefinition formDefinition) {
+	private UUID checkDefaultDefinition(Class<? extends Identifiable> ownerType, UUID formDefinitionId) {
+		if (formDefinitionId != null) {
+			return formDefinitionId;
+		}
+		// values from default form definition
+		return checkDefaultDefinition(ownerType, (IdmFormDefinitionDto) null).getId();
+	}
+	
+	/**
+	 * Return default form definition, if no definition was given. Returns given definition otherwise.
+	 * 
+	 * @param ownerType
+	 * @param formDefinition
+	 * @return
+	 * @throws IllegalArgumentException if default definition does not exist and no definition was given.
+	 */
+	private IdmFormDefinitionDto checkDefaultDefinition(Class<? extends Identifiable> ownerType, IdmFormDefinitionDto formDefinition) {
 		if (formDefinition == null) {
 			// values from default form definition
-			formDefinition = getDefinition(ownerClass);
-			Assert.notNull(formDefinition, MessageFormat.format("Default form definition for ownerClass [{0}] not found and is required, fix application configuration!", ownerClass));
+			formDefinition = getDefinition(ownerType);
+			Assert.notNull(formDefinition, MessageFormat.format("Default form definition for ownerType [{0}] not found and is required, fix application configuration!", ownerType));
 		}
 		return formDefinition;
 	}
 
 	@Override
-	public String getDefaultDefinitionType(Class<? extends FormableEntity> ownerClass) {
-		Assert.notNull(ownerClass, "Owner class is required!");
-		//
-		return ownerClass.getCanonicalName();
+	public String getDefaultDefinitionType(Class<? extends Identifiable> ownerType) {
+		// dto class was given
+		Class<? extends FormableEntity> ownerEntityType = getFormableOwnerType(ownerType);
+		if (ownerEntityType == null) {
+			throw new IllegalArgumentException(String.format("Owner type [%s] has to generatize [FormableEntity]", ownerType));
+		}
+		return ownerEntityType.getCanonicalName();
+	}
+	
+	@Override
+	public boolean isFormable(Class<? extends Identifiable> ownerType) {
+		return getFormableOwnerType(ownerType) != null;
+	}
+	
+	/**
+	 * Returns {@link FormableEntity}
+	 * 
+	 * @param ownerType
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Class<? extends FormableEntity> getFormableOwnerType(Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerType, "Owner type is required!");
+		// formable entity class was given
+		if (FormableEntity.class.isAssignableFrom(ownerType)) {
+			return (Class<? extends FormableEntity>) ownerType;
+		}
+		// dto class was given
+		Class<?> ownerEntityType = lookupService.getEntityClass(ownerType);
+		if (FormableEntity.class.isAssignableFrom(ownerEntityType)) {
+			return (Class<? extends FormableEntity>) ownerEntityType;
+		}
+		return null;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormAttribute getAttribute(Class<? extends FormableEntity> ownerClass, String attributeCode) {
-		Assert.notNull(ownerClass, "Owner class is required!");
+	public IdmFormAttributeDto getAttribute(Class<? extends Identifiable> ownerType, String attributeCode) {
+		Assert.notNull(ownerType, "Owner type is required!");
 		Assert.hasLength(attributeCode, "Form attribute code is required!");
 		//
-		IdmFormDefinition mainDefinition = getDefinition(ownerClass);
+		IdmFormDefinitionDto mainDefinition = getDefinition(ownerType);
 		Assert.notNull(mainDefinition, "Main definition is required!");
 		//
-		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerClass), mainDefinition.getCode(), attributeCode);
+		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerType), mainDefinition.getCode(), attributeCode);
 	}
 	
 	@Override
 	@Transactional
-	public IdmFormDefinition saveDefinition(IdmFormDefinition formDefinition) {
+	public IdmFormDefinitionDto saveDefinition(IdmFormDefinitionDto formDefinition) {
 		return formDefinitionService.save(formDefinition);
 	}
 	
 	@Override
 	@Transactional
-	public IdmFormDefinition createDefinition(String type, String code, List<IdmFormAttribute> formAttributes) {
+	public IdmFormDefinitionDto createDefinition(String type, String code, List<IdmFormAttributeDto> formAttributes) {
 		Assert.hasLength(type);
 		//
 		// create definition
-		IdmFormDefinition formDefinition = new  IdmFormDefinition();
+		IdmFormDefinitionDto formDefinition = new IdmFormDefinitionDto();
 		formDefinition.setType(type);	
 		formDefinition.setCode(code);
 		formDefinition = formDefinitionService.save(formDefinition);
@@ -167,14 +210,15 @@ public class DefaultFormService implements FormService {
 		// and their attributes
 		if (formAttributes != null) {
 			Short seq = 0;
-			for (IdmFormAttribute formAttribute : formAttributes) {
+			for (IdmFormAttributeDto formAttribute : formAttributes) {
 				// default attribute order
 				if (formAttribute.getSeq() == null) {
 					formAttribute.setSeq(seq);
 					seq++;
 				}
-				formAttribute.setFormDefinition(formDefinition);
-				formDefinition.addFormAttribute(formAttributeService.save(formAttribute));
+				formAttribute.setFormDefinition(formDefinition.getId());
+				formAttribute = formAttributeService.save(formAttribute);
+				formDefinition.addFormAttribute(formAttribute);
 			}
 		}
 		return formDefinition;
@@ -182,42 +226,44 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
-	public IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, List<IdmFormAttribute> formAttributes) {
-		Assert.notNull(ownerClass, "Owner class is required!");
+	public IdmFormDefinitionDto createDefinition(Class<? extends Identifiable> ownerType, List<IdmFormAttributeDto> formAttributes) {
+		Assert.notNull(ownerType, "Owner type is required!");
 		//
-		return createDefinition(getDefaultDefinitionType(ownerClass), null, formAttributes);
+		return createDefinition(getDefaultDefinitionType(ownerType), null, formAttributes);
 	}
 
 	@Override
 	@Transactional
-	public IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, String name,
-			List<IdmFormAttribute> formAttributes) {
-		Assert.notNull(ownerClass, "Owner class is required!");
+	public IdmFormDefinitionDto createDefinition(Class<? extends Identifiable> ownerType, String name,
+			List<IdmFormAttributeDto> formAttributes) {
+		Assert.notNull(ownerType, "Owner type is required!");
 		//
-		return createDefinition(getDefaultDefinitionType(ownerClass), name, formAttributes);
+		return createDefinition(getDefaultDefinitionType(ownerType), name, formAttributes);
 	}
 	
 	@Override
 	@Transactional
-	public IdmFormAttribute saveAttribute(IdmFormAttribute attribute) {
+	public IdmFormAttributeDto saveAttribute(IdmFormAttributeDto attribute) {
 		Assert.notNull(attribute);
-		IdmFormDefinition definition = attribute.getFormDefinition();
-		Assert.notNull(definition, String.format("Form definition for attribute [%s] is required!", attribute.getCode()));
+		Assert.notNull(attribute.getFormDefinition(), String.format("Form definition for attribute [%s] is required!", attribute.getCode()));
 		//
-		IdmFormAttribute ret = formAttributeService.save(attribute);
-		definition.addFormAttribute(ret);
-		formDefinitionService.save(definition);
-		return ret;
+		return formAttributeService.save(attribute);
 	}
 	
 	@Override
 	@Transactional
-	public IdmFormAttribute saveAttribute(Class<? extends FormableEntity> ownerClass, IdmFormAttribute attribute) {
+	public IdmFormAttributeDto saveAttribute(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute) {
 		Assert.notNull(attribute);
-		IdmFormDefinition definition = checkDefaultDefinition(ownerClass, attribute.getFormDefinition());
-		attribute.setFormDefinition(definition);
+		attribute.setFormDefinition(checkDefaultDefinition(ownerType, attribute.getFormDefinition()));
 		//
 		return saveAttribute(attribute);
+	}
+	
+	@Override
+	@Transactional
+	public List<IdmFormValueDto> saveValues(
+			Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
+		return saveFormInstance(owner, formDefinition, values).getValues();
 	}
 	
 	/**
@@ -227,29 +273,31 @@ public class DefaultFormService implements FormService {
 	 */
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
-		Assert.notNull(owner, "Form values owner is required!");
+	public IdmFormInstanceDto saveFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
+		FormableEntity ownerEntity = getOwnerEntity(owner);
 		Assert.notNull(values, "Form values are required!");
-		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
+		Assert.notNull(ownerEntity, "Form values owner is required!");
+		formDefinition = checkDefaultDefinition(ownerEntity.getClass(), formDefinition);
 		//
-		FormValueService<O, E> formValueService = getFormValueService(owner);
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
 		//
-		Map<UUID, E> previousValues = new HashMap<>();
-		formValueService.getValues(owner, formDefinition).forEach(formValue -> {
+		Map<UUID, IdmFormValueDto> previousValues = new HashMap<>();
+	
+		formValueService.getValues(ownerEntity, formDefinition).forEach(formValue -> {
 			previousValues.put(formValue.getId(), formValue);
 		});
 		//
-		List<E> results = new ArrayList<>();
-		for (E value : values) {
+		List<IdmFormValueDto> results = new ArrayList<>();
+		for (IdmFormValueDto value : values) {
 			// value could contant attribute id only
-			IdmFormAttribute attributeId = value.getFormAttribute();
+			UUID attributeId = value.getFormAttribute();
 			Assert.notNull(attributeId, "Form attribute is required");
-			IdmFormAttribute attribute = formDefinition.getMappedAttribute(attributeId.getId());
+			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(attributeId);
 			Assert.notNull(attribute, "Form attribute is required");
 			// 
-			value.setOwnerAndAttribute(owner, attribute);
+			value.setOwnerAndAttribute(ownerEntity, attribute);
 			//
-			E previousValue = value.getId() == null ? null :previousValues.get(value.getId());
+			IdmFormValueDto previousValue = value.getId() == null ? null : previousValues.get(value.getId());
 			if (previousValue != null) {
 				// saved values will not be removed
 				previousValues.remove(value.getId());
@@ -258,12 +306,12 @@ public class DefaultFormService implements FormService {
 				if (value.isConfidential() || !value.isEquals(previousValue)) {
 					// update value
 					results.add(formValueService.save(value));
-					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(), owner);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(), ownerEntity);
 				}
 			} else {
 				// create new value
 				results.add(formValueService.save(value));
-				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(), owner);
+				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(), ownerEntity);
 			}
 		}
 		//
@@ -275,33 +323,32 @@ public class DefaultFormService implements FormService {
 				return !formValue.isConfidential();
 			})
 			.forEach(value -> {
-				formValueService.deleteValue(value);
-				LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", value.getFormAttribute().getCode(), value.getId(), owner);
+				formValueService.delete(value);
+				LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", value.getFormAttribute(), value.getId(), ownerEntity);
 			});
 		//
 		// publish event - eav was saved
-		// TODO: this whole method could be moved to processor (=> could be overriden in some module)
-		if(lookupService.getDtoLookup(owner.getClass()) == null) {
+		if(lookupService.getDtoLookup(ownerEntity.getClass()) == null) {
 			// TODO: remove this branch after all agends will be rewritten to dto usage
-			entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner));
+			entityEventManager.process(new CoreEvent<>(CoreEventType.EAV_SAVE, ownerEntity));
 		} else {
-			// dto
-			entityEventManager.process(new CoreEvent<>(CoreEventType.EAV_SAVE, lookupService.lookupDto(owner.getClass(), owner.getId()))); 
+			entityEventManager.process(new CoreEvent<>(CoreEventType.EAV_SAVE, lookupService.lookupDto(ownerEntity.getClass(), ownerEntity.getId())));
 		}
-		return results;
+		//
+		return new IdmFormInstanceDto(ownerEntity, formDefinition, results);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			O owner, String attributeName, List<Serializable> persistentValues) {
+	public List<IdmFormValueDto> saveValues(
+			Identifiable owner, String attributeName, List<Serializable> persistentValues) {
 		return saveValues(owner, null, attributeName, persistentValues);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			O owner, IdmFormDefinition formDefinition, String attributeCode, List<Serializable> persistentValues) {
+	public List<IdmFormValueDto> saveValues(
+			Identifiable owner, IdmFormDefinitionDto formDefinition, String attributeCode, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.hasLength(attributeCode, "Form attribute code is required!");
@@ -312,42 +359,43 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			UUID ownerId, Class<O> ownerType, IdmFormAttribute attribute, List<Serializable> persistentValues) {
-		return saveValues(getOwner(ownerId, ownerType), attribute, persistentValues);
+	public List<IdmFormValueDto> saveValues(
+			UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, List<Serializable> persistentValues) {
+		return saveValues(getOwnerEntity(ownerId, ownerType), attribute, persistentValues);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			O owner, IdmFormAttribute attribute, List<Serializable> persistentValues) {
+	public List<IdmFormValueDto> saveValues(Identifiable owner, IdmFormAttributeDto attribute, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.notNull(attribute, "Form attribute definition is required!");
+		FormableEntity ownerEntity = getOwnerEntity(owner);
+		IdmFormDefinitionDto formDefinition = formDefinitionService.get(attribute.getFormDefinition());
 		//
 		if (persistentValues == null || persistentValues.isEmpty()) {
 			// delete previous attributes
-			deleteValues(owner, attribute);
-			return Collections.<E>emptyList();
+			deleteValues(ownerEntity, attribute);
+			return null;
 		}
 		if (!attribute.isMultiple() && persistentValues.size() > 1) {
 			throw new IllegalArgumentException(MessageFormat.format("Form attribute [{0}:{1}] does not support multivalue, sent [{2}] values.", 
-					attribute.getFormDefinition().getCode(), attribute.getCode(), persistentValues.size()));
+					formDefinition.getCode(), attribute.getCode(), persistentValues.size()));
 		}
 
-		FormValueService<O, E> formValueService = getFormValueService(owner);
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
 		
 		// get old values
-		List<E> values = formValueService.getValues(owner, attribute);
+		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, attribute);
 		
 		// size isn't same drop and create
 		if (values.size() != persistentValues.size()) {
 			deleteValues(owner, attribute);
 			// create
-			List<E> results = new ArrayList<>();
+			List<IdmFormValueDto> results = new ArrayList<>();
 			for (short seq = 0; seq < persistentValues.size(); seq++) {
-				E value = formValueService.newValue();
-				value.setOwnerAndAttribute(owner, attribute);
+				IdmFormValueDto value = new IdmFormValueDto();
+				value.setOwnerAndAttribute(ownerEntity, attribute);
 				//
 				value.setValue(persistentValues.get(seq));
 				value.setSeq(seq);
@@ -358,10 +406,10 @@ public class DefaultFormService implements FormService {
 		}
 		
 		// compare values
-		List<E> results = new ArrayList<>();
-		for (E value : values) {
-			E newValue = formValueService.newValue();
-			newValue.setOwnerAndAttribute(owner, attribute);
+		List<IdmFormValueDto> results = new ArrayList<>();
+		for (IdmFormValueDto value : values) {
+			IdmFormValueDto newValue = new IdmFormValueDto();
+			newValue.setOwnerAndAttribute(ownerEntity, attribute);
 			Serializable serializableValue = persistentValues.get(value.getSeq());
 			newValue.setValue(serializableValue);
 			
@@ -375,63 +423,80 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId,
-			Class<O> ownerType, IdmFormDefinition formDefinition, String attributeName,
+	public List<IdmFormValueDto> saveValues(
+			UUID ownerId, 
+			Class<? extends Identifiable> ownerType, 
+			IdmFormDefinitionDto formDefinition, 
+			String attributeName,
 			List<Serializable> persistentValues) {
-		return saveValues(getOwner(ownerId, ownerType), formDefinition, attributeName, persistentValues);
+		return saveValues(getOwnerEntity(ownerId, ownerType), formDefinition, attributeName, persistentValues);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition, List<E> values) {
-		return saveValues(getOwner(ownerId, ownerType), formDefinition, values);
+	public List<IdmFormValueDto> saveValues(UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
+		return saveValues(getOwnerEntity(ownerId, ownerType), formDefinition, values);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			UUID ownerId, Class<O> ownerType, String attributeName, List<Serializable> persistentValues) {
-		return saveValues(getOwner(ownerId, ownerType), attributeName, persistentValues);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner) {		
-		return getValues(owner, (IdmFormDefinition) null);
+	public List<IdmFormValueDto> saveValues(
+			UUID ownerId, Class<? extends Identifiable> ownerType, String attributeName, List<Serializable> persistentValues) {
+		return saveValues(getOwnerEntity(ownerId, ownerType), attributeName, persistentValues);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition) {
+	public List<IdmFormValueDto> getValues(Identifiable owner) {		
+		return getValues(owner, (IdmFormDefinitionDto) null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormValueDto> getValues(Identifiable owner, IdmFormDefinitionDto formDefinition) {
+		return getFormInstance(owner, formDefinition).getValues();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormInstanceDto getFormInstance(Identifiable owner) {		
+		return getFormInstance(owner, (IdmFormDefinitionDto) null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
+		FormableEntity ownerEntity = getOwnerEntity(owner);
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
-		FormValueService<O, ?> formValueService = getFormValueService(owner);
+		FormValueService<FormableEntity> formValueService = getFormValueService(owner);
 		//
-		return Lists.newArrayList(formValueService.getValues(owner, formDefinition));
+		return new IdmFormInstanceDto(ownerEntity, formDefinition, formValueService.getValues(ownerEntity, formDefinition));
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormAttribute attribute) {
+	public List<IdmFormValueDto> getValues(Identifiable owner, IdmFormAttributeDto attribute) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.notNull(attribute, "Form attribute definition is required!");
 		//
-		FormValueService<O, ?> formValueService = getFormValueService(owner);
-		return Lists.newArrayList(formValueService.getValues(owner, attribute));
+		FormableEntity ownerEntity = getOwnerEntity(owner);
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
+		return formValueService.getValues(ownerEntity, attribute);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, String attributeName) {
-		return getValues(owner, null, attributeName);
+	public List<IdmFormValueDto> getValues(Identifiable owner, String attributeCode) {
+		return getValues(owner, null, attributeCode);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeCode) {
+	public List<IdmFormValueDto> getValues(Identifiable owner, IdmFormDefinitionDto formDefinition, String attributeCode) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.hasLength(attributeCode, "Attribute code is required");
@@ -442,186 +507,116 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType) {
-		return getValues(getOwner(ownerId, ownerType));
+	public List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType) {
+		return getValues(getOwnerEntity(ownerId, ownerType));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType,
-			IdmFormDefinition formDefinition) {
-		return getValues(getOwner(ownerId, ownerType), formDefinition);
+	public List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType,
+			IdmFormDefinitionDto formDefinition) {
+		return getValues(getOwnerEntity(ownerId, ownerType), formDefinition);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType,
-			IdmFormDefinition formDefinition, String attributeName) {
-		return getValues(getOwner(ownerId, ownerType), formDefinition, attributeName);
+	public List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType,
+			IdmFormDefinitionDto formDefinition, String attributeName) {
+		return getValues(getOwnerEntity(ownerId, ownerType), formDefinition, attributeName);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType,
-			IdmFormAttribute attribute) {
-		return getValues(getOwner(ownerId, ownerType), attribute);
+	public List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType,
+			IdmFormAttributeDto attribute) {
+		return getValues(getOwnerEntity(ownerId, ownerType), attribute);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType,
-			String attributeName) {
-		return getValues(getOwner(ownerId, ownerType), attributeName);
+	public List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType, String attributeName) {
+		return getValues(getOwnerEntity(ownerId, ownerType), attributeName);
 	}
 	
 	@Override
 	@Transactional
-	public void deleteAttribute(IdmFormAttribute attribute) {
+	public void deleteAttribute(IdmFormAttributeDto attribute) {
 		formAttributeService.delete(attribute);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity> void deleteValues(O owner) {
-		deleteValues(owner, (IdmFormDefinition) null);
+	public void deleteValues(Identifiable owner) {
+		deleteValues(owner, (IdmFormDefinitionDto) null);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity> void deleteValues(O owner, IdmFormDefinition formDefinition) {
+	public void deleteValues(Identifiable owner, IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
+		FormableEntity ownerEntity = getOwnerEntity(owner);
 		//
-		FormValueService<O, ?> formValueService = getFormValueService(owner);
-		formValueService.deleteValues(owner, formDefinition);
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
+		formValueService.deleteValues(ownerEntity, formDefinition);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity> void deleteValues(O owner, IdmFormAttribute attribute) {
+	public void deleteValues(Identifiable owner, IdmFormAttributeDto attribute) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.notNull(attribute, "Form attribute definition is required!");
 		//
-		FormValueService<O, ?> formValueService = getFormValueService(owner);
-		formValueService.deleteValues(owner, attribute);
+		FormableEntity ownerEntity = getOwnerEntity(owner);
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
+		formValueService.deleteValues(ownerEntity, attribute);
 	}
 	
 	@Override
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> Map<String, List<E>> toValueMap(final List<E> values) {
-		Assert.notNull(values);
-		//
-		Map<String, List<E>> results = new HashMap<>();
-		for(E value : values) {
-			String key = value.getFormAttribute().getCode();
-			if (!results.containsKey(key)) {
-				results.put(key, new ArrayList<>());
-			}
-			results.get(key).add(value);
-		}
-		
-		return results;
-	}
-	
-	/**
-	 * Returns raw FormValue values as map, where key is attribute name
-	 * 
-	 * @param values
-	 * @return
-	 */
-	@Override
-	public Map<String, List<Serializable>> toPersistentValueMap(final List<AbstractFormValue<FormableEntity>> values) {
-		Assert.notNull(values);
-		//
-		Map<String, List<Serializable>> results = new HashMap<>();
-		for(AbstractFormValue<?> value : values) {
-			String key = value.getFormAttribute().getCode();
-			if (!results.containsKey(key)) {
-				results.put(key, new ArrayList<>());
-			}
-			results.get(key).add(value.getValue());
-		}
-		
-		return results;
-	}
-	
-	/**
-	 * Returns raw values - usable for single multi attribute values
-	 * 
-	 * @param values
-	 * @return
-	 */
-	@Override
-	public List<Serializable> toPersistentValues(final List<AbstractFormValue<FormableEntity>> values) {
-		Assert.notNull(values);
-		//
-		return values.stream()
-				.map(value -> {
-					return value.getValue();
-					})
-				.collect(Collectors.toList());
-	}
-	
-	/**
-	 * Returns single FormValue by persistent type - usable for single attribute value
-	 * 
-	 * @see {@link PersistentType}
-	 * @param values
-	 * @return
-	 * @throws IllegalArgumentException if attributte has multi values
-	 */
-	@Override
-	public Serializable toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values) {
-		Assert.notNull(values);
-		if (values.size() > 1) {
-			throw new IllegalArgumentException(MessageFormat.format("Attribute [{}] has mutliple values [{}]", values.get(0).getFormAttribute().getCode(), values.size()));
-		}
-		return values.get(0).getValue();
-	}
-	
-	@Override
-	public String getConfidentialStorageKey(FormableEntity owner, IdmFormAttribute attribute) {
+	public String getConfidentialStorageKey(Identifiable owner, IdmFormAttributeDto attribute) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.notNull(attribute, "Form attribute is required!");
 		//
-		FormValueService<FormableEntity, ?> formValueService = getFormValueService(owner);
-		String key = formValueService.getConfidentialStorageKey(attribute);
+		FormValueService<FormableEntity> formValueService = getFormValueService(owner);
+		String key = formValueService.getConfidentialStorageKey(attribute.getId());
 		LOG.debug("Confidential storage key for attribute [{}] is [{}].", attribute.getCode(), key);
 		return key;
 	}
 	
 	@Override
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> Serializable getConfidentialPersistentValue(E guardedValue) {
+	public Serializable getConfidentialPersistentValue(IdmFormValueDto guardedValue) {
 		Assert.notNull(guardedValue);
-		Assert.notNull(guardedValue.getOwner());
+		Assert.notNull(guardedValue.getOwnerId());
 		//
-		FormValueService<O, E> formValueService = getFormValueService(guardedValue.getOwner());
+		FormableEntity ownerEntity = getOwnerEntity(guardedValue.getOwnerId(), guardedValue.getOwnerType());
+		FormValueService<?> formValueService = getFormValueService(ownerEntity);
 		return formValueService.getConfidentialPersistentValue(guardedValue);
 	}
 	
 	@Override
-	@SuppressWarnings({ "unchecked" })
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, IdmFormAttribute attribute, Serializable persistentValue, Pageable pageable) {
-		Assert.notNull(ownerClass, "Owner class is required!");
+	@SuppressWarnings("unchecked")
+	public <O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
+		Assert.notNull(ownerType, "Owner type is required!");
 		Assert.notNull(attribute, "Form attribute is required!");
 		if (attribute.isConfidential()) {
 			throw new UnsupportedOperationException(MessageFormat.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getCode()));
 		}
 		//
-		FormValueService<O, ?> formValueService = (FormValueService<O, ?>)formValueServices.getPluginFor(ownerClass);
+		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
 		//
 		return formValueService.findOwners(attribute, persistentValue, pageable);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, String attributeName, Serializable persistentValue, Pageable pageable) {
-		IdmFormAttribute attribute = getAttribute(ownerClass, attributeName);
-		Assert.notNull(attribute, MessageFormat.format("Attribute [{0}] does not exist in default form definition for owner [{1}]", attributeName, ownerClass));
+	public <O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable) {
+		IdmFormAttributeDto attribute = getAttribute(ownerType, attributeName);
+		Assert.notNull(attribute, MessageFormat.format("Attribute [{0}] does not exist in default form definition for owner [{1}]", attributeName, ownerType));
 		//
-		return findOwners(ownerClass, attribute, persistentValue, pageable);
+		return findOwners(ownerType, attribute, persistentValue, pageable);
 	}
 	
 	@Override
@@ -644,12 +639,28 @@ public class DefaultFormService implements FormService {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked" })
-	private <O extends FormableEntity, E extends AbstractFormValue<O>> FormValueService<O, E> getFormValueService(O owner) {
-		FormValueService<O, E> formValueService = (FormValueService<O, E>)formValueServices.getPluginFor(owner.getClass());
+	private <O extends FormableEntity> FormValueService<O> getFormValueService(Identifiable owner) {
+		O ownerEntity = getOwnerEntity(owner);
+		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(ownerEntity.getClass());
 		if (formValueService == null) {
-			throw new IllegalStateException(MessageFormat.format("FormValueService for class [{0}] not found, please check configuration", owner.getClass()));
+			throw new IllegalStateException(MessageFormat.format("FormValueService for class [{0}] not found, please check configuration", ownerEntity.getClass()));
 		}
 		return formValueService;
+	}
+	
+	/**
+	 * 
+	 * @param owner
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private <O extends FormableEntity> O getOwnerEntity(Identifiable owner) {
+		Assert.notNull(owner, "Form values owner instance is required!");
+		if(owner instanceof FormableEntity) {
+			return (O) owner;
+		}
+		//
+		return getOwnerEntity(owner.getId(), owner.getClass());
 	}
 	
 	/**
@@ -660,7 +671,7 @@ public class DefaultFormService implements FormService {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private <O extends FormableEntity> O getOwner(UUID ownerId, Class<O> ownerType) {
+	private <O extends FormableEntity> O getOwnerEntity(Serializable ownerId, Class<? extends Identifiable> ownerType) {
 		Assert.notNull(ownerId, "Form values owner id is required!");
 		Assert.notNull(ownerType, "Form values owner type is required!");
 		O owner =  (O) lookupService.lookupEntity(ownerType, ownerId);

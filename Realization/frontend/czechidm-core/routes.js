@@ -124,7 +124,7 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./src/content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+      access: [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREENODE_TYPE', 'TREENODE_READ'] } ]
     },
     {
       path: 'tree',
@@ -159,7 +159,7 @@ module.exports = {
         {
           path: 'nodes/:entityId/new',
           component: require('./src/content/tree/node/NodeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_CREATE'] } ]
         },
         {
           path: 'types',
@@ -185,8 +185,20 @@ module.exports = {
     },
     {
       path: 'role-catalogue/:entityId',
-      component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
+      component: require('./src/content/rolecatalogue/RoleCatalogue'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'role-catalogue/:entityId/new',
+      component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_CREATE'] } ],
     },
     {
       path: 'roles',
@@ -200,11 +212,13 @@ module.exports = {
     },
     {
       path: 'role-requests/:entityId/detail',
-      component: require('./src/content/requestrole/RoleRequestDetail')
+      component: require('./src/content/requestrole/RoleRequestDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
     },
     {
       path: 'role-requests/:entityId/new',
-      component: require('./src/content/requestrole/RoleRequestDetail')
+      component: require('./src/content/requestrole/RoleRequestDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_CREATE'] } ]
     },
     {
       path: 'role/:entityId/',
@@ -341,30 +355,30 @@ module.exports = {
     },
     {
       path: 'forms',
-      component: require('./src/content/form/Forms'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ]
+      component: require('./src/content/form/FormDefinitions'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
     },
     {
       path: 'forms/',
-      component: require('./src/content/form/FormRoutes'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ],
+      component: require('./src/content/form/FormDefinitionRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ],
       childRoutes: [
         {
           path: ':entityId/detail',
-          component: require('./src/content/form/FormDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ]
+          component: require('./src/content/form/FormDefinitionDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
         },
         {
           path: ':entityId/attributes',
           component: require('./src/content/form/FormAttributes'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
         }
       ]
     },
     {
       path: 'forms/attribute/:entityId',
       component: require('./src/content/form/FormAttributeDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
     },
     {
       path: 'password-policies',

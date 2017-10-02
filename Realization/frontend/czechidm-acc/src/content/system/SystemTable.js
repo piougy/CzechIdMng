@@ -74,6 +74,22 @@ export class SystemTable extends Advanced.AbstractTableContent {
     });
   }
 
+  getTableButtons(showAddButton) {
+    return (
+      [
+        <Basic.Button
+          level="success"
+          key="add_button"
+          className="btn-xs"
+          onClick={this.showDetail.bind(this, { })}
+          rendered={Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton}>
+          <Basic.Icon type="fa" icon="plus"/>
+          {' '}
+          {this.i18n('button.add')}
+        </Basic.Button>
+      ]);
+  }
+
   render() {
     const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
     const { filterOpened } = this.state;
@@ -111,24 +127,11 @@ export class SystemTable extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
-              { value: 'duplicate', niceLabel: this.i18n('action.duplicate.action'), action: this.onDuplicate.bind(this), disabled: false }
+              { value: 'duplicate', niceLabel: this.i18n('action.duplicate.action'), action: this.onDuplicate.bind(this), disabled: false },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
-          buttons={
-            [
-              <Basic.Button
-                level="success"
-                key="add_button"
-                className="btn-xs"
-                onClick={this.showDetail.bind(this, { })}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
-              </Basic.Button>
-            ]
-          }
+          buttons = {this.getTableButtons(showAddButton)}
           _searchParameters={ this.getSearchParameters() }
           >
 
@@ -147,8 +150,9 @@ export class SystemTable extends Advanced.AbstractTableContent {
             sort={false}/>
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
+          <Advanced.Column property="virtual" sort face="bool" width="75px" rendered={_.includes(columns, 'virtual')}/>
+          <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
           <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
-          <Advanced.Column property="queue" header={this.i18n('acc:entity.System.queue.label')} sort face="bool" width="75px" rendered={false && _.includes(columns, 'queue')}/>
           <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>

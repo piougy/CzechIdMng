@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+
 /**
  * Long running task executor
  * 
@@ -28,15 +30,6 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	String getModule();
 	
 	/**
-	 * Returns form parameter names for this task
-	 * 
-	 * @return
-	 * @deprecated use List<String> getPropertyNames();
-	 */
-	@Deprecated
-	List<String> getParameterNames();
-	
-	/**
 	 * Returns configurable properties names for this task
 	 * 
 	 * @return
@@ -44,7 +37,8 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	List<String> getPropertyNames();
 	
 	/**
-	 * Initialize task executor before task is processed
+	 * Initialize task executor before task is processed.
+	 * Look out: init is called by scheduler with configured task properties. 
 	 * 
 	 * @param context
 	 */
@@ -129,4 +123,11 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	 * @param longRunningTask
 	 */
 	void setLongRunningTaskId(UUID taskId);
+	
+	/**
+	 * Validates task before start e.q. if task already running or to prevent run task concurrently.
+	 * 
+	 * @param task persisted task to validate
+	 */
+	void validate(IdmLongRunningTaskDto task);
 }

@@ -8,61 +8,66 @@ import org.springframework.plugin.core.Plugin;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
  * API for entity provisioning executors
+ * 
  * @author svandav
  *
  */
-public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityType>{
+public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plugin<SystemEntityType> {
 
 	/**
-	 * Do provisioning for given identity on all connected systems
+	 * Do provisioning for given dto on all connected systems
 	 * 
-	 * @param identity
+	 * @param dto
 	 */
-	void doProvisioning(ENTITY identity);
+	void doProvisioning(DTO dto);
 	
 	/**
 	 * Do provisioning for given account on connected system
 	 * 
 	 * @param account
 	 */
-	void doProvisioning(AccAccount account);
+	void doProvisioning(AccAccountDto account);
 	
 	/**
-	 * Do provisioning for given account and identity
+	 * Do provisioning for given account and dto
 	 * Emits ProvisioningEventType.START event.
 	 * 
 	 * @param account
-	 * @param identity
+	 * @param dto
 	 * @param system
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, ENTITY identity);
+	void doProvisioning(AccAccountDto account, DTO dto);
 
 	/**
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
-	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
+	 * @param dtoId - Id of dto connected to the account. Can be null, but provisioning archive will not have correct information.
 	 */
-	void doDeleteProvisioning(AccAccount account, UUID entityId);
+	void doDeleteProvisioning(AccAccountDto account, UUID dtoId);
 	
 	/**
 	 * 
 	 * Change password for selected identity accounts.
+	 * 
 	 * @param identity
 	 * @param passwordChange
+	 * @result result for each provisioned account
 	 */
-	void changePassword(ENTITY identity, PasswordChangeDto passwordChange);
+	List<OperationResult> changePassword(DTO dto, PasswordChangeDto passwordChange);
 	
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
@@ -72,10 +77,11 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param value
 	 * @param system
 	 * @param operationType
-	 * @param entity
+	 * @param dto
+	 * @result result
 	 */
-	void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
-			ProvisioningOperationType operationType, ENTITY entity);
+	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
+			ProvisioningOperationType operationType, DTO dto);
 	
 	/**
 	 * Do authenticate check for given username and password on target resource
@@ -85,18 +91,18 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param entityType
 	 * @return
 	 */
-	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system, SystemEntityType entityType);
+	IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system, SystemEntityType entityType);
 
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
 	 * 
 	 * @param account
-	 * @param identity
+	 * @param dto
 	 * @param system
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, DTO dto, SysSystemDto system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -107,14 +113,14 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @return
 	 */
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
-			List<SysRoleSystemAttribute> overloadingAttributes, SystemEntityType entityType);
+			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType);
 
 	/**
-	 * Create accounts for given entity on all systems with provisioning mapping and same entity type.
-	 * @param entity
+	 * Create accounts for given dto on all systems with provisioning mapping and same entity type.
+	 * @param dto
 	 * @param entityType
 	 */
-	void createAccountsForAllSystems(ENTITY entity);
+	void createAccountsForAllSystems(DTO dto);
 
 	/**
 	 * Do provisioning for given account and identity. For internal purpose without emit event.
@@ -124,8 +130,6 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param system
 	 * @return
 	 */
-	void doInternalProvisioning(AccAccount account, ENTITY entity);
-
-
+	void doInternalProvisioning(AccAccountDto account, DTO dto);
 
 }

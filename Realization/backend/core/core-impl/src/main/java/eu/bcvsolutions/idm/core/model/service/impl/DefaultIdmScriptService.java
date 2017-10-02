@@ -18,6 +18,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -31,13 +33,15 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassesType;
@@ -45,8 +49,6 @@ import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServiceType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServicesType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptType;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -58,11 +60,11 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  *
  */
 @Service("scriptService")
-public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, ScriptFilter>
+public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, IdmScriptFilter>
 		implements IdmScriptService {
 
-	private static final String SCRIPT_FOLDER = "idm.pub.core.script.folder";
-	private static final String SCRIPT_FILE_SUFIX = "idm.pub.core.script.fileSuffix";
+	private static final String SCRIPT_FOLDER = "idm.sec.core.script.folder";
+	private static final String SCRIPT_FILE_SUFIX = "idm.sec.core.script.fileSuffix";
 	private static final String SCRIPT_DEFAULT_BACKUP_FOLDER = "scripts/";
 	private static final String SCRIPT_DEFAULT_TYPE = "groovy";
 
@@ -108,6 +110,14 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			// throw error, or just log error and continue?
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
+	}
+	
+	@Override
+	protected Page<IdmScript> findEntities(IdmScriptFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override
@@ -206,7 +216,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			backupFolder.mkdirs();
 		}
 		//
-		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
+		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(dto.getId());
 		IdmScriptType type = dtoToType(dto, this.scriptAuthorityService.find(filter, null).getContent());
 		//

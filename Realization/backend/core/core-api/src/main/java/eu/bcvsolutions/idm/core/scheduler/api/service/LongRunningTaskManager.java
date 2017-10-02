@@ -3,11 +3,10 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.transaction.event.TransactionalEventListener;
-
-import com.google.common.annotations.Beta;
-
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Long running task administration
@@ -22,7 +21,8 @@ public interface LongRunningTaskManager {
 	void init();
 
 	/**
-	 * * Executes given task asynchronously
+	 * Executes given task asynchronously.
+	 * Created long running task instance is accessible by returned {@link LongRunningFutureTask#getExecutor()}.
 	 * 
 	 * @param <V> expected result type
 	 * @param taskExecutor
@@ -31,17 +31,8 @@ public interface LongRunningTaskManager {
 	<V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor);
 	
 	/**
-	 * Executes given inited task asynchronously. 
-	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly
-	 * 
-	 * @param futureTask
-	 */
-	@Beta
-	@TransactionalEventListener
-	<V> void executeInternal(LongRunningFutureTask<V> futureTask);
-	
-	/**
-	 * * Executes given task asynchronously
+	 * Executes given task synchronously.
+	 * Created long running task instance is accessible by returned {@link LongRunningTaskExecutor#getLongRunningTaskId()}.
 	 * 
 	 * @param <V> expected result type
 	 * @param taskExecutor
@@ -65,14 +56,47 @@ public interface LongRunningTaskManager {
 	boolean interrupt(UUID longRunningTaskId);
 	
 	/**
-	 * Executes prepared task from long running task queue
+	 * Executes all prepared tasks from long running task queue
 	 * 
 	 * @return Returns currently executed tasks
 	 */
 	List<LongRunningFutureTask<?>> processCreated();
+
+	/**
+	 * Executes prepared task by given id from long running task queue
+	 * 
+	 * @param id
+	 * @return
+	 */
+	LongRunningFutureTask<?> processCreated(UUID longRunningTaskId);
 	
 	/**
-	 * Schedule {@link #processCreated()} only
+	 * Returns long running task by id. Authorization policies are evaluated (if given).
+	 * 
+	 * @param longRunningTaskId
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	void scheduleProcessCreated();
+	IdmLongRunningTaskDto getLongRunningTask(UUID longRunningTaskId, BasePermission... permission);
+	
+	/**
+	 * Returns underlying long running task for given taskExecutor. Authorization policies are evaluated (if given).
+	 * 
+	 * @param taskExecutor
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmLongRunningTaskDto getLongRunningTask(LongRunningTaskExecutor<?> taskExecutor, BasePermission... permission);
+	
+	/**
+	 * Returns underlying long running task for given future task. Authorization policies are evaluated (if given).
+	 * 
+	 * @param futureTask
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission);
 }

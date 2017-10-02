@@ -23,9 +23,13 @@ class EnumValue extends AbstractComponent {
       return null;
     }
 
-    let content = value;
+    let content = (
+      <span>{ value }</span>
+    );
     if (value && enumClass) {
-      content = enumClass.getNiceLabel(value);
+      content = (
+        <span>{ enumClass.getNiceLabel(value) }</span>
+      );
       //
       const icon = enumClass.getIcon(value);
       if (icon) {

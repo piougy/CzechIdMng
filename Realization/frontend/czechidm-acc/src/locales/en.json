@@ -139,7 +139,7 @@
           "success": "Configuration of synchronization [{{name}}] was successfully saved"
         },
         "button": {
-          "saveAndStartSynchronization": "Save and run configuration"
+          "saveAndStartSynchronization": "Save and run sync"
         },
         "tabs": {
           "basicConfiguration": {
@@ -336,6 +336,46 @@
         "save": {
           "success": "Attribute [{{name}}] for role successfully edited"
         }
+      },
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identificator",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
+    "roleCatalogue": {
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identificator",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
       }
     },
     "identity": {
@@ -443,8 +483,8 @@
       "help": "Active provisioning operations create, update and delete, will not be executed."
     },
       "queue": {
-        "label": "Supports queue",
-        "help": "Active provisioning operations create, update and delete, will run through the queue."
+        "label": "Asynchronous provisioning",
+        "help": "Active provisioning operations (create, update, delete), will run through the queue asynchronously. Change password operation will be still synchronous. Queue processing interval is configurable by long running task (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Connector",
@@ -876,8 +916,12 @@
   "permission": {
     "group": {
       "ACCOUNT": "Accounts in systems",
+      "ROLEACCOUNT": "Role accounts",
+      "ROLECATALOGUEACCOUNT": "Role catalogue accounts",
       "SYSTEM": "Connected systems",
-      "SYNCHRONIZATION": "Synchronization"
+      "SYNCHRONIZATION": "Synchronization",
+      "TREEACCOUNT": "Tree accounts",
+      "IDENTITYACCOUNT": "Identity accounts"
     }
   },
   "error": {
@@ -1020,6 +1064,10 @@
     "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "System mapping [{{mapping}}] cannot be removed",
       "message": "System mapping [{{mapping}}] cannot be removed. It's used for synchronization of the same system!"
+    },
+    "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
+      "title": "Mapping can not be saved",
+      "message": "Provisioning mapping for system [{{system}}] and type of entity  [{{entityType}}] already exists!"
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Attribute [{{attribute}}] cannot be removed",

@@ -1,35 +1,32 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
+import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,22 +40,22 @@ import io.swagger.annotations.AuthorizationScope;;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController
+@RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/role-systems")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/role-systems")
 @Api(
 		value = SysRoleSystemController.TAG, 
 		tags = SysRoleSystemController.TAG, 
 		description = "Assign system to role",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysRoleSystemController extends DefaultReadWriteEntityController<SysRoleSystem, RoleSystemFilter> {
+public class SysRoleSystemController extends DefaultReadWriteDtoController<SysRoleSystemDto, SysRoleSystemFilter> {
 	
 	protected static final String TAG = "Role system - mappings";
 	
 	@Autowired
-	public SysRoleSystemController(LookupService entityLookupService, SysRoleSystemService roleSysteService) {
-		super(entityLookupService, roleSysteService);
+	public SysRoleSystemController(SysRoleSystemService roleSysteService) {
+		super(roleSysteService);
 	}
 	
 	@Override
@@ -77,9 +74,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	@ResponseBody
@@ -97,9 +93,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	@Override
@@ -109,7 +104,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	@ApiOperation(
 			value = "Role system detail", 
 			nickname = "getRoleSystem", 
-			response = SysRoleSystem.class, 
+			response = SysRoleSystemDto.class, 
 			tags = { SysRoleSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -119,8 +114,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Role system mapping's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 	
 	@Override
@@ -130,7 +125,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	@ApiOperation(
 			value = "Create / update role system", 
 			nickname = "postRoleSystem", 
-			response = SysRoleSystem.class, 
+			response = SysRoleSystemDto.class, 
 			tags = { SysRoleSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
@@ -138,8 +133,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@RequestBody @NotNull SysRoleSystemDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
@@ -149,7 +144,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	@ApiOperation(
 			value = "Update role system",
 			nickname = "putRoleSystem", 
-			response = SysRoleSystem.class, 
+			response = SysRoleSystemDto.class, 
 			tags = { SysRoleSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -160,33 +155,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Role system mapping's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-	
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@ApiOperation(
-			value = "Update role system",
-			nickname = "patchRoleSystem", 
-			response = SysRoleSystem.class, 
-			tags = { SysRoleSystemController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Role system mapping's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) 
-			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@RequestBody @NotNull SysRoleSystemDto dto) {
+		return super.put(backendId, dto);
 	}
 	
 	@Override
@@ -210,8 +180,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	}
 	
 	@Override
-	protected RoleSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleSystemFilter filter = new RoleSystemFilter();
+	protected SysRoleSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		return filter;

@@ -18,16 +18,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.filter.UuidFilter;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * UuidFilterBuilder test
@@ -55,7 +54,7 @@ public class UuidFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 		// prepare data
 		IdmIdentityDto identityOne = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
-		IdmRole roleOne = helper.createRole();
+		IdmRoleDto roleOne = helper.createRole();
 		UuidFilter<IdmIdentity> identityFilter = new FindableUuidFilter<>(repository); 
 		//
 		DataFilter dataFilter = new DataFilter(IdmIdentityDto.class);
@@ -76,9 +75,9 @@ public class UuidFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 	
 	private class FindableUuidFilter<E extends AbstractEntity> extends UuidFilter<E> {
 		
-		private final AbstractEntityRepository<E, ?> repository;
+		private final AbstractEntityRepository<E> repository;
 		
-		public FindableUuidFilter(AbstractEntityRepository<E, ?> repository) {
+		public FindableUuidFilter(AbstractEntityRepository<E> repository) {
 			this.repository = repository;
 		}
 		

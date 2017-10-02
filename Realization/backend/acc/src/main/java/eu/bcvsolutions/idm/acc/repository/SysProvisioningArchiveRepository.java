@@ -4,12 +4,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.rest.projection.SysProvisioningArchiveExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -18,20 +16,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(
-		collectionResourceRel = "provisioningArchives",
-		path = "provisioning-archives",
-		itemResourceRel = "provisioningArchive",
-		excerptProjection = SysProvisioningArchiveExcerpt.class,
-		exported = false
-)
-public interface SysProvisioningArchiveRepository extends AbstractEntityRepository<SysProvisioningArchive, ProvisioningOperationFilter> {
+public interface SysProvisioningArchiveRepository extends AbstractEntityRepository<SysProvisioningArchive> {
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
-	@Override
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
 			+ " ("
@@ -51,7 +37,7 @@ public interface SysProvisioningArchiveRepository extends AbstractEntityReposito
         	+ " (?#{[0].systemEntityUid} is null or e.systemEntityUid = ?#{[0].systemEntityUid})"
         	+ " and "
         	+ " (?#{[0].resultState} is null or e.result.state = ?#{[0].resultState})")
-	Page<SysProvisioningArchive> find(ProvisioningOperationFilter filter, Pageable pageable);
+	Page<SysProvisioningArchive> find(SysProvisioningOperationFilter filter, Pageable pageable);
 	
 	/**
 	 * Delete all archived provisioning logs

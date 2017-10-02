@@ -7,14 +7,13 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -33,7 +32,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	 */
 	@Test
 	public void testRoleRemovedAuthorityRemoved() {
-		IdmRole role = getTestRole();
+		IdmRoleDto role = getTestRole();
 		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
@@ -63,8 +62,8 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	@Test
 	public void testRoleRemovedAuthorityStays() {
 		// two roles with same authorities
-		IdmRole role = getTestRole();
-		IdmRole role2 = getTestRole();
+		IdmRoleDto role = getTestRole();
+		IdmRoleDto role2 = getTestRole();
 		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
@@ -91,12 +90,12 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	@Test
 	public void testRoleRemovedSuperAuthorityStays() {
 		// role with APP_ADMIN authority
-		IdmRole r = new IdmRole();
+		IdmRoleDto r = new IdmRoleDto();
 		r.setName(UUID.randomUUID().toString());
 		r = saveInTransaction(r, roleService);
 		getTestPolicy(r, IdmBasePermission.ADMIN, IdmGroupPermission.APP);
 
-		IdmRole role2 = getTestRole();
+		IdmRoleDto role2 = getTestRole();
 		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmIdentityRoleDto ir = getTestIdentityRole(r, c);

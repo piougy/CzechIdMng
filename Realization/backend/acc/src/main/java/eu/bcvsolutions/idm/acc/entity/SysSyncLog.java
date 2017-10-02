@@ -13,13 +13,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
-import javax.validation.constraints.NotNull;
-
-import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -32,9 +30,8 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "sys_sync_log", indexes = {
 		@Index(name = "idx_sys_s_l_config", columnList = "synchronization_config_id")})
-public class SysSyncLog extends AbstractEntity implements Loggable  {
+public class SysSyncLog extends AbstractEntity  {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSyncLog.class);
 	private static final long serialVersionUID = -5447620157233410338L;
 
 	@NotNull
@@ -138,20 +135,5 @@ public class SysSyncLog extends AbstractEntity implements Loggable  {
 
 	public void setLog(String log) {
 		this.log = log;
-	}
-
-	@Override
-	public String addToLog(String text) {
-		if (text != null) {
-			LOG.info(text);
-			StringBuilder builder = new StringBuilder();
-			if (this.log != null) {
-				builder.append(this.log);
-				builder.append("\n" + SysSyncItemLog.LOG_SEPARATOR + "\n");
-			}
-			builder.append(text);
-			this.setLog(builder.toString());
-		}
-		return this.getLog();
 	}
 }

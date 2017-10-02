@@ -16,18 +16,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.Emailer;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.notification.api.service.Emailer;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 
 /**
  * Default email sender implementation
@@ -57,6 +61,9 @@ public class DefaultEmailer implements Emailer {
 	
 	@Autowired
 	private IdmIdentityService identityService;
+	
+	@Autowired
+	private EntityEventManager entityEventManager;
 
 	
 	@Transactional
@@ -68,7 +75,6 @@ public class DefaultEmailer implements Emailer {
 			emailLogService.setEmailSentLog(emailLog.getId(), "Email recipients is empty. Email was logged only.");
 			return false;
 		}
-		
 		try {
 			Endpoint endpoint = configureEndpoint();
 			//
@@ -90,19 +96,27 @@ public class DefaultEmailer implements Emailer {
 			DataSource ds = new javax.mail.util.ByteArrayDataSource("test txt content", "text/plain; charset=UTF-8");
 			in.addAttachment("rest.txt", new DataHandler(ds));
 			*/
-
-			if (configuration.isTestEnabled()) {
-				log.info("Test mode for emailer is enabled. Email [{}] will be logged only.", emailLog);
-				emailLogService.setEmailSentLog(emailLog.getId(), "Test mode for emailer was enabled. Email was logged only.");
-			} else {
-				log.debug("Email was registered to producer [{}]", emailLog);
-				producerTemplate.asyncCallback(endpoint, exchange, new EmailCallback(emailLog.getId(), emailLogService));
-			}
+			
+			entityEventManager.publishEvent(new DefaultSendOperation(emailLog, endpoint, exchange));
+			
 			return true;
 		} catch(Exception ex) {
 			log.error("Sending email [{}] failed: [{}]", emailLog, ex);
 			emailLogService.setEmailSentLog(emailLog.getId(), StringUtils.abbreviate(ex.toString(), DefaultFieldLengths.LOG));
 			return false;
+		}
+
+	}
+	
+	@TransactionalEventListener
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void sendInternal(SendOperation sendOperation) {
+		if (configuration.isTestEnabled()) {
+			log.info("Test mode for emailer is enabled. Email [{}] will be logged only.", sendOperation.getEmailLog());
+			emailLogService.setEmailSentLog(sendOperation.getEmailLog().getId(), "Test mode for emailer was enabled. Email was logged only.");
+		} else {
+			log.debug("Email was registered to producer [{}]", sendOperation.getEmailLog());
+			producerTemplate.asyncCallback(sendOperation.getEndpoint(), sendOperation.getExchange(), new EmailCallback(sendOperation.getEmailLog().getId(), emailLogService));
 		}
 	}
 	
@@ -155,6 +169,36 @@ public class DefaultEmailer implements Emailer {
 				.map(recipient -> recipient.getRealRecipient())
 				.filter(recipient -> StringUtils.isNotBlank(recipient))
 				.collect(Collectors.joining(EMAILS_SEPARATOR));
+	}
+	
+	/**
+	 * Private implementation interface {@link SendOperation} for transfer object to email event
+	 * 
+	 * @author Ondrej Kopr <kopr@xyxy.cz>
+	 *
+	 */
+	private static class DefaultSendOperation implements SendOperation {
+		private final IdmEmailLogDto emailLog;
+		private final Endpoint endpoint;
+		private final Exchange exchange;
+		
+		public DefaultSendOperation(IdmEmailLogDto emailLog, Endpoint endpoint, Exchange exchange) {
+			this.emailLog = emailLog;
+			this.endpoint = endpoint;
+			this.exchange = exchange;
+		}
+		
+		public IdmEmailLogDto getEmailLog() {
+			return emailLog;
+		}
+
+		public Endpoint getEndpoint() {
+			return endpoint;
+		}
+		
+		public Exchange getExchange() {
+			return exchange;
+		}
 	}
 	
 	/**

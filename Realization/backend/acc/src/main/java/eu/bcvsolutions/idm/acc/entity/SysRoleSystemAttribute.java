@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 public class SysRoleSystemAttribute extends AbstractEntity {
 
 	private static final long serialVersionUID = -8492560756893726050L;
-
 	
 	@Audited
 	@Size(min = 1, max = DefaultFieldLengths.NAME)

@@ -1,10 +1,11 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Tree accounts on target system
@@ -12,7 +13,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-public interface AccTreeAccountService extends ReadWriteDtoService<AccTreeAccountDto, TreeAccountFilter>, ScriptEnabled {
+public interface AccTreeAccountService extends ReadWriteDtoService<AccTreeAccountDto, AccTreeAccountFilter>, ScriptEnabled,
+		AuthorizableService<AccTreeAccountDto> {
 
 	/**
 	 * Delete tree node account

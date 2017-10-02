@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
 public class IdentityAccountEvent extends CoreEvent<AccIdentityAccountDto> {
 
 	private static final long serialVersionUID = 1L;
-static final int DEFAULT_PROVISIONING_ORDER = 1000;
+	static final int DEFAULT_PROVISIONING_ORDER = 1000;
 	
 	static final int DEFAULT_PASSWORD_VALIDATION_ORDER = -1000;
 	

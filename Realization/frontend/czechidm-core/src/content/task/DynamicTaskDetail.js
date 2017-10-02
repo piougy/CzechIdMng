@@ -103,7 +103,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
             <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
           </Basic.LabelWrapper>
           <Basic.LabelWrapper rendered={task.variables.implementerIdentifier} readOnly ref="implementerIdentifier" label={this.i18n('implementerIdentifier')}>
-            <Advanced.IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="link"/>
+            <Advanced.IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
           </Basic.LabelWrapper>
         </div>
       );

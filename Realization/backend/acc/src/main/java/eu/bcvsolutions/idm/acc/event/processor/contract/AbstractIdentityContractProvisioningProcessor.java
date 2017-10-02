@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
 /**
  * Identity Ccontract provisioning super class
@@ -23,7 +23,7 @@ public abstract class AbstractIdentityContractProvisioningProcessor extends Abst
 	protected static final String PROPERTY_PREVIOUS_SUBORDINATES = "idm:previous-subordinates"; // contains Set<UUID>
 	protected static final boolean DEFAULT_INCLUDE_SUBORDINATES = true;
 	//
-	@Autowired private FilterManager filterManager;
+	@Autowired private IdmIdentityService identityService;
 	
 	public AbstractIdentityContractProvisioningProcessor() {
 		super(CoreEventType.CREATE, CoreEventType.UPDATE, CoreEventType.DELETE, CoreEventType.EAV_SAVE);
@@ -44,10 +44,10 @@ public abstract class AbstractIdentityContractProvisioningProcessor extends Abst
 	 * @param identityId
 	 * @return
 	 */
-	protected List<IdmIdentity> findAllSubordinates(UUID identityId) {
-		IdentityFilter filter = new IdentityFilter();
+	protected List<IdmIdentityDto> findAllSubordinates(UUID identityId) {
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(identityId);
-		return filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_SUBORDINATES_FOR).find(filter, null).getContent();
+		return identityService.find(filter, null).getContent();
 	}
 	
 	@Override

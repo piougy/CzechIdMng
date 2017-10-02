@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.security.evaluator.role;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
@@ -17,53 +19,44 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.security.service.LoginService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
+ * Role - can be requested flag tests (security)
+ * 
  * @author Peter Sourek
+ * @author Radek Tomiška
  */
 public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private SecurityService securityService;
-
-	@Autowired
-	private IdmRoleService roleService;
-
-	@Autowired
-	private IdmAuthorizationPolicyService authorizationPolicyService;
-
-	@Autowired
-	private IdmIdentityService identityService;
-
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-
-	@Autowired
-	IdmIdentityContractService contractService;
-
-	@Autowired
-	LoginService loginService;
-
-	private RoleCanBeRequestedEvaluator evaluator;
-	private IdmRole canBeRequested, cannotBeRequested;
-	private IdmIdentityDto hasNoRole, hasNoRights, hasRoleEvaluator, hasEvaluatorUpdate, hasEvaluatorAllRights;
-
 	private final String TEST_PWD = "aaaAAAa12345789000*bcv";
+	//
+	@Autowired private SecurityService securityService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmIdentityContractService contractService;
+	@Autowired private LoginService loginService;
+	//
+	private RoleCanBeRequestedEvaluator evaluator;
+	private IdmRoleDto canBeRequested, cannotBeRequested;
+	private IdmIdentityDto hasNoRole, hasNoRights, hasRoleEvaluator, hasEvaluatorUpdate, hasEvaluatorAllRights;
 
 	@Before
 	public void prepareTestData() {
@@ -72,16 +65,16 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 
 		hasNoRole = createUser(uniqueString(), TEST_PWD);
 		//
-		IdmRole noRightsRole = createRole(uniqueString(), false);
+		IdmRoleDto noRightsRole = createRole(uniqueString(), false);
 		hasNoRights = createUser(uniqueString(), TEST_PWD, noRightsRole);
 		//
-		IdmRole readRightsRole = createRole(uniqueString(), false, IdmBasePermission.READ);
+		IdmRoleDto readRightsRole = createRole(uniqueString(), false, IdmBasePermission.READ);
 		hasRoleEvaluator = createUser(uniqueString(), TEST_PWD, readRightsRole);
 		//
-		IdmRole writeRightsRole = createRole(uniqueString(), false, IdmBasePermission.UPDATE, IdmBasePermission.READ);
+		IdmRoleDto writeRightsRole = createRole(uniqueString(), false, IdmBasePermission.UPDATE, IdmBasePermission.READ);
 		hasEvaluatorUpdate = createUser(uniqueString(), TEST_PWD, writeRightsRole);
 		//
-		IdmRole allRightsRole = createRole(uniqueString(), false, IdmBasePermission.ADMIN);
+		IdmRoleDto allRightsRole = createRole(uniqueString(), false, IdmBasePermission.ADMIN);
 		hasEvaluatorAllRights = createUser(uniqueString(), TEST_PWD, allRightsRole);
 		//
 		canBeRequested = createRole(uniqueString(), true);
@@ -89,125 +82,131 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		logout();
 	}
 
+	/**
+	 * Just few of these just to be sure even though it is probably unnecessary
+	 */
 	@Test
 	public void testSupports() {
-		// Just few of these just to be sure even though it is probably unnecessary
 		assertTrue(evaluator.supports(IdmRole.class));
 		assertFalse(evaluator.supports(BaseEntity.class));
 		assertFalse(evaluator.supports(IdmIdentityDto.class));
 	}
-
+	
+	/**
+	 * User without roles should not be able to see any role
+	 */
 	@Test
-	public void testCase1() {
-		// User who has no rights (has role which has no permission) should not be able to see role no matter if it can be requested or not
-		Page<IdmRole> res1 = getRoleAsUser(hasNoRights, canBeRequested);
+	public void testCannotReadNoRoleAssigned() {
+		Page<IdmRoleDto> res1 = getRoleAsUser(hasNoRole, canBeRequested);
 		assertEquals(0, res1.getTotalElements());
 		//
-		Page<IdmRole> res2 = getRoleAsUser(hasNoRights, cannotBeRequested);
+		Page<IdmRoleDto> res2 = getRoleAsUser(hasNoRole, cannotBeRequested);
 		assertEquals(0, res2.getTotalElements());
 	}
 
+	/**
+	 * User who has no rights (has role which has no permission) should not be able to see role no matter if it can be requested or not
+	 */
 	@Test
-	public void testCase2() {
-		// User with READ permission and tested evaluator should be able to see role that can be requested
-		Page<IdmRole> res1 = getRoleAsUser(hasRoleEvaluator, canBeRequested);
+	public void testCannotReadNoPermission() {
+		Page<IdmRoleDto> res1 = getRoleAsUser(hasNoRights, canBeRequested);
+		assertEquals(0, res1.getTotalElements());
+		//
+		Page<IdmRoleDto> res2 = getRoleAsUser(hasNoRights, cannotBeRequested);
+		assertEquals(0, res2.getTotalElements());
+	}
+
+	/**
+	 * User with READ permission and tested evaluator should be able to see role that can be requested
+	 */
+	@Test
+	public void testCanReadRoleCanBeRequested() {
+		Page<IdmRoleDto> res1 = getRoleAsUser(hasRoleEvaluator, canBeRequested);
 		assertEquals(1, res1.getTotalElements());
 		assertEquals(res1.getContent().get(0).getId(), canBeRequested.getId());
 		//
-		Page<IdmRole> res2 = getRoleAsUser(hasRoleEvaluator, cannotBeRequested);
+		Page<IdmRoleDto> res2 = getRoleAsUser(hasRoleEvaluator, cannotBeRequested);
 		assertEquals(0, res2.getTotalElements());
 	}
 
+	/**
+	 * User with UPDATE permission and tested evaluator should be able to see role that can be requested and also should be able to update it
+	 */
 	@Test
-	public void testCase3() {
-		// User without roles should not be able to see any role
-		Page<IdmRole> res1 = getRoleAsUser(hasNoRole, canBeRequested);
-		assertEquals(0, res1.getTotalElements());
-		//
-		Page<IdmRole> res2 = getRoleAsUser(hasNoRole, cannotBeRequested);
-		assertEquals(0, res2.getTotalElements());
-	}
-
-	@Test
-	public void testCase4() {
-		// User with UPDATE permission and tested evaluator should be able to see role that can be requested and also should be able to update it
-		Page<IdmRole> res1 = getRoleAsUser(hasEvaluatorUpdate, canBeRequested);
+	public void testCanUpdate() {
+		Page<IdmRoleDto> res1 = getRoleAsUser(hasEvaluatorUpdate, canBeRequested);
 		assertEquals(1, res1.getTotalElements());
-		IdmRole found1 = res1.getContent().get(0);
+		IdmRoleDto found1 = res1.getContent().get(0);
 		assertEquals(found1.getId(), canBeRequested.getId());
-		// TODO: uncomment when role service is refactored to DTOs
-		/*final String testDescription = uniqueString();
-		saveRoleAsUser(hasEvaluatorUpdate, found1, testDescription);
-		Page<IdmRole> res2 = getRoleAsUser(hasEvaluatorUpdate, canBeRequested);
-		IdmRole found2 = res2.getContent().get(0);
-		assertEquals(found2.getDescription(), testDescription);*/
 		//
-		Page<IdmRole> res3 = getRoleAsUser(hasEvaluatorUpdate, cannotBeRequested);
+		final String testDescription = uniqueString();
+		saveRoleAsUser(hasEvaluatorUpdate, found1, testDescription);
+		Page<IdmRoleDto> res2 = getRoleAsUser(hasEvaluatorUpdate, canBeRequested);
+		IdmRoleDto found2 = res2.getContent().get(0);
+		assertEquals(found2.getDescription(), testDescription);
+		//
+		Page<IdmRoleDto> res3 = getRoleAsUser(hasEvaluatorUpdate, cannotBeRequested);
 		assertEquals(0, res3.getTotalElements());
 	}
 
+	/**
+	 * User with ADMIN permission and tested evaluator should be able to see role that can be requested
+	 * and also should be able to update it and delete it
+	 */
 	@Test
-	public void testCase5() {
-		// User with ADMIN permission and tested evaluator should be able to see role that can be requested and also should be able to update it and delete it
-		Page<IdmRole> res1 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
+	public void testCanAdmin() {
+		Page<IdmRoleDto> res1 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
 		assertEquals(1, res1.getTotalElements());
-		IdmRole found1 = res1.getContent().get(0);
+		IdmRoleDto found1 = res1.getContent().get(0);
 		assertEquals(found1.getId(), canBeRequested.getId());
-		//TODO: uncomment when role service is refactored to DTOs
-		/*final String testDescription = uniqueString();
+		//
+		final String testDescription = uniqueString();
 		Exception e = saveRoleAsUser(hasEvaluatorAllRights, found1, testDescription);
 		assertNull(e);
-		Page<IdmRole> res2 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
-		IdmRole found2 = res2.getContent().get(0);
+		Page<IdmRoleDto> res2 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
+		IdmRoleDto found2 = res2.getContent().get(0);
 		assertEquals(found2.getDescription(), testDescription);
 		//
 		Exception e2 = deleteRoleAsUser(hasEvaluatorAllRights, found2);
 		assertNull(e2);
-		Page<IdmRole> res3 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
-		assertEquals(0, res3.getTotalElements());*/
+		Page<IdmRoleDto> res3 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
+		assertEquals(0, res3.getTotalElements());
 		//
-		//
-		//
-		Page<IdmRole> res4 = getRoleAsUser(hasEvaluatorAllRights, cannotBeRequested);
+		Page<IdmRoleDto> res4 = getRoleAsUser(hasEvaluatorAllRights, cannotBeRequested);
 		assertEquals(0, res4.getTotalElements());
-		//TODO: uncomment when role service is refactored to DTOs
-		/*cannotBeRequested.setDescription(testDescription);
+		//
+		cannotBeRequested.setDescription(testDescription);
 		Exception e3 = saveRoleAsUser(hasEvaluatorAllRights, cannotBeRequested, testDescription);
 		assertNotNull(e3);
-		IdmRole found3 = roleService.get(cannotBeRequested.getId());
-		assertNotEquals(found3.getDescription(), testDescription);
+		IdmRoleDto found3 = roleService.get(cannotBeRequested.getId());
+		assertFalse(testDescription.equals(found3.getDescription()));
 		//
 		Exception e4 = deleteRoleAsUser(hasEvaluatorAllRights, cannotBeRequested);
 		assertNotNull(e4);
-		IdmRole res6 = roleService.get(cannotBeRequested.getId());
-		assertNotNull(res6);*/
+		IdmRoleDto res6 = roleService.get(cannotBeRequested.getId());
+		assertNotNull(res6);
 	}
 
-
-	// ************************ HELPER METHODS ***************************
-
-	private Exception saveRoleAsUser(IdmIdentityDto user, IdmRole found1, String testDescription) {
+	private Exception saveRoleAsUser(IdmIdentityDto user, IdmRoleDto found1, String testDescription) {
 		try {
 			loginService.login(new LoginDto(user.getUsername(), new GuardedString(TEST_PWD)));
-			IdmRole fnd = roleService.get(found1.getId());
+			IdmRoleDto fnd = roleService.get(found1.getId());
 			fnd.setDescription(testDescription);
-			// TODO: Use save(dto, UPDATE) when service is refactored to use DTOs
-			roleService.save(fnd);
-		} catch (Exception o_O) {
-			return o_O;
+			roleService.save(fnd, IdmBasePermission.UPDATE);
+		} catch (Exception ex) {
+			return ex;
 		} finally {
 			logout();
 		}
 		return null;
 	}
 
-	private Exception deleteRoleAsUser(IdmIdentityDto user, IdmRole role) {
+	private Exception deleteRoleAsUser(IdmIdentityDto user, IdmRoleDto role) {
 		try {
 			loginService.login(new LoginDto(user.getUsername(), new GuardedString(TEST_PWD)));
-			// TODO: Use delete(dto, DELETE) when service is refactored to use DTOs
-			roleService.delete(role);
-		} catch (Exception o_O) {
-			return o_O;
+			roleService.delete(role, IdmBasePermission.DELETE);
+		} catch (Exception ex) {
+			return ex;
 		} finally {
 			logout();
 		}
@@ -215,30 +214,30 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 	}
 
 
-	private Page<IdmRole> getRoleAsUser(IdmIdentityDto user, IdmRole role) {
+	private Page<IdmRoleDto> getRoleAsUser(IdmIdentityDto user, IdmRoleDto role) {
 		try {
 			loginService.login(new LoginDto(user.getUsername(), new GuardedString(TEST_PWD)));
 			//
-			RoleFilter rf = getRoleFilter("name", role.getName());
-			Page<IdmRole> readRole = roleService.findSecured(rf, null, IdmBasePermission.READ);
+			IdmRoleFilter rf = getRoleFilter("name", role.getName());
+			Page<IdmRoleDto> readRole = roleService.find(rf, null, IdmBasePermission.READ);
 			return readRole;
 		} finally {
 			logout();
 		}
 	}
 
-	private RoleFilter getRoleFilter(String prop, String val) {
-		RoleFilter rf = new RoleFilter();
+	private IdmRoleFilter getRoleFilter(String prop, String val) {
+		IdmRoleFilter rf = new IdmRoleFilter();
 		rf.setProperty(prop);
 		rf.setValue(val);
 		return rf;
 	}
 
-	private IdmRole createRole(String name, boolean canBeRequested, IdmBasePermission... permissions) {
-		IdmRole roleWithNoRights = new IdmRole();
+	private IdmRoleDto createRole(String name, boolean canBeRequested, IdmBasePermission... permissions) {
+		IdmRoleDto roleWithNoRights = new IdmRoleDto();
 		roleWithNoRights.setCanBeRequested(canBeRequested);
 		roleWithNoRights.setName(name);
-		final IdmRole result = this.roleService.save(roleWithNoRights);
+		final IdmRoleDto result = this.roleService.save(roleWithNoRights);
 		//
 		if (permissions != null && permissions.length > 0) {
 			createPolicy(result.getId(), permissions);
@@ -258,7 +257,7 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		return authorizationPolicyService.save(policy);
 	}
 
-	private IdmIdentityDto createUser(String name, String password, IdmRole... roles) {
+	private IdmIdentityDto createUser(String name, String password, IdmRoleDto... roles) {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setEmail(RandomStringUtils.randomAlphabetic(10) + "@email.com");
 		identity.setLastName(name);
@@ -273,8 +272,8 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		return result;
 	}
 
-	private void assignRoles(IdmIdentityContractDto contract, IdmRole... roles) {
-		for (IdmRole role : roles) {
+	private void assignRoles(IdmIdentityContractDto contract, IdmRoleDto... roles) {
+		for (IdmRoleDto role : roles) {
 			IdmIdentityRoleDto idr = new IdmIdentityRoleDto();
 			idr.setRole(role.getId());
 			idr.setIdentityContract(contract.getId());

@@ -155,15 +155,8 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toUuid(Map<String, Object> parameters, String parameterName) {
-		String valueAsString = toString(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
-			try {
-				return UUID.fromString(valueAsString);
-			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_UUID, ImmutableMap.of("uuid", valueAsString, parameterName, valueAsString), ex);
-			}		
-		}
-		return null;
+		// supports UUID and String representation
+		return EntityUtils.toUuid(parameters.get(parameterName));
 	}
 	
 	/**
@@ -268,6 +261,12 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toEntityUuid(String parameterValue, Class<? extends AbstractEntity> entityClass) {
+		try {
+			// optimalization - if string representation of uuid was given
+			return EntityUtils.toUuid(parameterValue);
+		} catch(ClassCastException ex) {
+			// nothing - we will try to find entity by string value
+		}		
 		AbstractEntity entity = toEntity(parameterValue, entityClass);
 		return entity == null ? null : entity.getId();
 	}

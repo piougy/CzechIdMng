@@ -33,15 +33,27 @@ const MODULE_DESCRIPTOR_DEFAULTS = {
 export default class ConfigLoader {
 
   static init(jsonConfig, moduleDescriptors) {
+    // global confic can be changed without build
     _config = jsonConfig;
     _moduleDescriptors = moduleDescriptors;
   }
 
   /**
-   * Returns config part by key or null. Supports nested propertires.
+   * Return config by priority:
+   * 1. extenrnal configuration
+   * 2. included json configuration (builded)
+   *
+   * @return {json object} config
+   */
+  static _getConfig() {
+    return window.config || _config;
+  }
+
+  /**
+   * Returns config part by key or null. Supports nested properties.
    */
   static getConfig(key, defaultValue = null) {
-    return _.get(_config, key, defaultValue);
+    return _.get(this._getConfig(), key, defaultValue);
   }
 
   /**
@@ -49,7 +61,7 @@ export default class ConfigLoader {
    * @return {string}
    */
   static getServerUrl() {
-    return serverUrl;
+    return this._getConfig().serverUrl;
   }
 
   static _getModuleDescriptor(moduleId) {
@@ -127,8 +139,8 @@ export default class ConfigLoader {
 
 
   static _getConfigModuleDescriptor(moduleId) {
-    if (_config && _config.overrideModuleDescriptor) {
-      return _config.overrideModuleDescriptor[moduleId];
+    if (this._getConfig() && this._getConfig().overrideModuleDescriptor) {
+      return this._getConfig().overrideModuleDescriptor[moduleId];
     }
     return {};
   }

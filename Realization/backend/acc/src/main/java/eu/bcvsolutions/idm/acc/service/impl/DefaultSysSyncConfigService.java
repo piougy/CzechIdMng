@@ -2,22 +2,24 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Default synchronization config service
@@ -27,32 +29,39 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  */
 @Service
 public class DefaultSysSyncConfigService
-		extends AbstractReadWriteEntityService<SysSyncConfig, SynchronizationConfigFilter>
+		extends AbstractReadWriteDtoService<SysSyncConfigDto, SysSyncConfig, SysSyncConfigFilter>
 		implements SysSyncConfigService {
 
+	private final SysSyncConfigRepository repository;
 	private final SysSyncLogService synchronizationLogService;
-	private final EntityManager entityManager;
 
 	@Autowired
 	public DefaultSysSyncConfigService(SysSyncConfigRepository repository,
-			SysSyncLogService synchronizationLogService,
-			EntityManager entityManager) {
+			SysSyncLogService synchronizationLogService) {
 		super(repository);
 		//
 		Assert.notNull(synchronizationLogService);
-		Assert.notNull(entityManager);
 		//
+		this.repository = repository;
 		this.synchronizationLogService = synchronizationLogService;
-		this.entityManager = entityManager;
+	}
+	
+	@Override
+	protected Page<SysSyncConfig> findEntities(SysSyncConfigFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return repository.findAll(pageable);
+		}
+		return repository.find(filter, pageable);
 	}
 
 	@Override
 	@Transactional
-	public void delete(SysSyncConfig synchronizationConfig) {
+	public void delete(SysSyncConfigDto synchronizationConfig, BasePermission... permission) {
 		Assert.notNull(synchronizationConfig);
+		checkAccess(getEntity(synchronizationConfig.getId()), permission);
 		//
 		// remove all synchronization logs
-		SynchronizationLogFilter filter = new SynchronizationLogFilter();
+		SysSyncLogFilter filter = new SysSyncLogFilter();
 		filter.setSynchronizationConfigId(synchronizationConfig.getId());
 		synchronizationLogService.find(filter, null).forEach(log -> {
 			synchronizationLogService.delete(log);
@@ -62,24 +71,31 @@ public class DefaultSysSyncConfigService
 	}
 	
 	@Override
-	public boolean isRunning(SysSyncConfig config){
+	public boolean isRunning(SysSyncConfigDto config){
 		if(config == null){
 			return false;
 		}
-		int count = ((SysSyncConfigRepository)this.getRepository()).runningCount(config);
+		int count = ((SysSyncConfigRepository) this.getRepository())
+				.runningCount(((SysSyncConfigRepository) this.getRepository()).findOne(config.getId()));
 		return count > 0;
 	}
 	
 	@Override
-	public SysSyncConfig clone(UUID id) {
-		SysSyncConfig original = this.get(id);
+	public SysSyncConfigDto clone(UUID id) {
+		SysSyncConfigDto original = this.get(id);
 		Assert.notNull(original, "Config of synchronization must be found!");
 		
 		// We do detach this entity (and set id to null)
-		entityManager.detach(original);
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;
+	}
+
+	@Override
+	public Long countBySystemMapping(SysSystemMappingDto mappingDto) {
+		Assert.notNull(mappingDto);
+		Assert.notNull(mappingDto.getId());
+		return repository.countByCorrelationAttribute_Id(mappingDto.getId());
 	}
 
 

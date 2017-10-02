@@ -848,9 +848,11 @@ export default class EntityManager {
               const data = json._embedded[this.getCollectionType()] || [];
               const entity = data.length > 0 ? data[0] : null;
               if (entity) {
+                /* Commented: automatic perrmission loading was moved into info components
                 dispatch(this.fetchPermissions(id, uiKey, () => {
                   dispatch(this.receiveEntity(id, entity, uiKey, cb));
-                }));
+                }));*/
+                dispatch(this.receiveEntity(id, entity, uiKey, cb));
               } else {
                 // entity not found
                 dispatch(this.receiveError({ id }, uiKey, { statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } }, cb));

@@ -1,12 +1,12 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+//
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager} from '../../redux';
+import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
-import CandicateUsersCell from './CandicateUsersCell';
 
 /**
 * Workflow process historic detail
@@ -16,6 +16,9 @@ const workflowHistoricTaskInstanceManager = new WorkflowHistoricTaskInstanceMana
 
 const MAX_CANDICATES = 3;
 
+/**
+ * @author VS
+ */
 class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -75,7 +78,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
       return '';
     }
     return (
-      <CandicateUsersCell candidates={entity[property]} maxEntry={MAX_CANDICATES} />
+      <Advanced.IdentitiesInfo identities={entity[property]} maxEntry={MAX_CANDICATES} />
     );
   }
 
@@ -104,7 +107,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             <Basic.DateTimePicker ref="startTime" label={this.i18n('startTime')}/>
             <Basic.DateTimePicker ref="endTime" label={this.i18n('endTime')}/>
             <Basic.TextArea ref="deleteReason" label={this.i18n('deleteReason')}/>
-            <Basic.ScriptArea ref="_processVariablesJson" mode="json" readOnly rows={6} label={this.i18n('processVariables')}/>
+            <Basic.ScriptArea ref="_processVariablesJson" mode="json" readOnly rows={6} label={this.i18n('processVariables')} rendered={ SecurityManager.isAdmin() }/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>

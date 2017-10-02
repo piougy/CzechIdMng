@@ -8,11 +8,11 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 
 /**
  * Save identity's password
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
  */
 @Component
 @Description("Persist identity's password.")
-public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor{
+public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-password-processor";
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";
@@ -58,7 +58,7 @@ public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor
 		LOG.debug("Saving password for identity [{}].", identity.getUsername());
 		// 
 		if (passwordChangeDto.getMaxPasswordAge() == null) {
-			IdmPasswordPolicy defaultValidatePolicy = passwordPolicyService
+			IdmPasswordPolicyDto defaultValidatePolicy = passwordPolicyService
 					.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			if (defaultValidatePolicy != null && defaultValidatePolicy.getMaxPasswordAge() != null) {
 				// put new valid till by default password policy

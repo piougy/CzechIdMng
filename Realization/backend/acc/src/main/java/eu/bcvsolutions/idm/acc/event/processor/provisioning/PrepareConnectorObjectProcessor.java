@@ -20,26 +20,29 @@ import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -54,7 +57,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -74,7 +77,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Prepares connector object from account properties. Resolves create or update provisioning operation (reads object from target system).")
-public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 
 	public static final String PROCESSOR_NAME = "prepare-connector-object-processor";
 	private static final String MODIFIED_FIELD_NAME = "modified";
@@ -87,6 +90,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysProvisioningArchiveService provisioningArchiveService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -98,7 +102,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService,
 			SysSchemaAttributeService schemaAttributeService,
-			SysProvisioningArchiveService provisioningArchiveService) {
+			SysProvisioningArchiveService provisioningArchiveService,
+			SysSchemaObjectClassService schemaObjectClassService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
@@ -110,6 +115,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(schemaAttributeService);
 		Assert.notNull(provisioningArchiveService);
+		Assert.notNull(schemaObjectClassService);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -119,6 +125,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.provisioningOperationService = provisioningOperationService;
 		this.schemaAttributeService = schemaAttributeService;
 		this.provisioningArchiveService = provisioningArchiveService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 	
 	@Override
@@ -130,9 +137,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * Prepare provisioning operation execution
 	 */
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
-		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = provisioningOperation.getSystem();
+	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		LOG.debug("Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
@@ -142,10 +149,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		// Find connector identification persisted in system
 		if (system.getConnectorKey() == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", provisioningOperation.getSystem().getName()));
+					ImmutableMap.of("system", system.getName()));
 		}
 		// load connector configuration
-		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(provisioningOperation.getSystem());
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -154,7 +161,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		try {
 			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 			IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-					provisioningOperation.getSystem().getConnectorInstance(), 
+					system.getConnectorInstance(), 
 					connectorConfig, 
 					objectClass, 
 					uidAttribute);
@@ -164,12 +171,13 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				processUpdate(provisioningOperation, connectorConfig, existsConnectorObject);
 			}
 			//
-			provisioningOperationService.save(provisioningOperation);
-			//
 			LOG.debug("Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
 					provisioningOperation.getOperationType(), 
 					provisioningOperation.getSystemEntityUid(),
 					objectClass.getType());
+			// set back to event content
+			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this);
 		} catch (Exception ex) {
 			ResultModel resultModel;
@@ -184,15 +192,16 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							"objectClass", objectClass.getType()));
 			}
 			LOG.error(resultModel.toString(), ex);
-			provisioningOperation.getRequest().setResult(
-					new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			provisioningOperation.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
-			provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			//
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
 					.setModel(resultModel)
 					.build());
+			// set back to event content
+			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this, true);
 		}
 	}
@@ -203,8 +212,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	private void processCreate(SysProvisioningOperation provisioningOperation) {
-		SysSystem system = provisioningOperation.getSystem();
+	private void processCreate(SysProvisioningOperationDto provisioningOperation) {
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
@@ -213,13 +222,15 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		if (fullAccountObject != null) {
 			connectorObject.getAttributes().clear();
 			
-			SysSystemMapping mapping = getMapping(system, provisioningOperation.getEntityType());
-			List<SysSchemaAttribute> schemaAttributes = findSchemaAttributes(system, mapping.getObjectClass());
+			SysSystemMappingDto mapping = getMapping(system, provisioningOperation.getEntityType());
+			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
+			
+			List<SysSchemaAttributeDto> schemaAttributes = findSchemaAttributes(system, schemaObjectClassDto);
 			
 			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 				
 				ProvisioningAttributeDto provisioningAttribute = entry.getKey();
-				Optional<SysSchemaAttribute> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
+				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
 					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
 				}).findFirst();
 				
@@ -228,7 +239,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				}
 				
 				Object idmValue = fullAccountObject.get(provisioningAttribute);
-				SysSchemaAttribute schemaAttribute = schemaAttributeOptional.get();
+				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
 				
 				if(provisioningAttribute.isSendOnlyIfNotNull()){
 					if(this.isValueEmpty(idmValue)){
@@ -285,13 +296,14 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					connectorObject.getAttributes().add(createdAttribute);
 				}
 			}
+			provisioningContext.setConnectorObject(connectorObject);
 		}
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void processUpdate(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
-		SysSystem system = provisioningOperation.getSystem();
+	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		String systemEntityUid = provisioningOperation.getSystemEntityUid();
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
@@ -304,20 +316,21 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			Map<ProvisioningAttributeDto, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
 			updateConnectorObject = new IcConnectorObjectImpl(systemEntityUid, objectClass, null);
 			
-			SysSystemMapping mapping = getMapping(system, provisioningOperation.getEntityType());
-			List<SysSchemaAttribute> schemaAttributes = findSchemaAttributes(system, mapping.getObjectClass());
+			SysSystemMappingDto mapping = getMapping(system, provisioningOperation.getEntityType());
+			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
+			List<SysSchemaAttributeDto> schemaAttributes = findSchemaAttributes(system, schemaObjectClassDto);
 			
-			ProvisioningOperationFilter filter = new  ProvisioningOperationFilter();
+			SysProvisioningOperationFilter filter = new  SysProvisioningOperationFilter();
 			filter.setEntityIdentifier(provisioningOperation.getEntityIdentifier());
 			filter.setEntityType(provisioningOperation.getEntityType());
 			filter.setResultState(OperationState.EXECUTED);
 			
-			SysProvisioningArchive lastSuccessEntity = null;
+			SysProvisioningArchiveDto lastSuccessEntity = null;
 			
 			for ( Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 				
 				ProvisioningAttributeDto provisioningAttribute = entry.getKey();  
-				Optional<SysSchemaAttribute> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
+				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
 					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
 				}).findFirst();
 				
@@ -325,7 +338,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND, ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
 				}
 				
-				SysSchemaAttribute schemaAttribute = schemaAttributeOptional.get();
+				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
 				if (schemaAttribute.isUpdateable()) {
 					if (schemaAttribute.isReturnedByDefault()) {	
 						Object idmValue = fullAccountObject.get(provisioningAttribute);
@@ -392,7 +405,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							
 							// Load last provisioning history
 							if(lastSuccessEntity == null){
-								List<SysProvisioningArchive> lastSuccessEntities = provisioningArchiveService.find(filter,
+								List<SysProvisioningArchiveDto> lastSuccessEntities = provisioningArchiveService.find(filter,
 										new PageRequest(0, 1, new Sort(Direction.DESC, MODIFIED_FIELD_NAME))).getContent();
 								if(!lastSuccessEntities.isEmpty()){
 									lastSuccessEntity = lastSuccessEntities.get(0);
@@ -486,8 +499,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		return false;
 	}
 	
-	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
-		List<SysSystemMapping> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
+	private SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
+		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
 			throw new IllegalStateException(MessageFormat.format("System [{0}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{1}]", system.getName(), entityType));
 		}
@@ -504,9 +517,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param system
 	 * @return
 	 */
-	private List<SysSchemaAttribute> findSchemaAttributes(SysSystem system, SysSchemaObjectClass objectClass) {
+	private List<SysSchemaAttributeDto> findSchemaAttributes(SysSystemDto system, SysSchemaObjectClassDto objectClass) {
 		
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		schemaAttributeFilter.setObjectClassId(objectClass.getId());
 		return schemaAttributeService.find(schemaAttributeFilter, null).getContent();
@@ -524,7 +537,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @param objectClassName
 	 */
-	private IcAttribute createAttribute(SysSchemaAttribute schemaAttribute, Object idmValue){
+	private IcAttribute createAttribute(SysSchemaAttributeDto schemaAttribute, Object idmValue){
 		if (!schemaAttribute.isCreateable()) {
 			return null;
 		}
@@ -541,7 +554,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @param connectorObject
 	 */
-	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttribute schemaAttribute, IcConnectorObject existsConnectorObject, SysSystem system, ProvisioningAttributeDto provisioningAttributeDto) {
+	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcConnectorObject existsConnectorObject, SysSystemDto system, ProvisioningAttributeDto provisioningAttributeDto) {
 		List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 		//
 		Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
@@ -563,7 +576,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * map
 	 * 
 	 */
-	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttribute schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystem system, String transformValueFromResourceScript, boolean sendAlways){
+	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystemDto system, String transformValueFromResourceScript, boolean sendAlways){
 
 		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute, icAttribute,
 				icAttributes, system);
@@ -583,7 +596,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @return
 	 */
-	private boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed, SysSchemaAttribute schemaAttribute){
+	private boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed, SysSchemaAttributeDto schemaAttribute){
 		if(schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)){
 			List<Object> values = new ArrayList<>();
 			values.add(idmValue);
@@ -594,8 +607,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	}
 
 	private Object transformValueFromResource(String transformValueFromResourceScript,
-			SysSchemaAttribute schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes,
-			SysSystem system) {
+			SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes,
+			SysSystemDto system) {
 		
 		Object icValueTransformed = null;
 		if (schemaAttribute.isMultivalued()) {

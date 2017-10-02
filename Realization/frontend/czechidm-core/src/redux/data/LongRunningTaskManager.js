@@ -109,4 +109,21 @@ export default class LongRunningTaskManager extends EntityManager {
         });
     };
   }
+
+  processCreatedTask(taskId, uiKey, cb) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().processCreatedTask(taskId)
+        .then(() => {
+          dispatch(this.dataManager.stopRequest(uiKey));
+          if (cb) {
+            cb();
+          }
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.dataManager.receiveError(null, uiKey, error));
+        });
+    };
+  }
 }

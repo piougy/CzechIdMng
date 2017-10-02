@@ -19,87 +19,93 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
-public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
+public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmRoleDto>
 		implements SynchronizationEntityExecutor {
 
 	private final IdmRoleService roleService;
 	private final AccRoleAccountService roleAccoutnService;
-	private final IdmRoleRepository roleRepository;
 	public final static String ROLE_TYPE_FIELD = "roleType";
 
 	@Autowired
-	public RoleSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
+	public RoleSynchronizationExecutor(
+			IcConnectorFacade connectorFacade, 
+			SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmRoleService roleService,
-			AccRoleAccountService roleAccoutnService, SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService roleRoleService, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, IdmRoleRepository roleRepository) {
+			SysSyncConfigService synchronizationConfigService, 
+			SysSyncLogService synchronizationLogService,
+			SysSyncActionLogService syncActionLogService, 
+			AccAccountService accountService,
+			SysSystemEntityService systemEntityService, 
+			ConfidentialStorage confidentialStorage,
+			FormService formService, 
+			IdmRoleService roleService,
+			AccRoleAccountService roleAccoutnService, 
+			SysSyncItemLogService syncItemLogService,
+			IdmIdentityRoleService roleRoleService, 
+			EntityEventManager entityEventManager,
+			GroovyScriptService groovyScriptService, 
+			WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityManager entityManager,
+			SysSystemMappingService systemMappingService,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSchemaAttributeService schemaAttributeService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager);
-
+				workflowProcessInstanceService, entityManager, systemMappingService,
+				schemaObjectClassService, schemaAttributeService);
+		//
 		Assert.notNull(roleService, "Identity service is mandatory!");
 		Assert.notNull(roleAccoutnService, "Identity account service is mandatory!");
 		Assert.notNull(roleRoleService, "Identity role service is mandatory!");
-		Assert.notNull(roleRepository);
-
+		//
 		this.roleService = roleService;
 		this.roleAccoutnService = roleAccoutnService;
-		this.roleRepository = roleRepository;
 	}
 
 	/**
@@ -111,21 +117,21 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRole entity = null;
+		IdmRoleDto dto = null;
 		if (entityId != null) {
-			entity = roleService.get(entityId);
+			dto = roleService.get(entityId);
 		}
-		if (entity == null) {
+		if (dto == null) {
 			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
 		// Delete role
-		roleService.delete(entity);
+		roleService.delete(dto);
 	}
 
 	/**
@@ -137,10 +143,10 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRole entity = null;
+		IdmRoleDto entity = null;
 		if (entityId != null) {
 			entity = roleService.get(entityId);
 		}
@@ -161,13 +167,13 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
-		IdmRole role = (IdmRole) entity;
+	@Override
+	protected void callProvisioningForEntity(IdmRoleDto entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Call provisioning (process RoleEventType.SAVE) for role ({0}) with username ({1}).",
-						role.getId(), role.getName()));
-		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, role)).getContent();
+						entity.getId(), entity.getName()));
+		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, entity)).getContent();
 	}
 
 	/**
@@ -180,16 +186,16 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param icAttributes
 	 * @param account
 	 */
-	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
-			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
+	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
+			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account) {
 		// We will create new Role
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new role.");
-		IdmRole role = new IdmRole();
+		IdmRoleDto role = new IdmRoleDto();
 		// Fill Role by mapped attribute
-		role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, true);
+		role = fillEntity(mappedAttributes, uid, icAttributes, role, true);
 		
 		// Create new Role
-		this.saveEntity(role, true);
+		role = this.save(role, true);
 		
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, true);
@@ -228,21 +234,21 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUpdateEntity(SynchronizationContext context) {
 		
 		String uid = context.getUid();
-		SysSyncLog log = context.getLog(); 
-		SysSyncItemLog logItem = context.getLogItem();
-		List<SysSyncActionLog> actionLogs = context.getActionLogs();
-		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
-		AccAccount account = context.getAccount();
+		SysSyncLogDto log = context.getLog(); 
+		SysSyncItemLogDto logItem = context.getLogItem();
+		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
+		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
+		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRole role = null;
+		IdmRoleDto role = null;
 		if (entityId != null) {
 			role = roleService.get(entityId);
 		}
 		if (role != null) {
 			// Update role
-			role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, false);
-			this.saveEntity(role, true);
+			role = fillEntity(mappedAttributes, uid, icAttributes, role, false);
+			this.save(role, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, false);
 			// Update confidential attribute (entity must be persisted
@@ -276,13 +282,13 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUnlink(AccAccount account, boolean removeRoleRole, SysSyncLog log, SysSyncItemLog logItem,
-			List<SysSyncActionLog> actionLogs) {
+	protected void doUnlink(AccAccountDto account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
+			List<SysSyncActionLogDto> actionLogs) {
 
-		EntityAccountFilter roleAccountFilter = new RoleAccountFilter();
+		EntityAccountFilter roleAccountFilter = new AccRoleAccountFilter();
 		roleAccountFilter.setAccountId(account.getId());
 		List<AccRoleAccountDto> roleAccounts = roleAccoutnService
-				.find((RoleAccountFilter) roleAccountFilter, null).getContent();
+				.find((AccRoleAccountFilter) roleAccountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
 			addToItemLog(logItem, "Role account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -321,26 +327,20 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	@Override
-	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
-		IdmRole role = (IdmRole) entity;
-		EntityEvent<IdmRole> event = new RoleEvent(roleService.isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+	protected IdmRoleDto save(IdmRoleDto entity, boolean skipProvisioning) {		
+		// Content will be set in service (we need do transform entity to DTO). 
+		// Here we set only dummy dto (null content is not allowed)
+		EntityEvent<IdmRoleDto> event = new RoleEvent(
+				roleService.isNew(entity) ? RoleEventType.CREATE : RoleEventType.UPDATE, 
+				entity, 
+				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
 		
 		return roleService.publish(event).getContent();
 	}
 
 	@Override
-	public boolean supports(SystemEntityType delimiter) {
-		return SystemEntityType.ROLE == delimiter;
-	}
-
-	@Override
-	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		return roleService.get(entityId);
-	}
-
-	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
-		return new RoleAccountFilter();
+		return new AccRoleAccountFilter();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -354,15 +354,9 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return new AccRoleAccountDto();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmRole now.
-	}
-
-	@Override
-	protected List<? extends AbstractEntity> findAllEntity() {
-		return roleService.find(null).getContent();
+	protected IdmRoleService getService() {
+		return roleService;
 	}
 
 	@Override
@@ -371,22 +365,17 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	protected BaseEntityRepository getRepository() {
-		return this.roleRepository;
-	}
-
-	@Override
 	protected CorrelationFilter getEntityFilter() {
-		return new RoleFilter();
+		return new IdmRoleFilter();
 	}
 
 	@Override
-	protected AbstractEntity findEntityByAttribute(String idmAttributeName, String value) {
+	protected IdmRoleDto findByAttribute(String idmAttributeName, String value) {
 		CorrelationFilter filter = getEntityFilter();
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
 		
-		List<IdmRole> entities = roleService.find((RoleFilter) filter, null).getContent();
+		List<IdmRoleDto> entities = roleService.find((IdmRoleFilter) filter, null).getContent();
 		
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;

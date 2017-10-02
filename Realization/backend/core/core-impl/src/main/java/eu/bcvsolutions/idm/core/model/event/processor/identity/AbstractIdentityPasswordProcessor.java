@@ -1,16 +1,24 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 
 /**
  * Implementation of password change logic. Purpose of this abstraction is that password can be now changed from various
@@ -20,10 +28,10 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
  */
 public abstract class AbstractIdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);
-	private final IdmPasswordService passwordService;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractIdentityPasswordProcessor.class);
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";
-
+	//
+	private final eu.bcvsolutions.idm.core.api.service.IdmPasswordService passwordService;
 
 	public AbstractIdentityPasswordProcessor(IdmPasswordService passwordService, EventType... types) {
 		super(types);
@@ -41,6 +49,15 @@ public abstract class AbstractIdentityPasswordProcessor extends CoreEventProcess
 		//
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto);
+			Map<String, Object> parameters = new LinkedHashMap<>();
+			parameters.put("account",ImmutableMap.of(
+					"idm", Boolean.TRUE.toString(),
+					"uid", identity.getUsername()));
+			return new DefaultEventResult.Builder<>(event, this).setResult(
+					new OperationResult.Builder(OperationState.EXECUTED)
+						.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS, parameters))
+						.build()
+					).build();
 		}
 		return new DefaultEventResult<>(event, this);
 	}

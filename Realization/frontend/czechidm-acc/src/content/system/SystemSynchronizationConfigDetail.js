@@ -119,10 +119,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     formEntity.tokenAttribute = formFilter.tokenAttribute;
     formEntity.customFilterScript = formFilter.customFilterScript;
     //
-    formEntity.systemMapping = systemMappingManager.getSelfLink(formEntity.systemMapping);
-    formEntity.correlationAttribute = systemAttributeMappingManager.getSelfLink(formEntity.correlationAttribute);
-    formEntity.tokenAttribute = systemAttributeMappingManager.getSelfLink(formEntity.tokenAttribute);
-    formEntity.filterAttribute = systemAttributeMappingManager.getSelfLink(formEntity.filterAttribute);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         if (startSynchronization) {
@@ -135,7 +131,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         }
       }));
     } else {
-      this.context.store.dispatch(synchronizationConfigManager.patchEntity(formEntity, `${uiKey}-detail`,
+      this.context.store.dispatch(synchronizationConfigManager.updateEntity(formEntity, `${uiKey}-detail`,
          startSynchronization ? this.afterSaveAndStartSynchronization.bind(this, formEntity, null) : this.afterSave.bind(this, formEntity, null, close)));
     }
   }
@@ -289,7 +285,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const forceSearchSyncActionWfKey = new Domain.SearchParameters().setFilter('category', syncActionWfKey);
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
-    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping.id : null;
+    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
 
     let isSelectedTree = false;
@@ -298,11 +294,11 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         isSelectedTree = true;
       }
     } else {
-      if (synchronizationConfig && synchronizationConfig.systemMapping && synchronizationConfig.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+      if (synchronizationConfig && synchronizationConfig._embedded && synchronizationConfig._embedded.systemMapping
+          && synchronizationConfig._embedded.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
       }
     }
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -597,12 +593,6 @@ SystemSynchronizationConfigDetail.defaultProps = {
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.params.configId);
-  if (entity) {
-    entity.correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute : null;
-    entity.tokenAttribute = entity._embedded && entity._embedded.tokenAttribute ? entity._embedded.tokenAttribute : null;
-    entity.filterAttribute = entity._embedded && entity._embedded.filterAttribute ? entity._embedded.filterAttribute : null;
-    entity.systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping : null;
-  }
   return {
     _synchronizationConfig: entity,
     _showLoading: entity ? false : true,

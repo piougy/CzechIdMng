@@ -112,7 +112,7 @@ class SystemMappings extends Advanced.AbstractTableContent {
               header={this.i18n('acc:entity.SystemMapping.name')}
               sort/>
             <Advanced.Column
-              property="objectClass.objectClassName"
+              property="_embedded.objectClass.objectClassName"
               face="text"
               header={this.i18n('acc:entity.SystemMapping.objectClass')}
               sort/>

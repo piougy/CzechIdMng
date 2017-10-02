@@ -9,13 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -25,16 +22,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "accounts", //
-		path = "accounts", //
-		itemResourceRel = "account", //
-		// excerptProjection = AccAccountExcerpt.class,
-		exported = false // we are using repository metadata, but we want expose rest endpoint manually
-	)
-public interface AccAccountRepository extends AbstractEntityRepository<AccAccount, AccountFilter> {
+public interface AccAccountRepository extends AbstractEntityRepository<AccAccount> {
 	
-	@Override
 	@Query(value = "select e from AccAccount e left join e.systemEntity se " +
 	        " where" +
 	        " (?#{[0].id} is null or e.id = ?#{[0].id})" +
@@ -67,8 +56,10 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        	  + " and sm.operationType = 'PROVISIONING'"
 	        	  + " and sa.name = '" + ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME + "'"
 	        	+ " )" +
-        	" )")
-	Page<AccAccount> find(AccountFilter filter, Pageable pageable);
+        	" )" +
+        	" and" +
+	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
+	Page<AccAccount> find(AccAccountFilter filter, Pageable pageable);
 	
 	Long countBySystem(@Param("system") SysSystem system);
 	

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.audit.service.impl;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -8,20 +9,20 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventExceptionDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventExceptionFilter;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventExceptionDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventExceptionFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventExceptionService;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventException;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventException_;
 import eu.bcvsolutions.idm.core.audit.repository.IdmLoggingEventExceptionRepository;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventExceptionService;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -33,7 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 @Service
 public class DefaultIdmLoggingEventExceptionService extends
-		AbstractReadDtoService<IdmLoggingEventExceptionDto, IdmLoggingEventException, LoggingEventExceptionFilter>
+		AbstractReadDtoService<IdmLoggingEventExceptionDto, IdmLoggingEventException, IdmLoggingEventExceptionFilter>
 		implements IdmLoggingEventExceptionService {
 
 	private final IdmLoggingEventExceptionRepository repository;
@@ -49,7 +50,7 @@ public class DefaultIdmLoggingEventExceptionService extends
 
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmLoggingEventException> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, LoggingEventExceptionFilter filter) {
+			CriteriaBuilder builder, IdmLoggingEventExceptionFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		
 		if (filter.getEvent() != null) {
@@ -62,12 +63,7 @@ public class DefaultIdmLoggingEventExceptionService extends
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.AUDIT, getEntityClass());
-	}
-
-	@Override
-	public Page<IdmLoggingEventExceptionDto> findAllByEvent(Long event, Pageable pageable) {
-		return toDtoPage(repository.findAllByEvent(event, pageable));
+		return new AuthorizableType(CoreGroupPermission.AUDIT, null);
 	}
 	
 	@Override
@@ -82,5 +78,25 @@ public class DefaultIdmLoggingEventExceptionService extends
 		dto.setTraceLine(entity.getTraceLine());
 		dto.setId(entity.getId());
 		return dto;
+	}
+	
+	@Override
+	protected IdmLoggingEventException getEntity(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		IdmLoggingEventExceptionFilter filter = new IdmLoggingEventExceptionFilter();
+		filter.setId(Long.valueOf(id.toString()));
+		List<IdmLoggingEventExceptionDto> entities = this.find(filter, null, permission).getContent();
+		if (entities.isEmpty()) {
+			return null;
+		}
+		// for given id must found only one entity
+		IdmLoggingEventException entity = this.toEntity(entities.get(0));
+		return checkAccess(entity, permission);
+	}
+
+	@Override
+	@Transactional
+	public void deleteByEventId(Long eventId) {
+		this.repository.deleteByEventId(eventId);
 	}
 }

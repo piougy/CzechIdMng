@@ -8,28 +8,29 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.CodeableEvaluator;
-import eu.bcvsolutions.idm.core.security.service.LoginService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test whole self identity profile read and password change
@@ -57,9 +58,9 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
-			IdmRole readRole = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
+			IdmRoleDto readRole = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			assertEquals(TEST_ROLE_ID, readRole.getId());
-			assertEquals(1, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, roleTreeNodeService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
@@ -74,9 +75,9 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
-			IdmRole readRole = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
+			IdmRoleDto readRole = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			assertEquals(TEST_ROLE_ID, readRole.getId());
-			assertEquals(1, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(1, roleTreeNodeService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(3, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
@@ -104,7 +105,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
-			IdmRole role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
+			IdmRoleDto role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			
 			IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 			roleTreeNode.setRole(role.getId());
@@ -133,7 +134,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 	@Test
 	public void testDisabledPolicy() {
 		IdmIdentityDto identity = createIdentityWithRole(true);
-		IdmRole role = null;
+		IdmRoleDto role = null;
 		//
 		// before disbale
 		try {			
@@ -141,7 +142,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 			//
 			role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			assertEquals(TEST_ROLE_ID, role.getId());
-			assertEquals(1, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(1, roleTreeNodeService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(3, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
@@ -150,7 +151,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		//
 		// disable policy
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		AuthorizationPolicyFilter filter = new AuthorizationPolicyFilter();
+		IdmAuthorizationPolicyFilter filter = new IdmAuthorizationPolicyFilter();
 		filter.setRoleId(role.getId());
 		filter.setAuthorizableType(IdmRole.class.getCanonicalName());
 		IdmAuthorizationPolicyDto policy = authorizationPolicyService.find(filter, null).getContent().get(0);
@@ -162,7 +163,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
-			assertEquals(0, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(0, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, roleTreeNodeService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
@@ -173,7 +174,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 	@Test
 	public void testDisabledEvaluator() {
 		IdmIdentityDto identity = createIdentityWithRole(true);
-		IdmRole role = null;
+		IdmRoleDto role = null;
 		//
 		// before disbale
 		try {			
@@ -181,7 +182,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 			//
 			role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			assertEquals(TEST_ROLE_ID, role.getId());
-			assertEquals(1, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(1, roleTreeNodeService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(3, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
@@ -199,7 +200,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
-			assertEquals(0, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(0, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, roleTreeNodeService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
@@ -215,8 +216,8 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 	private IdmIdentityDto createIdentityWithRole(boolean transitive) {
 		TEST_ROLE_ID = UUID.randomUUID();
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		IdmRole role = helper.createRole(TEST_ROLE_ID, null);
-		IdmTreeNode treeNode = helper.createTreeNode();
+		IdmRoleDto role = helper.createRole(TEST_ROLE_ID, null);
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		helper.createRoleTreeNode(role, treeNode, true);
 		// self policy
 		IdmAuthorizationPolicyDto readRolePolicy = new IdmAuthorizationPolicyDto();

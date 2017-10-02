@@ -10,6 +10,7 @@ import java.util.List;
  *
  */
 public interface IcObjectClassInfo {
+	public static final String ACCOUNT = "__ACCOUNT__";
 
 	String getType();
 

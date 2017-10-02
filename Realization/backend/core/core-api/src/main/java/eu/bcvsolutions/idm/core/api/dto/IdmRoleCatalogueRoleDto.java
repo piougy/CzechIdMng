@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
  * Assign role to catalogue. Role can be in more catalogue items.
  * 
  * @author Radek Tomiška
- *
+ * 
  */
 @Relation(collectionRelation = "roleCatalogueRoles")
 public class IdmRoleCatalogueRoleDto extends AbstractDto {

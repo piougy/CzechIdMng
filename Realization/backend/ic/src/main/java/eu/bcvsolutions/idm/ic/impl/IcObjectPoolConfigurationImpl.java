@@ -4,6 +4,8 @@ import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 
 public class IcObjectPoolConfigurationImpl implements IcObjectPoolConfiguration {
 	
+	private static final long serialVersionUID = 870775256634831214L;
+
 	/**
      * Max objects (idle+active).
      */

@@ -3,21 +3,19 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
@@ -27,26 +25,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -75,16 +74,16 @@ import io.swagger.annotations.AuthorizationScope;;
  * @author Ondřej Kopr
  *
  */
-@RepositoryRestController
+@RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/systems")
 @Api(
 		value = SysSystemController.TAG, 
 		tags = SysSystemController.TAG, 
 		description = "Operations with target systems",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, SysSystemFilter> {
+public class SysSystemController extends AbstractReadWriteDtoController<SysSystemDto, SysSystemFilter> {
 	
 	protected static final String TAG = "Systems";
 	//
@@ -96,12 +95,11 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	
 	@Autowired
 	public SysSystemController(
-			LookupService entityLookupService, 
 			SysSystemService systemService, 
 			IdmFormDefinitionController formDefinitionController,
 			IcConfigurationFacade icConfiguration,
 			ConfidentialStorage confidentialStorage) {
-		super(entityLookupService);
+		super(systemService);
 		//
 		Assert.notNull(systemService);
 		Assert.notNull(formDefinitionController);
@@ -133,9 +131,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@ResponseBody
@@ -156,9 +153,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable, 
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@Override
@@ -169,7 +165,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@ApiOperation(
 			value = "System detail", 
 			nickname = "getSystem", 
-			response = SysSystem.class, 
+			response = SysSystemDto.class, 
 			tags = { SysSystemController.TAG }, 
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -181,9 +177,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 					})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 
 	@Override
@@ -194,7 +189,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@ApiOperation(
 			value = "Create / update system", 
 			nickname = "postSystem", 
-			response = SysSystem.class, 
+			response = SysSystemDto.class, 
 			tags = { SysSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -204,9 +199,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_CREATE, description = ""),
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@RequestBody @NotNull SysSystemDto dto) {
+		return super.post(dto);
 	}
 
 	@Override
@@ -216,7 +210,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@ApiOperation(
 			value = "Update system",
 			nickname = "putSystem", 
-			response = SysSystem.class, 
+			response = SysSystemDto.class, 
 			tags = { SysSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -226,33 +220,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				})
 	public ResponseEntity<?> put(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@ApiOperation(
-			value = "Update system",
-			nickname = "patchSystem", 
-			response = SysSystem.class, 
-			tags = { SysSystemController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@PathVariable @NotNull String backendId, @RequestBody @NotNull SysSystemDto dto) {
+		return super.put(backendId, dto);
 	}
 
 	@Override
@@ -291,14 +260,13 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			notes = "Genetares schema by system's connector configuration")
 	public ResponseEntity<?> generateSchema(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		SysSystem system = getEntity(backendId);
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto system = getDto(backendId);
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		systemService.generateSchema(system);
-		return new ResponseEntity<>(toResource(system, assembler), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(system), HttpStatus.OK);
 	}
 	
 	@ResponseBody
@@ -317,24 +285,13 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			notes = "Creates system duplicate with all configurations - connector, schemas, mappings etc.. Duplicate is disabled by default.")
 	public ResponseEntity<?> duplicate(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		SysSystem system = getEntity(backendId);
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto system = getDto(backendId);
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		SysSystem duplicate = systemService.duplicate(system.getId());
-		return new ResponseEntity<>(toResource(duplicate, assembler), HttpStatus.OK);
-	}
-
-	@Override
-	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SysSystemFilter filter = new SysSystemFilter();
-		filter.setText((String) parameters.toSingleValueMap().get("text"));
-		// TODO: diff between validate and generate policy
-		filter.setPasswordPolicyValidationId(getParameterConverter().toUuid(parameters, "passwordPolicyId"));
-
-		return filter;
+		SysSystemDto duplicate = systemService.duplicate(system.getId());
+		return new ResponseEntity<>(toResource(duplicate), HttpStatus.OK);
 	}
 	
 	/**
@@ -367,7 +324,6 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -385,14 +341,13 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				})
 	public ResponseEntity<?> getConnectorFormDefinition(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		SysSystem system = getEntity(backendId);
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto system = getDto(backendId);
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
-		return formDefinitionController.get(formDefinition.getId().toString(), assembler);	
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(system);
+		return formDefinitionController.get(formDefinition.getId().toString());	
 	}
 	
 	/**
@@ -400,7 +355,6 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -416,16 +370,15 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				})
-	public Resources<?> getConnectorFormValues(
+	public Resource<?> getConnectorFormValues(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		SysSystem entity = getEntity(backendId);
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(entity);
-		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(entity);
+		return formDefinitionController.getFormValues(entity, formDefinition);
 	}
 	
 	/**
@@ -433,7 +386,6 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -449,17 +401,16 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
 				})
-	public Resources<?> saveConnectorFormValues(
+	public Resource<?> saveConnectorFormValues(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId,
-			@RequestBody @Valid List<SysSystemFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
-		SysSystem entity = getEntity(backendId);
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
+		SysSystemDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(entity);
-		return formDefinitionController.saveFormValues(entity, formDefinition, formValues, assembler);
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(entity);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
@@ -477,9 +428,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			notes = "Check system connector configuration.")
 	public ResponseEntity<?> checkSystem(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
-		systemService.checkSystem(super.getEntity(backendId));
+			@PathVariable @NotNull String backendId) {
+		systemService.checkSystem(super.getDto(backendId));
 		return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
 	}
 	
@@ -502,10 +452,10 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				},
 			notes = "Supported local conectors (on classpath).")
-	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableLocalConnectors(
+	public ResponseEntity<Map<String, Set<IcConnectorInfo>>> getAvailableLocalConnectors(
 			@ApiParam(value = "Connector framework.", example = "connId", defaultValue = "connId")
 			@RequestParam(required = false) String framework) {
-		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		Map<String, Set<IcConnectorInfo>> infos = new HashMap<>();
 		if (framework != null) {
 			if (!icConfiguration.getIcConfigs().containsKey(framework)) {
 				throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
@@ -517,7 +467,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		} else {
 			infos = icConfiguration.getAvailableLocalConnectors();
 		}
-		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+		return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 	
 	/**
@@ -540,24 +490,24 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				},
 			notes = "Supported remote conectors (by remote server configuration).")
-	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableRemoteConnectors(
+	public ResponseEntity<Map<String, Set<IcConnectorInfo>>> getAvailableRemoteConnectors(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
-		SysSystem entity = this.getEntity(backendId);
+		SysSystemDto dto = this.getDto(backendId);
 
-		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		Map<String, Set<IcConnectorInfo>> infos = new HashMap<>();
 		
 		// if entity hasn't set up for remote return empty map
-		if (entity == null || !entity.isRemote()) {
-			return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+		if (dto == null || !dto.isRemote()) {
+			return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 		}
 
- 		Assert.notNull(entity.getConnectorServer());
+ 		Assert.notNull(dto.getConnectorServer());
  		//
  		try {
  			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
-				SysConnectorServer server = entity.getConnectorServer();
-				server.setPassword(this.confidentialStorage.getGuardedString(entity.getId(), getEntityClass(), SysSystemService.REMOTE_SERVER_PASSWORD));
+				SysConnectorServerDto server = dto.getConnectorServer();
+				server.setPassword(this.confidentialStorage.getGuardedString(dto.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
 				infos.put(config.getFramework(), config.getAvailableRemoteConnectors(server));
 			}
 		} catch (IcInvalidCredentialException e) {
@@ -574,7 +524,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
 		}
 		//
-		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+		return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 	
 	/**
@@ -584,7 +534,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @param system
 	 * @return
 	 */
-	private synchronized IdmFormDefinition getConnectorFormDefinition(SysSystem system) {
+	private synchronized IdmFormDefinitionDto getConnectorFormDefinition(SysSystemDto system) {
 		Assert.notNull(system);
 		//
 		// connector key can't be null
@@ -593,11 +543,21 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		}
 		// for remote connector form definition we need password for remote connector server
 		if (system.isRemote()) {
-			SysConnectorServer connectorServer = system.getConnectorServer();
-			connectorServer.setPassword(this.confidentialStorage.getGuardedString(system.getId(), getEntityClass(), SysSystemService.REMOTE_SERVER_PASSWORD));
+			SysConnectorServerDto connectorServer = system.getConnectorServer();
+			connectorServer.setPassword(this.confidentialStorage.getGuardedString(system.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
 			system.setConnectorServer(connectorServer);
 		}
 		//
 		return systemService.getConnectorFormDefinition(system.getConnectorInstance());
+	}
+	
+	@Override
+	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSystemFilter filter = new SysSystemFilter();
+		filter.setText((String) parameters.toSingleValueMap().get("text"));
+		filter.setPasswordPolicyValidationId(getParameterConverter().toUuid(parameters, "passwordPolicyValidationId"));
+		filter.setPasswordPolicyGenerationId(getParameterConverter().toUuid(parameters, "passwordPolicyGenerationId"));
+		filter.setVirtual(getParameterConverter().toBoolean(parameters, "virtual"));
+		return filter;
 	}
 }

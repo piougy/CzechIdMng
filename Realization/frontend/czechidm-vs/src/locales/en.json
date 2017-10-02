@@ -1,0 +1,227 @@
+{
+  "module": {
+    "name": "Module of virtual systems",
+    "author": "BCV solutions s.r.o."
+  },
+  "entity": {
+    "VsRequest": {
+      "_type": "Request on virtual system",
+      "uid": {
+        "label": "UID"
+      },
+      "state": {
+        "label": "State"
+      },
+      "systemId": {
+        "label": "System"
+      },
+      "operationType": {
+        "label": "Type"
+      },
+      "executeImmediately": {
+        "label": "Without confirmation"
+      },
+      "implementers": {
+        "label": "Implementers"
+      },
+      "reason": {
+        "label": "Reason of cancel"
+      },
+      "created": {
+        "label": "Created"
+      },
+      "modified": {
+        "label": "Modified"
+      },
+      "creator": {
+        "label": "Creator"
+      }
+    }
+  },
+  "permission": {
+    "group": {
+      "VSREQUEST": "Requests on virtual systems",
+      "VSACCOUNT": "Accounts on virtual systems"
+    }
+  },
+  "content": {
+    "dashboard": {
+      "vsDashboard": {
+        "header": "Requests on virtual systems",
+        "title": "Dashboard for virtual systems",
+        "text": "Dashboard for virtual systems"
+      }
+    },
+    "virtuals": {
+      "header": "Virtual systems",
+      "label": "Virtual systems",
+      "title": "Virtual systems"
+    },
+    "vs-systems": {
+      "header": "Virtual systems",
+      "label": "List",
+      "title": "Virtual systems"
+    },
+    "vs-system": {
+      "name": {
+        "label": "Name",
+        "placeholder": ""
+      },
+      "implementers": {
+        "label": "Implementers",
+        "placeholder": "Users in IdM who will be realized requests"
+      },
+      "implementerRoles": {
+        "label": "Roles with implementers",
+        "placeholder": "Users in the IdM who have assigned these roles will be realized requests"
+      },
+      "label": "List",
+      "title": "Virtual systems",
+      "action": {
+        "create": {
+          "message": "For create new virtual system fill his name and choose implementers:",
+          "header": "Creating new virtual system",
+          "success": "Virtual system [{{system}}] was successesd created"
+        }
+      },
+      "button": {
+        "cancel": "Cancel",
+        "create": "Create system"
+      }
+    },
+    "vs-requests": {
+      "header": "Requests",
+      "label": "Requests",
+      "title": "Requests",
+      "info": "Managining requests on virtual systems",
+      "filter": {
+        "text": {
+          "placeholder": "UID (account identifier)"
+        }
+      },
+      "cancel-reason": {
+        "placeholder": "Fill reason for cancel ..."
+      },
+      "tabs": {
+        "active": {
+          "label": "Unresolved requests"
+        },
+        "archive": {
+          "label": "Archive"
+        }
+      },
+      "action": {
+        "realize": {
+          "action": "Realized",
+          "header": "Mark the request as realized",
+          "header_plural": "Mark the requests as realized",
+          "message": "Do you want mark request [<strong>{{record}}</strong>] as realized?",
+          "message_plural": "Selected requests: [<strong>{{records}}</strong>].<br /><br />Do you want selected requests <strong>{{count}}</strong> mark as realized?",
+          "error": "An error occurred while request realizating",
+          "success": "Selected request [{{record}}] was successfully marked as realized",
+          "success_plural": "Selected requests [{{records}}] was successfully marked as realized"
+        },
+        "cancel": {
+          "action": "Cancel",
+          "header": "Cancel request",
+          "header_plural": "Cancel requests",
+          "message": "Do you want request [<strong>{{record}}</strong>] canceling?",
+          "message_plural": "Selected requests: [<strong>{{records}}</strong>].<br /><br />Do you want selected requests <strong>{{count}}</strong> canceling?",
+          "error": "An error occurred while request [{{record}}] canceling",
+          "success": "Selected request was successfully canceled",
+          "success_plural": "Selected requests [{{record}}] was successfully canceled"
+        }
+      }
+    },
+    "vs-request": {
+      "detail" : {
+        "basic": "Detail of request for realization",
+        "header": "Request for realization",
+        "title": "$t(vs:content.vs-request.detail.header)",
+        "requestAttributes": "Attributes in this request",
+        "wishAttributes": "Target state on the system",
+        "label": {
+          "oldValue": "Previous value",
+          "targetValue": "Target value"
+        },
+        "alert": {
+          "accountShouldBeDeleted": "The account is to be removed on target system.",
+          "accountShouldBeCreated": "The account is to be created on target system."
+        },
+        "beforeRequests": {
+          "label": "Previous unresolved requests"},
+        "afterRequests": {
+          "label": "Next unresolved requests"},
+        "edit": {
+          "title": "Request detail",
+          "header": "{{name}} <small>request detail</small>"
+        },
+        "realize": {
+          "success": "Request [{{name}}] was successfully realized"
+        },
+        "cancel": {
+          "success": "Request [{{name}}] was successfully canceled"
+        },
+        "button": {
+          "request": {
+            "realize": "Realized",
+            "cancel": "Cancel request"
+          }
+        },
+        "attribute": {
+          "diff": {
+            "ADDED": "Value to be added",
+            "REMOVED": "Value to be removed",
+            "UPDATED": "Value to be updated"
+          }
+        }
+      }
+    }
+  },
+  "enums": {
+    "VsOperationType":{
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "DELETE": "Delete",
+      "DISABLE": "Disable",
+      "ENABLE": "Enable",
+      "RESET_PASSWORD": "Password reset"
+    },
+    "VsRequestState":{
+      "CONCEPT": "Concept",
+      "EXECUTED": "Executed",
+      "CANCELED": "Canceled",
+      "REALIZED": "Realized",
+      "REJECTED": "Rejected",
+      "IN_PROGRESS": "Unresolved",
+      "EXCEPTION": "Exception occurred",
+      "DUPLICATED": "Duplicated"
+    }
+  },
+  "error": {
+    "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
+      "title": "Account [{{uid}}] on target system cannot be deleted",
+      "message": "Account [{{uid}}] on target system cannot be deleted, because was not found. Make sure you first realized a 'create' request for account! "
+    },
+    "VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST": {
+      "title": "Account [{{uid}}] on target system cannot be updated",
+      "message": "Account [{{uid}}] on target system cannot be updated, because was not found. Make sure you first realized a 'create' request for account! "
+    },
+    "VS_IMPLEMENTER_WAS_NOT_FOUND": {
+      "title": "Implementer for virtual system was not found!",
+      "message": "Implementer [{{implementer}}] for virtual system was not found!"
+    },
+    "VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND": {
+      "title": "Implementer`s role for virtual system was not found!",
+      "message": "Implementer`s role [{{role}}] for virtual system was not found!"
+    },
+    "VS_REQUEST_REALIZE_WRONG_STATE": {
+      "title": "Request on virtual system cannot be realized!",
+      "message": "Request can be realized only if is in state [{{state}}]. This request but is in state [{{currentState}}]!"
+    },
+    "VS_REQUEST_CANCEL_WRONG_STATE": {
+      "title": "Request on virtual system cannot be canceled!",
+      "message": "Request can be canceled only if is in state [{{state}}]. This request but is in state [{{currentState}}]!"
+    }
+  }
+}

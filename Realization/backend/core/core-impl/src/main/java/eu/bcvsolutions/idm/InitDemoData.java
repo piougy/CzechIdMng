@@ -20,39 +20,47 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.ContractGuaranteeByIdentityContractEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleRequestByIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleRequestByWfInvolvedIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.SelfRoleRequestEvaluator;
 
 /**
  * Initialize demo data for application
@@ -69,6 +77,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data.created";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
+	public static final String FORM_ATTRIBUTE_UUID = "uuid";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	public static final String DEFAULT_ROLE_NAME = "userRole";
@@ -115,26 +124,25 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentityDto identityAdmin = this.identityService.getByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNode> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
-			IdmTreeNode rootOrganization = null;
+			Page<IdmTreeNodeDto> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
+			IdmTreeNodeDto rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);
 			} else {
-				IdmTreeNode organizationRoot = new IdmTreeNode();
+				IdmTreeNodeDto organizationRoot = new IdmTreeNodeDto();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Organization ROOT");
-				organizationRoot.setTreeType(treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE));
-				this.treeNodeService.save(organizationRoot);
+				organizationRoot.setTreeType(treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE).getId());
+				organizationRoot = this.treeNodeService.save(organizationRoot);
 			}
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
 				LOG.info("Creating demo data ...");		
 				//
 				// create default password policy for validate
-				IdmPasswordPolicy passValidate = null;
+				IdmPasswordPolicyDto passValidate = null;
 				try {
 					passValidate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 				} catch (ResultCodeException e) {
@@ -146,7 +154,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				// if password policy still not exist create default password policy
 				if (passValidate == null) {
-					passValidate = new IdmPasswordPolicy();
+					passValidate = new IdmPasswordPolicyDto();
 					passValidate.setName("DEFAULT_VALIDATE_POLICY");
 					passValidate.setDefaultPolicy(true);
 					passValidate.setType(IdmPasswordPolicyType.VALIDATE);
@@ -154,7 +162,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				//
 				// create default password policy for generate
-				IdmPasswordPolicy passGenerate = null;
+				IdmPasswordPolicyDto passGenerate = null;
 				try {
 					passGenerate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
 				} catch (ResultCodeException e) {
@@ -166,7 +174,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				// if still not exist create default generate password policy
 				if (passGenerate == null) {
-					passGenerate = new IdmPasswordPolicy();
+					passGenerate = new IdmPasswordPolicyDto();
 					passGenerate.setName("DEFAULT_GENERATE_POLICY");
 					passGenerate.setDefaultPolicy(true);
 					passGenerate.setType(IdmPasswordPolicyType.GENERATE);
@@ -179,7 +187,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 					passwordPolicyService.save(passGenerate);
 				}
 				//
-				IdmRole role1 = new IdmRole();
+				IdmRoleDto role1 = new IdmRoleDto();
 				role1.setName(DEFAULT_ROLE_NAME);
 				role1 = this.roleService.save(role1);
 				// self policy
@@ -219,10 +227,49 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				applyForPolicy.setAuthorizableType(IdmRole.class.getCanonicalName());
 				applyForPolicy.setEvaluator(RoleCanBeRequestedEvaluator.class);
 				authorizationPolicyService.save(applyForPolicy);
+				// role requests by identity
+				IdmAuthorizationPolicyDto roleRequestByIdentityPolicy = new IdmAuthorizationPolicyDto();
+				roleRequestByIdentityPolicy.setRole(role1.getId());
+				roleRequestByIdentityPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				roleRequestByIdentityPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				roleRequestByIdentityPolicy.setEvaluator(RoleRequestByIdentityEvaluator.class);
+				authorizationPolicyService.save(roleRequestByIdentityPolicy);
+				// self role requests
+				IdmAuthorizationPolicyDto selfRoleRequestPolicy = new IdmAuthorizationPolicyDto();
+				selfRoleRequestPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.UPDATE, IdmBasePermission.CREATE, IdmBasePermission.DELETE);
+				selfRoleRequestPolicy.setRole(role1.getId());
+				selfRoleRequestPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				selfRoleRequestPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				selfRoleRequestPolicy.setEvaluator(SelfRoleRequestEvaluator.class);
+				authorizationPolicyService.save(selfRoleRequestPolicy);
+				// role rerquests in approval
+				IdmAuthorizationPolicyDto roleRequestByWfPolicy = new IdmAuthorizationPolicyDto();
+				roleRequestByWfPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.UPDATE);
+				roleRequestByWfPolicy.setRole(role1.getId());
+				roleRequestByWfPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				roleRequestByWfPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				roleRequestByWfPolicy.setEvaluator(RoleRequestByWfInvolvedIdentityEvaluator.class);
+				authorizationPolicyService.save(roleRequestByWfPolicy);
+				// tree node - autocomplete
+				IdmAuthorizationPolicyDto treeNodePolicy = new IdmAuthorizationPolicyDto();
+				treeNodePolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
+				treeNodePolicy.setRole(role1.getId());
+				treeNodePolicy.setGroupPermission(CoreGroupPermission.TREENODE.getName());
+				treeNodePolicy.setAuthorizableType(IdmTreeNode.class.getCanonicalName());
+				treeNodePolicy.setEvaluator(BasePermissionEvaluator.class);
+				authorizationPolicyService.save(treeNodePolicy);
+				// tree type - autocomplete all
+				IdmAuthorizationPolicyDto treeTypePolicy = new IdmAuthorizationPolicyDto();
+				treeTypePolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
+				treeTypePolicy.setRole(role1.getId());
+				treeTypePolicy.setGroupPermission(CoreGroupPermission.TREETYPE.getName());
+				treeTypePolicy.setAuthorizableType(IdmTreeType.class.getCanonicalName());
+				treeTypePolicy.setEvaluator(BasePermissionEvaluator.class);
+				authorizationPolicyService.save(treeTypePolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
-				IdmRole role2 = new IdmRole();
+				IdmRoleDto role2 = new IdmRoleDto();
 				role2.setName("customRole");
 				// TODO: subroles are disabled for now
 				//List<IdmRoleComposition> subRoles = new ArrayList<>();
@@ -231,7 +278,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				role2 = this.roleService.save(role2);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
-				IdmRole roleManager = new IdmRole();
+				IdmRoleDto roleManager = new IdmRoleDto();
 				roleManager.setName("manager");
 				roleManager = this.roleService.save(roleManager);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
@@ -282,22 +329,22 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
-				IdmTreeType treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+				IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
 				//
-				IdmTreeNode organization1 = new IdmTreeNode();
+				IdmTreeNodeDto organization1 = new IdmTreeNodeDto();
 				organization1.setCode("one");
 				organization1.setName("Organization One");
-				organization1.setParent(rootOrganization);
-				organization1.setTreeType(treeType);
-				this.treeNodeService.save(organization1);
+				organization1.setParent(rootOrganization.getId());
+				organization1.setTreeType(treeType.getId());
+				organization1 = this.treeNodeService.save(organization1);
 				//
-				IdmTreeNode organization2 = new IdmTreeNode();
+				IdmTreeNodeDto organization2 = new IdmTreeNodeDto();
 				organization2.setCode("two");
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
-				organization2.setParent(rootOrganization);
-				organization2.setTreeType(treeType);
-				this.treeNodeService.save(organization2);
+				organization2.setParent(rootOrganization.getId());
+				organization2.setTreeType(treeType.getId());
+				organization2 = this.treeNodeService.save(organization2);
 				//
 				IdmIdentityContractDto identityWorkPosition = new IdmIdentityContractDto();
 				identityWorkPosition.setIdentity(identityAdmin.getId());
@@ -314,109 +361,119 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				// demo eav identity form
 				
-				IdmFormAttribute letter = new IdmFormAttribute();
+				IdmFormAttributeDto letter = new IdmFormAttributeDto();
 				letter.setCode("letter");
 				letter.setName("Favorite letter");
 				letter.setPlaceholder("Character");
 				letter.setDescription("Some favorite character");
 				letter.setPersistentType(PersistentType.CHAR);
 				letter.setRequired(true);
-				formService.saveAttribute(IdmIdentity.class, letter);
+				letter = formService.saveAttribute(IdmIdentity.class, letter);
 				
-				IdmFormAttribute phone = new IdmFormAttribute();
+				IdmFormAttributeDto phone = new IdmFormAttributeDto();
 				phone.setCode(FORM_ATTRIBUTE_PHONE);
 				phone.setName("Phone");
 				phone.setDescription("Additional identitiy's phone");
 				phone.setPersistentType(PersistentType.TEXT);
-				formService.saveAttribute(IdmIdentity.class, phone);
+				phone = formService.saveAttribute(IdmIdentity.class, phone);
 				
-				IdmFormAttribute description = new IdmFormAttribute();
+				IdmFormAttributeDto description = new IdmFormAttributeDto();
 				description.setCode("description");
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
-				description.setPersistentType(PersistentType.TEXTAREA);
-				formService.saveAttribute(IdmIdentity.class, description);
+				description.setPersistentType(PersistentType.TEXT);
+				description.setFaceType("TEEXTAREA");
+				description = formService.saveAttribute(IdmIdentity.class, description);
 				
-				IdmFormAttribute rich = new IdmFormAttribute();
+				IdmFormAttributeDto rich = new IdmFormAttributeDto();
 				rich.setCode("rich");
 				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
-				rich.setPersistentType(PersistentType.RICHTEXTAREA);
-				formService.saveAttribute(IdmIdentity.class, rich);
+				rich.setPersistentType(PersistentType.TEXT);
+				description.setFaceType("RICHTEXTAREA");
+				rich = formService.saveAttribute(IdmIdentity.class, rich);
 				
-				IdmFormAttribute sure = new IdmFormAttribute();
+				IdmFormAttributeDto sure = new IdmFormAttributeDto();
 				sure.setCode("sure");
 				sure.setName("Registration");
 				sure.setPersistentType(PersistentType.BOOLEAN);
 				sure.setDefaultValue(Boolean.TRUE.toString());
-				formService.saveAttribute(IdmIdentity.class, sure);
+				sure = formService.saveAttribute(IdmIdentity.class, sure);
 				
-				IdmFormAttribute intNumber = new IdmFormAttribute();
+				IdmFormAttributeDto intNumber = new IdmFormAttributeDto();
 				intNumber.setCode("intNumber");
 				intNumber.setName("Int number");
 				intNumber.setPersistentType(PersistentType.INT);
-				formService.saveAttribute(IdmIdentity.class, intNumber);
+				intNumber = formService.saveAttribute(IdmIdentity.class, intNumber);
 				
-				IdmFormAttribute longNumber = new IdmFormAttribute();
+				IdmFormAttributeDto longNumber = new IdmFormAttributeDto();
 				longNumber.setCode("longNumber");
 				longNumber.setName("Long number");
 				longNumber.setPersistentType(PersistentType.LONG);
-				formService.saveAttribute(IdmIdentity.class, longNumber);
+				longNumber = formService.saveAttribute(IdmIdentity.class, longNumber);
 				
-				IdmFormAttribute doubleNumber = new IdmFormAttribute();
+				IdmFormAttributeDto doubleNumber = new IdmFormAttributeDto();
 				doubleNumber.setCode("doubleNumber");
 				doubleNumber.setName("Double number");
 				doubleNumber.setPersistentType(PersistentType.DOUBLE);
-				formService.saveAttribute(IdmIdentity.class, doubleNumber);
+				doubleNumber = formService.saveAttribute(IdmIdentity.class, doubleNumber);
 				
-				IdmFormAttribute currency = new IdmFormAttribute();
+				IdmFormAttributeDto currency = new IdmFormAttributeDto();
 				currency.setCode("currency");
 				currency.setName("Price");
-				currency.setPersistentType(PersistentType.CURRENCY);
-				formService.saveAttribute(IdmIdentity.class, currency);
+				currency.setPersistentType(PersistentType.DOUBLE);
+				currency.setFaceType("CURRENCY");				
+				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
-				IdmFormAttribute date = new IdmFormAttribute();
+				IdmFormAttributeDto date = new IdmFormAttributeDto();
 				date.setCode("date");
 				date.setName("Date");
 				date.setPersistentType(PersistentType.DATE);
 				date.setRequired(true);
 				date.setDescription("Important date");
-				formService.saveAttribute(IdmIdentity.class, date);
+				date = formService.saveAttribute(IdmIdentity.class, date);
 				
-				IdmFormAttribute datetime = new IdmFormAttribute();
+				IdmFormAttributeDto datetime = new IdmFormAttributeDto();
 				datetime.setCode(FORM_ATTRIBUTE_DATETIME);
 				datetime.setName("Date and time");
 				datetime.setPersistentType(PersistentType.DATETIME);
-				formService.saveAttribute(IdmIdentity.class, datetime);
+				datetime = formService.saveAttribute(IdmIdentity.class, datetime);
 				
-				IdmFormAttribute webPages = new IdmFormAttribute();
+				IdmFormAttributeDto uuid = new IdmFormAttributeDto();
+				uuid.setCode(FORM_ATTRIBUTE_UUID);
+				uuid.setName("UUID");
+				uuid.setDescription("Some uuid value");
+				uuid.setPersistentType(PersistentType.UUID);
+				uuid = formService.saveAttribute(IdmIdentity.class, uuid);
+				
+				IdmFormAttributeDto webPages = new IdmFormAttributeDto();
 				webPages.setCode(FORM_ATTRIBUTE_WWW);
 				webPages.setName("WWW");
 				webPages.setDescription("Favorite web pages (every line in new value)");
 				webPages.setPersistentType(PersistentType.TEXT);
 				webPages.setMultiple(true);
-				formService.saveAttribute(IdmIdentity.class, webPages);
+				webPages = formService.saveAttribute(IdmIdentity.class, webPages);
 				
-				IdmFormAttribute password = new IdmFormAttribute();
+				IdmFormAttributeDto password = new IdmFormAttributeDto();
 				password.setCode(FORM_ATTRIBUTE_PASSWORD);
 				password.setName("Custom password");
 				password.setPersistentType(PersistentType.TEXT);
 				password.setConfidential(true);
 				password.setDescription("Test password");
-				formService.saveAttribute(IdmIdentity.class, password);
+				password = formService.saveAttribute(IdmIdentity.class, password);
 				
-				IdmFormAttribute byteArray = new IdmFormAttribute();
+				IdmFormAttributeDto byteArray = new IdmFormAttributeDto();
 				byteArray.setCode("byteArray");
 				byteArray.setName("Byte array");
 				byteArray.setPersistentType(PersistentType.BYTEARRAY);
 				byteArray.setConfidential(false);
 				byteArray.setDescription("Test byte array");
 				byteArray.setPlaceholder("or image :-)");
-				formService.saveAttribute(IdmIdentity.class, byteArray);				
+				byteArray = formService.saveAttribute(IdmIdentity.class, byteArray);				
 				
-				List<IdmIdentityFormValue> values = new ArrayList<>();				
-				IdmIdentityFormValue phoneValue = new IdmIdentityFormValue();
-				phoneValue.setFormAttribute(phone);
+				List<IdmFormValueDto> values = new ArrayList<>();				
+				IdmFormValueDto phoneValue = new IdmFormValueDto();
+				phoneValue.setFormAttribute(phone.getId());
 				phoneValue.setStringValue("12345679");
 				values.add(phoneValue);
 				
@@ -424,36 +481,36 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				
 				//
 				// demo eav role form
-				IdmFormAttribute roleExt = new IdmFormAttribute();
+				IdmFormAttributeDto roleExt = new IdmFormAttributeDto();
 				roleExt.setCode("extAttr");
 				roleExt.setName("Ext.attr");
 				roleExt.setPersistentType(PersistentType.TEXT);
 				roleExt.setConfidential(false);
 				roleExt.setDescription("Role's custom extended attribute");
 				
-				formService.saveAttribute(IdmRole.class, roleExt);
+				roleExt = formService.saveAttribute(IdmRole.class, roleExt);
 				
 				//
 				// demo eav tree node form
-				IdmFormAttribute treeNodeExt = new IdmFormAttribute();
+				IdmFormAttributeDto treeNodeExt = new IdmFormAttributeDto();
 				treeNodeExt.setCode("extAttr");
 				treeNodeExt.setName("Ext.attr");
 				treeNodeExt.setPersistentType(PersistentType.TEXT);
 				treeNodeExt.setConfidential(false);
 				treeNodeExt.setDescription("Tree node's custom extended attribute");
 				
-				formService.saveAttribute(IdmTreeNode.class, treeNodeExt);
+				treeNodeExt = formService.saveAttribute(IdmTreeNode.class, treeNodeExt);
 				
 				//
 				// demo eav identity contract's form
-				IdmFormAttribute identityContractExt = new IdmFormAttribute();
+				IdmFormAttributeDto identityContractExt = new IdmFormAttributeDto();
 				identityContractExt.setCode("extAttr");
 				identityContractExt.setName("Ext.attr");
 				identityContractExt.setPersistentType(PersistentType.TEXT);
 				identityContractExt.setConfidential(false);
 				identityContractExt.setDescription("Identity contract's custom extended attribute");
 				
-				formService.saveAttribute(IdmIdentityContract.class, identityContractExt);
+				identityContractExt = formService.saveAttribute(IdmIdentityContract.class, identityContractExt);
 			}
 		} catch(Exception ex) {
 			LOG.warn("Demo data was not created", ex);

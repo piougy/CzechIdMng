@@ -25,9 +25,13 @@ public class ProvisioningContext implements Serializable {
 		this.accountObject = accountObject;
 	}
 	
-	public ProvisioningContext( Map<ProvisioningAttributeDto, Object> accountObject, IcConnectorObject connectorObject) {
+	public ProvisioningContext(Map<ProvisioningAttributeDto, Object> accountObject, IcConnectorObject connectorObject) {
 		this(accountObject);
 		this.connectorObject = connectorObject;
+	}
+	
+	public ProvisioningContext(ProvisioningContext context) {
+		this(context.getAccountObject(), context.getConnectorObject());
 	}
 	
 	public ProvisioningContext(IcConnectorObject connectorObject) {

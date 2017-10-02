@@ -8,16 +8,13 @@ package eu.bcvsolutions.idm.core.eav.api.domain;
 public enum PersistentType {
 
 	CHAR,
-	TEXT, 
-	TEXTAREA, 
-	RICHTEXTAREA,
-	// TODO: SCRIPTAREA
+	TEXT,
 	INT,
 	LONG, 
 	DOUBLE, 
-	CURRENCY, 
 	BOOLEAN, 
-	DATE, 
+	DATE,
 	DATETIME,
-	BYTEARRAY;
+	BYTEARRAY,
+	UUID;
 }

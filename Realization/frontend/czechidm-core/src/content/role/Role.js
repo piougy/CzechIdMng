@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { RoleManager } from '../../redux';
@@ -27,8 +26,6 @@ class Role extends Basic.AbstractContent {
 
     return (
       <div>
-        <Helmet title={this.i18n('navigation.menu.profile')} />
-
         <Basic.PageHeader showLoading={!entity && showLoading}>
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>

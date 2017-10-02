@@ -4,11 +4,13 @@ import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 
+/**
+ * Exception for IC module
+ * @author svandav
+ *
+ */
 public class IcException extends CoreException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	
@@ -19,7 +21,6 @@ public class IcException extends CoreException {
 
 	public IcException(String message, Map<String, Object> details) {
 		super(message, details);
-		// TODO Auto-generated constructor stub
 	}
 
 

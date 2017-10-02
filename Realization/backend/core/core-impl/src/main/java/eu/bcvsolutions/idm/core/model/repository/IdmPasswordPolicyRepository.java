@@ -7,14 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.Description;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
-import eu.bcvsolutions.idm.core.rest.projection.IdmPasswordPolicyExcerpt;
 
 /**
  * Password policy cointain set of rule, for create, update user password.
@@ -24,18 +21,8 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmPasswordPolicyExcerpt;
  * TODO: weak password dictonary is now only string
  *
  */
-
-@RepositoryRestResource(
-		collectionResourceRel = "passwordPolicies",
-		itemResourceRel = "passwordPolicy",
-		collectionResourceDescription = @Description("Password policies"),
-		itemResourceDescription = @Description("Password policy"),
-		excerptProjection = IdmPasswordPolicyExcerpt.class,
-		exported = false
-	)
-public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> {
+public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<IdmPasswordPolicy> {
 	
-	@Override
 	@Query(value = "SELECT e FROM IdmPasswordPolicy e" +
 	        " WHERE"
 	        + " ("
@@ -127,7 +114,7 @@ public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<Id
 		        	+ "?#{[0].defaultPolicy} is null "
 		        	+ "or e.defaultPolicy = ?#{[0].defaultPolicy}"
 	        	+ ")")
-	Page<IdmPasswordPolicy> find(PasswordPolicyFilter filter, Pageable pageable);
+	Page<IdmPasswordPolicy> find(IdmPasswordPolicyFilter filter, Pageable pageable);
 	
 
 	@Query(value = "SELECT e FROM IdmPasswordPolicy e "

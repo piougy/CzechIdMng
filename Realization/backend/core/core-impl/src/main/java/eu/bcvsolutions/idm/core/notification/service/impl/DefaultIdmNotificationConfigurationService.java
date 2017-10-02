@@ -27,11 +27,11 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -116,13 +116,19 @@ public class DefaultIdmNotificationConfigurationService
 			return getDefaultSenders();
 		}
 		List<NotificationSender<?>> senders = new ArrayList<>();
-		final NotificationLevel lvl = notification.getMessage().getLevel();
-		final List<String> types = repository.findTypes(topic, lvl);
-		types.forEach(type -> {
-			if (notificationSenders.hasPluginFor(type)) {
-				senders.add(notificationSenders.getPluginFor(type));
+		if (!IdmNotificationLog.NOTIFICATION_TYPE.equals(notification.getType())) {
+			if (notificationSenders.hasPluginFor(notification.getType())) {
+				senders.add(notificationSenders.getPluginFor(notification.getType()));
 			}
-		});
+		} else {		
+			final NotificationLevel lvl = notification.getMessage().getLevel();
+			final List<String> types = repository.findTypes(topic, lvl);
+			types.forEach(type -> {
+				if (notificationSenders.hasPluginFor(type)) {
+					senders.add(notificationSenders.getPluginFor(type));
+				}
+			});
+		}
 		//
 		if (senders.isEmpty()) {
 			return getDefaultSenders();
@@ -158,6 +164,11 @@ public class DefaultIdmNotificationConfigurationService
 	@Override
 	public NotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType) {
 		return toDto(this.repository.findByTopicAndLevelAndNotificationType(topic, level, notificationType));
+	}
+
+	@Override
+	public List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level) {
+		return toDtos(repository.findByTopicAndLevel(topic, level), false);
 	}
 
 }

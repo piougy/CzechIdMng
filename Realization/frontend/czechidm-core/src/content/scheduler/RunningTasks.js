@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { LongRunningTaskManager } from '../../redux';
@@ -49,15 +50,10 @@ class RunningTasks extends Basic.AbstractContent {
         <Helmet title={ this.i18n('title') } />
         <Basic.Toolbar>
           <div className="pull-right">
-            <Basic.Button
-              className="btn-xs"
+            <Advanced.RefreshButton
+              onClick={ this._fetchRunningTasks.bind(this) }
               title={ this.i18n('refresh') }
-              onClick={this._fetchRunningTasks.bind(this)}
-              titlePlacement="bottom"
-              showLoading={ _showLoading }
-              style={{ marginLeft: 3 }}>
-              <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
-            </Basic.Button>
+              showLoading={ _showLoading }/>
           </div>
         </Basic.Toolbar>
         {

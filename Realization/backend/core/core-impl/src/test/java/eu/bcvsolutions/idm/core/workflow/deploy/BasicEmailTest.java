@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 
@@ -54,7 +54,7 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 		InputStream is = this.getClass().getClassLoader()
 				.getResourceAsStream("eu/bcvsolutions/idm/workflow/deploy/testEmailer.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "testEmailer.bpmn20.xml", is);
-		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationFilter filter = new IdmNotificationFilter();
 		
 		assertNotNull(deploymentDto);
 		filter.setText(EMAIL_TEXT);

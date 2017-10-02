@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 
 /**
  * HR process - identity's contract exclusion. The processes is started for
@@ -35,7 +35,7 @@ public class HrContractExclusionProcess extends AbstractWorkflowStatefulExecutor
 	 */
 	@Override
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValid(Boolean.TRUE);
 		filter.setDisabled(Boolean.TRUE);
 		return identityContractService.find(filter, pageable);

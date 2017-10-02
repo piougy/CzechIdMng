@@ -1,9 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.service;
 
-import java.util.List;
 import java.util.Map;
-
-import org.activiti.engine.form.FormProperty;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;

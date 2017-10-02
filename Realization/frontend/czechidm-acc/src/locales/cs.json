@@ -336,6 +336,46 @@
         "save": {
           "success": "Atribut [{{name}}] pro roli byl úspěšně upraven"
         }
+      },
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
+    "roleCatalogue": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
       }
     },
     "identity": {
@@ -449,8 +489,8 @@
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
       },
       "queue": {
-        "label": "Podporuje frontu",
-        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu."
+        "label": "Asynchronní provisioning",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu asynchronně. Změna hesla bude probíhat nadále synchronně. Interval zpracování operací ve frontě je konfigurovatelný prostřednitvím dlouho trvající úlohy (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Konektor",
@@ -730,7 +770,7 @@
           "UNLINK": "Neúspěšně odstraněno vazeb",
           "UNLINK_AND_REMOVE_ROLE": "Neúspěšně odstraněno vazeb a navázaných rolí",
           "CREATE_ACCOUNT": "Neúspěšně vytvořeno účtů",
-          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",  "LINKED": "Vazba existuje",
+          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",
           "LINKED": "Vazba existuje",
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
@@ -882,8 +922,12 @@
   "permission": {
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
+      "ROLEACCOUNT": "Účty pro role",
+      "ROLECATALOGUEACCOUNT": "Účty pro katalog rolí",
       "SYSTEM": "Napojené systémy",
-      "SYNCHRONIZATION": "Synchronizace"
+      "SYNCHRONIZATION": "Synchronizace",
+      "TREEACCOUNT": "Účty pro prvky stromu",
+      "IDENTITYACCOUNT": "Účty pro identity"
     }
   },
   "error": {
@@ -1026,6 +1070,10 @@
     "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Mapování systému [{{mapping}}] nemůže být smazáno",
       "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na stejném systému!"
+    },
+    "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
+      "title": "Mapování nemůže být uloženo",
+      "message": "Mapování provisioningu pro systém [{{system}}] a typ entity [{{entityType}}] již existuje!"
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Atribut [{{attribute}}] nemůže být smazán",

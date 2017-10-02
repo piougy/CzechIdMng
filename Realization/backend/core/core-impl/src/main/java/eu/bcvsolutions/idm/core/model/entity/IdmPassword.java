@@ -9,14 +9,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.envers.Audited;
 import org.joda.time.LocalDate;
 
+import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
  * Entity that store identities passwords in hash.
- * Everything in this table cant be audited.
+ * Only password isn't audited.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -26,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 @Table(name = "idm_password", indexes = {
 		@Index(name = "ux_idm_password_identity", columnList = "identity_id", unique = true)
 })
-public class IdmPassword extends AbstractEntity implements ValidableEntity {
+public class IdmPassword extends AbstractEntity implements ValidableEntity, AuditSearchable {
 
 	private static final long serialVersionUID = -8101492061266251152L;
 	
@@ -34,18 +36,22 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity {
 	@Column(name = "password")
 	private String password;
 	
+	@Audited
 	@OneToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
+	@Audited
 	@Column(name = "valid_till")
 	private LocalDate validTill;
 	
+	@Audited
 	@Column(name = "valid_from")
 	private LocalDate validFrom;
 	
+	@Audited
 	@Column(name = "must_change")
 	private boolean mustChange = false;
 	
@@ -93,5 +99,35 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity {
 
 	public void setMustChange(boolean mustChange) {
 		this.mustChange = mustChange;
+	}
+
+	@Override
+	public String getOwnerId() {
+		return identity.getId().toString();
+	}
+
+	@Override
+	public String getOwnerCode() {
+		return identity.getCode();
+	}
+
+	@Override
+	public String getOwnerType() {
+		return IdmIdentity.class.getName();
+	}
+
+	@Override
+	public String getSubOwnerId() {
+		return this.getId().toString();
+	}
+
+	@Override
+	public String getSubOwnerCode() {
+		return null;
+	}
+
+	@Override
+	public String getSubOwnerType() {
+		return IdmPassword.class.getName();
 	}
 }

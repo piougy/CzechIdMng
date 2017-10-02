@@ -1,0 +1,233 @@
+{
+  "module": {
+    "name": "Modul pro virtuální systémy",
+    "author": "BCV solutions s.r.o."
+  },
+  "entity": {
+    "VsRequest": {
+      "_type": "Požadavek na virtuálním systému",
+      "uid": {
+        "label": "UID"
+      },
+      "state": {
+        "label": "Stav"
+      },
+      "systemId": {
+        "label": "Systém"
+      },
+      "operationType": {
+        "label": "Typ"
+      },
+      "executeImmediately": {
+        "label": "Bez potvrzení"
+      },
+      "implementers": {
+        "label": "Realizátoři"
+      },
+      "reason": {
+        "label": "Důvod zamítnutí"
+      },
+      "created": {
+        "label": "Vytvořeno"
+      },
+      "modified": {
+        "label": "Upraveno"
+      },
+      "creator": {
+        "label": "Vytvořil"
+      }
+    }
+  },
+  "permission": {
+    "group": {
+      "VSREQUEST": "Požadavky na virtuálních systémech",
+      "VSACCOUNT": "Účty na virtuálních systémech"
+    }
+  },
+  "content": {
+    "dashboard": {
+      "vsDashboard": {
+        "header": "Požadavky na virtuálních systémech",
+        "title": "Uživatelská plocha pro virtuální systémy",
+        "text": "Uživatelská plocha pro virtuální systémy"
+      }
+    },
+    "virtuals": {
+      "header": "Virtuální systémy",
+      "label": "Virtuální systémy",
+      "title": "Virtuální systémy"
+    },
+    "vs-systems": {
+      "header": "Virtuální systémy",
+      "label": "Seznam",
+      "title": "Virtuální systémy"
+    },
+    "vs-system": {
+      "name": {
+        "label": "Název",
+        "placeholder": ""
+      },
+      "implementers": {
+        "label": "Realizátoři",
+        "placeholder": "Uživatelé v IdM, kteří budou realizovat požadavky"
+      },
+      "implementerRoles": {
+        "label": "Role s realizátory",
+        "placeholder": "Uživatelé v IdM, kteří mají přiřazené tyto role budou realizátory požadavků"
+      },
+      "label": "Seznam",
+      "title": "Virtuální systémy",
+      "action": {
+        "create": {
+          "message": "Pokud chcete vytvořit nový virtuální systém, zadejte jeho jméno a realizátory:",
+          "header": "Vytvoření nového virtuální systému",
+          "success": "Virtuální systém [{{system}}] byl úspěšně vytvořen"
+        }
+      },
+      "button": {
+        "cancel": "Zrušit",
+        "create": "Vytvořit systém"
+      }
+    },
+    "vs-requests": {
+      "header": "Požadavky",
+      "label": "Požadavky",
+      "title": "Požadavky",
+      "info": "Správa požadavků na virtuálních systémech",
+      "filter": {
+        "text": {
+          "placeholder": "UID (identifikátor účtu)"
+        }
+      },
+      "cancel-reason": {
+        "placeholder": "Vyplňte důvod zamítnutí ..."
+      },
+      "tabs": {
+        "active": {
+          "label": "Nevyřešené požadavky"
+        },
+        "archive": {
+          "label": "Archiv"
+        }
+      },
+      "action": {
+        "realize": {
+          "action": "Realizováno",
+          "header_1": "Označit požadavek jako realizovaný",
+          "header_2": "Označit požadavky jako realizované",
+          "header_5": "$t(action.duplicate.header_2)",
+          "message_1": "Opravdu chcete požadavek [<strong>{{record}}</strong>] označit jako realizovaný?",
+          "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete označit vybrané požadavky <strong>{{count}}</strong> jako realizované?",
+          "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete označit vybraných požadavků <strong>{{count}}</strong> jako realizované ?",
+          "error": "Při realizaci požadavku [{{record}}] nastala chyba",
+          "success_1": "Vybraný požadavek [{{record}}] byl úspěšně označen jako realizovaný",
+          "success_2": "Vybrané požadavky [{{records}}] byly úspěšně označeny jako realizované",
+          "success_5": "Vybrané požadavky [{{records}}] byly úspěšně označeny jako realizované"
+        },
+        "cancel": {
+          "action": "Zamítnout",
+          "header_1": "Zamítnout požadavek",
+          "header_2": "Zaímtnout požadavky",
+          "header_5": "$t(action.duplicate.header_2)",
+          "message_1": "Opravdu chcete požadavek [<strong>{{record}}</strong>] zamítnout?",
+          "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybrané požadavky zamítnout?",
+          "message_5": "Vybrány požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybraných požadavků zamítnout?",
+          "error": "Při relizaci požadaku [{{record}}] nastala chyba",
+          "success_1": "Vybraný požadavek [{{record}}] byl úspěšně zamítnutý",
+          "success_2": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté",
+          "success_5": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté"
+        }
+      }
+    },
+    "vs-request": {
+      "detail" : {
+        "basic": "Detail požadavku na realizaci",
+        "header": "Požadavek na realizaci",
+        "title": "$t(vs:content.vs-request.detail.header)",
+        "requestAttributes": "Atributy v tomto požadavku",
+        "wishAttributes": "Cílový stav na systému",
+        "label": {
+          "oldValue": "Původní hodnota",
+          "targetValue": "Cílová hodnota"
+        },
+        "alert": {
+          "accountShouldBeDeleted": "Účet má být z koncového systému odstraněn.",
+          "accountShouldBeCreated": "Účet má být na koncového systému vytvořen."
+        },
+        "beforeRequests": {
+          "label": "Předchozí nevyřešené požadavky"},
+        "afterRequests": {
+          "label": "Následující nevyřešené požadavky"},
+        "edit": {
+          "title": "Detail požadavku",
+          "header": "{{name}} <small>detail požadavku</small>"
+        },
+        "realize": {
+          "success": "Požadavek [{{name}}] byl úspěšně zrealizován"
+        },
+        "cancel": {
+          "success": "Požadavek [{{name}}] byl úspěšně zrušen"
+        },
+        "button": {
+          "request": {
+            "realize": "Realizováno",
+            "cancel": "Zrušit požadavek"
+          }
+        },
+        "attribute": {
+          "diff": {
+            "ADDED": "Hodnota má být přidána",
+            "REMOVED": "Hodnota má být odebrána",
+            "UPDATED": "Hodnata má být upravena"
+          }
+        }
+      }
+    }
+  },
+  "enums": {
+    "VsOperationType":{
+      "CREATE": "Vytvoření",
+      "UPDATE": "Úprava",
+      "DELETE": "Odstranění",
+      "DISABLE": "Deaktivace",
+      "ENABLE": "Aktivování",
+      "RESET_PASSWORD": "Reset hesla"
+    },
+    "VsRequestState":{
+      "CONCEPT": "Koncept",
+      "EXECUTED": "Provedeno",
+      "CANCELED": "Zamítnuto",
+      "REALIZED": "Realizováno",
+      "REJECTED": "Odmítnuto",
+      "IN_PROGRESS": "Nevyřešeno",
+      "EXCEPTION": "Nastala chyba",
+      "DUPLICATED": "Duplicitní"
+    }
+  },
+  "error": {
+    "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
+      "title": "Nelze smazat účet [{{uid}}] na virtuálním systému",
+      "message": "Účet [{{uid}}] na vyrtuálním systému nelze smazat, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovali požadavek na jeho vytvoření! "
+    },
+    "VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST": {
+      "title": "Nelze upravit účet [{{uid}}] na virtuálním systému",
+      "message": "Účet [{{uid}}] na vyrtuálním systému nelze upravit, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovali požadavek na jeho vytvoření! "
+    },
+    "VS_IMPLEMENTER_WAS_NOT_FOUND": {
+      "title": "Realizátor pro virtuální systém nebyl nalezen!",
+      "message": "Realizátor pro identitifákor [{{implementer}}] pro vyrtuální systém nebyl nalzen! "
+    },
+    "VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND": {
+      "title": "Role realizátorů pro virtuální systém nebyla nalezena!",
+      "message": "Role pro identitifákor [{{role}}] pro vyrtuální systém nebyla nalzena! "
+    },
+    "VS_REQUEST_REALIZE_WRONG_STATE": {
+      "title": "Požadavek na virtuálním systému nemůže být realizován!",
+      "message": "Požadavek může být realizován, pouze pokud je ve stavu [{{state}}]. Tento požadavek je ovšem ve stavu [{{currentState}}]! "
+    },
+    "VS_REQUEST_CANCEL_WRONG_STATE": {
+      "title": "Požadavek na virtuálním systému nemůže být zrušen!",
+      "message": "Požadavek může být zrušen, pouze pokud je ve stavu [{{state}}]. Tento požadavek je ovšem ve stavu [{{currentState}}]! "
+    }
+  }
+}

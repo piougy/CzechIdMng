@@ -1,6 +1,6 @@
 {
   "name": "czechidm-core",
-  "version": "7.3.4",
+  "version": "7.4.0-rc.1",
   "description": "Core module for CzechIdM",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "github-markdown-css": "2.2.1",
     "metismenu": "2.5.0",
     "react-datetime": "2.2.0",
-    "react-select": "1.0.0-rc.3"
+    "react-select": "1.0.0-rc.10"
   },
   "peerDependencies": {
     "eslint": "^1.10.3",

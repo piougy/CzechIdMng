@@ -1,17 +1,19 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain } from 'czechidm-core';
+import { Basic, Domain, Utils } from 'czechidm-core';
 import { AccountManager } from '../../redux';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
 //
-
-const RESOURCE_IDM = '0:CzechIdM';
-
+const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
+const RESOURCE_IDM = `0:${IDM_NAME}`;
+//
 const accountManager = new AccountManager();
 
 /**
  * In this component include password change and send props with account options
+ *
+ * @author Ondřej Kopr
  */
 class PasswordChangeAccounts extends Basic.AbstractContent {
 
@@ -40,11 +42,11 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     }
 
     const options = [
-      { value: RESOURCE_IDM, niceLabel: 'CzechIdM (' + entityId + ')'}
+      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
     ];
 
     accounts.forEach(acc => {
-      const niceLabel = acc.uid + ' (' + acc._embedded.system.name + ')';
+      const niceLabel = acc._embedded.system.name + ' (' + acc.uid + ')';
       options.push({
         value: acc.id,
         niceLabel

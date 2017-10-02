@@ -25,7 +25,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
    * @param  {string} entityType
    * @return {object} component or null
    */
-  static _getComponent(entityType) {
+  static getComponent(entityType) {
     if (!entityType) {
       return null;
     }
@@ -59,7 +59,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
       return null;
     }
     //
-    const component = EntityInfo._getComponent(entityType);
+    const component = EntityInfo.getComponent(entityType);
     if (!component || !component.manager) {
       return null;
     }
@@ -84,16 +84,15 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
       className
     );
     // find underliyng component by entity type
-    const component = EntityInfo._getComponent(entityType);
+    const component = EntityInfo.getComponent(entityType);
     if (component) {
       const EntityInfoComponent = component.component;
       return (
-        <span>
+        <span style={ style}>
           <EntityInfoComponent
             entity={ entity }
             entityIdentifier={ entityIdentifier }
             face={ face }
-            style={ style}
             className={ classNames }
             showLoading={ showLoading }
             showLink={ showLink }/>

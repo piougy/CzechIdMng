@@ -1,47 +1,40 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.rest.projection.SysSyncConfigExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
- * Synchronization config repository
+ * Synchronization config repository 
+ * 
+ * TODO: refactor methods countByTokenAttribute, countByFilterAttribute, countBySystemMapping attributes to UUID
  * 
  * @author Svanda
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "synchronizationConfigs", //
-		path = "synchronization-configs", //
-		itemResourceRel = "synchronizationConfig", //
-		excerptProjection = SysSyncConfigExcerpt.class,
-		exported = false // we are using repository metadata, but we want expose
-							// rest endpoint manually
-)
-public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyncConfig, SynchronizationConfigFilter> {
+public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyncConfig> {
 
-	@Override
 	@Query(value = "select e from SysSyncConfig e"+ 
 			" where" +
 	        " (?#{[0].systemId} is null or e.systemMapping.objectClass.system.id = ?#{[0].systemId})"+
 			" and"+
 			 " (?#{[0].name} is null or e.name = ?#{[0].name})"
 			)
-	Page<SysSyncConfig> find(SynchronizationConfigFilter filter, Pageable pageable);
+	Page<SysSyncConfig> find(SysSyncConfigFilter filter, Pageable pageable);
 	
 	@Query("select count(e) from SysSyncLog e where e.synchronizationConfig = :config and e.running = TRUE")
 	int runningCount(@Param("config") SysSyncConfig config);
 	
-	Long countByCorrelationAttribute(@Param("correlationAttribute") SysSystemAttributeMapping entity);	
+	Long countByCorrelationAttribute_Id(@Param("correlationAttribute") UUID correlationAttribute);	
 	
 	Long countByTokenAttribute(@Param("tokenAttribute") SysSystemAttributeMapping entity);	
 	

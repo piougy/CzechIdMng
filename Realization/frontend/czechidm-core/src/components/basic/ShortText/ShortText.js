@@ -5,9 +5,10 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Tooltip from '../Tooltip/Tooltip';
 
 /**
-* Simple component to make text shorter
-*
-* @author Marek Klement
+ * Simple component to make text shorter
+ *
+ * @author Marek Klement
+ * @author Radek Tomiška
  */
 class ShortText extends AbstractComponent {
 
@@ -16,22 +17,26 @@ class ShortText extends AbstractComponent {
   }
 
   render() {
-    const { text, maxLength, cutPointEnd, cutChar, className, rendered } = this.props;
-    if (!rendered) return null;
+    const { text, value, maxLength, cutPointEnd, cutChar, className, rendered } = this.props;
+    const _text = text || value;
+    //
+    if (!rendered) {
+      return null;
+    }
     let shortText = '';
-    if (text.length > maxLength) {
+    if (_text.length > maxLength) {
       if (cutPointEnd) {
-        shortText = UiUtils.substringBegin(text, maxLength, cutChar);
+        shortText = UiUtils.substringBegin(_text, maxLength, cutChar);
         shortText = shortText + '...';
       } else {
-        shortText = UiUtils.substringEnd(text, maxLength, cutChar);
+        shortText = UiUtils.substringEnd(_text, maxLength, cutChar);
         shortText = '...' + shortText;
       }
     } else {
-      shortText = text;
+      shortText = _text;
     }
     return (
-      <Tooltip value={ text }>
+      <Tooltip value={ _text }>
         <span className={ className }>
           { shortText }
         </span>
@@ -45,6 +50,10 @@ ShortText.propTypes = {
    * String to be shorten
    */
   text: PropTypes.string,
+  /**
+   * String to be shorten (text alias - text has higher priority)
+   */
+  value: PropTypes.string,
   /**
    * Number of lenght for string to be shorten to
    */

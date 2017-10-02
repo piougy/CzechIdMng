@@ -23,7 +23,7 @@
       "$": false,
       "DEBUG": false,
       "LOGGER": false,
-      "serverUrl": true
+      "config": true
   },
   "rules": {
     "quotes": [2, "single" ],

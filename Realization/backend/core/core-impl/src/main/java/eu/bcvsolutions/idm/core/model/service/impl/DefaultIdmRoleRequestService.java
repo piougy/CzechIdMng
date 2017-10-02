@@ -10,7 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -34,23 +40,26 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -64,7 +73,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  */
 @Service("roleRequestService")
 public class DefaultIdmRoleRequestService
-		extends AbstractReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequest, RoleRequestFilter>
+		extends AbstractReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequest, IdmRoleRequestFilter>
 		implements IdmRoleRequestService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
@@ -110,6 +119,37 @@ public class DefaultIdmRoleRequestService
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ROLEREQUEST, getEntityClass());
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleRequestFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// applicant
+		if (filter.getApplicantId() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id), filter.getApplicantId()));
+		}
+		// duplicatedToRequestId
+		if (filter.getDuplicatedToRequestId() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.duplicatedToRequest).get(IdmRoleRequest_.id), filter.getDuplicatedToRequestId()));
+		}
+		// 
+		if (StringUtils.isNotEmpty(filter.getApplicant())) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.username), filter.getApplicant()));
+		}
+		//
+		if (filter.getState() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.state), filter.getState()));
+		}
+		List<RoleRequestState> states = filter.getStates();
+		if (!states.isEmpty()) {
+			predicates.add(root.get(IdmRoleRequest_.state).in(states));
+		}
+		return predicates;
 	}
 
 	@Override
@@ -324,27 +364,33 @@ public class DefaultIdmRoleRequestService
 		});
 
 		// Delete identity role
-		concepts.stream().filter(concept -> {
-			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
-		}).filter(concept -> {
-			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
-			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).forEach(concept -> {
-			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			if (identityRole != null) {
-				concept.setState(RoleRequestState.EXECUTED);
-				concept.setIdentityRole(null); // we have to remove relation on
-												// deleted identityRole
-				String message = MessageFormat.format(
-						"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
-						identityRole.getId(), concept.getId());
-				conceptRoleRequestService.addToLog(concept, message);
-				conceptRoleRequestService.addToLog(request, message);
-				conceptRoleRequestService.save(concept);
-				identityRoleService.delete(identityRole);
-			}
-		});
+		concepts.stream()
+			.filter(concept -> {
+				return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
+			})
+			.filter(concept -> {
+				// Only approved concepts can be executed
+				// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+			})
+			.filter(concept -> {
+				return concept.getIdentityRole() != null;
+			}) 
+			.forEach(concept -> {
+				IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+				if (identityRole != null) {
+					concept.setState(RoleRequestState.EXECUTED);
+					concept.setIdentityRole(null); // we have to remove relation on
+													// deleted identityRole
+					String message = MessageFormat.format(
+							"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
+							identityRole.getId(), concept.getId());
+					conceptRoleRequestService.addToLog(concept, message);
+					conceptRoleRequestService.addToLog(request, message);
+					conceptRoleRequestService.save(concept);
+					identityRoleService.delete(identityRole);
+				}
+			});
 
 		identityRoleService.saveAll(identityRolesToSave);
 		conceptRoleRequestService.saveAll(conceptsToSave);
@@ -448,7 +494,7 @@ public class DefaultIdmRoleRequestService
 	public void delete(IdmRoleRequestDto dto, BasePermission... permission) {
 		
 		// Find all request where is this request duplicated and remove relation
-		RoleRequestFilter conceptRequestFilter = new RoleRequestFilter();
+		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
 		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
 		this.find(conceptRequestFilter, null).getContent().forEach(duplicant -> {
 			duplicant.setDuplicatedToRequest(null);

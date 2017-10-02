@@ -6,12 +6,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -21,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -33,24 +35,28 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Checks readonly system before provisioning is called.")
-public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
 	public static final String PROCESSOR_NAME = "readonly-system-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ReadonlySystemProcessor.class);
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
+	private final SysSystemService systemService;
 	
 	@Autowired
 	public ReadonlySystemProcessor(
 			NotificationManager notificationManager,
-			SysProvisioningOperationService provisioningOperationService) {
+			SysProvisioningOperationService provisioningOperationService,
+			SysSystemService systemService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);
+		Assert.notNull(systemService);
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
+		this.systemService = systemService;
 	}
 	
 	@Override
@@ -59,17 +65,16 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 	}
 	
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
-		SysProvisioningOperation provisioningOperation = event.getContent();
-		SysSystem system = provisioningOperation.getSystem();
+	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		boolean closed = false;
 		if (system.isReadonly()) {
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
-			provisioningOperation.getRequest().setResult(
-					new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+			provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
-			provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
 			notificationManager.send(
@@ -79,7 +84,9 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 					.build());
 			//
 			closed = true;
-		} 
+		}
+		// set back to event content
+		event.setContent(provisioningOperation);
 		return new DefaultEventResult<>(event, this, closed);
 	}
 	

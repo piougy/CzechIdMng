@@ -33,6 +33,12 @@ All parameters from AbstractComponent are supported. Added parameters:
 | showEntityType | bool | Shows entity type, when no entity info component is found. Set to `false` when type is rendered extrnally (e.g. in different table column) | true |
 
 
+## Public static methods
+
+- ``getComponent(entityType)`` - finds target entity info component description by given ``entityType``. React component can be used from result as ``const ReactComponent = EntityInfo.getComponent(entityType).component;``.
+- ``getNiceLabel(entityType, entity)`` - returns entity nice label.
+
+
 ## Usage
 
 ```html

@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -15,9 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,42 +30,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.forest.index.service.api.ForestContentService;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -81,7 +76,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
 @Api(
 		value = IdmIdentityController.TAG,  
@@ -89,7 +84,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with identities",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
+public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdmIdentityFilter> {
 
 	protected static final String TAG = "Identities";
 	//
@@ -98,11 +93,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmAuditService auditService; 	
 	private final IdmTreeNodeService treeNodeService;
-	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
-	private final IdmIdentityRepository identityRepository;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
-	private final RequestResourceResolver requestResourceResolver;
 	
 	@Autowired
 	public IdmIdentityController(
@@ -112,10 +104,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
 			IdmAuditService auditService,
-			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
-			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository,
-			RequestResourceResolver requestResourceResolver) {
+			IdmTreeNodeService treeNodeService) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -123,20 +112,14 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(identityContractService);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(auditService);
-		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
-		Assert.notNull(identityRepository);
-		Assert.notNull(requestResourceResolver);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
 		this.identityRoleService = identityRoleService;
 		this.auditService = auditService;
-		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
-		this.identityRepository = identityRepository;
-		this.requestResourceResolver = requestResourceResolver;
 	}
 	
 	@Override
@@ -223,7 +206,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@ApiOperation(
 			value = "Create / update identity", 
 			nickname = "postIdentity", 
@@ -263,9 +247,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		return super.put(backendId, dto);
 	}
 	
-	/**
-	 * Patch method - move to abstract service
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
@@ -286,12 +267,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
-		IdmIdentityDto updateDto = getDto(backendId);
-		if (updateDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		updateDto = (IdmIdentityDto) requestResourceResolver.resolve(nativeRequest, IdmIdentityDto.class, updateDto);
-		return new ResponseEntity<>(toResource(getService().save(updateDto, IdmBasePermission.UPDATE)), HttpStatus.OK);
+		return super.patch(backendId, nativeRequest);
 	}
 
 	@Override
@@ -383,16 +359,13 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				})
 	public Resources<?> roles(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable String backendId, 
-			PersistentEntityResourceAssembler assembler) {	
+			@PathVariable String backendId) {	
 		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		checkAccess(identity, IdmBasePermission.READ);
-		//
-		IdentityRoleFilter filter = new IdentityRoleFilter();
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setIdentityId(identity.getId());		
 		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ);
 		//
@@ -403,7 +376,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * Get given identity's prime position in organization.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return Positions from root to closest parent
 	 */
 	@ResponseBody
@@ -421,14 +393,11 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				})
 	public ResponseEntity<?> organizationPosition(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable String backendId, 
-			PersistentEntityResourceAssembler assembler) {
+			@PathVariable String backendId) {
 		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		//
-		checkAccess(identity, IdmBasePermission.READ);
 		//
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
 		if (primeContract == null) {
@@ -436,18 +405,10 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		}
 		WorkPositionDto position = new WorkPositionDto(identity, primeContract);
 		if (primeContract.getWorkPosition() != null) {
-			List<IdmTreeNode> positions = new ArrayList<>();
-			// TODO: tree node service to dtos
-			IdmTreeNode contractPosition = treeNodeService.get(primeContract.getWorkPosition());
-			positions = treeNodeIndexService.findAllParents(contractPosition.getId(), new Sort(Direction.ASC, "forestIndex.lft"));
-			positions.add(contractPosition);
-			positions.forEach(treeNode -> {
-				// TODO: use DTOs!
-				treeNode.setTreeType(null);
-				treeNode.setParent(null);
-			});
-			position.setPath(positions);
-		}		
+			IdmTreeNodeDto contractPosition = treeNodeService.get(primeContract.getWorkPosition());
+			position.getPath().addAll(treeNodeService.findAllParents(contractPosition.getId(), new Sort(Direction.ASC, "forestIndex.lft")));
+			position.getPath().add(contractPosition);
+		}
 		return new ResponseEntity<WorkPositionDto>(position, HttpStatus.OK);
 	}
 	
@@ -502,14 +463,11 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	public Resources<?> findRevisions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable("backendId") String backendId, 
-			Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
+			Pageable pageable) {
 		IdmIdentityDto originalEntity = getDto(backendId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", backendId));
 		}
-		//
-		checkAccess(originalEntity, IdmBasePermission.READ);
 		// get original entity id
 		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmIdentity.class.getSimpleName(), originalEntity.getId(), pageable);
 		return toResources(results, IdmAuditDto.class);
@@ -519,7 +477,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * Returns form definition to given identity.
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -537,16 +494,14 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinitions(IdmIdentity.class, assembler);
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(IdmIdentity.class);
 	}
 	
 	/**
 	 * Returns filled form values
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -562,22 +517,19 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 				})
-	public Resources<?> getFormValues(
+	public Resource<?> getFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			PersistentEntityResourceAssembler assembler) {
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		checkAccess(entity, IdmBasePermission.READ);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
-		//
-		return formDefinitionController.getFormValues(identityRepository.findOne(entity.getId()), formDefinition, assembler);
+		return formDefinitionController.getFormValues(entity, formDefinition);
 	}
 	
 	/**
@@ -585,7 +537,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * 
 	 * @param backendId
 	 * @param formValues
-	 * @param assembler
 	 * @return
 	 */
 	@ResponseBody
@@ -601,37 +552,36 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
 				})
-	public Resources<?> saveFormValues(
+	public Resource<?> saveFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId,
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			@ApiParam(value = "Filled form data.", required = true)
-			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
-			PersistentEntityResourceAssembler assembler) {		
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(identityRepository.findOne(entity.getId()), formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
 	@Override
-	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdentityFilter filter = new IdentityFilter(parameters);
+	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmIdentityFilter filter = new IdmIdentityFilter(parameters);
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
-		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setTreeNode(getParameterConverter().toEntityUuid(parameters, "treeNodeId", IdmTreeNode.class));
 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		filter.setTreeType(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
+		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
 		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {

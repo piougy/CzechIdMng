@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "CzechIdM"
+  },
   "env": "development",
   "serverUrl": "http://localhost:8080/idm-backend/api/v1",
   "theme": "czechidm-core/themes/default",
@@ -20,5 +23,12 @@
   "recaptcha": {
     "enabled": true,
     "siteKey": "todo"
+  },
+  "locale": {
+    "supported": ["cs", "en"],
+    "fallback": "cs"
+  },
+  "pagination": {
+    "size": 10
   }
 }

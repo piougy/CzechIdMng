@@ -24,7 +24,6 @@ import io.swagger.annotations.Authorization;
  * Provides autorities configurable for idm roles
  * 
  * @author Radek Tomiška 
- *
  */
 @RestController
 @RequestMapping(value = BaseController.BASE_PATH + "/authorities")
@@ -42,8 +41,9 @@ public class IdmAuthorityController implements BaseController {
 	 * @return
 	 */
 	@ApiOperation(
-			value = "Provides configurable authorities for roles", 
-			nickname = "authorities", 
+			value = "Provides available authorities for roles.", 
+			notes = "Returns authorities from all enabled modules.",
+			nickname = "getAvailableAuthorities", 
 			tags={ IdmAuthorityController.TAG }, 
 			authorizations = {
 				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
@@ -52,9 +52,42 @@ public class IdmAuthorityController implements BaseController {
 	@RequestMapping(path = "/search/available", method = RequestMethod.GET)
 	public List<GroupPermissionDto> getAvailableAuthorities() {
 		LOG.debug("Loading all available authorities");
+		Map<String, GroupPermissionDto> distinctAuthorities = disctinctAuthorities(moduleService.getAvailablePermissions());
+		LOG.debug("Loaded all available authorities [groups:{}]", distinctAuthorities.size());
+		return new ArrayList<>(distinctAuthorities.values());
+	}
+	
+	/**
+	 * Provides configurable authorities for roles
+	 * 
+	 * @return
+	 */
+	@ApiOperation(
+			value = "Provides configurable authorities for roles",
+			notes = "Returns authorities from all instaled modules. All authorities are needed in security cofiguration. Module can be disabled, but configured security has to remain.",
+			nickname = "getAllAuthorities", 
+			tags={ IdmAuthorityController.TAG }, 
+			authorizations = {
+				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+				@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	@RequestMapping(path = "/search/all", method = RequestMethod.GET)
+	public List<GroupPermissionDto> getAllAuthorities() {
+		LOG.debug("Loading all authorities");
+		Map<String, GroupPermissionDto> distinctAuthorities = disctinctAuthorities(moduleService.getAllPermissions());
+		LOG.debug("Loaded all authorities [groups:{}]", distinctAuthorities.size());
+		return new ArrayList<>(distinctAuthorities.values());
+	}
+	
+	/**
+	 * Trims redundant permissions
+	 * 
+	 * @param permissions
+	 * @return
+	 */
+	private Map<String, GroupPermissionDto> disctinctAuthorities(List<GroupPermission> permissions) {
 		Map<String, GroupPermissionDto> distinctAuthorities = new HashMap<>();
-		List<GroupPermission> groupPermissions = moduleService.getAvailablePermissions();		
-		groupPermissions.forEach(groupPermission -> {
+		permissions.forEach(groupPermission -> {
 			if (!distinctAuthorities.containsKey(groupPermission.getName())) {
 				distinctAuthorities.put(groupPermission.getName(), new GroupPermissionDto(groupPermission));
 			}
@@ -62,8 +95,7 @@ public class IdmAuthorityController implements BaseController {
 				distinctAuthorities.get(groupPermission.getName()).getPermissions().add(new BasePermissionDto(basePermission));
 			});
 		});
-		LOG.debug("Loaded all available authorities [groups:{}]", distinctAuthorities.size());
-		return new ArrayList<>(distinctAuthorities.values());
+		return distinctAuthorities;
 	}
 
 }

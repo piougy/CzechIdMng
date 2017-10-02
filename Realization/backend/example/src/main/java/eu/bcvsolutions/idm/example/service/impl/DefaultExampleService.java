@@ -1,13 +1,15 @@
 package eu.bcvsolutions.idm.example.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 import eu.bcvsolutions.idm.example.config.domain.ExampleConfiguration;
 import eu.bcvsolutions.idm.example.dto.Pong;
@@ -50,7 +52,7 @@ public class DefaultExampleService implements ExampleService {
 	}
 
 	@Override
-	public IdmNotificationDto sendNotification(String message) {
+	public List<IdmNotificationLogDto> sendNotification(String message) {
 		return notificationManager.send(
 				ExampleModuleDescriptor.TOPIC_EXAMPLE,
 				new IdmMessageDto.Builder()

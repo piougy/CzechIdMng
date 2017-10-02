@@ -1,15 +1,15 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
  * Schema object class service
  * @author svandav
  *
  */
-public interface SysSchemaObjectClassService extends ReadWriteEntityService<SysSchemaObjectClass, SchemaObjectClassFilter>, CloneableService<SysSchemaObjectClass> {
+public interface SysSchemaObjectClassService extends ReadWriteDtoService<SysSchemaObjectClassDto, SysSchemaObjectClassFilter>, CloneableService<SysSchemaObjectClassDto> {
 
 }

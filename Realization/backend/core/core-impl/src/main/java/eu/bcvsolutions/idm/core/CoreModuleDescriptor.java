@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,6 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitored
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
@@ -41,9 +39,6 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_PASSWORD_EXPIRATION_WARNING = String.format("%s:passwordExpirationWarning", MODULE_ID);
 	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
-	
-	@Autowired
-	private IdmNotificationTemplateService templateService;
 	
 	@Override
 	public String getId() {
@@ -73,29 +68,61 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 		//
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_CHANGE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains information about result WF (change identity roles).", templateService.getTemplateByCode("changeIdentityRole").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_CHANGE_IDENTITY_ROLES, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about result WF (change identity roles).", 
+				getNotificationTemplateId("changeIdentityRole")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_DISAPPROVE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains information about disapprove role request.", templateService.getTemplateByCode("disapproveIdentityRole").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DISAPPROVE_IDENTITY_ROLES, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about disapprove role request.", 
+				getNotificationTemplateId("disapproveIdentityRole")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_RETURN_REQUEST_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains information about return role request.", templateService.getTemplateByCode("returnRequestIdentityRole").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_RETURN_REQUEST_IDENTITY_ROLES, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about return role request.", 
+				getNotificationTemplateId("returnRequestIdentityRole")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_WF_TASK_ASSIGNED, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_WF_TASK_ASSIGNED, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about new assigned task to user.", 
+				getNotificationTemplateId("wfTaskNotificationMessage")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_WF_TASK_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_WF_TASK_CREATED, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about new assigned task to user.", 
+				getNotificationTemplateId("wfTaskNotificationMessage")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_PASSWORD_EXPIRATION_WARNING, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"Password expiration warning.", templateService.getTemplateByCode("passwordExpirationWarning").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PASSWORD_EXPIRATION_WARNING, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Password expiration warning.", 
+				getNotificationTemplateId("passwordExpirationWarning")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_PASSWORD_EXPIRED, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"Password expired.", templateService.getTemplateByCode("passwordExpired").getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PASSWORD_EXPIRED, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Password expired.", 
+				getNotificationTemplateId("passwordExpired")));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains information about changed fields on Identity.", templateService.getTemplateByCode(IdentityMonitoredFieldsProcessor.EMAIL_TEMPLATE).getId()));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about changed fields on Identity.", 
+				getNotificationTemplateId(IdentityMonitoredFieldsProcessor.EMAIL_TEMPLATE)));
 		//
 		return configs;
 	}

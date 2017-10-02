@@ -53,6 +53,7 @@ IMPORTANT: You have to use same block **id** in module descriptor and configurat
         {
           "id": "user-profile",
           "order": 1000,
+          "iconColor": "#000",
           "items": [
             {
               "id": "profile-personal",

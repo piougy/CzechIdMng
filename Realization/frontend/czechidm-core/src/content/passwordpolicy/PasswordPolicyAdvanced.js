@@ -41,8 +41,11 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
   */
   componentWillReceiveProps(nextProps) {
     // check id of old and new entity
-    if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
-      this._initForm(nextProps.entity);
+    const validateType = nextProps.entity && PasswordPolicyTypeEnum.findSymbolByKey(nextProps.entity.type) === PasswordPolicyTypeEnum.VALIDATE;
+    if (validateType) {
+      if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
+        this._initForm(nextProps.entity);
+      }
     }
   }
 
@@ -105,7 +108,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     identityAttributeCheck = _.join(identityAttributeCheck, ', ');
     entity.identityAttributeCheck = identityAttributeCheck;
 
-    this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
+    this.context.store.dispatch(this.passwordPolicyManager.updateEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
       this._afterSave(entity, error, editContinue);
     }));
   }

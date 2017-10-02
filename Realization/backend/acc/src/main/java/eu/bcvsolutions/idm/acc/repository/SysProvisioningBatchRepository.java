@@ -1,15 +1,16 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -18,36 +19,74 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(
-		collectionResourceRel = "provisioningBatches",
-		path = "provisioning-batches",
-		itemResourceRel = "provisioningBatch",
-		exported = false
-)
-public interface SysProvisioningBatchRepository extends AbstractEntityRepository<SysProvisioningBatch, EmptyFilter> {
-
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
-	@Override
-	@Query(value = "select e from #{#entityName} e")
-	Page<SysProvisioningBatch> find(EmptyFilter filter, Pageable pageable);
+public interface SysProvisioningBatchRepository extends AbstractEntityRepository<SysProvisioningBatch> {
 	
 	/**
 	 * Finds batch for given operation.
 	 * 
 	 * @param operation
 	 * @return
+	 * @deprecated use {@link #findBatch(UUID, UUID, String)}
 	 */
-	@Query(value = "select distinct(r.batch) from SysProvisioningRequest r join r.operation o"
+	@Deprecated
+	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
 			+ " where"
-			+ " o.systemEntity.system = ?#{[0].systemEntity.system}"
+			+ " o.system = ?#{[0].system}"
 			+ " and"
 			+ " (o.entityIdentifier = ?#{[0].entityIdentifier} or ?#{[0].entityIdentifier} is null)"
 			+ " and"
-			+ " o.systemEntity.uid = ?#{[0].systemEntity.uid}")
+			+ " o.systemEntityUid = ?#{[0].systemEntityUid}")
 	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
+	
+	/**
+	 * Finds batch for given operation.
+	 * 
+	 * @param systemId
+	 * @param entityIdentifier
+	 * @param systemEntityUid
+	 * @return
+	 */
+	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
+			+ " where"
+			+ " o.system.id = :systemId"
+			+ " and"
+			+ " (o.entityIdentifier = :entityIdentifier or :entityIdentifier is null)"
+			+ " and"
+			+ " o.systemEntityUid = :systemEntityUid")
+	SysProvisioningBatch findBatch(
+			@Param("systemId") UUID systemId,
+			@Param("entityIdentifier") UUID entityIdentifier, 
+			@Param("systemEntityUid") String systemEntityUid);
+	
+	/**
+	 * Returns batches by their request's state
+	 * 
+	 * @param state
+	 * @param pageable
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e where exists (select o.id from SysProvisioningOperation o"
+			+ " where"
+			+ " o.batch = e"
+			+ " and"
+			+ " o.result.state = :state)")
+	Page<SysProvisioningBatch> findByOperationState(@Param("state") OperationState state, Pageable pageable);
+	
+	/**
+	 * Returns batches by their system is virtual and request's state
+	 * 
+	 * @param state
+	 * @param pageable
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e where exists (select o.id from SysProvisioningOperation o"
+			+ " where"
+			+ " o.batch = e"
+			+ " and"
+			+ " o.system.virtual = :virtualSystem"
+			+ " and"
+			+ " o.result.state = :state)")
+	Page<SysProvisioningBatch>  findByVirtualSystemAndOperationState(@Param("virtualSystem") Boolean virtualSystem, @Param("state") OperationState state, Pageable pageable);
 	
 	/**
 	 * Returns unprocessed planned batches

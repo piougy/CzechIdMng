@@ -8,14 +8,12 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 
-import javax.validation.constraints.NotNull;
-
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -28,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "sys_sync_item_log", indexes = {
 		@Index(name = "idx_sys_s_i_l_action", columnList = "sync_action_log_id")})
-public class SysSyncItemLog extends AbstractEntity implements Loggable {
+public class SysSyncItemLog extends AbstractEntity {
 
 	private static final long serialVersionUID = -5447620157233410338L;
 
@@ -121,22 +119,5 @@ public class SysSyncItemLog extends AbstractEntity implements Loggable {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	@Override
-	public String addToLog(String text) {
-		if (text != null) {
-			StringBuilder builder = new StringBuilder();
-			if (this.log != null) {
-				builder.append(this.log);
-				builder.append("\n" + LOG_SEPARATOR + "\n");
-			}
-			builder.append(text);
-			this.setLog(builder.toString());
-			if (!(text.length() > DefaultFieldLengths.NAME)) {
-				this.setMessage(text);
-			}
-		}
-		return this.getLog();
 	}
 }

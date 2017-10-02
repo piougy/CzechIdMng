@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 //
-import { AuthenticateService, LocalizationService } from '../../services';
+import { AuthenticateService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import ConfigLoader from '../../utils/ConfigLoader';
 
@@ -181,12 +181,13 @@ export default class SecurityManager {
     return dispatch => {
       authenticateService.logout();
       dispatch(flashMessagesManager.removeAllMessages());
+      /* RT: i think this message is not needed
       dispatch(flashMessagesManager.addMessage({
         key: 'logout',
         message: LocalizationService.i18n('content.logout.message.logout'),
         level: 'info',
         position: 'tc'
-      }));
+      }));*/
       dispatch(this.receiveLogout());
       if (redirect) {
         redirect();

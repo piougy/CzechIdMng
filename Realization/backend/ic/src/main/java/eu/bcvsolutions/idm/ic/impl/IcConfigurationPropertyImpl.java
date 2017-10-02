@@ -10,7 +10,8 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 
 	
-	
+	private static final long serialVersionUID = 5484107218554112289L;
+
 	public IcConfigurationPropertyImpl() {
 		super();
 	}
@@ -24,6 +25,7 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 		}
 	}
 
+	private int order;
 	/**
      * The unique name of the configuration property.
      */
@@ -61,6 +63,11 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
     private boolean confidential;
 
     private boolean required;
+    
+    /**
+     * Define how will be property rendered
+     */
+    private String face;
 
 	/**
 	 * @return the name
@@ -181,18 +188,22 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 		this.required = required;
 	}
 
-	
+	@Override
+	public int getOrder() {
+		return order;
+	}
 
-//    /**
-//     * Set of operations for which this property must be specified.
-//     *
-//     * This is used for the case where a connector may or may not implement
-//     * certain operations depending in the configuration. The default value of
-//     * "empty array" is special in that it means that this property is
-//     * applicable to all operations.
-//     */
-//    private Set<Class<? extends APIOperation>> getOperations();
-    
-    
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	@Override
+	public String getFace() {
+		return face;
+	}
+
+	public void setFace(String face) {
+		this.face = face;
+	}
 
 }

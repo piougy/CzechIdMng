@@ -38,8 +38,8 @@ class RoleRequests extends Advanced.AbstractTableContent {
     return 'content.roleRequests';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['roles-menu', 'role-requests']);
+  getNavigationKey() {
+    return 'role-requests';
   }
 
   _showCreateDetail() {
@@ -60,7 +60,7 @@ class RoleRequests extends Advanced.AbstractTableContent {
     }
     const applicantId = this.refs.applicant.getValue();
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}&adminMode=${true}`);
+    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}`);
   }
 
   _startRequest(idRequest, event) {

@@ -20,6 +20,14 @@ class TreeNodeService extends FormableEntityService {
     return `${entity.name} (${entity.code})`;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'TREENODE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

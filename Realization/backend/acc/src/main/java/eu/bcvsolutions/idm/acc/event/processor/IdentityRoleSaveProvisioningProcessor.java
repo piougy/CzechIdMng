@@ -11,14 +11,17 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -36,38 +39,39 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleSaveProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
-	private final IdmIdentityContractRepository identityContractRepository;
+	private final IdmIdentityContractService identityContractService;
 
 	@Autowired
 	public IdentityRoleSaveProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
 			ProvisioningService provisioningService,
-			IdmIdentityContractRepository identityContractRepository) {
+			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
 		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
-		Assert.notNull(identityContractRepository);
+		Assert.notNull(identityContractService);
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
-		this.identityContractRepository = identityContractRepository;
+		this.identityContractService = identityContractService;
 	}
 	
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-
+ 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();
-		IdmIdentityContract identityContract = identityContractRepository.findOne(identityRole.getIdentityContract());
+		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
+		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 		//
-		LOG.debug("Call account management for identity [{}]", identityContract.getIdentity().getUsername());
-		accountManagementService.resolveIdentityAccounts(identityContract.getIdentity());
-		LOG.debug("Call provisioning for identity [{}]", identityContract.getIdentity().getUsername());
-		provisioningService.doProvisioning(identityContract.getIdentity());
+		LOG.debug("Call account management for identity [{}]", identity.getUsername());
+		accountManagementService.resolveIdentityAccounts(identity);
+		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
+		provisioningService.doProvisioning(identity);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

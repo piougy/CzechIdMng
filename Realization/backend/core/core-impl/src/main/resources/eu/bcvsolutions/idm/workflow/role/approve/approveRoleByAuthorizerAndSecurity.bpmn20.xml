@@ -15,7 +15,7 @@ Input variables:
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFrom" type="localDate" expression="#{conceptRole.validFrom}"></activiti:formProperty>
         <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
@@ -27,20 +27,20 @@ Input variables:
     <sequenceFlow id="flow3" name="disapproved" sourceRef="exclusivegateway1" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by role guarantee for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role, null).name}&quot; assignment by role guarantee for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask8"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask9"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow9" sourceRef="exclusivegateway2" targetRef="servicetask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by role guarantee for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role, null).name}&quot; change by role guarantee for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <userTask id="usertask1" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole,null).validFrom}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>
@@ -185,7 +185,7 @@ if(!skip){
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFrom" type="localDate" expression="#{conceptRole.validFrom}"></activiti:formProperty>
         <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
@@ -274,7 +274,7 @@ if(!skip){
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole,null).validFrom}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>

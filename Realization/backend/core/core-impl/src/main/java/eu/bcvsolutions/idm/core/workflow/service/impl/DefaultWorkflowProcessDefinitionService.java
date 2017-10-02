@@ -117,8 +117,12 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 		// paginator
 		long count = query.count();
 		
-		List<ProcessDefinition> processInstances = query.listPage((pageable.getPageNumber() * pageable.getPageSize()),
-				pageable.getPageSize());
+		List<ProcessDefinition> processInstances = 
+				pageable == null 
+				?
+				query.list() // without pagination
+				:	
+				query.listPage((pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
 		
 		List<WorkflowProcessDefinitionDto> dtos = new ArrayList<>();
 

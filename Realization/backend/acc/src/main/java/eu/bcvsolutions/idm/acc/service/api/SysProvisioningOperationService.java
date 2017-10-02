@@ -1,11 +1,16 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
@@ -15,7 +20,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningOperationService extends ReadWriteEntityService<SysProvisioningOperation, ProvisioningOperationFilter> {
+public interface SysProvisioningOperationService extends ReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperationFilter> {
 
 	/**
 	 * Returns fully loaded AccountObject with guarded string.
@@ -23,7 +28,7 @@ public interface SysProvisioningOperationService extends ReadWriteEntityService<
 	 * @param provisioningOperation
 	 * @return
 	 */
-	Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation);
+	Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 * Returns fully loaded ConnectorObject with guarded strings.
@@ -33,22 +38,24 @@ public interface SysProvisioningOperationService extends ReadWriteEntityService<
 	 * @param provisioningOperation
 	 * @return
 	 */
-	IcConnectorObject getFullConnectorObject(SysProvisioningOperation provisioningOperation);
+	IcConnectorObject getFullConnectorObject(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 * Handles failed operation (plans next attempt etc.)
 	 * 
 	 * @param operation
 	 * @param ex
+	 * @return
 	 */
-	void handleFailed(SysProvisioningOperation operation, Exception ex);
+	SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex);
 	
 	/**
 	 * Called when operation succeeded. 
 	 * 
 	 * @param operation
+	 * @return
 	 */
-	void handleSuccessful(SysProvisioningOperation operation);
+	SysProvisioningOperationDto handleSuccessful(SysProvisioningOperationDto operation);
 	
 	/**
 	 * Creates account object property key into confidential storage
@@ -67,4 +74,36 @@ public interface SysProvisioningOperationService extends ReadWriteEntityService<
 	 * @return
 	 */
 	String createConnectorObjectPropertyKey(IcAttribute property, int index);
+	
+	/**
+	 * Return opertaions for batch id.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	Page<SysProvisioningOperationDto> findByBatchId(UUID batchId, Pageable pageable);
+
+	/**
+	 * Returns operations for batch id sorted by oldest to newest.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	List<SysProvisioningOperationDto> getByTimelineAndBatchId(UUID batchId);
+
+	/**
+	 * Method returns oldest operation for batch id.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	SysProvisioningOperationDto getFirstOperationByBatchId(UUID batchId);
+
+	/**
+	 * Method return newest operation by batch id.
+	 * 
+	 * @param batchId
+	 * @return
+	 */
+	SysProvisioningOperationDto getLastOperationByBatchId(UUID batchId);
 }

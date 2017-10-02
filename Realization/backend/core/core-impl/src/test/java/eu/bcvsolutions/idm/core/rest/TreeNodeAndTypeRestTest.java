@@ -18,14 +18,18 @@ import org.springframework.security.core.Authentication;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
-import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * Tree nodes endpoint tests
@@ -37,6 +41,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
 	@Autowired private IdmTreeTypeRepository treeTypeRepository;
 	@Autowired private IdmTreeNodeRepository treeNodeRepository;
+	@Autowired private IdmIdentityService identityService;
 
 	@Test
 	public void testCreateRootNodeTwice() {
@@ -62,14 +67,14 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		Map<String, String> body = new HashMap<>();
 		body.put("code", "TEST_ROOT_second");
 		body.put("name", "TEST_ROOT_second");
-		body.put("treeType", "treetypes/" + type.getId().toString());
+		body.put("treeType", type.getId().toString());
 		
 		String jsonContent = toJson(body);
 		
 		ex = null;
 		int status = 0;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
 					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
@@ -103,15 +108,15 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		body.put("id", node2.getId().toString());
 		body.put("code", "TEST_NODE_2_update");
 		body.put("name", "TEST_NODE_2_update");
-		body.put("treeType", "treeTypes/" + node4.getTreeType().getId().toString());
-		body.put("parent", "treeNodes/" + node4.getId().toString());
+		body.put("treeType", node4.getTreeType().getId().toString());
+		body.put("parent", node4.getId().toString());
 		
 		String jsonContent = toJson(body);
 		
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
 					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
@@ -137,7 +142,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		Map<String, String> body = new HashMap<>();
 		body.put("code", "TEST_NODE");
 		body.put("name", "TEST_NODE");
-		body.put("treeType", "treeTypes/" + type.getId().toString());
+		body.put("treeType", type.getId().toString());
 		
 		String jsonContent = toJson(body);
 		
@@ -145,7 +150,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		Exception ex = null;
 		// test save without privileges
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -159,7 +164,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		
 		// test with privileges
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
 					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
@@ -179,14 +184,14 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		// change treeType
 		body.put("id", node.getId().toString());
 		body.put("name", node.getName() + "_update");
-		body.put("treeType", "tree-types/" + type2.getId().toString());
+		body.put("treeType", type2.getId().toString());
 		
 		jsonContent = toJson(body);
 		
 		status = 0;
 		ex = null;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes/")
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes/")
 					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
@@ -228,6 +233,10 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	}
 	
 	private Authentication getAuthentication() {
-		return AuthenticationTestUtils.getSystemAuthentication();
+		return new IdmJwtAuthentication(
+				identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), 
+				null, 
+				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
+				"test");
 	}
 }

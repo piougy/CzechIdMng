@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>7.3.4</version>
+		<version>7.4.0-rc.1</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -96,6 +96,11 @@
 					<artifactId>idm-example</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-vs</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
 
 			<build>
@@ -169,6 +174,17 @@
 								</configuration>
 							</execution>
 							<execution>
+								<id>install czechidm-vs dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>install</arguments>
+									<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-vs</workingDirectory>
+									<installDirectory>target</installDirectory>
+								</configuration>
+							</execution>
+							<execution>
 								<id>make all modules together</id>
 								<goals>
 									<goal>gulp</goal>
@@ -234,24 +250,16 @@
 					<artifactId>idm-example</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-vs</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
 		</profile>
 
 		<profile>
 			<id>dev-mysql</id>
-			<!-- Optional modules - could be added without dependency -->
-			<dependencies>
-				<dependency>
-					<groupId>${project.groupId}</groupId>
-					<artifactId>idm-acc</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>${project.groupId}</groupId>
-					<artifactId>idm-example</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-			</dependencies>
 		</profile>
 
 		<!-- Due portability of maven build among different OSs we need to distinguish

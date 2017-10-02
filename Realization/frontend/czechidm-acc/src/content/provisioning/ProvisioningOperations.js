@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import _ from 'lodash';
 import moment from 'moment';
 //
@@ -107,6 +106,21 @@ class ProvisioningOperations extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Transforma account or connector object value into FE property values
+   *
+   * @param  {object} objectValue
+   * @return {string}
+   */
+  _toPropertyValue(objectValue) {
+    if (_.isArray(objectValue)) {
+      return objectValue.join(', ');
+    } else if (_.isObject(objectValue)) {
+      return JSON.stringify(objectValue);
+    }
+    return objectValue;
+  }
+
   render() {
     const { forceSearchParameters, columns, uiKey } = this.props;
     const { detail, retryDialog } = this.state;
@@ -118,17 +132,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
         if (!accountObject.hasOwnProperty(schemaAttributeId)) {
           continue;
         }
-        let content = '';
-        const propertyValue = accountObject[schemaAttributeId];
-        if (_.isArray(propertyValue)) {
-          content = propertyValue.join(', ');
-        } else {
-          content = propertyValue;
-        }
-
         accountData.push({
           property: schemaAttributeId,
-          value: content
+          value: this._toPropertyValue(accountObject[schemaAttributeId])
         });
       }
     }
@@ -139,7 +145,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
       connectorObject.attributes.forEach(attribute => {
         connectorData.push({
           property: attribute.name,
-          value: attribute.values.join(', ')
+          value: this._toPropertyValue(attribute.values)
         });
       });
     }
@@ -214,7 +220,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                           ?
                           <span>N/A</span>
                           :
-                          <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
+                          <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }} face="popover"/>
                         }
                       </Basic.LabelWrapper>
                     </div>
@@ -223,9 +229,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   <Basic.Row>
                     <div className="col-lg-4">
                       <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
-                        <div style={{ margin: '7px 0' }}>
-                          <Link to={`/system/${detail.entity.system.id}/detail`} >{detail.entity.system.name}</Link>
-                        </div>
+                        <Advanced.EntityInfo
+                          entityType="system"
+                          entityIdentifier={ detail.entity.system }
+                          entity={ detail.entity._embedded.system }
+                          style={{ margin: 0 }}
+                          face="popover"/>
                       </Basic.LabelWrapper>
                     </div>
                     <div className="col-lg-8">
@@ -252,13 +261,13 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   }
                   <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
                   {
-                    (!detail.entity.request || !detail.entity.request.nextAttempt)
+                    (!detail.entity.nextAttempt)
                     ||
                     <div>
                       <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt', {
-                        currentAttempt: detail.entity.request.currentAttempt,
-                        maxAttempts: detail.entity.request.maxAttempts,
-                        nextAttempt: moment(detail.entity.request.nextAttempt).format(this.i18n('format.datetime'))
+                        currentAttempt: detail.entity.currentAttempt,
+                        maxAttempts: detail.entity.maxAttempts,
+                        nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
                       })}}/>
                     </div>
                   }
@@ -315,19 +324,19 @@ class ProvisioningOperations extends Basic.AbstractContent {
           backdrop="static">
           <Basic.Modal.Header closeButton text={this.i18n(`action.${retryDialog.bulkActionValue}.header`, { count: retryDialog.ids.length})}/>
           <Basic.Modal.Body>
-            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.batchMessage`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
+            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.message`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
           </Basic.Modal.Body>
-
           <Basic.Modal.Footer>
             <Basic.Button
-              level="success"
-              onClick={this.onRetry.bind(this, true)}>
-              {this.i18n(`action.${retryDialog.bulkActionValue}.button.batch`)}
+              level="warning"
+              onClick={this.onRetry.bind(this, false)}>
+              {this.i18n(`action.${retryDialog.bulkActionValue}.button.selected`)}
             </Basic.Button>
           </Basic.Modal.Footer>
           <Basic.Modal.Body>
-            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.message`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
+            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.batchMessage`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
           </Basic.Modal.Body>
+
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
@@ -335,9 +344,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
               {this.i18n('button.close')}
             </Basic.Button>
             <Basic.Button
-              level="warning"
-              onClick={this.onRetry.bind(this, false)}>
-              {this.i18n(`action.${retryDialog.bulkActionValue}.button.selected`)}
+              level="success"
+              onClick={this.onRetry.bind(this, true)}>
+              {this.i18n(`action.${retryDialog.bulkActionValue}.button.batch`)}
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>

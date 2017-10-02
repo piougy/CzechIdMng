@@ -10,9 +10,10 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 
 /**
  * Sends notifications
@@ -21,29 +22,28 @@ import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
  *
  */
 @Component("notificationManager")
-public class DefaultNotificationManager extends AbstractNotificationSender<IdmNotificationLogDto> implements NotificationManager {
+public class DefaultNotificationManager extends AbstractNotificationSender<IdmNotificationLogDto>
+		implements NotificationManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultNotificationManager.class);
 	private final IdmNotificationLogService notificationLogService;
-    private final ProducerTemplate producerTemplate;
-	
-    @Autowired
-	public DefaultNotificationManager(
-			IdmNotificationLogService notificationLogService,
-			ProducerTemplate producerTemplate
-			) {
-    	Assert.notNull(notificationLogService);
-    	Assert.notNull(producerTemplate);
-    	//
-    	this.notificationLogService = notificationLogService;
-    	this.producerTemplate = producerTemplate;
+	private final ProducerTemplate producerTemplate;
+
+	@Autowired
+	public DefaultNotificationManager(IdmNotificationLogService notificationLogService,
+			ProducerTemplate producerTemplate) {
+		Assert.notNull(notificationLogService);
+		Assert.notNull(producerTemplate);
+		//
+		this.notificationLogService = notificationLogService;
+		this.producerTemplate = producerTemplate;
 	}
-	
+
 	@Override
 	public String getType() {
 		return IdmNotificationLog.NOTIFICATION_TYPE;
 	}
-	
+
 	@Override
 	public Class<? extends BaseEntity> getNotificationType() {
 		return notificationLogService.getEntityClass();
@@ -57,7 +57,7 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		IdmNotificationLogDto notificationLog = createLog(notification);
 		return sendNotificationLog(notificationLog);
 	}
-	
+
 	/**
 	 * Sends existing notification to routing
 	 * 
@@ -70,9 +70,10 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		producerTemplate.sendBody("direct:notifications", notificationLog);
 		return notificationLog;
 	}
-	
+
 	/**
-	 * Persists new notification record from given notification
+	 * Persists new notification record from given notification. 
+	 * Input notification type is leaved unchanged - is needed for another processing (routing).
 	 * 
 	 * @param notification
 	 * @return
@@ -80,22 +81,29 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	private IdmNotificationLogDto createLog(IdmNotificationDto notification) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
-		// we can only create log, if notification is instance of IdmNotificationLog
+		// we can only create log, if notification is instance of
+		// IdmNotificationLog
 		if (notification instanceof IdmNotificationLogDto) {
 			notification.setSent(new DateTime());
-			return notificationLogService.save((IdmNotificationLogDto) notification);
+			IdmNotificationLogDto notificationLog = notificationLogService.save((IdmNotificationLogDto) notification);
+			notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
+			return notificationLog;
 		}
 		// we need to clone notification
 		IdmNotificationLogDto notificationLog = new IdmNotificationLogDto();
+		notificationLog.setType(notification.getType());
 		notificationLog.setSent(new DateTime());
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
 		// clone recipients
-		notification.getRecipients().forEach(recipient -> {
-			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient, recipient.getRealRecipient()));
-		});
+		for(IdmNotificationRecipientDto recipient : notification.getRecipients()) {
+			notificationLog.getRecipients()
+					.add(cloneRecipient(notificationLog, recipient, recipient.getRealRecipient()));
+		}
 		notificationLog.setIdentitySender(notification.getIdentitySender());
-		return notificationLogService.save(notificationLog);
+		notificationLog = notificationLogService.save(notificationLog);
+		notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
+		return notificationLog;
 	}
 
 }

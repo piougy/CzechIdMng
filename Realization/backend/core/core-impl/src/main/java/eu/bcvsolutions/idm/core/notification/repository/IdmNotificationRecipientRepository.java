@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationRecipientFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 
 /**
@@ -18,8 +18,11 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationRecipientRepository extends AbstractEntityRepository<IdmNotificationRecipient, NotificationRecipientFilter> {
+public interface IdmNotificationRecipientRepository extends AbstractEntityRepository<IdmNotificationRecipient> {
 
+	@Query("select e from IdmNotificationRecipient e left join e.notification n where (n.id = ?#{[0].notification})")
+	Page<IdmNotificationRecipient> find(IdmNotificationRecipientFilter filter, Pageable pageable);
+	
 	/**
 	 * Clears identity id from all recipient (raw recipient remains)
 	 * 
@@ -29,9 +32,4 @@ public interface IdmNotificationRecipientRepository extends AbstractEntityReposi
 	@Modifying
 	@Query("update #{#entityName} e set e.identityRecipient = null where e.identityRecipient.id = :identityId")
 	int clearIdentity(@Param("identityId") UUID identityId);
-	
-
-	@Override
-	@Query("select e from IdmNotificationRecipient e left join e.notification n where (n.id = ?#{[0].notification})")
-	Page<IdmNotificationRecipient> find(NotificationRecipientFilter filter, Pageable pageable);
 }

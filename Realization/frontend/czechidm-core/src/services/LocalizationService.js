@@ -4,9 +4,7 @@ import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
 require('moment/locale/cs');
-
-let i18nextInstance = null;
-// TODO: move to configuration
+// supported languages by default
 const SUPPORTED_LANGUAGES = ['cs', 'en'];
 
 // original lookup - window.location.search.substring(1) - does not work
@@ -34,9 +32,14 @@ const customQueryStringDetector = {
   }
 };
 
+let i18nextInstance = null;
+let _configLoader = null;
+
 /**
 * Provides localization context
 * # http://i18next.com/docs/api/#language
+*
+* @author Radek Tomiška
 */
 export default class LocalizationService {
 
@@ -44,6 +47,7 @@ export default class LocalizationService {
   * i18n inicialization
   */
   static init(configLoader, cb) {
+    _configLoader = configLoader;
     // add custom language detector
     const languageDetector = new LanguageDetector();
     languageDetector.addDetector(customQueryStringDetector);
@@ -54,10 +58,10 @@ export default class LocalizationService {
       .use(languageDetector)
       .use(Cache)
       .init({
-        whitelist: _.clone(SUPPORTED_LANGUAGES),
+        whitelist: _.clone(this.getSupportedLanguages()),
         nonExplicitWhitelist: true,
         lowerCaseLng: true,
-        fallbackLng: 'cs',
+        fallbackLng: configLoader.getConfig('locale.fallback', 'cs'),
         compatibilityJSON: 'v2', // breaking change with multi plural: https://github.com/i18next/i18next/blob/master/CHANGELOG.md#300
 
         detection: {
@@ -116,10 +120,9 @@ export default class LocalizationService {
    */
   static _getModuleIdsWithLocales(configLoader) {
     const moduleIdsWithLocales = [];
-    for (const moduleId of configLoader.getEnabledModuleIds()) {
-      const descriptor = configLoader.getModuleDescriptor(moduleId);
+    for (const descriptor of configLoader.getModuleDescriptors()) {
       if (descriptor.mainLocalePath) {
-        moduleIdsWithLocales.push(moduleId);
+        moduleIdsWithLocales.push(descriptor.id);
       }
     }
     return moduleIdsWithLocales;
@@ -161,7 +164,7 @@ export default class LocalizationService {
   }
 
   static getSupportedLanguages() {
-    return SUPPORTED_LANGUAGES;
+    return _configLoader.getConfig('locale.supported', SUPPORTED_LANGUAGES);
   }
 }
 

@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "CzechIdM"
+  },
   "env": "production",
   "serverUrl": "/idm/api/v1",
   "theme": "czechidm-core/themes/default",
@@ -8,5 +11,12 @@
   "recaptcha": {
     "enabled": false,
     "siteKey": "todo"
+  },
+  "locale": {
+    "supported": ["cs", "en"],
+    "fallback": "cs"
+  },
+  "pagination": {
+    "size": 10
   }
 }

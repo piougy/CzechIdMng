@@ -10,6 +10,11 @@ import { SystemManager } from '../../redux';
 
 const systemManager = new SystemManager();
 
+/**
+ * Provisioning operation and archive table
+ *
+ * @author Radk Tomiška
+ */
 export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -175,38 +180,52 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           rendered={_.includes(columns, 'operationType')}/>
         <Advanced.Column
           property="entityType"
-          width={75}
-          header={this.i18n('acc:entity.SystemEntity.entityType')}
+          width={ 75 }
+          header={ this.i18n('acc:entity.SystemEntity.entityType') }
           sort
-          sortProperty="systemEntity.entityType"
           face="enum"
-          enumClass={SystemEntityTypeEnum}
-          rendered={_.includes(columns, 'entityType')} />
+          enumClass={ SystemEntityTypeEnum }
+          rendered={ _.includes(columns, 'entityType') } />
         <Advanced.Column
           property="entityIdentifier"
-          header={this.i18n('acc:entity.ProvisioningOperation.entity')}
+          header={ this.i18n('acc:entity.ProvisioningOperation.entity') }
           face="text"
           cell={
             /* eslint-disable react/no-multi-comp */
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
               return (
-                <Advanced.EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="popover"/>
+                <Advanced.EntityInfo
+                  entityType={ entity.entityType }
+                  entityIdentifier={ entity.entityIdentifier }
+                  entity={ entity._embedded.entity }
+                  face="popover"/>
               );
             }
           }
-          rendered={_.includes(columns, 'entityIdentifier')}/>
-        <Advanced.ColumnLink
-          to="/system/:_target/detail"
-          target="system.id"
-          access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
+          rendered={ _.includes(columns, 'entityIdentifier') }/>
+        <Advanced.Column
           property="system.name"
-          header={this.i18n('acc:entity.System.name')}
+          header={ this.i18n('acc:entity.System.name') }
+          sort
+          cell={
+            ({ rowIndex, data }) => {
+              const entity = data[rowIndex];
+              return (
+                <Advanced.EntityInfo
+                  entityType="system"
+                  entityIdentifier={ entity.system }
+                  entity={ entity._embedded.system }
+                  face="popover"/>
+              );
+            }
+          }
           rendered={_.includes(columns, 'system')} />
         <Advanced.Column
           property="systemEntityUid"
           header={this.i18n('acc:entity.SystemEntity.uid')}
           sort
+          sortProperty="systemEntityUid"
           face="text"
           rendered={_.includes(columns, 'systemEntityUid')}/>
       </Advanced.Table>

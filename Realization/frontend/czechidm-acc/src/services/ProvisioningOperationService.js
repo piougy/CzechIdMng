@@ -12,7 +12,7 @@ export default class ProvisioningOperationService extends Services.AbstractServi
     if (!entity) {
       return '';
     }
-    return `${entity.system ? entity.system.name : entity._embedded.system.name}:${SystemEntityTypeEnum.getNiceLabel(entity.entityType)}:${entity.systemEntityUid}`;
+    return `${(entity._embedded && entity._embedded.system) ? entity._embedded.system.name : entity.system}:${SystemEntityTypeEnum.getNiceLabel(entity.entityType)}:${entity.systemEntityUid}`;
   }
 
   getApiPath() {
@@ -20,7 +20,7 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   }
 
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'ASC');
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'DESC');
   }
 
   /**

@@ -23,9 +23,9 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -71,6 +71,8 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public <E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission) {
+		Assert.notNull(permission);
+		//
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
 		//
 		service.getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
@@ -169,6 +171,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	@Override
 	public <E extends Identifiable> boolean evaluate(E entity, BasePermission... permission) {
 		Assert.notNull(entity);
+		Assert.notNull(permission);
 		//
 		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass())) {
 			if (!supportsEntityType(policy, entity.getClass())) {
@@ -272,7 +275,9 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			authorizableTypes = new HashSet<>();
 			// types with authorization evaluators support
 			context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
-				authorizableTypes.add(service.getAuthorizableType());
+				if (service.getAuthorizableType() != null) {
+					authorizableTypes.add(service.getAuthorizableType());
+				}
 			});
 			// add default - doesn't supports authorization evaluators
 			moduleService.getAvailablePermissions().forEach(groupPermission -> {

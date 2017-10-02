@@ -4,14 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
@@ -21,19 +18,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška 
  *
  */
-public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdentity, IdentityFilter> {
+public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdentity> {
 
 	IdmIdentity findOneByUsername(@Param("username") String username);
-
-	/**
-	 * @deprecated use IdmIdentityService (uses criteria api)
-	 */
-	@Override
-	@Deprecated
-	@Query(value = "select e from #{#entityName} e")
-	default Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmIdentityService (uses criteria api)");
-	}
 	
 	@Transactional(timeout = 5, readOnly = true)
 	@Query(value = "SELECT e FROM IdmIdentity e"

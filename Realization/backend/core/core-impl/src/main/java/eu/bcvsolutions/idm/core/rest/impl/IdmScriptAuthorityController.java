@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
@@ -22,15 +21,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -45,7 +45,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/script-authorities")
 @Api(
 		value = IdmScriptAuthorityController.TAG,  
@@ -53,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Allowed services and clasess in scripts",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<IdmScriptAuthorityDto, ScriptAuthorityFilter>{
+public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<IdmScriptAuthorityDto, IdmScriptAuthorityFilter>{
 	
 	protected static final String TAG = "Script authorities";
 	private final IdmScriptAuthorityService service;
@@ -140,8 +140,6 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 				},
 			notes = "Returns IdM services (key, class), whitch can be used in scripts, if they will be assigned to the script by script authority.")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
-				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
         @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",

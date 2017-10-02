@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultForestIndexService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
@@ -39,14 +39,10 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RebuildTreeNodeIndexTaskExecutor.class);
 	private static final String PARAMETER_TREE_TYPE = "Tree type code";
 	//
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	@Autowired
-	private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
-	@Autowired
-	private ConfigurationService configurationService;
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private IdmTreeNodeRepository treeNodeRepository;
+	@Autowired private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
+	@Autowired private ConfigurationService configurationService;
 	//
 	private String treeTypeCode;
 	
@@ -64,26 +60,24 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		if (!configurationService.getBooleanValue(DefaultForestIndexService.PROPERTY_INDEX_ENABLED, true)) {
 			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_DISABLED, ImmutableMap.of("property", DefaultForestIndexService.PROPERTY_INDEX_ENABLED));
 		}
-		IdmTreeType treeType = getTreeType();
+		IdmTreeTypeDto treeType = getTreeType();
 		String longRunningTaskId = configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD));
 		if (StringUtils.hasLength(longRunningTaskId) && !longRunningTaskId.equals(getLongRunningTaskId().toString())) {
-			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("type", IdmTreeNode.toForestTreeType(treeType)));
+			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("type", IdmTreeNode.toForestTreeType(treeType.getId())));
 		}
 		//
 		LOG.info("Starting rebuilding tree node index for tree type code [{}].", treeTypeCode);
 		//
 		// clear all rgt, lft
 		try {
-			forestIndexService.dropIndexes(IdmTreeNode.toForestTreeType(treeType));
+			forestIndexService.dropIndexes(IdmTreeNode.toForestTreeType(treeType.getId()));
 		} finally {
 			configurationService.setBooleanValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_VALID), false);
 		}
 		try {
 			configurationService.setValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD), getLongRunningTaskId().toString());
 			//
-			TreeNodeFilter filter = new TreeNodeFilter();
-			filter.setTreeTypeId(treeType.getId());
-			Page<IdmTreeNode> nodes = treeNodeService.find(filter, new PageRequest(0, 100, new Sort("id")));
+			Page<IdmTreeNode> nodes = treeNodeRepository.findByTreeType_Id(treeType.getId(), new PageRequest(0, 100, new Sort("id")));
 			count = nodes.getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
@@ -101,7 +95,7 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 				if (!nodes.hasNext()) {
 					break;
 				}
-				nodes = treeNodeService.find(filter, nodes.nextPageable());
+				nodes = treeNodeRepository.findByTreeType_Id(treeType.getId(), nodes.nextPageable());
 			}
 			//
 			if (count.equals(counter)) {
@@ -117,8 +111,8 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		}
 	}
 	
-	private IdmTreeType getTreeType() {
-		IdmTreeType treeType = treeTypeService.getByCode(treeTypeCode);
+	private IdmTreeTypeDto getTreeType() {
+		IdmTreeTypeDto treeType = treeTypeService.getByCode(treeTypeCode);
 		if(treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,
 					ImmutableMap.of("entity", treeTypeCode));
@@ -135,8 +129,8 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 	}
 	
 	@Override
-	public List<String> getParameterNames() {
-		List<String> parameters = super.getParameterNames();
+	public List<String> getPropertyNames() {
+		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_TREE_TYPE);
 		return parameters;
 	}

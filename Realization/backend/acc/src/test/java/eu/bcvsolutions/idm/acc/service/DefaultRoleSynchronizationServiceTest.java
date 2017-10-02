@@ -29,25 +29,26 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -57,12 +58,13 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -96,6 +98,8 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
 	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private SysSyncConfigService syncConfigService;
@@ -114,7 +118,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private FormService formService;
 
-	private SysSystem system;
+	private SysSystemDto system;
 	private SynchronizationService synchornizationService;
 
 	@Before
@@ -134,34 +138,34 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		
 		initData();
 
-		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.ROLE);
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
-		SysSystemMapping mapping = mappings.get(0);
-		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		SysSystemMappingDto mapping = mappings.get(0);
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
-		SysSystemAttributeMapping uidAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto uidAttribute = attributes.stream().filter(attribute -> {
 			return attribute.isUid();
 		}).findFirst().orElse(null);
 		
-		SysSystemAttributeMapping tokenAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto tokenAttribute = attributes.stream().filter(attribute -> {
 			return "changed".equals(attribute.getIdmPropertyName());
 		}).findFirst().orElse(null);
 
 
 		// Create default synchronization config
-		SysSyncConfig syncConfigCustom = new SysSyncConfig();
+		SysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
 		syncConfigCustom.setReconciliation(false);
 		syncConfigCustom.setCustomFilter(true);
-		syncConfigCustom.setSystemMapping(mapping);
-		syncConfigCustom.setCorrelationAttribute(uidAttribute);
-		syncConfigCustom.setTokenAttribute(tokenAttribute);
+		syncConfigCustom.setSystemMapping(mapping.getId());
+		syncConfigCustom.setCorrelationAttribute(uidAttribute.getId());
+		syncConfigCustom.setTokenAttribute(tokenAttribute.getId());
 		syncConfigCustom.setName(SYNC_CONFIG_NAME);
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
@@ -170,47 +174,47 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 		syncConfigService.save(syncConfigCustom);
 
-		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setSystemId(system.getId());
 		Assert.assertEquals(1, syncConfigService.find(configFilter, null).getTotalElements());
 	}
 
 	@Test
 	public void doStartSyncA_MissingEntity() {
-		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
 		synchornizationService.process();
 		//		
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog createEntityActionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto createEntityActionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
-		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(5, items.size());
 		
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
 		
@@ -234,15 +238,15 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 	@Test
 	public void doStartSyncB_Linked_doEntityUpdate() {
-		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		//Change node code to changed
 		this.getBean().changeOne();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -253,7 +257,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
 		Assert.assertEquals("1", roleService.find(roleFilter, null).getContent().get(0).getDescription());
@@ -261,26 +265,26 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
 		synchornizationService.process();
 		//
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
-		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(5, items.size());
 
 		// Check state after sync
@@ -293,15 +297,15 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	
 	@Test
 	public void doStartSyncB_MissingAccount_DeleteEntity() {
-		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		//Remove node code to changed
 		this.getBean().removeOne();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -313,35 +317,35 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
-		IdmRole roleOne = roleService.find(roleFilter, null).getContent().get(0);
+		IdmRoleDto roleOne = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleOne);
 		
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
 		synchornizationService.process();
 		//
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(2, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.DELETE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
-		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync
@@ -355,20 +359,20 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	
 	@Test
 	public void doStartSyncC_filterByToken() {
-		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("3");
-		IdmRole roleThree = roleService.find(roleFilter, null).getContent().get(0);
+		IdmRoleDto roleThree = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleThree);
-		IdmRoleFormValue changedRole = (IdmRoleFormValue) formService.getValues(roleThree, "changed").get(0);
+		IdmFormValueDto changedRole = (IdmFormValueDto) formService.getValues(roleThree.getId(), IdmRole.class, "changed").get(0);
 		Assert.assertNotNull(changedRole);
 
 		// Set sync config
@@ -386,29 +390,29 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
 		synchornizationService.process();
 		//		
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog createEntityActionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto createEntityActionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
-		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 	
-		SysSyncItemLog item = items.stream().filter(logitem -> {
+		SysSyncItemLogDto item = items.stream().filter(logitem -> {
 			return "4".equals(logitem.getIdentification());
 		}).findFirst().orElse(null);
 		Assert.assertNotNull("Log for role 4 must exist!", item);
@@ -431,10 +435,10 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		
 		
 		// Create role in IDM tree
-		IdmRole roleTen = new IdmRole();
+		IdmRoleDto roleTen = new IdmRoleDto();
 		roleTen.setName(ROLE_NAME_TEN);
 		roleTen.setPriority(2);
-		roleService.save(roleTen);
+		roleTen = roleService.save(roleTen);
 		
 		// Check state before provisioning
 		TestRoleResource one = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
@@ -444,11 +448,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningB_CreateAccounts() {
 
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
 
 		// Check state before provisioning
@@ -469,11 +473,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningD_UpdateAccount() {
 		
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
 		
 		// Check state before provisioning
@@ -495,13 +499,13 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningD_UpdateAccount_Extended_Attribute() {
 		
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
-		Assert.assertTrue(formService.getValues(roleTen, "changed").isEmpty());
+		Assert.assertTrue(formService.getValues(roleTen.getId(), IdmRole.class, "changed").isEmpty());
 		
 		// Check state before provisioning
 		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
@@ -510,7 +514,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	
 		// Create extended attribute
 		LocalDateTime now = LocalDateTime.now();
-		formService.saveValues(roleTen, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
+		formService.saveValues(roleTen.getId(), IdmRole.class, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
 		
 		// Save IDM changed node (must invoke provisioning)
 		roleService.save(roleTen);
@@ -524,11 +528,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningF_DeleteAccount() {
 		
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
 		
 		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
@@ -552,24 +556,25 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 	private void createProvisionigMapping() {
 
-		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 		
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 	
-		SysSystemMapping systemMappingSync = syncConfigCustom.getSystemMapping();
+		SysSystemMappingDto systemMappingSync = systemMappingService.get(syncConfigCustom.getSystemMapping());
 		
 		// Create provisioning mapping
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.ROLE);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setObjectClass(systemMappingSync.getObjectClass());
-		final SysSystemMapping syncMapping = systemMappingService.save(systemMapping);
+		final SysSystemMappingDto syncMapping = systemMappingService.save(systemMapping);
 
-		createMapping(systemMappingSync.getSystem(), syncMapping);
+		createMapping(systemService.get(schemaObjectClassService.get(systemMappingSync.getObjectClass()).getSystem()),
+				syncMapping);
 
 	}
 	
@@ -581,15 +586,15 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		system = systemService.save(system);
 
 		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		
 		// Create synchronization mapping
-		SysSystemMapping syncSystemMapping = new SysSystemMapping();
+		SysSystemMappingDto syncSystemMapping = new SysSystemMappingDto();
 		syncSystemMapping.setName("default_" + System.currentTimeMillis());
 		syncSystemMapping.setEntityType(SystemEntityType.ROLE);
 		syncSystemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		syncSystemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping syncMapping = systemMappingService.save(syncSystemMapping);
+		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
+		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 
 		createMapping(system, syncMapping);
 		initRoleData();
@@ -635,68 +640,68 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 	
 
-	private void createMapping(SysSystem system, final SysSystemMapping entityHandlingResult) {
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setUid(true);
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setIdmPropertyName("name");
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				// For provisioning .. we need create UID
 				attributeHandlingName.setTransformToResourceScript("return entity.getName();");
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("TYPE".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("roleType");
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 			
 			} else if ("PRIORITY".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("priority");
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("APPROVE_REMOVE".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("approveRemove");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("MODIFIED".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("changed");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(false);
 				attributeHandlingName.setExtendedAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 	
 			} else if ("DESCRIPTION".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName("description");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(true);;
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 	
 			}

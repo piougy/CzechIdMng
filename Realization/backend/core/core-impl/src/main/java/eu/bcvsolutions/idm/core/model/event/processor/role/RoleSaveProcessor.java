@@ -5,13 +5,13 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 
 /**
  * Persists role.
@@ -21,18 +21,18 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
  */
 @Component
 @Description("Persists role.")
-public class RoleSaveProcessor extends CoreEventProcessor<IdmRole> {
+public class RoleSaveProcessor extends CoreEventProcessor<IdmRoleDto> {
 	
 	public static final String PROCESSOR_NAME = "role-save-processor";
-	private final IdmRoleRepository repository;
+	private final IdmRoleService service;
 	
 	@Autowired
-	public RoleSaveProcessor(IdmRoleRepository repository) {
+	public RoleSaveProcessor(IdmRoleService service) {
 		super(RoleEventType.UPDATE, RoleEventType.CREATE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		//
-		this.repository = repository;
+		this.service = service;
 	}
 	
 	@Override
@@ -41,10 +41,10 @@ public class RoleSaveProcessor extends CoreEventProcessor<IdmRole> {
 	}
 
 	@Override
-	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
-		IdmRole entity = event.getContent();
-		//
-		repository.save(entity);
+	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
+		IdmRoleDto entity = event.getContent();
+		entity = service.saveInternal(entity);
+		event.setContent(entity);
 		//
 		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);

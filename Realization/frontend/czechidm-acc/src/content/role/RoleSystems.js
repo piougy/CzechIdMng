@@ -96,26 +96,25 @@ class RoleSystems extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
-              property="systemMapping.entityType"
+              property="_embedded.systemMapping.entityType"
               header={this.i18n('acc:entity.SystemEntity.entityType')}
               sort face="enum"
               enumClass={SystemEntityTypeEnum} />
             <Advanced.ColumnLink
               to="/system/:_target/detail"
-              target="system.id"
+              target="_embedded.system.id"
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-              property="system.name"
+              property="_embedded.system.name"
               header={this.i18n('acc:entity.RoleSystem.system')}
               sort/>
             <Advanced.Column
               property="systemMapping"
               header={this.i18n('acc:entity.RoleSystem.systemMapping')}
               cell={
-                ({ rowIndex, data, property }) => {
+                ({ rowIndex, data }) => {
                   const roleSystem = data[rowIndex];
-                  const systemMapping = roleSystem[property];
                   return (
-                    <Link to={`/system/${roleSystem.system.id}/mappings/${systemMapping.id}/detail`} >{systemMappingManager.getNiceLabel(systemMapping)}</Link>
+                    <Link to={`/system/${roleSystem._embedded.system.id}/mappings/${roleSystem._embedded.systemMapping.id}/detail`} >{systemMappingManager.getNiceLabel(roleSystem._embedded.systemMapping)}</Link>
                   );
                 }
               }/>

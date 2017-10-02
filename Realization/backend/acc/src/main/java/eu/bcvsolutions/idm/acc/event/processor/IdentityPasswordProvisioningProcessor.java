@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -10,13 +12,13 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -33,19 +35,14 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 	public static final String PROCESSOR_NAME = "identity-password-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProvisioningProcessor.class);
 	private final ProvisioningService provisioningService;
-	private final IdmIdentityRepository identityRepository;
 	
 	@Autowired
-	public IdentityPasswordProvisioningProcessor(
-			ProvisioningService provisioningService, 
-			IdmIdentityRepository identityRepository) {
+	public IdentityPasswordProvisioningProcessor(ProvisioningService provisioningService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(provisioningService);
-		Assert.notNull(identityRepository);
 		//
 		this.provisioningService = provisioningService;
-		this.identityRepository = identityRepository;
 	}
 	
 	@Override
@@ -60,9 +57,9 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 		Assert.notNull(passwordChangeDto);
 		//
 		LOG.debug("Call provisioning for identity password [{}]", event.getContent().getUsername());
-		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
+		List<OperationResult> results = provisioningService.changePassword(identity, passwordChangeDto);
 		//
-		return new DefaultEventResult<>(event, this);
+		return new DefaultEventResult.Builder<>(event, this).setResults(results).build();
 	}
 
 	@Override

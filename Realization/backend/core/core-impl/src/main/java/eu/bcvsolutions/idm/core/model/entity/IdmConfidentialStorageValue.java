@@ -40,7 +40,7 @@ public class IdmConfidentialStorageValue extends AbstractEntity {
 	
 	@Audited
 	@NotNull
-	@Column(name = "owner_id", nullable = false)
+	@Column(name = "owner_id", nullable = false, length = 16)
 	private UUID ownerId;
 	
 	@Audited

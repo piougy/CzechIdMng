@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -9,6 +11,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -18,10 +21,14 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
@@ -31,15 +38,9 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * 
- * TODO: add primary key to FS path not resource!
  *
  */
-public class DefaultCryptService implements CryptService {
-	
-	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/";
-	public static String DEMO_KEY = "demo_key.key";
-	public static String PRIMARY_KEY = "key.key";
-	
+public class DefaultCryptService implements CryptService {	
 	/**
 	 * Algorithm, mode and block padding
 	 */
@@ -57,6 +58,28 @@ public class DefaultCryptService implements CryptService {
 	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCryptService.class);
+	private final ConfigurableEnvironment env;
+	private static Cipher encryptCipher;
+	private static Cipher decryptCipher;
+	
+	public DefaultCryptService(ConfigurableEnvironment env) {
+		Assert.notNull(env);
+		//
+		this.env = env;
+	}
+	
+	@PostConstruct
+	private void init() {
+		try {
+			decryptCipher = initCipher(Cipher.DECRYPT_MODE);
+			encryptCipher = initCipher(Cipher.ENCRYPT_MODE);
+			LOG.info("Initializing Cipher succeeded - Confidetial storage will be crypted.");
+		} catch (InvalidKeyException e) {
+			decryptCipher = null;
+			encryptCipher = null;
+			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ",e.getMessage());
+		}
+	}
 	
 	@Override
 	public String encryptString(String value) {
@@ -73,14 +96,14 @@ public class DefaultCryptService implements CryptService {
 	@Override
 	public byte[] decrypt(byte[] value) {
 		byte[] decryptValue = null;
+		// cipher isn't initialized
+		if (decryptCipher == null) {
+			return value;
+		}
+		//
 		try {
-			Cipher cipher = initCipher(Cipher.DECRYPT_MODE);
-			// cipher is not initialized
-			if (cipher == null) {
-				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY));
-			}
-			decryptValue = cipher.doFinal(value);
-		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+			decryptValue = decryptCipher.doFinal(value);
+		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			LOG.error("Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
@@ -90,14 +113,14 @@ public class DefaultCryptService implements CryptService {
 	@Override
 	public byte[] encrypt(byte[] value) {
 		byte[] encryptValue = null;
+		// cipher isn't initialized
+		if (encryptCipher == null) {
+			return value;
+		}
+		//
 		try {
-			Cipher cipher = initCipher(Cipher.ENCRYPT_MODE);
-			// cipher is not initialized
-			if (cipher == null) {
-				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY));
-			}
-			encryptValue = cipher.doFinal(value);
-		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+			encryptValue = encryptCipher.doFinal(value);
+		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			LOG.error("Encrypt problem! Password will not be encrypted! Error: {}", e);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
@@ -108,15 +131,39 @@ public class DefaultCryptService implements CryptService {
 	/**
 	 * Method return {@link SecretKey} that defined key from resource file. File name is defined by 
 	 * application property
+	 * 
 	 * @return
 	 * @throws UnsupportedEncodingException 
-	 * @throws IOException
 	 */
-	private SecretKey getKeyFromResource() throws UnsupportedEncodingException {
+	private SecretKey getKey() throws UnsupportedEncodingException {
 		String key;
 		Resource resource = null;
 		BufferedReader in = null;
-		
+		// try found key in application properties
+		key = env.getProperty(APPLICATION_PROPERTIES_KEY);
+		if (!Strings.isNullOrEmpty(key)) {
+			return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
+		}
+		// key was not found in application properties, try found application properties path 
+		String keyPath = env.getProperty(APPLICATION_PROPERTIES_KEY_PATH);
+		if (!Strings.isNullOrEmpty(keyPath)) {
+			File keyFile = new File(keyPath);
+			if (keyFile.exists()) {
+				try {
+					in = new BufferedReader(new FileReader(keyPath));
+					key = in.readLine();
+					if (key == null || key.isEmpty()) {
+						LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
+						return null;
+					}
+					return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
+				} catch (IOException e) {
+					LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage());
+				}
+			} else {
+				LOG.info("For crypt service is define key with path: [{}], but this file isnt exist.", keyPath);
+			}
+		}
 		try {
 			// get primary key from resource
 			resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
@@ -124,24 +171,24 @@ public class DefaultCryptService implements CryptService {
 			if (resource.exists()) {
 				in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 			} else {
-				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH + PRIMARY_KEY);
+				LOG.warn("Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH + PRIMARY_KEY);
 				// get demo key from resource
 				resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
 				if (resource.exists()) {
 					in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 				} else {
-					LOG.warn("[DefaultCryptService] Demo file with key not found.");
+					LOG.warn("Demo file with key not found.");
 					return null;
 				}
 			}
 			// read first line with key
 			key = in.readLine();
-			if (key == null || key.isEmpty()) {
-				LOG.warn("[DefaultCryptService] Key in file not found.");
+			if (Strings.isNullOrEmpty(key)) {
+				LOG.warn("Key in file not found.");
 				return null;
 			}
 		} catch (IOException e) {
-			LOG.warn("[DefaultCryptService] Problem with load key file!", e);
+			LOG.warn("Problem with load key file!", e);
 			throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY), e);
 		}
 		return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
@@ -156,7 +203,7 @@ public class DefaultCryptService implements CryptService {
 	private Cipher initCipher(int encryptMode) throws InvalidKeyException {
 		Cipher cipher = null;
 		try {
-			SecretKey key = this.getKeyFromResource();
+			SecretKey key = this.getKey();
 			if (key == null) {
 				return null;
 			}
@@ -175,16 +222,16 @@ public class DefaultCryptService implements CryptService {
 		// get primary key from resource
 		resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
 		if (resource.exists()) {
-			LOG.info("[DefaultCryptService] Using primary key.");
+			LOG.info("Using primary key.");
 			return true;
 		} else {
-			LOG.warn("[DefaultCryptService] Primary key doesn't exists!");
+			LOG.warn("Primary key doesn't exists!");
 			resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
 			if (resource.exists()) {
-				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
+				LOG.warn("Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
 				return true;
 			} else {
-				LOG.warn("[DefaultCryptService] Demo or primary key doesn't exists!");
+				LOG.warn("Demo or primary key doesn't exists!");
 				return false;
 			}
 		}

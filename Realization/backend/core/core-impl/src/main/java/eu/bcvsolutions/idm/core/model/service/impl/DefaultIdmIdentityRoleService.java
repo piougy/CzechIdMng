@@ -20,10 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -33,11 +34,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -49,24 +48,20 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityRoleService 
-		extends AbstractReadWriteDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>
+		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
 		implements IdmIdentityRoleService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
 	private final IdmIdentityRoleRepository repository;
-	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository repository,
 			EntityEventManager entityEventManager) {
-		super(repository);
-		//
-		Assert.notNull(entityEventManager);
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
-		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -87,8 +82,7 @@ public class DefaultIdmIdentityRoleService
 		Assert.notNull(dto.getIdentityContract());
 		//
 		LOG.debug("Saving role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
-		return entityEventManager.process(
-				new IdentityRoleEvent(isNew(dto) ? IdentityRoleEventType.CREATE : IdentityRoleEventType.UPDATE, dto)).getContent();
+		return super.save(dto, permission);
 	}
 
 	/**
@@ -98,17 +92,19 @@ public class DefaultIdmIdentityRoleService
 	 */
 	@Override
 	@Transactional
-	public void delete(IdmIdentityRoleDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentityContract());
+	public void delete(IdmIdentityRoleDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getRole());
+		Assert.notNull(dto.getIdentityContract());
 		//
-		LOG.debug("Deleting role [{}] for identity contract [{}]", entity.getRole(), entity.getIdentityContract());
-		entityEventManager.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
+		LOG.debug("Deleting role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
+		super.delete(dto, permission);
 	}
 	
+	
+	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityRoleFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
@@ -139,6 +135,41 @@ public class DefaultIdmIdentityRoleService
                     		));
 			predicates.add(builder.exists(roleCatalogueRoleSubquery));
 		}
+		// Only valid identity-role include check on contract validity too
+		if (filter.getValid() != null && filter.getValid()) {
+			final LocalDate today = LocalDate.now();
+			predicates.add(
+					builder.and(
+							builder.or(
+									builder.lessThanOrEqualTo(root.get(IdmIdentityRole_.validFrom), today),
+									builder.isNull(root.get(IdmIdentityRole_.validFrom))
+									),
+							builder.or(
+									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.validTill), today),
+									builder.isNull(root.get(IdmIdentityRole_.validTill))
+									)
+							,
+							builder.or(
+									builder.lessThanOrEqualTo(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validFrom), today),
+									builder.isNull(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validFrom))
+									),
+							builder.or(
+									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validTill), today),
+									builder.isNull(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validTill))
+									)
+							)
+					);
+		}
+		// Only unvalid identity-role
+		if (filter.getValid() != null && !filter.getValid()) {
+			final LocalDate today = LocalDate.now();
+			predicates.add(
+					builder.or(
+							builder.lessThan(root.get(IdmIdentityRole_.validTill), today),
+							builder.greaterThan(root.get(IdmIdentityRole_.validFrom), today)
+							)
+					);
+		}
 		return predicates;
 	}
 	
@@ -160,6 +191,15 @@ public class DefaultIdmIdentityRoleService
 	@Transactional(readOnly = true)
 	public Page<IdmIdentityRoleDto> findByAutomaticRole(UUID roleTreeNodeId, Pageable pageable) {
 		return toDtoPage(repository.findByRoleTreeNode_Id(roleTreeNodeId, pageable));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityRoleDto> findValidRole(UUID identityId, Pageable pageable) {
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setValid(Boolean.TRUE);
+		identityRoleFilter.setIdentityId(identityId);
+		return this.find(identityRoleFilter, pageable);
 	}
 
 	@Override

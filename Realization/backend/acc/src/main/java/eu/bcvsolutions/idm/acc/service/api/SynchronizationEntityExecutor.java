@@ -10,17 +10,24 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 
 /**
  * API for synchronization executor
+ * 
  * @author svandav
  *
  */
 public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> {
 
-	SysSyncConfig process(UUID synchronizationConfigId);
+	/**
+	 * Execute synchronization by given config
+	 * 
+	 * @param synchronizationConfigId
+	 * @return
+	 */
+	SysSyncConfigDto process(UUID synchronizationConfigId);
 
 	/**
 	 * Do synchronization for one item
@@ -29,7 +36,7 @@ public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> 
 	 */
 	boolean doItemSynchronization(SynchronizationContext itemContext);
 
-	void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<SysSyncConfig> longRunningTaskExecutor);
+	void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<SysSyncConfigDto> longRunningTaskExecutor);
 
 	/**
 	 * Method for resolve missing account situation for one item.

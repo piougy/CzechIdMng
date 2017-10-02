@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
-import java.util.Map;
-
 import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
@@ -11,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
@@ -35,11 +33,11 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 	private DateTime start;	
 	
 	@Override
-	public void init(Map<String, Object> properties) {
-		super.init(properties);
-		//
+	protected boolean start() {
 		start = new DateTime();
 		LOG.debug("Retry provisioning executor was inintialized for all next attmepts old than [{}]", start);
+		//
+		return super.start();
 	}
 	
 	@Override
@@ -49,16 +47,21 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 		boolean canContinue = true;
 		while(canContinue) {
 			// we process all batches
-			Page<SysProvisioningBatch> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 100));
+			Page<SysProvisioningBatchDto> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 100));
 			// init count
 			if (count == null) {
 				count = batches.getTotalElements();
 			}
 			//
-			for(SysProvisioningBatch batch : batches) {
-				provisioningExecutor.execute(batch);
-				counter++;
-				canContinue = updateState();
+			for(SysProvisioningBatchDto batch : batches) {
+				try {
+					provisioningExecutor.execute(batch);
+					counter++;
+					canContinue = updateState();
+				} catch (Exception ex) {
+					// TODO: stateful task executor with item reselt state
+					LOG.error("Batch [{}] execution failed", batch.getId(), ex);
+				}
 				if (!canContinue) {
 					break;
 				}
@@ -67,7 +70,7 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 				break;
 			}
 		}
-		LOG.info("Retry provisioning executor ended for all next attmepts old than [{}]", start);
+		LOG.info("Retry provisioning executor ended for all next attempts old than [{}]", start);
 		return Boolean.TRUE;
 	}
 }

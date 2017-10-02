@@ -13,19 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Prepare data for all tests with subordinates / managers.
@@ -46,8 +47,8 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected IdmIdentityDto subordinateOne;
 	protected IdmIdentityDto subordinateTwo;
 	protected IdmIdentityDto subordinateThree;
-	protected IdmTreeType structureOne;
-	protected IdmTreeType structureTwo;
+	protected IdmTreeTypeDto structureOne;
+	protected IdmTreeTypeDto structureTwo;
 	protected IdmIdentityContractDto contractOne;
 	protected IdmIdentityContractDto contractTwo;
 	
@@ -80,33 +81,33 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		subordinateThree = helper.createIdentity();
 		//
 		structureOne = helper.createTreeType();
-		IdmTreeNode managerOnePosition = helper.createTreeNode(structureOne, null); 
+		IdmTreeNodeDto managerOnePosition = helper.createTreeNode(structureOne, null); 
 		helper.createIdentityContact(managerOne, managerOnePosition);
 		helper.createIdentityContact(invalidManager, managerOnePosition, new LocalDate().plusDays(1), null);
 		//
 		structureTwo = helper.createTreeType();
-		IdmTreeNode managerTwoPosition = helper.createTreeNode(structureTwo, null); 
+		IdmTreeNodeDto managerTwoPosition = helper.createTreeNode(structureTwo, null); 
 		helper.createIdentityContact(managerTwo, managerTwoPosition);
 		// subordinate one
-		IdmTreeNode subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
+		IdmTreeNodeDto subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
 		contractOne = helper.createIdentityContact(subordinateOne, subordinateOnePositionOne);
 		helper.createContractGuarantee(contractOne.getId(), guaranteeThree.getId());
-		IdmTreeNode subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
+		IdmTreeNodeDto subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
 		contractTwo = helper.createIdentityContact(subordinateOne, subordinateOnePositionTwo);
 		helper.createContractGuarantee(contractTwo.getId(), guaranteeFour.getId());
 		// subordinate two
-		IdmTreeNode subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
+		IdmTreeNodeDto subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
 		IdmIdentityContractDto contractSubordinateTwo = helper.createIdentityContact(subordinateTwo, subordinateTwoPosition);
 		helper.createContractGuarantee(contractSubordinateTwo.getId(), guaranteeFour.getId());
 		// subordinate three
 		helper.createContractGuarantee(helper.createIdentityContact(subordinateThree).getId(), managerOne.getId());
 	}
 	
-	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdentityFilter> builder) {
+	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdmIdentityFilter> builder) {
 		//
 		// tests
 		// all managers - for subordinate one
-		IdentityFilter filter = new IdentityFilter();
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setIncludeGuarantees(true);
 		List<IdmIdentity> managers = builder.find(filter, null).getContent();
@@ -117,7 +118,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertEquals(4, managers.size());
 		//
 		// find contract managers
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByContract(contractOne.getId());
 		managers = builder.find(filter, null).getContent();
@@ -126,7 +127,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, guaranteeThree));
 		//
 		// find contract managers by without guarantees
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByContract(contractOne.getId());
 		filter.setIncludeGuarantees(false);
@@ -135,7 +136,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, managerOne));
 		//
 		// manager by tree structures
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByTreeType(structureOne.getId());
 		managers = builder.find(filter, null).getContent();
@@ -147,7 +148,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, managerTwo));
 		//
 		// all manager - for subordinate one
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateTwo.getId());
 		managers = builder.find(filter, null).getContent();
 		assertEquals(2, managers.size());
@@ -155,49 +156,47 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, guaranteeFour));
 	}
 	
-	protected void testSubordinatesBuilder(FilterBuilder<IdmIdentity, IdentityFilter> builder) {
-		IdentityFilter filter = new IdentityFilter();
+	protected void testSubordinatesBuilder(FilterBuilder<IdmIdentity, IdmIdentityFilter> builder) {
+		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(managerOne.getId());
 		List<IdmIdentity> subordinates = builder.find(filter, null).getContent();
 		assertEquals(2, subordinates.size());
 		assertTrue(contains(subordinates, subordinateOne));
 		assertTrue(contains(subordinates, subordinateThree));
 		//
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(managerOne.getId());
 		filter.setSubordinatesByTreeType(structureOne.getId());
 		subordinates = builder.find(filter, null).getContent();
 		assertEquals(1, subordinates.size());
 		assertTrue(contains(subordinates, subordinateOne));
 		//
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(guaranteeFour.getId());
 		subordinates = builder.find(filter, null).getContent();
 		assertEquals(2, subordinates.size());
 		assertTrue(contains(subordinates, subordinateOne));
 		assertTrue(contains(subordinates, subordinateTwo));
 		//
-		filter = new IdentityFilter();
+		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(invalidManager.getId());
 		subordinates = builder.find(filter, null).getContent();
 		assertTrue(subordinates.isEmpty());
 	}
 	
-	private IdmTreeNode createPosition(IdmTreeType type, IdmTreeNode parent) {
-		IdmTreeNode node = helper.createTreeNode(type, parent);
+	private IdmTreeNodeDto createPosition(IdmTreeTypeDto type, IdmTreeNodeDto parent) {
+		IdmTreeNodeDto node = helper.createTreeNode(type, parent);
 		
-		IdmFormDefinition formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
-		IdmFormAttribute attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
+		IdmFormAttributeDto attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
 		if (attr == null) {
-			attr = new IdmFormAttribute();
+			attr = new IdmFormAttributeDto();
 			attr.setName("Parent code");
 			attr.setCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
-			attr.setFormDefinition(formDefinition);
+			attr.setFormDefinition(formDefinition.getId());
 			attr.setPersistentType(PersistentType.TEXT);
 			attr.setUnmodifiable(true);
 			attr = formService.saveAttribute(attr);
-			// just for sure
-			formDefinition.addFormAttribute(attr);
 		}
 		//
 		formService.saveValues(node, attr, Lists.newArrayList(parent.getCode()));

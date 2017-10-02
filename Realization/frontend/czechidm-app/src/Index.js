@@ -28,7 +28,7 @@ import { syncHistory, routeReducer } from 'react-router-redux';
 import { Reducers, Managers, Basic, ConfigActions } from 'czechidm-core';
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 //
-// this parts are genetater dynamicaly to dist - after build wil be packed by browserify to sources
+// this parts are genetater dynamicaly to dist - after build will be packed by browserify to sources
 import config from '../dist/config.json';
 import { moduleDescriptors } from '../dist/modules/moduleAssembler';
 import { componentDescriptors } from '../dist/modules/componentAssembler';

@@ -22,13 +22,13 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 
 /**
  * Check if defined fields on identity was changed. If yes, then send
@@ -159,10 +159,12 @@ public class IdentityMonitoredFieldsProcessor extends CoreEventProcessor<IdmIden
 
     /**
      * Pojo bean keep information about changed fields
+     * 
      * @author svandav
      *
      */
-	public class ChangedField {
+	public static class ChangedField {
+		
 		private String name;
 		private String oldValue;
 		private String newValue;

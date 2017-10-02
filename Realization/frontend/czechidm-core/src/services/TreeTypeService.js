@@ -23,6 +23,14 @@ class TreeTypeService extends AbstractService {
     return `${entity.name} (${entity.code})`;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'TREETYPE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

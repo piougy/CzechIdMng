@@ -1,19 +1,24 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
-import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
+import { TreeNodeManager, TreeTypeManager } from '../../../redux';
+
+const manager = new TreeNodeManager();
 
 /**
  * Node detail content
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
-export default class NodeDetail extends Basic.AbstractContent {
+class NodeDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.treeNodeManager = new TreeNodeManager();
     this.treeTypeManager = new TreeTypeManager();
     this.state = {
       _showLoading: false
@@ -63,20 +68,12 @@ export default class NodeDetail extends Basic.AbstractContent {
     }, () => {
       const entity = this.refs.form.getData();
       this.refs.form.processStarted();
-
-      if (entity.parent) {
-        entity.parent = this.treeNodeManager.getSelfLink(entity.parent);
-      }
-      if (entity.treeType) {
-        entity.treeType = this.treeTypeManager.getSelfLink(entity.treeType);
-      }
-
       if (entity.id === undefined) {
-        this.context.store.dispatch(this.treeNodeManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.treeNodeManager.patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
+        this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
           this._afterSave(patchedEntity, error, afterAction);
         }));
       }
@@ -94,7 +91,7 @@ export default class NodeDetail extends Basic.AbstractContent {
       }
       //
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-      this.context.store.dispatch(this.treeNodeManager.clearEntities());
+      this.context.store.dispatch(manager.clearEntities());
       //
       if (afterAction === 'CLOSE') {
         // go back to tree types or organizations
@@ -109,7 +106,7 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, type, entity, showLoading } = this.props;
+    const { uiKey, type, entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
 
     return (
@@ -125,7 +122,7 @@ export default class NodeDetail extends Basic.AbstractContent {
                 ref="form"
                 showLoading={ _showLoading || showLoading }
                 uiKey={uiKey}
-                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREENODE_CREATE' : 'TREENODE_UPDATE')}>
+                readOnly={ !manager.canSave(entity, _permissions) }>
 
                 <Basic.SelectBox
                   ref="treeType"
@@ -155,8 +152,8 @@ export default class NodeDetail extends Basic.AbstractContent {
                 <Basic.SelectBox
                   ref="parent"
                   label={this.i18n('entity.TreeNode.parent.name')}
-                  forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type)}
-                  manager={this.treeNodeManager}/>
+                  forceSearchParameters={manager.getDefaultSearchParameters().setFilter('treeTypeId', type)}
+                  manager={manager}/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.TreeNode.disabled')}/>
@@ -173,7 +170,7 @@ export default class NodeDetail extends Basic.AbstractContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREENODE_CREATE' : 'TREENODE_UPDATE')}
+                rendered={ manager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
@@ -192,4 +189,19 @@ NodeDetail.propTypes = {
   entity: PropTypes.object,
   type: PropTypes.string,
   uiKey: PropTypes.string.isRequired,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
+NodeDetail.defaultProps = {
+  _permissions: null
+};
+
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
+  return {
+    _permissions: manager.getPermissions(state, null, component.entity.id)
+  };
+}
+
+export default connect(select)(NodeDetail);

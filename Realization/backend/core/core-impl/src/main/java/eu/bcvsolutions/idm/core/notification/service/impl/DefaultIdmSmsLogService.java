@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmSmsLogDto;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmSmsLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmSmsLog;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmSmsLogService;
 
 /**
  * 
@@ -15,10 +15,10 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmSmsLogService;
  *
  */
 @Service
-public class DefaultIdmSmsLogService extends AbstractNotificationLogService<IdmSmsLogDto, IdmSmsLog, NotificationFilter> implements IdmSmsLogService {
+public class DefaultIdmSmsLogService extends AbstractNotificationLogService<IdmSmsLogDto, IdmSmsLog, IdmNotificationFilter> implements IdmSmsLogService {
 
     @Autowired
-    public DefaultIdmSmsLogService(AbstractEntityRepository<IdmSmsLog, NotificationFilter> repository) {
+    public DefaultIdmSmsLogService(AbstractEntityRepository<IdmSmsLog> repository) {
         super(repository);
     }
 

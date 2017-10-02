@@ -11,16 +11,19 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.exception.TreeTypeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
 
 /**
@@ -31,18 +34,25 @@ import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
  */
 @Component("accTreeTypeDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeType> {
+public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeTypeDto> {
 	
 	public static final String PROCESSOR_NAME = "tree-type-delete-processor";
 	private final SysSystemMappingService systemMappingService;
+	private final SysSystemService systemService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
 	
 	@Autowired
-	public TreeTypeDeleteProcessor(SysSystemMappingService systemMappingService) {
+	public TreeTypeDeleteProcessor(SysSystemMappingService systemMappingService,
+			SysSystemService systemService, SysSchemaObjectClassService schemaObjectClassService) {
 		super(TreeTypeEventType.DELETE);
 		//
 		Assert.notNull(systemMappingService);
+		Assert.notNull(systemService);
+		Assert.notNull(schemaObjectClassService);
 		//
 		this.systemMappingService = systemMappingService;
+		this.systemService = systemService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 	
 	@Override
@@ -51,16 +61,17 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	}
 
 	@Override
-	public EventResult<IdmTreeType> process(EntityEvent<IdmTreeType> event) {
-		IdmTreeType treeType = event.getContent();
+	public EventResult<IdmTreeTypeDto> process(EntityEvent<IdmTreeTypeDto> event) {
+		IdmTreeTypeDto treeType = event.getContent();
 		Asserts.notNull(treeType, "TreeType must be set!");
-		SystemMappingFilter filter = new SystemMappingFilter();
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setTreeTypeId(treeType.getId());
 		
-		List<SysSystemMapping> mappings = systemMappingService.find(filter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(filter, null).getContent();
 		long count = mappings.size();
 		if (count > 0) {
-			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system", mappings.get(0).getSystem().getCode()));
+			SysSystemDto systemDto = systemService.get(schemaObjectClassService.get(mappings.get(0).getObjectClass()).getSystem());
+			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system",  systemDto.getCode()));
 		}
 		
 		return new DefaultEventResult<>(event, this);

@@ -2,7 +2,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import AuditTable from '../audit/AuditTable';
+import AuditIdentityTable from '../audit/identity/AuditIdentityTable';
 import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
@@ -45,12 +45,10 @@ class Audit extends Basic.AbstractContent {
           {
             !identity
             ||
-            <AuditTable
-              entityId={identity.id}
-              uiKey="identity-audit-table"
-              entityClass="IdmIdentity"
-              clickTarget={this.showDetail}
-              columns={['id', 'modification', 'modifier', 'revisionDate', 'changedAttributes']}/>
+            <AuditIdentityTable
+              singleUserMod
+              username={identity.username}
+              uiKey="identity-audit-table"/>
           }
         </Basic.Panel>
       </div>

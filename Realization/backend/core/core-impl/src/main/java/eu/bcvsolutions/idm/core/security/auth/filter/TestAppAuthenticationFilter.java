@@ -32,13 +32,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 
 /**
  * Example filter implementing sample remote OAuth2 provider
@@ -124,7 +124,7 @@ public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
 		Map<String, Object> map = parser.parseMap(jwt.getClaims());
 		if (map.containsKey(HttpFilterUtils.JWT_EXP) && map.get(HttpFilterUtils.JWT_EXP) instanceof Integer) {
 			Integer intValue = (Integer) map.get(HttpFilterUtils.JWT_EXP);
-			map.put(HttpFilterUtils.JWT_EXP, new Long(intValue));
+			map.put(HttpFilterUtils.JWT_EXP, Long.valueOf(intValue));
 		}
 		return map;
 	}

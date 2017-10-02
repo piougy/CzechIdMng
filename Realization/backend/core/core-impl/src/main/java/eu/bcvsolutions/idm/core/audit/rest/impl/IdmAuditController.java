@@ -9,7 +9,6 @@ import javax.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -23,20 +22,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDiffDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDiffDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -52,7 +52,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/audits")
 @Api(
 		value = IdmAuditController.TAG, 
@@ -60,7 +60,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmAuditController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, AuditFilter> {
+public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, IdmAuditFilter> {
 
 	protected static final String TAG = "Audit";
 	//
@@ -113,8 +113,6 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "entity", allowMultiple = false, dataType = "string", paramType = "query",
 				value = "Entity class - find related audit log to this class"),
-		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
-				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
         @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
@@ -134,7 +132,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		}
 		//
 		try {
-			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass.toString()), parameters, pageable), getDtoClass());
+			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass), parameters, pageable), getDtoClass());
 		} catch (ClassNotFoundException e) {
 			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", entityClass), e);
 		}

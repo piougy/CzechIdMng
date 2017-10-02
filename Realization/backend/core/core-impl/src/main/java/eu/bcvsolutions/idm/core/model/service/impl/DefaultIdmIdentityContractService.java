@@ -21,28 +21,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityContractDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityContractSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -54,14 +51,11 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityContractService 
-		extends AbstractReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>
+		extends AbstractFormableService<IdmIdentityContractDto, IdmIdentityContract, IdmIdentityContractFilter>
 		implements IdmIdentityContractService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
 	private final IdmIdentityContractRepository repository;
-	private final FormService formService;
-	private final EntityEventManager entityEventManager;
-	private final IdmTreeTypeRepository treeTypeRepository;
+	private final TreeConfiguration treeConfiguration;
 	private final IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
@@ -69,19 +63,15 @@ public class DefaultIdmIdentityContractService
 			IdmIdentityContractRepository repository,
 			FormService formService,
 			EntityEventManager entityEventManager,
-			IdmTreeTypeRepository treeTypeRepository,
+			TreeConfiguration treeConfiguration,
 			IdmTreeNodeRepository treeNodeRepository) {
-		super(repository);
+		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(formService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(treeTypeRepository);
+		Assert.notNull(treeConfiguration);
 		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
-		this.formService = formService;
-		this.entityEventManager = entityEventManager;
-		this.treeTypeRepository = treeTypeRepository;
+		this.treeConfiguration = treeConfiguration;
 		this.treeNodeRepository = treeNodeRepository;
 	}
 	
@@ -90,52 +80,8 @@ public class DefaultIdmIdentityContractService
 		return new AuthorizableType(CoreGroupPermission.IDENTITYCONTRACT, getEntityClass());
 	}
 	
-	/**
-	 * Publish {@link IdentityContractEvent} only.
-	 * 
-	 * @see {@link IdentityContractSaveProcessor}
-	 */
 	@Override
-	@Transactional
-	public IdmIdentityContractDto save(IdmIdentityContractDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getIdentity());
-		checkAccess(toEntity(entity, null), permission);
-		//
-		if (isNew(entity)) { // create
-			LOG.debug("Saving new contract for identity [{}]", entity.getIdentity());
-			return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.CREATE, entity)).getContent();
-		}
-		LOG.debug("Saving contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
-		return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.UPDATE, entity)).getContent();
-	}
-	
-	/**
-	 * Publish {@link IdentityContractEvent} only.
-	 * 
-	 * @see {@link IdentityContractDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmIdentityContractDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getIdentity());
-		checkAccess(this.getEntity(entity.getId()), permission);
-		//
-		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
-		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
-	}
-	
-	@Override
-	public void deleteInternal(IdmIdentityContractDto dto) {
-		// TODO: eav dto
-		formService.deleteValues(getRepository().findOne(dto.getId()));
-		//
-		super.deleteInternal(dto);
-	}
-	
-	@Override
-	protected List<Predicate> toPredicates(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityContractFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityContractFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
@@ -246,9 +192,9 @@ public class DefaultIdmIdentityContractService
 		contract.setMain(true);
 		//
 		// set working position
-		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
-		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
-			contract.setWorkPosition(defaultTreeType.getDefaultTreeNode().getId());
+		IdmTreeNodeDto defaultTreeNode = treeConfiguration.getDefaultNode();
+		if (defaultTreeNode != null) {
+			contract.setWorkPosition(defaultTreeNode.getId());
 		} else {
 			contract.setPosition(DEFAULT_POSITION_NAME);
 		}
@@ -276,7 +222,7 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
-		Collections.sort(contracts, new PrimeIdentityContractComparator(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()));
+		Collections.sort(contracts, new PrimeIdentityContractComparator(treeConfiguration.getDefaultType()));
 		// return contract with the highest priority
 		return toDto(contracts.get(contracts.size() - 1));
 	}
@@ -299,9 +245,9 @@ public class DefaultIdmIdentityContractService
 	 */
 	private static class PrimeIdentityContractComparator implements Comparator<IdmIdentityContract> {
 
-		private final IdmTreeType defaultTreeType;
+		private final IdmTreeTypeDto defaultTreeType;
 		
-		public PrimeIdentityContractComparator(IdmTreeType defaultTreeType) {
+		public PrimeIdentityContractComparator(IdmTreeTypeDto defaultTreeType) {
 			this.defaultTreeType = defaultTreeType;
 		}
 		
@@ -316,8 +262,8 @@ public class DefaultIdmIdentityContractService
 			builder.append(o1.isValid(), o2.isValid());
 			// with default tree position
 			if (defaultTreeType != null) {
-				builder.append(o1.getWorkPosition() != null && o1.getWorkPosition().getTreeType().equals(defaultTreeType), 
-						o2.getWorkPosition() != null && o2.getWorkPosition().getTreeType().equals(defaultTreeType));
+				builder.append(o1.getWorkPosition() != null && o1.getWorkPosition().getTreeType().getId().equals(defaultTreeType.getId()), 
+						o2.getWorkPosition() != null && o2.getWorkPosition().getTreeType().getId().equals(defaultTreeType.getId()));
 			}			
 			// with any tree position
 			builder.append(o1.getWorkPosition() != null, o2.getWorkPosition() != null);

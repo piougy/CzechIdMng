@@ -22,14 +22,16 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
- * Single attribute definition in one form defition
+ * Single attribute definition in one form definition
  * 
  * @author Radek Tomiška
  *
@@ -41,7 +43,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, code", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEntity, Codeable {
+public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 6037781154742359100L;
 	//	
@@ -75,6 +77,10 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Enumerated(EnumType.STRING)
 	@Column(name = "persistent_type", length = 45, nullable = false)
 	private PersistentType persistentType;
+	
+	@Column(name = "face_type", length = 45)
+	@JsonProperty(access = Access.READ_ONLY)
+	private String faceType;
 	
 	@NotNull
 	@Column(name = "multiple", nullable = false)
@@ -110,7 +116,6 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	/**
 	 * Code / key - unique in one form defifinition
 	 */
-	@Override
 	public String getCode() {
 		return code;
 	}
@@ -267,5 +272,13 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Override
 	public void setUnmodifiable(boolean unmodifiable) {
 		this.unmodifiable = unmodifiable;
-	}	
+	}
+	
+	public void setFaceType(String faceType) {
+		this.faceType = faceType;
+	}
+	
+	public String getFaceType() {
+		return faceType;
+	}
 }

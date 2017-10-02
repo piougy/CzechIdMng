@@ -1,39 +1,67 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
  * System entity handling service
+ * 
  * @author svandav
  *
  */
-public interface SysSystemMappingService extends ReadWriteEntityService<SysSystemMapping, SystemMappingFilter>, CloneableService<SysSystemMapping> {
+public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMappingDto, SysSystemMappingFilter>, CloneableService<SysSystemMappingDto> {
 
-	public List<SysSystemMapping> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType);
+	/**
+	 * Find system mapping by given attributes
+	 * 
+	 * @param system
+	 * @param operation
+	 * @param entityType
+	 * @return
+	 */
+	List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation, SystemEntityType entityType);
 	
-	public List<SysSystemMapping> findByObjectClass(SysSchemaObjectClass objectClass, SystemOperationType operation, SystemEntityType entityType);
+	/**
+	 * Find system mapping by given attributes
+	 * 
+	 * @param systemId
+	 * @param operation
+	 * @param entityType
+	 * @return
+	 */
+	List<SysSystemMappingDto> findBySystemId(UUID systemId, SystemOperationType operation, SystemEntityType entityType);
+	
+	/**
+	 * Find system mapping by given attributes
+	 * 
+	 * @param objectClass
+	 * @param operation
+	 * @param entityType
+	 * @return
+	 */
+	List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass, SystemOperationType operation, SystemEntityType entityType);
 
 	/**
 	 * Is enabled protection of account against delete
 	 * @param account
 	 * @return
 	 */
-	boolean isEnabledProtection(AccAccount account);
+	boolean isEnabledProtection(AccAccountDto account);
 
 	/**
 	 * Interval of protection against account delete
 	 * @param account
 	 * @return
 	 */
-	Integer getProtectionInterval(AccAccount account);
+	Integer getProtectionInterval(AccAccountDto account);
 }

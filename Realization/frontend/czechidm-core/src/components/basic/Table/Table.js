@@ -201,7 +201,11 @@ class Table extends AbstractComponent {
   }
 
   renderHeader(columns) {
-    const { showLoading, showRowSelection } = this.props;
+    const { showLoading, showRowSelection, noHeader } = this.props;
+    if (noHeader) {
+      return null;
+    }
+    //
     const headerColumns = this._selectColumnElement(columns, HEADER);
     return (
       <thead>
@@ -263,7 +267,8 @@ class Table extends AbstractComponent {
       hover,
       className,
       condensed,
-      header
+      header,
+      noHeader
     } = this.props;
     //
     if (!rendered) {
@@ -293,7 +298,8 @@ class Table extends AbstractComponent {
     const classNamesTable = classNames(
       { 'table': true },
       { 'table-hover': hover},
-      { 'table-condensed': condensed }
+      { 'table-condensed': condensed },
+      { 'table-no-header': noHeader }
     );
     //
     return (
@@ -301,7 +307,7 @@ class Table extends AbstractComponent {
         <Loading showLoading={showLoading}>
           <table className={classNamesTable}>
             {
-              !header
+              !header || noHeader
               ||
               <thead>
                 <tr className="basic-table-header">
@@ -363,9 +369,17 @@ Table.propTypes = {
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
+   * Show column headers
+   */
+  noHeader: PropTypes.bool,
+  /**
    * Enable condensed table class, make tables more compact by cutting cell padding in half.
    */
-  condensed: PropTypes.bool
+  condensed: PropTypes.bool,
+  /**
+   * Enable hover table class
+   */
+  hover: PropTypes.bool
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -374,7 +388,8 @@ Table.defaultProps = {
   showRowSelection: false,
   noData: 'No record found',
   hover: true,
-  condensed: false
+  condensed: false,
+  noHeader: false
 };
 
 export default Table;

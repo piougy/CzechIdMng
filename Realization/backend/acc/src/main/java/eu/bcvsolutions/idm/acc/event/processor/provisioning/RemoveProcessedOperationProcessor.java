@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Archives processed provisioning operation.")
-public class RemoveProcessedOperationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class RemoveProcessedOperationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
 	public static final String PROCESSOR_NAME = "remove-processed-operation-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveProcessedOperationProcessor.class);
@@ -54,8 +54,8 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	}
 	
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
-		SysProvisioningOperation provisioningOperation = event.getContent();
+	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		if (OperationState.EXECUTED == provisioningOperation.getResultState() 
 				|| ProvisioningEventType.CANCEL == event.getType()) {
 			provisioningOperationService.delete(provisioningOperation);
@@ -63,7 +63,7 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 			//
 			if (ProvisioningEventType.DELETE == event.getType()) {
 				// We successfully deleted account on target system. We need to delete system entity
-				systemEntityService.delete(provisioningOperation.getSystemEntity());
+				systemEntityService.delete(systemEntityService.getByProvisioningOperation(provisioningOperation));
 			}		
 		}
 		return new DefaultEventResult<>(event, this, isClosable());

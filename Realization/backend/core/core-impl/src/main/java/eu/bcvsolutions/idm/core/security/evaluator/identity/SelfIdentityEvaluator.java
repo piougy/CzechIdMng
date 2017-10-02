@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -45,7 +46,7 @@ public class SelfIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		if (!securityService.isAuthenticated()) {
 			return null;
 		}
-		return builder.equal(root.get("username"), securityService.getUsername());
+		return builder.equal(root.get(IdmIdentity_.username), securityService.getUsername());
 	}
 	
 	@Override

@@ -41,7 +41,7 @@ class SystemDetail extends Basic.AbstractContent {
    */
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if (entity && entity.id !== nextProps.entity.id) {
+    if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
       this._initForm(nextProps.entity);
     }
   }
@@ -94,14 +94,6 @@ class SystemDetail extends Basic.AbstractContent {
     this.setState({
       _showLoading: true
     }, () => {
-      // transform password policies
-      if (entity.passwordPolicyGenerate) {
-        entity.passwordPolicyGenerate = this.passwordPolicyManager.getSelfLink(entity.passwordPolicyGenerate);
-      }
-      if (entity.passwordPolicyValidate) {
-        entity.passwordPolicyValidate = this.passwordPolicyManager.getSelfLink(entity.passwordPolicyValidate);
-      }
-
       const saveEntity = {
         ...entity,
         connectorServer: {
@@ -118,7 +110,7 @@ class SystemDetail extends Basic.AbstractContent {
           this._afterSave(createdEntity, newError, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.context.store.dispatch(this.manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
           this._afterSave(patchedEntity, newError, afterAction);
         }));
       }
@@ -227,7 +219,11 @@ class SystemDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="virtual"
                   label={this.i18n('acc:entity.System.virtual')}
-                  rendered={false}/>
+                  readOnly/>
+                <Basic.Checkbox
+                  ref="queue"
+                  label={this.i18n('acc:entity.System.queue.label')}
+                  helpBlock={this.i18n('acc:entity.System.queue.help')}/>
                 <Basic.Checkbox
                   ref="readonly"
                   label={this.i18n('acc:entity.System.readonly.label')}
@@ -235,11 +231,6 @@ class SystemDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
-                <Basic.Checkbox
-                  ref="queue"
-                  label={this.i18n('acc:entity.System.queue.label')}
-                  helpBlock={this.i18n('acc:entity.System.queue.help')}
-                  hidden/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

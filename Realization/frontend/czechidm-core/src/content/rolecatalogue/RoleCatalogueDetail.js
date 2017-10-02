@@ -1,9 +1,12 @@
 import React, { PropTypes } from 'react';
+import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { RoleCatalogueManager, SecurityManager } from '../../redux';
-
+import { RoleCatalogueManager } from '../../redux';
+//
+const manager = new RoleCatalogueManager();
 
 /**
 * Role catalogue detail.
@@ -12,11 +15,10 @@ import { RoleCatalogueManager, SecurityManager } from '../../redux';
 * @author Odřej Kopr
 * @author Radek Tomiška
 */
-export default class RoleCatalogueDetail extends Basic.AbstractContent {
+class RoleCatalogueDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.roleCatalogueManager = new RoleCatalogueManager();
     this.state = {
       showLoading: false,
     };
@@ -28,7 +30,6 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entity } = this.props;
-    this.selectNavigationItem('role-catalogues');
     if (entity !== undefined) {
       this.refs.form.setData(entity);
       this.refs.code.focus();
@@ -51,11 +52,11 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     //
     const entity = this.refs.form.getData();
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.roleCatalogueManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.roleCatalogueManager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(manager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -71,79 +72,84 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
-    this.context.store.dispatch(this.roleCatalogueManager.clearEntities());
+    this.context.store.dispatch(manager.clearEntities());
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     this.context.router.replace(`role-catalogues`);
   }
 
   render() {
-    const { uiKey, entity } = this.props;
+    const { uiKey, entity, _permissions } = this.props;
     const { showLoading } = this.state;
-
+    //
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
-          <Basic.PanelBody>
-            <Basic.AbstractForm
-              showLoading={showLoading}
-              ref="form"
-              uiKey={uiKey} r
-              eadOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'ROLECATALOGUE_CREATE' : 'ROLECATALOGUE_UPDATE')}
-              style={{ padding: 0 }} >
-              <Basic.Row>
-                <div className="col-lg-2">
-                  <Basic.TextField
-                    ref="code"
-                    label={this.i18n('entity.RoleCatalogue.code.name')}
-                    helpBlock={this.i18n('entity.RoleCatalogue.code.help')}
-                    required
-                    min={0}
-                    max={255}/>
-                </div>
-                <div className="col-lg-10">
-                  <Basic.TextField
-                    ref="name"
-                    label={this.i18n('entity.RoleCatalogue.name.name')}
-                    helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
-                    required
-                    min={0}
-                    max={255}/>
-                </div>
-              </Basic.Row>
-              <Basic.Row>
-                <div className="col-lg-4">
-                  <Basic.TextField
-                    ref="urlTitle"
-                    label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
-                </div>
-                <div className="col-lg-8">
-                  <Basic.TextField
-                    ref="url"
-                    label={this.i18n('entity.RoleCatalogue.url')}/>
-                </div>
-              </Basic.Row>
-              <Basic.SelectBox
-                ref="parent"
-                label={this.i18n('entity.RoleCatalogue.parent.name')}
-                manager={this.roleCatalogueManager}/>
-              <Basic.TextArea
-                ref="description"
-                label={this.i18n('entity.RoleCatalogue.description')}
-                max={255}/>
-            </Basic.AbstractForm>
-          </Basic.PanelBody>
+        <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
-          <Basic.PanelFooter showLoading={showLoading}>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.Button
-              type="submit"
-              level="success"
-              showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'ROLECATALOGUE_CREATE' : 'ROLECATALOGUE_UPDATE')}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
+        <form onSubmit={ this.save.bind(this) }>
+          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }>
+            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic') } />
+
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
+              <Basic.AbstractForm
+                showLoading={ showLoading }
+                ref="form"
+                uiKey={ uiKey }
+                readOnly={ !manager.canSave(entity, _permissions) }>
+                <Basic.Row>
+                  <Basic.Col lg={ 2 }>
+                    <Basic.TextField
+                      ref="code"
+                      label={this.i18n('entity.RoleCatalogue.code.name')}
+                      helpBlock={this.i18n('entity.RoleCatalogue.code.help')}
+                      required
+                      min={0}
+                      max={255}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 10 }>
+                    <Basic.TextField
+                      ref="name"
+                      label={this.i18n('entity.RoleCatalogue.name.name')}
+                      helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
+                      required
+                      min={0}
+                      max={255}/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 4 }>
+                    <Basic.TextField
+                      ref="urlTitle"
+                      label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 8 }>
+                    <Basic.TextField
+                      ref="url"
+                      label={this.i18n('entity.RoleCatalogue.url')}/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.SelectBox
+                  ref="parent"
+                  label={this.i18n('entity.RoleCatalogue.parent.name')}
+                  manager={manager}/>
+                <Basic.TextArea
+                  ref="description"
+                  label={this.i18n('entity.RoleCatalogue.description')}
+                  max={255}/>
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
+
+            <Basic.PanelFooter showLoading={showLoading}>
+              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ manager.canSave(entity, _permissions) }>
+                { this.i18n('button.save') }
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
         </form>
       </div>
     );
@@ -153,4 +159,19 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
 RoleCatalogueDetail.propTypes = {
   entity: PropTypes.object,
   uiKey: PropTypes.string.isRequired,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
+RoleCatalogueDetail.defaultProps = {
+  _permissions: null
+};
+
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
+  return {
+    _permissions: manager.getPermissions(state, null, component.entity.id)
+  };
+}
+
+export default connect(select)(RoleCatalogueDetail);

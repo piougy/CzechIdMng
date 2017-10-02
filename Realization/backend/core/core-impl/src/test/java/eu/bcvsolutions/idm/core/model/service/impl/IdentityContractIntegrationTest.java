@@ -17,27 +17,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Integration tests with identity contracts:
@@ -58,17 +58,17 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired private ConfigurationService configurationService;
 	//
-	private IdmTreeType treeType = null;
-	private IdmTreeNode nodeA = null;
-	private IdmTreeNode nodeB = null;
-	private IdmTreeNode nodeC = null;
-	private IdmTreeNode nodeD = null;
-	private IdmTreeNode nodeE = null;
-	private IdmTreeNode nodeF = null;
-	private IdmRole roleA = null;
-	private IdmRole roleB = null;
-	private IdmRole roleC = null;
-	private IdmRole roleD = null;
+	private IdmTreeTypeDto treeType = null;
+	private IdmTreeNodeDto nodeA = null;
+	private IdmTreeNodeDto nodeB = null;
+	private IdmTreeNodeDto nodeC = null;
+	private IdmTreeNodeDto nodeD = null;
+	private IdmTreeNodeDto nodeE = null;
+	private IdmTreeNodeDto nodeF = null;
+	private IdmRoleDto roleA = null;
+	private IdmRoleDto roleB = null;
+	private IdmRoleDto roleC = null;
+	private IdmRoleDto roleD = null;
 	private IdmRoleTreeNodeDto automaticRoleA = null;
 	private IdmRoleTreeNodeDto automaticRoleD = null;
 	private IdmRoleTreeNodeDto automaticRoleE = null;
@@ -443,10 +443,55 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testAssingRoleForContractValidInTheFuture() {
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setWorkPosition(nodeD.getId());
+		contractD.setValidFrom(new LocalDate().plusDays(1));
+		contractD = identityContractService.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(1, identityRoles.size());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode());
+	}
+	
+	@Test
+	public void testDontAssingRoleForContractValidInThePast() {
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setWorkPosition(nodeD.getId());
+		contractD.setValidTill(new LocalDate().minusDays(1));
+		contractD = identityContractService.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
-		IdmRole role = helper.createRole();
-		IdmTreeNode treeNode = helper.createTreeNode();
+		IdmRoleDto role = helper.createRole();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		// automatic role
 		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
 		//
@@ -461,8 +506,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testReferentialIntegrityOnTreeType() {
 		// prepare data
-		IdmRole role = helper.createRole();
-		IdmTreeNode treeNode = helper.createTreeNode();
+		IdmRoleDto role = helper.createRole();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		// automatic role
 		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
 		//
@@ -482,7 +527,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
 		helper.createContractGuarantee(contract.getId(), identity.getId());
 		//
-		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setIdentityContractId(contract.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());
@@ -501,7 +546,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
 		helper.createContractGuarantee(contract.getId(), identity.getId());
 		//
-		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());

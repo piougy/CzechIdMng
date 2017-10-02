@@ -11,8 +11,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -23,18 +26,21 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyIdentityAttributes;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -44,7 +50,9 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> implements IdmPasswordPolicyService {
+public class DefaultIdmPasswordPolicyService
+		extends AbstractReadWriteDtoService<IdmPasswordPolicyDto, IdmPasswordPolicy, IdmPasswordPolicyFilter>
+		implements IdmPasswordPolicyService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmPasswordPolicyService.class);
 	
@@ -91,27 +99,47 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 	
 	@Override
-	@Transactional
-	public IdmPasswordPolicy save(IdmPasswordPolicy entity) {
-		Assert.notNull(entity);
-		//
-		LOG.debug("Saving entity [{}]", entity.getName());
-		if (isNew(entity)) {
-			// throw event with create
-			return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.CREATE, entity)).getContent();
+	protected Page<IdmPasswordPolicy> findEntities(IdmPasswordPolicyFilter filter, Pageable pageable, BasePermission... permission) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
 		}
-		// else throw event with update
-		return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.UPDATE, entity)).getContent();
+		return repository.find(filter, pageable);
 	}
 	
 	@Override
 	@Transactional
-	public void delete(IdmPasswordPolicy entity) {
-		Assert.notNull(entity);
+	public IdmPasswordPolicyDto save(IdmPasswordPolicyDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
 		//
-		LOG.debug("Delete entity [{}]", entity.getName());
+		if (!ObjectUtils.isEmpty(permission)) {
+			IdmPasswordPolicy persistEntity = null;
+			if (dto.getId() != null) {
+				persistEntity = this.getEntity(dto.getId());
+				if (persistEntity != null) {
+					// check access on previous entity - update is needed
+					checkAccess(persistEntity, IdmBasePermission.UPDATE);
+				}
+			}
+			checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
+		}
 		//
-		entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.DELETE, entity)).getContent();
+		LOG.debug("Saving entity [{}]", dto.getName());
+		if (isNew(dto)) {
+			// throw event with create
+			return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.CREATE, dto)).getContent();
+		}
+		// else throw event with update
+		return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.UPDATE, dto)).getContent();
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmPasswordPolicyDto dto, BasePermission... permission) {
+		checkAccess(this.getEntity(dto.getId()), permission);
+		//
+		LOG.debug("Delete entity [{}]", dto.getName());
+		//
+		entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.DELETE, dto)).getContent();
 	}
 	
 	@Override
@@ -120,8 +148,8 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 	
 	@Override
-	public void validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy) {
-		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<IdmPasswordPolicy>();
+	public void validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicyDto passwordPolicy) {
+		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<IdmPasswordPolicyDto>();
 		
 		if (passwordPolicy != null) {
 			passwordPolicyList.add(passwordPolicy);
@@ -131,13 +159,13 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	public void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList) {
+	public void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList) {
 		Assert.notNull(passwordPolicyList);
 		Assert.notNull(passwordValidationDto);
 		
 		// if list is empty, get default password policy
 		if (passwordPolicyList.isEmpty()) {
-			IdmPasswordPolicy defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
+			IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			if (defaultPolicy != null) {
 				passwordPolicyList.add(defaultPolicy);
 			}
@@ -158,7 +186,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		Set<Character> prohibitedChar = new HashSet<>();
 		List<String> policyNames = new ArrayList<String>();
 		
-		for (IdmPasswordPolicy passwordPolicy : passwordPolicyList) {
+		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
 			if (passwordPolicy.isDisabled()) {
 				continue;
 			}
@@ -179,7 +207,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill() == null ? 0 : passwordPolicy.getMinRulesToFulfill().intValue();
 	
 			// check to max password length
-			if (!isNullOrZero(passwordPolicy.getMaxPasswordLength()) && password.length() > passwordPolicy.getMaxPasswordLength()) {
+			if (!isNull(passwordPolicy.getMaxPasswordLength()) && password.length() > passwordPolicy.getMaxPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH, Math.max(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
 				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
@@ -188,7 +216,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal password length
-			if (!isNullOrZero(passwordPolicy.getMinPasswordLength()) && password.length() < passwordPolicy.getMinPasswordLength()) {
+			if (!isNull(passwordPolicy.getMinPasswordLength()) && password.length() < passwordPolicy.getMinPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_LENGTH, Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
 				} else if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
@@ -206,7 +234,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal numbers
-			if (!isNullOrZero(passwordPolicy.getMinNumber()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
+			if (!isNull(passwordPolicy.getMinNumber()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
 				if (!passwordPolicy.isNumberRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_NUMBER, Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
 				} else if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
@@ -215,7 +243,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal lower characters
-			if (!isNullOrZero(passwordPolicy.getMinLowerChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinLowerChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
 				if (!passwordPolicy.isLowerCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_LOWER_CHAR, Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
 				} else if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
@@ -224,7 +252,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal upper character
-			if (!isNullOrZero(passwordPolicy.getMinUpperChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinUpperChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
 				if (!passwordPolicy.isUpperCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_UPPER_CHAR, Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
 				} else if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
@@ -232,7 +260,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				}
 			}
 			// check to minimal special character
-			if (!isNullOrZero(passwordPolicy.getMinSpecialChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinSpecialChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
 				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_SPECIAL_CHAR, Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
 				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
@@ -300,13 +328,13 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	public IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type) {
+	public IdmPasswordPolicyDto getDefaultPasswordPolicy(IdmPasswordPolicyType type) {
 		IdmPasswordPolicy defaultPolicy = repository.findOneDefaultType(type);
-		return defaultPolicy;
+		return this.toDto(defaultPolicy);
 	}
 
 	@Override
-	public String generatePassword(IdmPasswordPolicy passwordPolicy) {
+	public String generatePassword(IdmPasswordPolicyDto passwordPolicy) {
 		Assert.notNull(passwordPolicy);
 		Assert.doesNotContain(passwordPolicy.getType().name(), IdmPasswordPolicyType.VALIDATE.name(), "Bad type.");
 		if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PASSPHRASE) {
@@ -326,7 +354,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 
 	@Override
 	public String generatePasswordByDefault() {
-		IdmPasswordPolicy defaultPasswordPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
+		IdmPasswordPolicyDto defaultPasswordPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
 		
 		// if default password policy for generating not exist
 		// generate random string
@@ -338,7 +366,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 	
 	@Override
-	public Integer getMaxPasswordAge(List<IdmPasswordPolicy> policyList) {
+	public Integer getMaxPasswordAge(List<IdmPasswordPolicyDto> policyList) {
 		Assert.notNull(policyList);
 		//
 		if (policyList.isEmpty()) {
@@ -346,7 +374,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		}
 		//
 		Integer passwordAge = new Integer(Integer.MIN_VALUE);
-		for (IdmPasswordPolicy idmPasswordPolicy : policyList) {
+		for (IdmPasswordPolicyDto idmPasswordPolicy : policyList) {
 			if (idmPasswordPolicy.getMaxPasswordAge() != 0 && 
 					idmPasswordPolicy.getMaxPasswordAge() > passwordAge) {
 				passwordAge = idmPasswordPolicy.getMaxPasswordAge();
@@ -389,21 +417,18 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 	
 	/**
-	 * Method check if given {@link Integer} number is zero or null.
+	 * Method check if given {@link Integer} is null.
 	 * 
 	 * @param number
-	 * @return true if Integer is zero or null.
+	 * @return true if Integer is null.
 	 */
-	private boolean isNullOrZero(Integer number) {
-		if (number == null || number == 0) {
-			return true;
-		}
-		return false;
+	private boolean isNull(Integer number) {
+		return number == null;
 	}
 
 
 	@Override
-	public IdmPasswordPolicy findOneByName(String name) {
-		return this.repository.findOneByName(name);
+	public IdmPasswordPolicyDto findOneByName(String name) {
+		return this.toDto(this.repository.findOneByName(name));
 	}
 }

@@ -9,17 +9,18 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -28,9 +29,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -42,24 +43,16 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private AccIdentityAccountService identityAccountService;
-	@Autowired
-	private SysSystemService systemService;	
-	@Autowired
-	private SysSystemEntityService systemEntityService;	
-	@Autowired
-	private AccAccountService accountService;	
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private SysRoleSystemService roleSystemService;
-	@Autowired
-	private SysSystemMappingService systemEntityHandlingService;
-	@Autowired
-	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired private TestHelper helper;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private AccIdentityAccountService identityAccountService;
+	@Autowired private SysSystemService systemService;	
+	@Autowired private SysSystemEntityService systemEntityService;	
+	@Autowired private AccAccountService accountService;	
+	@Autowired private IdmRoleService roleService;
+	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private SysSystemMappingService systemEntityHandlingService;
+	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	
 	@Before
 	public void init() {
@@ -76,20 +69,20 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
 		// accounts
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
 		
-		SysSystemEntity systemEntity = new SysSystemEntity();
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
 		systemEntity.setUid("test_uid_" + System.currentTimeMillis());
 		systemEntity.setEntityType(SystemEntityType.IDENTITY);
 		systemEntity.setWish(true);
-		systemEntity.setSystem(system);
+		systemEntity.setSystem(system.getId());
 		systemEntity = systemEntityService.save(systemEntity);
 		
-		AccAccount account = new AccAccount();
-		account.setSystem(system);
-		account.setSystemEntity(systemEntity);
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(system.getId());
+		account.setSystemEntity(systemEntity.getId());
 		account.setUid(systemEntity.getUid());
 		account.setAccountType(AccountType.PERSONAL);
 		account = accountService.save(account);
@@ -113,39 +106,36 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testRoleReferentialIntegrity() {
-		IdmRole role = new IdmRole();
-		String roleName = "test_r_" + System.currentTimeMillis();
-		role.setName(roleName);
-		role = roleService.save(role);
+		IdmRoleDto role = helper.createRole();
 		// role systems
-		SysSystem system = new SysSystem();
+		SysSystemDto system = new SysSystemDto();
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
 		// schema
-		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
-		objectClass.setSystem(system);
+		SysSchemaObjectClassDto objectClass = new SysSchemaObjectClassDto();
+		objectClass.setSystem(system.getId());
 		objectClass.setObjectClassName("__ACCOUNT__");	
 		objectClass = schemaObjectClassService.save(objectClass);
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setObjectClass(objectClass);
+		systemMapping.setObjectClass(objectClass.getId());
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping = systemEntityHandlingService.save(systemMapping);
-		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setSystem(system);
-		roleSystem.setRole(role);
-		roleSystem.setSystemMapping(systemMapping);
+		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
+		roleSystem.setSystem(system.getId());
+		roleSystem.setRole(role.getId());
+		roleSystem.setSystemMapping(systemMapping.getId());
 		roleSystemService.save(roleSystem);
-		RoleSystemFilter filter = new RoleSystemFilter();
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(role.getId());
 		
-		assertNotNull(roleService.getByName(roleName));
+		assertNotNull(roleService.getByCode(role.getName()));
 		assertEquals(1, roleSystemService.find(filter, null).getTotalElements());
 		
 		roleService.delete(role);
 		
-		assertNull(roleService.getByName(roleName));
+		assertNull(roleService.getByCode(role.getName()));
 		assertEquals(0, roleSystemService.find(filter, null).getTotalElements());
 	}
 

@@ -18,14 +18,14 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -38,82 +38,53 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * 
+ * @author Ondřej Kopr
+ */
 public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTest {
 	
-	@Autowired
-	private TestHelper helper;
-	
-	@Autowired
-	private IdmIdentityService identityService;
-	
-	@Autowired
-	private IdmRoleService roleService;
-	
-	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	
-	@Autowired
-	private IdmIdentityRoleService idmIdentityRoleSerivce;
-	
-	@Autowired
-	private SysSystemService systemService;
-	
-	@Autowired
-	private SysSystemMappingService mappingService;
-	
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
-	
-	@Autowired
-	private SysSystemAttributeMappingService attributeMappingService;
-	
-	@Autowired
-	private SysRoleSystemService sysRoleSystemService;
-	
-	@Autowired
-	private AccIdentityAccountService identityAccountService;
-	
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
-	
-	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
-	
-	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
-	
-	@Autowired
-	private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
-	
+	@Autowired private TestHelper helper;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmTreeNodeService treeNodeService;
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmIdentityRoleService idmIdentityRoleSerivce;
+	@Autowired private SysSystemService systemService;
+	@Autowired private SysSystemMappingService mappingService;
+	@Autowired private SysSchemaAttributeService schemaAttributeService;
+	@Autowired private SysSystemAttributeMappingService attributeMappingService;
+	@Autowired private SysRoleSystemService sysRoleSystemService;
+	@Autowired private AccIdentityAccountService identityAccountService;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
+	@Autowired private IdmLongRunningTaskService longRunningTaskService;
+	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
+	//
 	// local variables
-	private SysSystem system = null;
-	private SysSystemMapping systemMapping = null;
+	private SysSystemDto system = null;
+	private SysSystemMappingDto systemMapping = null;
 	private int MAX_CREATE = 10;
 	
 	@Before
@@ -130,10 +101,10 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Test
 	public void createValidRole() {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
+		IdmRoleDto role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate validFrom = new LocalDate();
 		// set minus days
@@ -141,7 +112,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// provisioning is not executed
 		createAndSaveIdentityRole(identityContract, role, null, validFrom);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentity = identityAccountService.find(filter, null).getContent().get(0);
 		// it must exists
@@ -151,10 +122,10 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Test
 	public void createNonValidRole() {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
+		IdmRoleDto role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate validFrom = new LocalDate();
 		// set plus days
@@ -162,7 +133,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// provisioning is not executed
 		createAndSaveIdentityRole(identityContract, role, null, validFrom);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
@@ -172,10 +143,10 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Test
 	public void createNonValidRoleAndValid() throws InterruptedException, ExecutionException {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
+		IdmRoleDto role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate validFrom = new LocalDate();
 		// set plus days
@@ -183,7 +154,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// provisioning is not executed, role isn't valid from now
 		createAndSaveIdentityRole(identityContract, role, null, validFrom);
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
@@ -229,10 +200,10 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	
 	@Test
 	public void createLotsOfValidRequests() throws InterruptedException, ExecutionException{
-		IdmRole role = createAndSaveRole();
+		IdmRoleDto role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		
 		LocalDate validFrom = new LocalDate();
 		// set plus days
@@ -281,7 +252,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		assertEquals(0, list.size());
 		
 		for (IdmIdentityDto identity : identities) {
-			IdentityAccountFilter filter = new IdentityAccountFilter();
+			AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 			filter.setIdentityId(identity.getId());
 			List<AccIdentityAccountDto> accountsList = identityAccountService.find(filter, null).getContent();
 			assertEquals(false, accountsList.isEmpty());
@@ -298,43 +269,43 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, identityService);
 	}
 	
-	private IdmRole createAndSaveRole() {
-		IdmRole entity = new IdmRole();
+	private IdmRoleDto createAndSaveRole() {
+		IdmRoleDto entity = new IdmRoleDto();
 		entity.setName("valid_role_" + System.currentTimeMillis());
 		return saveInTransaction(entity, roleService);
 	}
 	
-	private SysRoleSystem createAndSaveRoleSystem(IdmRole role, SysSystem system) {
-		SysRoleSystem entity = new SysRoleSystem();
-		entity.setRole(role);
-		entity.setSystem(system);
-		entity.setSystemMapping(systemMapping);
+	private SysRoleSystemDto createAndSaveRoleSystem(IdmRoleDto role, SysSystemDto system) {
+		SysRoleSystemDto entity = new SysRoleSystemDto();
+		entity.setRole(role.getId());
+		entity.setSystem(system.getId());
+		entity.setSystemMapping(systemMapping.getId());
 		return saveInTransaction(entity, sysRoleSystemService);
 	}
 	
-	private IdmTreeType createAndSaveTreeType() {
-		IdmTreeType entity = new IdmTreeType();
+	private IdmTreeTypeDto createAndSaveTreeType() {
+		IdmTreeTypeDto entity = new IdmTreeTypeDto();
 		entity.setName("valid_tree_type_" + System.currentTimeMillis());
 		entity.setCode("valid_tree_type_" + System.currentTimeMillis());
 		return saveInTransaction(entity, treeTypeService);
 	}
 	
-	private IdmTreeNode createAndSaveTreeNode(IdmTreeType treeType) {
-		IdmTreeNode entity = new IdmTreeNode();
+	private IdmTreeNodeDto createAndSaveTreeNode(IdmTreeTypeDto treeType) {
+		IdmTreeNodeDto entity = new IdmTreeNodeDto();
 		entity.setCode("valid_tree_node_" + System.currentTimeMillis());
 		entity.setName("valid_tree_node_" + System.currentTimeMillis());
-		entity.setTreeType(treeType);
+		entity.setTreeType(treeType.getId());
 		return saveInTransaction(entity, treeNodeService);
 	}
 	
-	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentityDto user, IdmTreeNode node) {
+	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentityDto user, IdmTreeNodeDto node) {
 		IdmIdentityContractDto entity = new IdmIdentityContractDto();
 		entity.setIdentity(user.getId());
 		entity.setWorkPosition(node == null ? null : node.getId());
 		return saveInTransaction(entity, identityContractService);
 	}
 	
-	private IdmIdentityRoleDto createAndSaveIdentityRole(IdmIdentityContractDto identityContract, IdmRole role, LocalDate validTill, LocalDate validFrom) {
+	private IdmIdentityRoleDto createAndSaveIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role, LocalDate validTill, LocalDate validFrom) {
 		IdmIdentityRoleDto entity = new IdmIdentityRoleDto();
 		entity.setValidTill(validTill);
 		entity.setValidFrom(validFrom);
@@ -343,61 +314,61 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, idmIdentityRoleSerivce);
 	}
 	
-	private SysSystem createAndSaveSystemWithMapping() {
+	private SysSystemDto createAndSaveSystemWithMapping() {
 		system = null;
 		systemMapping = null;
-		SysSystemAttributeMapping nameAttributeMapping = null;
-		SysSystemAttributeMapping firstNameAttributeMapping = null;
-		SysSystemAttributeMapping lastNameAttributeMapping = null;
-		SysSystemAttributeMapping passwordAttributeMapping = null;
+		SysSystemAttributeMappingDto nameAttributeMapping = null;
+		SysSystemAttributeMappingDto firstNameAttributeMapping = null;
+		SysSystemAttributeMappingDto lastNameAttributeMapping = null;
+		SysSystemAttributeMappingDto passwordAttributeMapping = null;
 		// prepare test system
 		system = helper.createSystem(TestResource.TABLE_NAME);
 		// generate schema
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		// create test mapping
-		systemMapping = new SysSystemMapping();
+		systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		mappingService.save(systemMapping);
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
+		systemMapping = mappingService.save(systemMapping);
 		
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		for(SysSchemaAttribute schemaAttr : schemaAttributesPage) {
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		for(SysSchemaAttributeDto schemaAttr : schemaAttributesPage) {
 			if ("__NAME__".equals(schemaAttr.getName())) {
-				nameAttributeMapping = new SysSystemAttributeMapping();
+				nameAttributeMapping = new SysSystemAttributeMappingDto();
 				nameAttributeMapping.setUid(true);
 				nameAttributeMapping.setEntityAttribute(true);
 				nameAttributeMapping.setIdmPropertyName("username");
 				nameAttributeMapping.setName(schemaAttr.getName());
-				nameAttributeMapping.setSchemaAttribute(schemaAttr);
-				nameAttributeMapping.setSystemMapping(systemMapping);
+				nameAttributeMapping.setSchemaAttribute(schemaAttr.getId());
+				nameAttributeMapping.setSystemMapping(systemMapping.getId());
 				nameAttributeMapping = attributeMappingService.save(nameAttributeMapping);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				firstNameAttributeMapping = new SysSystemAttributeMapping();
+				firstNameAttributeMapping = new SysSystemAttributeMappingDto();
 				firstNameAttributeMapping.setIdmPropertyName("firstName");
-				firstNameAttributeMapping.setSchemaAttribute(schemaAttr);
+				firstNameAttributeMapping.setSchemaAttribute(schemaAttr.getId());
 				firstNameAttributeMapping.setName(schemaAttr.getName());
-				firstNameAttributeMapping.setSystemMapping(systemMapping);
+				firstNameAttributeMapping.setSystemMapping(systemMapping.getId());
 				firstNameAttributeMapping = attributeMappingService.save(firstNameAttributeMapping);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				lastNameAttributeMapping = new SysSystemAttributeMapping();
+				lastNameAttributeMapping = new SysSystemAttributeMappingDto();
 				lastNameAttributeMapping.setIdmPropertyName("lastName");
 				lastNameAttributeMapping.setName(schemaAttr.getName());
-				lastNameAttributeMapping.setSchemaAttribute(schemaAttr);
-				lastNameAttributeMapping.setSystemMapping(systemMapping);
+				lastNameAttributeMapping.setSchemaAttribute(schemaAttr.getId());
+				lastNameAttributeMapping.setSystemMapping(systemMapping.getId());
 				lastNameAttributeMapping = attributeMappingService.save(lastNameAttributeMapping);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				passwordAttributeMapping = new SysSystemAttributeMapping();
+				passwordAttributeMapping = new SysSystemAttributeMappingDto();
 				passwordAttributeMapping.setIdmPropertyName("password");
-				passwordAttributeMapping.setSchemaAttribute(schemaAttr);
+				passwordAttributeMapping.setSchemaAttribute(schemaAttr.getId());
 				passwordAttributeMapping.setName(schemaAttr.getName());
-				passwordAttributeMapping.setSystemMapping(systemMapping);
+				passwordAttributeMapping.setSystemMapping(systemMapping.getId());
 				passwordAttributeMapping = attributeMappingService.save(passwordAttributeMapping);
 			}
 		}

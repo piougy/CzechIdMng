@@ -15,19 +15,18 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -37,6 +36,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - Identity
  * - IdentityRole
  * - IdentityContract
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
@@ -76,9 +76,9 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	@Test
 	public void deleteIdentity() {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmRoleDto role = createAndSaveRole();
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate from = new LocalDate();
 		from = from.plusDays(5);
@@ -99,9 +99,9 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	@Test(expected = ResultCodeException.class)
 	public void deleteRole() {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmRoleDto role = createAndSaveRole();
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate from = new LocalDate();
 		from = from.plusDays(5);
@@ -123,9 +123,9 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	@Test
 	public void deleteIdentityContract() {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmRoleDto role = createAndSaveRole();
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate from = new LocalDate();
 		from = from.plusDays(5);
@@ -146,9 +146,9 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	@Test
 	public void deleteIdentityRole() {
 		IdmIdentityDto identity = createAndSaveIdentity();
-		IdmRole role = createAndSaveRole();
-		IdmTreeType treeType = createAndSaveTreeType();
-		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
+		IdmRoleDto role = createAndSaveRole();
+		IdmTreeTypeDto treeType = createAndSaveTreeType();
+		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate from = new LocalDate();
 		from = from.plusDays(5);
@@ -173,36 +173,40 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		return saveInTransaction(entity, identityService);
 	}
 	
-	private IdmRole createAndSaveRole() {
-		IdmRole entity = new IdmRole();
+	private IdmRoleDto createAndSaveRole() {
+		IdmRoleDto entity = new IdmRoleDto();
 		entity.setName("valid_role_" + System.currentTimeMillis());
 		return saveInTransaction(entity, roleService);
 	}
 
 	
-	private IdmTreeType createAndSaveTreeType() {
-		IdmTreeType entity = new IdmTreeType();
+	private IdmTreeTypeDto createAndSaveTreeType() {
+		IdmTreeTypeDto entity = new IdmTreeTypeDto();
 		entity.setName("valid_tree_type_" + System.currentTimeMillis());
 		entity.setCode("valid_tree_type_" + System.currentTimeMillis());
 		return saveInTransaction(entity, treeTypeService);
 	}
 	
-	private IdmTreeNode createAndSaveTreeNode(IdmTreeType treeType) {
-		IdmTreeNode entity = new IdmTreeNode();
+	private IdmTreeNodeDto createAndSaveTreeNode(IdmTreeTypeDto treeType) {
+		IdmTreeNodeDto entity = new IdmTreeNodeDto();
 		entity.setCode("valid_tree_node_" + System.currentTimeMillis());
 		entity.setName("valid_tree_node_" + System.currentTimeMillis());
-		entity.setTreeType(treeType);
+		entity.setTreeType(treeType.getId());
 		return saveInTransaction(entity, treeNodeService);
 	}
 	
-	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentityDto user, IdmTreeNode node) {
+	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentityDto user, IdmTreeNodeDto node) {
 		IdmIdentityContractDto entity = new IdmIdentityContractDto();
 		entity.setIdentity(user.getId());
 		entity.setWorkPosition(node == null ? null : node.getId());
 		return saveInTransaction(entity, identityContractService);
 	}
 	
-	private IdmIdentityRoleDto createAndSaveIdentityRole(IdmIdentityContractDto identityContract, IdmRole role, LocalDate validTill, LocalDate validFrom) {
+	private IdmIdentityRoleDto createAndSaveIdentityRole(
+			IdmIdentityContractDto identityContract, 
+			IdmRoleDto role, 
+			LocalDate validTill, 
+			LocalDate validFrom) {
 		IdmIdentityRoleDto entity = new IdmIdentityRoleDto();
 		entity.setValidTill(validTill);
 		entity.setValidFrom(validFrom);

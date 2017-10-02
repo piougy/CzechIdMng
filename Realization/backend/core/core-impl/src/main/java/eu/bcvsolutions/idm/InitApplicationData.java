@@ -5,32 +5,37 @@ import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -44,48 +49,37 @@ import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
  * * admin user admin/admin
  * * superAdminRole with system admin authority
  * 
- * TODO: split initializatons
+ * TODO: split initializatons - in order - eav first, then users, LRT etc.
  * 
  * @author Radek Tomiška 
  *
  */
-@Component("initApplicationData")
+@DependsOn(CoreFlywayConfig.NAME)
+@Component(InitApplicationData.NAME)
 public class InitApplicationData implements ApplicationListener<ContextRefreshedEvent> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitApplicationData.class);
+	public static final String NAME = "initApplicationData";
 	public static final String ADMIN_USERNAME = "admin";
 	public static final String ADMIN_PASSWORD = "admin";
 	public static final String ADMIN_ROLE = "superAdminRole";
 	public static final String DEFAULT_TREE_TYPE = "ORGANIZATIONS";
-
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;	
-	@Autowired
-	private IdmTreeNodeService treeNodeService;	
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	@Autowired
-	private SecurityService securityService;	
-	@Autowired
-	private IdmNotificationConfigurationService notificationConfigurationService;	
-	@Autowired
-	private IdmNotificationTemplateService notificationTemplateService;	
-	@Autowired
-	private CryptService cryptoService;	
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;	
-	@Autowired
-	private FormService formService;	
-	@Autowired
-	private IdmAuthorizationPolicyService authorizationPolicyService;
-	@Autowired
-	private IdmScriptService scriptService;
+	//
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityRoleService identityRoleService;	
+	@Autowired private IdmTreeNodeService treeNodeService;	
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private SecurityService securityService;	
+	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;	
+	@Autowired private IdmNotificationTemplateService notificationTemplateService;	
+	@Autowired private CryptService cryptoService;	
+	@Autowired private LongRunningTaskManager longRunningTaskManager;	
+	@Autowired private FormService formService;	
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private IdmScriptService scriptService;
+	@Autowired private TreeConfiguration treeConfiguration;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -95,7 +89,6 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	protected void init() {
 		securityService.setSystemAuthentication();
 		//
-		// TODO: could be moved to flyway install dump
 		try {
 			//
 			// prepare default form definitions
@@ -113,10 +106,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create super admin role
-			IdmRole existsSuperAdminRole = this.roleService.getByName(ADMIN_ROLE);
+			IdmRoleDto existsSuperAdminRole = this.roleService.getByCode(ADMIN_ROLE);
 			if (existsSuperAdminRole == null && this.roleService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				//
-				final IdmRole superAdminRole = new IdmRole();
+				final IdmRoleDto superAdminRole = new IdmRoleDto();
 				superAdminRole.setName(ADMIN_ROLE);
 				superAdminRole.setRoleType(RoleType.SYSTEM);
 				existsSuperAdminRole = this.roleService.save(superAdminRole);
@@ -157,20 +150,20 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create Node type for organization			
-			IdmTreeType treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
+			IdmTreeTypeDto treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
 			if (treeType == null && this.treeTypeService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
-				treeType = new IdmTreeType();
+				treeType = new IdmTreeTypeDto();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
-				treeType.setDefaultTreeType(true);
-				this.treeTypeService.save(treeType);
+				treeType = this.treeTypeService.save(treeType);
+				treeConfiguration.setDefaultType(treeType.getId());
 				//
 				// create organization root
 				if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
-					IdmTreeNode organizationRoot = new IdmTreeNode();
+					IdmTreeNodeDto organizationRoot = new IdmTreeNodeDto();
 					organizationRoot.setCode("root");
 					organizationRoot.setName("Root organization");
-					organizationRoot.setTreeType(treeType);
+					organizationRoot.setTreeType(treeType.getId());
 					organizationRoot = this.treeNodeService.save(organizationRoot);
 				}
 			}

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.security.authentication.impl;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -13,30 +14,38 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticator;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
-import eu.bcvsolutions.idm.core.security.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
-import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 
 /**
  * Component for authenticate over system
@@ -59,40 +68,50 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	
 	private final SysSystemService systemService;
 	
+	private final LookupService lookupService;
+	
 	private final ProvisioningService provisioningService;
 	
 	private final AccAccountService accountService;
 	
-	private final IdmIdentityService identityService;
-	
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	
 	private final JwtAuthenticationService jwtAuthenticationService;
+	
+	private final SysSchemaAttributeService schemaAttributeService;
+	
+	private final SysSystemEntityService systemEntityService;
 	
 	@Autowired
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
 			SysSystemService systemService,
 			ProvisioningService provisioningService,
 			AccAccountService accountService,
-			IdmIdentityService identityService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			JwtAuthenticationService jwtAuthenticationService) {
+			JwtAuthenticationService jwtAuthenticationService,
+			SysSchemaAttributeService schemaAttributeService,
+			SysSystemEntityService systemEntityService,
+			LookupService lookupService) {
 		//
 		Assert.notNull(accountService);
 		Assert.notNull(configurationService);
 		Assert.notNull(systemService);
 		Assert.notNull(provisioningService);
-		Assert.notNull(identityService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(jwtAuthenticationService);
+		Assert.notNull(schemaAttributeService);
+		Assert.notNull(systemEntityService);
+		Assert.notNull(lookupService);
 		//
 		this.systemService = systemService;
 		this.configurationService = configurationService;
 		this.provisioningService = provisioningService;
 		this.accountService = accountService;
-		this.identityService = identityService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.jwtAuthenticationService = jwtAuthenticationService;
+		this.schemaAttributeService = schemaAttributeService;
+		this.systemEntityService = systemEntityService;
+		this.lookupService = lookupService;
 	}
 	
 	@Override
@@ -113,23 +132,24 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		// temporary solution for get system id, this is not nice.
-		String systemId = configurationService.getValue(PROPERTY_AUTH_SYSTEM_ID);
-		if (systemId == null || systemId.isEmpty()) {
+		String systemCodeable = configurationService.getValue(PROPERTY_AUTH_SYSTEM_ID);
+		if (StringUtils.isEmpty(systemCodeable)) {
 			return null; // without system can't check
 		}
 		//
-		SysSystem system = systemService.get(systemId);
+		SysSystemDto system = (SysSystemDto) lookupService.lookupDto(SysSystemDto.class, systemCodeable);
 		//
 		if (system == null) {
-			return null; // system dont exist
+			LOG.warn("System by codeable identifier [{}] not found. Check configuration property [{}]", systemCodeable, PROPERTY_AUTH_SYSTEM_ID);
+			return null; // system doesn't exist
 		}
-		IdmIdentityDto identity = identityService.getByUsername(loginDto.getUsername());
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, loginDto.getUsername());
 		if (identity == null) {	
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", loginDto.getUsername()));
 		}
 		//
-		// search authentication attribute for system with provisioning mapping
-		SysSystemAttributeMapping attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId());
+		// search authentication attribute for system with provisioning mapping, only for identity
+		SysSystemAttributeMappingDto attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId(), SystemEntityType.IDENTITY);
 		//
 		if (attribute == null) {
 			// attribute MUST exist
@@ -137,7 +157,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		}
 		//
 		// find if identity has account on system
-		List<AccAccount> accounts = accountService.getAccounts(system.getId(), identity.getId());
+		List<AccAccountDto> accounts = accountService.getAccounts(system.getId(), identity.getId());
 		if (accounts.isEmpty()) {
 			// user hasn't account on system, continue
 			return null;
@@ -147,9 +167,15 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		IcUidAttribute auth = null;
 		//
 		// authenticate over all accounts find first, or throw error
-		for (AccAccount account : accounts) {
-			IcConnectorObject connectorObject = systemService.readObject(system, attribute.getSystemMapping(),
-					new IcUidAttributeImpl(null, account.getSystemEntity().getUid(), null));
+
+
+		for (AccAccountDto account : accounts) {
+			SysSchemaAttributeDto schemaAttribute = schemaAttributeService.get(attribute.getSchemaAttribute());
+			SysSchemaObjectClassDto schemaObjectClassDto = DtoUtils.getEmbedded(schemaAttribute, SysSchemaAttribute_.objectClass, SysSchemaObjectClassDto.class);
+			SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
+			IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
+			
+			IcConnectorObject connectorObject = systemService.readConnectorObject(system.getId(), systemEntityDto.getUid(), objectClass);
 			//
 			if (connectorObject == null) {
 				continue;
@@ -158,7 +184,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			String transformUsername = null;
 			// iterate over all attributes to find authentication attribute
 			for (IcAttribute icAttribute : connectorObject.getAttributes()) {
-				if (icAttribute.getName().equals(attribute.getSchemaAttribute().getName())) {
+
+				if (icAttribute.getName().equals(schemaAttributeService.get(attribute.getSchemaAttribute()).getName())) {
 					transformUsername = String.valueOf(icAttribute.getValue());
 					break;
 				}
@@ -198,7 +225,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
 				loginDto, identity, module);
 		
-		LOG.info("Identity with username [{}] is authenticated on system [{}]", loginDto.getUsername(), system.getName());
+		LOG.info("Identity with username [{}] is authenticated by system [{}]", loginDto.getUsername(), system.getName());
 		
 		return loginDto;
 	}

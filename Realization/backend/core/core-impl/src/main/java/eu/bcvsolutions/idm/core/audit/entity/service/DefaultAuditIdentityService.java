@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.audit.entity.service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
@@ -11,8 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.audit.dto.filter.AuditEntityFilter;
 import eu.bcvsolutions.idm.core.audit.dto.filter.AuditIdentityFilter;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
@@ -44,17 +44,24 @@ public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 		if (identityFilter.getUsername() != null) {
 			// in identities can be more UUID, we search for all
 			identitiesIds = getAuditRepository().findDistinctOwnerIdByOwnerTypeAndOwnerCode(IdmIdentity.class.getName(), identityFilter.getUsername());
+			// remove null values
+			identitiesIds.removeAll(Collections.singleton(null));
 			// no entity found for this username return empty list
 			if (identitiesIds.isEmpty()) {
 				return new PageImpl<>(Collections.emptyList());
 			}
 		}
 		//
-		AuditFilter auditFilter = new AuditFilter();
+		IdmAuditFilter auditFilter = new IdmAuditFilter();
 		auditFilter.setFrom(identityFilter.getFrom());
 		auditFilter.setTill(identityFilter.getTill());
 		auditFilter.setOwnerType(IdmIdentity.class.getName());
 		auditFilter.setChangedAttributes(identityFilter.getChangedAttributes());
+		//
+		// set id as owner id
+		if (identityFilter.getId() != null) {
+			auditFilter.setOwnerId(identityFilter.getId().toString());
+		}
 		//
 		if (!identitiesIds.isEmpty()) {
 			auditFilter.setOwnerIds(identitiesIds);
@@ -75,7 +82,7 @@ public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 		Object modifier = parameters.getFirst("modifier");
 		Object changedAttributes = parameters.getFirst("changedAttributes");
 		//
-		filter.setId(id != null ? UUID.fromString(id.toString()) : null);
+		filter.setId(EntityUtils.toUuid(id));
 		filter.setUsername(username != null ? username.toString() : null);
 		filter.setFrom(from != null ? new DateTime(from) : null);
 		filter.setTill(till != null ? new DateTime(till) : null);

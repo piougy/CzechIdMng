@@ -9,6 +9,8 @@ import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux
 import help from './PasswordChange_cs.md';
 import ValidationMessage from './identity/ValidationMessage';
 
+const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
+
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
 
@@ -97,12 +99,41 @@ class PasswordChange extends Basic.AbstractContent {
       }
       return json;
     })
-    .then(() => {
+    .then((json) => {
       this.setState({
         validationError: null
+      }, () => {
+        const successAccounts = [];
+        const failedAccounts = [];
+        let idm = false;
+        //
+        json.forEach(result => {
+          const account = result.model.parameters.account;
+          let accountName;
+          if (account.idm) {
+            accountName = `${IDM_NAME} (${account.uid})`;
+            idm = true;
+          } else {
+            accountName = `${account.systemName} (${account.uid})`;
+          }
+          //
+          if (result.model.statusCode === 200) { // success
+            successAccounts.push(accountName);
+          } else {
+            failedAccounts.push(accountName);
+          }
+        });
+        // we want to see messages added after login ... login removes messages for secutiry reason
+        if (idm) {
+          this.login(username, password);
+        }
+        if (successAccounts.length > 0) {
+          this.addMessage({ message: this.i18n('content.identity.passwordChange.message.success', { accounts: successAccounts.join(', '), username }) });
+        }
+        if (failedAccounts.length > 0) {
+          this.addMessage({ level: 'warning', message: this.i18n('content.identity.passwordChange.message.failed', { accounts: failedAccounts.join(', '), username }) });
+        }
       });
-      this.login(username, password);
-      this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
     })
     .catch(error => {
       if (error.message === 'IDENTITY_NOT_FOUND') {

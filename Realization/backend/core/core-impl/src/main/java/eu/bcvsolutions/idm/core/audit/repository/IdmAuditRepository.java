@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 
@@ -19,9 +19,8 @@ import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 		itemResourceRel = "audit", //
 		exported = false // 
 	)
-public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, AuditFilter> {
+public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 	
-	@Override
 	@Query(value = "SELECT e "
 				+ "FROM "
 					+ "#{#entityName} e "
@@ -107,7 +106,7 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 						+ "?#{[0].subOwnerType} IS null "
 						+ "OR lower(e.subOwnerType) like ?#{[0].subOwnerType == null ? '%' : '%'.concat([0].subOwnerType.toLowerCase())} "
 					+ ") ")
-	Page<IdmAudit> find(AuditFilter filter, Pageable pageable);
+	Page<IdmAudit> find(IdmAuditFilter filter, Pageable pageable);
 	
 	// Query get previous version, from entity id and id current revision
 	@Query(value = "SELECT e "

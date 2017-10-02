@@ -45,7 +45,7 @@ export default class SystemManager extends Managers.EntityManager {
       Promise.all([connectorFormDefinitionPromise, connectorFormValuesPromise])
         .then((jsons) => {
           const formDefinition = jsons[0];
-          const formValues = jsons[1]._embedded.formValues;
+          const formValues = jsons[1].values;
 
           const formInstance = new Domain.FormInstance(formDefinition, formValues);
 

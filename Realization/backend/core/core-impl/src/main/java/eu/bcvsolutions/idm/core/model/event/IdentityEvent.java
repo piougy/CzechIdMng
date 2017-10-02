@@ -18,14 +18,14 @@ public class IdentityEvent extends CoreEvent<IdmIdentityDto> {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Supported identity events
+	 * Supported core identity events
 	 *
 	 */
 	public enum IdentityEventType implements EventType {
 		CREATE, 
 		UPDATE, 
 		DELETE, 
-		PASSWORD, // password change: TODO: rename to PASSWORD_CHANGE
+		PASSWORD, // password change
 		PASSWORD_EXPIRED
 	}
 	

@@ -1,11 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import org.springframework.transaction.event.TransactionalEventListener;
-
-import com.google.common.annotations.Beta;
-
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Entry point to all provisioning operations.
@@ -17,43 +14,40 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 public interface ProvisioningExecutor {
 
 	/**
-	 *  Executes the resource operation. If the operation fails, it creates a resource request and saves
-	 * it to the queue.
+	 * Executes the resource operation. If the operation fails, it creates a resource request and saves
+	 * it to the queue. If system's using queue, operation will be processed asynchronously.
 	 * 
 	 * @param provisioningOperation executed operation
-	 * @return
 	 */
-	SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation);
+	void execute(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
-	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
+	 * Execute operation synchronously without queue and waiting to transaction ends.
 	 * 
 	 * @param provisioningOperation
 	 * @return
 	 */
-	@Beta
-	@TransactionalEventListener
-	SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation);
+	SysProvisioningOperationDto executeSync(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 * Cancel the resource operation.
 	 * 
 	 * @param provisioningOperation executed operation
 	 */
-	SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation);
+	SysProvisioningOperationDto cancel(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 *  Executes operations in given batch.
 	 * 
 	 * @param batch executed batch
-	 * @return
+	 * @return last processed request result (previous requests will be OperationState.EXECUTED)
 	 */
-	void execute(SysProvisioningBatch batch);
+	OperationResult execute(SysProvisioningBatchDto batch);
 	
 	/**
 	 * Cancel operations in batch.
 	 * 
 	 * @param batch executed batch
 	 */
-	void cancel(SysProvisioningBatch batch);
+	void cancel(SysProvisioningBatchDto batch);
 }

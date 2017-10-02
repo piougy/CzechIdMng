@@ -20,13 +20,17 @@ class FormAttributeService extends AbstractService {
     return `${entity.name}`;
   }
 
+  getGroupPermission() {
+    return 'FORMATTRIBUTE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('seq', 'asc').setSort('code', 'asc');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).setSize(100).clearSort().setSort('seq', 'asc').setSort('code', 'asc');
   }
 }
 

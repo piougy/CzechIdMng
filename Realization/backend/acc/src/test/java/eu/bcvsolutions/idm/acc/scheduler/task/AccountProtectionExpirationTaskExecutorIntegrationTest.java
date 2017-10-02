@@ -9,25 +9,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.AccountProtectionExpirationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * LRT integration test
  * 
- * TODO: provisioning helper (DRY - init methods, createSystem, maping, find test accounts ...)
+ * TODO: provisioning helper (DRY - initialized methods, createSystem, mapping, find test accounts ...)
  * 
  * @author Radek Tomiška
  *
@@ -53,16 +52,16 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	@Test
 	public void testRemoveExpiredAccount() {
 		IdmIdentityDto identity = helper.createIdentity();
-		IdmRole role = helper.createRole();
-		SysSystem system = helper.createTestResourceSystem(true);
-		SysSystemMapping mapping = helper.getDefaultMapping(system);
+		IdmRoleDto role = helper.createRole();
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(1);
 		mapping.setProtectionEnabled(true);
 		systemMappingService.save(mapping);
 		helper.createRoleSystem(role, system);
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
 		//
-		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
 		TestResource createdAccount = helper.findResource(account.getUid());
@@ -95,12 +94,12 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		// change account expiration
 		
 		account.setEndOfProtection(new DateTime().minusDays(1));
-		accountService.save(account);
+		account = accountService.save(account);
 		
 		taskExecutor = new AccountProtectionExpirationTaskExecutor();
 		longRunningTaskManager.executeSync(taskExecutor);
 		
-		AccAccount removedAccount = accountService.getAccount(identity.getUsername(), system.getId());
+		AccAccountDto removedAccount = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNull(removedAccount);
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNull(createdAccount);

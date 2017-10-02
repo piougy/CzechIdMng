@@ -26,9 +26,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,7 +51,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmNotificationTemplateController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmNotificationTemplateController extends DefaultReadWriteDtoController<IdmNotificationTemplateDto, NotificationTemplateFilter> {
+public class IdmNotificationTemplateController extends DefaultReadWriteDtoController<IdmNotificationTemplateDto, IdmNotificationTemplateFilter> {
 	
 	protected static final String TAG = "Notification templates";
 	private final IdmNotificationTemplateService notificationTemplateService;

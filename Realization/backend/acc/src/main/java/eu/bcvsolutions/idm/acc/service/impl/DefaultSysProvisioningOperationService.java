@@ -123,7 +123,6 @@ public class DefaultSysProvisioningOperationService
 		if (dto != null) {
 			// copy => detach
 			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
-			// TODO: system to embedded?
 		}
 		return dto;
 	}

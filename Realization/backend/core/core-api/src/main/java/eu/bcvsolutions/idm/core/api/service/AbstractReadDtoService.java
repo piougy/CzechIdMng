@@ -350,8 +350,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			modelMapper.map(dto, entity);
 			return entity;
 		}
-		E createdEntity = modelMapper.map(dto, entityClass);
-		return createdEntity;
+		return modelMapper.map(dto, entityClass);
 	}
 	
 	@Override

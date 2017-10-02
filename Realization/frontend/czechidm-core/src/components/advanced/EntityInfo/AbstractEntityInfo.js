@@ -42,17 +42,46 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   loadEntityIfNeeded() {
     const { entity, _entity } = this.props;
     const manager = this.getManager();
-    if (manager && this.getEntityId() && !entity && !_entity) {
-      const uiKey = manager.resolveUiKey(null, this.getEntityId());
-      const error = Utils.Ui.getError(this.context.store.getState(), uiKey) || this.state.error;
-      if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
-          && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(manager.autocompleteEntityIfNeeded(this.getEntityId(), uiKey, (e, ex) => {
-          this.setState({
-            error: ex
-          });
-        }));
+    if (!manager || !this.getEntityId()) {
+      // nothing to load
+      return;
+    }
+    //
+    const entityId = this.getEntityId();
+    if (entityId) {
+      const uiKey = manager.resolveUiKey(null, entityId);
+      // load entity
+      if (!entity && !_entity) {
+        const error = Utils.Ui.getError(this.context.store.getState(), uiKey) || this.state.error;
+        if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
+            && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
+          this.context.store.dispatch(manager.autocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
+            this.setState({
+              error: ex
+            });
+          }));
+        }
       }
+    }
+  }
+
+  /**
+   * Load permissions if needed if pover is opened
+   *
+   * @return {[type]} [description]
+   */
+  _onEnter() {
+    const { _permissions } = this.props;
+    const manager = this.getManager();
+    const entityId = this.getEntityId();
+    //
+    if (!manager || !entityId || !manager.supportsAuthorization()) {
+      // nothing to load
+      return;
+    }
+    if (!_permissions) {
+      const uiKey = manager.resolveUiKey(null, entityId);
+      this.context.store.dispatch(manager.fetchPermissions(entityId, uiKey));
     }
   }
 
@@ -173,7 +202,8 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       <Basic.Popover
         trigger={['click']}
         value={ this._renderFull() }
-        className="abstract-entity-info-popover">
+        className="abstract-entity-info-popover"
+        onEnter={ this._onEnter.bind(this) }>
         {
           <span
             style={ style }>

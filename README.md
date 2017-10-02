@@ -12,7 +12,7 @@ CzechIdM manages user accounts, roles, groups, organizational rankings, and thei
   - **Automate identity lifecycle**: Synchronize identities in your systems. Simplify HR processes, grant users access and provision them automatically.
 
 ## Important links
-  - **Wiki**: https://wiki.czechidm.com/start
+  - **CzechIDM documentation - admins and developers guide**: https://wiki.czechidm.com/start
   - Stable release: https://github.com/bcvsolutions/CzechIdMng/releases
   - Nightly build: [idm.war](http://download.czechidm.com/CzechIdM/nightly/current/idm.war)
   - Online demo: http://demo.czechidm.com/

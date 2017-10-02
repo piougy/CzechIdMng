@@ -10,7 +10,7 @@ import { IdentityService } from '../../services';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
 import ValidationMessage from './ValidationMessage';
 
-const IDM_NAME = 'CzechIdM';
+const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
 
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';

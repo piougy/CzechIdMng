@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -48,8 +49,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Implementation of @IdmRoleCatalogueService
- *
- * TODO: baseTreeService - refactor to dto usage
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -196,14 +195,16 @@ public class DefaultIdmRoleCatalogueService
 			Subquery<IdmRoleCatalogue> subquery = query.subquery(IdmRoleCatalogue.class);
 			Root<IdmRoleCatalogue> subRoot = subquery.from(IdmRoleCatalogue.class);
 			subquery.select(subRoot);
+			Path<IdmForestIndexEntity> forestIndexPath = subRoot.get(IdmRoleCatalogue_.forestIndex);
 			subquery.where(builder.and(
 				builder.equal(subRoot.get(AbstractEntity_.id), filter.getParent()),
 				// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
 				// In order to do that, we must shrink the boundaries of query so it is true only for subtree of given node.
 				// Remember that between clause looks like this a >= x <= b, where a and b are boundaries, in our case lft+1 and rgt-1.
+				
 				builder.between(root.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft),
-					builder.sum(subRoot.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 1L),
-					builder.diff(subRoot.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.rgt), 1L))));
+					builder.sum(forestIndexPath.get(IdmForestIndexEntity_.lft), 1L),
+					builder.diff(forestIndexPath.get(IdmForestIndexEntity_.rgt), 1L))));
 			predicates.add(builder.exists(subquery));
 		}
 		return predicates;

@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import PasswordChangeForm from './PasswordChangeForm';
 import ComponentService from '../../services/ComponentService';
+import ConfigLoader from '../../utils/ConfigLoader';
 
-const RESOURCE_IDM = '0:CzechIdM';
+const IDM_NAME = ConfigLoader.getConfig('app.name', 'CzechIdM');
+const RESOURCE_IDM = `0:${IDM_NAME}`;
 
 class PasswordChangeContent extends Basic.AbstractContent {
 
@@ -23,7 +25,7 @@ class PasswordChangeContent extends Basic.AbstractContent {
     const { entityId } = this.props.params;
 
     const options = [
-      { value: RESOURCE_IDM, niceLabel: 'CzechIdM (' + entityId + ')'}
+      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
     ];
 
     return (

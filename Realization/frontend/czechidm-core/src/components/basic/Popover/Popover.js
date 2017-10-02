@@ -46,6 +46,7 @@ export default class BasicPopover extends AbstractComponent {
           <Popover
             id={_id}
             className={classNames}
+
             title={
               !title
               ?
@@ -72,8 +73,8 @@ export default class BasicPopover extends AbstractComponent {
             }
           </Popover>
         }
-        delayShow={delayShow}
-        {...others}>
+        delayShow={ delayShow }
+        { ...others }>
         { children }
       </OverlayTrigger>
     );

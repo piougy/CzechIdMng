@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "CzechIdM"
+  },
   "env": "TEST",
   "serverUrl": "/idm/api/v1",
   "theme": "czechidm-core/themes/default",
@@ -12,5 +15,8 @@
   "locale": {
     "supported": ["cs", "en"],
     "fallback": "cs"
+  },
+  "pagination": {
+    "size": 10
   }
 }

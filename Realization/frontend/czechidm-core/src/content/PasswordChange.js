@@ -9,7 +9,7 @@ import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux
 import help from './PasswordChange_cs.md';
 import ValidationMessage from './identity/ValidationMessage';
 
-const IDM_NAME = 'CzechIdM';
+const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();

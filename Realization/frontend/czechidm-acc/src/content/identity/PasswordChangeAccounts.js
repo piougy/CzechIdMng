@@ -1,13 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain } from 'czechidm-core';
+import { Basic, Domain, Utils } from 'czechidm-core';
 import { AccountManager } from '../../redux';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
 //
-
-const RESOURCE_IDM = '0:CzechIdM';
-
+const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
+const RESOURCE_IDM = `0:${IDM_NAME}`;
+//
 const accountManager = new AccountManager();
 
 /**
@@ -42,7 +42,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     }
 
     const options = [
-      { value: RESOURCE_IDM, niceLabel: 'CzechIdM (' + entityId + ')'}
+      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
     ];
 
     accounts.forEach(acc => {

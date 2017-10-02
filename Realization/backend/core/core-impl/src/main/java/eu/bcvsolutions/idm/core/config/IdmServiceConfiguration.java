@@ -160,7 +160,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(CryptService.class)
 	public CryptService cryptService() {
-		return new DefaultCryptService();
+		return new DefaultCryptService(environment);
 	}
 	
 	/**

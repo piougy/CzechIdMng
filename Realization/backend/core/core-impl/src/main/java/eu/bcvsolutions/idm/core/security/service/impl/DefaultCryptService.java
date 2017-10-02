@@ -21,15 +21,15 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
@@ -57,9 +57,15 @@ public class DefaultCryptService implements CryptService {
 	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCryptService.class);
-	private ConfigurationService configurationService; // configuration service is initialized by autowire helper
+	private final ConfigurableEnvironment env;
 	private static Cipher encryptCipher;
 	private static Cipher decryptCipher;
+	
+	public DefaultCryptService(ConfigurableEnvironment env) {
+		Assert.notNull(env);
+		//
+		this.env = env;
+	}
 	
 	@PostConstruct
 	private void init() {
@@ -132,35 +138,31 @@ public class DefaultCryptService implements CryptService {
 		String key;
 		Resource resource = null;
 		BufferedReader in = null;
-		initConfigurationService();
 		// try found key in application properties
-		if (configurationService != null) {
-			key = configurationService.getValue(APPLICATION_PROPERTIES_KEY);
-			if (key != null && !key.isEmpty()) {
-				return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
-			}
-			// key was not found in application properties, try found application properties path 
-			String keyPath = configurationService.getValue(APPLICATION_PROPERTIES_KEY_PATH);
-			if (keyPath != null && !keyPath.isEmpty()) {
-				File keyFile = new File(keyPath);
-				if (keyFile.exists()) {
-					try {
-						in = new BufferedReader(new FileReader(keyPath));
-						key = in.readLine();
-						if (key == null || key.isEmpty()) {
-							LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
-							return null;
-						}
-						return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
-					} catch (IOException e) {
-						LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage());
+		key = env.getProperty(APPLICATION_PROPERTIES_KEY);
+		if (key != null && !key.isEmpty()) {
+			return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
+		}
+		// key was not found in application properties, try found application properties path 
+		String keyPath = env.getProperty(APPLICATION_PROPERTIES_KEY_PATH);
+		if (keyPath != null && !keyPath.isEmpty()) {
+			File keyFile = new File(keyPath);
+			if (keyFile.exists()) {
+				try {
+					in = new BufferedReader(new FileReader(keyPath));
+					key = in.readLine();
+					if (key == null || key.isEmpty()) {
+						LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
+						return null;
 					}
-				} else {
-					LOG.info("For crypt service is define key with path: [{}], but this file isnt exist.", keyPath);
+					return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
+				} catch (IOException e) {
+					LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage());
 				}
+			} else {
+				LOG.info("For crypt service is define key with path: [{}], but this file isnt exist.", keyPath);
 			}
 		}
-
 		try {
 			// get primary key from resource
 			resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
@@ -231,15 +233,6 @@ public class DefaultCryptService implements CryptService {
 				LOG.warn("Demo or primary key doesn't exists!");
 				return false;
 			}
-		}
-	}
-	
-	/**
-	 * Method init configuration service (if needed)
-	 */
-	private void initConfigurationService() {
-		if (configurationService == null) {
-			this.configurationService = AutowireHelper.getBean(ConfigurationService.class);
 		}
 	}
 }

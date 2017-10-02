@@ -416,7 +416,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				if (changedAttribute.isMultiValue()) {
 					if (changedAttribute.getValues() != null) {
 						changedAttribute.getValues().forEach(value -> {
-							if (currentAttribute.getValues().contains(value)) {
+							if (currentAttribute.getValues() != null && currentAttribute.getValues().contains(value)) {
 								vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
 							} else {
 								vsAttribute.getValues()
@@ -426,7 +426,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					}
 					if (currentAttribute.getValues() != null) {
 						currentAttribute.getValues().forEach(value -> {
-							if (!changedAttribute.getValues().contains(value)) {
+							if (changedAttribute.getValues() == null || !changedAttribute.getValues().contains(value)) {
 								vsAttribute.getValues()
 										.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
 							}

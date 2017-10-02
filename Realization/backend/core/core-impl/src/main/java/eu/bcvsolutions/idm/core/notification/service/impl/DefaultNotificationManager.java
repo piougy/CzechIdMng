@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
@@ -71,7 +72,8 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	}
 
 	/**
-	 * Persists new notification record from given notification
+	 * Persists new notification record from given notification. 
+	 * Input notification type is leaved unchanged - is needed for another processing (routing).
 	 * 
 	 * @param notification
 	 * @return
@@ -83,20 +85,25 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		// IdmNotificationLog
 		if (notification instanceof IdmNotificationLogDto) {
 			notification.setSent(new DateTime());
-			return notificationLogService.save((IdmNotificationLogDto) notification);
+			IdmNotificationLogDto notificationLog = notificationLogService.save((IdmNotificationLogDto) notification);
+			notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
+			return notificationLog;
 		}
 		// we need to clone notification
 		IdmNotificationLogDto notificationLog = new IdmNotificationLogDto();
+		notificationLog.setType(notification.getType());
 		notificationLog.setSent(new DateTime());
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
 		// clone recipients
-		notification.getRecipients().forEach(recipient -> {
+		for(IdmNotificationRecipientDto recipient : notification.getRecipients()) {
 			notificationLog.getRecipients()
 					.add(cloneRecipient(notificationLog, recipient, recipient.getRealRecipient()));
-		});
+		}
 		notificationLog.setIdentitySender(notification.getIdentitySender());
-		return notificationLogService.save(notificationLog);
+		notificationLog = notificationLogService.save(notificationLog);
+		notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
+		return notificationLog;
 	}
 
 }

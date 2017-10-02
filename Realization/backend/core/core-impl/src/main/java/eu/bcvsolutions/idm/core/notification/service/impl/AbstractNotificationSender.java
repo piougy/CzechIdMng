@@ -107,15 +107,18 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		List<IdmNotificationLogDto> notifications = notificationTemplateService.prepareNotifications(topic, message);
 		//
 		if (notifications.isEmpty()) {
-			LOG.info("No notifications for [topic:{}] found. Any message will not be sent.", topic);
+			LOG.info("Notification for [topic:{}] not found. Any message will not be sent.", topic);
 			// no notifications found
-			return null;
+			return sendMessages;
 		}
 		//
-		// iterate over all prepared notifications, set recipients and send them 
+		// iterate over all prepared notifications, set recipients and send them
 		for (IdmNotificationLogDto notification : notifications) {
 			final IdmMessageDto notificationMessage = notification.getMessage();
-			if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
+			if (notificationMessage.getHtmlMessage() == null 
+					&& notificationMessage.getSubject() == null 
+					&& notificationMessage.getTextMessage() == null 
+					&& notificationMessage.getModel() == null) {
 				LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
 				continue;
 			}

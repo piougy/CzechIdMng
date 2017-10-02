@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor;
@@ -157,9 +158,12 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		GuardedString password = (GuardedString) accoutObject.get(passwordAttribute);
 		//
 		// publish event
-		SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation);
+		provisioningExecutor.execute(provisioningOperation);
 		// is necessary to get again operation from service
-		operation = provisioningOperationService.get(operation.getId());
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntityUid(uid);
+		filter.setSystemId(system.getId());
+		SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
 		//
 		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_DISABLED.name(), operation.getResult().getModel().getStatusEnum());
@@ -229,12 +233,15 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		GuardedString password = (GuardedString) accoutObject.get(passwordAttribute);
 		//
 		// publish event
-		SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation);
+		provisioningExecutor.execute(provisioningOperation);
 		// is necessary to get again operation from service
-		operation = provisioningOperationService.get(operation.getId());
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntityUid(uid);
+		filter.setSystemId(system.getId());
+		SysProvisioningOperationDto readOnlyoperation = provisioningOperationService.find(filter, null).getContent().get(0);
 		//
-		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
-		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), operation.getResult().getModel().getStatusEnum());
+		assertEquals(OperationState.NOT_EXECUTED, readOnlyoperation.getResultState());
+		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), readOnlyoperation.getResult().getModel().getStatusEnum());
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
@@ -245,13 +252,15 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// passwords are stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, provisioningOperationService.createAccountObjectPropertyKey( passwordAttribute.getKey(), 0)));
-		assertNotNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, provisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttribute.getSchemaAttributeName()), 0)));
+		assertNotNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, provisioningOperationService.createAccountObjectPropertyKey( passwordAttribute.getKey(), 0)));
+		assertNotNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, provisioningOperationService.createConnectorObjectPropertyKey(readOnlyoperation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttribute.getSchemaAttributeName()), 0)));
 		//
 		system.setReadonly(false);
 		system = systemService.save(system);
 		//
-		operation = provisioningExecutor.execute(operation);
+		provisioningExecutor.execute(readOnlyoperation);
+		// is necessary to get again operation from service
+		Assert.assertNull(provisioningOperationService.get(readOnlyoperation.getId()));
 		//
 		// check target account
 		existsConnectorObject = connectorFacade.readObject(
@@ -275,14 +284,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(uid, attribute.getUidValue());
 		// passwords are removed in confidential storage
-		assertNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class,
+		assertNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class,
 				provisioningOperationService.createAccountObjectPropertyKey(TestHelper.ATTRIBUTE_MAPPING_PASSWORD, 0)));
 		//
 		String connectorObjectPropertyKey = provisioningOperationService.createConnectorObjectPropertyKey(
-				operation.getProvisioningContext().getConnectorObject().getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_PASSWORD),
+				readOnlyoperation.getProvisioningContext().getConnectorObject().getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_PASSWORD),
 				0);
 		//
-		assertNull(confidentialStorage.get(operation.getId(), SysProvisioningOperation.class, connectorObjectPropertyKey));
+		assertNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, connectorObjectPropertyKey));
 	}
 	
 	@Test
@@ -297,7 +306,12 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
 		//
 		// publish event
-		SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation);
+		provisioningExecutor.execute(provisioningOperation);
+		// is necessary to get again operation from service
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntityUid(uid);
+		filter.setSystemId(system.getId());
+		SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
 		assertEquals(OperationState.CREATED, operation.getResultState());
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertTrue(systemEntity.isWish());
@@ -336,11 +350,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
 		//
 		// publish event
-		SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation); // 1 - create
-		// is necessary to get again operation from service - operation is not resulted because processing is called after transaction ends
-		operation = provisioningOperationService.get(operation.getId());
-		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
-		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), operation.getResult().getModel().getStatusEnum());
+		provisioningExecutor.execute(provisioningOperation); // 1 - create
+		// is necessary to get again operation from service
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntityUid(uid);
+		filter.setSystemId(system.getId());
+		SysProvisioningOperationDto readOnlyOperation = provisioningOperationService.find(filter, null).getContent().get(0);
+		assertEquals(OperationState.NOT_EXECUTED, readOnlyOperation.getResultState());
+		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), readOnlyOperation.getResult().getModel().getStatusEnum());
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 2)); // 2 - update
 		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 3)); // 3 - update
@@ -350,7 +367,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNull(helper.findResource(uid));
 		//
 		// check batch
-		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
+		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), readOnlyOperation.getEntityIdentifier(), uid);
 		Assert.assertNotNull(batch);
 		//
 		// check provisioning operation requests
@@ -360,7 +377,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// execute first operation - create
 		system.setReadonly(false);
 		system = systemService.save(system);
-		operation = provisioningExecutor.execute(operation);
+		provisioningExecutor.execute(readOnlyOperation);
+		Assert.assertNull(provisioningOperationService.get(readOnlyOperation.getId()));
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertFalse(systemEntity.isWish());
@@ -375,7 +393,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		resource = helper.findResource(uid);
 		Assert.assertEquals(firstname + 3, resource.getFirstname());
 		Assert.assertEquals(0, provisioningOperationService.findByBatchId(batch.getId(), null).getTotalElements());
-		Assert.assertNull(provisioningOperationService.get(operation.getId()));
+		Assert.assertNull(provisioningOperationService.get(readOnlyOperation.getId()));
 		Assert.assertNull(provisioningBatchService.get(batch.getId()));
 	}
 	
@@ -390,9 +408,13 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			DateTime now = new DateTime();
 			//
 			// publish event
-			SysProvisioningOperationDto operation = provisioningExecutor.execute(provisioningOperation);
-			// is necessary to get again operation from service - operation is not resulted because processing is called after transaction ends
-			operation = provisioningOperationService.get(operation.getId());
+			// publish event
+			provisioningExecutor.execute(provisioningOperation); // 1 - create
+			// is necessary to get again operation from service
+			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+			filter.setSystemEntityUid(uid);
+			filter.setSystemId(system.getId());
+			SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
 			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
 			Assert.assertEquals(OperationState.EXCEPTION, operation.getResultState());
 			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), operation.getResult().getModel().getStatusEnum());

@@ -124,6 +124,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 			log.getRecipients().add(cloneRecipient(log, recipient));
 		});
 		log.setIdentitySender(notification.getIdentitySender());
+		log.setType(IdmWebsocketLog.NOTIFICATION_TYPE);
 		return websocketLogService.save(log);
 	}
 

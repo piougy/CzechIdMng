@@ -18,9 +18,8 @@ public interface ProvisioningExecutor {
 	 * it to the queue. If system's using queue, operation will be processed asynchronously.
 	 * 
 	 * @param provisioningOperation executed operation
-	 * @return
 	 */
-	SysProvisioningOperationDto execute(SysProvisioningOperationDto provisioningOperation);
+	void execute(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
 	 * Execute operation synchronously without queue and waiting to transaction ends.

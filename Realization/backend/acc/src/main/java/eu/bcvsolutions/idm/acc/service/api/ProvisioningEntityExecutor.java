@@ -80,7 +80,7 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * @param dto
 	 * @result result
 	 */
-	OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
+	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, DTO dto);
 	
 	/**

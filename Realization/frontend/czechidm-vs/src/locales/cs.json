@@ -120,7 +120,6 @@
           "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete označit vybrané požadavky <strong>{{count}}</strong> jako realizované?",
           "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete označit vybraných požadavků <strong>{{count}}</strong> jako realizované ?",
           "error": "Při realizaci požadavku [{{record}}] nastala chyba",
-          "success": "Vybraný požadavek [{{record}}] byl úspěšně označen jako realizovaný",
           "success_1": "Vybraný požadavek [{{record}}] byl úspěšně označen jako realizovaný",
           "success_2": "Vybrané požadavky [{{records}}] byly úspěšně označeny jako realizované",
           "success_5": "Vybrané požadavky [{{records}}] byly úspěšně označeny jako realizované"
@@ -134,7 +133,6 @@
           "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybrané požadavky zamítnout?",
           "message_5": "Vybrány požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybraných požadavků zamítnout?",
           "error": "Při relizaci požadaku [{{record}}] nastala chyba",
-          "success": "Vybraný požadavek byl úspěšně zamítnutý",
           "success_1": "Vybraný požadavek [{{record}}] byl úspěšně zamítnutý",
           "success_2": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté",
           "success_5": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté"

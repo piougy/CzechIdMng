@@ -42,25 +42,6 @@ public class AsyncConfig implements AsyncConfigurer {
 		//
 		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
 	}
-	
-	/**
-	 * Executor for LRT items. Item can be processed asynchronously - want to control pool usage.
-	 * 
-	 * @return
-	 */
-	@Bean(name = "longRunningTaskItemExecutor")
-	public Executor longRunningTaskItemExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(10);
-		executor.setMaxPoolSize(20);
-		executor.setThreadGroupName("provisioning-task-executor");
-		executor.setThreadNamePrefix("provisioning-task-executor-");
-		executor.initialize();
-		executor.setWaitForTasksToCompleteOnShutdown(true);
-		// TODO: reject policy
-		//
-		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
-	}
 
 	@Override
 	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {

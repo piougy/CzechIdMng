@@ -1,6 +1,11 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -44,9 +49,13 @@ public abstract class AbstractIdentityPasswordProcessor extends CoreEventProcess
 		//
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto);
+			Map<String, Object> parameters = new LinkedHashMap<>();
+			parameters.put("account",ImmutableMap.of(
+					"idm", Boolean.TRUE.toString(),
+					"uid", identity.getUsername()));
 			return new DefaultEventResult.Builder<>(event, this).setResult(
 					new OperationResult.Builder(OperationState.EXECUTED)
-						.setModel(new DefaultResultModel(CoreResultCode.ACCEPTED, "idm ok"))
+						.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS, parameters))
 						.build()
 					).build();
 		}

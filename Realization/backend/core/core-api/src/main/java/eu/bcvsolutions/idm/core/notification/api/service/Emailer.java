@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.notification.api.service;
 
-import org.springframework.transaction.event.TransactionalEventListener;
-
-import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 
 /**
@@ -25,14 +22,4 @@ public interface Emailer {
 	 * @return
 	 */
 	boolean send(IdmEmailLogDto emailLog);
-	
-	/**
-	 * Internal send message. We need to wait to transaction commit - save email log
-	 * 
-	 * @param sendOperation
-	 * @return
-	 */
-	@TransactionalEventListener
-	public void sendInternal(SendOperation sendOperation);
-	
 }

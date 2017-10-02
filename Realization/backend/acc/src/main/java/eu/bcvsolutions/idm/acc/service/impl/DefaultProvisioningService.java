@@ -89,10 +89,11 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public OperationResult doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
+	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, AbstractDto entity) {
 		Assert.notNull(entity);
-		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
+		//
+		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
 	}
 
 	@Override

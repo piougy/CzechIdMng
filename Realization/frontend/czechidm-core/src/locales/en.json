@@ -101,31 +101,40 @@
     },
     "activate": {
       "action": "Activate",
+      "header_0": "N/A",
       "header": "Activate record",
       "header_plural": "Activate records",
+      "message_0": "N/A",
       "message" : "Do you really want to activate selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while activating [{{record}}]",
+      "success_0": "N/A",
       "success": "Selected record [{{record}}] successfully activated",
       "success_plural": "Selected records [{{records}}] were successfully activated"
     },
     "deactivate": {
       "action": "Deactivate",
+      "header_0": "N/A",
       "header": "Deactivate record",
       "header_plural": "Deactivate records",
+      "message_0": "N/A",
       "message": "Do you want to deactivate selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to deactivate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while removing [{{record}}]",
+      "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully deactivated",
       "success_plural": "Selected records [{{records}}] were successfully deactivated"
     },
     "redeploy": {
       "action": "Recover from disk (redeploy)",
+      "header_0": "N/A",
       "header": "Recover record from disk",
       "header_plural": "Recover records from disk",
+      "message_0": "N/A",
       "message": "Do you want to recover selected record [<strong>{{record}}</strong>] from disk? This action is not possible to undo.",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to recover <strong>{{count}}</strong> selected records from disk? This action is not possible to undo.",
       "error": "An error occurred while recover [{{record}}]",
+      "success_0": "N/A",
       "success": "N/A",
       "success_plural": "Selected record [{{record}}] were successfully recovered",
       "failed": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
@@ -133,11 +142,14 @@
     },
     "backup": {
       "action": "Backup",
+      "header_0": "N/A",
       "header": "Backup record",
       "header_plural": "Backup records",
+      "message_0": "N/A",
       "message": "Do you want to backup  [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to backup <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while backup selected record: [{{record}}",
+      "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully backup",
       "success_plural": "Selected records [{{records}}] were successfully backup",
       "failed": "Selected record [{{records}}] were not successfully backup",
@@ -145,17 +157,21 @@
     },
     "duplicate": {
       "action": "Duplicate",
+      "header_0": "N/A",
       "header": "Duplicate record",
       "header_plural": "Duplicate records",
+      "message_0": "N/A",
       "message": "Do you want to duplicate selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to duplicate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while duplicating [{{record}}].",
+      "success_0": "N/A",
       "success": "Selected record [{{record}}] successfully duplicated",
       "success_plural": "Selected records [{{records}}] were successfully duplicated",
       "failed": "Selected record [{{records}}] were not successfully duplicated",
       "failed_plural": "Selected records [{{records}}] were not successfully duplicated"
     },
     "save": {
+      "success_0": "N/A",
       "success": "Record [{{record}}] successfully saved"
     }
   },
@@ -244,7 +260,8 @@
       },
       "ProgressBar": {
         "start": "Processing",
-        "processed": "Processed"
+        "processed": "Processed",
+        "label": "$t(component.basic.ProgressBar.processed) {{now}} / {{max}}"
       },
       "Dropzone": {
         "infoText": "Drag files here, or click to select files."
@@ -275,6 +292,7 @@
       "Table": {
         "bulk-action": {
           "selection_empty": "Select records ...",
+          "selection_0": "Select records ...",
           "selection": "Operation with selected record:",
           "selection_plural": "Operation with ({{count}}) selected records:",
           "notImplemented": "Sorry, this operation is not available yet."
@@ -514,6 +532,10 @@
       "NO": "Without recursion",
       "DOWN": "Down by structure",
       "UP": "Up by structure"
+    },
+    "ScriptAuthorityTypeEnum": {
+      "CLASS_NAME": "Class",
+      "SERVICE": "Service"
     }
   },
   "dashboard": {
@@ -943,6 +965,7 @@
         },
         "activate": {
           "action": "Activate",
+          "header_0": "N/A",
           "header": "Activate user",
           "header_plural": "Activate users",
           "message": "Do you really want to activate the selected user <strong>{{username}}</strong>?",
@@ -1130,7 +1153,8 @@
     },
     "scripts": {
       "header": "Script definitions",
-      "header": "Script definitions",
+      "title": "Script definitions",
+      "label": "Script definitions",
       "edit": {
         "title": "Script detail",
         "header": "{{name}} rule detail"
@@ -1179,12 +1203,12 @@
       "create": {
         "header": "New role"
       },
+      "save": {
+        "success": "Role [{{name}}] successfully saved."
+      },
       "select": {
         "chooseFolder": "Choose folder",
         "showRoleCatalogue": "Select from catalog"
-      },
-      "save": {
-        "success": "Role [{{name}}] successfully saved."
       },
       "processRoleChange": {
         "roleName": "Role name",
@@ -1238,7 +1262,8 @@
         "header": "Create new request to change the permissions"
       },
       "button": {
-        "createRequest": "Create request"
+        "createRequest": "Create request",
+        "start": "Execute request"
       },
       "action": {
         "startRequest": {
@@ -1335,7 +1360,6 @@
         "profile": "Personal data",
         "password": "Change password",
         "roles": "Roles",
-        "accounts": "Accounts on systems",
         "approve": "Approver of roles",
         "subordinates": "Subordinates",
         "positions": "Contracted positions",
@@ -1518,11 +1542,6 @@
       },
       "identityRoleDetail": {
         "label": "Record details"
-      },
-      "accounts": {
-        "header": "Accounts in systems",
-        "title": "$t(content.identity.accounts.header)",
-        "empty": "No accounts found in connected systems "
       },
       "identityContracts": {
         "header": "Contracted positions",
@@ -2070,15 +2089,7 @@
       "description": "description",
       "parent": {
         "name": "Parent folder in catalog"
-      },
-      "filter": {
-        "name": "Code",
-        "namePlaceHolder": "Folder name",
-        "parent": "Parent folder",
-        "parentPlaceHolder": "Parent folder",
-        "niceName": "Name for users"
       }
-
     },
     "Script": {
       "name": "Script name",
@@ -2381,7 +2392,7 @@
     "NotificationConfiguration": {
       "_type": "Configure notification",
       "topic": "$t(entity.Notification.topic)",
-      "level": "Type",
+      "level": "Level",
       "notificationType": "Channel",
       "template": "Template",
       "description": "Description"
@@ -2779,11 +2790,11 @@
     },
     "PASSWORD_CHANGE_DISABLED": {
       "title": "Password change wasn't completed",
-      "title": "Password change is disabled."
+      "message": "Password change is disabled."
     },
     "PASSWORD_CHANGE_ALL_ONLY": {
       "title": "Password change wasn't completed",
-      "title": "Password change is possible for all accounts together only."
+      "message": "Password change is possible for all accounts together only."
     },
     "PASSWORD_DOES_NOT_MEET_POLICY": {
       "title": "New password doesn't meet password policy",
@@ -2847,7 +2858,7 @@
       "title": "Unexpected identifier",
       "message": "Identifier [{{uuid}}] is not valid. Expecting uuid."
     },
-    "ROLE_CATALOG_BAD_PARENT": {
+    "ROLE_CATALOGUE_BAD_PARENT": {
       "title": "Superior folder cannot be set.",
       "message": "Invalid superior folder. Please, select another."
     },
@@ -2909,6 +2920,10 @@
     "TREE_NODE_BAD_PARENT": {
       "title": "Superior element cannot be set",
       "message": "Invalid superior element, please select another."
+    },
+    "TREE_NODE_BAD_NICE_NAME" : {
+      "title": "Duplicate name for user",
+      "message": "This level already contains this tree node name for user: [{{name}}]."
     },
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy script contains compile errors",

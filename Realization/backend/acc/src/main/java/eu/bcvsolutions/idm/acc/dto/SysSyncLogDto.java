@@ -26,8 +26,8 @@ public class SysSyncLogDto extends AbstractDto implements Loggable {
 	
 	@Embedded(dtoClass = SysSyncConfigDto.class)
 	private UUID synchronizationConfig;
-	private boolean running = false;
-	private boolean containsError = false;
+	private boolean running;
+	private boolean containsError;
 	private LocalDateTime started;
 	private LocalDateTime ended;
 	private String token;

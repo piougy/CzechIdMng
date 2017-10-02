@@ -154,7 +154,7 @@ public class SysProvisioningOperationController
 		if (provisioningOperation == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		provisioningOperation = provisioningExecutor.execute(provisioningOperation);
+		provisioningOperation = provisioningExecutor.executeSync(provisioningOperation);
 		return new ResponseEntity<>(toResource(provisioningOperation), HttpStatus.OK);
 	}
 

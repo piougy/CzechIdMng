@@ -770,7 +770,7 @@
           "UNLINK": "Neúspěšně odstraněno vazeb",
           "UNLINK_AND_REMOVE_ROLE": "Neúspěšně odstraněno vazeb a navázaných rolí",
           "CREATE_ACCOUNT": "Neúspěšně vytvořeno účtů",
-          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",  "LINKED": "Vazba existuje",
+          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",
           "LINKED": "Vazba existuje",
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",

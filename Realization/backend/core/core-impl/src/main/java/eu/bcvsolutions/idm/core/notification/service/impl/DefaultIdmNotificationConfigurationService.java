@@ -116,13 +116,19 @@ public class DefaultIdmNotificationConfigurationService
 			return getDefaultSenders();
 		}
 		List<NotificationSender<?>> senders = new ArrayList<>();
-		final NotificationLevel lvl = notification.getMessage().getLevel();
-		final List<String> types = repository.findTypes(topic, lvl);
-		types.forEach(type -> {
-			if (notificationSenders.hasPluginFor(type)) {
-				senders.add(notificationSenders.getPluginFor(type));
+		if (!IdmNotificationLog.NOTIFICATION_TYPE.equals(notification.getType())) {
+			if (notificationSenders.hasPluginFor(notification.getType())) {
+				senders.add(notificationSenders.getPluginFor(notification.getType()));
 			}
-		});
+		} else {		
+			final NotificationLevel lvl = notification.getMessage().getLevel();
+			final List<String> types = repository.findTypes(topic, lvl);
+			types.forEach(type -> {
+				if (notificationSenders.hasPluginFor(type)) {
+					senders.add(notificationSenders.getPluginFor(type));
+				}
+			});
+		}
 		//
 		if (senders.isEmpty()) {
 			return getDefaultSenders();

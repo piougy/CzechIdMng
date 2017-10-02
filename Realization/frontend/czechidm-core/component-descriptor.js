@@ -197,7 +197,7 @@ module.exports = {
       'persistentType': 'UUID',
       'faceType': 'ROLE-SELECT',
       'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
-      'labelKey': 'core:component.advanced.EavForm.faceType.Role-SELECT'
+      'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
     }
   ]
 };

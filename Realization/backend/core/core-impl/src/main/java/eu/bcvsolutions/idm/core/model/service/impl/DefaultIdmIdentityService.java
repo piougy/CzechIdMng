@@ -27,10 +27,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -231,15 +234,27 @@ public class DefaultIdmIdentityService
 	 */
 	@Override
 	@Transactional
-	public void passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
+	public List<OperationResult> passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
 		Assert.notNull(identity);
 		//
 		LOG.debug("Changing password for identity [{}]", identity.getUsername());
-		entityEventManager.process(
-				new IdentityEvent(
-						IdentityEventType.PASSWORD,
-						identity, 
-						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));
+		EventContext<IdmIdentityDto> context = entityEventManager.process(
+					new IdentityEvent(
+							IdentityEventType.PASSWORD,
+							identity, 
+							ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));
+		// get all password change results
+		List<OperationResult> passwordChangeResults = new ArrayList<>();
+		context.getResults().forEach(eventResult -> {
+			eventResult.getResults().forEach(result -> {
+				if (result.getModel() != null && 
+						(result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())
+								|| result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name()))) {
+					passwordChangeResults.add(result);				
+				}
+			});
+		});
+		return passwordChangeResults;
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import classnames from 'classnames';
 import _ from 'lodash';
@@ -8,12 +8,20 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 /**
  * Wrapped bootstrap Tabbs
  * - adds default styles
+ * - adds rendered supported
  *
+ * @author Radek Tomiška
  */
 export default class BasicTabs extends AbstractComponent {
 
   constructor(props) {
     super(props);
+  }
+
+  _getRenderedChildren(children) {
+    return children.filter(child => {
+      return child.props.rendered;
+    });
   }
 
   render() {
@@ -35,10 +43,47 @@ export default class BasicTabs extends AbstractComponent {
     //
     return (
       <Tabs id={_id} onSelect={onSelect} activeKey={activeKey} className={classNames}>
-        {this.props.children}
+        { this._getRenderedChildren(this.props.children) }
       </Tabs>
     );
   }
 }
 
-BasicTabs.Tab = Tab;
+BasicTabs.propTypes = {
+  rendered: PropTypes.bool
+};
+
+BasicTabs.defaultProps = {
+  rendered: true
+};
+
+/**
+ * Adds rendered to react bootstrap Tab.
+ */
+export class BasicTab extends AbstractComponent {
+
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const { rendered, ...others } = this.props;
+    if (!rendered) {
+      return null;
+    }
+
+    return (
+      <Tab {...others} />
+    );
+  }
+}
+
+BasicTab.propTypes = {
+  rendered: PropTypes.bool
+};
+
+BasicTab.defaultProps = {
+  rendered: true
+};
+
+BasicTabs.Tab = BasicTab;

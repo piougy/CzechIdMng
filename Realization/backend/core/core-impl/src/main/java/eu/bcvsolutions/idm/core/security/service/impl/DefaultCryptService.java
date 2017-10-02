@@ -183,7 +183,7 @@ public class DefaultCryptService implements CryptService {
 			}
 			// read first line with key
 			key = in.readLine();
-			if (!Strings.isNullOrEmpty(key)) {
+			if (Strings.isNullOrEmpty(key)) {
 				LOG.warn("Key in file not found.");
 				return null;
 			}

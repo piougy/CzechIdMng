@@ -26,6 +26,10 @@ ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 		CodeableService<IdmNotificationTemplateDto> {
 
 	static final String PARAMETER_DELIMITIER = ",";
+	/**
+	 * Folder for scanning / initializing default templates
+	 */
+	static final String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
 
 	/**
 	 * Return {@link IdmNotificationTemplateDto} by given code.

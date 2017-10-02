@@ -2,8 +2,6 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Embeddable;
-
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
@@ -13,7 +11,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Embeddable
 public class SysConnectorKeyDto implements IcConnectorKey, Serializable {
 
 	private static final long serialVersionUID = 430337513097070131L;

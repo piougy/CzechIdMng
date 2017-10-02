@@ -72,7 +72,6 @@ public class DefaultIdmNotificationTemplateService extends
 		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, IdmNotificationTemplateFilter>
 		implements IdmNotificationTemplateService {
 
-	private static final String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
 	private static final String TEMPLATE_FILE_SUFIX = "idm.sec.core.notification.template.fileSuffix";
 	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
 
@@ -152,9 +151,9 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmNotificationTemplateDto getTemplateByCode(String code) {
-		final IdmNotificationTemplate entity = this.repository.findOneByCode(code);
-		return toDto(entity);
+		return toDto(this.repository.findOneByCode(code));
 	}
 
 	/**

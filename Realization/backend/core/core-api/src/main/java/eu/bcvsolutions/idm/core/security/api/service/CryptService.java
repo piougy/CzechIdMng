@@ -10,8 +10,8 @@ import java.util.Base64;
  */
 public interface CryptService {
 	
-	public static String APPLICATION_PROPERTIES_KEY = "cipher.crypt.secretKey";
-	public static String APPLICATION_PROPERTIES_KEY_PATH = "cipher.crypt.secretKeyPath";
+	public static String APPLICATION_PROPERTIES_KEY = "cipher.crypt.secret.key";
+	public static String APPLICATION_PROPERTIES_KEY_PATH = "cipher.crypt.secret.keyPath";
 	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/";
 	public static String DEMO_KEY = "demo_key.key";
 	public static String PRIMARY_KEY = "key.key";

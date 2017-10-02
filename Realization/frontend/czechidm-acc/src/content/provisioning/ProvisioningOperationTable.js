@@ -180,30 +180,34 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           rendered={_.includes(columns, 'operationType')}/>
         <Advanced.Column
           property="entityType"
-          width={75}
-          header={this.i18n('acc:entity.SystemEntity.entityType')}
+          width={ 75 }
+          header={ this.i18n('acc:entity.SystemEntity.entityType') }
           sort
-          sortProperty="systemEntity.entityType"
           face="enum"
-          enumClass={SystemEntityTypeEnum}
-          rendered={_.includes(columns, 'entityType')} />
+          enumClass={ SystemEntityTypeEnum }
+          rendered={ _.includes(columns, 'entityType') } />
         <Advanced.Column
           property="entityIdentifier"
-          header={this.i18n('acc:entity.ProvisioningOperation.entity')}
+          header={ this.i18n('acc:entity.ProvisioningOperation.entity') }
           face="text"
           cell={
             /* eslint-disable react/no-multi-comp */
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
               return (
-                <Advanced.EntityInfo entityType={ entity.entityType } entityIdentifier={ entity.entityIdentifier } face="popover"/>
+                <Advanced.EntityInfo
+                  entityType={ entity.entityType }
+                  entityIdentifier={ entity.entityIdentifier }
+                  entity={ entity._embedded.entity }
+                  face="popover"/>
               );
             }
           }
-          rendered={_.includes(columns, 'entityIdentifier')}/>
+          rendered={ _.includes(columns, 'entityIdentifier') }/>
         <Advanced.Column
           property="system.name"
-          header={this.i18n('acc:entity.System.name')}
+          header={ this.i18n('acc:entity.System.name') }
+          sort
           cell={
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
@@ -221,7 +225,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           property="systemEntityUid"
           header={this.i18n('acc:entity.SystemEntity.uid')}
           sort
-          sortProperty={ manager.getEntityType() === 'ProvisioningArchive' ? 'systemEntityUid' : 'systemEntity.uid' }
+          sortProperty="systemEntityUid"
           face="text"
           rendered={_.includes(columns, 'systemEntityUid')}/>
       </Advanced.Table>

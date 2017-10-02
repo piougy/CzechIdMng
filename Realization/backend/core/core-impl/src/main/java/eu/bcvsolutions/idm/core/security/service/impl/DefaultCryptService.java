@@ -26,6 +26,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -140,12 +141,12 @@ public class DefaultCryptService implements CryptService {
 		BufferedReader in = null;
 		// try found key in application properties
 		key = env.getProperty(APPLICATION_PROPERTIES_KEY);
-		if (key != null && !key.isEmpty()) {
+		if (!Strings.isNullOrEmpty(key)) {
 			return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 		}
 		// key was not found in application properties, try found application properties path 
 		String keyPath = env.getProperty(APPLICATION_PROPERTIES_KEY_PATH);
-		if (keyPath != null && !keyPath.isEmpty()) {
+		if (!Strings.isNullOrEmpty(keyPath)) {
 			File keyFile = new File(keyPath);
 			if (keyFile.exists()) {
 				try {
@@ -182,7 +183,7 @@ public class DefaultCryptService implements CryptService {
 			}
 			// read first line with key
 			key = in.readLine();
-			if (key == null || key.isEmpty()) {
+			if (!Strings.isNullOrEmpty(key)) {
 				LOG.warn("Key in file not found.");
 				return null;
 			}

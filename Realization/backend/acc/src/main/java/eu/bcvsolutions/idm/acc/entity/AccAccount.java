@@ -151,24 +151,6 @@ public class AccAccount extends AbstractEntity {
 		return uid;
 	}
 	
-	/**
-	 * Check if account is in protection. Validate end of protection too.
-	 * 
-	 * @param account
-	 * @return
-	 */
-	public boolean isAccountProtectedAndValid() {
-		if (this.isInProtection()) {
-			if (this.getEndOfProtection() == null) {
-				return true;
-			}
-			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfterNow()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public SystemEntityType getEntityType() {
 		return entityType;
 	}

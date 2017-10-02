@@ -368,7 +368,7 @@ class SelectBox extends AbstractFormComponent {
     }
     if (error) {
       return (
-        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) }/>
+        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) } className="no-margin" />
       );
     }
     //

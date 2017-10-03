@@ -24,13 +24,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
+import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.entity.VsRequest_;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer_;
-import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
  * Permissions to virtual system requests by identity (implementers)

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.vs.repository.filter;
+package eu.bcvsolutions.idm.vs.dto.filter;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 

@@ -24,13 +24,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer_;
 import eu.bcvsolutions.idm.vs.repository.VsSystemImplementerRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
  * Service for relation between system in virtual system and identity

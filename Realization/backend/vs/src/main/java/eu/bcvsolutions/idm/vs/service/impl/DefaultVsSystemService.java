@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,7 +81,7 @@ public class DefaultVsSystemService implements VsSystemService {
 	public SysSystemDto create(VsSystemDto vsSystem) {
 		Assert.notNull(vsSystem, "Vs system dto cannot be null (for create new virtual system)");
 		Assert.notNull(vsSystem.getName(), "Vs system name cannot be null (for create new virtual system)");
-		LOG.info(MessageFormat.format("Create new virtual system with name [{0}].", vsSystem.getName()));
+		LOG.info("Create new virtual system with name [{}].", vsSystem.getName());
 
 		SysSystemDto system = new SysSystemDto();
 		

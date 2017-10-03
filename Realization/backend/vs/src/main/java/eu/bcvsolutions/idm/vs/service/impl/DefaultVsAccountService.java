@@ -13,8 +13,6 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -49,8 +47,6 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccountDto, VsAccount, VsAccountFilter>
 		implements VsAccountService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsAccountService.class);
-
 	private final FormService formService;
 	private final IdmFormAttributeService formAttributeService;
 
@@ -69,7 +65,6 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 
 	@Override
 	public void deleteInternal(VsAccountDto dto) {
-		// TODO: eav dto
 		formService.deleteValues(getRepository().findOne(dto.getId()));
 		//
 		super.deleteInternal(dto);

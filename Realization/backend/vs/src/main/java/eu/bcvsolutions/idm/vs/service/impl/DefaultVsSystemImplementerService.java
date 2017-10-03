@@ -11,8 +11,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -29,7 +27,6 @@ import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer_;
 import eu.bcvsolutions.idm.vs.repository.VsSystemImplementerRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 /**
@@ -42,8 +39,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 public class DefaultVsSystemImplementerService
 		extends AbstractReadWriteDtoService<VsSystemImplementerDto, VsSystemImplementer, VsSystemImplementerFilter>
 		implements VsSystemImplementerService {
-
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsSystemImplementerService.class);
+	
 	private final IdmIdentityService identityService;
 
 	@Autowired

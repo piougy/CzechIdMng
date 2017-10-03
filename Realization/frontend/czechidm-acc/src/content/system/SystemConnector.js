@@ -277,32 +277,31 @@ class SystemConnectorContent extends Basic.AbstractContent {
             readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
             style={{ paddingBottom: 0 }}>
 
-            <Basic.Row className="last">
-              <div className="col-lg-10">
-                <Basic.EnumSelectBox
-                  ref="connector"
-                  placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
-                  value={pickConnector ? pickConnector.value : null}
-                  options={_availableConnectors}
-                  readOnly={remoteConnectorError}
-                  clearable={false}
-                  onChange={this.saveConnector.bind(this)}/>
-              </div>
-              <div className="col-lg-2">
-                <Basic.Button
-                  style={{ width: '100%'}}
-                  level="success"
-                  disabled={error || remoteConnectorError}
-                  onClick={this.save.bind(this, true)}
-                  rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
-                  title={ this.i18n('button.checkSystemTooltip') }
-                  titlePlacement="bottom">
-                  <Basic.Icon type="fa" icon="check-circle"/>
-                  {' '}
-                  { this.i18n('button.checkSystem') }
-                </Basic.Button>
-              </div>
-            </Basic.Row>
+            <div style={{ display: 'inline-flex', width: '100%'}}>
+              <Basic.EnumSelectBox
+                ref="connector"
+                placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                value={pickConnector ? pickConnector.value : null}
+                options={_availableConnectors}
+                readOnly={remoteConnectorError}
+                clearable={false}
+                onChange={this.saveConnector.bind(this)}
+                style={{ width: '100%'}} />
+
+              <Basic.Button
+                style={{ marginLeft: 5 }}
+                level="success"
+                disabled={error || remoteConnectorError}
+                onClick={this.save.bind(this, true)}
+                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
+                title={ this.i18n('button.checkSystemTooltip') }
+                titlePlacement="bottom">
+                <Basic.Icon type="fa" icon="check-circle"/>
+                {' '}
+                { this.i18n('button.checkSystem') }
+              </Basic.Button>
+            </div>
+
           </Basic.AbstractForm>
 
           <hr style={{ margin: 0 }}/>

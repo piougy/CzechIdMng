@@ -1,17 +1,19 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
-import io.swagger.annotations.ApiModelProperty;
-
-import org.joda.time.DateTime;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
+import org.joda.time.DateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringAsByteDeserializer;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Dto for password change
@@ -22,11 +24,11 @@ import java.util.List;
 public class PasswordChangeDto implements Serializable {
 
     private static final long serialVersionUID = 8418885222359043739L;
-    @JsonDeserialize(using = GuardedStringDeserializer.class)
+    @JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
     @ApiModelProperty(notes = "Current password.", dataType = "string", example = "admin")
     private GuardedString oldPassword;
     @NotNull
-    @JsonDeserialize(using = GuardedStringDeserializer.class)
+    @JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
     @ApiModelProperty(required = true, notes = "New password.", dataType = "string", example = "admin")
     private GuardedString newPassword;
     @ApiModelProperty(notes = "Change IdM password.")

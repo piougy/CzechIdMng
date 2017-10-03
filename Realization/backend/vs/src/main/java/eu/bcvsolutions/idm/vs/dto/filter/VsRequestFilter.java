@@ -3,10 +3,13 @@ package eu.bcvsolutions.idm.vs.dto.filter;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 /**
  * Filter for vs request
@@ -14,8 +17,7 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
  * @author Svanda
  *
  */
-
-public class VsRequestFilter extends QuickFilter {
+public class VsRequestFilter extends DataFilter {
 
 	private String uid;
 	private UUID systemId;
@@ -25,6 +27,14 @@ public class VsRequestFilter extends QuickFilter {
 	private DateTime createdAfter;
 	private DateTime createdBefore;
 	private Boolean onlyArchived;
+	
+	public VsRequestFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public VsRequestFilter(MultiValueMap<String, Object> data) {
+		super(VsRequestDto.class, data);
+	}
 	
 	public Boolean getOnlyArchived() {
 		return onlyArchived;

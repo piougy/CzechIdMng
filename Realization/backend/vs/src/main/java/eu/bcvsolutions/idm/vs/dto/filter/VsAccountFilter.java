@@ -2,7 +2,11 @@ package eu.bcvsolutions.idm.vs.dto.filter;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 
 /**
  * Filter for vs account
@@ -10,11 +14,18 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  * @author Svanda
  *
  */
-
-public class VsAccountFilter extends QuickFilter {
+public class VsAccountFilter extends DataFilter {
 
 	String uid;
 	UUID systemId;
+	
+	public VsAccountFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public VsAccountFilter(MultiValueMap<String, Object> data) {
+		super(VsAccountDto.class, data);
+	}
 	
 	public void setUid(String uidValue) {
 		this.uid = uidValue;

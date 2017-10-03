@@ -48,6 +48,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     // evaluate authorization policies
     const { _permissions } = this.props;
     if (!this.getManager().canRead(this.getEntity(), _permissions)) {
+      console.log('permissions', _permissions);
       return false;
     }
     return true;
@@ -129,20 +130,20 @@ IdentityInfo.propTypes = {
    */
   showOnlyUsername: PropTypes.bool,
   //
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 IdentityInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'full',
   showOnlyUsername: false,
-  _showLoading: true,
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _showLoading: true
 };
 
 function select(state, component) {
   const identifier = component.entityIdentifier || component.username;
-  const identity = manager.getEntity(state, identifier);
+  const identity = component.entity || manager.getEntity(state, identifier);
   //
   return {
     _entity: identity,

@@ -287,9 +287,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	@Override
-	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning) {		
-		// Content will be set in service (we need do transform entity to DTO). 
-		// Here we set only dummy dto (null content is not allowed)
+	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning) {	
 		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(
 				treeNodeService.isNew(entity) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, 
 				entity, 

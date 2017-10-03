@@ -131,16 +131,12 @@ All notable changes to this project will be documented in this file.
 
 ##### Confidential storage
 
-- The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource is maintained.
+- The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource **isn't maintained**.
 
 ##### Notifications
 
 - Api ``NotificationSender`` was changed. Now are returned all notifications that is sent. Also mechanism of sending with topic was fixed. Check your project notification configuration.
 
-##### Passwords
-
-- REST endpoints for generate password (/{backendId}/generate and /generate/default and /identities) now return password encoded in Base64.
-- REST endpoints for change password, login and create user now accept only password encoded in Base64, if your project overloading password change component please update it.
 
 ##### Role
 

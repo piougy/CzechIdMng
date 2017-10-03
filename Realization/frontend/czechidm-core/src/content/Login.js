@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../components/basic';
 import { SecurityManager } from '../redux';
-import UiUtils from '../utils/UiUtils';
 
 const securityManager = new SecurityManager();
 
@@ -49,8 +48,7 @@ class Login extends Basic.AbstractContent {
       return;
     }
     const formData = this.refs.form.getData();
-    // transform password to base64
-    this.context.store.dispatch(securityManager.login(formData.username, UiUtils.utf8ToBase64(formData.password)));
+    this.context.store.dispatch(securityManager.login(formData.username, formData.password));
   }
 
   render() {

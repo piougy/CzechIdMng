@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 
-import java.nio.charset.StandardCharsets;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -141,12 +139,12 @@ public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<I
 			nickname = "generatePassword", 
 			tags = { IdmPasswordPolicyController.TAG },
 			notes = "Returns generated password by password policy.")
-	public Resource<byte[]> generate(
+	public String generate(
 			@ApiParam(value = "Policy's uuid identifier.", required = true)
 			@PathVariable String backendId) {
 		IdmPasswordPolicyDto entity = getPasswordPolicy(backendId);
 		//
-		return new Resource<>(passwordPolicyService.generatePassword(entity).getBytes(StandardCharsets.UTF_8));
+		return this.passwordPolicyService.generatePassword(entity);
 	}
 	
 	/**
@@ -210,8 +208,8 @@ public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<I
 			response = IdmPasswordValidationDto.class,
 			tags = { IdmPasswordPolicyController.TAG },
 			notes = "Returns generated password by default password policy.")
-	public Resource<byte[]> generateByDefaultPolicy() {
-		return new Resource<>(passwordPolicyService.generatePasswordByDefault().getBytes(StandardCharsets.UTF_8));
+	public Resource<String> generateByDefaultPolicy() {
+		return new Resource<>(passwordPolicyService.generatePasswordByDefault());
 	}
 	
 	/**

@@ -8,7 +8,6 @@ import * as Utils from '../utils';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
 import help from './PasswordChange_cs.md';
 import ValidationMessage from './identity/ValidationMessage';
-import UiUtils from '../utils/UiUtils';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 
@@ -53,7 +52,7 @@ class PasswordChange extends Basic.AbstractContent {
    * Method set value to component PasswordField
    */
   _initPasswordFields(value) {
-    this.refs.passwords.setValue(UiUtils.base64ToUtf8(value));
+    this.refs.passwords.setValue(value);
   }
 
   passwordChange(event) {
@@ -67,8 +66,8 @@ class PasswordChange extends Basic.AbstractContent {
       showLoading: true
     });
     const username = this.refs.username.getValue();
-    const oldPassword = UiUtils.utf8ToBase64(this.refs.passwordOld.getValue());
-    const password = UiUtils.utf8ToBase64(this.refs.passwords.getValue());
+    const oldPassword = this.refs.passwordOld.getValue();
+    const password = this.refs.passwords.getValue();
 
     identityManager.getService().passwordChange(username, {
       oldPassword,
@@ -146,7 +145,7 @@ class PasswordChange extends Basic.AbstractContent {
       } else {
         this.addError(error);
       }
-      this._initPasswordFields(password);
+      this.refs.passwords.setValue(password);
     });
   }
 

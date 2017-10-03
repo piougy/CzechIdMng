@@ -8,7 +8,6 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
 import ValidationMessage from './ValidationMessage';
-import UiUtils from '../../utils/UiUtils';
 
 const identityManager = new IdentityManager();
 
@@ -64,7 +63,6 @@ class Profile extends Basic.AbstractContent {
 
     // add data from child component to formData
     formData.password = this.refs.passwords.getValue();
-    delete formData.passwords;
 
     if (!this.refs.passwords.validate()) {
       return;
@@ -75,7 +73,7 @@ class Profile extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     const result = _.merge({}, formData, {
-      password: UiUtils.utf8ToBase64(formData.password)
+      password: formData.password
     });
     delete result.passwordAgain;
     delete result.generatePassword;
@@ -113,8 +111,8 @@ class Profile extends Basic.AbstractContent {
       }, () => {
         this.refs.form.processEnded();
         this.setState({
-          password: UiUtils.base64ToUtf8(formData.password),
-          passwordAgain: UiUtils.base64ToUtf8(formData.password)
+          password: formData.password,
+          passwordAgain: formData.password
         });
         this.transformData(null);
         this.addError(error);
@@ -143,8 +141,8 @@ class Profile extends Basic.AbstractContent {
       detail: {
         entity: formData,
       },
-      password: UiUtils.base64ToUtf8(password),
-      passwordAgain: UiUtils.base64ToUtf8(password)
+      password,
+      passwordAgain: password
     });
   }
 

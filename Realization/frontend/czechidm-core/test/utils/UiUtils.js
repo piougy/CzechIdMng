@@ -66,40 +66,6 @@ describe('UiUtils', function testUiUtils() {
     });
   });
 
-  describe('[utf8ToBase64 and base64ToUtf8]', function testUtf8ToBase64() {
-    //
-    it('- check same string', function test() {
-      const text = 'testText';
-      const base64 = UiUtils.utf8ToBase64(text);
-      expect(UiUtils.base64ToUtf8(base64)).to.equal(text);
-    });
-    //
-    it('- check to base 64 and back', function test() {
-      const text = 'testText';
-      const base64Original = 'dGVzdFRleHQ=';
-      const base64 = UiUtils.utf8ToBase64(text);
-      expect(base64).to.equal(base64Original);
-    });
-    //
-    it('- check characters with diacritic', function test() {
-      const text = 'ěščřžýáíé';
-      const base64 = UiUtils.utf8ToBase64(text);
-      expect(UiUtils.base64ToUtf8(base64)).to.equal(text);
-    });
-    //
-    it('- check characters with diacritic', function test() {
-      const text = 'ěščřžýáíé';
-      const base64 = UiUtils.utf8ToBase64(text);
-      expect(UiUtils.base64ToUtf8(base64)).to.equal(text);
-    });
-    //
-    it('- check base 64', function test() {
-      const text = 'testText';
-      const base64Original = 'dGVzdFRleHQ=';
-      expect(UiUtils.base64ToUtf8(base64Original)).to.equal(text);
-    });
-  });
-
   // TODO ...
   it('- getRowClass');
   it('- getDisabledRowClass');

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringAsByteDeserializer;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -19,7 +19,7 @@ public class LoginRequestDto {
 	@ApiModelProperty(required = true, notes = "Identity username.", example = "admin")
 	private String username;
 	@JsonProperty(access = Access.WRITE_ONLY)
-	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	@ApiModelProperty(required = true, notes = "Identity password.", dataType = "string", example = "admin")
 	private GuardedString password;
 	

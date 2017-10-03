@@ -222,28 +222,4 @@ export default class UiUtils {
   static substringByWord(data, maxLength) {
     return this.substringBegin(data, maxLength, ' ');
   }
-
-  /**
-   * Encode string in utf-8 to base 64
-   *
-   * @param  {String}
-   * @return {String}
-   */
-  static utf8ToBase64(data) {
-    if (data != null) {
-      return window.btoa(unescape(encodeURIComponent(data)));
-    }
-  }
-
-  /**
-   * Decode given string in base 64 to utf-8
-   *
-   * @param  {String}
-   * @return {String}
-   */
-  static base64ToUtf8(data) {
-    if (data != null) {
-      return decodeURIComponent(escape(window.atob(data)));
-    }
-  }
 }

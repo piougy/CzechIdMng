@@ -48,7 +48,6 @@ export class IdentityInfo extends AbstractEntityInfo {
     // evaluate authorization policies
     const { _permissions } = this.props;
     if (!this.getManager().canRead(this.getEntity(), _permissions)) {
-      console.log('permissions', _permissions);
       return false;
     }
     return true;

@@ -53,7 +53,6 @@ class PasswordChange extends Basic.AbstractContent {
    * Method set value to component PasswordField
    */
   _initPasswordFields(value) {
-    console.log(123, value, UiUtils.base64ToUtf8(value));
     this.refs.passwords.setValue(UiUtils.base64ToUtf8(value));
   }
 

@@ -9,6 +9,7 @@ import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
 import ValidationMessage from './ValidationMessage';
+import UiUtils from '../../utils/UiUtils';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
@@ -97,8 +98,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
     //
     const requestData = {
-      oldPassword: formData.oldPassword,
-      newPassword: formData.newPassword,
+      oldPassword: UiUtils.utf8ToBase64(formData.oldPassword),
+      newPassword: UiUtils.utf8ToBase64(formData.newPassword),
       accounts: []
     };
     if (IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) {

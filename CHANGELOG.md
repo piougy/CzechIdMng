@@ -137,6 +137,10 @@ All notable changes to this project will be documented in this file.
 
 - Api ``NotificationSender`` was changed. Now are returned all notifications that is sent. Also mechanism of sending with topic was fixed. Check your project notification configuration.
 
+##### Passwords
+
+- REST endpoints for generate password (/{backendId}/generate and /generate/default and /identities) now return password encoded in Base64.
+- REST endpoints for change password, login and create user now accept only password encoded in Base64, if your project overloading password change component please update it.
 
 ##### Role
 

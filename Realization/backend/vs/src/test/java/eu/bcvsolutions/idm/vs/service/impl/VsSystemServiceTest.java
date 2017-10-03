@@ -19,8 +19,8 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.vs.TestHelper;
 import eu.bcvsolutions.idm.vs.config.domain.VsConfiguration;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
 
 /**
  * Virtual system test

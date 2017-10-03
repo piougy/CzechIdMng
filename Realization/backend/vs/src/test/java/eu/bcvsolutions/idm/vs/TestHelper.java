@@ -4,7 +4,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 
 /**
  * Reuses core and acc TestHelper and adds vs spec. methods

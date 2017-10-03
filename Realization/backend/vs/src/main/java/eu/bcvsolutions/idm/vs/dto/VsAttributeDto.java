@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.vs.service.api.dto;
+package eu.bcvsolutions.idm.vs.dto;
 
 import java.util.ArrayList;
 import java.util.List;

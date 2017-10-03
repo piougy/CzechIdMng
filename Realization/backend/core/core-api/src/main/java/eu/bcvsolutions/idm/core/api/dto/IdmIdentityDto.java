@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringAsByteDeserializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -37,7 +37,7 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 	@ApiModelProperty(required = true, notes = "Unique identity username. Could be used as identifier in rest endpoints")
 	private String username;	
 	@JsonProperty(access = Access.WRITE_ONLY)
-	@JsonDeserialize(using = GuardedStringDeserializer.class)
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
 	private transient GuardedString password;	
 	@Size(max = DefaultFieldLengths.NAME)
 	private String firstName;

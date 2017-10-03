@@ -30,12 +30,12 @@ import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
+import eu.bcvsolutions.idm.vs.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.repository.VsAccountRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 
 /**
  * Service for account in virtual system

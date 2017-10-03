@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.vs.repository.filter;
+package eu.bcvsolutions.idm.vs.dto.filter;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;

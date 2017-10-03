@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent.VsRequestEventType;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 /**
  * Realization virtual system request

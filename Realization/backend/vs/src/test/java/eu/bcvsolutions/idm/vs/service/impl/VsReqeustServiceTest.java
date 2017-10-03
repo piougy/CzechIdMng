@@ -56,17 +56,17 @@ import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.domain.VsValueChangeType;
+import eu.bcvsolutions.idm.vs.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.dto.VsAttributeDto;
+import eu.bcvsolutions.idm.vs.dto.VsConnectorObjectDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.evaluator.VsRequestByImplementerEvaluator;
-import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
 
 /**
  * Virtual system request test

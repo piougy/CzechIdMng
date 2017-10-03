@@ -38,8 +38,8 @@ import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConnector;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
 
 /**
  * Service for virtual system

@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.vs.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 
 /**
  * Service for virtual system

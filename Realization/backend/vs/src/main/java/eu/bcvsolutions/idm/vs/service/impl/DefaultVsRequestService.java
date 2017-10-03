@@ -58,6 +58,12 @@ import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.domain.VsValueChangeType;
+import eu.bcvsolutions.idm.vs.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.dto.VsAttributeDto;
+import eu.bcvsolutions.idm.vs.dto.VsAttributeValueDto;
+import eu.bcvsolutions.idm.vs.dto.VsConnectorObjectDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.entity.VsRequest_;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent;
@@ -66,15 +72,9 @@ import eu.bcvsolutions.idm.vs.event.processor.VsRequestRealizationProcessor;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAttributeValueDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 /**
  * Service for request in virtual system

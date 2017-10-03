@@ -6,7 +6,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
 
 /**
  * Filter for VS request implementer

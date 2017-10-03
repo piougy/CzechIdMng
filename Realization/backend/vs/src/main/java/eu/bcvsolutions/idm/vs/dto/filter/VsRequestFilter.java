@@ -9,7 +9,7 @@ import org.springframework.util.MultiValueMap;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 
 /**
  * Filter for vs request

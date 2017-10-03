@@ -4,7 +4,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestBatchDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestBatchDto;
 
 /**
  * Filter for vs request batch

@@ -520,7 +520,8 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
+    	"CANCELED": "Zrušeno",
+      "BLOCKED": "Blokováno"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",

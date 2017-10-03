@@ -24,7 +24,7 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
   }
 
   getContentKey() {
-    return 'acc:content.system.breakConfig';
+    return 'acc:content.provisioningBreakConfig';
   }
 
   componentDidMount() {
@@ -100,22 +100,22 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
               width="100px"
               face="enum"
               enumClass={ProvisioningOperationTypeEnum}
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.operationType')}
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.label')}
               sort/>
             <Advanced.Column
               property="period"
               face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.period')}
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}
               sort/>
             <Advanced.Column
               property="_embedded.emailTemplateWarning.code"
               face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning')}
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning.label')}
               sort/>
             <Advanced.Column
               property="_embedded.emailTemplateDisabled.code"
               face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled')}
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled.label')}
               sort/>
           </Advanced.Table>
         </Basic.Panel>

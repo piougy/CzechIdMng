@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.entity;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -23,7 +24,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  */
 
 @Entity
-@Table(name = "sys_provisioning_break_recipient", indexes = {})
+@Table(name = "sys_provisioning_break_recipient", indexes = {
+		@Index(name = "idx_sys_prov_br_recip_role_id", columnList = "role_id"),
+		@Index(name = "idx_sys_prov_br_recip_identity_id", columnList = "identity_id"),
+		@Index(name = "idx_sys_prov_br_break_id", columnList = "break_config_id")
+})
 public class SysProvisioningBreakRecipient extends AbstractEntity {
 
 	private static final long serialVersionUID = 4226278248262132987L;

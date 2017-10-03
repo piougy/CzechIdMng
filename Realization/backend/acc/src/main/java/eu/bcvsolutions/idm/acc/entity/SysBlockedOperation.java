@@ -20,37 +20,36 @@ public class SysBlockedOperation implements Serializable {
 
 	private static final long serialVersionUID = 8236744385812335134L;
 
-	@Column(name = "create", nullable = false)
-	private Boolean create;
+	@Column(name = "create_operation", nullable = false)
+	private Boolean createOperation;
 
-	@Column(name = "update", nullable = false)
-	private Boolean update;
+	@Column(name = "update_operation", nullable = false)
+	private Boolean updateOperation;
 
-	@Column(name = "delete", nullable = false)
-	private Boolean delete;
+	@Column(name = "delete_operation", nullable = false)
+	private Boolean deleteOperation;
 
-	public Boolean getCreate() {
-		return create;
+	public Boolean getCreateOperation() {
+		return createOperation;
 	}
 
-	public void setCreate(Boolean create) {
-		this.create = create;
+	public void setCreateOperation(Boolean createOperation) {
+		this.createOperation = createOperation;
 	}
 
-	public Boolean getUpdate() {
-		return update;
+	public Boolean getUpdateOperation() {
+		return updateOperation;
 	}
 
-	public void setUpdate(Boolean update) {
-		this.update = update;
+	public void setUpdateOperation(Boolean updateOperation) {
+		this.updateOperation = updateOperation;
 	}
 
-	public Boolean getDelete() {
-		return delete;
+	public Boolean getDeleteOperation() {
+		return deleteOperation;
 	}
 
-	public void setDelete(Boolean delete) {
-		this.delete = delete;
+	public void setDeleteOperation(Boolean deleteOperation) {
+		this.deleteOperation = deleteOperation;
 	}
-
 }

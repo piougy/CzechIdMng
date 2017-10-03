@@ -4,18 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakRecipientRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Default implementation for {@link SysProvisioningBreakRecipientService}
@@ -81,5 +90,30 @@ public class DefaultSysProvisioningBreakRecipientService extends
 		}
 		//
 		return recipients;
+	}
+
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.SYSTEM, getEntityClass());
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<SysProvisioningBreakRecipient> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, SysProvisioningBreakRecipientFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		if (filter.getBreakConfigId() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningBreakRecipient_.breakConfig).get(AbstractEntity_.id), filter.getBreakConfigId()));
+		}
+		//
+		if (filter.getIdentityId() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningBreakRecipient_.identity).get(AbstractEntity_.id), filter.getIdentityId()));
+		}
+		//
+		if (filter.getRoleId() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningBreakRecipient_.role).get(AbstractEntity_.id), filter.getRoleId()));
+		}
+		//
+		return predicates;
 	}
 }

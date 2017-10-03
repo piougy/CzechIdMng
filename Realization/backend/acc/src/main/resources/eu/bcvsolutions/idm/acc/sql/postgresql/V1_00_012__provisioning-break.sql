@@ -19,17 +19,27 @@ CREATE TABLE sys_provisioning_break_config
   original_modifier_id bytea,
   realm_id bytea,
   transaction_id bytea,
-  disable_limit integer NOT NULL,
+  disable_limit integer,
   disabled boolean NOT NULL,
   operation_disabled boolean NOT NULL,
   operation_type character varying(255) NOT NULL,
   period bigint NOT NULL,
   warning_limit integer,
-  email_template_disabled bytea NOT NULL,
-  email_template_warning bytea NOT NULL,
+  disable_template_id bytea,
+  warning_template_id bytea,
   system_id bytea NOT NULL,
   CONSTRAINT sys_provisioning_break_config_pkey PRIMARY KEY (id)
 );
+
+CREATE INDEX idx_sys_prov_br_config_system_id
+  ON sys_provisioning_break_config
+  USING btree
+  (system_id);
+  
+CREATE INDEX idx_sys_prov_br_config_oper_type
+  ON sys_provisioning_break_config
+  USING btree
+  (operation_type);
 
 CREATE TABLE sys_provisioning_break_recipient
 (
@@ -51,6 +61,21 @@ CREATE TABLE sys_provisioning_break_recipient
   role_id bytea NOT NULL,
   CONSTRAINT sys_provisioning_break_recipient_pkey PRIMARY KEY (id)
 );
+
+CREATE INDEX idx_sys_prov_br_recip_role_id
+  ON sys_provisioning_break_recipient
+  USING btree
+  (role_id);
+  
+CREATE INDEX idx_sys_prov_br_recip_identity_id
+  ON sys_provisioning_break_recipient
+  USING btree
+  (identity_id);
+
+CREATE INDEX idx_sys_prov_br_break_id
+  ON sys_provisioning_break_recipient
+  USING btree
+  (break_config_id);
 
 CREATE TABLE sys_provisioning_break_config_a
 (
@@ -93,10 +118,10 @@ CREATE TABLE sys_provisioning_break_config_a
   period_m boolean,
   warning_limit integer,
   warning_limit_m boolean,
-  email_template_disabled bytea,
-  email_template_disabled_m boolean,
-  email_template_warning bytea,
-  email_template_warning_m boolean,
+  disable_template_id bytea,
+  disable_template_m boolean,
+  warning_template_id bytea,
+  warning_template_m boolean,
   system_id bytea,
   system_m boolean,
   CONSTRAINT sys_provisioning_break_config_a_pkey PRIMARY KEY (id, rev),
@@ -146,8 +171,23 @@ CREATE TABLE sys_provisioning_break_recipient_a
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
-ALTER TABLE sys_system ADD COLUMN "create" BOOLEAN;
+ALTER TABLE sys_system ADD COLUMN create_operation BOOLEAN;
 
-ALTER TABLE sys_system ADD COLUMN "update" BOOLEAN;
+ALTER TABLE sys_system ADD COLUMN update_operation BOOLEAN;
 
-ALTER TABLE sys_system ADD COLUMN "delete" BOOLEAN;
+ALTER TABLE sys_system ADD COLUMN delete_operation BOOLEAN;
+
+
+ALTER TABLE sys_system_a ADD COLUMN create_operation BOOLEAN;
+
+ALTER TABLE sys_system_a ADD COLUMN update_operation BOOLEAN;
+
+ALTER TABLE sys_system_a ADD COLUMN delete_operation BOOLEAN;
+
+ALTER TABLE sys_system_a ADD COLUMN create_operation_m BOOLEAN;
+
+ALTER TABLE sys_system_a ADD COLUMN update_operation_m BOOLEAN;
+
+ALTER TABLE sys_system_a ADD COLUMN delete_operation_m BOOLEAN;
+
+ALTER TABLE sys_system_a ADD COLUMN blocked_operation_m BOOLEAN;

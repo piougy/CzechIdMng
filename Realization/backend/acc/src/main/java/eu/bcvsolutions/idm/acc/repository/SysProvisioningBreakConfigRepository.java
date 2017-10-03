@@ -10,6 +10,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  *
  */
 
-public interface SysProvisioningBreakConfigReposiotry extends AbstractEntityRepository<SysProvisioningBreakConfig> {
+public interface SysProvisioningBreakConfigRepository extends AbstractEntityRepository<SysProvisioningBreakConfig> {
 
 }

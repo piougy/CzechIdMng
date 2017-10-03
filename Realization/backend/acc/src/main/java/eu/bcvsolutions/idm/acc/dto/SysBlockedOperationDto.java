@@ -18,43 +18,43 @@ public class SysBlockedOperationDto implements Serializable {
 
 	private static final long serialVersionUID = -4513864456041703836L;
 
-	private Boolean create;
-	private Boolean update;
-	private Boolean delete;
+	private Boolean createOperation;
+	private Boolean updateOperation;
+	private Boolean deleteOperation;
 
-	public Boolean getCreate() {
-		return create;
+	public Boolean getCreateOperation() {
+		return createOperation;
 	}
 
-	public void setCreate(Boolean create) {
-		this.create = create;
+	public void setCreateOperation(Boolean createOperation) {
+		this.createOperation = createOperation;
 	}
 
-	public Boolean getUpdate() {
-		return update;
+	public Boolean getUpdateOperation() {
+		return updateOperation;
 	}
 
-	public void setUpdate(Boolean update) {
-		this.update = update;
+	public void setUpdateOperation(Boolean updateOperation) {
+		this.updateOperation = updateOperation;
 	}
 
-	public Boolean getDelete() {
-		return delete;
+	public Boolean getDeleteOperation() {
+		return deleteOperation;
 	}
 
-	public void setDelete(Boolean delete) {
-		this.delete = delete;
+	public void setDeleteOperation(Boolean deleteOperation) {
+		this.deleteOperation = deleteOperation;
 	}
 
 	public void blockCreate() {
-		this.setCreate(Boolean.TRUE);
+		this.setCreateOperation(Boolean.TRUE);
 	}
 	
 	public void blockUpdate() {
-		this.setUpdate(Boolean.TRUE);	
+		this.setUpdateOperation(Boolean.TRUE);	
 	}
 	
 	public void blockDelete() {
-		this.setDelete(Boolean.TRUE);
+		this.setDeleteOperation(Boolean.TRUE);
 	}
 }

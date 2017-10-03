@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -7,8 +8,10 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 
 /**
@@ -32,9 +35,25 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
-	private UUID emailTemplateWarning;
+	private UUID warningTemplate;
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
-	private UUID emailTemplateDisabled;
+	private UUID disableTemplate;
+
+	public UUID getWarningTemplate() {
+		return warningTemplate;
+	}
+
+	public void setWarningTemplate(UUID warningTemplate) {
+		this.warningTemplate = warningTemplate;
+	}
+
+	public UUID getDisableTemplate() {
+		return disableTemplate;
+	}
+
+	public void setDisableTemplate(UUID disableTemplate) {
+		this.disableTemplate = disableTemplate;
+	}
 
 	public Integer getWarningLimit() {
 		return warningLimit;
@@ -97,20 +116,28 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 		this.system = system;
 	}
 
-	public UUID getEmailTemplateWarning() {
-		return emailTemplateWarning;
+	/**
+	 * Set template for disable into embedded. Method mustn't same name as
+	 * method setDisableTemplate.
+	 * 
+	 * @param template
+	 */
+	public void setDisableTemplateEmbedded(IdmNotificationTemplateDto template) {
+		Map<String, BaseDto> embedded = this.getEmbedded();
+		embedded.put(SysProvisioningBreakConfig_.disableTemplate.getName(), template);
+		this.setEmbedded(embedded);
 	}
 
-	public void setEmailTemplateWarning(UUID emailTemplateWarning) {
-		this.emailTemplateWarning = emailTemplateWarning;
-	}
-
-	public UUID getEmailTemplateDisabled() {
-		return emailTemplateDisabled;
-	}
-
-	public void setEmailTemplateDisabled(UUID emailTemplateDisabled) {
-		this.emailTemplateDisabled = emailTemplateDisabled;
+	/**
+	 * Set template for warning into embedded Method mustn't same name as method
+	 * setWarningTemplate.
+	 * 
+	 * @param template
+	 */
+	public void setWarningTemplateEmbedded(IdmNotificationTemplateDto template) {
+		Map<String, BaseDto> embedded = this.getEmbedded();
+		embedded.put(SysProvisioningBreakConfig_.warningTemplate.getName(), template);
+		this.setEmbedded(embedded);
 	}
 
 	/**

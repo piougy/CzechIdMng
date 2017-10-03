@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakConfigFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service for configure provisioning break
@@ -16,7 +17,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  */
 
 public interface SysProvisioningBreakConfigService
-		extends ReadWriteDtoService<SysProvisioningBreakConfigDto, SysProvisioningBreakConfigFilter> {
+		extends ReadWriteDtoService<SysProvisioningBreakConfigDto, SysProvisioningBreakConfigFilter>,
+		AuthorizableService<SysProvisioningBreakConfigDto> {
 
 	/**
 	 * Return break configuration for {@link ProvisioningEventType} and system id
@@ -42,4 +44,6 @@ public interface SysProvisioningBreakConfigService
 	 * @param cache
 	 */
 	void saveCacheProcessedItems(UUID systemId, SysProvisioningBreakItems cache);
+	
+	SysProvisioningBreakConfigDto getGlobalBreakConfiguration();
 }

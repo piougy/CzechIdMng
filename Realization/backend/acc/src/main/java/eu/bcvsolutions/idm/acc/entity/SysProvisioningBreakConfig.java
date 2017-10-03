@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -27,7 +28,10 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
  */
 
 @Entity
-@Table(name = "sys_provisioning_break_config", indexes = {})
+@Table(name = "sys_provisioning_break_config", indexes = {
+		@Index(name = "idx_sys_prov_br_config_system_id", columnList = "system_id"),
+		@Index(name = "idx_sys_prov_br_config_oper_type", columnList = "operation_type")
+})
 public class SysProvisioningBreakConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 579580240598032453L;
@@ -41,6 +45,7 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 	private Integer disableLimit;
 
 	@Audited
+	@NotNull
 	@Column(name = "period", nullable = false)
 	private Long period;
 
@@ -69,22 +74,20 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 	private SysSystem system;
 
 	@Audited
-	@NotNull
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "email_template_warning", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "warning_template_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private IdmNotificationTemplate emailTemplateWarning;
+	private IdmNotificationTemplate warningTemplate;
 
 	@Audited
-	@NotNull
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "email_template_disabled", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "disable_template_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private IdmNotificationTemplate emailTemplateDisabled;
+	private IdmNotificationTemplate disableTemplate;
 
 	public Integer getWarningLimit() {
 		return warningLimit;
@@ -142,20 +145,19 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 		this.system = system;
 	}
 
-	public IdmNotificationTemplate getEmailTemplateWarning() {
-		return emailTemplateWarning;
+	public IdmNotificationTemplate getWarningTemplate() {
+		return warningTemplate;
 	}
 
-	public void setEmailTemplateWarning(IdmNotificationTemplate emailTemplateWarning) {
-		this.emailTemplateWarning = emailTemplateWarning;
+	public void setWarningTemplate(IdmNotificationTemplate warningTemplate) {
+		this.warningTemplate = warningTemplate;
 	}
 
-	public IdmNotificationTemplate getEmailTemplateDisabled() {
-		return emailTemplateDisabled;
+	public IdmNotificationTemplate getDisableTemplate() {
+		return disableTemplate;
 	}
 
-	public void setEmailTemplateDisabled(IdmNotificationTemplate emailTemplateDisabled) {
-		this.emailTemplateDisabled = emailTemplateDisabled;
+	public void setDisableTemplate(IdmNotificationTemplate disableTemplate) {
+		this.disableTemplate = disableTemplate;
 	}
-
 }

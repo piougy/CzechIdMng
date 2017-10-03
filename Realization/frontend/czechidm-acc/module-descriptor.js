@@ -96,7 +96,7 @@ module.exports = {
             'id': 'system-provisioning-break-config',
             'type': 'TAB',
             'icon': 'fa:hand-paper-o',
-            'labelKey': 'acc:content.system.breakConfig.title',
+            'labelKey': 'acc:content.provisioningBreakConfig.title',
             'order': 80,
             'path': '/system/:entityId/break-configs',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]

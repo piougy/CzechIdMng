@@ -71,6 +71,15 @@ class SystemDetail extends Basic.AbstractContent {
       };
     }
 
+    if (entity && entity.blockedOperation) {
+      data = {
+        ...data,
+        createOperation: entity.blockedOperation.createOperation,
+        updateOperation: entity.blockedOperation.updateOperation,
+        deleteOperation: entity.blockedOperation.deleteOperation
+      };
+    }
+
     this.refs.form.setData(data);
     this.refs.name.focus();
   }
@@ -102,6 +111,11 @@ class SystemDetail extends Basic.AbstractContent {
           port: entity.port,
           timeout: entity.timeout,
           useSsl: entity.useSsl
+        },
+        blockedOperation: {
+          createOperation: entity.createOperation,
+          updateOperation: entity.updateOperation,
+          deleteOperation: entity.deleteOperation
         }
       };
 
@@ -228,6 +242,18 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="readonly"
                   label={this.i18n('acc:entity.System.readonly.label')}
                   helpBlock={this.i18n('acc:entity.System.readonly.help')}/>
+                <Basic.Checkbox
+                  ref="createOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
+                <Basic.Checkbox
+                  ref="updateOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.updateOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.updateOperation.help')}/>
+                <Basic.Checkbox
+                  ref="deleteOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.deleteOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.deleteOperation.help')}/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>

@@ -462,6 +462,16 @@
         }
       }
     },
+    "provisioningBreakConfig": {
+      "title" : "Provisioning break",
+      "header" : "Provisioning break",
+      "save": {
+        "success": "Provisioning break successfully saved"
+      },
+      "create": {
+        "success": "Provisioning break successfully created"
+      }
+    },
     "passwordPolicy": {
     "system": {
       "tab": "Systems",
@@ -473,6 +483,7 @@
   "System": {
     "_type": "System",
     "name": "System name",
+    "blockedOperation": "Blocked operations",
     "disabled": "Inactive",
     "description": "Description",
     "virtual": "Virtual",
@@ -507,6 +518,20 @@
       "password": "Password",
       "timeout": "Timeout",
       "useSsl": "SSL"
+    },
+    "BlockedOperation": {
+      "createOperation": {
+        "label": "Block create operation",
+        "help": "All creation operations will be blocked"
+      },
+      "updateOperation": {
+        "label": "Block edit operation",
+        "help": "All editing operations will be blocked"
+      },
+      "deleteOperation": {
+        "label": "Block delete operation",
+        "help": "All deletion operations will be blocked"
+      }
     },
     "RoleSystem": {
       "_type": "Role assigns account in system",
@@ -793,6 +818,37 @@
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
       "entity": "IdM entity"
+    },
+    "ProvisioningBreakConfig": {
+      "operationType": {
+        "label": "Type of blocked operation",
+        "help": "The type of operation for which the brake will affect."
+      },
+      "warningLimit": {
+        "label": "Warning limit",
+        "help": "Number of operations from which a warning message will be sent."
+      },
+      "period": {
+        "label": "Period [min]",
+        "help": "The period by which the limits of operations are calculated. The unit is minutes."
+      },
+      "disableLimit": {
+        "label": "Disable limit",
+        "help": "Number of operations from which all subsequent operations will be blocked."
+      },
+      "emailTemplateWarning": {
+        "label": "Warning template",
+        "help": "A message with this template will be sent if the warning limit is exceeded."
+      },
+      "emailTemplateDisabled": {
+        "label": "Disable template",
+        "help": "A message with this template will be sent if the block limit is exceeded."
+      },
+      "operationDisabled": {
+        "label": "Block the operation",
+        "help": "Blocks an operation for a given system if the blocking limit is exceeded"
+      },
+      "disabled": "Inactive"
     }
   },
   "enums" : {
@@ -932,6 +988,10 @@
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
       "title": " Unique identifier already exists",
       "message": "System [{{system}}] has already set unique identifier."
+    },
+    "PROVISIONING_BREAK_OPERATION_EXISTS": {
+      "title": "Duplicate brake configuration for the system",
+      "message": "Brake configuration for this operation type [{{operationType}}] and system [{{systemId}} already exists."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Unique identifier already exists",

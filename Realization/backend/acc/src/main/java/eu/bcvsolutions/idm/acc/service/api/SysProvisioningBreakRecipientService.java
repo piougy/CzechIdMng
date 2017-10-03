@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service for configure recipients for provisioning break
@@ -17,7 +18,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  */
 
 public interface SysProvisioningBreakRecipientService
-		extends ReadWriteDtoService<SysProvisioningBreakRecipientDto, SysProvisioningBreakRecipientFilter> {
+		extends ReadWriteDtoService<SysProvisioningBreakRecipientDto, SysProvisioningBreakRecipientFilter>,
+		AuthorizableService<SysProvisioningBreakRecipientDto> {
 
 	/**
 	 * Find all {@link SysProvisioningBreakRecipientService} for given

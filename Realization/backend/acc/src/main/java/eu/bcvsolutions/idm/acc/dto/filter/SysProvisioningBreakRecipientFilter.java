@@ -15,6 +15,7 @@ public class SysProvisioningBreakRecipientFilter implements BaseFilter {
 
 	private UUID breakConfigId;
 	private UUID identityId;
+	private UUID roleId;
 
 	public UUID getBreakConfigId() {
 		return breakConfigId;
@@ -30,6 +31,14 @@ public class SysProvisioningBreakRecipientFilter implements BaseFilter {
 
 	public void setIdentityId(UUID identityId) {
 		this.identityId = identityId;
+	}
+
+	public UUID getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(UUID roleId) {
+		this.roleId = roleId;
 	}
 
 }

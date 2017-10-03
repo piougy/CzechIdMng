@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 //
 import { Basic, Managers, Utils, Advanced } from 'czechidm-core';
 import { ProvisioningBreakConfigManager, ProvisioningBreakRecipientManager } from '../../redux';
-import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 
 const uiKey = 'provisioning-break-config-detail';
@@ -16,6 +15,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
     super(props, context);
     this.provisioningBreakRecipientManager = new ProvisioningBreakRecipientManager();
     this.identityManager = new Managers.IdentityManager();
+    this.notificationTemplatemanager = new Managers.NotificationTemplateManager();
   }
 
   getUiKey() {
@@ -27,7 +27,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
   }
 
   getContentKey() {
-    return 'acc:content.system.breakConfig';
+    return 'acc:content.provisioningBreakConfig';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -59,7 +59,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
    * Save entity
    */
   save(event) {
-    const { entityId } = this.props;
+    const { entityId } = this.props.params;
     if (event) {
       event.preventDefault();
     }
@@ -72,7 +72,6 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
       ...formEntity,
       system: entityId
     };
-    console.log(111, savedEntity);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(manager.createEntity(savedEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -112,12 +111,6 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
   render() {
     const { _showLoading, entity } = this.props;
-    const isNew = this._getIsNew();
-
-    const systemId = this.props.params.entityId;
-
-  //  const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -132,19 +125,44 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
             <Basic.AbstractForm ref="form" data={entity} showLoading={_showLoading}>
               <Basic.EnumSelectBox
                 ref="operationType"
+                useSymbol={false}
                 enum={ProvisioningOperationTypeEnum}
-                label={this.i18n('acc:entity.SystemMapping.operationType')}
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.label')}
                 required/>
               <Basic.TextField
-                ref="name"
-                label={this.i18n('acc:entity.SystemMapping.name')}
+                ref="warningLimit"
+                type="number"
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.label')}/>
+              <Basic.TextField
+                ref="disableLimit"
+                type="number"
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.label')}/>
+              <Basic.TextField
+                ref="period"
+                type="number"
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.period.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}
                 required/>
               <Basic.SelectBox
-                ref="recipients"
-                manager={this.identityManager}
-                label={this.i18n('acc:entity.SystemMapping.recipients')}
-                multiSelect
-                required/>
+                ref="emailTemplateWarning"
+                manager={this.notificationTemplatemanager}
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning.label')}/>
+              <Basic.SelectBox
+                ref="emailTemplateDisabled"
+                manager={this.notificationTemplatemanager}
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled.label')}/>
+              <Basic.Checkbox
+                ref="operationDisabled"
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.operationDisabled.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.operationDisabled.label')}/>
+              <Basic.Checkbox
+                ref="disabled"
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.disabled')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

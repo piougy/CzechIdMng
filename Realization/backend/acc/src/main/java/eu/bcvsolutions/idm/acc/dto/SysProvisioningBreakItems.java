@@ -67,7 +67,10 @@ public class SysProvisioningBreakItems {
 	 * @param timestamp
 	 */
 	public void removeOlderRecordsThan(ProvisioningEventType provisioningType, Long timestamp) {
-		this.getExecudedItems(provisioningType).removeIf(item -> item > timestamp);
+		this.getExecudedItems(provisioningType).
+		removeIf(
+				item -> item < timestamp
+				);
 	}
 
 	/**
@@ -79,7 +82,7 @@ public class SysProvisioningBreakItems {
 	 * @return
 	 */
 	public List<Long> getRecordsNewerThan(ProvisioningEventType provisioningType, Long timestamp) {
-		return this.getExecudedItems(provisioningType).stream().filter(item -> item <= timestamp)
+		return this.getExecudedItems(provisioningType).stream().filter(item -> item >= timestamp)
 				.collect(Collectors.toList());
 	}
 

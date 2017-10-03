@@ -36,7 +36,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -59,7 +58,6 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	@Autowired private IdmPasswordService passwordService;
-	@Autowired private IdmIdentityRepository identityRepository;
 	//
 	private IdmIdentityService identityService;
 
@@ -111,7 +109,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(1, role.getGuarantees().size());
 		assertNotNull(identityService.getByUsername(username));
 		assertNotNull(passwordService.findOneByIdentity(identity.getId()));
-		assertEquals(1, formService.getValues(identityRepository.findOne(identity.getId())).size());
+		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole_Id(role.getId()).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
 		assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created

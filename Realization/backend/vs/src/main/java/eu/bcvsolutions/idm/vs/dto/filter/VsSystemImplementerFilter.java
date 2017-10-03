@@ -2,7 +2,11 @@ package eu.bcvsolutions.idm.vs.dto.filter;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
 
 /**
  * Filter for VS request implementer
@@ -10,12 +14,18 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  * @author Svanda
  *
  */
-
-public class VsSystemImplementerFilter extends QuickFilter {
+public class VsSystemImplementerFilter extends DataFilter {
 
 	UUID systemId;
 	UUID identityId;
 
+	public VsSystemImplementerFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public VsSystemImplementerFilter(MultiValueMap<String, Object> data) {
+		super(VsSystemImplementerDto.class, data);
+	}
 
 	public UUID getSystemId() {
 		return systemId;

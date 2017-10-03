@@ -8,6 +8,8 @@ import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 /**
  * Enum class for formatting response messages (mainly errors). 
  * Every enum contains a string message and corresponding https HttpStatus code.
+ * 
+ * @author Svanda
  */
 public enum VsResultCode implements ResultCode {
 	// connector

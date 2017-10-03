@@ -20,7 +20,8 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	private static final long serialVersionUID = 1L;
 	public static final String FACE_IDENTITY_SELECT = "IDENTITY-SELECT";
 	public static final String FACE_ROLE_SELECT = "ROLE-SELECT";
-	public static final String[] DEFAULT_ATTRIBUTES = { IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName(),
+	public static final String[] DEFAULT_ATTRIBUTES = { 
+			IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName(),
 			IdmIdentity_.email.getName(), IdmIdentity_.titleAfter.getName(), IdmIdentity_.titleBefore.getName(),
 			IdmIdentity_.phone.getName() };
 	private String[] attributes = DEFAULT_ATTRIBUTES;
@@ -31,7 +32,10 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	private boolean requiredConfirmation = true;
 	private String[] reservedNames = { "uid", "__NAME__", "enable", "__ENABLE__", "__PASSWORD__" };
 
-	@IcConfigurationClassProperty(order = 5, displayName = "Required confirmation by the implementer", helpMessage = "If is not checked, then all requests will be solved immediately. None notification will be sent to implementers.")
+	@IcConfigurationClassProperty(
+			order = 5, 
+			displayName = "Required confirmation by the implementer", 
+			helpMessage = "If is not checked, then all requests will be solved immediately. None notification will be sent to implementers.")
 	public boolean isRequiredConfirmation() {
 		return requiredConfirmation;
 	}
@@ -49,7 +53,11 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.attributes = attributes;
 	}
 
-	@IcConfigurationClassProperty(order = 20, face = FACE_IDENTITY_SELECT, displayName = "Implementers", helpMessage = "For this implementers will be created realization task. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
+	@IcConfigurationClassProperty(
+			order = 20, 
+			face = FACE_IDENTITY_SELECT, 
+			displayName = "Implementers", 
+			helpMessage = "For this implementers will be created realization task. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
 	public UUID[] getImplementers() {
 		return implementers;
 	}
@@ -58,7 +66,11 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.implementers = implementers;
 	}
 
-	@IcConfigurationClassProperty(order = 30, face = FACE_ROLE_SELECT, displayName = "Roles of implementers", helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles (multivalue).")
+	@IcConfigurationClassProperty(
+			order = 30, 
+			face = FACE_ROLE_SELECT, 
+			displayName = "Roles of implementers", 
+			helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles (multivalue).")
 	public UUID[] getImplementerRoles() {
 		return implementerRoles;
 	}
@@ -93,8 +105,11 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 
 		// Validation on reserved attribute names
 		for (String name : this.reservedNames) {
-			boolean reservedAttributeFound = Arrays.asList(this.getAttributes()).stream()
-					.filter(attribute -> attribute.toLowerCase().equals(name.toLowerCase())).findFirst().isPresent();
+			boolean reservedAttributeFound = Arrays.asList(this.getAttributes())
+					.stream()
+					.filter(attribute -> attribute.toLowerCase().equals(name.toLowerCase()))
+					.findFirst()
+					.isPresent();
 
 			if (reservedAttributeFound) {
 				throw new IcException(MessageFormat.format(

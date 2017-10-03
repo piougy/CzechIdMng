@@ -61,7 +61,7 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 	@Override
 	public Set<String> getPermissions(VsRequest authorizable, AuthorizationPolicy policy) {
 		Set<String> permissions = super.getPermissions(authorizable, policy);
-		if (authorizable == null || authorizable.getSystem() == null) {
+		if (authorizable == null || authorizable.getSystem() == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
 		VsSystemImplementerFilter systemImplementerFilter = new VsSystemImplementerFilter();
@@ -94,7 +94,7 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 	public Predicate getPredicate(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			AuthorizationPolicy policy, BasePermission... permission) {
 		UUID currentId = securityService.getCurrentId();
-		if (!hasAuthority(currentId, policy, permission)) {
+		if (!hasAuthority(currentId, policy, permission) || !securityService.isAuthenticated()) {
 			return null;
 		}
 

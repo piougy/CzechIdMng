@@ -309,7 +309,7 @@ public class DefaultSysSystemAttributeMappingService
 					e);
 		}
 
-		IcAttribute icAttributeForUpdate = null;
+		IcAttributeImpl icAttributeForUpdate = null;
 		if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
 			// Attribute is password type
 			icAttributeForUpdate = new IcPasswordAttributeImpl(schemaAttribute.getName(), (GuardedString) idmValue);
@@ -322,6 +322,8 @@ public class DefaultSysSystemAttributeMappingService
 			}else{
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), idmValue);
 			}
+			// Multivalued must be set by schema setting
+			icAttributeForUpdate.setMultiValue(schemaAttribute.isMultivalued());
 		}
 		return icAttributeForUpdate;
 	}

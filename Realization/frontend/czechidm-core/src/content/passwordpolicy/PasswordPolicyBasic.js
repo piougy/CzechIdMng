@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
@@ -16,8 +15,6 @@ import PasswordPolicyIdentityAttributeEnum from '../../enums/PasswordPolicyIdent
 */
 
 const passwordPolicyManager = new PasswordPolicyManager();
-
-const MAX_VALUE_INTEGER = 2147483647;
 
 class PasswordPolicyBasic extends Basic.AbstractContent {
 
@@ -184,16 +181,6 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     }
   }
 
-  /**
-   * Method return validation for only signed integer with maximum defined
-   * in constant MAX_VALUE_INTEGER. Null values are allowed
-   *
-   * @return {Integer}
-   */
-  _getValidation() {
-    return Joi.number().integer().allow(null).allow(0).positive().max(MAX_VALUE_INTEGER);
-  }
-
   render() {
     const { uiKey, entity, isNew } = this.props;
     const { showLoading, validateType } = this.state;
@@ -229,7 +216,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
                 helpBlock={this.i18n('entity.PasswordPolicy.help.passphraseWords')}
                 hidden={validateType}
                 type="number"
-                validation={this._getValidation()}
+                validation={Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.passphraseWords')} />
 
               <Basic.Checkbox ref="disabled" label={this.i18n('entity.PasswordPolicy.disabled')}/>
@@ -250,43 +237,43 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
 
               <Basic.TextField ref="minPasswordLength"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.minPasswordLength')} />
               <Basic.TextField ref="maxPasswordLength"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.maxPasswordLength')} />
 
               <Basic.TextField ref="minUpperChar"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.minUpperChar')} />
 
               <Basic.TextField ref="minLowerChar"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.minLowerChar')} />
 
               <Basic.TextField ref="minNumber"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.minNumber')} />
 
               <Basic.TextField ref="minSpecialChar"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 label={this.i18n('entity.PasswordPolicy.minSpecialChar')} />
 
               <Basic.TextField ref="maxPasswordAge"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 hidden={!validateType}
                 helpBlock={this.i18n('entity.PasswordPolicy.help.maxPasswordAge')}
                 label={this.i18n('entity.PasswordPolicy.maxPasswordAge')} />
 
               <Basic.TextField ref="minPasswordAge"
                 type="number"
-                validation={ this._getValidation()}
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 hidden={!validateType}
                 helpBlock={this.i18n('entity.PasswordPolicy.help.minPasswordAge')}
                 label={this.i18n('entity.PasswordPolicy.minPasswordAge')} />

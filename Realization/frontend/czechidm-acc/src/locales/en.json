@@ -1137,6 +1137,10 @@
       "title": "System cannot be removed",
       "message": "System [{{system}}] cannot be removed. There are managed entities in system."
     },
+    "SYSTEM_DELETE_FAILED_HAS_OPERATIONS": {
+      "title": "System cannot be removed",
+      "message": "System [{{system}}] cannot be removed. Active provisioning operations exist for the entity."
+    },
     "SYSTEM_DELETE_FAILED_HAS_ACCOUNTS": {
       "title": "System cannot be removed",
       "message": "System [{{system}}] cannot be removed. There are managed accounts in system."

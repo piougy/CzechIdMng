@@ -77,7 +77,7 @@ class SelectBox extends AbstractFormComponent {
   _createSearchParameters(inputText, forceSearchParameters) {
     const { manager, pageSize } = this.props;
     // user input
-    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText).setSize(pageSize || SearchParameters.DEFAUT_SIZE); // TODO: configurable search properties
+    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText).setSize(pageSize || SearchParameters.getDefaultSize());
     if (manager.supportsAuthorization()) {
       searchParameters = searchParameters.setName(SearchParameters.NAME_AUTOCOMPLETE);
     }
@@ -368,7 +368,7 @@ class SelectBox extends AbstractFormComponent {
     }
     if (error) {
       return (
-        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) }/>
+        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) } className="no-margin" />
       );
     }
     //
@@ -506,7 +506,7 @@ SelectBox.propTypes = {
   useFirst: PropTypes.bool,
   /**
    * Search results page size
-   * @see SearchParameters.DEFAUT_SIZE
+   * @see SearchParameters.getDefaultSize()
    * @see SearchParameters.MAX_SIZE
    */
   pageSize: PropTypes.number
@@ -520,7 +520,7 @@ SelectBox.defaultProps = {
   searchInFields: [],
   clearable: true,
   useFirst: false,
-  pageSize: SearchParameters.DEFAUT_SIZE
+  pageSize: SearchParameters.getDefaultSize()
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

@@ -124,6 +124,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
               property=""
               header=""
               className="detail-button"
+              rendered={ Managers.SecurityManager.hasAuthority('ACCOUNT_READ') }
               cell={
                 ({ rowIndex, data }) => {
                   return (

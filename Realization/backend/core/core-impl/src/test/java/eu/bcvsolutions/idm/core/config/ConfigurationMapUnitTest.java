@@ -21,7 +21,7 @@ public class ConfigurationMapUnitTest extends AbstractUnitTest {
 	private static final String UUID_PARAMETER = "UUID";
 	
 	@Test
-	public void testEmptyUuid() {
+	public void testEmptyUuid() {	
 		ConfigurationMap config = new ConfigurationMap();
 		//
 		assertNull(config.getUuid(UUID_PARAMETER));

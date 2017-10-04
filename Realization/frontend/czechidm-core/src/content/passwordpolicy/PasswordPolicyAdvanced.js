@@ -15,6 +15,8 @@ import PasswordPolicyIdentityAttributeEnum from '../../enums/PasswordPolicyIdent
 
 const passwordPolicyManager = new PasswordPolicyManager();
 
+const MAX_VALUE_INTEGER = 2147483647;
+
 class PasswordPolicyAdvanced extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -135,6 +137,16 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * Method return validation for only signed integer with maximum defined
+   * in constant MAX_VALUE_INTEGER. Null values are allowed
+   *
+   * @return {Integer}
+   */
+  _getValidation() {
+    return Joi.number().integer().allow(null).allow(0).positive().max(MAX_VALUE_INTEGER);
+  }
+
   render() {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
@@ -186,13 +198,13 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
 
                 <Basic.TextField ref="minRulesToFulfill"
                   type="number"
-                  validation={ Joi.number().allow(null).allow(0).positive()}
+                  validation={ this._getValidation()}
                   helpBlock={this.i18n('entity.PasswordPolicy.help.minRulesToFulfill')}
                   label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
                 <Basic.TextField ref="maxHistorySimilar" hidden
                   type="number"
-                  validation={ Joi.number().allow(null).allow(0).positive()}
+                  validation={ this._getValidation()}
                   helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                   label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
 

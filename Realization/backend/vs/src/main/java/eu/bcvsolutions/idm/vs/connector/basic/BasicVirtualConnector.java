@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,18 +63,18 @@ import eu.bcvsolutions.idm.vs.config.domain.VsConfiguration;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
+import eu.bcvsolutions.idm.vs.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsAccountFilter;
+import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
-import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
-import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
 
 //@Component - we want control create connector instances
 @IcConnectorClass(displayName = "Virtual system connector", framework = "czechidm", name = "virtual-system-basic", version = "1.0.1", configurationClass = BasicVirtualConfiguration.class)

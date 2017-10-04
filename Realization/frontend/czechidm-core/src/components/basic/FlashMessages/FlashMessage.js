@@ -6,6 +6,8 @@ import DateValue from '../DateValue/DateValue';
 
 /**
  * Renders flash message as Alert
+ *
+ * @author Radek Tomiška
  */
 export default class FlashMessage extends AbstractContextComponent {
 
@@ -14,7 +16,7 @@ export default class FlashMessage extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, message, showDate, onClose, style, level, icon } = this.props;
+    const { rendered, message, showDate, onClose, style, level, icon, className } = this.props;
     //
     if (!rendered || !message) {
       return null;
@@ -24,7 +26,7 @@ export default class FlashMessage extends AbstractContextComponent {
     if (showDate) {
       _title = (
         <div>
-          <small> <DateValue value={message.date} format={this.i18n('format.datetime')}/></small>
+          <small> <DateValue value={ message.date } format={ this.i18n('format.datetime') }/></small>
           <div>{ _title }</div>
         </div>
       );
@@ -38,12 +40,13 @@ export default class FlashMessage extends AbstractContextComponent {
     //
     return (
       <Alert
-        level={_level}
-        icon={icon}
-        title={_title}
-        text={message.message}
-        onClose={onClose}
-        style={style}/>
+        level={ _level }
+        icon={ icon }
+        title={ _title }
+        text={ message.message }
+        onClose={ onClose }
+        style={ style }
+        className={ className }/>
     );
   }
 }

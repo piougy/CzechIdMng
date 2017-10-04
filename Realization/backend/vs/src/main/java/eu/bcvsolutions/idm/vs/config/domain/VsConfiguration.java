@@ -31,6 +31,12 @@ public interface VsConfiguration extends Configurable {
 		return properties;
 	}
 
+	/**
+	 * If you do not define none directly implementers and none role in VS configuration,
+	 * then will be used implementers from default role.
+	 * 
+	 * @return
+	 */
 	IdmRoleDto getDefaultRole();
 	
 }

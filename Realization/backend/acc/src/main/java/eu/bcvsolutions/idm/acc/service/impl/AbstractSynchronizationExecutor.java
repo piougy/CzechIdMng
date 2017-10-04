@@ -84,6 +84,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -1288,6 +1289,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 	 * @param icAttributes
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected DTO findByCorrelationAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Assert.notNull(attribute);
 		Assert.notNull(icAttributes);
@@ -1301,7 +1303,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 		} else if (attribute.isExtendedAttribute()) {
 			try {
 				Serializable serializableValue = Serializable.class.cast(value);
-				List<? extends FormableEntity> entities = formService.findOwners(getEntityClass(), attribute.getIdmPropertyName(), serializableValue, null).getContent();
+				List<? extends BaseDto> entities = formService.findOwners(getEntityClass(), attribute.getIdmPropertyName(), serializableValue, null).getContent();
 				if (CollectionUtils.isEmpty(entities)) {
 					return null;
 				}
@@ -1310,7 +1312,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto> i
 							ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
 				}
 				if (entities.size() == 1) {
-					return findById((UUID) entities.get(0).getId());
+					return (DTO) entities.get(0);
 				}
 			} catch (ClassCastException e) {
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_BAD_VALUE,

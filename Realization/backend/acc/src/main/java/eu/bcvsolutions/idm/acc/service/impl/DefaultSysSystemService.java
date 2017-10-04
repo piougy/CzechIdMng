@@ -28,22 +28,25 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
-import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -91,10 +94,11 @@ public class DefaultSysSystemService
 	private final IcConfigurationFacade icConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
 	private final SysSchemaAttributeService attributeService;
-	private final SysSystemEntityRepository systemEntityRepository;
+	private final SysSystemEntityService systemEntityService;
 	private final AccAccountRepository accountRepository;
 	private final SysSyncConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
+	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final ConfidentialStorage confidentialStorage;
 	private final IcConnectorFacade connectorFacade;
@@ -105,13 +109,22 @@ public class DefaultSysSystemService
 	private final FormService formService;
 
 	@Autowired
-	public DefaultSysSystemService(SysSystemRepository systemRepository, FormService formService,
-			IcConfigurationFacade icConfigurationFacade, SysSchemaObjectClassService objectClassService,
-			SysSchemaAttributeService attributeService, SysSystemEntityRepository systemEntityRepository,
-			AccAccountRepository accountRepository, SysSyncConfigService synchronizationConfigService,
-			FormPropertyManager formPropertyManager, SysProvisioningArchiveRepository provisioningArchiveRepository,
-			ConfidentialStorage confidentialStorage, IcConnectorFacade connectorFacade,
-			SysSystemFormValueService systemFormValueService, SysSystemMappingService systemMappingService,
+	public DefaultSysSystemService(
+			SysSystemRepository systemRepository, 
+			FormService formService,
+			IcConfigurationFacade icConfigurationFacade, 
+			SysSchemaObjectClassService objectClassService,
+			SysSchemaAttributeService attributeService, 
+			SysSystemEntityService systemEntityService,
+			AccAccountRepository accountRepository, 
+			SysSyncConfigService synchronizationConfigService,
+			FormPropertyManager formPropertyManager, 
+			SysProvisioningOperationRepository provisioningOperationRepository,
+			SysProvisioningArchiveRepository provisioningArchiveRepository,
+			ConfidentialStorage confidentialStorage,
+			IcConnectorFacade connectorFacade,
+			SysSystemFormValueService systemFormValueService,
+			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSchemaObjectClassService schemaObjectClassService) {
 		super(systemRepository);
@@ -119,10 +132,11 @@ public class DefaultSysSystemService
 		Assert.notNull(icConfigurationFacade);
 		Assert.notNull(objectClassService);
 		Assert.notNull(attributeService);
-		Assert.notNull(systemEntityRepository);
+		Assert.notNull(systemEntityService);
 		Assert.notNull(accountRepository);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(formPropertyManager);
+		Assert.notNull(provisioningOperationRepository);
 		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(connectorFacade);
@@ -136,10 +150,11 @@ public class DefaultSysSystemService
 		this.icConfigurationFacade = icConfigurationFacade;
 		this.objectClassService = objectClassService;
 		this.attributeService = attributeService;
-		this.systemEntityRepository = systemEntityRepository;
+		this.systemEntityService = systemEntityService;
 		this.accountRepository = accountRepository;
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
+		this.provisioningOperationRepository = provisioningOperationRepository;
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.confidentialStorage = confidentialStorage;
 		this.connectorFacade = connectorFacade;
@@ -212,17 +227,23 @@ public class DefaultSysSystemService
 	public void delete(SysSystemDto system, BasePermission... permission) {
 		Assert.notNull(system);
 		//
-		// if exists accounts or system entities, then system could not be
-		// deleted
-		if (systemEntityRepository.countBySystem_Id(system.getId()) > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES,
-					ImmutableMap.of("system", system.getName()));
+		// if exists provisioning operations, then is not posible to delete system
+		SysProvisioningOperationFilter operationFilter = new SysProvisioningOperationFilter();
+		operationFilter.setSystemId(system.getId());
+		if (provisioningOperationRepository.find(operationFilter, null).getTotalElements() > 0) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_OPERATIONS,
+					ImmutableMap.of( "system", system.getName()));
 		}
-		SysSystem sytemEntity = getEntity(system.getId());
-		if (accountRepository.countBySystem(sytemEntity) > 0) {
+		if (accountRepository.countBySystem_Id(system.getId()) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS,
 					ImmutableMap.of("system", system.getName()));
 		}
+		// delete system entities
+		SysSystemEntityFilter systemEntityFilter = new SysSystemEntityFilter();
+		systemEntityFilter.setSystemId(system.getId());
+		systemEntityService.find(systemEntityFilter, null).forEach(systemEntity -> {
+			systemEntityService.delete(systemEntity);
+		});
 		// delete synchronization configs
 		SysSyncConfigFilter synchronizationConfigFilter = new SysSyncConfigFilter();
 		synchronizationConfigFilter.setSystemId(system.getId());
@@ -237,7 +258,7 @@ public class DefaultSysSystemService
 			objectClassService.delete(schemaObjectClass);
 		});
 		// delete archived provisioning operations
-		provisioningArchiveRepository.deleteBySystem(sytemEntity);
+		provisioningArchiveRepository.deleteBySystem_Id(system.getId());
 		//
 		formService.deleteValues(system);
 		//

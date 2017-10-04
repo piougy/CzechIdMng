@@ -5,7 +5,7 @@ import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 
 /**
  * Events for virtual system request

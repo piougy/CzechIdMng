@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +38,8 @@ import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConnector;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
 
 /**
  * Service for virtual system
@@ -82,7 +81,7 @@ public class DefaultVsSystemService implements VsSystemService {
 	public SysSystemDto create(VsSystemDto vsSystem) {
 		Assert.notNull(vsSystem, "Vs system dto cannot be null (for create new virtual system)");
 		Assert.notNull(vsSystem.getName(), "Vs system name cannot be null (for create new virtual system)");
-		LOG.info(MessageFormat.format("Create new virtual system with name [{0}].", vsSystem.getName()));
+		LOG.info("Create new virtual system with name [{}].", vsSystem.getName());
 
 		SysSystemDto system = new SysSystemDto();
 		

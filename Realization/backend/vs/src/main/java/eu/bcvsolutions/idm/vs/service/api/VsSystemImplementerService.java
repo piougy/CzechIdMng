@@ -6,8 +6,8 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
-import eu.bcvsolutions.idm.vs.repository.filter.VsSystemImplementerFilter;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemImplementerDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 
 /**
  * Service for system-implementer in virtual system

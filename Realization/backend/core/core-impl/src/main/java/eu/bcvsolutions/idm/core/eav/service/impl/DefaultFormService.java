@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -598,21 +600,31 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
-	public <O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
+	public <O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
 		Assert.notNull(ownerType, "Owner type is required!");
 		Assert.notNull(attribute, "Form attribute is required!");
 		if (attribute.isConfidential()) {
 			throw new UnsupportedOperationException(MessageFormat.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getCode()));
 		}
 		//
-		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
+		FormValueService<FormableEntity> formValueService = (FormValueService<FormableEntity>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
 		//
-		return formValueService.findOwners(attribute, persistentValue, pageable);
+		Page<FormableEntity> ownerEntities = formValueService.findOwners(attribute, persistentValue, pageable);
+		//
+		// convert to dtos
+		List<O> ownerDtos = ownerEntities.getContent()
+				.stream()
+				.map(ownerEntity -> {
+					return (O) lookupService.lookupDto(ownerType, ownerEntity.getId());
+				})
+				.collect(Collectors.toList());
+		
+		return new PageImpl<>(ownerDtos, pageable, ownerEntities.getTotalElements());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable) {
+	public <O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable) {
 		IdmFormAttributeDto attribute = getAttribute(ownerType, attributeName);
 		Assert.notNull(attribute, MessageFormat.format("Attribute [{0}] does not exist in default form definition for owner [{1}]", attributeName, ownerType));
 		//

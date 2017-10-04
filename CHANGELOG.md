@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [7.4.0-Snapshot] (Unreleased)
+## [7.4.0-rc.1]
 
 ### Requirements
 
@@ -131,7 +131,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Confidential storage
 
-- The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource is maintained.
+- The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource **isn't maintained**.
 
 ##### Notifications
 

@@ -1,5 +1,3 @@
-
-
 import jwtDecode from 'jwt-decode';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
@@ -9,6 +7,14 @@ const remoteAuthPath = authPath + '/remote-auth';
 
 let lastToken = null;
 
+/**
+ * Login / logout service
+ * - uses local storage to persist user context
+ * - works with tokens
+ * - provide FE password generation
+ *
+ * @author Radek Tomiška
+ */
 export default class AuthenticateService {
 
   /**

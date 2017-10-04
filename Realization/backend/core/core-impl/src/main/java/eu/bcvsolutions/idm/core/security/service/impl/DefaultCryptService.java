@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -22,10 +21,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -136,61 +134,39 @@ public class DefaultCryptService implements CryptService {
 	 */
 	private SecretKey getKey() throws UnsupportedEncodingException {
 		String key;
-		Resource resource = null;
 		BufferedReader in = null;
 		// try found key in application properties
 		key = env.getProperty(APPLICATION_PROPERTIES_KEY);
-		if (key != null && !key.isEmpty()) {
+		if (!Strings.isNullOrEmpty(key)) {
+			LOG.info("For crypt confidetial storage will be use key from application properties. Key: [{}]", APPLICATION_PROPERTIES_KEY);
 			return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 		}
 		// key was not found in application properties, try found application properties path 
 		String keyPath = env.getProperty(APPLICATION_PROPERTIES_KEY_PATH);
-		if (keyPath != null && !keyPath.isEmpty()) {
+		if (!Strings.isNullOrEmpty(keyPath)) {
 			File keyFile = new File(keyPath);
 			if (keyFile.exists()) {
 				try {
 					in = new BufferedReader(new FileReader(keyPath));
 					key = in.readLine();
+					if (in != null) {
+						in.close();
+					}
 					if (key == null || key.isEmpty()) {
 						LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
 						return null;
 					}
+					LOG.info("For crypt confidetial storage will be use key in file: [{}].", APPLICATION_PROPERTIES_KEY_PATH);
 					return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 				} catch (IOException e) {
-					LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage());
+					LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage(), e);
 				}
 			} else {
-				LOG.info("For crypt service is define key with path: [{}], but this file isnt exist.", keyPath);
+				LOG.info("For crypt service is define key with path: [{}], but this file isn't exist.", keyPath);
 			}
 		}
-		try {
-			// get primary key from resource
-			resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
-			// check if primary key exists
-			if (resource.exists()) {
-				in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-			} else {
-				LOG.warn("Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH + PRIMARY_KEY);
-				// get demo key from resource
-				resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
-				if (resource.exists()) {
-					in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-				} else {
-					LOG.warn("Demo file with key not found.");
-					return null;
-				}
-			}
-			// read first line with key
-			key = in.readLine();
-			if (key == null || key.isEmpty()) {
-				LOG.warn("Key in file not found.");
-				return null;
-			}
-		} catch (IOException e) {
-			LOG.warn("Problem with load key file!", e);
-			throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY), e);
-		}
-		return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
+		LOG.warn("Confidential storage isn't crypted. Please set one of these application properties: [{}] or [{}]", APPLICATION_PROPERTIES_KEY, APPLICATION_PROPERTIES_KEY_PATH);
+		return null;
 	}
 	
 	/**
@@ -213,26 +189,5 @@ public class DefaultCryptService implements CryptService {
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		return cipher;
-	}
-
-	@Override
-	public boolean existsKeyFile() {
-		Resource resource = null;
-		// get primary key from resource
-		resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
-		if (resource.exists()) {
-			LOG.info("Using primary key.");
-			return true;
-		} else {
-			LOG.warn("Primary key doesn't exists!");
-			resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
-			if (resource.exists()) {
-				LOG.warn("Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
-				return true;
-			} else {
-				LOG.warn("Demo or primary key doesn't exists!");
-				return false;
-			}
-		}
 	}
 }

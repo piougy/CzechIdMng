@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.vs.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 
 /**
  * Service for virtual system
@@ -9,11 +9,11 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
  * @author Svanda
  *
  */
-public interface VsSystemService{
+public interface VsSystemService {
 	
-	public static final String IMPLEMENTERS_PROPERTY = "implementers";
-	public static final String IMPLEMENTER_ROLES_PROPERTY = "implementerRoles";
-	public static final String ATTRIBUTES_PROPERTY = "attributes";
+	static final String IMPLEMENTERS_PROPERTY = "implementers";
+	static final String IMPLEMENTER_ROLES_PROPERTY = "implementerRoles";
+	static final String ATTRIBUTES_PROPERTY = "attributes";
 
 	/**
 	 * Create virtual system. System will be included mapping by default fields

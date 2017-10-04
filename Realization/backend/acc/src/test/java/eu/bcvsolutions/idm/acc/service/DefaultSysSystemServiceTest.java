@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -18,6 +19,8 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
@@ -25,6 +28,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -42,8 +46,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -54,6 +58,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -97,7 +102,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private SysSyncConfigService syncConfigService;
 	@Autowired private SysSystemAttributeMappingService schemaAttributeMappingService;
-	@Autowired private SysSystemRepository systemRepository;
+	@Autowired private SysProvisioningOperationService provisioningOperationService;
 	
 	@Before
 	public void login() {
@@ -200,7 +205,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		systemService.delete(system);
 	}
 	
-	@Test(expected = ResultCodeException.class)
+	@Test
 	public void testReferentialIntegritySystemEntityExists() {
 		SysSystemDto system = new SysSystemDto();
 		String systemName = "t_s_" + System.currentTimeMillis();
@@ -213,6 +218,29 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		systemEntity.setUid("se_uid_" + System.currentTimeMillis());
 		systemEntity = systemEntityService.save(systemEntity);
 		
+		systemService.delete(system);
+		
+		assertNull(systemService.getByCode(system.getCode()));
+		assertNull(systemEntityService.get(systemEntity.getId()));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testReferentialIntegrityProvisioningOperationExists() {
+		SysSystemDto system = new SysSystemDto();
+		String systemName = "t_s_" + System.currentTimeMillis();
+		system.setName(systemName);
+		system = systemService.save(system);
+		// system entity
+		SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
+		provisioningOperation.setSystem(system.getId());
+		provisioningOperation.setEntityType(SystemEntityType.IDENTITY);
+		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
+		provisioningOperation.setSystemEntityUid("mock");
+		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
+		provisioningOperation.setProvisioningContext(new ProvisioningContext());
+		provisioningOperation.setResult(new OperationResult());
+		provisioningOperationService.save(provisioningOperation);
+		//
 		systemService.delete(system);
 	}
 	
@@ -351,10 +379,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysSystemDto system = new SysSystemDto();
 		system.setName(SYSTEM_NAME_ONE + "_" + System.currentTimeMillis());
 		system = systemService.save(system);
-
-		// TODO: eav to dto
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
-		formService.getValues(systemEntity);
+		formService.getValues(system);
 	}
 	
 	@Test

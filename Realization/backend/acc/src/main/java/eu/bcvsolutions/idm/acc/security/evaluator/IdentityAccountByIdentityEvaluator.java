@@ -47,7 +47,7 @@ public class IdentityAccountByIdentityEvaluator extends AbstractTransitiveEvalua
 		if (!hasAuthority(securityService.getCurrentId(), policy, permission)) {
 			return null;
 		}
-		// role subquery
+		// identity subquery
 		Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
 		Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
 		subquery.select(subRoot);		

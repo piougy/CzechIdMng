@@ -409,7 +409,13 @@ public class DefaultSysSystemAttributeMappingService
 				// Single value extended attribute
 				IdmFormValueDto formValue = formValues.get(0);
 				if (formValue.isConfidential()) {
-					idmValue = formService.getConfidentialPersistentValue(formValue);
+					Object confidentialValue = formService.getConfidentialPersistentValue(formValue);
+					// If is confidential value String and schema attribute is GuardedString type, then convert to GuardedString will be did.
+					if(confidentialValue instanceof String && schemaAttributeDto.getClassType().equals(GuardedString.class.getName())){
+						idmValue = new GuardedString((String) confidentialValue);
+					}else {
+						idmValue = confidentialValue;
+					}
 				} else {
 					idmValue = formValue.getValue();
 				}

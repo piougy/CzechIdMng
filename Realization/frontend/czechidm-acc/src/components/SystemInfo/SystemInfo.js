@@ -76,6 +76,10 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
       {
         label: this.i18n('acc:entity.System.readonly.label'),
         value: (entity.readonly ? this.i18n('label.yes') : this.i18n('label.no'))
+      },
+      {
+        label: this.i18n('acc:entity.System.virtual.label'),
+        value: (entity.virtual ? this.i18n('label.yes') : this.i18n('label.no'))
       }
     ];
   }

@@ -20,6 +20,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
 
@@ -149,9 +150,6 @@ public class DefaultCryptService implements CryptService {
 				try {
 					in = new BufferedReader(new FileReader(keyPath));
 					key = in.readLine();
-					if (in != null) {
-						in.close();
-					}
 					if (key == null || key.isEmpty()) {
 						LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
 						return null;
@@ -160,12 +158,19 @@ public class DefaultCryptService implements CryptService {
 					return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 				} catch (IOException e) {
 					LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage(), e);
+				} finally {
+					IOUtils.closeQuietly(in);
 				}
 			} else {
 				LOG.info("For crypt service is define key with path: [{}], but this file isn't exist.", keyPath);
 			}
 		}
-		LOG.warn("Confidential storage isn't crypted. Please set one of these application properties: [{}] or [{}]", APPLICATION_PROPERTIES_KEY, APPLICATION_PROPERTIES_KEY_PATH);
+		LOG.warn("WARNING: Confidential storage isn't crypted, application cannot be used in production!!!"
+				+ " Please set one of these application properties: [{}] or [{}]. See documention [{}]", 
+				APPLICATION_PROPERTIES_KEY, 
+				APPLICATION_PROPERTIES_KEY_PATH,
+				// TODO: move to configuration, use version property etc.
+				"https://wiki.czechidm.com/devel/dev/security/confidential-storage");
 		return null;
 	}
 	

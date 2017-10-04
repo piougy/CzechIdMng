@@ -18,10 +18,15 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * Crypt service tests
+ * 
+ * @author Ondřej Kopr
+ *
+ */
 public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 	
-	@Autowired
-	private CryptService cryptService;
+	@Autowired private CryptService cryptService;
 	
 	@Before
 	public void login() {

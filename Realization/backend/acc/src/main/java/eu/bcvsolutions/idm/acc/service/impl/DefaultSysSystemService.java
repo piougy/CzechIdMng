@@ -89,6 +89,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public class DefaultSysSystemService 
 		extends AbstractReadWriteDtoService<SysSystemDto, SysSystem, SysSystemFilter>
 		implements SysSystemService {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysSystemService.class);
 
 	private final SysSystemRepository systemRepository;
 	private final IcConfigurationFacade icConfigurationFacade;
@@ -213,10 +215,17 @@ public class DefaultSysSystemService
 		}
 		//
 		// found if entity has filled password
-		Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
-				SysSystemService.REMOTE_SERVER_PASSWORD);
-		if (password != null && entity.getConnectorServer() != null) {
-			entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+		if (entity.isRemote()) {
+			try {
+				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
+						SysSystemService.REMOTE_SERVER_PASSWORD);
+				if (password != null && entity.getConnectorServer() != null) {
+					entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+				}
+			} catch (ResultCodeException ex) {
+				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....
+				LOG.error("Remote connector server pasword for system [{}] is wrong, repair system configuration.", entity.getName(), ex);
+			}
 		}
 		//
 		return entity;
@@ -282,7 +291,7 @@ public class DefaultSysSystemService
 		IcConnectorConfiguration connectorConfig = null;
 		// load connector properties, different between local and remote
 		IcConnectorInstance connectorInstance = system.getConnectorInstance();
-		if (connectorInstance.getConnectorServer() != null) {
+		if (system.isRemote() && connectorInstance.getConnectorServer() != null) {
 			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
 					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
 		}

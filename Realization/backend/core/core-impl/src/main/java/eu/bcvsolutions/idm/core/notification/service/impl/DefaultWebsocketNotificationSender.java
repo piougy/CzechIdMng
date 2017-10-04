@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
+
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.FlashMessage;
@@ -67,10 +69,14 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		// send flashmessage
 		FlashMessage message = toFlashMessage(log);
 		for (IdmNotificationRecipientDto recipient : log.getRecipients()) {
-			websocket.convertAndSendToUser(
-					recipient.getRealRecipient(),
-					"/queue/messages", // TODO: configurable
-					message);
+			if(Strings.isNullOrEmpty(recipient.getRealRecipient())){
+				LOG.warn("Real recipient is empty for notification [{}]", notification);
+			}else{
+				websocket.convertAndSendToUser(
+						recipient.getRealRecipient(),
+						"/queue/messages", // TODO: configurable
+						message);
+			}
 		}
 		return log;
 	}

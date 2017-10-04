@@ -40,7 +40,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 
@@ -74,7 +73,6 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private SecurityService securityService;	
 	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;	
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;	
-	@Autowired private CryptService cryptoService;	
 	@Autowired private LongRunningTaskManager longRunningTaskManager;	
 	@Autowired private FormService formService;	
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
@@ -176,10 +174,6 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();
 			//
-			//
-			if (!cryptoService.existsKeyFile()) {
-				LOG.warn("Key for crypt and decrypt confidential storage doesn't exists!!!");
-			}
 			// Cancels all previously ran tasks
 			longRunningTaskManager.init();
 		} finally {

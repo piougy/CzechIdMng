@@ -10,11 +10,8 @@ import java.util.Base64;
  */
 public interface CryptService {
 	
-	public static String APPLICATION_PROPERTIES_KEY = "cipher.crypt.secret.key";
-	public static String APPLICATION_PROPERTIES_KEY_PATH = "cipher.crypt.secret.keyPath";
-	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/";
-	public static String DEMO_KEY = "demo_key.key";
-	public static String PRIMARY_KEY = "key.key";
+	static String APPLICATION_PROPERTIES_KEY = "cipher.crypt.secret.key";
+	static String APPLICATION_PROPERTIES_KEY_PATH = "cipher.crypt.secret.keyPath";
 	
 	/**
 	 * Encrypt string value by {@link Base64} and method encodeBase64String
@@ -47,9 +44,4 @@ public interface CryptService {
 	 * @return
 	 */
 	byte[] decrypt(byte[] value);
-	
-	/**
-	 * Check if exist key file in resource or demo file. Return true if exist one of these files.
-	 */
-	boolean existsKeyFile();
 }

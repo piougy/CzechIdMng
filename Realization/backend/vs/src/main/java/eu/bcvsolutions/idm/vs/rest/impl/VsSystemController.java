@@ -7,20 +7,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsSystemDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -32,11 +32,15 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Svanda
  *
  */
-@Controller
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/vs/systems")
-@Api(value = VsSystemController.TAG, tags = {
-		VsSystemController.TAG }, description = "Operations with virtual system (only for create now)", produces = BaseController.APPLICATION_HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-public class VsSystemController{
+@Api(
+		value = VsSystemController.TAG, 
+		tags = { VsSystemController.TAG }, 
+		description = "Operations with virtual system (only for create now)", 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE, 
+		consumes = MediaType.APPLICATION_JSON_VALUE) 
+public class VsSystemController {
 
 	private final VsSystemService service;
 	protected static final String TAG = "Systems";

@@ -120,7 +120,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Transactional(readOnly = true)
 	public IdmFormValueDto get(Serializable id, BasePermission... permission) {
 		E formValue = getEntity(id, permission);
-		// TODO: read value from confidential storage? Or leave reading from confidential store to client?
+		// leave reading from confidential store to client
 		if (formValue != null && formValue.isConfidential()) {
 			LOG.debug("FormValue [{}] is persisted id confidential storage, returning proxy string only", formValue.getId());
 		}
@@ -144,7 +144,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	public IdmFormValueDto saveInternal(IdmFormValueDto dto) {
 		Assert.notNull(dto);
 		//
-		// check, if value has to be persisted in confidentional storage 
+		// check, if value has to be persisted in confidential storage 
 		Serializable formValue = dto.getValue();
 		if (dto.isConfidential()) {
 			dto.clearValues();

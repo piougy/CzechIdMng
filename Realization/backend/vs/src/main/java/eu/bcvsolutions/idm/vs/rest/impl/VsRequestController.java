@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -29,10 +29,10 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
-import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
+import eu.bcvsolutions.idm.vs.dto.VsConnectorObjectDto;
+import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsConnectorObjectDto;
-import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -45,10 +45,14 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Svanda
  *
  */
-@Controller
+@RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/vs/requests")
-@Api(value = VsRequestController.TAG, tags = {
-		VsRequestController.TAG }, description = "Operations with requests (in virtual system)", produces = BaseController.APPLICATION_HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+@Api(
+		value = VsRequestController.TAG, 
+		tags = { VsRequestController.TAG }, 
+		description = "Operations with requests (in virtual system)", 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE, 
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class VsRequestController extends AbstractReadWriteDtoController<VsRequestDto, VsRequestFilter> {
 
 	protected static final String TAG = "Requests";

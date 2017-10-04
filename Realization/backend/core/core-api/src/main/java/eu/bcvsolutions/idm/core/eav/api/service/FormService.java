@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -391,8 +392,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Finds owners by attribute value
-	 * 
-	 * Warning: returns {@link FormableEntity} not dtos.
+	 * Returns owner as {@link BaseDto}.
 	 * 
 	 * @param ownerType owner type
 	 * @param attribute attribute
@@ -401,12 +401,11 @@ public interface FormService extends ScriptEnabled {
 	 * @param <O> values owner
 	 * @return owners dto
 	 */
-	<O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable);
+	<O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable);
 	
 	/**
 	 * Finds owners by attribute value from default form definition.
-	 * 
-	 * Warning: returns {@link FormableEntity} not dtos.
+	 * Returns owner as {@link BaseDto}.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)
 	 * @param ownerType owner type
@@ -416,7 +415,7 @@ public interface FormService extends ScriptEnabled {
 	 * @param <O> values owner
 	 * @return owners dto
 	 */
-	<O extends FormableEntity> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable);
+	<O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeName, Serializable persistentValue, Pageable pageable);
 	
 	/**
 	 * Method return full class name of all entity that implements {@link FormableEntity}

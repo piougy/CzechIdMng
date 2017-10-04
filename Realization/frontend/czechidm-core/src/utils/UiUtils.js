@@ -1,4 +1,5 @@
 import EntityUtils from './EntityUtils';
+import Joi from 'joi';
 
 /**
  * Helper methods for ui state
@@ -222,4 +223,45 @@ export default class UiUtils {
   static substringByWord(data, maxLength) {
     return this.substringBegin(data, maxLength, ' ');
   }
+
+  /**
+   * Encode string in utf-8 to base 64
+   *
+   * @param  {String}
+   * @return {String}
+   */
+  static utf8ToBase64(data) {
+    if (data != null) {
+      return window.btoa(unescape(encodeURIComponent(data)));
+    }
+  }
+
+  /**
+   * Decode given string in base 64 to utf-8
+   *
+   * @param  {String}
+   * @return {String}
+   */
+  static base64ToUtf8(data) {
+    if (data != null) {
+      return decodeURIComponent(escape(window.atob(data)));
+    }
+  }
+
+  /**
+   * Method return validation for only signed integer with maximum defined
+   * in constant MAX_VALUE_INTEGER or you can define this value by parameter.
+   * Null values and zero are allowed.
+   *
+   * @param {Integer}
+   * @return {Integer}
+   */
+  static getJoiIntegerValidation(max) {
+    if (max) {
+      return Joi.number().integer().allow(null).allow(0).positive().max(max);
+    }
+    return Joi.number().integer().allow(null).allow(0).positive().max(UiUtils.MAX_VALUE_INTEGER);
+  }
 }
+
+UiUtils.MAX_VALUE_INTEGER = 2147483647;

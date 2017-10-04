@@ -1,6 +1,6 @@
 {
   "name": "czechidm-vs",
-  "version": "7.4.0-rc.1",
+  "version": "7.4.0",
   "description": "Virtual system module for CzechIdM. Provides system connector for connect CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be realizate manually. Basicly virtual system for every active connector operation creates task for realizater (admin of real system).",
   "main": "index.js",
   "scripts": {

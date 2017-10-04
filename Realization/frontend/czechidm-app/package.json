@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "7.4.0-rc.1",
+  "version": "7.4.0",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {
@@ -156,8 +156,8 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "7.4.0-rc.1",
-    "czechidm-acc": "7.4.0-rc.1",
-    "czechidm-vs": "7.4.0-rc.1"
+    "czechidm-core": "7.4.0",
+    "czechidm-acc": "7.4.0",
+    "czechidm-vs": "7.4.0"
   }
 }

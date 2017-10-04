@@ -30,8 +30,6 @@ public class DefaultVsConfiguration
 		this.lookupService = lookupService;
 	}
 
-	
-	
 	@Override
 	public IdmRoleDto getDefaultRole() {
 		String roleCode = getConfigurationService().getValue(PROPERTY_DEFAULT_ROLE, DEFAULT_ROLE);

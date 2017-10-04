@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
@@ -186,13 +185,13 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
 
                 <Basic.TextField ref="minRulesToFulfill"
                   type="number"
-                  validation={ Joi.number().allow(null).allow(0).positive()}
+                  validation={ Utils.Ui.getJoiIntegerValidation() }
                   helpBlock={this.i18n('entity.PasswordPolicy.help.minRulesToFulfill')}
                   label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
                 <Basic.TextField ref="maxHistorySimilar" hidden
                   type="number"
-                  validation={ Joi.number().allow(null).allow(0).positive()}
+                  validation={ Utils.Ui.getJoiIntegerValidation() }
                   helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                   label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
 

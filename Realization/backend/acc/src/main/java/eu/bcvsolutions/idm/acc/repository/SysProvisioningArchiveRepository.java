@@ -1,9 +1,10 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
@@ -42,8 +43,18 @@ public interface SysProvisioningArchiveRepository extends AbstractEntityReposito
 	/**
 	 * Delete all archived provisioning logs
 	 * 
-	 * @param roleSystem
+	 * @param system
+	 * @return
+	 * @deprecated use {@link #deleteBySystem_Id(UUID)}
+	 */
+	@Deprecated
+	int deleteBySystem(SysSystem system);
+	
+	/**
+	 * Delete all archived provisioning logs
+	 * 
+	 * @param systemId
 	 * @return
 	 */
-	int deleteBySystem(@Param("system") SysSystem system);
+	int deleteBySystem_Id(UUID systemId);
 }

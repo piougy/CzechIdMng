@@ -1081,6 +1081,10 @@
     },
     "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
       "title": "Systém nemůže být smazán",
+      "message": "Systém [{{system}}] nemůže být smazán. Pro entitu existují aktivní operace na provisioning."
+    },
+    "SYSTEM_DELETE_FAILED_HAS_OPERATIONS": {
+      "title": "Systém nemůže být smazán",
       "message": "Systém [{{system}}] nemůže být smazán. Na systému jsou evidovány entity."
     },
     "SYSTEM_DELETE_FAILED_HAS_ACCOUNTS": {

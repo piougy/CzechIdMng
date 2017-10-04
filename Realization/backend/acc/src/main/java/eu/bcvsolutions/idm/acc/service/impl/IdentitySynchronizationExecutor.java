@@ -190,8 +190,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected IdmIdentityDto save(IdmIdentityDto entity, boolean skipProvisioning) {		
-		// Content will be set in service (we need do transform entity to DTO). 
-		// Here we set only dummy dto (null content is not allowed)
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
 				identityService.isNew(entity) ? IdentityEventType.CREATE : IdentityEventType.UPDATE,
 				entity, 

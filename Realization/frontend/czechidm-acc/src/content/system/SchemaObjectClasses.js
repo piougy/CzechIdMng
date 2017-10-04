@@ -105,17 +105,18 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
         <Basic.PanelBody>
-          <Basic.Button
-            style={{display: 'block', margin: 'auto'}}
-            level="success"
-            showLoading={innerShowLoading}
-            onClick={this._generateSchema.bind(this)}
-            rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
-            title={ this.i18n('generateSchemaBtnTooltip') }>
-            <Basic.Icon type="fa" icon="object-group"/>
-            {' '}
-            { this.i18n('generateSchemaBtn') }
-          </Basic.Button>
+          <div style={{ textAlign: 'center', display: 'block', margin: 'auto'}}>
+            <Basic.Button
+              level="success"
+              showLoading={innerShowLoading}
+              onClick={this._generateSchema.bind(this)}
+              rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
+              title={ this.i18n('generateSchemaBtnTooltip') }>
+              <Basic.Icon type="fa" icon="object-group"/>
+              {' '}
+              { this.i18n('generateSchemaBtn') }
+            </Basic.Button>
+          </div>
         </Basic.PanelBody>
 
         <Basic.ContentHeader>

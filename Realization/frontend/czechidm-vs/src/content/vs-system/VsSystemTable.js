@@ -86,42 +86,44 @@ export default class VsSystemTable extends SystemTable {
     return (
       <div>
         {parentRender}
-        <Basic.Modal show={show} showLoading={showLoading} onHide={this._closeModal.bind(this)}>
-          <form onSubmit={this._createNewSystem.bind(this)}>
-            <Basic.Modal.Header text={title} rendered={title !== undefined && title !== null} />
-            <Basic.Modal.Body>
-              <span dangerouslySetInnerHTML={{ __html: this.i18n(`vs:content.vs-system.action.create.message`) }}/>
-              <div style={{marginTop: '20px'}}>
-                <Basic.AbstractForm ref="create-form">
-                  <Basic.TextField
-                    ref="name"
-                    label={this.i18n('vs:content.vs-system.name.label')}
-                    placeholder={this.i18n('vs:content.vs-system.name.placeholder')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="implementers"
-                    label={this.i18n('vs:content.vs-system.implementers.label')}
-                    placeholder={this.i18n('vs:content.vs-system.implementers.placeholder')}
-                    manager={identityManager }
-                    value={null}
-                    multiSelect/>
-                  <Basic.SelectBox
-                    ref="implementerRoles"
-                    label={this.i18n('vs:content.vs-system.implementerRoles.label')}
-                    placeholder={this.i18n('vs:content.vs-system.implementerRoles.placeholder')}
-                    manager={roleManager }
-                    value={null}
-                    multiSelect/>
-                </Basic.AbstractForm>
-                {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-                <input type="submit" className="hidden"/>
-              </div>
-            </Basic.Modal.Body>
-            <Basic.Modal.Footer>
-              <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('vs:content.vs-system.button.cancel')}</Basic.Button>
-              <Basic.Button ref="yesButton" level="success" onClick={this._createNewSystem.bind(this)}>{this.i18n('vs:content.vs-system.button.create')}</Basic.Button>
-            </Basic.Modal.Footer>
-          </form>
+        <Basic.Modal show={show} onHide={this._closeModal.bind(this)}>
+          <Basic.Loading showLoading={showLoading} showAnimation>
+            <form onSubmit={this._createNewSystem.bind(this)}>
+              <Basic.Modal.Header text={title} rendered={title !== undefined && title !== null} />
+              <Basic.Modal.Body>
+                <span dangerouslySetInnerHTML={{ __html: this.i18n(`vs:content.vs-system.action.create.message`) }}/>
+                <div style={{marginTop: '20px'}}>
+                  <Basic.AbstractForm ref="create-form">
+                    <Basic.TextField
+                      ref="name"
+                      label={this.i18n('vs:content.vs-system.name.label')}
+                      placeholder={this.i18n('vs:content.vs-system.name.placeholder')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="implementers"
+                      label={this.i18n('vs:content.vs-system.implementers.label')}
+                      placeholder={this.i18n('vs:content.vs-system.implementers.placeholder')}
+                      manager={identityManager }
+                      value={null}
+                      multiSelect/>
+                    <Basic.SelectBox
+                      ref="implementerRoles"
+                      label={this.i18n('vs:content.vs-system.implementerRoles.label')}
+                      placeholder={this.i18n('vs:content.vs-system.implementerRoles.placeholder')}
+                      manager={roleManager }
+                      value={null}
+                      multiSelect/>
+                  </Basic.AbstractForm>
+                  {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+                  <input type="submit" className="hidden"/>
+                </div>
+              </Basic.Modal.Body>
+              <Basic.Modal.Footer>
+                <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('vs:content.vs-system.button.cancel')}</Basic.Button>
+                <Basic.Button ref="yesButton" level="success" onClick={this._createNewSystem.bind(this)}>{this.i18n('vs:content.vs-system.button.create')}</Basic.Button>
+              </Basic.Modal.Footer>
+            </form>
+          </Basic.Loading>
       </Basic.Modal>
       </div>
     );

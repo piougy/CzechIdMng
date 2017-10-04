@@ -61,7 +61,21 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
 	Page<AccAccount> find(AccAccountFilter filter, Pageable pageable);
 	
-	Long countBySystem(@Param("system") SysSystem system);
+	/**
+	 * 
+	 * @param system
+	 * @deprecated use {@link #countBySystem_Id(UUID)}
+	 */
+	@Deprecated
+	Long countBySystem(SysSystem system);
+	
+	/**
+	 * Count accounts by system.
+	 * 
+	 * @param systemId
+	 * @return
+	 */
+	Long countBySystem_Id(UUID systemId);
 	
 	/**
 	 * Clears system entity

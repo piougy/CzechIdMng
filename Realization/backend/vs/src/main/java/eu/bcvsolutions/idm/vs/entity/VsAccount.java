@@ -23,7 +23,9 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  *
  */
 @Entity
-@Table(name = "vs_account", indexes = { @Index(name = "ux_vs_account_uid", columnList = "uid,system_id,connector_key", unique = true) })
+@Table(name = "vs_account", indexes = { @Index(name = "ux_vs_account_uid", columnList = "uid,system_id,connector_key", unique = true),
+		@Index(name = "idx_vs_account_uid", columnList = "uid"),
+		@Index(name = "idx_vs_account_system", columnList = "system_id")})
 public class VsAccount extends AbstractEntity implements FormableEntity {
 
 	private static final long serialVersionUID = 1L;

@@ -315,7 +315,9 @@ public class DefaultSysSystemAttributeMappingService
 			icAttributeForUpdate = new IcPasswordAttributeImpl(schemaAttribute.getName(), (GuardedString) idmValue);
 
 		} else {
-			if(idmValue instanceof List){
+			if(idmValue == null && schemaAttribute.isMultivalued()){
+				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), null, true);
+			}else if(idmValue instanceof List){
 				@SuppressWarnings("unchecked")
 				List<Object> values = (List<Object>)idmValue;
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), values, true);

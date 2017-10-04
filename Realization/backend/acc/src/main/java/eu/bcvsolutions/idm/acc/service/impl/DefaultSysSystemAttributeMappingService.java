@@ -309,19 +309,23 @@ public class DefaultSysSystemAttributeMappingService
 					e);
 		}
 
-		IcAttribute icAttributeForUpdate = null;
+		IcAttributeImpl icAttributeForUpdate = null;
 		if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
 			// Attribute is password type
 			icAttributeForUpdate = new IcPasswordAttributeImpl(schemaAttribute.getName(), (GuardedString) idmValue);
 
 		} else {
-			if(idmValue instanceof List){
+			if(idmValue == null && schemaAttribute.isMultivalued()){
+				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), null, true);
+			}else if(idmValue instanceof List){
 				@SuppressWarnings("unchecked")
 				List<Object> values = (List<Object>)idmValue;
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), values, true);
 			}else{
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), idmValue);
 			}
+			// Multivalued must be set by schema setting
+			icAttributeForUpdate.setMultiValue(schemaAttribute.isMultivalued());
 		}
 		return icAttributeForUpdate;
 	}

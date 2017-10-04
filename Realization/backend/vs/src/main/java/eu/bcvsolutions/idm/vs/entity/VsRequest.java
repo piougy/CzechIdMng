@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -32,7 +33,9 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
  *
  */
 @Entity
-@Table(name = "vs_request")
+@Table(name = "vs_request", indexes = {
+		@Index(name = "idx_vs_request_uid", columnList = "uid"),
+		@Index(name = "idx_vs_request_system", columnList = "system_id")})
 public class VsRequest extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;

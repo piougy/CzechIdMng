@@ -1,4 +1,5 @@
 import EntityUtils from './EntityUtils';
+import Joi from 'joi';
 
 /**
  * Helper methods for ui state
@@ -246,4 +247,21 @@ export default class UiUtils {
       return decodeURIComponent(escape(window.atob(data)));
     }
   }
+
+  /**
+   * Method return validation for only signed integer with maximum defined
+   * in constant MAX_VALUE_INTEGER or you can define this value by parameter.
+   * Null values and zero are allowed.
+   *
+   * @param {Integer}
+   * @return {Integer}
+   */
+  static getJoiIntegerValidation(max) {
+    if (max) {
+      return Joi.number().integer().allow(null).allow(0).positive().max(max);
+    }
+    return Joi.number().integer().allow(null).allow(0).positive().max(UiUtils.MAX_VALUE_INTEGER);
+  }
 }
+
+UiUtils.MAX_VALUE_INTEGER = 2147483647;

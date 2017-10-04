@@ -157,30 +157,36 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 	}
 
 	@Override
+	@JsonIgnore
 	public String getTransformFromResourceScript() {
 		return null;
 	}
 
 	@Override
+	@JsonIgnore
 	public void setTransformFromResourceScript(String transformFromResourceScript) {
 	}
 
 	@Override
+	@JsonIgnore
 	public String getTransformToResourceScript() {
 		return this.getTransformScript();
 	}
 
 	@Override
+	@JsonIgnore
 	public void setTransformToResourceScript(String transformToResourceScript) {
 		this.setTransformScript(transformToResourceScript);
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isDisabledAttribute() {
 		return this.isDisabledDefaultAttribute();
 	}
 
 	@Override
+	@JsonIgnore
 	public void setDisabledAttribute(boolean disabled) {
 		this.setDisabledDefaultAttribute(disabled);
 		

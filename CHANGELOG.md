@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [7.4.0-rc.1]
+## [7.4.0]
 
 ### Requirements
 

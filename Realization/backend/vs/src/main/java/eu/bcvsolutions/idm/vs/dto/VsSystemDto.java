@@ -34,7 +34,7 @@ public class VsSystemDto extends AbstractDto {
 	private List<UUID> implementers;
 	@ApiModelProperty(required = false, notes = "Roles where his identities will be implementers for this system.")
 	private List<UUID> implementerRoles;
-	@ApiModelProperty(required = false, notes = "Attributes of systems, if is null then will be used default attributes")
+	@ApiModelProperty(required = false, notes = "Attributes of systems, if is empty then will be used default attributes")
 	private List<String> attributes;
 
 	public String getName() {

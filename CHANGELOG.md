@@ -131,7 +131,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Confidential storage
 
-- The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource **isn't maintained**.
+- The encryption of the confidential agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource **isn't maintained**. If your project using key directly saved in **.war** on path  **<war>/lib/idm-core-impl-<version>.jar/eu/bcvsolutions/idm/confidential/key.key**, move your key outside the **.war** and configure application property ``cipher.crypt.secret.keyPath``.
 
 ##### Notifications
 

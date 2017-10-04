@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.entity;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -22,7 +23,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  *
  */
 @Entity
-@Table(name = "vs_system_implementer")
+@Table(name = "vs_system_implementer", indexes = {
+		@Index(name = "idx_vs_sys_imple_role", columnList = "role_id"),
+		@Index(name = "idx_vs_sys_imple_system", columnList = "system_id"),
+		@Index(name = "idx_vs_sys_imple_identity", columnList = "identity_id")})
 public class VsSystemImplementer extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;

@@ -130,8 +130,10 @@ public class DefaultVsSystemService implements VsSystemService {
 		IdmFormDefinitionDto definition = this.formService.getDefinition(type, virtualSystemKey);
 		IdmFormAttributeDto rightsFormAttr = formAttributeService.findAttribute(type, definition.getCode(),
 				RIGHTS_ATTRIBUTE);
-		rightsFormAttr.setMultiple(true);
-		formService.saveAttribute(rightsFormAttr);
+		if(rightsFormAttr != null){
+			rightsFormAttr.setMultiple(true);
+			formService.saveAttribute(rightsFormAttr);
+		}
 
 		// Generate schema
 		List<SysSchemaObjectClassDto> schemas = this.systemService.generateSchema(system);

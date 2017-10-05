@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.vs.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
@@ -193,9 +195,9 @@ public class DefaultVsSystemService implements VsSystemService {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setUid(false);
 				attributeMapping.setEntityAttribute(false);
-				attributeMapping.setExtendedAttribute(true);
-				attributeMapping.setIdmPropertyName(RIGHTS_ATTRIBUTE);
-				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setStrategyType(AttributeMappingStrategyType.MERGE);
+				attributeMapping.setExtendedAttribute(false);
+				attributeMapping.setName("'Rights' - multivalued merge attribute. ");
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);

@@ -44,7 +44,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -52,6 +51,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -81,7 +81,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 public class DefaultSysSystemService 
-		extends AbstractEventableDtoService<SysSystemDto, SysSystem, SysSystemFilter>
+		extends AbstractFormableService<SysSystemDto, SysSystem, SysSystemFilter>
 		implements SysSystemService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysSystemService.class);
@@ -98,7 +98,6 @@ public class DefaultSysSystemService
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
-	private final FormService formService;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -117,7 +116,7 @@ public class DefaultSysSystemService
 			SysSchemaObjectClassService schemaObjectClassService,
 			EntityEventManager entityEventManager) {
 		
-		super(systemRepository, entityEventManager);
+		super(systemRepository, entityEventManager, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
 		Assert.notNull(objectClassService);
@@ -144,7 +143,6 @@ public class DefaultSysSystemService
 		this.systemMappingService = systemMappingService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
-		this.formService = formService;
 	}
 	
 	@Override
@@ -763,10 +761,5 @@ public class DefaultSysSystemService
 		key.setBundleName("net.tirasa.connid.bundles.db.table");
 		key.setBundleVersion("2.2.4");
 		return key;
-	}
-
-
-	protected FormService getFormService() {
-		return formService;
 	}
 }

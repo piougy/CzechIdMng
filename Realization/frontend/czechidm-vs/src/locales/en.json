@@ -222,6 +222,10 @@
     "VS_REQUEST_CANCEL_WRONG_STATE": {
       "title": "Request on virtual system cannot be canceled!",
       "message": "Request can be canceled only if is in state [{{state}}]. This request but is in state [{{currentState}}]!"
+    },
+    "VS_SYSTEM_DELETE_FAILED_HAS_REQUEST": {
+      "title": "Virtual system cannot be deleted!",
+      "message": "Virtual system [{{system}}] cannot be deleted, because has some unresolved requests!"
     }
   }
 }

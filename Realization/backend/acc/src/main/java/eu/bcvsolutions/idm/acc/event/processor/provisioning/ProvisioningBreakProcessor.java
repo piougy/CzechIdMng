@@ -103,7 +103,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			LOG.debug(
 					"Provisioning break configuration for system name: [{}] and operation: [{}] not found. Global configuration will be used.",
 					system.getCode(), operationType.toString());
-			breakConfig = breakConfigService.getGlobalBreakConfiguration();
+			breakConfig = breakConfigService.getGlobalBreakConfiguration(operationType);
 		}
 		//
 		if (breakConfig == null) {
@@ -123,10 +123,12 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 		SysProvisioningBreakItems cache = breakConfigService.getCacheProcessedItems(system.getId());
 		// calculate timestamp without period
 		Long timestampWithoutPeriod = currentTimeMillis - breakConfig.getPeriod(TimeUnit.MILLISECONDS);
+		// remove older records
+		cache.removeOlderRecordsThan(operationType, timestampWithoutPeriod);
 		// get actual count - processed items from timestampWithoutPeriod
 		Integer actualCount = cache.getSizeRecordsNewerThan(operationType, timestampWithoutPeriod);
 		//
-		// check count is higher than disable limit or warning limit
+		// check count is higher than disable limit
 		if (actualCount >= breakConfig.getDisableLimit()) {
 			//
 			// block system for operation
@@ -140,11 +142,15 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 						SysProvisioningBreakConfig_.disableLimit, IdmNotificationTemplateDto.class);
 			}
 			//
-			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template, breakConfig.getId());
+			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template, breakConfig.getId(), operationType);
 			//
+			LOG.warn("System id: [{}] will be blocked for operation: [{}].",
+					provisioningOperation.getSystem(), operationType.toString());
+			provisioningOperation = blockOperation(provisioningOperation, system);
 			blocked = true;
-		} else if (actualCount >= breakConfig.getWarningLimit()) {
-			LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations.",
+		} else if (actualCount == breakConfig.getWarningLimit()) {
+			// if count is equals to warning send notification
+			LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations + send message.",
 					provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
 			IdmNotificationTemplateDto template = null;
 			if (breakConfig.getWarningTemplate() == null) {
@@ -154,19 +160,15 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 						SysProvisioningBreakConfig_.warningTemplate, IdmNotificationTemplateDto.class);				
 			}
 			//
-			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template, breakConfig.getId());
+			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template, breakConfig.getId(), operationType);
+		} else if (actualCount > breakConfig.getWarningLimit()) {
+			// after overrun warning limit, isn't send any another notification - add at least log
+			LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations.",
+					provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
 		}
 		// remove all unless items in cache
-		cache.removeOlderRecordsThan(operationType, timestampWithoutPeriod);
 		cache.addItem(operationType, currentTimeMillis);
 		breakConfigService.saveCacheProcessedItems(provisioningOperation.getSystem(), cache);
-		//
-		// can block and is block allowed
-		if (blocked && !breakConfig.isOperationDisabled()) {
-			LOG.warn("System id: [{}] will be blocked for operation: [{}].",
-					provisioningOperation.getSystem(), operationType.toString());
-			provisioningOperation = blockOperation(provisioningOperation, system);
-		}
 		//
 		event.setContent(provisioningOperation);
 		return new DefaultEventResult<>(event, this, blocked);
@@ -257,11 +259,12 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	 * @param breakConfigId
 	 */
 	private void sendMessage(String topic, SysSystemDto system, Integer actualCount, IdmNotificationTemplateDto template,
-			UUID breakConfigId) {
+			UUID breakConfigId, ProvisioningEventType operationType) {
 		notificationManager.send(topic,
 				new IdmMessageDto.Builder()
 					.setTemplate(template)
-					.addParameter("system", system.getName())
+					.addParameter("systemName", system.getName())
+					.addParameter("operationName", operationType.name())
 					.addParameter("actualCount", actualCount)
 					.build(),
 				breakRecipientService.getAllRecipients(breakConfigId));

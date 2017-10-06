@@ -14,16 +14,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient_;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakRecipientRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -53,6 +56,15 @@ public class DefaultSysProvisioningBreakRecipientService extends
 		Assert.notNull(identityService);
 		//
 		this.identityService = identityService;
+	}
+	
+	@Override
+	public SysProvisioningBreakRecipientDto save(SysProvisioningBreakRecipientDto dto, BasePermission... permission) {
+		if (dto.getRole() != null && dto.getIdentity() != null) {
+			LOG.error("For recipient exists settings for role and identity. Allowed is only one property!");
+			throw new ProvisioningException(AccResultCode.PROVISIONING_BREAK_RECIPIENT_CONFLICT);
+		}
+		return super.save(dto, permission);
 	}
 
 	@Override

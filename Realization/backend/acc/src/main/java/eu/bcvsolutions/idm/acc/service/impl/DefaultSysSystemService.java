@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -42,6 +43,7 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -107,6 +109,7 @@ public class DefaultSysSystemService
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final FormService formService;
+	private final SysProvisioningBreakConfigService provisioningBreakConfigService;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -126,7 +129,8 @@ public class DefaultSysSystemService
 			SysSystemFormValueService systemFormValueService,
 			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			SysSchemaObjectClassService schemaObjectClassService) {
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysProvisioningBreakConfigService provisioningBreakConfigService) {
 		super(systemRepository);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -145,6 +149,7 @@ public class DefaultSysSystemService
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(schemaObjectClassService);
 		Assert.notNull(formService);
+		Assert.notNull(provisioningBreakConfigService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -163,6 +168,7 @@ public class DefaultSysSystemService
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.formService = formService;
+		this.provisioningBreakConfigService = provisioningBreakConfigService;
 	}
 	
 	@Override
@@ -185,10 +191,13 @@ public class DefaultSysSystemService
 		if(!isNew(dto)){
 			// Check if is connector changed
 			SysSystemDto oldSystem = this.get(dto.getId());
+			
 			if(!dto.getConnectorKey().equals(oldSystem.getConnectorKey())){
 				// If is connector changed, we set virtual to false. (Virtual connectors set this attribute on true by themselves)
 				dto.setVirtual(false);
 			}
+			// check blocked provisioning operation and clear provisioning break cache
+			clearProvisionignBreakCache(dto, oldSystem);
 		}
 		SysSystemDto newSystem = super.save(dto, permission);
 		//
@@ -855,5 +864,31 @@ public class DefaultSysSystemService
 
 	protected FormService getFormService() {
 		return formService;
+	}
+	
+	/**
+	 * Method check different between new and old system if some of blocked
+	 * attribute change clear for them provisioning break configuration.
+	 * 
+	 * @param newSystem
+	 * @param oldSystem
+	 */
+	private void clearProvisionignBreakCache(SysSystemDto newSystem, SysSystemDto oldSystem) {
+		if (newSystem.getBlockedOperation() == null || oldSystem == null || oldSystem.getBlockedOperation() == null) {
+			return;
+		}
+		// check if attribute operation disable change from false to true - then clear cachce
+		if (newSystem.getBlockedOperation().getCreateOperation() == Boolean.FALSE
+				&& oldSystem.getBlockedOperation().getCreateOperation() == Boolean.TRUE) {
+			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.CREATE);
+		}
+		if (newSystem.getBlockedOperation().getUpdateOperation() == Boolean.FALSE
+				&& oldSystem.getBlockedOperation().getUpdateOperation() == Boolean.TRUE) {
+			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.UPDATE);
+		}
+		if (newSystem.getBlockedOperation().getDeleteOperation() == Boolean.FALSE
+				&& oldSystem.getBlockedOperation().getDeleteOperation() == Boolean.TRUE) {
+			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.DELETE);
+		}
 	}
 }

@@ -1,40 +1,24 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
 <!--
-New virtual system request (for realization) was created and send to implementers.
+System was disabled by provisioning break
  -->
 
 <template
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
-	<code>vs:vsRequestCreated</code>
-	<name>New virtual system request (for realization) was created and send to implementers.</name>
-	<subject>CzechIdM - požadavek na realizaci účtu '$request.Uid' na systému '$systemName'</subject>
+	<code>provisioningDisable</code>
+	<name>Notification with information about disable system.</name>
+	<subject>CzechIdM - na systému '$systemName' byla zablokována operace '$operationName'</subject>
 	<bodyHtml>
 <![CDATA[
 <html>
   <body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
-    ## Print multi value from attribute
-    #macro( printMultivalue $values $showOldValue )
-      #set( $oldValueTrue = "true" )
-      #foreach( $value in $values )
-          #if($showOldValue != $oldValueTrue && $value.getValue())
-          <span style="#getLevelColor($value.getChange())">
-              $value.getValue()
-          </span>
-          #end
-          #if($showOldValue == $oldValueTrue && $value.getOldValue())
-          <span>
-              $value.getOldValue()
-          </span>
-          #end
-      #end
-    #end
 
-    ## Return style by change operation
+    ## Return style by provisioning operation
     #macro( getLevelColor $change )
-      #set( $updated = "UPDATED" )
-      #set( $added = "ADDED" )
-      #set( $removed = "REMOVED" )
+      #set( $updated = "UPDATE" )
+      #set( $added = "CREATE" )
+      #set( $removed = "DELETE" )
       #if( $added == $change)
         background-color: #5cb85c; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
       #elseif( $updated == $change)
@@ -43,115 +27,12 @@ New virtual system request (for realization) was created and send to implementer
         background-color: #d9534f; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; text-decoration: line-through; margin: 2px;
       #end
     #end
-
-    ## Print table of attributes (with highlight changes)
-    #macro( printAttributes $atts $loc)
-      #set($showNewColumn = true)
-      #set($locEng = 'ENG')
-      #set($operationTypeDelete = 'DELETE')
-      #if($operationTypeDelete == $request.getOperationType())
-        #set($showNewColumn = false)
-      #end
-      <table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
-        <tbody>
-          <tr style="height: 15px;">
-            <td style="background-color: #5cb85c; min-width: 150px;"><span style="font-size: 12pt; color: #ffffff;">
-				<strong>
-					#if($locEng == $loc)
-						Attribute name
-					#else
-						Název atributu
-					#end
-				</strong></span></td>
-            #if($showNewColumn)
-              <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;">
-				  <strong>
-				   #if($locEng == $loc)
-						Target value
-				   #else
-						Cílová hodnota
-				   #end	
-				  </strong></span></td>
-            #end
-            <td style="background-color: #5cb85c; min-width: 300px;"><span style="font-size: 12pt; color: #ffffff;">
-				<strong>
-					#if($locEng == $loc)
-						Previous value
-				   #else
-						Předchozí hodnota
-				   #end
-				</strong></span></td>
-          </tr>
-          #foreach( $attribute in $atts )
-            <tr style="#if($attribute.isChanged()) background-color: #faf2cc; #end height: 25px;">
-              #if( $attribute.isMultivalue() )
-                <td ><span style="font-size: 12pt;"><strong>$attribute.getName()</strong></span></td>
-                #set( $showOldValue = "false" )
-                #if($showNewColumn)
-                  <td ><span style="font-size: 12pt;">#printMultivalue( $attribute.getValues() $showOldValue)</span></td>
-                #end
-                #set( $showOldValue = "true" )
-                <td ><span style="font-size: 12pt;">#printMultivalue( $attribute.getValues() $showOldValue)</span></td>
-              #else
-                  <td ><span style="font-size: 12pt;"><strong>$attribute.getName()</strong></span></td>
-                  #if($showNewColumn)
-                    <td ><span style="font-size: 12pt;"><span style="#getLevelColor($attribute.getValue().getChange())">#if($attribute.getValue().getValue())$attribute.getValue().getValue()#end</span></td>
-                  #end
-                  <td ><span style="font-size: 12pt;"><span>#if($attribute.getValue().getOldValue())$attribute.getValue().getOldValue()#end</span></td>
-              #end
-            </tr>
-          #end
-        </tbody>
-      </table>
-    #end
+		
 
     Dobrý den,<br />
-    byl vytvořen požadavek na realizaci účtu '<b>$request.getUid()</b>' na virtuálním systému '<b>$systemName</b>'.<br />
+    na systému '<b>$systemName</b>' byla zablokována operace: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
     <br />
-
-    Kontaktní údaje: <br />
-    Jméno: <b>$fullName</b><br />
-    Telefon:
-    #if($identity.getPhone())
-      <b>$identity.getPhone()</b>
-    #end
-    <br />
-    Email:
-    #if($identity.getEmail())
-      <b>$identity.getEmail()</b>
-    #end
-    <br />
-    <br />
-    #set($operationTypeDelete = 'DELETE')
-    #if($operationTypeDelete == $request.getOperationType())
-      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #f2dede; color: #a94442; padding: 10px;
-      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
-        Účet má být z koncového systému odstraněn.
-      </div>
-    #end
-    #set($operationTypeDelete = 'CREATE')
-    #if($operationTypeDelete == $request.getOperationType())
-      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #dff0d8; color: #3c763d; padding: 10px;
-      border: 1px solid; border-radius: 4px; border-color: #d6e9c6;">
-        Účet má být na koncového systému vytvořen.
-      </div>
-    #end
-    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
-    border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
-        <b>Zajistěte prosím realizaci požadovaných změn.</b><br/>
-        <br/>
-        Potvrzení či zamítnutí realizace můžete provést <a href='$url'>zde</a>.
-    </div>
-    #if($previousUrl)
-    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
-    border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
-          Pro tento účet a systém, existuje nevyřešený požadavek nebo požadavky. Věnujte pozornost přednostně předchozím požadavkům. Detail posledního požadavku je <a href='$previousUrl'>zde</a>.
-    </div>
-    #end
-    Cílový stav na systému (pro účet <b>$request.getUid()</b>):<br/>
-    <br/>
-    #printAttributes($wishAttributes 'CZ')
-    <br />
+		Další operace tohoto typu budou řazeny do fronty provisioningu.
 
     <div style="display: block; margin: 30px auto; max-width: 400px;">
         CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
@@ -162,53 +43,10 @@ New virtual system request (for realization) was created and send to implementer
     </div>
     
     <br/>Hello,<br />
-    was created request to implement change for account '<b>$request.getUid()</b>' on virtual system '<b>$systemName</b>'.<br />
+    on system '<b>$systemName</b>' was blocked the operation: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
     <br />
-
-    Contact information: <br />
-    Name: <b>$fullName</b><br />
-    Phone:
-    #if($identity.getPhone())
-      <b>$identity.getPhone()</b>
-    #end
-    <br />
-    Email:
-    #if($identity.getEmail())
-      <b>$identity.getEmail()</b>
-    #end
-    <br />
-    <br />
-    #set($operationTypeDelete = 'DELETE')
-    #if($operationTypeDelete == $request.getOperationType())
-      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #f2dede; color: #a94442; padding: 10px;
-      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
-       The account is to be removed from the target system.
-      </div>
-    #end
-    #set($operationTypeDelete = 'CREATE')
-    #if($operationTypeDelete == $request.getOperationType())
-      <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #dff0d8; color: #3c763d; padding: 10px;
-      border: 1px solid; border-radius: 4px; border-color: #d6e9c6;">
-      The account is to be created on the target system.
-      </div>
-    #end
-    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
-    border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
-        <b>Ensure that required changes will be maked.</b><br/>
-        <br/>
-        You can confirm or deny realization <a href='$url'>here</a>.
-    </div>
-    #if($previousUrl)
-    <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
-    border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
-          For this account and system, there is a pending request or requirements. Prioritize previous requirements. The detail of the last request is <a href='$previousUrl'>here</a>.
-    </div>
-    #end
-    Target state on the target system (for account <b>$request.getUid()</b>):<br/>
-    <br/>
-    #printAttributes($wishAttributes 'ENG')
-    <br />
-
+		Next operations of this type will be placed into provisioning queue.
+		
     <div style="display: block; margin: 30px auto; max-width: 400px;">
         CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
     </div>
@@ -217,7 +55,7 @@ New virtual system request (for realization) was created and send to implementer
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>
-	<parameter>requestAttributes, wishAttributes, fullName, url, previousUrl, request, systemName, identity</parameter>
+	<parameter>systemName, operationName</parameter>
 	<systemTemplate>true</systemTemplate>
-	<moduleId>vs</moduleId>
+	<moduleId>acc</moduleId>
 </template>

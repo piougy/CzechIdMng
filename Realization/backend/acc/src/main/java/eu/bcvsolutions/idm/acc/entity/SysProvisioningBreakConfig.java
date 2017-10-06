@@ -50,10 +50,6 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 	private Long period;
 
 	@Audited
-	@Column(name = "operation_disabled", nullable = false)
-	private boolean operationDisabled = false;
-
-	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
@@ -111,14 +107,6 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 
 	public void setPeriod(Long period) {
 		this.period = period;
-	}
-
-	public boolean isOperationDisabled() {
-		return operationDisabled;
-	}
-
-	public void setOperationDisabled(boolean operationDisabled) {
-		this.operationDisabled = operationDisabled;
 	}
 
 	public boolean isDisabled() {

@@ -42,9 +42,59 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
     }
   }
 
+  /**
+   * Bulk delete operation for
+   */
+  onDelete(bulkActionValue, selectedRows) {
+    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    const savedEntities = [];
+    for (const index in selectedEntities) {
+      if (selectedEntities.hasOwnProperty(index)) {
+        // delete only entity that isn't set globalConfiguration
+        const entity = selectedEntities[index];
+        if (entity && !entity.globalConfiguration) {
+          savedEntities.push(entity);
+        } else {
+          this.addMessage({
+            message: this.i18n(`acc:error.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE.message`, { name: this.getManager().getNiceLabel(entity) }),
+            title: this.i18n(`acc:error.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE.title`),
+            level: 'warning'
+          });
+        }
+      }
+    }
+    //
+    if (savedEntities.length > 0) {
+      this.refs['confirm-' + bulkActionValue].show(
+        this.i18n(`action.${bulkActionValue}.message`, { count: savedEntities.length, record: this.getManager().getNiceLabel(savedEntities[0]), records: this.getManager().getNiceLabels(savedEntities).join(', ') }),
+        this.i18n(`action.${bulkActionValue}.header`, { count: savedEntities.length, records: this.getManager().getNiceLabels(savedEntities).join(', ') })
+      ).then(() => {
+        this.context.store.dispatch(this.getManager().deleteEntities(savedEntities, this.getUiKey(), (entity, error) => {
+          if (entity && error) {
+            if (error.statusCode !== 202) {
+              this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+            } else {
+              this.addError(error);
+            }
+          } else {
+            this.refs.table.getWrappedInstance().reload();
+          }
+        }));
+      }, () => {
+        // nothing
+      });
+    } else {
+      this.addMessage({
+        title: this.i18n('removeFailture'),
+        level: 'warning'
+      });
+    }
+    //
+  }
+
   render() {
     const { entityId } = this.props.params;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('includeGlobalConfig', true);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -88,6 +138,9 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
               className="detail-button"
               cell={
                 ({ rowIndex, data }) => {
+                  if (data[rowIndex].globalConfiguration) {
+                    return (<Basic.Label text={this.i18n('acc:entity.ProvisioningBreakConfig.globalConfiguration')} />);
+                  }
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
@@ -108,14 +161,19 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
               header={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}
               sort/>
             <Advanced.Column
-              property="_embedded.emailTemplateWarning.code"
+              property="actualOperationCount"
               face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning.label')}
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}
               sort/>
             <Advanced.Column
-              property="_embedded.emailTemplateDisabled.code"
+              property="disableLimit"
               face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled.label')}
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.label')}
+              sort/>
+            <Advanced.Column
+              property="warningLimit"
+              face="text"
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.label')}
               sort/>
           </Advanced.Table>
         </Basic.Panel>

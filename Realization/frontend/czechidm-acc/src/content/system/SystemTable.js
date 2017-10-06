@@ -196,14 +196,15 @@ export class SystemTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
-          <Advanced.ColumnLink
+          <Advanced.Column
             property="blockedOperation"
             width="15%"
             cell={({ rowIndex, data }) => {
               return (
                 this._getBlockedOperations(data[rowIndex])
               );
-            }}/>
+            }}
+            rendered={_.includes(columns, 'blockedOperation')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="virtual" sort face="bool" width="75px" rendered={_.includes(columns, 'virtual')}/>
           <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
@@ -226,7 +227,7 @@ SystemTable.propTypes = {
 };
 
 SystemTable.defaultProps = {
-  columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue'],
+  columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue', 'blockedOperation'],
   filterOpened: false,
   _showLoading: false,
   forceSearchParameters: new Domain.SearchParameters(),

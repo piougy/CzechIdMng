@@ -21,7 +21,6 @@ CREATE TABLE sys_provisioning_break_config
   transaction_id bytea,
   disable_limit integer,
   disabled boolean NOT NULL,
-  operation_disabled boolean NOT NULL,
   operation_type character varying(255) NOT NULL,
   period bigint NOT NULL,
   warning_limit integer,
@@ -56,9 +55,9 @@ CREATE TABLE sys_provisioning_break_recipient
   original_modifier_id bytea,
   realm_id bytea,
   transaction_id bytea,
-  break_config_id bytea NOT NULL,
-  identity_id bytea NOT NULL,
-  role_id bytea NOT NULL,
+  break_config_id bytea,
+  identity_id bytea,
+  role_id bytea,
   CONSTRAINT sys_provisioning_break_recipient_pkey PRIMARY KEY (id)
 );
 
@@ -110,8 +109,6 @@ CREATE TABLE sys_provisioning_break_config_a
   disable_limit_m boolean,
   disabled boolean,
   disabled_m boolean,
-  operation_disabled boolean,
-  operation_disabled_m boolean,
   operation_type character varying(255),
   operation_type_m boolean,
   period bigint,

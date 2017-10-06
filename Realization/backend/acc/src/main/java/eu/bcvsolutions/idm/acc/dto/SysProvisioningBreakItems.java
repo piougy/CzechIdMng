@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.util.Assert;
+
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 
 /**
@@ -96,5 +98,15 @@ public class SysProvisioningBreakItems {
 	 */
 	public int getSizeRecordsNewerThan(ProvisioningEventType provisioningType, Long timestamp) {
 		return getRecordsNewerThan(provisioningType, timestamp).size();
+	}
+	
+	/**
+	 * Clear all records for given {@link ProvisioningEventType}
+	 * 
+	 * @param provisioningType
+	 */
+	public void clearRecords(ProvisioningEventType provisioningType) {
+		Assert.notNull(provisioningType);
+		this.getExecudedItems(provisioningType).clear();
 	}
 }

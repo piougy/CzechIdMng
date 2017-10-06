@@ -470,6 +470,19 @@
       },
       "create": {
         "success": "Provisioning break successfully created"
+      },
+      "recipientInfo": "You can add the recipients only after the brake has been created.",
+      "removeFailture": "No configurations have been removed."
+    },
+    "provisioningBreakConfigRecipient": {
+      "title": "Recipients",
+      "new": "Create new recipient",
+      "edit": "Edit recipient",
+      "save": {
+        "success": "Recipient successfully saved"
+      },
+      "create": {
+        "success": "Recipient successfully created"
       }
     },
     "passwordPolicy": {
@@ -836,19 +849,30 @@
         "label": "Disable limit",
         "help": "Number of operations from which all subsequent operations will be blocked."
       },
-      "emailTemplateWarning": {
+      "warningTemplate": {
         "label": "Warning template",
         "help": "A message with this template will be sent if the warning limit is exceeded."
       },
-      "emailTemplateDisabled": {
+      "disableTemplate": {
         "label": "Disable template",
         "help": "A message with this template will be sent if the block limit is exceeded."
       },
-      "operationDisabled": {
-        "label": "Block the operation",
-        "help": "Blocks an operation for a given system if the blocking limit is exceeded"
+      "actualOperationCount": {
+        "label": "Number of processed operations",
+        "help": "Number of operations processed for this provisioning brake (from last successful provisioning)."
       },
-      "disabled": "Inactive"
+      "disabled": "Inactive",
+      "globalConfiguration": "Global configuration"
+    },
+    "ProvisioningBreakConfigRecipient": {
+      "role": "Recipients with role",
+      "identity": "Recipient",
+      "type": {
+        "label": "Recipient type",
+        "role": "Role",
+        "identity": "Identity"
+      },
+      "name": "Recipient name"
     }
   },
   "enums" : {
@@ -1180,6 +1204,14 @@
     "ROLE_SYSTEM_ALREADY_EXISTS": {
       "title": "Duplicate mapping",
       "message": "Mapping for same role [{{role}}] and same system [{{system}}] already exists!"
+    },
+    "PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE": {
+      "title": "Configuration could not be deleted",
+      "message": "Configuration: {{name}} is global and can not be deleted."
+    },
+    "PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE": {
+      "title": "Configuration could not be saved",
+      "message": "Configuration: {{name}}is global and can not be saved."
     }
   }
 }

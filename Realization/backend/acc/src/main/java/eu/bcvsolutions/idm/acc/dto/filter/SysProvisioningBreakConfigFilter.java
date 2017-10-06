@@ -20,6 +20,7 @@ public class SysProvisioningBreakConfigFilter implements BaseFilter {
 	private Long period;
 	private ProvisioningEventType operationType;
 	private UUID systemId;
+	private boolean includeGlobalConfig = false;
 
 	public Integer getWarningLimit() {
 		return warningLimit;
@@ -61,4 +62,11 @@ public class SysProvisioningBreakConfigFilter implements BaseFilter {
 		this.systemId = systemId;
 	}
 
+	public boolean isIncludeGlobalConfig() {
+		return includeGlobalConfig;
+	}
+
+	public void setIncludeGlobalConfig(boolean includeGlobalConfig) {
+		this.includeGlobalConfig = includeGlobalConfig;
+	}
 }

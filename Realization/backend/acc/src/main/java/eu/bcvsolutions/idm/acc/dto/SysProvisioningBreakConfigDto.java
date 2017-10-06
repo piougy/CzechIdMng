@@ -6,6 +6,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
@@ -29,7 +32,6 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 	private Integer warningLimit;
 	private Integer disableLimit;
 	private Long period;
-	private boolean operationDisabled = false;
 	private boolean disabled;
 	private ProvisioningEventType operationType;
 	@Embedded(dtoClass = SysSystemDto.class)
@@ -38,6 +40,10 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 	private UUID warningTemplate;
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
 	private UUID disableTemplate;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Integer actualOperationCount;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Boolean globalConfiguration;
 
 	public UUID getWarningTemplate() {
 		return warningTemplate;
@@ -82,14 +88,6 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 
 	public void setPeriod(Long period) {
 		this.period = period;
-	}
-
-	public boolean isOperationDisabled() {
-		return operationDisabled;
-	}
-
-	public void setOperationDisabled(boolean operationDisabled) {
-		this.operationDisabled = operationDisabled;
 	}
 
 	public boolean isDisabled() {
@@ -167,5 +165,21 @@ public class SysProvisioningBreakConfigDto extends AbstractDto {
 		} else {
 			return getPeriod();
 		}
+	}
+
+	public Integer getActualOperationCount() {
+		return actualOperationCount;
+	}
+
+	public void setActualOperationCount(Integer actualOperationCount) {
+		this.actualOperationCount = actualOperationCount;
+	}
+
+	public Boolean getGlobalConfiguration() {
+		return globalConfiguration;
+	}
+
+	public void setGlobalConfiguration(Boolean globalConfiguration) {
+		this.globalConfiguration = globalConfiguration;
 	}
 }

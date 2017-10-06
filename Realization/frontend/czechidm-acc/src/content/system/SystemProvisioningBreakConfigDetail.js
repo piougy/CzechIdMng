@@ -5,9 +5,15 @@ import { connect } from 'react-redux';
 import { Basic, Managers, Utils, Advanced } from 'czechidm-core';
 import { ProvisioningBreakConfigManager, ProvisioningBreakRecipientManager } from '../../redux';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
+import SystemProvisioningBreakConfigRecipientTable from './SystemProvisioningBreakConfigRecipientTable';
 
 const uiKey = 'provisioning-break-config-detail';
 const manager = new ProvisioningBreakConfigManager();
+
+/**
+ * TODO: problem with attribute period validation trought joi and required nto working
+ *
+ */
 
 class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent {
 
@@ -98,7 +104,10 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
   _getIsNew(nextProps) {
     const { query } = nextProps ? nextProps.location : this.props.location;
-    return (query) ? query.new : null;
+    if (query && query !== null && query.new !== undefined) {
+      return query.new;
+    }
+    return false;
   }
 
   _getBoolColumn(value) {
@@ -111,6 +120,9 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
   render() {
     const { _showLoading, entity } = this.props;
+    const { configId } = this.props.params;
+
+    const isNew = this._getIsNew();
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -132,38 +144,50 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 required/>
               <Basic.TextField
                 ref="warningLimit"
-                type="number"
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.help')}
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.label')}/>
               <Basic.TextField
                 ref="disableLimit"
-                type="number"
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.help')}
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.label')}/>
               <Basic.TextField
                 ref="period"
                 type="number"
+                validation={ Utils.Ui.getJoiIntegerValidation() }
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.period.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}
-                required/>
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}/>
               <Basic.SelectBox
-                ref="emailTemplateWarning"
+                ref="warningTemplate"
                 manager={this.notificationTemplatemanager}
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateWarning.label')}/>
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.label')}/>
               <Basic.SelectBox
-                ref="emailTemplateDisabled"
+                ref="disableTemplate"
                 manager={this.notificationTemplatemanager}
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.emailTemplateDisabled.label')}/>
-              <Basic.Checkbox
-                ref="operationDisabled"
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.operationDisabled.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.operationDisabled.label')}/>
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.label')}/>
+              <Basic.TextField
+                ref="actualOperationCount"
+                readOnly
+                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.help')}
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}/>
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.disabled')}/>
             </Basic.AbstractForm>
+
+            <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={_showLoading}>
+              <Basic.PanelHeader text={this.i18n('acc:content.provisioningBreakConfigRecipient.title')}/>
+                <Basic.Alert level="info" text={this.i18n('recipientInfo')} rendered={isNew}/>
+                <SystemProvisioningBreakConfigRecipientTable
+                  uiKey="provisioningBreakConfigRecipient"
+                  manager={this.provisioningBreakRecipientManager}
+                  provisioningBreakConfigId={configId}
+                  rendered={!isNew} />
+            </Basic.Panel>
+
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}

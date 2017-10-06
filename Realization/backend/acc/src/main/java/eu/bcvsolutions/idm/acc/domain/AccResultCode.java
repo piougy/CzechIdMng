@@ -65,6 +65,9 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Account for parent node [%s] was not found!"),
 	PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS(HttpStatus.NOT_FOUND, "Too many accounts for parent node [%s] was found! Excepted only one for same system!"),
 	PROVISIONING_BREAK_OPERATION_EXISTS(HttpStatus.CONFLICT, "Operation [%s] for system [%s] already exists!"),
+	PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE(HttpStatus.BAD_REQUEST, "Global configuration for operation [%s] can't be saved. Use confgiguration properties!"),
+	PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE(HttpStatus.BAD_REQUEST, "Global configuration for operation [%s] can't be deleted. Use confgiguration properties!"),
+	PROVISIONING_BREAK_RECIPIENT_CONFLICT(HttpStatus.CONFLICT, "For recipient exists settings for role and identity. Allowed is only one property!"),
 	//
 	// Synchronization
 	SYNCHRONIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Synchronization [%s] not found!"),

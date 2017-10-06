@@ -36,6 +36,14 @@ public interface SysProvisioningBreakConfigService
 	 * @return
 	 */
 	SysProvisioningBreakItems getCacheProcessedItems(UUID systemId);
+	
+	/**
+	 * Clear cache for given system id and provisioning event type
+	 * 
+	 * @param systemId
+	 * @param event
+	 */
+	void clearCache(UUID systemId, ProvisioningEventType event);
 
 	/**
 	 * Save cache
@@ -45,5 +53,10 @@ public interface SysProvisioningBreakConfigService
 	 */
 	void saveCacheProcessedItems(UUID systemId, SysProvisioningBreakItems cache);
 	
-	SysProvisioningBreakConfigDto getGlobalBreakConfiguration();
+	/**
+	 * Method return global configuration for given operation type
+	 * 
+	 * @return
+	 */
+	SysProvisioningBreakConfigDto getGlobalBreakConfiguration(ProvisioningEventType eventType);
 }

@@ -59,7 +59,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				null,
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains warning with information about provisioning operation.",
-				null)
+				getNotificationTemplateId("provisioningWarning"))
 				);
 		//
 		configs.add(new NotificationConfigurationDto(
@@ -67,7 +67,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				null,
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about blocked system for provisioning operation.",
-				null)
+				getNotificationTemplateId("provisioningDisable"))
 				);
 		//
 		configs.add(new NotificationConfigurationDto(

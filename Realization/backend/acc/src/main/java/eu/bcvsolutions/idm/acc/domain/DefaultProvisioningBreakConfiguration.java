@@ -10,10 +10,16 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
-import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
+
+/**
+ * Configuration properties for global provisioning break
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 
 @Component("provisioningBreakConfiguration")
 public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration implements ProvisioningBreakConfiguration {
@@ -21,71 +27,70 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultProvisioningBreakConfiguration.class);
 	
-	private final IdmIdentityService identityService;
-	private final IdmRoleService roleService;
-	private final IdmNotificationTemplateService notificationTemplateService;
+	private final LookupService lookupService;
 	
 	@Autowired
 	public DefaultProvisioningBreakConfiguration(
-			IdmIdentityService identityService,
-			IdmRoleService roleService,
-			IdmNotificationTemplateService notificationTemplateService) {
+			LookupService lookupService) {
 		//
-		Assert.notNull(identityService);
-		Assert.notNull(roleService);
-		Assert.notNull(notificationTemplateService);
+		Assert.notNull(lookupService);
 		//
-		this.identityService = identityService;
-		this.roleService = roleService;
-		this.notificationTemplateService = notificationTemplateService;
+		this.lookupService = lookupService;
 	}
 	
 	@Override
-	public Boolean getDisabled() {
-		return this.getConfigurationBooleanValue(PROPERTY_GLOBAL_BREAK_DISABLED);
+	public Boolean getDisabled(ProvisioningEventType eventType) {
+		return this.getConfigurationBooleanValue(getPrefix(eventType) + PROPERTY_DISABLED);
 	}
 
 	@Override
-	public Integer getWarningLimit() {
-		return this.getConfigurationIntegerValue(PROPERTY_GLOBAL_BREAK_WARNING_LIMIT);
+	public Integer getWarningLimit(ProvisioningEventType eventType) {
+		return this.getConfigurationIntegerValue(getPrefix(eventType) + PROPERTY_WARNING_LIMIT);
 	}
 
 	@Override
-	public Integer getDisableLimit() {
-		return this.getConfigurationIntegerValue(PROPERTY_GLOBAL_BREAK_DISABLE_LIMIT);
+	public Integer getDisableLimit(ProvisioningEventType eventType) {
+		return this.getConfigurationIntegerValue(getPrefix(eventType) + PROPERTY_DISABLE_LIMIT);
 	}
 
 	@Override
-	public Boolean getOperationDisabled() {
-		return this.getConfigurationBooleanValue(PROPERTY_GLOBAL_BREAK_OPERATION_DISABLED);
+	public Long getPeriod(ProvisioningEventType eventType) {
+		return this.getConfigurationLongValue(getPrefix(eventType) + PROPERTY_PERIOD);
 	}
 
 	@Override
-	public Long getPeriod() {
-		return this.getConfigurationLongValue(PROPERTY_GLOBAL_BREAK_PERIOD);
-	}
-
-	@Override
-	public IdmNotificationTemplateDto getWarningTemplate() {
-		String templateId = getConfigurationValue(PROPERTY_GLOBAL_BREAK_TEMPLATE_WARNING);
+	public IdmNotificationTemplateDto getWarningTemplate(ProvisioningEventType eventType) {
+		String templateId = getConfigurationValue(getPrefix(eventType) + PROPERTY_TEMPLATE_WARNING);
 		//
-		return notificationTemplateService.get(templateId);
-	}
-
-	@Override
-	public IdmNotificationTemplateDto getDisableTemplate() {
-		String templateId = getConfigurationValue(PROPERTY_GLOBAL_BREAK_TEMPLATE_DISABLE);
+		if (templateId == null) {
+			return null;
+		}
 		//
-		return  notificationTemplateService.get(templateId);
+		return (IdmNotificationTemplateDto) lookupService.lookupDto(IdmNotificationTemplateDto.class, templateId);
 	}
 
 	@Override
-	public List<IdmIdentityDto> getIdentityRecipients() {
+	public IdmNotificationTemplateDto getDisableTemplate(ProvisioningEventType eventType) {
+		String templateId = getConfigurationValue(getPrefix(eventType) + PROPERTY_TEMPLATE_DISABLE);
+		//
+		if (templateId == null) {
+			return null;
+		}
+		//
+		return (IdmNotificationTemplateDto) lookupService.lookupDto(IdmNotificationTemplateDto.class, templateId);
+	}
+
+	@Override
+	public List<IdmIdentityDto> getIdentityRecipients(ProvisioningEventType eventType) {
 		List<IdmIdentityDto> recipients = new ArrayList<>();
-		String identities = getConfigurationValue(PROPERTY_GLOBAL_BREAK_IDENTITY_RECIPIENTS);
+		String identities = getConfigurationValue(getPrefix(eventType) + PROPERTY_IDENTITY_RECIPIENTS);
+		//
+		if (identities == null) {
+			return null;
+		}
 		//
 		for (String identityId : identities.split(REQEX_FOR_RECIPIENTS)) {
-			IdmIdentityDto identityDto = identityService.get(identityId);
+			IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identityId);
 			if (identityDto == null) {
 				LOG.error("Identity for id [{}] not found", identityId);
 			} else {
@@ -96,13 +101,17 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 	}
 
 	@Override
-	public List<IdmRoleDto> getRoleRecipients() {
+	public List<IdmRoleDto> getRoleRecipients(ProvisioningEventType eventType) {
 		List<IdmRoleDto> recipients = new ArrayList<>();
-		String roles = getConfigurationValue(PROPERTY_GLOBAL_BREAK_ROLE_RECIPIENTS);
+		String roles = getConfigurationValue(getPrefix(eventType) + PROPERTY_ROLE_RECIPIENTS);
+		//
+		if (roles == null) {
+			return null;
+		}
 		//
 		for (String roleId : roles.split(REQEX_FOR_RECIPIENTS)) {
 			roleId = roleId.trim();
-			IdmRoleDto roleDto = roleService.get(roleId);
+			IdmRoleDto roleDto = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleId);
 			if (roleDto == null) {
 				LOG.error("Role for id [{}] not found", roleId);
 			} else {
@@ -111,11 +120,13 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 		}
 		return recipients;
 	}
-
-	@Override
-	public ProvisioningOperationType getOperationType() {
-		String operationType = getConfigurationValue(PROPERTY_GLOBAL_BREAK_OPERATION_TYPE);
-		return ProvisioningOperationType.valueOf(operationType);
+	
+	/**
+	 * Method return configuration prefix for given operation type
+	 * 
+	 * @return
+	 */
+	private String getPrefix(ProvisioningEventType eventType) {
+		return eventType.name().toLowerCase() + ConfigurationService.PROPERTY_SEPARATOR;
 	}
-
 }

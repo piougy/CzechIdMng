@@ -476,6 +476,19 @@
       },
       "create": {
         "success": "Brzda provisioningu byla úspěšně vytvořena"
+      },
+      "recipientInfo": "Příjemce můžete přidat až po vytvoření brzdy.",
+      "removeFailture": "Žádné konfigurace nebyly odebrány."
+    },
+    "provisioningBreakConfigRecipient": {
+      "title": "Příjemci",
+      "new": "Vytvořit nového příjemce",
+      "edit": "Editace příjemce",
+      "save": {
+        "success": "Příjemce byl úspešně uložen"
+      },
+      "create": {
+        "success": "Příjemce byl úspěšně vytvořen"
       }
     },
     "passwordPolicy": {
@@ -842,19 +855,30 @@
         "label": "Limit pro zablokování",
         "help": "Počet operací od kterých budou všechny následující operace zablokovány."
       },
-      "emailTemplateWarning": {
+      "warningTemplate": {
         "label": "Šablona pro varovné hlášení",
         "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro varování."
       },
-      "emailTemplateDisabled": {
+      "disableTemplate": {
         "label": "Šablona pro blokační hlášení",
         "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro zablokování."
       },
-      "operationDisabled": {
-        "label": "Zablokovat operaci",
-        "help": "Zablokuje operaci pro daný systém v případě překročení blokačního limitu"
+      "actualOperationCount": {
+        "label": "Počet zpracovaných operací",
+        "help": "Počet zpracovaných operací pro tuto brzdu provisioningu (odposledního úspěšného provisioningu)."
       },
-      "disabled": "Neaktivní"
+      "disabled": "Neaktivní",
+      "globalConfiguration": "Globální konfigurace"
+    },
+    "ProvisioningBreakConfigRecipient": {
+      "role": "Příjemci s rolí",
+      "identity": "Příjemce",
+      "type": {
+        "label": "Typ příjemce",
+        "role": "Role",
+        "identity": "Identita"
+      },
+      "name": "Jméno příjemce"
     }
   },
   "enums" : {
@@ -1186,6 +1210,14 @@
     "ROLE_SYSTEM_ALREADY_EXISTS": {
       "title": "Duplicitní mapování",
       "message": "Mapování pro stejnou roli [{{role}}] a stejný systém [{{system}}] již existuje!"
+    },
+    "PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE": {
+      "title": "Konfiguraci nebylo možné smazat",
+      "message": "Konfigurace: {{name}} je globální a nelze ji smazat."
+    },
+    "PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE": {
+      "title": "Konfiguraci nebylo možné uložit",
+      "message": "Konfigurace: {{name}} je globální a nelze ji uložit."
     }
   }
 }

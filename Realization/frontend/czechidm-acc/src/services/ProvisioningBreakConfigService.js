@@ -17,7 +17,10 @@ export default class ProvisioningBreakConfigService extends Services.AbstractSer
     if (!entity) {
       return '';
     }
-    return `${entity._embedded.system.name}:${ProvisioningOperationTypeEnum.getNiceLabel(entity.entityType)}`;
+    if (entity._embedded && entity._embedded.system) {
+      return `${entity._embedded.system.name}:${ProvisioningOperationTypeEnum.getNiceLabel(entity.operationType)}`;
+    }
+    return Services.LocalizationService.i18n('acc:entity.ProvisioningBreakConfig.globalConfiguration') + ':' + ProvisioningOperationTypeEnum.getNiceLabel(entity.operationType);
   }
 
   getApiPath() {

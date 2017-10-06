@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.SimpleValueWrapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -49,12 +54,12 @@ public class DefaultSysProvisioningBreakConfigService extends
 		AbstractReadWriteDtoService<SysProvisioningBreakConfigDto, SysProvisioningBreakConfig, SysProvisioningBreakConfigFilter>
 		implements SysProvisioningBreakConfigService {
 
+	private final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
 	private final String CACHE_NAME = "idm-provisioning-cache";
 	
 	private final SysProvisioningBreakRecipientService breakRecipientService;
 	private final CacheManager cacheManager;
 	private final ProvisioningBreakConfiguration provisioningBreakConfiguration;
-	private final SysProvisioningBreakConfigRepository repository;
 
 	@Autowired
 	public DefaultSysProvisioningBreakConfigService(SysProvisioningBreakConfigRepository repository,
@@ -70,25 +75,42 @@ public class DefaultSysProvisioningBreakConfigService extends
 		this.breakRecipientService = breakRecipientService;
 		this.cacheManager = cacheManager;
 		this.provisioningBreakConfiguration = provisioningBreakConfiguration;
-		this.repository = repository;
 	}
 	
 	@Override
-	public SysProvisioningBreakConfigDto get(Serializable id, BasePermission... permission) {
-		// TODO Auto-generated method stub
-		repository.findOne(UUID.fromString(id.toString()));
-		return super.get(id, permission);
+	public Page<SysProvisioningBreakConfigDto> find(SysProvisioningBreakConfigFilter filter, Pageable pageable,
+			BasePermission... permission) {
+		Page<SysProvisioningBreakConfigDto> configs = super.find(filter, pageable, permission);
+		//
+		// if include global config and set systemId add global configurations
+		if (filter.isIncludeGlobalConfig() && filter.getSystemId() != null && configs.getTotalElements() != MAX_CONFIGS_FOR_SYSTEM) {
+			List<SysProvisioningBreakConfigDto> configsList = addGlobalConfigs(configs.getContent(), filter.getSystemId());
+			//
+			PageRequest pageRequest = new PageRequest(pageable.getPageNumber(), configsList.size(), pageable.getSort());
+			Page<SysProvisioningBreakConfigDto> dtoPage = new PageImpl<>(configsList, pageRequest, configsList.size());
+			return dtoPage;
+		}
+		//
+		return configs;
 	}
 	
 	@Override
 	public void delete(SysProvisioningBreakConfigDto dto, BasePermission... permission) {
 		Assert.notNull(dto);
+		// check global configuration
+		if (dto.getGlobalConfiguration() != null && dto.getGlobalConfiguration()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE, ImmutableMap.of("operationType", dto.getOperationType()));
+		}
 		breakRecipientService.deleteAllByBreakConfig(dto.getId());
 		super.delete(dto, permission);
 	}
 	
 	@Override
 	public SysProvisioningBreakConfigDto save(SysProvisioningBreakConfigDto dto, BasePermission... permission) {
+		// check global configuration
+		if (dto.getGlobalConfiguration() != null && dto.getGlobalConfiguration()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE, ImmutableMap.of("operationType", dto.getOperationType()));
+		}
 		// check if for same system doesn't exist same operation type
 		SysProvisioningBreakConfigFilter filter = new SysProvisioningBreakConfigFilter();
 		filter.setSystemId(dto.getSystem());
@@ -123,6 +145,19 @@ public class DefaultSysProvisioningBreakConfigService extends
 	private Cache getCache() {
 		return this.cacheManager.getCache(CACHE_NAME);
 	}
+	
+	@Override
+	protected SysProvisioningBreakConfigDto toDto(SysProvisioningBreakConfig entity,
+			SysProvisioningBreakConfigDto dto) {
+		SysProvisioningBreakConfigDto newDto = super.toDto(entity, dto);
+		//
+		if (newDto != null) {
+			// set provisioning break counter
+			newDto.setActualOperationCount(getCounter(newDto.getSystem(), newDto.getOperationType()));
+		}
+		//
+		return newDto;
+	}
 
 	@Override
 	public SysProvisioningBreakConfigDto getConfig(ProvisioningEventType operationType, UUID systemId) {
@@ -139,28 +174,34 @@ public class DefaultSysProvisioningBreakConfigService extends
 	}
 
 	@Override
-	public SysProvisioningBreakConfigDto getGlobalBreakConfiguration() {
+	public SysProvisioningBreakConfigDto getGlobalBreakConfiguration(ProvisioningEventType eventType) {
 		SysProvisioningBreakConfigDto globalConfig = new SysProvisioningBreakConfigDto();
-		globalConfig.setDisabled(provisioningBreakConfiguration.getDisabled());
-		globalConfig.setDisableLimit(provisioningBreakConfiguration.getDisableLimit());
+		Boolean disable = provisioningBreakConfiguration.getDisabled(eventType);
+		if (disable == null) {
+			// global provisioning break configuration isn't set
+			return null;
+		}
+		globalConfig.setDisabled(disable);
+		globalConfig.setDisableLimit(provisioningBreakConfiguration.getDisableLimit(eventType));
+		globalConfig.setGlobalConfiguration(Boolean.TRUE);
 		//
-		IdmNotificationTemplateDto disabledTemplate = provisioningBreakConfiguration.getDisableTemplate();
+		IdmNotificationTemplateDto disabledTemplate = provisioningBreakConfiguration.getDisableTemplate(eventType);
 		if (disabledTemplate != null) {
 			globalConfig.setDisableTemplate(disabledTemplate.getId());
 			globalConfig.setDisableTemplateEmbedded(disabledTemplate);
 		}
 		//
-		IdmNotificationTemplateDto warningTemplate = provisioningBreakConfiguration.getWarningTemplate();
+		IdmNotificationTemplateDto warningTemplate = provisioningBreakConfiguration.getWarningTemplate(eventType);
 		if (warningTemplate != null) {
 			globalConfig.setWarningTemplate(warningTemplate.getId());
 			globalConfig.setWarningTemplateEmbedded(warningTemplate);
 		}
 		//
-		globalConfig.setOperationDisabled(provisioningBreakConfiguration.getOperationDisabled());
-		globalConfig.setOperationType(null); // operation type for global provisioning break is not implemented yet
-		globalConfig.setPeriod(provisioningBreakConfiguration.getPeriod());
-		globalConfig.setSystem(null); // global provisioning break hasn't system id
-		globalConfig.setWarningLimit(provisioningBreakConfiguration.getWarningLimit());
+		globalConfig.setOperationType(eventType);
+		globalConfig.setPeriod(provisioningBreakConfiguration.getPeriod(eventType));
+		globalConfig.setSystem(null); // global provisioning break hasn't system id, don't save global config
+		globalConfig.setWarningLimit(provisioningBreakConfiguration.getWarningLimit(eventType));
+		globalConfig.setTrimmed(true);
 		return globalConfig;
 	}
 
@@ -195,5 +236,63 @@ public class DefaultSysProvisioningBreakConfigService extends
 		}
 		//
 		return predicates;
+	}
+
+	@Override
+	public void clearCache(UUID systemId, ProvisioningEventType event) {
+		SysProvisioningBreakItems cache = this.getCacheProcessedItems(systemId);
+		cache.clearRecords(event);
+	}
+	
+	/**
+	 * Method return counter for system id and operation type
+	 * 
+	 * @param systemId
+	 * @param operationType
+	 * @return
+	 */
+	private Integer getCounter(UUID systemId, ProvisioningEventType operationType) {
+		// set provisioning break counter
+		SysProvisioningBreakItems cache = this.getCacheProcessedItems(systemId);
+		return cache.getSize(operationType);
+	}
+	
+	/**
+	 * Methods for system and his provisioning break config add global configuration
+	 *
+	 * @param configs
+	 * @param systemId
+	 * @return
+	 */
+	private List<SysProvisioningBreakConfigDto> addGlobalConfigs(List<SysProvisioningBreakConfigDto> configsOld, UUID systemId) {
+		boolean containsCreate = configsOld.stream().filter(item -> item.getOperationType() == ProvisioningEventType.CREATE).findFirst().isPresent();
+		boolean containsDelete = configsOld.stream().filter(item -> item.getOperationType() == ProvisioningEventType.DELETE).findFirst().isPresent();
+		boolean containsUpdate = configsOld.stream().filter(item -> item.getOperationType() == ProvisioningEventType.UPDATE).findFirst().isPresent();
+		// unmodifiable list, create copy
+		List<SysProvisioningBreakConfigDto> configs = new ArrayList<>(configsOld);
+		if (!containsCreate) {
+			SysProvisioningBreakConfigDto global = this.getGlobalBreakConfiguration(ProvisioningEventType.CREATE);
+			if (global != null) {
+				global.setActualOperationCount(getCounter(systemId, ProvisioningEventType.CREATE));
+				configs.add(global);
+			}
+		}
+		if (!containsDelete) {
+			SysProvisioningBreakConfigDto global = this.getGlobalBreakConfiguration(ProvisioningEventType.DELETE);
+			if (global != null) {
+				global.setActualOperationCount(getCounter(systemId, ProvisioningEventType.DELETE));
+				global.setId(systemId + ProvisioningEventType.DELETE.name());
+				configs.add(global);
+			}
+		}
+		if (!containsUpdate) {
+			SysProvisioningBreakConfigDto global = this.getGlobalBreakConfiguration(ProvisioningEventType.UPDATE);
+			if (global != null) {
+				global.setActualOperationCount(getCounter(systemId, ProvisioningEventType.UPDATE));
+				global.setId(systemId + ProvisioningEventType.UPDATE.name());
+				configs.add(global);
+			}
+		}
+		return configs;
 	}
 }

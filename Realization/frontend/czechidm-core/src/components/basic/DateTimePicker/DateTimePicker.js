@@ -229,7 +229,7 @@ class DateTimePicker extends AbstractFormComponent {
                 level="default"
                 className="btn-sm"
                 disabled={disabled || readOnly}
-                style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
+                style={{marginTop: 0, height: '34px', borderLeftWidth: 0, borderRadius: 0 }}
                 onClick={this._openDialog.bind(this)}>
                 <Icon type="fa" icon="calendar"/>
               </Button>
@@ -237,7 +237,7 @@ class DateTimePicker extends AbstractFormComponent {
                 level="default"
                 className="btn-sm"
                 disabled={disabled || readOnly}
-                style={{marginTop: '0px', height: '34px'}}
+                style={{marginTop: 0, height: '34px', borderLeftWidth: 0, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                 onClick={this._clear.bind(this)}>
                 <Icon type="fa" icon="remove"/>
               </Button>

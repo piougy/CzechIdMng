@@ -228,6 +228,10 @@
     "VS_REQUEST_CANCEL_WRONG_STATE": {
       "title": "Požadavek na virtuálním systému nemůže být zrušen!",
       "message": "Požadavek může být zrušen, pouze pokud je ve stavu [{{state}}]. Tento požadavek je ovšem ve stavu [{{currentState}}]! "
+    },
+    "VS_SYSTEM_DELETE_FAILED_HAS_REQUEST": {
+      "title": "Virtuální systém nemůže být smazán!",
+      "message": "Virtuální systém [{{system}}] nemůže být smazán, protože má nevyřešené požadavky!"
     }
   }
 }

@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
@@ -38,12 +37,11 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 @Description("Deletes identity - ensures core referential integrity.")
 public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 
-	public static final String PROCESSOR_NAME = "identity-delete-processor";
+	public static final String PROCESSOR_NAME = "system-delete-processor";
 	private final SysSystemService service;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final SysSchemaObjectClassService objectClassService;
-	private final FormService formService;
 	private final SysSyncConfigService synchronizationConfigService;
 	private final AccAccountRepository accountRepository;
 	private final SysSystemEntityService systemEntityService;
@@ -52,7 +50,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	public SystemDeleteProcessor(SysSystemService service,
 			SysProvisioningOperationRepository provisioningOperationRepository,
 			SysProvisioningArchiveRepository provisioningArchiveRepository,
-			SysSchemaObjectClassService objectClassService, FormService formService,
+			SysSchemaObjectClassService objectClassService,
 			SysSyncConfigService synchronizationConfigService, AccAccountRepository accountRepository,
 			SysSystemEntityService systemEntityService) {
 		super(IdentityEventType.DELETE);
@@ -61,7 +59,6 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		Assert.notNull(provisioningOperationRepository);
 		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(objectClassService);
-		Assert.notNull(formService);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(accountRepository);
 		Assert.notNull(systemEntityService);
@@ -73,7 +70,6 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		this.provisioningOperationRepository = provisioningOperationRepository;
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.systemEntityService = systemEntityService;
-		this.formService = formService;
 	}
 
 	@Override
@@ -86,7 +82,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		SysSystemDto system = event.getContent();
 		Assert.notNull(system);
 		//
-		// if exists provisioning operations, then is not posible to delete
+		// if exists provisioning operations, then is not possible to delete
 		// system
 		SysProvisioningOperationFilter operationFilter = new SysProvisioningOperationFilter();
 		operationFilter.setSystemId(system.getId());
@@ -120,8 +116,6 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		// delete archived provisioning operations
 		provisioningArchiveRepository.deleteBySystem_Id(system.getId());
 		//
-		formService.deleteValues(system);
-		//
 		// deletes identity
 		service.deleteInternal(system);
 		return new DefaultEventResult<>(event, this);
@@ -131,4 +125,5 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	public boolean isDisableable() {
 		return false;
 	}
+
 }

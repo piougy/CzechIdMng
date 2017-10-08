@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 @Description("Persists sys system.")
 public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 
-	public static final String PROCESSOR_NAME = "identity-save-processor";
+	public static final String PROCESSOR_NAME = "system-save-processor";
 	private final SysSystemService service;
 	private final ConfidentialStorage confidentialStorage;
 

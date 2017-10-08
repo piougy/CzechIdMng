@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 
 /**
  * Provide entity services through whole application. 
- * Support for loading {@link BaseEntity} by identifier.
+ * Support for loading {@link BaseDto} and {@link BaseEntity} by identifier.
  * 
  * @author Radek Tomiška
  *
@@ -60,7 +60,7 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	@Override
-	public BaseEntity lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId) { // vracim entitu  - class muze by entita i dto
+	public BaseEntity lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId) {
 		EntityLookup<BaseEntity> lookup = getEntityLookup(identifiableType);
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Entity lookup for identifiable type [%s] is not supported", identifiableType));
@@ -69,7 +69,7 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	@Override
-	public BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId) { // vracim entitu  - class muze by entita i dto
+	public BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId) {
 		DtoLookup<BaseDto> lookup = getDtoLookup(identifiableType);
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType));
@@ -138,7 +138,7 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	/**
-	 * Returs service for given {@link Identifiable} type.
+	 * Returns service for given {@link Identifiable} type.
 	 * 
 	 * @param identifiableType
 	 * @return

@@ -9,11 +9,13 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -29,7 +31,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "identities")
 @ApiModel(description = "Identity domain object")
-public class IdmIdentityDto extends AbstractDto implements Disableable {
+public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable {
 
 	private static final long serialVersionUID = 1L;
 	@NotEmpty
@@ -87,6 +89,12 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 	
 	public String getUsername() {
 		return username;
+	}
+	
+	@Override
+	@JsonIgnore
+	public String getCode() {
+		return getUsername();
 	}
 	
 	public void setUsername(String username) {

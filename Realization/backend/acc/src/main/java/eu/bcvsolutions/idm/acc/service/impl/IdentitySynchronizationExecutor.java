@@ -391,4 +391,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		}
 		return null;
 	}
+
+	@Override
+	protected IdmIdentityDto createEntityDto() {
+		return new IdmIdentityDto();
+	}
 }

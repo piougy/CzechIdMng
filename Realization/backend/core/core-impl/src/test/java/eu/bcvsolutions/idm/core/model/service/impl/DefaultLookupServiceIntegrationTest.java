@@ -54,4 +54,16 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentity.class, dto.getCode()).getId());
 		Assert.assertEquals(dto.getId(), lookupService.lookupEntity(IdmIdentity.class, dto.getCode()).getId());
 	}
+	
+	@Test
+	public void testIdentityLookupByStringUuid() {
+		IdmIdentityDto dto = helper.createIdentity();
+		//
+		// by dto class
+		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentityDto.class, dto.getId().toString()).getId());
+		Assert.assertEquals(dto.getId(), lookupService.lookupEntity(IdmIdentityDto.class, dto.getId().toString()).getId());
+		// by entity class
+		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentity.class, dto.getId().toString()).getId());
+		Assert.assertEquals(dto.getId(), lookupService.lookupEntity(IdmIdentity.class, dto.getId().toString()).getId());
+	}
 }

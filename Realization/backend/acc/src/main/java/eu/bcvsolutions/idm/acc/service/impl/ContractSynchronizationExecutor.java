@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.beans.IntrospectionException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
@@ -17,13 +20,16 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SyncIdentityContractDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -41,15 +47,20 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -65,7 +76,12 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 	private final IdmIdentityContractService contractService;
 	private final AccContractAccountService contractAccoutnService;
-	public final static String ROLE_TYPE_FIELD = "roleType";
+	private final IdmContractGuaranteeService guaranteeService;
+	private final LookupService lookupService;
+	public final static String CONTRACT_STATE_FIELD = "state";
+	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
+	public final static String CONTRACT_IDENTITY_FIELD = "identity";
+	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 
 	@Autowired
 	public ContractSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -78,7 +94,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService) {
+			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
+			IdmContractGuaranteeService guaranteeService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -87,11 +104,14 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		//
 		Assert.notNull(contractService, "Contract service is mandatory!");
 		Assert.notNull(contractAccoutnService, "Contract-account service is mandatory!");
+		Assert.notNull(lookupService, "Lookup service is mandatory!");
+		Assert.notNull(guaranteeService, "Contract guarantee service is mandatory!");
 		//
 		this.contractService = contractService;
 		this.contractAccoutnService = contractAccoutnService;
+		this.lookupService = lookupService;
+		this.guaranteeService = guaranteeService;
 	}
-
 
 	/**
 	 * Call provisioning for given account
@@ -173,17 +193,131 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		return;
 	}
 
+	/**
+	 * Fill entity with attributes from IC module (by mapped attributes).
+	 * 
+	 * @param mappedAttributes
+	 * @param uid
+	 * @param icAttributes
+	 * @param entity
+	 * @param create
+	 *            (is create or update entity situation)
+	 * @param context
+	 * @return
+	 */
+	protected IdmIdentityContractDto fillEntity(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
+			List<IcAttribute> icAttributes, IdmIdentityContractDto dto, boolean create,
+			SynchronizationContext context) {
+		mappedAttributes.stream().filter(attribute -> {
+			// Skip disabled attributes
+			// Skip extended attributes (we need update/ create entity first)
+			// Skip confidential attributes (we need update/ create entity
+			// first)
+			boolean fastResult = !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
+					&& !attribute.isConfidentialAttribute();
+			if (!fastResult) {
+				return false;
+			}
+			// Can be value set by attribute strategy?
+			return this.canSetValue(uid, attribute, dto, create);
+
+		}).forEach(attribute -> {
+			String attributeProperty = attribute.getIdmPropertyName();
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes, context);
+			// Guarantees will be set no to the dto (we does not have field for
+			// they), but to the embedded map.
+			if (CONTRACT_GUARANTEES_FIELD.equals(attributeProperty)
+					&& transformedValue instanceof SyncIdentityContractDto) {
+				dto.getEmbedded().put(SYNC_CONTRACT_FIELD, (SyncIdentityContractDto) transformedValue);
+				return;
+			}
+			// Set transformed value from target system to entity
+			try {
+				EntityUtils.setEntityValue(dto, attributeProperty, transformedValue);
+			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | ProvisioningException e) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
+						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
+			}
+
+		});
+		return dto;
+	}
+
 	@Override
-	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
-		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
-		// Transform role type enumeration from string
-		// if (transformedValue instanceof String &&
-		// attribute.isEntityAttribute()
-		// && ROLE_TYPE_FIELD.equals(attribute.getIdmPropertyName())) {
-		// transformedValue = IdentityContractType.valueOf((String)
-		// transformedValue);
-		// }
+	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
+			SynchronizationContext context) {
+		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes, context);
+		// Transform contract state enumeration from string
+		if (CONTRACT_STATE_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue instanceof String
+				&& attribute.isEntityAttribute()) {
+			// transformedValue = IdentityContractType.valueOf((String)
+			// transformedValue);
+		}
+		// Transform contract guarantees
+		if (transformedValue != null && CONTRACT_GUARANTEES_FIELD.equals(attribute.getIdmPropertyName())
+				&& attribute.isEntityAttribute()) {
+			SyncIdentityContractDto syncContract = new SyncIdentityContractDto();
+			if (transformedValue instanceof List) {
+				((List<?>) transformedValue).stream().forEach(guarantee -> {
+
+					// Beware this DTO contains only identity ID, not
+					// contract ... must be save separately.
+					context.getLogItem().addToLog(MessageFormat.format("Finding guarantee [{0}].", guarantee));
+					IdmIdentityDto guarranteeDto = this.findIdentity(guarantee, context);
+					if (guarranteeDto != null) {
+						syncContract.getGuarantees().add(new IdmContractGuaranteeDto(null, guarranteeDto.getId()));
+					}
+				});
+			} else {
+				// Beware this DTO contains only identity ID, not
+				// contract ... must be save separately.
+				context.getLogItem().addToLog(MessageFormat.format("Finding guarantee [{0}].", transformedValue));
+				IdmIdentityDto guarranteeDto = this.findIdentity(transformedValue, context);
+				if (guarranteeDto != null) {
+					syncContract.getGuarantees().add(new IdmContractGuaranteeDto(null, guarranteeDto.getId()));
+				}
+			}
+			transformedValue = syncContract;
+		}
+		// Transform contract owner
+		if (transformedValue != null && CONTRACT_IDENTITY_FIELD.equals(attribute.getIdmPropertyName())
+				&& attribute.isEntityAttribute()) {
+			context.getLogItem().addToLog(MessageFormat.format("Finding contract owner [{0}].", transformedValue));
+			IdmIdentityDto identity = this.findIdentity(transformedValue, context);
+			if(identity == null){
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,
+						ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
+			}
+			transformedValue = identity.getId();
+		}
+
 		return transformedValue;
+	}
+
+	private IdmIdentityDto findIdentity(Object value, SynchronizationContext context) {
+		if (value instanceof Serializable) {
+			IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class,
+					(Serializable) value);
+
+			if (identity == null) {
+				context.getLogItem().addToLog(MessageFormat.format(
+						"Warning! - Identity [{0}] was not found for [{0}]!", value));
+				this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
+						context.getLog(), context.getActionLogs());
+				return null;
+			}
+
+			return identity;
+		} else {
+			context.getLogItem()
+					.addToLog(MessageFormat.format(
+							"Warning! - Identity cannot be found, because transformed value [{0}] is not Serializable!",
+							value));
+			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
+					context.getLog(), context.getActionLogs());
+		}
+		return null;
 	}
 
 	/**
@@ -195,13 +329,24 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected IdmIdentityContractDto save(IdmIdentityContractDto entity, boolean skipProvisioning) {
-		// Content will be set in service (we need do transform entity to DTO).
-		// Here we set only dummy dto (null content is not allowed)
 		EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(
 				contractService.isNew(entity) ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 				entity, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
 
-		return contractService.publish(event).getContent();
+		IdmIdentityContractDto contract = contractService.publish(event).getContent();
+		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
+			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
+					.get(SYNC_CONTRACT_FIELD);
+			
+			// TODO: compare and make diff against persisted guarantees
+			syncContract.getGuarantees().forEach(guarantee -> {
+				guarantee.setIdentityContract(contract.getId());
+				// save contract-guarantee
+				guaranteeService.save(guarantee);
+			});
+		}
+
+		return contract;
 	}
 
 	@Override

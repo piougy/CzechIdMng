@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
@@ -184,8 +185,8 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 	
 	@Override
-	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
-		Object transformedValue =  super.getValueByMappedAttribute(attribute, icAttributes);
+	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes, SynchronizationContext context) {
+		Object transformedValue =  super.getValueByMappedAttribute(attribute, icAttributes, context);
 		// Transform role type enumeration from string
 		if (transformedValue instanceof String && attribute.isEntityAttribute() && ROLE_TYPE_FIELD.equals(attribute.getIdmPropertyName())) {
 			transformedValue = RoleType.valueOf((String) transformedValue);

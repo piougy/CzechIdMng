@@ -806,7 +806,8 @@
       "IDENTITY": "Identita",
       "ROLE": "Role",
       "TREE": "Strom",
-      "ROLE_CATALOGUE": "Katalog rolí"
+      "ROLE_CATALOGUE": "Katalog rolí",
+      "CONTRACT": "Vztah identity"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -912,11 +913,24 @@
     },
     "RoleAttributeEnum": {
       "NAME": "Název (String)",
-      "ROLE_TYPE": "Typ role (String - RoleType)",
+      "ROLE_TYPE": "Typ role (RoleType - String)",
       "APPROVE_REMOVE": "Schvalovat odebrání (Boolean)",
       "PRIORITY": "Priorita (Integer)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Vlastník (IdmIdentity - UUID)",
+      "VALID_FROM": "Platnost od (LocalDate)",
+      "VALID_TILL": "Platnost do (LocalDate)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - UUID)",
+      "POSITION": "Název pozice (String)",
+      "EXTERNE": "Externista (boolean)",
+      "MAIN": "Hlavní vztah (boolean)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - UUID/List<UUID>)",
+      "STATE": "Stav (ContractState - String)"
     }
   },
   "permission": {

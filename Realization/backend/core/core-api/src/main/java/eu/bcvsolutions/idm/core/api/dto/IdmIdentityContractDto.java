@@ -23,8 +23,6 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
     private UUID identity;
     private LocalDate validFrom;
     private LocalDate validTill;
-    @Embedded(dtoClass = IdmIdentityDto.class)
-    private UUID guarantee;
     private String position;
     private boolean externe;
     private boolean disabled;
@@ -64,14 +62,6 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
 
     public void setValidTill(LocalDate validTill) {
         this.validTill = validTill;
-    }
-
-    public UUID getGuarantee() {
-        return guarantee;
-    }
-
-    public void setGuarantee(UUID guarantee) {
-        this.guarantee = guarantee;
     }
 
     public String getPosition() {

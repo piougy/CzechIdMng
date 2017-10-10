@@ -5,10 +5,12 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -31,16 +33,22 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 	public static final String PROCESSOR_NAME = "system-save-processor";
 	private final SysSystemService service;
 	private final ConfidentialStorage confidentialStorage;
-
+	private final SysProvisioningBreakConfigService provisioningBreakConfigService;
+	
 	@Autowired
-	public SystemSaveProcessor(SysSystemService service, ConfidentialStorage confidentialStorage) {
+	public SystemSaveProcessor(
+			SysSystemService service,
+			ConfidentialStorage confidentialStorage,
+			SysProvisioningBreakConfigService provisioningBreakConfigService) {
 		super(IdentityEventType.UPDATE, IdentityEventType.CREATE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(confidentialStorage);
+		Assert.notNull(provisioningBreakConfigService);
 		//
 		this.service = service;
 		this.confidentialStorage = confidentialStorage;
+		this.provisioningBreakConfigService = provisioningBreakConfigService;
 	}
 
 	@Override
@@ -66,6 +74,8 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 				// connectors set this attribute on true by themselves)
 				dto.setVirtual(false);
 			}
+			// check blocked provisioning operation and clear provisioning break cache
+			clearProvisionignBreakCache(dto, oldSystem);
 		}
 		SysSystemDto newSystem = service.saveInternal(dto);
 		event.setContent(newSystem);
@@ -82,5 +92,31 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 		}
 		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	/**
+	 * Method check different between new and old system if some of blocked
+	 * attribute change clear for them provisioning break configuration.
+	 * 
+	 * @param newSystem
+	 * @param oldSystem
+	 */
+	private void clearProvisionignBreakCache(SysSystemDto newSystem, SysSystemDto oldSystem) {
+		if (newSystem.getBlockedOperation() == null || oldSystem == null || oldSystem.getBlockedOperation() == null) {
+			return;
+		}
+		// check if attribute operation disable change from false to true - then clear cache
+		if (newSystem.getBlockedOperation().getCreateOperation() == Boolean.FALSE
+				&& oldSystem.getBlockedOperation().getCreateOperation() == Boolean.TRUE) {
+			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.CREATE);
+		}
+		if (newSystem.getBlockedOperation().getUpdateOperation() == Boolean.FALSE
+				&& oldSystem.getBlockedOperation().getUpdateOperation() == Boolean.TRUE) {
+			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.UPDATE);
+		}
+		if (newSystem.getBlockedOperation().getDeleteOperation() == Boolean.FALSE
+				&& oldSystem.getBlockedOperation().getDeleteOperation() == Boolean.TRUE) {
+			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.DELETE);
+		}
 	}
 }

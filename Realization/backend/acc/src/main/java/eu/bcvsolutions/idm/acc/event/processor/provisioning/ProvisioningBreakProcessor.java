@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 
 /**
- * Provisioning break
+ * Provisioning break processor, all block logic are there.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -129,7 +129,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 		Integer actualCount = cache.getSizeRecordsNewerThan(operationType, timestampWithoutPeriod);
 		//
 		// check count is higher than disable limit
-		if (actualCount >= breakConfig.getDisableLimit()) {
+		if (breakConfig.getDisableLimit() != null && actualCount >= breakConfig.getDisableLimit()) {
 			//
 			// block system for operation
 			blockSystemForOperation(operationType, system);
@@ -139,16 +139,17 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 				LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
 			} else {
 				template = DtoUtils.getEmbedded(breakConfig,
-						SysProvisioningBreakConfig_.disableLimit, IdmNotificationTemplateDto.class);
+						SysProvisioningBreakConfig_.disableTemplate, IdmNotificationTemplateDto.class);
 			}
 			//
-			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template, breakConfig.getId(), operationType);
+			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template,
+					breakConfig.getId(), operationType, cache.getDiffBetweenFirstAndLastRecord(operationType));
 			//
 			LOG.warn("System id: [{}] will be blocked for operation: [{}].",
 					provisioningOperation.getSystem(), operationType.toString());
 			provisioningOperation = blockOperation(provisioningOperation, system);
 			blocked = true;
-		} else if (actualCount == breakConfig.getWarningLimit()) {
+		} else if (breakConfig.getWarningLimit() != null && actualCount == breakConfig.getWarningLimit()) {
 			// if count is equals to warning send notification
 			LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations + send message.",
 					provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
@@ -160,8 +161,9 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 						SysProvisioningBreakConfig_.warningTemplate, IdmNotificationTemplateDto.class);				
 			}
 			//
-			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template, breakConfig.getId(), operationType);
-		} else if (actualCount > breakConfig.getWarningLimit()) {
+			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template,
+					breakConfig.getId(), operationType, cache.getDiffBetweenFirstAndLastRecord(operationType));
+		} else if (breakConfig.getWarningLimit() != null && actualCount > breakConfig.getWarningLimit()) {
 			// after overrun warning limit, isn't send any another notification - add at least log
 			LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations.",
 					provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
@@ -259,13 +261,23 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	 * @param breakConfigId
 	 */
 	private void sendMessage(String topic, SysSystemDto system, Integer actualCount, IdmNotificationTemplateDto template,
-			UUID breakConfigId, ProvisioningEventType operationType) {
+			UUID breakConfigId, ProvisioningEventType operationType, Long duration) {
+		// tranform millis to sec and min for apache velocity
+		String minTime = String.format("%d", 
+			    TimeUnit.MILLISECONDS.toMinutes(duration));
+		//
+		String secTime = String.format("%d",
+			    TimeUnit.MILLISECONDS.toSeconds(duration) - 
+			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
+		//
 		notificationManager.send(topic,
 				new IdmMessageDto.Builder()
 					.setTemplate(template)
 					.addParameter("systemName", system.getName())
 					.addParameter("operationName", operationType.name())
 					.addParameter("actualCount", actualCount)
+					.addParameter("minTime", minTime)
+					.addParameter("secTime", secTime)
 					.build(),
 				breakRecipientService.getAllRecipients(breakConfigId));
 	}

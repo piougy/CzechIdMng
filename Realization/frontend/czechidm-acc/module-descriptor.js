@@ -40,6 +40,15 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-provisioning-break-config',
+            'type': 'TAB',
+            'icon': 'fa:exclamation-circle',
+            'labelKey': 'acc:content.provisioningBreakConfig.title',
+            'order': 10,
+            'path': '/system/:entityId/break-configs',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
             'id': 'system-accounts',
             'type': 'TAB',
             'labelKey': 'acc:content.system.accounts.title',
@@ -91,16 +100,7 @@ module.exports = {
             'order': 70,
             'path': '/system/:entityId/provisioning',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
-          },
-          {
-            'id': 'system-provisioning-break-config',
-            'type': 'TAB',
-            'icon': 'fa:hand-paper-o',
-            'labelKey': 'acc:content.provisioningBreakConfig.title',
-            'order': 80,
-            'path': '/system/:entityId/break-configs',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-          },
+          }
         ]
       },
       {

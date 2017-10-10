@@ -7,7 +7,7 @@ Warning for provisioning operation on system
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>provisioningWarning</code>
-	<name>Notification with information about warning for system.</name>
+	<name>Provisioning break warning notification</name>
 	<subject>CzechIdM - na systému '$systemName' byl překročen varovný limit pro operaci '$operationName'</subject>
 	<bodyHtml>
 <![CDATA[
@@ -30,19 +30,23 @@ Warning for provisioning operation on system
 		
 
     Dobrý den,<br />
-    na systému '<b>$systemName</b>' byl překročen varovný limit pro operaci: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+    pozor na systému <b>$systemName</b> byl překročen varovný limit <b>$actualCount</b> pro operaci <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+    <br />
+   	Stav byl překročen za dobu <b>$minTime minut a $secTime sekund</b>.<br />
     <br />
 
     <div style="display: block; margin: 30px auto; max-width: 400px;">
         CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
     </div>
     
-    <div style="display: block; margin: 30px auto; max-width: 800px;">
+     <div style="display: block; margin: 30px auto; max-width: 800px;">
         ----------------------------------------------------------------- English version -----------------------------------------------------------------
     </div>
     
     <br/>Hello,<br />
-    on system '<b>$systemName</b>' has been exceeded the alert limit for the operation: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+    on system <b>$systemName</b> has been exceeded the alert limit for the operation: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+   	<br />
+   	The current number of operations <b>$actualCount</b> has been exceeded over time <b>$minTime minutes and $secTime seconds</b>.<br />
     <br />
 		
     <div style="display: block; margin: 30px auto; max-width: 400px;">
@@ -53,7 +57,7 @@ Warning for provisioning operation on system
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>
-	<parameter>systemName, operationName</parameter>
+	<parameter>systemName, operationName, actualCount, secTime, minTime</parameter>
 	<systemTemplate>true</systemTemplate>
 	<moduleId>acc</moduleId>
 </template>

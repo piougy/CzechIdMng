@@ -7,7 +7,7 @@ System was disabled by provisioning break
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>provisioningDisable</code>
-	<name>Notification with information about disable system.</name>
+	<name>Provisioning break disable notification</name>
 	<subject>CzechIdM - na systému '$systemName' byla zablokována operace '$operationName'</subject>
 	<bodyHtml>
 <![CDATA[
@@ -30,22 +30,33 @@ System was disabled by provisioning break
 		
 
     Dobrý den,<br />
-    na systému '<b>$systemName</b>' byla zablokována operace: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
     <br />
-		Další operace tohoto typu budou řazeny do fronty provisioningu.
+    <div style="display: block; margin: 10px auto; max-width: 440px; background-color: #f2dede; color: #a94442; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
+        Na systému <b>$systemName</b> došlo k blokaci operace <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>!
+    </div>
+    <br />
+    <br />
+    Byla překročena hranice <b>$actualCount</b> pro operaci <b>$operationName</b> na systému <b>$systemName</b>. Stav byl překročen za dobu <b>$minTime minut a $secTime sekund</b>.<br />
+	Další operace typu <b>$operationName</b> budou řazeny do fronty provisioningu.<br />
 
     <div style="display: block; margin: 30px auto; max-width: 400px;">
         CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
     </div>
     
-    <div style="display: block; margin: 30px auto; max-width: 800px;">
+     <div style="display: block; margin: 30px auto; max-width: 800px;">
         ----------------------------------------------------------------- English version -----------------------------------------------------------------
     </div>
     
     <br/>Hello,<br />
-    on system '<b>$systemName</b>' was blocked the operation: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+     <br />
+    <div style="display: block; margin: 10px auto; max-width: 440px; background-color: #f2dede; color: #a94442; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
+       The system <b>$systemName</b> has blocked the operation <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>!
+    </div>
     <br />
-		Next operations of this type will be placed into provisioning queue.
+    The current number of operations <b>$actualCount</b> has been exceeded over time <b>$minTime minutes and $secTime seconds</b>.<br />
+	Next operations of this type will be placed into provisioning queue.<br />
 		
     <div style="display: block; margin: 30px auto; max-width: 400px;">
         CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
@@ -55,7 +66,7 @@ System was disabled by provisioning break
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>
-	<parameter>systemName, operationName</parameter>
+	<parameter>systemName, operationName, actualCount, secTime, minTime</parameter>
 	<systemTemplate>true</systemTemplate>
 	<moduleId>acc</moduleId>
 </template>

@@ -138,32 +138,50 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
               className="detail-button"
               cell={
                 ({ rowIndex, data }) => {
-                  if (data[rowIndex].globalConfiguration) {
-                    return (<Basic.Label text={this.i18n('acc:entity.ProvisioningBreakConfig.globalConfiguration')} />);
+                  if (!data[rowIndex].globalConfiguration) {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+                    );
                   }
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                  );
                 }
               }/>
             <Advanced.Column
               property="operationType"
-              width="100px"
               face="enum"
               enumClass={ProvisioningOperationTypeEnum}
               header={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.label')}
+              sort
+              cell={
+                ({ rowIndex, data }) => {
+                  if (data[rowIndex].globalConfiguration) {
+                    return (
+                      <div>
+                        <Basic.Label
+                          level={ProvisioningOperationTypeEnum.getLevel(data[rowIndex].operationType)}
+                          text={ProvisioningOperationTypeEnum.getNiceLabel(data[rowIndex].operationType)}/>
+                        {' '}
+                        <Basic.Label text={this.i18n('acc:entity.ProvisioningBreakConfig.globalConfiguration')} />
+                      </div>
+                    );
+                  }
+                  return (
+                    <Basic.Label
+                      level={ProvisioningOperationTypeEnum.getLevel(data[rowIndex].operationType)}
+                      text={ProvisioningOperationTypeEnum.getNiceLabel(data[rowIndex].operationType)}/>
+                  );
+                }
+              }/>
+            <Advanced.Column
+              property="actualOperationCount"
+              face="text"
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}
               sort/>
             <Advanced.Column
               property="period"
               face="text"
               header={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}
-              sort/>
-            <Advanced.Column
-              property="actualOperationCount"
-              face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}
               sort/>
             <Advanced.Column
               property="disableLimit"

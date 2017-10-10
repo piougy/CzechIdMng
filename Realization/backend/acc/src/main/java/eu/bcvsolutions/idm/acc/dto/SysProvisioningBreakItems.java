@@ -74,6 +74,19 @@ public class SysProvisioningBreakItems {
 				item -> item < timestamp
 				);
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Long getDiffBetweenFirstAndLastRecord(ProvisioningEventType provisioningType) {
+		if (this.getSize(provisioningType) == 0) {
+			return null;
+		}
+		Long first = this.getExecudedItems(provisioningType).get(0);
+		Long last = this.getExecudedItems(provisioningType).get(this.getSize(provisioningType) - 1);
+		return last - first;
+	}
 
 	/**
 	 * Return all processed items newer than timestamp for specific provisioning

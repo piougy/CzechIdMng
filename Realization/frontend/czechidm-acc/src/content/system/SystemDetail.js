@@ -166,16 +166,30 @@ class SystemDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity } = this.props;
     const { _showLoading, showConfigurationRemoteServer } = this.state;
+
+    let showBlockedInfo = false;
+    if (entity && entity.blockedOperation &&
+      (entity.blockedOperation.createOperation ||
+        entity.blockedOperation.updateOperation ||
+        entity.blockedOperation.deleteOperation)) {
+      showBlockedInfo = true;
+    }
+
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
-
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
               <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')} >
+                <Basic.Alert
+                  level="warning"
+                  icon="exclamation-sign"
+                  rendered={showBlockedInfo}
+                  text={this.i18n('blockedOperationInfo')}
+                  style={{ marginLeft: 0, marginRight: 0 }} />
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -8,6 +10,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
@@ -16,6 +19,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -45,14 +49,15 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	private final SysSyncConfigService synchronizationConfigService;
 	private final AccAccountRepository accountRepository;
 	private final SysSystemEntityService systemEntityService;
+	private final SysProvisioningBreakConfigService provisioningBreakConfigService;
 
 	@Autowired
 	public SystemDeleteProcessor(SysSystemService service,
 			SysProvisioningOperationRepository provisioningOperationRepository,
 			SysProvisioningArchiveRepository provisioningArchiveRepository,
-			SysSchemaObjectClassService objectClassService,
-			SysSyncConfigService synchronizationConfigService, AccAccountRepository accountRepository,
-			SysSystemEntityService systemEntityService) {
+			SysSchemaObjectClassService objectClassService, SysSyncConfigService synchronizationConfigService,
+			AccAccountRepository accountRepository, SysSystemEntityService systemEntityService,
+			SysProvisioningBreakConfigService provisioningBreakConfigService) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -62,6 +67,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(accountRepository);
 		Assert.notNull(systemEntityService);
+		Assert.notNull(provisioningBreakConfigService);
 		//
 		this.service = service;
 		this.objectClassService = objectClassService;
@@ -70,6 +76,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		this.provisioningOperationRepository = provisioningOperationRepository;
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.systemEntityService = systemEntityService;
+		this.provisioningBreakConfigService = provisioningBreakConfigService;
 	}
 
 	@Override
@@ -116,6 +123,9 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		// delete archived provisioning operations
 		provisioningArchiveRepository.deleteBySystem_Id(system.getId());
 		//
+		// clear provisioning break cache
+		clearProvisioningBreakCache(system.getId());
+		//
 		// deletes identity
 		service.deleteInternal(system);
 		return new DefaultEventResult<>(event, this);
@@ -126,4 +136,14 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		return false;
 	}
 
+	/**
+	 * Method clear all provisioning cache for system.
+	 * 
+	 * @param systemId
+	 */
+	private void clearProvisioningBreakCache(UUID systemId) {
+		provisioningBreakConfigService.clearCache(systemId, ProvisioningEventType.CREATE);
+		provisioningBreakConfigService.clearCache(systemId, ProvisioningEventType.DELETE);
+		provisioningBreakConfigService.clearCache(systemId, ProvisioningEventType.UPDATE);
+	}
 }

@@ -196,7 +196,6 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
   render() {
     const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection, rendered } = this.props;
     const { filterOpened, detail } = this.state;
-
     const isNew = detail.entity.id === undefined || detail.entity.id === null;
 
     if (!rendered) {
@@ -295,7 +294,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
             property="type"
             rendered={_.includes(columns, 'type')}
             header={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.label')}
-            width="15%"
+            width="130px"
             cell={({ rowIndex, data }) => {
               return (
                 this._getRecipientType(data[rowIndex])

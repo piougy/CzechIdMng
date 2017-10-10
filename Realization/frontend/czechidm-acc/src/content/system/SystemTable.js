@@ -97,6 +97,9 @@ export class SystemTable extends Advanced.AbstractTableContent {
    */
   _getBlockedOperations(system) {
     if (system && system.blockedOperation) {
+      // every blocked operation has same level in this table
+      const level = 'error';
+      //
       const createKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.CREATE);
       const updateKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.UPDATE);
       const deleteKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.DELETE);
@@ -108,7 +111,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           <span>
             {' '}
             <Basic.Label
-              level={ProvisioningOperationTypeEnum.getLevel(createKey)}
+              level={level}
               value={ProvisioningOperationTypeEnum.getNiceLabel(createKey)}/>
           </span>
         }
@@ -118,7 +121,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           <span>
             {' '}
             <Basic.Label
-              level={ProvisioningOperationTypeEnum.getLevel(updateKey)}
+              level={level}
               value={ProvisioningOperationTypeEnum.getNiceLabel(updateKey)}/>
           </span>
         }
@@ -128,7 +131,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           <span>
             {' '}
             <Basic.Label
-              level={ProvisioningOperationTypeEnum.getLevel(deleteKey)}
+              level={level}
               value={ProvisioningOperationTypeEnum.getNiceLabel(deleteKey)}/>
           </span>
         }
@@ -196,20 +199,20 @@ export class SystemTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
+          <Advanced.Column property="virtual" sort face="bool" width="75px" rendered={_.includes(columns, 'virtual')}/>
+          <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
+          <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
+          <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
           <Advanced.Column
             property="blockedOperation"
-            width="15%"
+            width="12%"
             cell={({ rowIndex, data }) => {
               return (
                 this._getBlockedOperations(data[rowIndex])
               );
             }}
             rendered={_.includes(columns, 'blockedOperation')}/>
-          <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="virtual" sort face="bool" width="75px" rendered={_.includes(columns, 'virtual')}/>
-          <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
-          <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
-          <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>
     );

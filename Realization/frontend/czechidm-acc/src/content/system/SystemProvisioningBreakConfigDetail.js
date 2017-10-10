@@ -10,6 +10,8 @@ import SystemProvisioningBreakConfigRecipientTable from './SystemProvisioningBre
 const uiKey = 'provisioning-break-config-detail';
 const manager = new ProvisioningBreakConfigManager();
 
+const DEFAULT_PERIOD = 20;
+
 /**
  * TODO: problem with attribute period validation trought joi and required nto working
  *
@@ -155,6 +157,8 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
               <Basic.TextField
                 ref="period"
                 type="number"
+                value={DEFAULT_PERIOD}
+                required
                 validation={ Utils.Ui.getJoiIntegerValidation() }
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.period.help')}
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}/>
@@ -182,8 +186,9 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
               <Basic.PanelHeader text={this.i18n('acc:content.provisioningBreakConfigRecipient.title')}/>
                 <Basic.Alert level="info" text={this.i18n('recipientInfo')} rendered={isNew}/>
                 <SystemProvisioningBreakConfigRecipientTable
-                  uiKey="provisioningBreakConfigRecipient"
+                  uiKey={'provisioningBreakConfigRecipient' + configId}
                   manager={this.provisioningBreakRecipientManager}
+                  forceSearchParameters={this.provisioningBreakRecipientManager.getSearchParameters().setFilter('breakConfigId', configId)}
                   provisioningBreakConfigId={configId}
                   rendered={!isNew} />
             </Basic.Panel>

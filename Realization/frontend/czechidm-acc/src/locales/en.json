@@ -36,7 +36,8 @@
         },
         "loadRemoteConnectors": "Load connector from remote server",
         "remoteConnectorServer": "Remote connector server",
-        "basic": "Basic information"
+        "basic": "Basic information",
+        "blockedOperationInfo": "Beware on system are blocked some operations!"
       },
       "entities": {
         "header": "Entities in system <small>managed in IdM</small>",
@@ -872,7 +873,7 @@
         "role": "Role",
         "identity": "Identity"
       },
-      "name": "Recipient name"
+      "name": "Recipient"
     }
   },
   "enums" : {

@@ -361,7 +361,15 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return dto;
 	}
 	
-	public E checkAccess(E entity, BasePermission... permission) {
+	/**
+	 * Evaluates authorization permission on given entity.
+	 *  
+	 * @param dto
+	 * @param permission base permissions to evaluate (all permission needed)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	protected E checkAccess(E entity, BasePermission... permission) {
 		if (entity == null) {
 			// nothing to check
 			return null;

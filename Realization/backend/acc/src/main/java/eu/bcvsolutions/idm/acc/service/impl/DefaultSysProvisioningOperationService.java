@@ -454,13 +454,15 @@ public class DefaultSysProvisioningOperationService
 			IcConnectorObject connectorObject = context.getConnectorObject();
 			if (connectorObject != null) {
 				for(IcAttribute attribute : connectorObject.getAttributes()) {
-					for(int j = 0; j < attribute.getValues().size(); j++) {
-						Object attributeValue = attribute.getValues().get(j);
-						if (attributeValue instanceof GuardedString) {
-							GuardedString guardedString = (GuardedString) attributeValue;
-							String confidentialStorageKey = createConnectorObjectPropertyKey(attribute, j);
-							confidentialValues.put(confidentialStorageKey, guardedString.asString());
-							attribute.getValues().set(j, new ConfidentialString(confidentialStorageKey));
+					if(attribute.getValues() != null){
+						for(int j = 0; j < attribute.getValues().size(); j++) {
+							Object attributeValue = attribute.getValues().get(j);
+							if (attributeValue instanceof GuardedString) {
+								GuardedString guardedString = (GuardedString) attributeValue;
+								String confidentialStorageKey = createConnectorObjectPropertyKey(attribute, j);
+								confidentialValues.put(confidentialStorageKey, guardedString.asString());
+								attribute.getValues().set(j, new ConfidentialString(confidentialStorageKey));
+							}
 						}
 					}
 				}
@@ -553,14 +555,16 @@ public class DefaultSysProvisioningOperationService
 		IcConnectorObject connectorObject = context.getConnectorObject();
 		if (connectorObject != null) {
 			connectorObject.getAttributes().forEach(attribute -> {
-				attribute.getValues().forEach(attributeValue -> {
-					if (attributeValue instanceof ConfidentialString) {
-						confidentialStorage.delete(
-								provisioningOperation.getId(), 
-								SysProvisioningOperation.class, 
-								((ConfidentialString)attributeValue).getKey());
-					}
-				});	
+				if(attribute.getValues() != null){
+					attribute.getValues().forEach(attributeValue -> {
+						if (attributeValue instanceof ConfidentialString) {
+							confidentialStorage.delete(
+									provisioningOperation.getId(), 
+									SysProvisioningOperation.class, 
+									((ConfidentialString)attributeValue).getKey());
+						}
+					});	
+				}
 			});
 		}
 	}

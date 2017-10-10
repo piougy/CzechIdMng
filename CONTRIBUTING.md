@@ -41,7 +41,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
  * [Convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
   * `Entity` / `Dto` has to contain jsr303 validations
 * Rest
-  * Rest endpoints naming with snake-case in plural, e.g. `<server>/wf-identities`, `<server>/tasks`
+  * Rest endpoints naming with snake-case lowercase in plural, e.g. `<server>/wf-identities`, `<server>/tasks`
 * Spring
   * use bean names, e.g. `@Service("identityService")`
   * use `@Transaction` annotation for service methods

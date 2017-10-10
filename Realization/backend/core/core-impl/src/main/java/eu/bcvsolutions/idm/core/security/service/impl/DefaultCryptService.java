@@ -36,9 +36,10 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * 
- *
  */
-public class DefaultCryptService implements CryptService {	
+public class DefaultCryptService implements CryptService {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCryptService.class);
 	/**
 	 * Algorithm, mode and block padding
 	 */
@@ -54,11 +55,9 @@ public class DefaultCryptService implements CryptService {
 	 * Initialization vector
 	 */
 	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCryptService.class);
+	//
 	private final ConfigurableEnvironment env;
-	private static Cipher encryptCipher;
-	private static Cipher decryptCipher;
+	private SecretKey key;
 	
 	public DefaultCryptService(ConfigurableEnvironment env) {
 		Assert.notNull(env);
@@ -69,13 +68,13 @@ public class DefaultCryptService implements CryptService {
 	@PostConstruct
 	private void init() {
 		try {
-			decryptCipher = initCipher(Cipher.DECRYPT_MODE);
-			encryptCipher = initCipher(Cipher.ENCRYPT_MODE);
+			key = this.getKey();
+			// just for key validation ... will be in log
+			initCipher(Cipher.DECRYPT_MODE, key);
+			initCipher(Cipher.ENCRYPT_MODE, key);
 			LOG.info("Initializing Cipher succeeded - Confidetial storage will be crypted.");
-		} catch (InvalidKeyException e) {
-			decryptCipher = null;
-			encryptCipher = null;
-			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ",e.getMessage());
+		} catch (InvalidKeyException | UnsupportedEncodingException ex) {
+			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ", ex.getMessage());
 		}
 	}
 	
@@ -93,37 +92,32 @@ public class DefaultCryptService implements CryptService {
 	
 	@Override
 	public byte[] decrypt(byte[] value) {
-		byte[] decryptValue = null;
-		// cipher isn't initialized
-		if (decryptCipher == null) {
-			return value;
-		}
-		//
 		try {
-			decryptValue = decryptCipher.doFinal(value);
-		} catch (IllegalBlockSizeException | BadPaddingException e) {
+			Cipher decryptCipher = initCipher(Cipher.DECRYPT_MODE, key);
+			if (decryptCipher == null) {
+				logNotCryptedWarning();
+				return value;
+			}
+			return decryptCipher.doFinal(value);
+		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
 			LOG.error("Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
-		return decryptValue;
 	}
 	
 	@Override
 	public byte[] encrypt(byte[] value) {
-		byte[] encryptValue = null;
-		// cipher isn't initialized
-		if (encryptCipher == null) {
-			return value;
-		}
-		//
 		try {
-			encryptValue = encryptCipher.doFinal(value);
-		} catch (IllegalBlockSizeException | BadPaddingException e) {
+			Cipher encryptCipher = initCipher(Cipher.ENCRYPT_MODE, key);
+			if (encryptCipher == null) {
+				logNotCryptedWarning();
+				return value;
+			}
+			return encryptCipher.doFinal(value);
+		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
 			LOG.error("Encrypt problem! Password will not be encrypted! Error: {}", e);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
-		
-		return encryptValue;
 	}
 	
 	/**
@@ -165,31 +159,41 @@ public class DefaultCryptService implements CryptService {
 				LOG.info("For crypt service is define key with path: [{}], but this file isn't exist.", keyPath);
 			}
 		}
+		logNotCryptedWarning();
+		//
+		return null;
+	}
+	/**
+	 * warning about confidential storage is not crypted.
+	 */
+	private void logNotCryptedWarning() {
 		LOG.warn("WARNING: Confidential storage isn't crypted, application cannot be used in production!!!"
 				+ " Please set one of these application properties: [{}] or [{}]. See documention [{}]", 
 				APPLICATION_PROPERTIES_KEY, 
 				APPLICATION_PROPERTIES_KEY_PATH,
 				// TODO: move to configuration, use version property etc.
 				"https://wiki.czechidm.com/devel/dev/security/confidential-storage");
-		return null;
 	}
 	
 	/**
-	 * Method init {@link Cipher} by encrypt mode {@link Cipher}
+	 * Method init {@link Cipher} by encrypt mode {@link Cipher}. 
+	 * Cipher is not thread safe and is not reusable, has to be constructed for all requests.
+	 * 
+	 * 
 	 * @param encryptMode
 	 * @param key
 	 * @throws InvalidKeyException
 	 */
-	private Cipher initCipher(int encryptMode) throws InvalidKeyException {
+	private Cipher initCipher(int encryptMode, SecretKey key) throws InvalidKeyException {
+		if (key == null) {
+			return null;
+		}
+		//
 		Cipher cipher = null;
 		try {
-			SecretKey key = this.getKey();
-			if (key == null) {
-				return null;
-			}
 			cipher = Cipher.getInstance(ALGORITHM + "/" + ALGORITHM_MODE + "/" + ALGORITHM_PADDING);
 			cipher.init(encryptMode, key, new IvParameterSpec(IV));
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | UnsupportedEncodingException e) {
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
 			LOG.error("Cipher can't be initialized!");
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}

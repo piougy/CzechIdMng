@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Entity
 @Table(name = "idm_password", indexes = {
 		@Index(name = "ux_idm_password_identity", columnList = "identity_id", unique = true)

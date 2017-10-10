@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 
 /**
- * Support for loading {@link BaseEntity} by identifier.
+ * Support for loading {@link BaseDto} and {@link BaseEntity} by identifier.
  * Provide basic services through application.
  *
  * @see EntityLookup
@@ -21,20 +21,22 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 public interface LookupService {
 
 	/**
-	 * Returns entity by given identifier and 
+	 * Returns {@link BaseEntity} by given identifier and type. 
+	 * {@link BaseEntity} and {@link BaseDto} type can be given.
 	 * 
 	 * @param identifiableType
 	 * @param entityId
-	 * @return
+	 * @return {@link BaseEntity}
 	 */
 	BaseEntity lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId);
 	
 	/**
-	 * Returns dto by given identifier and 
+	 * Returns {@link BaseDto} by given identifier and type. 
+	 * {@link BaseEntity} and {@link BaseDto} type can be given. 
 	 * 
 	 * @param identifiableType
 	 * @param entityId
-	 * @return
+	 * @return {@link BaseDto}
 	 */
 	BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId);
 	

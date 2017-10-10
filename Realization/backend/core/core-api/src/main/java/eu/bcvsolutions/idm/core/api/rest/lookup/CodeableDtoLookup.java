@@ -9,9 +9,9 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 
 /**
- * Idetifiable by code lookup
+ * Idetifiable by {@link Codeable} lookup
  * 
- * @param <E>
+ * @param <DTO> {@link BaseDto} type
  * @author Radek Tomiška
  */
 public class CodeableDtoLookup<DTO extends BaseDto> extends AbstractDtoLookup<DTO>{
@@ -46,6 +46,10 @@ public class CodeableDtoLookup<DTO extends BaseDto> extends AbstractDtoLookup<DT
 
 	@Override
 	public DTO lookup(Serializable id) {
+		if (getService() == null) {
+			throw new IllegalStateException("Service for this lookup is null. Inicialize service for this lookup.");
+		}
+		//
 		DTO dto = null;
 		try {
 			dto = getService().get(id);

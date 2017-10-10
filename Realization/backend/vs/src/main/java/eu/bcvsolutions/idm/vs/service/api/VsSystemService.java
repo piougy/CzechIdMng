@@ -14,6 +14,8 @@ public interface VsSystemService {
 	static final String IMPLEMENTERS_PROPERTY = "implementers";
 	static final String IMPLEMENTER_ROLES_PROPERTY = "implementerRoles";
 	static final String ATTRIBUTES_PROPERTY = "attributes";
+	// Multivalued default attribute
+	static final String RIGHTS_ATTRIBUTE = "rights";
 
 	/**
 	 * Create virtual system. System will be included mapping by default fields

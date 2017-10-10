@@ -798,4 +798,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		return null;
 	}
+
+	@Override
+	protected IdmTreeNodeDto createEntityDto() {
+		return new IdmTreeNodeDto();
+	}
 }

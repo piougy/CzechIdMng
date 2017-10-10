@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
@@ -147,6 +148,10 @@ public class DefaultIdmIdentityContractService
 			} else {
 				predicates.add(builder.lessThan(root.get(IdmIdentityContract_.validTill), LocalDate.now()));
 			}
+		}
+		// property
+		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getValue()));
 		}
 		
 		return predicates;

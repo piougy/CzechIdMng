@@ -222,13 +222,13 @@ class VsRequestDetail extends Basic.AbstractContent {
 
     const searchBefore = new Domain.SearchParameters()
     .setFilter('uid', entity ? entity.uid : null)
-    .setFilter('system', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
     .setFilter('createdBefore', entity ? entity.created : null)
     .setFilter('state', 'IN_PROGRESS');
 
     const searchAfter = new Domain.SearchParameters()
     .setFilter('uid', entity ? entity.uid : null)
-    .setFilter('system', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
     .setFilter('createdAfter', entity ? entity.created : null)
     .setFilter('state', 'IN_PROGRESS');
 

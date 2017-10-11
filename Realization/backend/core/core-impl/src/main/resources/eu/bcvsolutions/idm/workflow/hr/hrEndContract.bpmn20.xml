@@ -32,6 +32,7 @@ Input:
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
@@ -52,7 +53,7 @@ try {
 	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
 	def hasValidContracts = false
 	for (c in contracts) {
-		if (!c.isDisabled() &amp;&amp; c.isValid()) {
+		if (c.getState() != ContractState.EXCLUDED &amp;&amp; c.isValid()) {
 			hasValidContracts = true
 			break
 		}

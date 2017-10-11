@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor.identity;
+package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
  */
 @Component
 @Description("Persists identity contract.")
-public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentityContractDto> {
+public class IdentityContractSaveProcessor extends AbstractIdentityContractProcessor {
 	
 	public static final String PROCESSOR_NAME = "identity-contract-save-processor";
 	private final IdmIdentityContractService service;

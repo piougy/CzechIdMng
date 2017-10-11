@@ -2,15 +2,14 @@ package eu.bcvsolutions.idm.core.api.utils;
 
 import java.text.Normalizer;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Spinal case string transformation
  * 
  * @author Radek Tomiška
  */
-public class SpinalCase {
-
-	private SpinalCase() {
-	}
+public abstract class SpinalCase {
 
 	/**
 	 * Returns transformed string as spinal case
@@ -19,7 +18,7 @@ public class SpinalCase {
 	 * @return
 	 */
 	public static String format(String input) {
-		if (isEmptyOrNull(input)) {
+		if (StringUtils.isEmpty(input)) {
 			return "";
 		}
 		String out = normalize(input);
@@ -35,9 +34,5 @@ public class SpinalCase {
 
 	private static String removeDuplicateWhiteSpaces(String input) {
 		return input.replaceAll("\\s+", " ");
-	}
-
-	private static boolean isEmptyOrNull(String input) {
-		return (input == null || input.trim().length() == 0);
 	}
 }

@@ -18,10 +18,11 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -89,7 +90,8 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			.filter(EntityUtils::isValid) // valid identity role
 			.filter(ir -> { // valid role's contract
 				// TODO: jpa metamodel generation in unit tests
-				return EntityUtils.isValid(DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, ValidableEntity.class));
+				IdmIdentityContractDto contract = DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, IdmIdentityContractDto.class);
+				return contract.isValid() && contract.getState() != ContractState.EXCLUDED;
 			})
 			.forEach(identityRole -> {
 				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, roleService.get(identityRole.getRole()), new HashSet<>()));

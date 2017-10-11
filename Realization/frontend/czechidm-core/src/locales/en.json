@@ -536,6 +536,10 @@
     "ScriptAuthorityTypeEnum": {
       "CLASS_NAME": "Class",
       "SERVICE": "Service"
+    },
+    "ContractStateEnum": {
+      "EXCLUDED": "Excluded",
+      "DISABLED": "$t(label.disabled)"
     }
   },
   "dashboard": {
@@ -2278,12 +2282,16 @@
       },
       "disabled": {
         "label": "Inactive",
-        "help": "Inactive work position. Roles cannot be assigned to inactive position."
+        "help": "Inactive work position. Roles cannot be assigned to inactive position. Depends on position's state."
       },
       "description": "Note",
       "main": {
         "label": "Main position",
         "help": "Main / prime work position. It's created automatically when the user is created."
+      },
+      "state": {
+        "label": "Stav",
+        "help": "Contract's state"
       }
     },
     "TreeNode": {

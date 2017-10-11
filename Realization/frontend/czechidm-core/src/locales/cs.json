@@ -557,6 +557,10 @@
     "ScriptAuthorityTypeEnum": {
       "CLASS_NAME": "Třída",
       "SERVICE": "Služba"
+    },
+    "ContractStateEnum": {
+      "EXCLUDED": "Vyňat z evidenčního počtu",
+      "DISABLED": "$t(label.disabled)"
     }
   },
   "dashboard": {
@@ -2314,12 +2318,16 @@
       },
       "disabled": {
         "label": "Neaktivní",
-        "help": "Pozice je neplatná, nelze na ni vázat žádné role."
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Aktivita pozice se řídí stavem."
       },
       "description": "Popis",
       "main": {
         "label": "Hlavní pozice",
         "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
+      },
+      "state": {
+        "label": "Stav",
+        "help": "Stav pracovní pozice."
       }
     },
     "TreeNode": {

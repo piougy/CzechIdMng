@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -240,7 +241,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			// assign role
 			helper.createIdentityRole(identity, role);
 			IdmIdentityContractDto contract = helper.createIdentityContact(identity);
-			contract.setDisabled(true);	
+			contract.setState(ContractState.DISABLED);	
 			identityContractService.save(contract);
 			helper.createIdentityRole(contract, role2);
 			//

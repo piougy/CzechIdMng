@@ -210,18 +210,18 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
-			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account) {
+			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account, SynchronizationContext context) {
 		// We will create new Identity
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
 		IdmIdentityDto identity = new IdmIdentityDto();
 		// Fill Identity by mapped attribute
-		identity = (IdmIdentityDto) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
+		identity = (IdmIdentityDto) fillEntity(mappedAttributes, uid, icAttributes, identity, true, context);
 		// Create new Identity
 		identity = this.save(identity, true);
 		// Update extended attribute (entity must be persisted first)
-		updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true);
+		updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true, context);
 		// Update confidential attribute (entity must be persisted first)
-		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, true);
+		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, true, context);
 
 		// Create new Identity account relation
 		AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
@@ -270,13 +270,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		}
 		if (identity != null) {
 			// Update identity
-			identity = fillEntity(mappedAttributes, uid, icAttributes, identity, false);
+			identity = fillEntity(mappedAttributes, uid, icAttributes, identity, false, context);
 			identity = this.save(identity, true);
 			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false);
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false, context);
 			// Update confidential attribute (entity must be persisted
 			// first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, false);
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, false, context);
 
 			// Identity Updated
 			addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
@@ -390,5 +390,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return entities.get(0);
 		}
 		return null;
+	}
+
+	@Override
+	protected IdmIdentityDto createEntityDto() {
+		return new IdmIdentityDto();
 	}
 }

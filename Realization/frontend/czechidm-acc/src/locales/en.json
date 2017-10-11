@@ -800,7 +800,8 @@
       "IDENTITY": "Identity",
       "ROLE": "Role",
       "TREE": "Tree",
-      "ROLE_CATALOGUE": "Role catalogue"
+      "ROLE_CATALOGUE": "Role catalogue",
+      "CONTRACT": "Identity contract"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -911,6 +912,19 @@
       "PRIORITY": "Priority (Integer)",
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Owner (IdmIdentity - UUID)",
+      "VALID_FROM": "Valid from (LocalDate)",
+      "VALID_TILL": "Valid till (LocalDate)",
+      "WORK_POSITION": "Work position (IdmTreeNode - UUID)",
+      "POSITION": "Name of position (String)",
+      "EXTERNE": "Externe (boolean)",
+      "MAIN": "Main relation (boolean)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)",
+      "GUARANTESS": "Guarantess (IdmIdentity - UUID/List<UUID>)",
+      "STATE": "State (ContractState - String)"
     }
   },
   "permission": {

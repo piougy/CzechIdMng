@@ -163,6 +163,10 @@ public class DefaultIdmIdentityContractService
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getState()));
 		}
+		// property
+		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getValue()));
+		}
 		
 		return predicates;
 	}

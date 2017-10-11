@@ -512,8 +512,9 @@ public class DefaultSysSystemAttributeMappingService
 					ImmutableMap.of("system", systemEntity.getName()));
 		}
 		if (!(uid instanceof String)) {
+			SysSystemDto systemEntity = getSystemFromAttributeMapping(uidAttribute);
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
-					ImmutableMap.of("uid", uid));
+					ImmutableMap.of("uid", uid.getClass(), "system", systemEntity.getName()));
 		}
 		return (String)uid;
 	}

@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
  *
  * @author Radek Tomiška
  */
-public class IdmIdentityContractFilter extends DataFilter {
+public class IdmIdentityContractFilter extends DataFilter implements CorrelationFilter{
 
 	private UUID identity;
 	private LocalDate validFrom;
@@ -26,6 +26,11 @@ public class IdmIdentityContractFilter extends DataFilter {
 	private Boolean main;
 	private Boolean validNowOrInFuture;
 	private ContractState state;
+	/**
+	 * Little dynamic search by role property and value
+	 */
+	private String property;
+	private String value;
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -105,5 +110,25 @@ public class IdmIdentityContractFilter extends DataFilter {
 	
 	public ContractState getState() {
 		return state;
+	}
+
+	@Override
+	public String getProperty() {
+		return property;
+	}
+
+	@Override
+	public void setProperty(String property) {
+		this.property = property;
+	}
+
+	@Override
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	public void setValue(String value) {
+		this.value = value;
 	}
 }

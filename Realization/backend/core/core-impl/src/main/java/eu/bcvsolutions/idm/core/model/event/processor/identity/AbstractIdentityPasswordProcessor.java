@@ -13,11 +13,11 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 
 /**
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
  *
  * @author Peter Sourek <peter.sourek@bcvsolutions.eu>
  */
-public abstract class AbstractIdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public abstract class AbstractIdentityPasswordProcessor extends AbstractIdentityProcessor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractIdentityPasswordProcessor.class);
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";

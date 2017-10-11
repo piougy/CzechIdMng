@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor.identity;
+package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
 import java.util.Set;
 
@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
  */
 @Component
 @Description("Automatic roles recount while enabled identity cotract is created.")
-public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContractDto> {
+public class IdentityContractCreateByAutomaticRoleProcessor extends AbstractIdentityContractProcessor {
 	
 	public static final String PROCESSOR_NAME = "identity-contract-create-by-automatic-role-processor";
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;

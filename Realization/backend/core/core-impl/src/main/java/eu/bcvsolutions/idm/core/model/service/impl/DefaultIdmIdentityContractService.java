@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
@@ -48,6 +49,8 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * - identity contract is required for role assign
  * 
  * @author Radek Tomiška
+ * @see IdentityContractEvent
+ * @see AbstractIdentityContractProcessor
  *
  */
 public class DefaultIdmIdentityContractService 

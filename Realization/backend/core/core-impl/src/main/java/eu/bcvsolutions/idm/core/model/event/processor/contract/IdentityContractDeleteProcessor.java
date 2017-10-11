@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor.identity;
+package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
 import java.text.MessageFormat;
 
@@ -12,10 +12,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
  */
 @Component
 @Description("Deletes identity contract.")
-public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdentityContractDto> {
+public class IdentityContractDeleteProcessor extends AbstractIdentityContractProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-contract-delete-processor";
 	private final IdmIdentityContractService service;

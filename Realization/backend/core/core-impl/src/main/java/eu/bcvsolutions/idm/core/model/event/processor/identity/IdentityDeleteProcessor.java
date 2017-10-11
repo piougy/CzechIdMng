@@ -12,10 +12,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipient
  */
 @Component
 @Description("Deletes identity - ensures core referential integrity.")
-public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public class IdentityDeleteProcessor extends AbstractIdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
 	private final IdmIdentityService service;

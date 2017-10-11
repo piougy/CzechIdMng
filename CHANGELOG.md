@@ -10,6 +10,11 @@ All notable changes to this project will be documented in this file.
 ##### Contracts
 
 - Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``EXLUDED`` - change script is provided.
+- Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
+  - ``IdentityContractCreateByAutomaticRoleProcessor``
+  - ``IdentityContractDeleteProcessor``
+  - ``IdentityContractSaveProcessor``
+  - ``IdentityContractUpdateByAutomaticRoleProcessor``
 
 ### Removed
 

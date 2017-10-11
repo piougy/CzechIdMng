@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractRoleProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
  */
 @Component
 @Description("Persists role.")
-public class RoleSaveProcessor extends CoreEventProcessor<IdmRoleDto> {
+public class RoleSaveProcessor extends AbstractRoleProcessor {
 	
 	public static final String PROCESSOR_NAME = "role-save-processor";
 	private final IdmRoleService service;

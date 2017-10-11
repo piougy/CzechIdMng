@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -18,14 +19,20 @@ import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
+import eu.bcvsolutions.idm.core.api.event.AbstractEntityEvent;
+import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
@@ -45,6 +52,11 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Autowired private EnabledEvaluator enabledEvaluator;
 	@Autowired private LookupService lookupService;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmConfigurationService configurationService;
+
+	@Autowired
+	@Qualifier("testTwoEntityEventProcessorOne")
+	private EntityEventProcessor<?> testTwoEntityEventProcessorOne;
 	//
 	private DefaultEntityEventManager entityEventManager; 
 	
@@ -164,5 +176,23 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		//
 		assertEquals(2, context.getResults().size());
 		assertEquals(2, context.getProcessedOrder().intValue());
+	}
+
+	@Test
+	public void testConfigPropertyEventTypeOverwrite() {
+		final String eventTypeName = System.nanoTime() + "_test_type";
+		final EventType type = (EventType) () -> eventTypeName;
+		final EntityEvent<TestContentTwo> event = new CoreEvent<>(type, new TestContentTwo());
+		final EventContext<TestContentTwo> context = entityEventManager.process(event);
+		assertEquals(0, context.getResults().size());
+
+		final String configPropName = testTwoEntityEventProcessorOne.getConfigurationPrefix() + ConfigurationService.PROPERTY_SEPARATOR
+			+ AbstractEntityEventProcessor.PROPERTY_EVENT_TYPES;
+		configurationService.setValue(configPropName, eventTypeName);
+
+
+		EntityEvent<TestContentTwo> event2 = new CoreEvent<>(type, new TestContentTwo());
+		EventContext<TestContentTwo> context2 = entityEventManager.process(event2);
+		assertEquals(2, context2.getResults().size());
 	}
 }

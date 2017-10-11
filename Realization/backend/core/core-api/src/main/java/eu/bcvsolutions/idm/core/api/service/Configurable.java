@@ -88,9 +88,13 @@ public interface Configurable {
 			return !getConfigurationService().getBooleanValue(
 					getConfigurationPrefix()
 					+ ConfigurationService.PROPERTY_SEPARATOR
-					+ ConfigurationService.PROPERTY_ENABLED, true);
+					+ ConfigurationService.PROPERTY_ENABLED, !isDefaultDisabled());
 		}
 		// enabled by default
+		return false;
+	}
+	
+	default boolean isDefaultDisabled() {
 		return false;
 	}
 	

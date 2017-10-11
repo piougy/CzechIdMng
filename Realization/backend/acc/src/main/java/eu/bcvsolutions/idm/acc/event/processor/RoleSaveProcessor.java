@@ -11,7 +11,8 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractRoleProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -27,7 +28,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accRoleSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioning after role is saved.")
-public class RoleSaveProcessor extends AbstractRoleProcessor {
+public class RoleSaveProcessor
+		extends CoreEventProcessor<IdmRoleDto> 
+		implements RoleProcessor {
 
 	public static final String PROCESSOR_NAME = "role-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleSaveProcessor.class);

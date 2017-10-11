@@ -137,8 +137,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
   }
 
   onChangeState(state) {
-    const key = state ? state.value : null;
-    this.refs.disabled.setValue(ContractStateEnum.isContractDisabled(key));
+    this.refs.disabled.setValue(state ? ContractStateEnum.isContractDisabled(state.value) : null);
   }
 
   render() {

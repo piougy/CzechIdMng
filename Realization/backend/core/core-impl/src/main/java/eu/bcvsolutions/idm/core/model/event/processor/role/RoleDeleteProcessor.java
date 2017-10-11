@@ -16,10 +16,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractRoleProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
@@ -38,7 +39,9 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
  */
 @Component
 @Description("Deletes role from repository.")
-public class RoleDeleteProcessor extends AbstractRoleProcessor {
+public class RoleDeleteProcessor
+		extends CoreEventProcessor<IdmRoleDto> 
+		implements RoleProcessor {
 	
 	public static final String PROCESSOR_NAME = "role-delete-processor";
 	private final IdmRoleService service;

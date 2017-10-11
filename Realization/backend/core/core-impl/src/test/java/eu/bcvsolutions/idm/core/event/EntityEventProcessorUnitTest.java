@@ -73,6 +73,14 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 		assertTrue(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
 		assertTrue(processor.supports(new CoreEvent<IdmIdentityContractDto>(IdentityContractEventType.UPDATE, new IdmIdentityContractDto())));
 	}
+	
+	@Test
+	public void testHasEventType() {
+		EntityEvent<IdmIdentityDto> event = new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentityDto());
+		//
+		assertTrue(event.hasType(IdentityEventType.UPDATE));
+		assertFalse(event.hasType(IdentityEventType.CREATE));
+	}
 
 	private class EventProcessorIdentity extends AbstractEntityEventProcessor<IdmIdentityDto> {
 

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -21,6 +22,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
@@ -46,6 +49,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 @Component("testHelper")
 public class DefaultTestHelper implements TestHelper {
 	
+	@Autowired private ApplicationContext context;
+	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private IdmTreeTypeService treeTypeService;
 	@Autowired private IdmRoleService roleService;
@@ -297,6 +302,25 @@ public class DefaultTestHelper implements TestHelper {
 		roleCatalogue.setParent(parentId);
 		roleCatalogue.setCode(code);
 		return idmRoleCatalogueService.save(roleCatalogue);
+	}
+	
+	@Override
+	public void enable(Class<? extends EntityEventProcessor<?>> processorType) {
+		enableProcessor(processorType, true);
+	}
+	
+	@Override
+	public void disable(Class<? extends EntityEventProcessor<?>> processorType) {
+		enableProcessor(processorType, false);
+	}
+	
+	private void enableProcessor(Class<? extends EntityEventProcessor<?>> processorType, boolean enabled) {
+		Assert.notNull(processorType);
+		//
+		EntityEventProcessor<?> processor = context.getBean(processorType);
+		Assert.notNull(processor);
+		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
 	}
 	
 	/**

@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -65,7 +65,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * - supports {@link IdentityEvent}
  * 
  * @author Radek Tomiška
- * @see AbstractIdentityProcessor
+ * @see IdentityProcessor
  *
  */
 public class DefaultIdmIdentityService

@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
@@ -22,19 +22,19 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
  */
 @Component
 @Description("Persists identity contract.")
-public class IdentityContractSaveProcessor extends AbstractIdentityContractProcessor {
+public class IdentityContractSaveProcessor
+		extends CoreEventProcessor<IdmIdentityContractDto> 
+		implements IdentityContractProcessor {
 	
 	public static final String PROCESSOR_NAME = "identity-contract-save-processor";
 	private final IdmIdentityContractService service;
 	
 	@Autowired
 	public IdentityContractSaveProcessor(
-			IdmIdentityContractService service,
-			IdmIdentityRoleService identityRoleService) {
+			IdmIdentityContractService service) {
 		super(IdentityContractEventType.UPDATE, IdentityContractEventType.CREATE);
 		//
 		Assert.notNull(service);
-		Assert.notNull(identityRoleService);
 		//
 		this.service = service;
 	}

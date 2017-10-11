@@ -799,4 +799,143 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertEquals(1, contracts.size());
 	}
 	
+	@Test
+	public void testDisableIdentityAfterExcludeContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		Assert.assertFalse(identity.isDisabled());
+		//
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityMoreContracts() {
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityContact(identity);
+		Assert.assertFalse(identity.isDisabled());
+		//
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityAfterIncludeContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		contract.setState(null);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityAfterEnableContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		contract.setState(null);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterDisableContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterInvalidateContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setValidFrom(LocalDate.now().plusDays(1));
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityAfterValidateContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setValidFrom(LocalDate.now().plusDays(1));
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		contract.setValidFrom(LocalDate.now());
+		service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterDeleteContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		service.delete(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());	
+	}
+	
+	@Test
+	public void testEnableIdentityAfterCreateValidContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		service.delete(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		helper.createIdentityContact(identity);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterCreateInvalidContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		service.delete(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		helper.createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
 }

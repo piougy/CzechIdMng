@@ -15,6 +15,11 @@ All notable changes to this project will be documented in this file.
   - ``IdentityContractDeleteProcessor``
   - ``IdentityContractSaveProcessor``
   - ``IdentityContractUpdateByAutomaticRoleProcessor``
+- Long running tasks (LRT) for HR processes was moved into processors. Enable / disable identity with no valid or excluded contracts is executed immediately after contract is changed. HR processors are using almost the same workflow as LRT (LRT variables were removed only), but its configurable now. Long running task were removed and will be unscheduled automatically after new version will be installed:
+  - ``AbstractWorkflowEventProcessor``
+  - ``HrContractExclusionProcess``
+  - ``HrEnableContractProcess``
+  - ``HrEndContractProcess``
 
 ### Removed
 

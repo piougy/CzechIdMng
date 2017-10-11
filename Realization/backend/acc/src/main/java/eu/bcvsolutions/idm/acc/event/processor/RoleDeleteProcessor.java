@@ -11,10 +11,11 @@ import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractRoleProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 
 /**
@@ -25,7 +26,9 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
  */
 @Component("accRoleDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class RoleDeleteProcessor extends AbstractRoleProcessor {
+public class RoleDeleteProcessor
+		extends CoreEventProcessor<IdmRoleDto> 
+		implements RoleProcessor {
 	
 	public static final String PROCESSOR_NAME = "role-delete-processor";
 	private final SysRoleSystemService roleSystemService;

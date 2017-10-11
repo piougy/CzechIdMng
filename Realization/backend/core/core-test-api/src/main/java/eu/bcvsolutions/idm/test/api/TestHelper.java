@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
@@ -274,5 +275,19 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
+	
+	/**
+	 * Enables given processor
+	 * 
+	 * @param processorType
+	 */
+	void enable(Class<? extends EntityEventProcessor<?>> processorType);
+	
+	/**
+	 * Disables given processor
+	 * 
+	 * @param processorType
+	 */
+	void disable(Class<? extends EntityEventProcessor<?>> processorType);
 
 }

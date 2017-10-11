@@ -19,10 +19,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -39,7 +40,9 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
  */
 @Component
 @Description("Automatic roles recount while identity contract is updated, disabled or enabled.")
-public class IdentityContractUpdateByAutomaticRoleProcessor extends AbstractIdentityContractProcessor {
+public class IdentityContractUpdateByAutomaticRoleProcessor
+		extends CoreEventProcessor<IdmIdentityContractDto> 
+		implements IdentityContractProcessor {
 	
 	public static final String PROCESSOR_NAME = "identity-contract-update-by-automatic-role-processor";
 	//
@@ -215,7 +218,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends AbstractIden
 	}
 	
 	/**
-	 * before save - wee need to check changes - see detach in process method
+	 * after save
 	 */
 	@Override
 	public int getOrder() {

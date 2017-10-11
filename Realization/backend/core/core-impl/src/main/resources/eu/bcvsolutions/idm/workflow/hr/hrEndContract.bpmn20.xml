@@ -10,8 +10,6 @@ Automatic roles (inherited from the organization structure) are removed automati
 feature of CzechIdM.
 
 Input:
-    longRunningTaskId - UUID
-    scheduledTaskId - UUID
     dto - IdmIdentityContractDto
     </documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
@@ -38,14 +36,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecuto
 
 Logger LOG = LoggerFactory.getLogger("hrEndContract")
 
-LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+LOG.info("End contract dto: [{}]", dto)
 
-if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!")
-}
-
-if (dto.isValid()) {
-	throw new IllegalArgumentException("Contract must not be valid!")
 }
 
 def result = null
@@ -63,6 +57,7 @@ try {
 		// disable identity
 		def identity = identityService.get(dto.getIdentity())
 		if (!identity.isDisabled()) {
+		    println "menim!"
 			identity.setDisabled(true)
 			identityService.save(identity)
 		}

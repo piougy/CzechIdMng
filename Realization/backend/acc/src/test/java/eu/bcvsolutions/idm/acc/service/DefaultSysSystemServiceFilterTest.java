@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -19,65 +18,66 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
+ * Test for System filter
  * 
  * @author Patrik Stloukal
  *
  */
 public class DefaultSysSystemServiceFilterTest extends AbstractIntegrationTest {
-	
-	@Autowired private SysSystemService systemService;
-	@Autowired private IdmPasswordPolicyService policyService;
-	@Autowired private TestHelper helper;
-	
-	
+
+	@Autowired
+	private SysSystemService systemService;
+	@Autowired
+	private IdmPasswordPolicyService policyService;
+
 	@Before
-	public void login(){
+	public void login() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 
 	@After
-	public void logout(){
+	public void logout() {
 		super.logout();
 	}
-	
-	@Test 
+
+	@Test
 	public void testSystemNameFilter() {
-		SysSystemDto system1 = createSystem("test001" +  System.currentTimeMillis(), null);
-		createSystem("test002" +  System.currentTimeMillis(), null);
+		SysSystemDto system1 = createSystem("test001" + System.currentTimeMillis(), null);
+		createSystem("test002" + System.currentTimeMillis(), null);
 		SysSystemFilter testFilter = new SysSystemFilter();
 		testFilter.setText(system1.getName());
 		Page<SysSystemDto> pages = systemService.find(testFilter, null);
 		assertEquals(1, pages.getTotalElements());
 		assertEquals(system1.getId(), pages.getContent().get(0).getId());
 	}
-	
-	@Test 
+
+	@Test
 	public void testSystemVirtualFilter() {
-		SysSystemDto system1 = createSystem("test001" +  System.currentTimeMillis(), true);
-		createSystem("test002" +  System.currentTimeMillis(), false);
+		SysSystemDto system1 = createSystem("test001" + System.currentTimeMillis(), true);
+		createSystem("test002" + System.currentTimeMillis(), false);
 		SysSystemFilter testFilter = new SysSystemFilter();
-		testFilter.setVirtual(true);		
+		testFilter.setVirtual(true);
 		Page<SysSystemDto> pages = systemService.find(testFilter, null);
 		assertEquals(1, pages.getTotalElements());
 		assertEquals(system1.getId(), pages.getContent().get(0).getId());
 	}
-	
+
 	/**
 	 * Id in {@link SysSystemFilter} not currently implemented. Use get by id.
 	 */
 	@Test
-	public void testSystemIdFilter() {		
-		SysSystemDto system1 = createSystem("test001" +  System.currentTimeMillis(), null);
-		createSystem("test002" +  System.currentTimeMillis(), null);
+	public void testSystemIdFilter() {
+		SysSystemDto system1 = createSystem("test001" + System.currentTimeMillis(), null);
+		createSystem("test002" + System.currentTimeMillis(), null);
 		SysSystemDto foundedSystem = systemService.get(system1.getId());
 		assertEquals(system1.getId(), foundedSystem.getId());
 	}
-	
-	@Test 
+
+	@Test
 	public void testSystemPasswordPolicyValidationId() {
-		SysSystemDto system1 = createSystem("test001" +  System.currentTimeMillis(), null);
-		createSystem("test002" +  System.currentTimeMillis(), null);	
-		SysSystemFilter testFilter = new SysSystemFilter();		
+		SysSystemDto system1 = createSystem("test001" + System.currentTimeMillis(), null);
+		createSystem("test002" + System.currentTimeMillis(), null);
+		SysSystemFilter testFilter = new SysSystemFilter();
 		IdmPasswordPolicyDto policy = createPasswordPolicy("first", IdmPasswordPolicyType.VALIDATE);
 		system1.setPasswordPolicyValidate(policy.getId());
 		system1 = systemService.save(system1);
@@ -86,7 +86,7 @@ public class DefaultSysSystemServiceFilterTest extends AbstractIntegrationTest {
 		assertEquals(1, pages.getTotalElements());
 		assertEquals(system1.getId(), pages.getContent().get(0).getId());
 	}
-	
+
 	@Test
 	public void testSystemPasswordPolicyGenerationId() {
 		SysSystemDto system1 = createSystem("test01" + System.currentTimeMillis(), null);
@@ -100,7 +100,7 @@ public class DefaultSysSystemServiceFilterTest extends AbstractIntegrationTest {
 		assertEquals(1, pages.getTotalElements());
 		assertEquals(system1.getId(), pages.getContent().get(0).getId());
 	}
-	
+
 	private SysSystemDto createSystem(String systemName, Boolean virtual) {
 		SysSystemDto system = new SysSystemDto();
 		system.setName(systemName);
@@ -109,7 +109,7 @@ public class DefaultSysSystemServiceFilterTest extends AbstractIntegrationTest {
 		}
 		return systemService.save(system);
 	}
-	
+
 	private IdmPasswordPolicyDto createPasswordPolicy(String policyName, IdmPasswordPolicyType type) {
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName(policyName);

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -408,8 +409,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Resolve "Account doesn't exist in IDM" situation. Result can be UNLINKED
-	 * or UNMATCHED situations.
+	 * Resolve "Account doesn't exist in IDM" situation. Result can be UNLINKED or
+	 * UNMATCHED situations.
 	 * 
 	 * @param context
 	 * @param systemEntity
@@ -591,7 +592,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		} finally {
 			config = synchronizationConfigService.save(config);
 			boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
-			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
+			actionsLog = saveActionLogs(actionsLog, log.getId());
 			//
 			if (!existingItemLog) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
@@ -603,8 +604,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Start reconciliation. Is call after synchronization. Main purpose is find
-	 * and resolve missing accounts
+	 * Start reconciliation. Is call after synchronization. Main purpose is find and
+	 * resolve missing accounts
 	 * 
 	 * @param entityType
 	 * @param systemAccountsMap
@@ -672,8 +673,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					LOG.error(message, ex);
 				} finally {
 					config = synchronizationConfigService.save(config);
+
 					boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
-					actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
+					actionsLog = saveActionLogs(actionsLog, log.getId());
 					//
 					if (!existingItemLog) {
 						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
@@ -1491,8 +1493,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Update extended attribute for given entity. Entity must be persisted
-	 * first.
+	 * Update extended attribute for given entity. Entity must be persisted first.
 	 * 
 	 * @param mappedAttributes
 	 * @param uid
@@ -1640,10 +1641,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (systemEntity != null) {
 			// System entity for this uid was found. We will find account
 			// for this system entity.
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"System entity for this uid ({0}) was found. We will find account for this system entity ({1})",
-							uid, systemEntity.getId()));
+			addToItemLog(logItem, MessageFormat.format(
+					"System entity for this uid ({0}) was found. We will find account for this system entity ({1})",
+					uid, systemEntity.getId()));
 			accountFilter.setSystemEntityId(systemEntity.getId());
 			accounts = accountService.find(accountFilter, null).getContent();
 		}
@@ -1690,8 +1690,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Start workflow process by wfDefinitionKey. Create input variables and put
-	 * them to the process. If log variable is present after the process
-	 * started, then add the log to the synchronization log.
+	 * them to the process. If log variable is present after the process started,
+	 * then add the log to the synchronization log.
 	 * 
 	 * @param wfDefinitionKey
 	 * @param uid
@@ -1747,10 +1747,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
 
 		} else {
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"Workflow (with id {0}) for missing entity situation not ended (will be ended asynchronously).",
-							processInstance.getId()));
+			addToItemLog(logItem, MessageFormat.format(
+					"Workflow (with id {0}) for missing entity situation not ended (will be ended asynchronously).",
+					processInstance.getId()));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
 		}
 	}
@@ -2113,8 +2112,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected abstract DTO save(DTO dto, boolean skipProvisioning);
 
 	/**
-	 * Update account UID from system. UID mapped attribute must exist and
-	 * returned value must be not null and must be String
+	 * Update account UID from system. UID mapped attribute must exist and returned
+	 * value must be not null and must be String
 	 * 
 	 * @param logItem
 	 * @param account
@@ -2139,8 +2138,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Method return Pair with left side contains action log that contains given
-	 * item log from parameter. And right side contains instance of item log
-	 * from action log.
+	 * item log from parameter. And right side contains instance of item log from
+	 * action log.
 	 * 
 	 * @param actionsLog
 	 * @param itemLog
@@ -2159,8 +2158,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Method iterate over actionsLg given in parameter. And search itemLog in
-	 * each actionLog.
+	 * Method iterate over actionsLg given in parameter. And search itemLog in each
+	 * actionLog.
 	 * 
 	 * @param actionsLog
 	 * @param itemLog
@@ -2175,5 +2174,17 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Save action logs
+	 * @param actionsLog
+	 * @return
+	 */
+	private List<SysSyncActionLogDto> saveActionLogs(List<SysSyncActionLogDto> actionsLog, UUID syncLogId) {
+		syncActionLogService.saveAll(actionsLog);
+		SysSyncActionLogFilter actionFilter = new SysSyncActionLogFilter();
+		actionFilter.setSynchronizationLogId(syncLogId);
+		return new ArrayList<>(syncActionLogService.find(actionFilter, null).getContent());
 	}
 }

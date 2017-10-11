@@ -920,16 +920,16 @@
       "DISABLED": "Zakázaný (boolean)"
     },
     "ContractAttributeEnum": {
-      "IDENTITY": "Vlastník (IdmIdentity - UUID)",
+      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
       "VALID_FROM": "Platnost od (LocalDate)",
       "VALID_TILL": "Platnost do (LocalDate)",
-      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - UUID)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
       "POSITION": "Název pozice (String)",
       "EXTERNE": "Externista (boolean)",
       "MAIN": "Hlavní vztah (boolean)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
-      "GUARANTESS": "Vedoucí (IdmIdentity - UUID/List<UUID>)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "STATE": "Stav (ContractState - String)"
     }
   },

@@ -4,8 +4,10 @@ import java.beans.IntrospectionException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -51,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -266,7 +269,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					context.getLogItem().addToLog(MessageFormat.format("Finding guarantee [{0}].", guarantee));
 					IdmIdentityDto guarranteeDto = this.findIdentity(guarantee, context);
 					if (guarranteeDto != null) {
-						syncContract.getGuarantees().add(new IdmContractGuaranteeDto(null, guarranteeDto.getId()));
+						syncContract.getGuarantees().add(guarranteeDto);
 					}
 				});
 			} else {
@@ -275,7 +278,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				context.getLogItem().addToLog(MessageFormat.format("Finding guarantee [{0}].", transformedValue));
 				IdmIdentityDto guarranteeDto = this.findIdentity(transformedValue, context);
 				if (guarranteeDto != null) {
-					syncContract.getGuarantees().add(new IdmContractGuaranteeDto(null, guarranteeDto.getId()));
+					syncContract.getGuarantees().add(guarranteeDto);
 				}
 			}
 			transformedValue = syncContract;
@@ -337,11 +340,36 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
 			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
 					.get(SYNC_CONTRACT_FIELD);
+			IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+			guaranteeFilter.setIdentityContractId(entity.getId());
+
+			List<IdmContractGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
 			
-			// TODO: compare and make diff against persisted guarantees
-			syncContract.getGuarantees().forEach(guarantee -> {
+			// Search guarantees to delete
+			List<IdmContractGuaranteeDto> guaranteesToDelete = currentGuarantees.stream().filter(sysImplementer -> {
+				return sysImplementer.getGuarantee() != null
+						&& !syncContract.getGuarantees().contains(new IdmIdentityDto(sysImplementer.getGuarantee()));
+			}).collect(Collectors.toList());
+
+			// Search guarantees to add
+			List<IdmIdentityDto> guaranteesToAdd = syncContract.getGuarantees().stream().filter(identity -> {
+				return !currentGuarantees.stream().filter(currentGuarrantee -> {
+					return identity.getId().equals(currentGuarrantee.getGuarantee());
+				}).findFirst().isPresent();
+			}).collect(Collectors.toList());
+			
+			// Delete guarantees
+			guaranteesToDelete.forEach(guarantee -> {
+				// TODO: convert to publish event (with skipProvisioning property)
+				guaranteeService.delete(guarantee);
+			});
+			
+			// Create new guarantees
+			guaranteesToAdd.forEach(identity -> {
+				IdmContractGuaranteeDto guarantee = new IdmContractGuaranteeDto();
 				guarantee.setIdentityContract(contract.getId());
-				// save contract-guarantee
+				guarantee.setGuarantee(identity.getId());
+				// TODO: convert to publish event (with skipProvisioning property)
 				guaranteeService.save(guarantee);
 			});
 		}

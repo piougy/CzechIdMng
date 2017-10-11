@@ -255,13 +255,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(contract.getValidFrom(), identityRole.getValidFrom());
 			assertEquals(contract.getValidTill(), identityRole.getValidTill());
-			if (identityRole.getRoleTreeNode().equals(nodeA)) {
+			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD)) {
+			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeF)) {
+			if (identityRole.getRoleTreeNode().equals(nodeF.getId())) {
 				assertEquals(roleC, identityRole.getRole());
 			}
 		}
@@ -320,13 +320,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getRoleTreeNode().equals(nodeA)) {
+			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD)) {
+			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeF)) {
+			if (identityRole.getRoleTreeNode().equals(nodeF.getId())) {
 				assertEquals(roleC, identityRole.getRole());
 			}
 		}
@@ -338,13 +338,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getRoleTreeNode().equals(nodeA)) {
+			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD)) {
+			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeE)) {
+			if (identityRole.getRoleTreeNode().equals(nodeE.getId())) {
 				assertEquals(roleD, identityRole.getRole());
 			}
 		}

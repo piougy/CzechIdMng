@@ -2185,6 +2185,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		syncActionLogService.saveAll(actionsLog);
 		SysSyncActionLogFilter actionFilter = new SysSyncActionLogFilter();
 		actionFilter.setSynchronizationLogId(syncLogId);
-		return syncActionLogService.find(actionFilter, null).getContent();
+		return new ArrayList<>(syncActionLogService.find(actionFilter, null).getContent());
 	}
 }

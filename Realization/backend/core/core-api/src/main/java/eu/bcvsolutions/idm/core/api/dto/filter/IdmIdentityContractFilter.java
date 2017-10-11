@@ -6,6 +6,7 @@ import org.joda.time.LocalDate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
@@ -24,6 +25,7 @@ public class IdmIdentityContractFilter extends DataFilter {
 	private Boolean valid;
 	private Boolean main;
 	private Boolean validNowOrInFuture;
+	private ContractState state;
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -95,5 +97,13 @@ public class IdmIdentityContractFilter extends DataFilter {
 	
 	public Boolean getValidNowOrInFuture() {
 		return validNowOrInFuture;
+	}
+	
+	public void setState(ContractState state) {
+		this.state = state;
+	}
+	
+	public ContractState getState() {
+		return state;
 	}
 }

@@ -1,6 +1,23 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [7.5.0] unreleased
+
+### Changed
+
+#### Core module
+
+##### Contracts
+
+- Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``EXLUDED`` - change script is provided.
+
+### Removed
+
+#### Core module
+
+##### Contracts
+
+- ``IdmIdentityContractRepository#deleteByIdentity`` was removed. It was skipping audit (bug).
 
 ## [7.4.0]
 

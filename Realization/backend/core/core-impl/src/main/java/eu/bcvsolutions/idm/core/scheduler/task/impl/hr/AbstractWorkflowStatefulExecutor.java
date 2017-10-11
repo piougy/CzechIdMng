@@ -45,6 +45,6 @@ public abstract class AbstractWorkflowStatefulExecutor<T extends AbstractDto> ex
 	 * Return the name of workflow definition, which executes the process.
 	 * @return
 	 */
-	public abstract String getWorkflowName();
+	protected abstract String getWorkflowName();
 	
 }

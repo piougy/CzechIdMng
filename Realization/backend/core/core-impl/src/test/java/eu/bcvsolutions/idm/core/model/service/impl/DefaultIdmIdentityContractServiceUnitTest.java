@@ -29,7 +29,8 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Identity contract unit tests:
- * - 
+ * - prime contract
+ * - contract state
  * 
  * @author Radek Tomiška
  */

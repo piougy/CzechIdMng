@@ -6,30 +6,29 @@ package eu.bcvsolutions.idm.core.api.domain;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */
-
 public interface PasswordGenerate {
 
-	public Integer getMinPasswordLength();
+	Integer getMinPasswordLength();
 
-	public Integer getMaxPasswordLength();
+	Integer getMaxPasswordLength();
 
-	public Integer getMinUpperChar();
+	Integer getMinUpperChar();
 
-	public Integer getMinNumber();
+	Integer getMinNumber();
 
-	public Integer getMinSpecialChar();
+	Integer getMinSpecialChar();
 	
-	public Integer getMinLowerChar();
+	Integer getMinLowerChar();
 
-	public String getProhibitedCharacters();
+	String getProhibitedCharacters();
 
-	public Integer getPassphraseWords();
+	Integer getPassphraseWords();
 	
-	public String getSpecialCharBase();
+	String getSpecialCharBase();
 	
-	public String getUpperCharBase();
+	String getUpperCharBase();
 	
-	public String getNumberBase();
+	String getNumberBase();
 	
-	public String getLowerCharBase();
+	String getLowerCharBase();
 }

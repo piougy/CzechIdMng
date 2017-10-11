@@ -6,6 +6,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -22,6 +24,7 @@ import org.joda.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -86,7 +89,11 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
-	private boolean disabled;
+	private boolean disabled; // redundant to state now
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "state", nullable = true, length = 45)
+	private ContractState state;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
@@ -235,5 +242,13 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Override
 	public String getSubOwnerType() {
 		return IdmTreeNode.class.getName();
+	}
+	
+	public void setState(ContractState state) {
+		this.state = state;
+	}
+	
+	public ContractState getState() {
+		return state;
 	}
 }

@@ -25,13 +25,13 @@ import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**
  * Test for HR contract exclusion process.
+ * 
  * @author Jan Helbich
  *
  */
 public class HrEndContractProcessTest extends AbstractHrProcessTest<IdmIdentityContractDto> {
 	
-	@Autowired
-	private IdmRoleService roleService;
+	@Autowired private IdmRoleService roleService;
 	
 	@Before
 	public void init() {

@@ -7,13 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 
 /**
  * HR process - identity's contract exclusion. The processes is started for
- * contracts that are both valid (meaning validFrom and validTill) and disabled.
+ * contracts that are both valid (meaning validFrom and validTill) and excluded.
  * 
  * @author Jan Helbich
  *
@@ -25,8 +26,7 @@ public class HrContractExclusionProcess extends AbstractWorkflowStatefulExecutor
 
 	private static final String PROCESS_NAME = "hrContractExclusion";
 
-	@Autowired
-	private IdmIdentityContractService identityContractService;
+	@Autowired private IdmIdentityContractService identityContractService;
 
 	/**
 	 * {@inheritDoc}
@@ -37,7 +37,7 @@ public class HrContractExclusionProcess extends AbstractWorkflowStatefulExecutor
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValid(Boolean.TRUE);
-		filter.setDisabled(Boolean.TRUE);
+		filter.setState(ContractState.EXCLUDED);
 		return identityContractService.find(filter, pageable);
 	}
 

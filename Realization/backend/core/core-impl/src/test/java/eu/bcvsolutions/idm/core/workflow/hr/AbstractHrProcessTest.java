@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -26,6 +27,13 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.AbstractWorkflowStatefulE
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
+/**
+ * 
+ * 
+ * @author Jan Helbich
+ *
+ * @param <E>
+ */
 public abstract class AbstractHrProcessTest<E extends AbstractDto> extends AbstractCoreWorkflowIntegrationTest {
 
 	@Autowired protected IdmIdentityContractService identityContractService;
@@ -58,16 +66,16 @@ public abstract class AbstractHrProcessTest<E extends AbstractDto> extends Abstr
 		return identity;
 	}
 
-	protected IdmIdentityContractDto getTestContract(IdmIdentityDto identity, boolean disabled) {
+	protected IdmIdentityContractDto getTestContract(IdmIdentityDto identity, boolean excluded) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setMain(false);
-		contract.setDisabled(disabled);
+		contract.setState(excluded ? ContractState.EXCLUDED : null);
 		return contract;
 	}
 	
-	protected IdmIdentityContractDto createTestContract(IdmIdentityDto identity, boolean disabled) {
-		return identityContractService.save(getTestContract(identity, disabled));
+	protected IdmIdentityContractDto createTestContract(IdmIdentityDto identity, boolean excluded) {
+		return identityContractService.save(getTestContract(identity, excluded));
 	}
 	
 	protected IdmScheduledTaskDto createIdmScheduledTask(String taskName) {

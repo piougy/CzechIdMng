@@ -15,7 +15,7 @@ public interface Disableable {
 	boolean isDisabled();
 
 	/**
-	 * Enable / diable entity
+	 * Enable / disable entity
 	 * 
 	 * @param disabled
 	 */

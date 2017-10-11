@@ -501,6 +501,60 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 	
 	@Test
+	public void testDontAssingRoleForDisabledContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setWorkPosition(nodeD.getId());
+		contractD.setState(ContractState.DISABLED);
+		contractD = service.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testDisableContractWithAssignedRoles() {
+		prepareAutomaticRoles();
+		//
+		// prepare identity and contract
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setValidFrom(new LocalDate().minusDays(1));
+		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setWorkPosition(nodeD.getId());
+		contract = service.save(contract);
+		//
+		// test after create
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
+		assertEquals(3, identityRoles.size());
+		for(IdmIdentityRoleDto identityRole : identityRoles) {
+			assertEquals(contract.getValidFrom(), identityRole.getValidFrom());
+			assertEquals(contract.getValidTill(), identityRole.getValidTill());
+		};
+		// test after change
+		contract.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		assertTrue(identityRoles.isEmpty());
+		// enable again
+		contract.setState(null);
+		contract = service.save(contract);
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		assertEquals(3, identityRoles.size());
+	}
+	
+	@Test
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
 		IdmRoleDto role = helper.createRole();

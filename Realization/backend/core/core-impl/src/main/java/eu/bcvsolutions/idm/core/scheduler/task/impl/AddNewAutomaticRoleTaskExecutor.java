@@ -28,7 +28,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 
 /**
@@ -77,7 +76,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityContractDto identityContract : contracts) {
-			if (!EntityUtils.isValidNowOrInFuture(identityContract)) {
+			if (!identityContract.isValidNowOrInFuture()) {
 				// valid contracts in the past is not needed
 				counter++;
 				if (!updateState()) {

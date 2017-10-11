@@ -121,4 +121,10 @@ public class IdmIdentityContractDto extends AbstractDto implements ValidableEnti
     public boolean isValid(LocalDate targetDate) {
     	return ValidableEntity.super.isValid(targetDate) && !isDisabled();
     }
+    
+    @Override
+    public boolean isValidNowOrInFuture() {
+    	return ValidableEntity.super.isValidNowOrInFuture() && !isDisabled();
+    }
+    
 }

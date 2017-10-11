@@ -28,7 +28,7 @@ public class IdentityContractExclusionProcessor
 	public static final String PROCESSOR_NAME = "identity-contract-exclusion-processor";
 	
 	public IdentityContractExclusionProcessor() {
-		super(IdentityContractEventType.UPDATE); // TODO: create too?
+		super(IdentityContractEventType.UPDATE);
 	}
 	
 	@Override

@@ -77,8 +77,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 		// check if new and old work position are same
 		// check automatic roles - if position or disabled was changed
 		if (!Objects.equals(newPosition, previousPosition)
-				|| (EntityUtils.isValidNowOrInFuture(contract) 
-						&& EntityUtils.isValidNowOrInFuture(previous) != EntityUtils.isValidNowOrInFuture(contract))) {
+				|| (contract.isValidNowOrInFuture() 
+						&& previous.isValidNowOrInFuture() != contract.isValidNowOrInFuture())) {
 			// work positions has some difference or validity changes
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
 			Set<UUID> previousAutomaticRoles = assignedRoles.stream()

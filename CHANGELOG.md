@@ -9,13 +9,13 @@ All notable changes to this project will be documented in this file.
 
 ##### Contracts
 
-- Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``EXLUDED`` - change script is provided.
+- Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``ECXLUDED`` - change script is provided. Contract with state ``DISABLED`` is invalid now - all processed work with this state (automatic roles, end of contract process).
 - Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
   - ``IdentityContractCreateByAutomaticRoleProcessor``
   - ``IdentityContractDeleteProcessor``
   - ``IdentityContractSaveProcessor``
   - ``IdentityContractUpdateByAutomaticRoleProcessor``
-- Long running tasks (LRT) for HR processes was moved into processors. Enable / disable identity with no valid or excluded contracts is executed immediately after contract is changed. HR processors are using almost the same workflow as LRT (LRT variables were removed only), but its configurable now. Long running task were removed and will be unscheduled automatically after new version will be installed:
+- Business logic from HR long running tasks (LRT) for HR processes was moved into processors. Enable / disable identity with no valid or excluded contracts is executed immediately after contract is changed. HR processors are using almost the same workflow as LRT (LRT variables were removed only), but its configurable now. Long running task were removed and will be unscheduled automatically after new version will be installed:
   - ``AbstractWorkflowEventProcessor``
   - ``HrContractExclusionProcess``
   - ``HrEnableContractProcess``

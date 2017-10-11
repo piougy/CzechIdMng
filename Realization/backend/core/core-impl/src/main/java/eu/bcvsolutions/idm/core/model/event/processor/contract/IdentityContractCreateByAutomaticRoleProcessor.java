@@ -14,7 +14,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
@@ -45,7 +44,7 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
 		// contract is or could be valid in future
-		if(EntityUtils.isValidNowOrInFuture(contract) && contract.getWorkPosition() != null) {
+		if(contract.isValidNowOrInFuture() && contract.getWorkPosition() != null) {
 			Set<IdmRoleTreeNodeDto> automaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition());
 			if (!automaticRoles.isEmpty()) {
 				roleTreeNodeService.assignAutomaticRoles(contract, automaticRoles);

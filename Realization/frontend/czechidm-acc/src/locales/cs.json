@@ -145,11 +145,28 @@
           "basicConfiguration": {
             "label": "Základní konfigurace"
           },
+          "specificConfiguration": {
+            "label": "Specifická konfigurace"
+          },
           "filterConfiguration": {
             "label": "Filtr"
           },
           "logs": {
             "label": "Logy"
+          }
+        },
+        "contractConfigDetail":{
+          "defaultTreeType": {
+            "label": "Výchozí typ struktury",
+            "helpBlock": "Vztahy budou přiřazeny (vyhledávány) na pozice v rámci vybrané stromové struktury."
+          },
+          "defaultTreeNode": {
+            "label": "Výchozí pozice ve struktuře",
+            "helpBlock": "Pokud není pro daný vztah vyplněna pozice (ve zdrojovém systému), pak bude vztah přiřazen na tuto výchozí."
+          },
+          "defaultLeader": {
+            "label": "Výchozí vedoucí",
+            "helpBlock": "Pokud není pro daný vztah vyplněn žádný vedoucí (ve zdrojovém systému), pak bude vztahu přiřazen tento výchozí vedoucí."
           }
         }
       },
@@ -1140,6 +1157,10 @@
     "ROLE_SYSTEM_ALREADY_EXISTS": {
       "title": "Duplicitní mapování",
       "message": "Mapování pro stejnou roli [{{role}}] a stejný systém [{{system}}] již existuje!"
+    },
+    "SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED": {
+      "title": "Typ synchronizované entity nemůže být změněn!",
+      "message": "Typ synchronizované entity, nemůže být u již existující konfigurace změněn!"
     }
   }
 }

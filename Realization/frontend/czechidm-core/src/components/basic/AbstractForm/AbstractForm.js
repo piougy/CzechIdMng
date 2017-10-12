@@ -132,9 +132,19 @@ class AbstractForm extends AbstractContextComponent {
   }
 
 
-  // method for compile data from all component
-  getData() {
-    const result = merge({}, this.state.allData);
+  /**
+   * Method for compile data from all component
+   * @param  mergeToAll = If is true, then will be returned whole object with
+   * merged fields by components in form.
+   * If is false, then will be returned only object with fields by components in form.
+   */
+  getData(mergeToAll = true) {
+    let result = null;
+    if (mergeToAll) {
+      result = merge({}, this.state.allData);
+    } else {
+      result = {};
+    }
     if (!this.props.rendered) {
       return result;
     }

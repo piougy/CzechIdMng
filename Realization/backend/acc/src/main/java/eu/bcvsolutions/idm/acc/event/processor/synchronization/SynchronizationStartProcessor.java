@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  */
 @Component
 @Description("Starts synchronization process by given configuration")
-public class SynchronizationStartProcessor extends AbstractEntityEventProcessor<SysSyncConfigDto> {
+public class SynchronizationStartProcessor extends AbstractEntityEventProcessor<AbstractSysSyncConfigDto> {
 
 	public static final String PROCESSOR_NAME = "synchronization-start-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SynchronizationStartProcessor.class);
@@ -43,9 +43,9 @@ public class SynchronizationStartProcessor extends AbstractEntityEventProcessor<
 	}
 	
 	@Override
-	public EventResult<SysSyncConfigDto> process(EntityEvent<SysSyncConfigDto> event) {
+	public EventResult<AbstractSysSyncConfigDto> process(EntityEvent<AbstractSysSyncConfigDto> event) {
 		LOG.info("Synchronization event start");
-		SysSyncConfigDto config = event.getContent();
+		AbstractSysSyncConfigDto config = event.getContent();
 		synchronizationService.startSynchronization(config);
 		return new DefaultEventResult<>(event, this);
 	}

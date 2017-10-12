@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
@@ -462,7 +463,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		}).findFirst().get();
 		
 		// create synchronization config
-		SysSyncConfigDto syncConfigDuplicate = new SysSyncConfigDto();
+		AbstractSysSyncConfigDto syncConfigDuplicate = new SysSyncConfigDto();
 		syncConfigDuplicate.setCustomFilter(true);
 		syncConfigDuplicate.setSystemMapping(mappingOrig.getId());
 		syncConfigDuplicate.setCorrelationAttribute(nameAttribute.getId());
@@ -496,12 +497,12 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// check synchronization config
 		SysSyncConfigFilter syncFilter = new SysSyncConfigFilter();
 		syncFilter.setSystemId(duplicatedSystem.getId());
-		List<SysSyncConfigDto> configs = syncConfigService.find(syncFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> configs = syncConfigService.find(syncFilter, null).getContent();
 		Assert.assertEquals(1, configs.size());
 		
 		
 		Assert.assertEquals(1, configs.size());
-		SysSyncConfigDto configNew = configs.get(0);
+		AbstractSysSyncConfigDto configNew = configs.get(0);
 		Assert.assertFalse(configNew.isEnabled());
 		
 		Assert.assertTrue(configNew.isReconciliation());

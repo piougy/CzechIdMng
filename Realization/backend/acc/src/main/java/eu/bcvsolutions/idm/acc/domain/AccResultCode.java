@@ -85,6 +85,7 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] was not found accounts!"),
 	SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM attribute %s not found!"),
 	SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL(HttpStatus.BAD_REQUEST, "IDM attribute [%s] cannot be null!"),
+	SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED(HttpStatus.BAD_REQUEST, "Type of sync configuration cannot be changed (old type: [%s], new type: [%s])!"),
 	//
 	// authentication against system
 	AUTHENTICATION_AGAINST_SYSTEM_FAILED(HttpStatus.BAD_REQUEST, "Authentication failed! For system [%s] and username [%s]."),

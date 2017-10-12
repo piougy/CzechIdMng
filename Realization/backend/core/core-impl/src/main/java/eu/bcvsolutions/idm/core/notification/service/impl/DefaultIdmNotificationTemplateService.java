@@ -398,13 +398,15 @@ public class DefaultIdmNotificationTemplateService extends
 			IdmMessageDto finalMessage = null;
 			if (message.getTemplate() != null) {
 				// exist template in message
-				finalMessage = message;
+				finalMessage = this.buildMessage(message, false);
 			} else if (configuration.getTemplate() != null) {			
-				finalMessage = creteMessage(
+				finalMessage = this.buildMessage(
+						creteMessage(
 							this.get(configuration.getTemplate()), 
 							message.getLevel(), 
 							message.getModel(), 
-							message.getParameters());
+							message.getParameters())
+						, false);
 			} else {
 				finalMessage = message;
 			}
@@ -417,8 +419,6 @@ public class DefaultIdmNotificationTemplateService extends
 			if (!StringUtils.isEmpty(message.getHtmlMessage())) {
 				finalMessage.setHtmlMessage(message.getHtmlMessage());
 			}
-			// build
-			finalMessage = this.buildMessage(finalMessage, false);
 			//
 			// send message for every found configuration
 			IdmNotificationLogDto notification = new IdmNotificationLogDto();

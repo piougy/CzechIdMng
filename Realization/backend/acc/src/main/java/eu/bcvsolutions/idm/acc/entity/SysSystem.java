@@ -99,6 +99,10 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	private SysConnectorServer connectorServer;
 	
 	@Audited
+	@Embedded
+	private SysBlockedOperation blockedOperation;
+	
+	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "password_pol_val_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -213,6 +217,14 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 		this.connectorServer = connectorServer;
 	}
 	
+	public SysBlockedOperation getBlockedOperation() {
+		return blockedOperation;
+	}
+
+	public void setBlockedOperation(SysBlockedOperation blockedOperation) {
+		this.blockedOperation = blockedOperation;
+	}
+
 	@JsonIgnore
 	public IcConnectorInstance getConnectorInstance() {
 		return new IcConnectorInstanceImpl(this.getConnectorServer(), this.getConnectorKey(), this.isRemote());

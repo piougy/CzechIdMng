@@ -17,6 +17,8 @@ import SyncItemLogManager from './SyncItemLogManager';
 import RoleAccountManager from './RoleAccountManager';
 import TreeAccountManager from './TreeAccountManager';
 import RoleCatalogueAccountManager from './RoleCatalogueAccountManager';
+import ProvisioningBreakConfigManager from './ProvisioningBreakConfigManager';
+import ProvisioningBreakRecipientManager from './ProvisioningBreakRecipientManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -37,7 +39,9 @@ const ManagerRoot = {
   SyncItemLogManager,
   RoleAccountManager,
   TreeAccountManager,
-  RoleCatalogueAccountManager
+  RoleCatalogueAccountManager,
+  ProvisioningBreakConfigManager,
+  ProvisioningBreakRecipientManager
 };
 
 ManagerRoot.version = '0.0.1';

@@ -98,6 +98,7 @@ public class DefaultSysSystemService
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
+	private final FormService formService;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -115,7 +116,6 @@ public class DefaultSysSystemService
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			EntityEventManager entityEventManager) {
-		
 		super(systemRepository, entityEventManager, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -143,6 +143,7 @@ public class DefaultSysSystemService
 		this.systemMappingService = systemMappingService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -761,5 +762,9 @@ public class DefaultSysSystemService
 		key.setBundleName("net.tirasa.connid.bundles.db.table");
 		key.setBundleVersion("2.2.4");
 		return key;
+	}
+
+	protected FormService getFormService() {
+		return formService;
 	}
 }

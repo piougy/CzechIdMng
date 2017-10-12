@@ -115,6 +115,21 @@ module.exports = {
           path: 'provisioning',
           component: require('./src/content/system/SystemProvisioningOperations'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+        },
+        {
+          path: 'break-configs',
+          component: require('./src/content/system/SystemProvisioningBreakConfigs'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'break-configs/:configId/new',
+          component: require('./src/content/system/SystemProvisioningBreakConfigDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_CREATE'] } ]
+        },
+        {
+          path: 'break-configs/:configId/detail',
+          component: require('./src/content/system/SystemProvisioningBreakConfigDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         }
       ]
     },

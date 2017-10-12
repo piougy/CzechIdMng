@@ -11,6 +11,7 @@ public enum OperationState {
 	EXECUTED, // The operation was successfully executed
 	EXCEPTION, // There was an exception during execution
 	NOT_EXECUTED, // The operation was not executed because of some reason (in queue, readonly system ... etc)
+	BLOCKED, // The operation was blocked by provisioning break configuration
 	CANCELED; // canceled by some reason (administrator etc.) 
 	
 	/**

@@ -31,7 +31,9 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String MODULE_ID = "acc";
 	public static final String TOPIC_PROVISIONING = String.format("%s:provisioning", MODULE_ID);
 	public static final String TOPIC_NEW_PASSWORD = String.format("%s:newPassword", MODULE_ID);
-	
+	public static final String TOPIC_PROVISIONING_BREAK_WARNING = String.format("%s:provisioningBreakWarning", MODULE_ID);
+	public static final String TOPIC_PROVISIONING_BREAK_DISABLE = String.format("%s:provisioningBreakDisable", MODULE_ID);
+
 	@Override
 	public String getId() {
 		return MODULE_ID;
@@ -50,6 +52,22 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				null, IdmWebsocketLog.NOTIFICATION_TYPE, 
 				"Notification with new provisioning", 
 				getNotificationTemplateId("provisioningSuccess"))
+				);
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PROVISIONING_BREAK_WARNING,
+				null,
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains warning with information about provisioning operation.",
+				getNotificationTemplateId("provisioningWarning"))
+				);
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PROVISIONING_BREAK_DISABLE,
+				null,
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about blocked system for provisioning operation.",
+				getNotificationTemplateId("provisioningDisable"))
 				);
 		//
 		configs.add(new NotificationConfigurationDto(

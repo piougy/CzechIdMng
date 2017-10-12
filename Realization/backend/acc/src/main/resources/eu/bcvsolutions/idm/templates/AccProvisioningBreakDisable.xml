@@ -1,0 +1,72 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+System was disabled by provisioning break
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>provisioningDisable</code>
+	<name>Provisioning break disable notification</name>
+	<subject>CzechIdM - na systému '$systemName' byla zablokována operace '$operationName'</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+  <body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+
+    ## Return style by provisioning operation
+    #macro( getLevelColor $change )
+      #set( $updated = "UPDATE" )
+      #set( $added = "CREATE" )
+      #set( $removed = "DELETE" )
+      #if( $added == $change)
+        background-color: #5cb85c; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
+      #elseif( $updated == $change)
+        background-color: #f0ad4e; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
+      #elseif( $removed == $change)
+        background-color: #d9534f; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; text-decoration: line-through; margin: 2px;
+      #end
+    #end
+		
+
+    Dobrý den,<br />
+    <br />
+    <div style="display: block; margin: 10px auto; max-width: 440px; background-color: #f2dede; color: #a94442; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
+        Na systému <b>$systemName</b> došlo k blokaci operace <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>!
+    </div>
+    <br />
+    <br />
+    Byla překročena hranice <b>$actualCount</b> pro operaci <b>$operationName</b> na systému <b>$systemName</b>. Stav byl překročen za dobu <b>$minTime minut a $secTime sekund</b>.<br />
+	Další operace typu <b>$operationName</b> budou řazeny do fronty provisioningu.<br />
+
+    <div style="display: block; margin: 30px auto; max-width: 400px;">
+        CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+    </div>
+    
+     <div style="display: block; margin: 30px auto; max-width: 800px;">
+        ----------------------------------------------------------------- English version -----------------------------------------------------------------
+    </div>
+    
+    <br/>Hello,<br />
+     <br />
+    <div style="display: block; margin: 10px auto; max-width: 440px; background-color: #f2dede; color: #a94442; padding: 10px;
+      border: 1px solid; border-radius: 4px; border-color: #ebccd1;">
+       The system <b>$systemName</b> has blocked the operation <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>!
+    </div>
+    <br />
+    The current number of operations <b>$actualCount</b> has been exceeded over time <b>$minTime minutes and $secTime seconds</b>.<br />
+	Next operations of this type will be placed into provisioning queue.<br />
+		
+    <div style="display: block; margin: 30px auto; max-width: 400px;">
+        CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+    </div>
+  </body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>systemName, operationName, actualCount, secTime, minTime</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</template>

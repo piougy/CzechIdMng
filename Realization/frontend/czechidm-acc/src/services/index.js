@@ -17,6 +17,8 @@ import SyncItemLogService from './SyncItemLogService';
 import RoleAccountService from './RoleAccountService';
 import TreeAccountService from './TreeAccountService';
 import RoleCatalogueAccountService from './RoleCatalogueAccountService';
+import ProvisioningBreakConfigService from './ProvisioningBreakConfigService';
+import ProvisioningBreakRecipientService from './ProvisioningBreakRecipientService';
 
 const ServiceRoot = {
   SystemService,
@@ -37,7 +39,9 @@ const ServiceRoot = {
   SyncItemLogService,
   RoleAccountService,
   TreeAccountService,
-  RoleCatalogueAccountService
+  RoleCatalogueAccountService,
+  ProvisioningBreakConfigService,
+  ProvisioningBreakRecipientService
 };
 
 ServiceRoot.version = '0.1.0';

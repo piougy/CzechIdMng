@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -28,9 +26,9 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @param <DTO> {@link BaseDto} content type
  */
-public abstract class AbstractWorkflowEventProcessor <E extends Serializable> extends AbstractEntityEventProcessor<E> {
+public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> extends AbstractEntityEventProcessor<DTO> {
 	
 	public static final String PROPERTY_WF = "wf";
 	
@@ -42,7 +40,7 @@ public abstract class AbstractWorkflowEventProcessor <E extends Serializable> ex
 	}
 	
 	@Override
-	public EventResult<E> process(EntityEvent<E> event) {
+	public EventResult<DTO> process(EntityEvent<DTO> event) {
 		if (conditional(event)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
@@ -78,7 +76,7 @@ public abstract class AbstractWorkflowEventProcessor <E extends Serializable> ex
 	 * @param event
 	 * @return
 	 */
-	protected boolean conditional(EntityEvent<E> event) {
+	protected boolean conditional(EntityEvent<DTO> event) {
 		return true;
 	}
 	

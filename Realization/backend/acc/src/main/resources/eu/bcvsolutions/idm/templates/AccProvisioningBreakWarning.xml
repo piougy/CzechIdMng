@@ -1,0 +1,63 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+Warning for provisioning operation on system
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>provisioningWarning</code>
+	<name>Provisioning break warning notification</name>
+	<subject>CzechIdM - na systému '$systemName' byl překročen varovný limit pro operaci '$operationName'</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+  <body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+
+    ## Return style by provisioning operation
+    #macro( getLevelColor $change )
+      #set( $updated = "UPDATE" )
+      #set( $added = "CREATE" )
+      #set( $removed = "DELETE" )
+      #if( $added == $change)
+        background-color: #5cb85c; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
+      #elseif( $updated == $change)
+        background-color: #f0ad4e; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; margin: 2px;
+      #elseif( $removed == $change)
+        background-color: #d9534f; display: inline; padding: .2em .6em .3em;font-size: 85%; color: #fff; border-radius: .25em; font-weight: bold; text-decoration: line-through; margin: 2px;
+      #end
+    #end
+		
+
+    Dobrý den,<br />
+    pozor na systému <b>$systemName</b> byl překročen varovný limit <b>$actualCount</b> pro operaci <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+    <br />
+   	Stav byl překročen za dobu <b>$minTime minut a $secTime sekund</b>.<br />
+    <br />
+
+    <div style="display: block; margin: 30px auto; max-width: 400px;">
+        CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+    </div>
+    
+     <div style="display: block; margin: 30px auto; max-width: 800px;">
+        ----------------------------------------------------------------- English version -----------------------------------------------------------------
+    </div>
+    
+    <br/>Hello,<br />
+    on system <b>$systemName</b> has been exceeded the alert limit for the operation: <b><span style="font-size: 12pt;"><span style="#getLevelColor($operationName)">$operationName</span></b>.<br />
+   	<br />
+   	The current number of operations <b>$actualCount</b> has been exceeded over time <b>$minTime minutes and $secTime seconds</b>.<br />
+    <br />
+		
+    <div style="display: block; margin: 30px auto; max-width: 400px;">
+        CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+    </div>
+  </body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>systemName, operationName, actualCount, secTime, minTime</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</template>

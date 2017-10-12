@@ -40,6 +40,15 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-provisioning-break-config',
+            'type': 'TAB',
+            'icon': 'fa:exclamation-circle',
+            'labelKey': 'acc:content.provisioningBreakConfig.title',
+            'order': 10,
+            'path': '/system/:entityId/break-configs',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
             'id': 'system-accounts',
             'type': 'TAB',
             'labelKey': 'acc:content.system.accounts.title',

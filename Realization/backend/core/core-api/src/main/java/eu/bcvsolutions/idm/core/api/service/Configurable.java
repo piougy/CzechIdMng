@@ -219,4 +219,26 @@ public interface Configurable {
 		Boolean value = getConfigurationBooleanValue(key);
 		return value == null ? defaultValue : value;
 	}
+	
+	/**
+	 * Returns configured Integer value for given propertyName. If no value for given key is configured, then returns null value.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	default public Integer getConfigurationIntegerValue(String key) {
+		String value = getConfigurationValue(key);
+		return value == null ? null : Integer.valueOf(value);
+	}
+	
+	/**
+	 * Returns configured Long value for given propertyName. If no value for given key is configured, then returns null value.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	default public Long getConfigurationLongValue(String key) {
+		String value = getConfigurationValue(key);
+		return value == null ? null : Long.valueOf(value);
+	}
 }

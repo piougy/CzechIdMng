@@ -5,7 +5,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
- * Filter for provisionign break recipients.
+ * Filter for provisioning break recipients.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *

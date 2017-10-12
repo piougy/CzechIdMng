@@ -100,7 +100,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRoleDto
 	 */
 	private void deleteProvisioningRecipient(UUID roleId) {
 		SysProvisioningBreakRecipientFilter filter = new SysProvisioningBreakRecipientFilter();
-		filter.setIdentityId(roleId);
+		filter.setRoleId(roleId);
 		for (SysProvisioningBreakRecipientDto recipient : provisioningBreakRecipientService.find(filter, null).getContent()) {
 			LOG.debug("Remove recipient from provisioning break [{}]", recipient.getId());
 			provisioningBreakRecipientService.delete(recipient);

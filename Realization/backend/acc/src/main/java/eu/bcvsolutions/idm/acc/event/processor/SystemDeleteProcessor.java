@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
@@ -124,7 +125,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		provisioningArchiveRepository.deleteBySystem_Id(system.getId());
 		//
 		// clear provisioning break cache
-		clearProvisioningBreakCache(system.getId());
+		clearProvisioningBreakAndCache(system.getId());
 		//
 		// deletes identity
 		service.deleteInternal(system);
@@ -141,9 +142,25 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	 * 
 	 * @param systemId
 	 */
-	private void clearProvisioningBreakCache(UUID systemId) {
+	private void clearProvisioningBreakAndCache(UUID systemId) {
 		provisioningBreakConfigService.clearCache(systemId, ProvisioningEventType.CREATE);
 		provisioningBreakConfigService.clearCache(systemId, ProvisioningEventType.DELETE);
 		provisioningBreakConfigService.clearCache(systemId, ProvisioningEventType.UPDATE);
+		//
+		SysProvisioningBreakConfigDto config = provisioningBreakConfigService.getConfig(ProvisioningEventType.CREATE,
+				systemId);
+		if (config != null) {
+			provisioningBreakConfigService.delete(config);
+		}
+		//
+		config = provisioningBreakConfigService.getConfig(ProvisioningEventType.UPDATE, systemId);
+		if (config != null) {
+			provisioningBreakConfigService.delete(config);
+		}
+		//
+		config = provisioningBreakConfigService.getConfig(ProvisioningEventType.DELETE, systemId);
+		if (config != null) {
+			provisioningBreakConfigService.delete(config);
+		}
 	}
 }

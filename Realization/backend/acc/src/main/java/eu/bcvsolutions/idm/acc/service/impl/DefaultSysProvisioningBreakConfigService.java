@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,7 +82,7 @@ public class DefaultSysProvisioningBreakConfigService extends
 		Page<SysProvisioningBreakConfigDto> configs = super.find(filter, pageable, permission);
 		//
 		// if include global config and set systemId add global configurations
-		if (filter.isIncludeGlobalConfig() && filter.getSystemId() != null && configs.getTotalElements() != MAX_CONFIGS_FOR_SYSTEM) {
+		if (filter != null && filter.isIncludeGlobalConfig() && filter.getSystemId() != null && configs.getTotalElements() != MAX_CONFIGS_FOR_SYSTEM) {
 			List<SysProvisioningBreakConfigDto> configsList = addGlobalConfigs(configs.getContent(), filter.getSystemId());
 			//
 			PageRequest pageRequest = new PageRequest(pageable.getPageNumber(), configsList.size(), pageable.getSort());

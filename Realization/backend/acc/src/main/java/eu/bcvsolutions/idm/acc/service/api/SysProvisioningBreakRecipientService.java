@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -44,4 +45,12 @@ public interface SysProvisioningBreakRecipientService
 	 * @return
 	 */
 	List<IdmIdentityDto> getAllRecipients(UUID provisioningBreakConfig);
+	
+	/**
+	 * Find all {@link IdmIdentityDto} for given {@link ProvisioningEventType} and global configuration.
+	 * 
+	 * @param eventType
+	 * @return
+	 */
+	List<IdmIdentityDto> getAllRecipientsForGlobalConfiguration(ProvisioningEventType eventType);
 }

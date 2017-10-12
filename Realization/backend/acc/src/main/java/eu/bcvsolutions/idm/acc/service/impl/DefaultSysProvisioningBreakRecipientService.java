@@ -15,6 +15,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningBreakConfiguration;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient;
@@ -23,6 +25,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakRecipientRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -46,16 +49,20 @@ public class DefaultSysProvisioningBreakRecipientService extends
 
 	
 	private final IdmIdentityService identityService;
+	private final ProvisioningBreakConfiguration provisioningBreakConfiguration;
 	
 	@Autowired
 	public DefaultSysProvisioningBreakRecipientService(
 			SysProvisioningBreakRecipientRepository repository,
-			IdmIdentityService identityService) {
+			IdmIdentityService identityService,
+			ProvisioningBreakConfiguration provisioningBreakConfiguration) {
 		super(repository);
 		//
 		Assert.notNull(identityService);
+		Assert.notNull(provisioningBreakConfiguration);
 		//
 		this.identityService = identityService;
+		this.provisioningBreakConfiguration = provisioningBreakConfiguration;
 	}
 	
 	@Override
@@ -92,7 +99,7 @@ public class DefaultSysProvisioningBreakRecipientService extends
 				if (identityDto != null) {
 					recipients.add(identityDto);
 				} else {
-					LOG.error("Identity for id: [{}] was not found, please check provisionign break configuration id: [{}]", recipient.getIdentity(), recipient.getBreakConfig());
+					LOG.error("Identity for id: [{}] was not found, please check provisioning break configuration id: [{}]", recipient.getIdentity(), recipient.getBreakConfig());
 				}
 			} else if (recipient.getRole() != null) {
 				recipients.addAll(identityService.findAllByRole(recipient.getRole()));
@@ -127,5 +134,16 @@ public class DefaultSysProvisioningBreakRecipientService extends
 		}
 		//
 		return predicates;
+	}
+
+	@Override
+	public List<IdmIdentityDto> getAllRecipientsForGlobalConfiguration(ProvisioningEventType eventType) {
+		List<IdmIdentityDto> recipients = provisioningBreakConfiguration.getIdentityRecipients(eventType);
+		List<IdmRoleDto> roleRecipients = provisioningBreakConfiguration.getRoleRecipients(eventType);
+		//
+		for (IdmRoleDto role : roleRecipients) {
+			recipients.addAll(identityService.findAllByRole(role.getId()));
+		}
+		return recipients;
 	}
 }

@@ -37,11 +37,11 @@ public class SysProvisioningBreakConfig extends AbstractEntity {
 	private static final long serialVersionUID = 579580240598032453L;
 
 	@Audited
-	@Column(name = "warning_limit", nullable = true)
+	@Column(name = "warning_limit")
 	private Integer warningLimit;
 
 	@Audited
-	@Column(name = "disable_limit", nullable = false)
+	@Column(name = "disable_limit")
 	private Integer disableLimit;
 
 	@Audited

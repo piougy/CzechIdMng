@@ -86,10 +86,11 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 		String identities = getConfigurationValue(getPrefix(eventType) + PROPERTY_IDENTITY_RECIPIENTS);
 		//
 		if (identities == null) {
-			return null;
+			return recipients;
 		}
 		//
 		for (String identityId : identities.split(REQEX_FOR_RECIPIENTS)) {
+			identityId = identityId.trim();
 			IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identityId);
 			if (identityDto == null) {
 				LOG.error("Identity for id [{}] not found", identityId);
@@ -106,7 +107,7 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 		String roles = getConfigurationValue(getPrefix(eventType) + PROPERTY_ROLE_RECIPIENTS);
 		//
 		if (roles == null) {
-			return null;
+			return recipients;
 		}
 		//
 		for (String roleId : roles.split(REQEX_FOR_RECIPIENTS)) {

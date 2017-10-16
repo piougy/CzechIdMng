@@ -1,0 +1,98 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
+    <code>compileIdentityRelationState</code>
+    <name>Compile identity-relation state</name>
+    <body>import java.text.MessageFormat;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.exception.SynchronizationException;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.ic.api.IcAttribute; 
+ 
+/**
+* Compiles identity-relation state. Returns final state for the relation
+* (contract). Uses input value as relation state and value from defined
+* disabled attribute (from whole IC attributes ... comes from source system)
+* 
+* Result for this script can be one value from [DISABLED, EXCLUDED, null].
+*/
+
+Logger log = LoggerFactory.getLogger(
+		"compile-identity-relation-state-script");
+log.info("Start 'Compile identity-relation state' script.");
+/**
+ * Name of attribute contains disable information (for identity relation) on the
+ * target system.
+ */
+final String disableAttributeName = "disabled";
+/**
+ * In this states is relation excluded;
+ */
+final String[] excludeStates = [ "10", "30" ];
+/**
+ * Define if is relation disabled;
+ */
+boolean disabled = false;
+
+/**
+ * Define state of relation comes from source system (assumes String value) 
+ */ 
+String stateValue = null;
+
+if(attributeValue != null) {
+	if(!(attributeValue instanceof String))
+	{
+		throw new SynchronizationException(MessageFormat.format(
+				"Value [{0}] for identity-relation state must be String, but is [{1}] (System [{2}])", attributeValue,
+				value.getClass(), system.getCode()));
+	}
+	stateValue = (String) attributeValue;
+}
+
+if(icAttributes != null){
+	for (IcAttribute icAttribute : icAttributes) {
+		if (disableAttributeName.equals(icAttribute.getName())) {
+			Object disableValue = icAttribute.getValue();
+			if (disableValue == null) {
+				disabled = false;
+			} else {
+				if (disableValue instanceof Boolean) {
+					disabled = (boolean) disableValue;
+				} else if (disableValue instanceof String) {
+					disabled = Boolean.parseBoolean((String) disableValue);
+				}
+			}
+		}
+	}
+}
+
+if(disabled){
+	// Relation is disabled
+	log.info(MessageFormat.format("'Compile identity-relation state' script - relation is disabled (on system [{0}])", system.getCode()));
+	return ContractState.DISABLED.name();
+}
+
+for(String excludeState:excludeStates){
+	if (excludeState.equals(stateValue)) {
+		// Relation is excluded
+		return ContractState.EXCLUDED.name();
+	}
+}
+
+// Relation is maybe active (depends on validity relation attributes too).
+return null;</body>
+	<type>groovy</type>
+    <category>TRANSFORM_FROM</category>
+	<description>Compiles identity-relation state. Returns final state for the relation  (contract). Uses input value as relation state and value from defined 'disabled' attribute (from whole IC attributes ... comes from source system). Result for this script can be one value from [DISABLED, EXCLUDED, null].</description>	    
+    <allowClasses>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.acc.exception.SynchronizationException</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.api.domain.ContractState</className>
+        </allowClass>
+    </allowClasses>
+</script>

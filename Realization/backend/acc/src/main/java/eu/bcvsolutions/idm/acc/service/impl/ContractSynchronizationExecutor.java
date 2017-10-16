@@ -4,7 +4,6 @@ import java.beans.IntrospectionException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +66,8 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
+import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -360,8 +361,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			
 			// Delete guarantees
 			guaranteesToDelete.forEach(guarantee -> {
-				// TODO: convert to publish event (with skipProvisioning property)
-				guaranteeService.delete(guarantee);
+				EntityEvent<IdmContractGuaranteeDto> guaranteeEvent = new ContractGuaranteeEvent(
+						ContractGuaranteeEventType.DELETE, guarantee,
+						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				guaranteeService.publish(guaranteeEvent);
 			});
 			
 			// Create new guarantees
@@ -369,8 +372,11 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				IdmContractGuaranteeDto guarantee = new IdmContractGuaranteeDto();
 				guarantee.setIdentityContract(contract.getId());
 				guarantee.setGuarantee(identity.getId());
-				// TODO: convert to publish event (with skipProvisioning property)
-				guaranteeService.save(guarantee);
+				//
+				EntityEvent<IdmContractGuaranteeDto> guaranteeEvent = new ContractGuaranteeEvent(
+						ContractGuaranteeEventType.CREATE,
+						guarantee, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				guaranteeService.publish(guaranteeEvent);
 			});
 		}
 

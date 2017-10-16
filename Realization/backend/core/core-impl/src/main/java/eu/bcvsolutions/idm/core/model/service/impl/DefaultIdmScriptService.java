@@ -310,6 +310,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		script.setName(type.getName());
 		script.setCategory(type.getCategory());
 		script.setScript(type.getBody());
+		script.setDescription(type.getDescription());
 		// parameter isn't implemented yet
 		// script.setParameter(type.getParameters());
 		// attribute TYPE from IdmScriptType isn't implemented yet.
@@ -422,6 +423,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		// type.setParameters(dto.getParameter());
 		type.setBody(dto.getScript());
 		type.setCategory(dto.getCategory());
+		type.setDescription(dto.getDescription());
 		type.setType(SCRIPT_DEFAULT_TYPE);
 		//
 		if (authorities != null && !authorities.isEmpty()) {

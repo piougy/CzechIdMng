@@ -52,7 +52,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, java.util.Date.class,
 			ZoneId.class, Instant.class, LocalDate.class, LocalTime.class, org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class,
 			Map.class, HashMap.class, List.class, ArrayList.class, Set.class, HashSet.class,
-			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class);
+			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class);
 
 	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
 	

@@ -57,6 +57,9 @@ import io.swagger.annotations.AuthorizationScope;
 public class SchedulerController implements BaseController {
 
 	protected static final String TAG = "Scheduler";
+	private static final String PROPERTY_TASK_TYPE = "taskType";
+	private static final String PROPERTY_DESCRIPTION = "description";
+	private static final String PROPERTY_INSTANCE_ID = "instanceId";
 	//
 	@Autowired private SchedulerManager schedulerService;
 	@Autowired private LookupService lookupService;
@@ -124,16 +127,16 @@ public class SchedulerController implements BaseController {
 					int compareAscValue = 0;
 					boolean asc = true;
 					// "naive" sort implementation
-					if (sort.getOrderFor("taskType") != null) {
-						asc = sort.getOrderFor("taskType").isAscending();
+					if (sort.getOrderFor(PROPERTY_TASK_TYPE) != null) {
+						asc = sort.getOrderFor(PROPERTY_TASK_TYPE).isAscending();
 						compareAscValue = taskOne.getTaskType().getSimpleName().compareTo(taskTwo.getTaskType().getSimpleName());
 					}
-					if (sort.getOrderFor("description") != null) {
-						asc = sort.getOrderFor("description").isAscending();
+					if (sort.getOrderFor(PROPERTY_DESCRIPTION) != null) {
+						asc = sort.getOrderFor(PROPERTY_DESCRIPTION).isAscending();
 						compareAscValue = taskOne.getDescription().compareTo(taskTwo.getDescription());
 					}
-					if (sort.getOrderFor("instanceId") != null) {
-						asc = sort.getOrderFor("instanceId").isAscending();
+					if (sort.getOrderFor(PROPERTY_INSTANCE_ID) != null) {
+						asc = sort.getOrderFor(PROPERTY_INSTANCE_ID).isAscending();
 						compareAscValue = taskOne.getInstanceId().compareTo(taskTwo.getInstanceId());
 					}
 					return asc ? compareAscValue : compareAscValue * -1;

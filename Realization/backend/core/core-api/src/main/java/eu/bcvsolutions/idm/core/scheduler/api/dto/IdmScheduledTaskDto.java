@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
+import javax.validation.constraints.NotNull;
+
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
@@ -8,9 +10,11 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * @author Jan Helbich
  *
  */
-@SuppressWarnings("serial")
 public class IdmScheduledTaskDto extends AbstractDto {
 
+	private static final long serialVersionUID = 1L;
+	//
+	@NotNull
 	private String quartzTaskName;
 	private boolean dryRun;
 

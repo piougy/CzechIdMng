@@ -102,7 +102,7 @@ public class DefaultIdmLongRunningTaskService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmLongRunningTaskDto> findAllByInstance(String instanceId, OperationState state) {
-		return toDtos(repository.findAllByInstanceIdAndResult_State(instanceId, state), false);
+		return toDtos(repository.findAllByInstanceIdAndResult_StateOrderByCreatedAsc(instanceId, state), false);
 	}
 	
 	@Override

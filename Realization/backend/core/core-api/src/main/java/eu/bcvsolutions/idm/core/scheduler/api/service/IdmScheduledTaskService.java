@@ -19,6 +19,7 @@ public interface IdmScheduledTaskService
 
 	/**
 	 * Finds scheduled tasks by relative quartz task name.
+	 * 
 	 * @param taskName
 	 * @return
 	 */
@@ -26,6 +27,7 @@ public interface IdmScheduledTaskService
 	
 	/**
 	 * Finds scheduled tasks by assigned long running task.
+	 * 
 	 * @param lrtId
 	 * @return
 	 */

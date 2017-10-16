@@ -193,6 +193,22 @@
     "save": {
       "success_0": "N/A",
       "success_1": "Záznam [{{record}}] byl úspěšně uložen"
+    },
+    "cancel": {
+      "action": "Zrušit",
+      "header_0": "N/A",
+      "header_1": "Zrušit záznam",
+      "header_2": "Zrušit záznamy",
+      "header_5": "$t(action.cancel.header_2)",
+      "message_0": "N/A",
+      "message_1": "Opravdu chcete zrušit vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zrušit <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zrušit <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při rušení záznamu [{{record}}] nastala chyba",
+      "success_0": "N/A",
+      "success_1": "Vybraný záznam [{{record}}] byl úspěšně zrušen",
+      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny"
     }
   },
   "environment": {
@@ -525,7 +541,8 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
-      "CRON": "Cron"
+      "CRON": "Cron",
+      "DEPENDENT": "Jiná úloha"
     },
     "RolePriorityEnum": {
       "NONE": "Žádná (0)",
@@ -1794,8 +1811,8 @@
         "action": {
           "trigger-delete": {
             "header": "Odebrat plánované spuštění",
-            "message": "Opravdu chcete odebrat plánované spuštění [<strong>{{record}}</strong>]?",
-            "success": "Plánované spuštění [{{record}}] bylo úspěšně odebráno."
+            "message": "Opravdu chcete odebrat plánované spuštění?",
+            "success": "Plánované spuštění bylo úspěšně odebráno."
           },
           "trigger-create": {
             "header": "Nové plánované spuštění",
@@ -2632,7 +2649,8 @@
         "label": "Parametry úlohy"
       }
     },
-    "ScheduleTask": {
+    "SchedulerTask": {
+      "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
       "taskType": "Typ úlohy",
       "instanceId": {
@@ -2654,7 +2672,16 @@
             "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
             "text": "výraz"
           }
+        },
+        "dependent": {
+          "initiatorTaskId": {
+            "label": "Jiná úloha",
+            "help": "Spuštení na základě úspěšného dokončení vybrané naplánované úlohy"
+          }
         }
+      },
+      "parameters": {
+        "label": "Parametry"
       }
     },
     "RoleRequest": {

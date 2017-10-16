@@ -144,11 +144,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	
 	@Override
 	@Transactional
-	public <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
+	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT
-		persistTaskAsRunning(taskExecutor);
+		taskExecutor.validate(persistTask(taskExecutor));
 		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
 		// execute - after original transaction is commited
@@ -164,10 +164,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * @param futureTask
 	 */
 	@TransactionalEventListener
-	public <V> void executeInternal(LongRunningFutureTask<V> futureTask) {
+	public synchronized<V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
 		Assert.notNull(futureTask.getExecutor());
 		Assert.notNull(futureTask.getFutureTask());
+		//
+		markTaskAsRunning(getValidTask(futureTask.getExecutor()));
 		//
 		LOG.debug("Execute task [{}] asynchronously", futureTask.getExecutor().getLongRunningTaskId());
 		executor.execute(futureTask.getFutureTask());
@@ -179,7 +181,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT
-		IdmLongRunningTaskDto task = persistTaskAsRunning(taskExecutor);
+		IdmLongRunningTaskDto task = persistTask(taskExecutor);
+		//
+		markTaskAsRunning(getValidTask(taskExecutor));
+		//
 		LOG.debug("Execute task [{}] synchronously", task.getId());
 		// execute
 		try {
@@ -202,7 +207,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
 		Assert.notNull(longRunningTaskId);
 		//
-		if (OperationState.RUNNING != task.getResult().getState()) {
+		if (!OperationState.isRunnable(task.getResult().getState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
 					ImmutableMap.of(
 							"taskId", longRunningTaskId, 
@@ -298,13 +303,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	/**
-	 * Persists task state do long running task. 
-	 * Synchronization is needed - validation and check concurrently ran task is executed here. 
+	 * Prepares executor's LRT
 	 * 
 	 * @param taskExecutor
 	 * @return
 	 */
-	private synchronized IdmLongRunningTaskDto persistTaskAsRunning(LongRunningTaskExecutor<?> taskExecutor) {
+	private IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor) {
 		// prepare task
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {
@@ -312,21 +316,35 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task.setTaskType(taskExecutor.getName());
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());
-			task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+			task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 			task = service.save(task);
 			taskExecutor.setLongRunningTaskId(task.getId());
 		} else {
 			task = service.get(taskExecutor.getLongRunningTaskId());
-			Assert.notNull(task);
-			//
-			if (!task.getInstanceId().equals(configurationService.getInstanceId())) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
-						ImmutableMap.of("taskId", task.getId(), "taskInstanceId", task.getInstanceId(), "currentInstanceId", configurationService.getInstanceId()));
-			}
-			taskExecutor.validate(task);
-			task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
-			task = service.save(task);
 		}
+		return task;
+	}
+	
+	private synchronized IdmLongRunningTaskDto markTaskAsRunning(IdmLongRunningTaskDto task) {
+		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		return service.save(task);
+	}
+	
+	/**
+	 * Returns executor's LRT task, when task is valid. Throws exception otherwise. 
+	 * 
+	 * @param taskExecutor
+	 * @return
+	 */
+	private IdmLongRunningTaskDto getValidTask(LongRunningTaskExecutor<?> taskExecutor) {
+		IdmLongRunningTaskDto task = service.get(taskExecutor.getLongRunningTaskId());
+		Assert.notNull(task);
+		//
+		if (!task.getInstanceId().equals(configurationService.getInstanceId())) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
+					ImmutableMap.of("taskId", task.getId(), "taskInstanceId", task.getInstanceId(), "currentInstanceId", configurationService.getInstanceId()));
+		}
+		taskExecutor.validate(task);
 		return task;
 	}
 	

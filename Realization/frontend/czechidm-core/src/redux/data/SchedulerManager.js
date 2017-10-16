@@ -21,6 +21,18 @@ export default class SchedulerManager extends EntityManager {
     return this.service;
   }
 
+  getNiceLabel(entity, showDescription = true) {
+    return this.getService().getNiceLabel(entity, showDescription);
+  }
+
+  getEntityType() {
+    return 'SchedulerTask';
+  }
+
+  getCollectionType() {
+    return 'tasks';
+  }
+
   /**
    * Return simple class name
    *
@@ -64,33 +76,6 @@ export default class SchedulerManager extends EntityManager {
   }
 
   /**
-   * Loads scheduled tasks
-   *
-   * @return {action}
-   */
-  fetchTasks() {
-    const uiKey = SchedulerManager.UI_KEY_TASKS;
-    //
-    return (dispatch) => {
-      dispatch(this.dataManager.requestData(uiKey));
-      this.getService().getTasks()
-        .then(json => {
-          let tasks = new Immutable.Map();
-          if (json._embedded && json._embedded.tasks) {
-            json._embedded.tasks.forEach(item => {
-              tasks = tasks.set(item.id, item);
-            });
-          }
-          dispatch(this.dataManager.receiveData(uiKey, tasks));
-        })
-        .catch(error => {
-          // TODO: data uiKey
-          dispatch(this.dataManager.receiveError(null, uiKey, error));
-        });
-    };
-  }
-
-  /**
    * Run given task manually
    *
    * @param  {string} taskId
@@ -130,7 +115,6 @@ export default class SchedulerManager extends EntityManager {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().deleteTrigger(trigger)
         .then(() => {
-          dispatch(this.fetchTasks());
           if (cb) {
             cb();
           }
@@ -156,7 +140,6 @@ export default class SchedulerManager extends EntityManager {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().createTrigger(trigger)
         .then(() => {
-          dispatch(this.fetchTasks());
           if (cb) {
             cb();
           }

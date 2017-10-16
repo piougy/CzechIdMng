@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
  */
 public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
-	protected static final String PARAMETER_ROLE_TREE_NODE = "roleTreeNode";
+	public static final String PARAMETER_ROLE_TREE_NODE = "roleTreeNode";
 	//
 	private UUID roleTreeNodeId = null;
 	

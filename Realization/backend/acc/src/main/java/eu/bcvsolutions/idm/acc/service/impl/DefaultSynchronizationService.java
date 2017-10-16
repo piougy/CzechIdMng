@@ -21,9 +21,9 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -117,7 +117,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	
 	@Override
 	public AbstractSysSyncConfigDto startSynchronizationEvent(AbstractSysSyncConfigDto config) {
-		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(SynchronizationEventType.START, config);
+		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(SynchronizationEventType.START, config,null, null, AbstractSysSyncConfigDto.class);
 		return (AbstractSysSyncConfigDto) entityEventManager.process(event).getContent(); 
 	}
 	
@@ -186,7 +186,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	
 	@Override
 	public AbstractSysSyncConfigDto stopSynchronizationEvent(AbstractSysSyncConfigDto config) {
-		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(SynchronizationEventType.CANCEL, config);
+		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(SynchronizationEventType.CANCEL, config, null, null, AbstractSysSyncConfigDto.class);
 		return (AbstractSysSyncConfigDto) entityEventManager.process(event).getContent(); 
 	}
 	

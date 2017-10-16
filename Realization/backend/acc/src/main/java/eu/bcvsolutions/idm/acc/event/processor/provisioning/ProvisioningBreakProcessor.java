@@ -151,7 +151,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			}
 			//
 			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template,
-					breakConfig, operationType, cache.getDiffBetweenFirstAndLastRecord(operationType));
+					breakConfig, operationType, cache.getDiffBetweenActualAndLast(operationType, currentTimeMillis));
 		} else if (breakConfig.getDisableLimit() != null && actualCount >= breakConfig.getDisableLimit()) {
 			// check count is higher than disable limit
 			// block system for operation
@@ -166,7 +166,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			}
 			//
 			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template,
-					breakConfig, operationType, cache.getDiffBetweenFirstAndLastRecord(operationType));
+					breakConfig, operationType, cache.getDiffBetweenActualAndLast(operationType, currentTimeMillis));
 			//
 			LOG.warn("System id: [{}] will be blocked for operation: [{}].",
 					provisioningOperation.getSystem(), operationType.toString());

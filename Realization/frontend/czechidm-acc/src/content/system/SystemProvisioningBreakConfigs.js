@@ -55,11 +55,13 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
         if (entity && !entity.globalConfiguration) {
           savedEntities.push(entity);
         } else {
-          this.addMessage({
-            message: this.i18n(`acc:error.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE.message`, { name: this.getManager().getNiceLabel(entity) }),
-            title: this.i18n(`acc:error.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE.title`),
-            level: 'warning'
-          });
+          // NOTE: info about global configuration is in message
+          // notSavedEntities.push(entity);
+          // this.addMessage({
+          //   message: this.i18n(`acc:error.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE.message`, { name: this.getManager().getNiceLabel(entity) }),
+          //   title: this.i18n(`acc:error.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE.title`),
+          //   level: 'warning'
+          // });
         }
       }
     }

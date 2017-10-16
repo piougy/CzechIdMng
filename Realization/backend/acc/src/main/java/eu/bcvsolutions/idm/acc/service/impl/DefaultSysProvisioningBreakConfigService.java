@@ -280,7 +280,6 @@ public class DefaultSysProvisioningBreakConfigService extends
 			SysProvisioningBreakConfigDto global = this.getGlobalBreakConfiguration(ProvisioningEventType.DELETE);
 			if (global != null) {
 				global.setActualOperationCount(getCounter(systemId, ProvisioningEventType.DELETE));
-				global.setId(systemId + ProvisioningEventType.DELETE.name());
 				configs.add(global);
 			}
 		}
@@ -288,7 +287,6 @@ public class DefaultSysProvisioningBreakConfigService extends
 			SysProvisioningBreakConfigDto global = this.getGlobalBreakConfiguration(ProvisioningEventType.UPDATE);
 			if (global != null) {
 				global.setActualOperationCount(getCounter(systemId, ProvisioningEventType.UPDATE));
-				global.setId(systemId + ProvisioningEventType.UPDATE.name());
 				configs.add(global);
 			}
 		}

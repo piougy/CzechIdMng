@@ -107,13 +107,15 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
     const formValid = this.refs.form.isFormValid();
     const formFilterValid = this.refs.formFilter.isFormValid();
-    const formSpecificValid = this.refs.formSpecific.isFormValid();
+    if (this.refs.formSpecific) {
+      const formSpecificValid = this.refs.formSpecific.isFormValid();
+      if (!formSpecificValid) {
+        this.setState({activeKey: 2});
+        return;
+      }
+    }
     if (!formValid) {
       this.setState({activeKey: 1});
-      return;
-    }
-    if (!formSpecificValid) {
-      this.setState({activeKey: 2});
       return;
     }
     if (!formFilterValid) {
@@ -121,11 +123,14 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       return;
     }
     this.setState({showLoading: true});
-    const specificData = this.refs.formSpecific.getData(false);
     const formEntity = this.refs.form.getData();
     const filterData = this.refs.formFilter.getData(false);
+    if (this.refs.formSpecific) {
+      const specificData = this.refs.formSpecific.getData(false);
+        // Merge specific data to form.
+      _.merge(formEntity, specificData);
+    }
     // Merge filter data to form.
-    _.merge(formEntity, specificData);
     _.merge(formEntity, filterData);
 
     if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {

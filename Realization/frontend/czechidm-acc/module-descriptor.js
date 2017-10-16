@@ -42,7 +42,7 @@ module.exports = {
           {
             'id': 'system-provisioning-break-config',
             'type': 'TAB',
-            'icon': 'fa:exclamation-circle',
+            'icon': 'fa:stop-circle-o',
             'labelKey': 'acc:content.provisioningBreakConfig.title',
             'order': 10,
             'path': '/system/:entityId/break-configs',
@@ -124,6 +124,28 @@ module.exports = {
         'path': '/identity/:entityId/provisioning',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
       },
+      {
+        'id': 'identity-contract-accounts',
+        'parentId': 'profile-contracts',
+        'type': 'TAB',
+        'labelKey': 'acc:content.contract.accounts.title',
+        'order': 100,
+        'priority': 0,
+        'path': '/identity/:identityId/identity-contract/:entityId/accounts',
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTACCOUNT_READ'] } ]
+      },
+      // Provisioning for contract is not implemented yet
+      // {
+      //   'id': 'identity-contract-provisioning-operations',
+      //   'parentId': 'profile-contracts',
+      //   'type': 'TAB',
+      //   'labelKey': 'acc:content.provisioningOperations.label',
+      //   'titleKey': 'acc:content.provisioningOperations.title',
+      //   'order': 110,
+      //   'path': '/identity/:identityId/identity-contract/:entityId/provisioning',
+      //   'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      // },
       {
         'id': 'password-policies-systems',
         'parentId': 'password-policies',

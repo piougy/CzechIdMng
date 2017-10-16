@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [7.5.0] unreleased
 
+### Added
+
+#### Core module
+
+##### Scheduler
+
+- Added ``DependentTaskTrigger`` - execute task, when other task successfully ended. Dependent tasks are executed by ``LongRunningTaskExecuteDependentProcessor``.
+
 ### Changed
 
 #### Core module

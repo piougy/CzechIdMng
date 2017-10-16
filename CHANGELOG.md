@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 
 ##### Contracts
 
+- Service ``IdmContractGuaranteeService`` now implements EventableDtoService for method save and delete.
+
+##### Contracts
+
 - Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``ECXLUDED`` - change script is provided. Contract with state ``DISABLED`` is invalid now - all processed work with this state (automatic roles, end of contract process).
 - Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
   - ``IdentityContractCreateByAutomaticRoleProcessor``
@@ -36,6 +40,12 @@ All notable changes to this project will be documented in this file.
 ##### Contracts
 
 - ``IdmIdentityContractRepository#deleteByIdentity`` was removed. It was skipping audit (bug).
+
+#### Acc module
+
+##### Provisioning
+
+- After add, remove or update ``IdmContractGuaranteeDto`` is execute provisioning for identity that own this contract.
 
 ## [7.4.0]
 

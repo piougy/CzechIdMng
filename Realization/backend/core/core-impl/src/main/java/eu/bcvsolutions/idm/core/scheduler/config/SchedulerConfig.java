@@ -19,6 +19,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
+import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AutowiringSpringBeanJobFactory;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 
@@ -80,8 +81,11 @@ public class SchedulerConfig {
     }
 
 	@Bean(name = "schedulerManager")
-	public SchedulerManager schedulerManager(ApplicationContext context) {
-		SchedulerManager manager = new DefaultSchedulerManager(context, schedulerFactoryBean(context).getScheduler());
+	public SchedulerManager schedulerManager(ApplicationContext context, IdmDependentTaskTriggerRepository dependentTaskTriggerRepository) {
+		SchedulerManager manager = new DefaultSchedulerManager(
+				context, 
+				schedulerFactoryBean(context).getScheduler(), 
+				dependentTaskTriggerRepository);
 		// read all task - checks obsolete task types and remove them before scheduler starts automatically
 		manager.getAllTasks();
 		//

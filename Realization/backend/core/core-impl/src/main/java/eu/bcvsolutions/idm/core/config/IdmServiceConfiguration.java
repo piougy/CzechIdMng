@@ -451,7 +451,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmContractGuaranteeService.class)
 	public IdmContractGuaranteeService contractGuaranteeService() {
-		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository);
+		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository, entityEventManager());
 	}
 	
 	/**

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -14,9 +16,11 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * 
  * @author Jan Helbich
  */
+@Relation(collectionRelation = "longRunningTasks")
 public class IdmLongRunningTaskDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
+	//
 	private String taskType;
 	private String taskDescription;
 	private Map<String, Object> taskProperties;
@@ -31,6 +35,13 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	private UUID scheduledTask;
 	private boolean stateful;
 
+	public IdmLongRunningTaskDto() {
+	}
+	
+	public IdmLongRunningTaskDto(UUID id) {
+		super(id);
+	}
+	
 	public String getTaskType() {
 		return taskType;
 	}

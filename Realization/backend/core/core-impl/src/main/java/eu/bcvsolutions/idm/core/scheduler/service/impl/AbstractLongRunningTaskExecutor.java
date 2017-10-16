@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -26,13 +28,16 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.event.LongRunningTaskEvent;
+import eu.bcvsolutions.idm.core.scheduler.event.LongRunningTaskEvent.LongRunningTaskEventType;
+import eu.bcvsolutions.idm.core.scheduler.exception.ConcurrentExecutionException;
 
 /**
  * Template for long running task executor. This template persists long running tasks.
  * 
  * TODO: interface only + AOP executor
- * TODO: refactor autowired fields
- * TODO: Configurable API?
+ * TODO: refactor autowired fields to bean post processors
+ * TODO: Configurable API
  * 
  * @author Radek Tomiška
  *
@@ -42,6 +47,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
 	@Autowired protected IdmLongRunningTaskService service;
 	@Autowired private LookupService entityLookupService;
+	@Autowired private EntityEventManager entityEventManager;
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID taskId;
@@ -139,13 +145,21 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		if (this.getClass().isAnnotationPresent(DisallowConcurrentExecution.class)) {
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 			filter.setTaskType(getName());
-			filter.setRunning(Boolean.TRUE);
-			if (service.find(filter, null).getTotalElements() > 0) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", getName()));
+			filter.setOperationState(OperationState.RUNNING);
+			List<IdmLongRunningTaskDto> runningTasks = service
+					.find(filter, null)
+					.getContent()
+					.stream()
+					.filter(t -> {
+						// not self
+						return !t.getId().equals(task.getId());
+					})
+					.collect(Collectors.toList());			
+			if (!runningTasks.isEmpty()) {
+				throw new ConcurrentExecutionException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", getName()));
 			}
 		}
 	}
-	
 	
 	@Override
 	public V call() {
@@ -194,8 +208,10 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			LOG.debug("Long running task ended [{}] standardly, previous state [{}], result [{}].", taskId, task.getResultState(), result);
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
-		task.setRunning(false);
-		service.save(task);
+		//
+		// publish event - LRT ended
+		// TODO: result is not persisted - propagate him in event?
+		entityEventManager.publishEvent(new LongRunningTaskEvent(LongRunningTaskEventType.END, task));
 		//
 		return result;
 	}

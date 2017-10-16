@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 
 /**
@@ -18,9 +20,11 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
  * 
  * @author Radek Tomiška
  */
-public class Task {
+public class Task implements BaseDto {
 
-	private String id; // job name
+	private static final long serialVersionUID = 1L;
+	//
+	private String id; // quartz job name
 	private String module;
 	@NotEmpty
 	private String instanceId;
@@ -33,12 +37,14 @@ public class Task {
 	public Task() {
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	@Override
+	public void setId(Serializable id) {
+		this.id = id == null ? null : id.toString();
 	}
 	
 	public String getModule() {

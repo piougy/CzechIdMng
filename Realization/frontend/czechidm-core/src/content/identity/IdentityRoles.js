@@ -316,7 +316,7 @@ class Roles extends Basic.AbstractContent {
       content = (
         <div style={{ paddingTop: 15 }}>
           {
-            _contracts.length > 0
+            _contracts.length > 0 || !this._canChangePermissions()
             ||
             <Basic.Alert
               className="no-margin"

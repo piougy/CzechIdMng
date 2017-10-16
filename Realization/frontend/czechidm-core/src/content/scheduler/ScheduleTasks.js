@@ -47,11 +47,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
   componentDidMount() {
     this.selectNavigationItems(['system', 'scheduler', 'scheduler-schedule-tasks']);
     this.context.store.dispatch(manager.fetchSupportedTasks());
-    this._fetchTasks();
-  }
-
-  _fetchTasks() {
-    this.context.store.dispatch(manager.fetchTasks());
   }
 
   /**
@@ -109,9 +104,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     }
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.getManager().createEntity(entity, SchedulerManager.UI_KEY_TASKS, this.afterSave.bind(this)));
+      this.context.store.dispatch(this.getManager().createEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     } else {
-      this.context.store.dispatch(this.getManager().patchEntity(entity, SchedulerManager.UI_KEY_TASKS, this.afterSave.bind(this)));
+      this.context.store.dispatch(this.getManager().patchEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     }
   }
 
@@ -125,7 +120,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       return;
     }
     this.addMessage({ message: this.i18n('action.save.success', { record: this.getManager().getNiceLabel(entity) }) });
-    this.context.store.dispatch(manager.fetchTasks());
+    this.refs.table.getWrappedInstance().reload();
     this.closeDetail();
   }
 
@@ -140,10 +135,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       this.context.store.dispatch(this.getManager().deleteEntity(entity, SchedulerManager.UI_KEY_TASKS, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('action.delete.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+          this.refs.table.getWrappedInstance().reload();
         } else {
           this.addError(error);
         }
-        this.context.store.dispatch(manager.fetchTasks());
       }));
     }, () => {
       // Rejected
@@ -167,7 +162,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       this.i18n(`action.trigger-delete.header`)
     ).then(() => {
       this.context.store.dispatch(manager.deleteTrigger(trigger, () => {
-        this.addMessage({ message: this.i18n(`action.trigger-delete.success`, { record }) });
+        this.addMessage({ message: this.i18n(`action.trigger-delete.success`) });
+        this.refs.table.getWrappedInstance().reload();
       }));
     }, () => {
       //
@@ -186,6 +182,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });
       this.closeTriggerDetail();
+      this.refs.table.getWrappedInstance().reload();
     }));
   }
 
@@ -224,18 +221,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { supportedTasks, tasks, showLoading, instanceId } = this.props;
+    const { supportedTasks, showLoading, instanceId } = this.props;
     const { detail, triggerDetail, triggerType, taskType } = this.state;
     //
-    const _tasks = [];
-    if (tasks) {
-      tasks.forEach(task => {
-        _tasks.push(task);
-      });
-    }
-    _tasks.sort((one, two) => {
-      return one.taskType > two.taskType;
-    });
     const _supportedTasks = [];
     if (supportedTasks) {
       supportedTasks.forEach(task => {
@@ -264,33 +252,25 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.Toolbar>
-          <div className="pull-left">
-
-          </div>
-          <div className="pull-right">
-            <Basic.Button
-              level="success"
-              key="add_button"
-              className="btn-xs"
-              onClick={ this.showDetail.bind(this, _supportedTasks.length === 0 ? {} : { name: _supportedTasks[0], instanceId }) }
-              rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
-              <Basic.Icon type="fa" icon="plus"/>
-              {' '}
-              {this.i18n('button.add')}
-            </Basic.Button>
-
-            <Advanced.RefreshButton onClick={ this._fetchTasks.bind(this) } showLoading={ showLoading }/>
-          </div>
-          <div className="clearfix"></div>
-        </Basic.Toolbar>
-
-        <Basic.Table
+        <Advanced.Table
           ref="table"
-          data={_tasks}
-          showLoading={showLoading}
-          noData={this.i18n('component.basic.Table.noData')}>
-          <Basic.Column
+          uiKey={ this.getUiKey() }
+          manager={ manager }
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this.showDetail.bind(this, _supportedTasks.length === 0 ? {} : { name: _supportedTasks[0], instanceId }) }
+                rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
+            ]
+          }>
+          <Advanced.Column
             className="detail-button"
             cell={
               ({ rowIndex, data }) => {
@@ -301,11 +281,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Basic.Column property="id" header={this.i18n('entity.ScheduleTask.id')} rendered={false} />
-          <Basic.Column
+          <Advanced.Column
             property="taskType"
+            sort
             width={150}
-            header={this.i18n('entity.ScheduleTask.taskType')}
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
@@ -315,8 +294,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Basic.Column property="description" header={this.i18n('entity.ScheduleTask.description')} />
-          <Basic.Column property="instanceId" header={this.i18n('entity.ScheduleTask.instanceId.label')} />
+          <Advanced.Column property="description" sort />
+          <Advanced.Column property="instanceId" sort />
           <Basic.Column
             header={this.i18n('action.task-edit.parameters')}
             cell={
@@ -336,7 +315,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             }/>
           <Basic.Column
             property="triggers"
-            header={this.i18n('entity.ScheduleTask.triggers')}
+            header={this.i18n('entity.SchedulerTask.triggers')}
             cell={
               ({ data, rowIndex, property}) => {
                 const triggers = data[rowIndex][property];
@@ -344,19 +323,25 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   <div>
                     {
                       triggers.map(trigger => {
-                        if (!trigger.nextFireTime || (trigger.fireTime && moment(trigger.fireTime).isBefore(moment()))) {
+                        if (!trigger.initiatorTaskId && (!trigger.nextFireTime || (trigger.fireTime && moment(trigger.fireTime).isBefore(moment())))) {
                           // only plan
                           return null;
                         }
                         return (
                           <div>
-                            <Advanced.DateValue value={trigger.nextFireTime} showTime />
+                            {
+                              trigger.initiatorTaskId
+                              ?
+                              <Advanced.SchedulerTaskInfo entityIdentifier={ trigger.initiatorTaskId } face="popover"/>
+                              :
+                              <Advanced.DateValue value={trigger.nextFireTime} showTime />
+                            }
                             {' '}
                             <Basic.Button
                               level="link"
                               className="btn-xs"
-                              onClick={this.onTriggerDelete.bind(this, trigger)}
-                              rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE'])}>
+                              onClick={ this.onTriggerDelete.bind(this, trigger) }
+                              rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }>
                               <Basic.Icon value="remove" color="red"/>
                               </Basic.Button>
                           </div>
@@ -406,7 +391,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-        </Basic.Table>
+        </Advanced.Table>
 
         <Basic.Modal
           show={detail.show}
@@ -420,7 +405,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={detail.entity.id !== undefined}>
                 <Basic.EnumSelectBox
                   ref="taskType"
-                  label={this.i18n('entity.ScheduleTask.taskType')}
+                  label={this.i18n('entity.SchedulerTask.taskType')}
                   options={_supportedTasks}
                   onChange={this.onChangeTaskType.bind(this)}
                   required
@@ -428,12 +413,12 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 <Basic.TextArea
                   ref="description"
                   placeholder={taskType ? taskType.description : null}
-                  label={this.i18n('entity.ScheduleTask.description')}
+                  label={this.i18n('entity.SchedulerTask.description')}
                   max={255}/>
                 <Basic.TextField
                   ref="instanceId"
-                  label={this.i18n('entity.ScheduleTask.instanceId.label')}
-                  helpBlock={this.i18n('entity.ScheduleTask.instanceId.help')}
+                  label={this.i18n('entity.SchedulerTask.instanceId.label')}
+                  helpBlock={this.i18n('entity.SchedulerTask.instanceId.help')}
                   required/>
                 {
                   (detail.entity.id === undefined && taskType && taskType.parameters && _.keys(taskType.parameters).length > 0)
@@ -508,27 +493,34 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               <Basic.AbstractForm ref="triggerForm" showLoading={showLoading}>
                 <Basic.EnumSelectBox
                   ref="type"
-                  enum={TriggerTypeEnum}
-                  label={this.i18n('entity.ScheduleTask.trigger._type.label')}
+                  enum={ TriggerTypeEnum }
+                  label={ this.i18n('entity.SchedulerTask.trigger._type.label') }
                   required
                   onChange={this.onChangeTriggerType.bind(this)}/>
                 <Basic.DateTimePicker
                   ref="fireTime"
-                  label={this.i18n('entity.ScheduleTask.trigger.fireTime')}
-                  hidden={triggerType !== 'SIMPLE'}
-                  required={triggerType === 'SIMPLE'}/>
+                  label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
+                  hidden={ triggerType !== 'SIMPLE' }
+                  required={ triggerType === 'SIMPLE' }/>
                 <Basic.TextField
                   ref="cron"
-                  label={this.i18n('entity.ScheduleTask.trigger.cron.label')}
+                  label={ this.i18n('entity.SchedulerTask.trigger.cron.label') }
                   helpBlock={
                     <span>
-                      { this.i18n('entity.ScheduleTask.trigger.cron.help') }
+                      { this.i18n('entity.SchedulerTask.trigger.cron.help') }
                       {' '}
-                      <Basic.Link href={ this.i18n('entity.ScheduleTask.trigger.cron.link.href') } text={ this.i18n('entity.ScheduleTask.trigger.cron.link.text') }/>
+                      <Basic.Link href={ this.i18n('entity.SchedulerTask.trigger.cron.link.href') } text={ this.i18n('entity.SchedulerTask.trigger.cron.link.text') }/>
                     </span>
                   }
-                  hidden={triggerType !== 'CRON'}
-                  required={triggerType === 'CRON'}/>
+                  hidden={ triggerType !== 'CRON' }
+                  required={ triggerType === 'CRON' }/>
+                <Basic.SelectBox
+                  ref="initiatorTaskId"
+                  manager={ manager }
+                  label={ this.i18n('entity.SchedulerTask.trigger.dependent.initiatorTaskId.label') }
+                  helpBlock={ this.i18n('entity.SchedulerTask.trigger.dependent.initiatorTaskId.help') }
+                  hidden={ triggerType !== 'DEPENDENT' }
+                  required={ triggerType === 'DEPENDENT' }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -558,14 +550,12 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
 ScheduleTasks.propTypes = {
   instanceId: PropTypes.string,
   userContext: PropTypes.object,
-  tasks: PropTypes.object,
   supportedTasks: PropTypes.object,
   showLoading: PropTypes.bool
 };
 ScheduleTasks.defaultProps = {
   instanceId: null,
   userContext: null,
-  tasks: null,
   supportedTasks: null,
   showLoading: true
 };
@@ -574,9 +564,8 @@ function select(state) {
   return {
     instanceId: ConfigurationManager.getPublicValue(state, 'idm.pub.app.instanceId'),
     userContext: state.security.userContext,
-    tasks: DataManager.getData(state, SchedulerManager.UI_KEY_TASKS),
     supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
-    showLoading: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_TASKS) || Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
+    showLoading: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
   };
 }
 

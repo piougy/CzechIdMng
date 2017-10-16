@@ -33,7 +33,7 @@
     "github-markdown-css": "2.2.1",
     "metismenu": "2.5.0",
     "react-datetime": "2.2.0",
-    "react-select": "1.0.0-rc.10"
+    "react-select": "1.0.0-rc.3"
   },
   "peerDependencies": {
     "eslint": "^1.10.3",

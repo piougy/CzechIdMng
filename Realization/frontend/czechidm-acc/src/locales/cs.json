@@ -496,7 +496,14 @@
         "success": "Brzda provisioningu byla úspěšně vytvořena"
       },
       "recipientInfo": "Příjemce můžete přidat až po vytvoření brzdy.",
-      "removeFailture": "Žádné konfigurace nebyly odebrány."
+      "removeFailture": "Žádné konfigurace nebyly odebrány.",
+      "action": {
+        "delete": {
+          "message_1": "Opravdu chcete odebrat vybraný záznam [<strong>{{record}}</strong>]?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
+          "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybrané záznamy?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
+          "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybraných záznamů?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>"
+        }
+      }
     },
     "provisioningBreakConfigRecipient": {
       "title": "Příjemci",

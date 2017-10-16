@@ -76,15 +76,21 @@ public class SysProvisioningBreakItems {
 	}
 	
 	/**
+	 * Return timestamp different between first and actual timestamp given in
+	 * parameter, if actualParameter will be null return diff between fisrt and
+	 * last timestamp in list.
 	 * 
 	 * @return
 	 */
-	public Long getDiffBetweenFirstAndLastRecord(ProvisioningEventType provisioningType) {
+	public Long getDiffBetweenActualAndLast(ProvisioningEventType provisioningType, Long actualTimestamp) {
 		if (this.getSize(provisioningType) == 0) {
 			return null;
 		}
 		Long first = this.getExecudedItems(provisioningType).get(0);
-		Long last = this.getExecudedItems(provisioningType).get(this.getSize(provisioningType) - 1);
+		Long last = actualTimestamp;
+		if (last == null) {
+			last = this.getExecudedItems(provisioningType).get(this.getSize(provisioningType) - 1);
+		}
 		return last - first;
 	}
 

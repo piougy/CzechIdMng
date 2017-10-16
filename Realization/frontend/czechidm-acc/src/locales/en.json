@@ -490,7 +490,13 @@
         "success": "Provisioning break successfully created"
       },
       "recipientInfo": "You can add the recipients only after the brake has been created.",
-      "removeFailture": "No configurations have been removed."
+      "removeFailture": "No configurations have been removed.",
+      "action": {
+        "delete": {
+          "message_1": "Do you want to remove selected record [<strong>{{record}}</strong>]?<br /><br /><i>Global configurations will be removed from the list of deleted.</i>",
+            "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to remove <strong>{{count}}</strong> selected records?<br /><br /><i>Global configurations will be removed from the list of deleted."
+        }
+      }
     },
     "provisioningBreakConfigRecipient": {
       "title": "Recipients",

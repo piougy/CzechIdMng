@@ -22,13 +22,13 @@ import eu.bcvsolutions.idm.core.scheduler.event.LongRunningTaskEvent.LongRunning
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 
 /**
- * Execute scheduled long running task, which depends on currently ended scheduled task.
+ * Execute scheduled long running tasks, which depends on currently ended scheduled task.
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Execute scheduled long running task, which depends on currently ended scheduled task.")
+@Description("Execute scheduled long running tasks, which depends on currently ended scheduled task.")
 public class LongRunningTaskExecuteDependentProcessor 
 		extends CoreEventProcessor<IdmLongRunningTaskDto>
 		implements LongRunningTaskProcessor {

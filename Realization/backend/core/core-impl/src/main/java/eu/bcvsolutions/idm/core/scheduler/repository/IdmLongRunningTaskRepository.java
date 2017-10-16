@@ -25,8 +25,21 @@ public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<I
 	 * 
 	 * @param instanceId
 	 * @return
+	 * @deprecated use {@link #findAllByInstanceIdAndResult_StateOrderByCreatedAsc(String, OperationState)}
 	 */
+	@Deprecated
 	List<IdmLongRunningTask> findAllByInstanceIdAndResult_State(@Param("instanceId") String instanceId, @Param("state") OperationState state);
+	
+	
+	/**
+	 * Finds all tasks by given machine and state
+	 * 
+	 * @param instanceId
+	 * @return
+	 */
+	List<IdmLongRunningTask> findAllByInstanceIdAndResult_StateOrderByCreatedAsc(
+			@Param("instanceId") String instanceId, 
+			@Param("state") OperationState state);
 	
 	/**
 	 * Update state only

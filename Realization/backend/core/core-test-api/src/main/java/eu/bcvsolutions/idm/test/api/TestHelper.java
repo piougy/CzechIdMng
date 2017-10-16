@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.joda.time.LocalDate;
 
@@ -289,5 +290,11 @@ public interface TestHelper {
 	 * @param processorType
 	 */
 	void disable(Class<? extends EntityEventProcessor<?>> processorType);
-
+	
+	/**
+	 * Wait for result - usable for asynchronous tests
+	 * 
+	 * @param continueFunction
+	 */
+	void waitForResult(Function<String, Boolean> continueFunction);
 }

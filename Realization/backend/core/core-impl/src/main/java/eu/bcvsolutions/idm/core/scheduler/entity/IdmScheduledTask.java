@@ -18,17 +18,17 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * @author Jan Helbich
  *
  */
-@SuppressWarnings("serial")
+@Audited
 @Entity
 @Table(name = "idm_scheduled_task")
 public class IdmScheduledTask extends AbstractEntity {
 
-	@Audited
+	private static final long serialVersionUID = 1L;
+
 	@NotNull
 	@Column(name = "quartz_task_name", unique = true)
-	private String quartzTaskName;
+	private String quartzTaskName; // quartz job name - default group is supported now
 
-	@Audited
 	@Column(name = "dry_run")
 	private boolean dryRun;
 

@@ -35,6 +35,10 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     return 'content.scheduler.all-tasks';
   }
 
+  getManager() {
+    return this.props.manager;
+  }
+
   useFilter(event) {
     if (event) {
       event.preventDefault();
@@ -101,11 +105,39 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     }));
   }
 
+  /**
+   * Bulk delete operation
+   */
+  onCancel(bulkActionValue, selectedRows) {
+    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().cancelEntities(selectedEntities, this.getUiKey(), (entity, error) => {
+        if (entity && error) {
+          if (error.statusCode !== 202) {
+            this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+          } else {
+            this.addError(error);
+          }
+        } else {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
   render() {
     const { uiKey, manager, showRowSelection } = this.props;
     const { filterOpened, detail } = this.state;
     return (
       <div>
+        <Basic.Confirm ref="confirm-cancel" level="danger"/>
+
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -150,7 +182,8 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           filterOpened={filterOpened}
           actions={
             [
-              { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this) }
+              { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this) },
+              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onCancel.bind(this) }
             ]
           }
           buttons={

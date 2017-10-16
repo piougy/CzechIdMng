@@ -41,7 +41,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -70,6 +74,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private LookupService lookupService;
+	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
 	//
 	private IdmTreeTypeDto treeType = null;
 	private IdmTreeNodeDto nodeA = null;
@@ -565,13 +570,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
 		//
+		waitForAutomaticRoleIsAdded(roleTreeNode);
+		//
 		helper.deleteRole(role.getId());
 		//
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
 	}
 	
 	@Test
-	public void testReferentialIntegrityOnTreeType() {
+	public void testReferentialIntegrityOnTreeNode() {
 		// prepare data
 		IdmRoleDto role = helper.createRole();
 		IdmTreeNodeDto treeNode = helper.createTreeNode();
@@ -581,9 +588,28 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
 		//
+		waitForAutomaticRoleIsAdded(roleTreeNode);
+		//
 		helper.deleteTreeNode(treeNode.getId());
 		//
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
+	}
+	
+	private void waitForAutomaticRoleIsAdded(IdmRoleTreeNodeDto roleTreeNode) {
+		helper.waitForResult(res -> {
+			// automatic role is added asynchronously - we need to wait for it, before delete
+			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+			filter.setTaskType(this.getClass().getCanonicalName());
+			filter.setRunning(Boolean.TRUE);
+			filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
+			for(IdmLongRunningTaskDto longRunningTask : longRunningTaskService.find(filter, null)) {
+				if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE)
+						.equals(roleTreeNode.getId())) {
+					return false;
+				}
+			};
+			return true;
+		});
 	}
 	
 	@Test

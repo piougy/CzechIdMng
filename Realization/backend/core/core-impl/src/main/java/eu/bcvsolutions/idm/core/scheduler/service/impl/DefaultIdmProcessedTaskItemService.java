@@ -51,8 +51,8 @@ public class DefaultIdmProcessedTaskItemService
 		this.repository = repository;
 	}
 	
-	@Transactional
 	@Override
+	@Transactional
 	public IdmProcessedTaskItemDto saveInternal(IdmProcessedTaskItemDto dto) {
 		Assert.notNull(dto);
 		//
@@ -97,32 +97,32 @@ public class DefaultIdmProcessedTaskItemService
 		return predicates;
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public void deleteAllByLongRunningTask(IdmLongRunningTaskDto dto) {
 		Assert.notNull(dto);
 		//
 		repository.deleteAllByLongRunningTaskId(dto.getId());
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public void deleteAllByScheduledTask(IdmScheduledTaskDto dto) {
 		Assert.notNull(dto);
 		//
 		repository.deleteAllByScheduledTaskId(dto.getId());
 	}
 
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
 	public List<UUID> findAllRefEntityIdsInQueueByScheduledTask(IdmScheduledTaskDto dto) {
 		Assert.notNull(dto);
 		//
 		return repository.findAllRefEntityIdsByScheduledTaskId(dto.getId());
 	}
 
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmProcessedTaskItemDto> findQueueItems(IdmScheduledTaskDto scheduledTask, Pageable pageable) {
 		Assert.notNull(scheduledTask);
 		//
@@ -131,8 +131,8 @@ public class DefaultIdmProcessedTaskItemService
 		return this.find(f, pageable);
 	}
 
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmProcessedTaskItemDto> findLogItems(IdmLongRunningTaskDto longRunningTask, Pageable pageable) {
 		Assert.notNull(longRunningTask);
 		//
@@ -141,8 +141,8 @@ public class DefaultIdmProcessedTaskItemService
 		return this.find(f, pageable);
 	}
 	
-	@Transactional
 	@Override
+	@Transactional
 	public <E extends AbstractDto> IdmProcessedTaskItemDto createLogItem(E processedItem, OperationResult result,
 			IdmLongRunningTaskDto lrt) {
 		//
@@ -155,8 +155,8 @@ public class DefaultIdmProcessedTaskItemService
 		return this.saveInternal(item);
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public <E extends AbstractDto> IdmProcessedTaskItemDto createQueueItem(E processedItem, OperationResult result,
 			IdmScheduledTaskDto st) {
 		//

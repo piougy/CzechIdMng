@@ -2,6 +2,8 @@ import AbstractEnum from './AbstractEnum';
 
 /**
  * Trigger type - simple - cron
+ *
+ * @author Radek Tomiška
  */
 export default class TriggerTypeEnum extends AbstractEnum {
 
@@ -27,8 +29,36 @@ export default class TriggerTypeEnum extends AbstractEnum {
       case this.CRON: {
         return 'info';
       }
+      case this.DEPENDENT: {
+        return 'warning';
+      }
       default: {
         // nothing
+      }
+    }
+  }
+
+  /**
+   * Returns BE trigger type
+   *
+   * @param  {string} key
+   * @return {string} java simple name
+   */
+  static getTriggerType(key) {
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.SIMPLE: {
+        return 'SimpleTaskTrigger';
+      }
+      case this.CRON: {
+        return 'CronTaskTrigger';
+      }
+      case this.DEPENDENT: {
+        return 'DependentTaskTrigger';
+      }
+      default: {
+        throw Error(`Type [${key}] not implemented`);
       }
     }
   }
@@ -36,3 +66,4 @@ export default class TriggerTypeEnum extends AbstractEnum {
 
 TriggerTypeEnum.SIMPLE = Symbol('SIMPLE');
 TriggerTypeEnum.CRON = Symbol('CRON');
+TriggerTypeEnum.DEPENDENT = Symbol('DEPENDENT');

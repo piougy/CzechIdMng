@@ -17,12 +17,13 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service layer for processed task items.
+ * 
  * @author Jan Helbich
  *
  */
-public interface IdmProcessedTaskItemService
-	extends ReadWriteDtoService<IdmProcessedTaskItemDto, IdmProcessedTaskItemFilter>, 
-	AuthorizableService<IdmProcessedTaskItemDto> {
+public interface IdmProcessedTaskItemService extends 
+		ReadWriteDtoService<IdmProcessedTaskItemDto, IdmProcessedTaskItemFilter>, 
+		AuthorizableService<IdmProcessedTaskItemDto> {
 
 	/**
 	 * Deletes all processed task items by references long running task.

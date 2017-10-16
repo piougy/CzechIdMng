@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -312,6 +314,19 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public void disable(Class<? extends EntityEventProcessor<?>> processorType) {
 		enableProcessor(processorType, false);
+	}
+	
+	@Override
+	public void waitForResult(Function<String, Boolean> continueFunction) {
+		int counter = 0;
+		while(continueFunction.apply(null) && (counter < 25)) {
+			counter++;
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException ex) {
+				throw new CoreException(ex);
+			}
+		};
 	}
 	
 	private void enableProcessor(Class<? extends EntityEventProcessor<?>> processorType, boolean enabled) {

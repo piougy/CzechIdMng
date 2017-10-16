@@ -1,6 +1,7 @@
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
 import * as Utils from '../utils';
+import TriggerTypeEnum from '../enums/TriggerTypeEnum';
 
 /**
  * Scheduler administration
@@ -13,11 +14,26 @@ export default class SchedulerService extends AbstractService {
     return '/scheduler-tasks';
   }
 
-  getNiceLabel(entity) {
+  /**
+   * Returns default searchParameters for current entity type
+   *
+   * @return {object} searchParameters
+   */
+  getDefaultSearchParameters() {
+    return super.getDefaultSearchParameters().clearSort().setSort('taskType');
+  }
+
+  getNiceLabel(entity, showDescription = true) {
     if (!entity) {
       return '';
     }
-    return this.getSimpleTaskType(entity.taskType);
+    let label = this.getSimpleTaskType(entity.taskType);
+    if (entity.description && showDescription) {
+      const short = Utils.Ui.substringByWord(entity.description, 35);
+      // TODO: improve substringByWord method ...
+      label += ` (${ short }${ short !== entity.description ? '...' : '' })`;
+    }
+    return label;
   }
 
   /**
@@ -120,15 +136,10 @@ export default class SchedulerService extends AbstractService {
    * @return {promise}
    */
   createTrigger(trigger) {
-    const type = trigger.type === 'SIMPLE' ? 'simple' : 'cron';
-    if (type === 'simple') {
-      trigger._type = 'SimpleTaskTrigger';
-    } else {
-      trigger._type = 'CronTaskTrigger';
-    }
+    trigger._type = TriggerTypeEnum.getTriggerType(trigger.type);
     //
     return RestApiService
-    .post(this.getApiPath() + `/${trigger.taskId}/triggers/${type}`, trigger)
+    .post(this.getApiPath() + `/${trigger.taskId}/triggers/${trigger.type.toLowerCase()}`, trigger)
     .then(response => {
       if (response.status === 204) {
         return {};

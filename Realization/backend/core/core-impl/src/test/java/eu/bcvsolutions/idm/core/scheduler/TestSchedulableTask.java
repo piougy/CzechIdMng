@@ -16,7 +16,6 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String>
 	private Long count;
 	private Long counter;
 	
-	
 	@Override
 	public Long getCount() {
 		return count;

@@ -95,8 +95,8 @@ public class DefaultIdmScheduledTaskService
 		super.deleteInternal(dto);
 	}
 
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
 	public IdmScheduledTaskDto findByLongRunningTaskId(UUID lrtId) {
 		Assert.notNull(lrtId);
 		//

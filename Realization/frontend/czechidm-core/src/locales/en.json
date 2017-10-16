@@ -187,7 +187,7 @@
       "approve_plural": "Records cancel [{{records}}] have to be approved, tasks successfully created",
       "accepted": "Record cancel [{{record}}] run asynchronously (cancel has to be approved or run as long running task)",
       "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
-    },
+    }
   },
   "environment": {
     "development": {
@@ -2643,7 +2643,7 @@
         }
       },
       "parameters": {
-        "label": "Parametry"
+        "label": "Parameters"
       }
     },
     "RoleRequest": {

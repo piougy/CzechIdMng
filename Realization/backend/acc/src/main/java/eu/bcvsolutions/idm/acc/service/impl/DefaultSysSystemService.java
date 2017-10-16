@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -450,7 +450,7 @@ public class DefaultSysSystemService
 						schemaAttributesCache, mappedAttributesCache);
 
 				// Duplicate sync configs
-				List<SysSyncConfigDto> syncConfigs = findSyncConfigs(id);
+				List<AbstractSysSyncConfigDto> syncConfigs = findSyncConfigs(id);
 				syncConfigs.stream().filter(syncConfig -> {
 					
 					// Find configuration of sync for this mapping
@@ -604,7 +604,7 @@ public class DefaultSysSystemService
 	 */
 	private void duplicateSyncConf(UUID syncConfigId, SysSystemMappingDto duplicatedMapping,
 			Map<UUID, UUID> mappedAttributesCache) {
-		SysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
+		AbstractSysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
 		clonedSyncConfig.setSystemMapping(duplicatedMapping.getId());
 		//
 		if (clonedSyncConfig.getFilterAttribute() != null) {
@@ -648,7 +648,7 @@ public class DefaultSysSystemService
 	 * @param id
 	 * @return
 	 */
-	private List<SysSyncConfigDto> findSyncConfigs(UUID id) {
+	private List<AbstractSysSyncConfigDto> findSyncConfigs(UUID id) {
 		SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
 		syncConfigFilter.setSystemId(id);
 		return synchronizationConfigService.find(syncConfigFilter, null).getContent();

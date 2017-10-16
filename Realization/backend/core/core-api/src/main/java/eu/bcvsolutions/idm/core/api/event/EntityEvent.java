@@ -110,4 +110,11 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 		//
 		return eventType.name() == getType().name();
 	}
+
+	/**
+	 * Event class type. If is not field 'eventClassType' sets (in constructor), then will be used class from content.
+	 * Processors with this generic class will be called.
+	 * @return
+	 */
+	Class<? extends E> getEventClassType();
 }

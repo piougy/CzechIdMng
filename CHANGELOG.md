@@ -11,9 +11,19 @@ All notable changes to this project will be documented in this file.
 
 - Added ``DependentTaskTrigger`` - execute task, when other task successfully ended. Dependent tasks are executed by ``LongRunningTaskExecuteDependentProcessor``.
 
+#### Acc module
+
+##### Provisioning
+
+- After add, remove or update ``IdmContractGuaranteeDto`` is execute provisioning for identity that own this contract.
+
 ### Changed
 
 #### Core module
+
+##### Contracts
+
+- Service ``IdmContractGuaranteeService`` now implements EventableDtoService for method save and delete.
 
 ##### Contracts
 

@@ -37,7 +37,6 @@ import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
-import eu.bcvsolutions.idm.ic.connid.service.impl.ConnIdIcConfigurationService;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;

@@ -155,6 +155,22 @@ module.exports = {
       ]
     },
     {
+      path: '/identity/:identityId/identity-contract/:entityId',
+      component: require('czechidm-core/src/content/identity/contract/IdentityContract'),
+      childRoutes: [
+        {
+          path: 'accounts',
+          component: require('./src/content/contract/ContractAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTACCOUNT_READ'] } ]
+        },
+        {
+          path: 'provisioning',
+          component: require('./src/content/contract/ContractProvisioningOperations'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+        }
+      ]
+    },
+    {
       path: 'password-policies/',
       component: require('czechidm-core/src/content/passwordpolicy/PasswordPolicyRoutes'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],

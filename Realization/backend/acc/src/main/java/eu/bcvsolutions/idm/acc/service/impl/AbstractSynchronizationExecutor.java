@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -47,12 +46,12 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationSituationType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -149,7 +148,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private final FormService formService;
 	protected final EntityEventManager entityEventManager;
 	private final EntityManager entityManager;
-	protected AbstractLongRunningTaskExecutor<SysSyncConfigDto> longRunningTaskExecutor;
+	protected AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
@@ -219,12 +218,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	public SysSyncConfigDto process(UUID synchronizationConfigId) {
+	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
 
-		SysSyncConfigDto config = context.getConfig();
+		AbstractSysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
 		SysSystemDto system = context.getSystem();
 		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
@@ -321,7 +320,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		String uid = context.getUid();
 		IcConnectorObject icObject = context.getIcObject();
 		IcSyncDeltaTypeEnum type = context.getType();
-		SysSyncConfigDto config = context.getConfig();
+		AbstractSysSyncConfigDto config = context.getConfig();
 		SysSystemDto system = context.getSystem();
 		SystemEntityType entityType = context.getEntityType();
 		AccAccountDto account = context.getAccount();
@@ -421,7 +420,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			List<IcAttribute> icAttributes) {
 		Assert.notNull(context);
 
-		SysSyncConfigDto config = context.getConfig();
+		AbstractSysSyncConfigDto config = context.getConfig();
 		SysSyncItemLogDto logItem = context.getLogItem();
 
 		addToItemLog(logItem, "Account doesn't exist in IDM");
@@ -473,7 +472,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		String uid = itemContext.getUid();
 		IcConnectorObject icObject = itemContext.getIcObject();
-		SysSyncConfigDto config = itemContext.getConfig();
+		AbstractSysSyncConfigDto config = itemContext.getConfig();
 		SysSyncLogDto log = itemContext.getLog();
 		List<SysSyncActionLogDto> actionLogs = itemContext.getActionLogs();
 		AttributeMapping tokenAttribute = itemContext.getTokenAttribute();
@@ -543,7 +542,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected boolean startItemSynchronization(SynchronizationContext itemContext) {
 		String uid = itemContext.getUid();
-		SysSyncConfigDto config = itemContext.getConfig();
+		AbstractSysSyncConfigDto config = itemContext.getConfig();
 		SystemEntityType entityType = itemContext.getEntityType();
 		SysSyncLogDto log = itemContext.getLog();
 		SysSyncItemLogDto itemLog = itemContext.getLogItem();
@@ -614,7 +613,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param log
 	 * @param actionsLog
 	 */
-	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet, SysSyncConfigDto config,
+	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet, AbstractSysSyncConfigDto config,
 			SysSystemDto system, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
 		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -698,7 +697,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionsLog
 	 */
 	@Beta
-	protected void startExport(SystemEntityType entityType, SysSyncConfigDto config,
+	protected void startExport(SystemEntityType entityType, AbstractSysSyncConfigDto config,
 			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log,
 			List<SysSyncActionLogDto> actionsLog) {
 
@@ -736,7 +735,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected void exportEntity(SynchronizationContext itemBuilder, SysSystemAttributeMappingDto uidAttribute,
 			AbstractDto entity) {
 		SystemEntityType entityType = itemBuilder.getEntityType();
-		SysSyncConfigDto config = itemBuilder.getConfig();
+		AbstractSysSyncConfigDto config = itemBuilder.getConfig();
 		SysSyncLogDto log = itemBuilder.getLog();
 		List<SysSyncActionLogDto> actionsLog = itemBuilder.getActionLogs();
 		SysSystemDto system = itemBuilder.getSystem();
@@ -825,7 +824,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {
 
 		SynchronizationContext context = new SynchronizationContext();
-		SysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
 		//
 		if (config == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_NOT_FOUND,
@@ -892,7 +891,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param config
 	 * @return
 	 */
-	protected IcFilter resolveSynchronizationFilter(SysSyncConfigDto config) {
+	protected IcFilter resolveSynchronizationFilter(AbstractSysSyncConfigDto config) {
 		// If is reconciliation, then is filter null
 		if (config.isReconciliation()) {
 			return null;
@@ -1272,7 +1271,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
 			this.save(entity, true);
 			// Update extended attribute (entity must be persisted first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
 			// Update confidential attribute (entity must be persisted
 			// first)
 			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
@@ -1715,7 +1714,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		AccAccountDto account = context.getAccount();
 		String uid = context.getUid();
-		SysSyncConfigDto config = context.getConfig();
+		AbstractSysSyncConfigDto config = context.getConfig();
 
 		addToItemLog(logItem,
 				MessageFormat.format("Workflow for {0} situation was found. We will start it.", situation));
@@ -1985,7 +1984,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	public void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<SysSyncConfigDto> longRunningTaskExecutor) {
+	public void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor) {
 		this.longRunningTaskExecutor = longRunningTaskExecutor;
 	}
 
@@ -2061,7 +2060,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		@Override
 		public boolean handle(IcSyncDelta delta) {
 			SysSyncLogDto log = context.getLog();
-			SysSyncConfigDto config = context.getConfig();
+			AbstractSysSyncConfigDto config = context.getConfig();
 			SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
 			Assert.notNull(delta);

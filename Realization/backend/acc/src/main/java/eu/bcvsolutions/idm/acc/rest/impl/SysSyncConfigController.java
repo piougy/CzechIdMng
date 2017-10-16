@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
@@ -55,7 +55,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSyncConfigController
-		extends AbstractReadWriteDtoController<SysSyncConfigDto, SysSyncConfigFilter> {
+		extends AbstractReadWriteDtoController<AbstractSysSyncConfigDto, SysSyncConfigFilter> {
 
 	protected static final String TAG = "Synchronization - configurations";
 	//
@@ -144,7 +144,7 @@ public class SysSyncConfigController
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(@RequestBody @NotNull SysSyncConfigDto dto)
+	public ResponseEntity<?> post(@RequestBody @NotNull AbstractSysSyncConfigDto dto)
 			throws HttpMessageNotReadableException {
 		return super.post(dto);
 	}
@@ -167,7 +167,7 @@ public class SysSyncConfigController
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Config's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
-			@RequestBody @NotNull SysSyncConfigDto dto) throws HttpMessageNotReadableException {
+			@RequestBody @NotNull AbstractSysSyncConfigDto dto) throws HttpMessageNotReadableException {
 		return super.put(backendId, dto);
 	}
 

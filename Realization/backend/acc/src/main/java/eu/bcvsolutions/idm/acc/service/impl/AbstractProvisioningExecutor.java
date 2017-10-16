@@ -545,6 +545,10 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 				// TODO: now we set UID from SystemEntity, may be UID from
 				// AccAccount will be more correct
 				Object uidValue = getAttributeValue(uid, dto, attribute);
+				if (uidValue == null) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+							ImmutableMap.of("system", system.getName()));
+				}
 				if (!(uidValue instanceof String)) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
 							ImmutableMap.of("uid", uidValue, "system", system.getName()));

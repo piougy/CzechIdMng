@@ -85,9 +85,11 @@ public class DefaultSysProvisioningBreakConfigService extends
 		if (filter != null && filter.isIncludeGlobalConfig() && filter.getSystemId() != null && configs.getTotalElements() != MAX_CONFIGS_FOR_SYSTEM) {
 			List<SysProvisioningBreakConfigDto> configsList = addGlobalConfigs(configs.getContent(), filter.getSystemId());
 			//
-			PageRequest pageRequest = new PageRequest(pageable.getPageNumber(), configsList.size(), pageable.getSort());
-			Page<SysProvisioningBreakConfigDto> dtoPage = new PageImpl<>(configsList, pageRequest, configsList.size());
-			return dtoPage;
+			if (!configsList.isEmpty()) {
+				PageRequest pageRequest = new PageRequest(pageable.getPageNumber(), configsList.size(), pageable.getSort());
+				Page<SysProvisioningBreakConfigDto> dtoPage = new PageImpl<>(configsList, pageRequest, configsList.size());
+				return dtoPage;
+			}
 		}
 		//
 		return configs;

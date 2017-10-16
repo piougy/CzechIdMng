@@ -149,8 +149,25 @@
           "filterConfiguration": {
             "label": "Filter"
           },
+          "specificConfiguration": {
+            "label": "Specific settings"
+          },
           "logs": {
             "label": "Logs"
+          }
+        },
+        "contractConfigDetail":{
+          "defaultTreeType": {
+            "label": "Default type of structure",
+            "helpBlock": "Relations will be assigned (searched) for positions within the selected structure."
+          },
+          "defaultTreeNode": {
+            "label": "Default position in structure",
+            "helpBlock": "If the position for a given relation is not filled in the source system, then this will be used as the default."
+          },
+          "defaultLeader": {
+            "label": "Default leader",
+            "helpBlock": "If the none leader for a given relation is filled in the source system, then this will be used as the default."
           }
         }
       },
@@ -380,6 +397,27 @@
       }
     },
     "identity": {
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifier",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
+    "contract": {
       "accounts": {
         "header": "Accounts in system",
         "title": "Accounts",
@@ -1225,6 +1263,10 @@
     "ROLE_SYSTEM_ALREADY_EXISTS": {
       "title": "Duplicate mapping",
       "message": "Mapping for same role [{{role}}] and same system [{{system}}] already exists!"
+    },
+    "SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED": {
+      "title": "Type of sync configuration, cannot be changed!",
+      "message": "Type of sync configuration, cannot be changed!"
     },
     "PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE": {
       "title": "Configuration could not be deleted",

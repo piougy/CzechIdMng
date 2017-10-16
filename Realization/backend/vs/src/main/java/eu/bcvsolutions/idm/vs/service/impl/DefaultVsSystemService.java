@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.vs.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 

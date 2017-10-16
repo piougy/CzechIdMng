@@ -32,6 +32,7 @@ public enum SystemEntityType {
 		return entityType;
 	}
 	
+
 	public static SystemEntityType getByClass(Class<? extends AbstractDto> clazz) {
 		for(SystemEntityType systemEntityType : SystemEntityType.values()){
 			if(systemEntityType.getEntityType().equals(clazz)){

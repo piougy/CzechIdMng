@@ -5,13 +5,9 @@
 The process starts for every identity contract, which is newly not valid at the moment (meaning it was valid in the last
 run of the task, but now it's not). If the processed contract was the last valid contract of the identity, the identity is disabled.
 
-Additionally all manually added roles, which were assigned to the ended contract, are removed by the process.
-Automatic roles (inherited from the organization structure) are removed automatically by an internal
-feature of CzechIdM.
+Additionally all added roles, which were assigned to the ended contract, are removed by the process.
 
 Input:
-    longRunningTaskId - UUID
-    scheduledTaskId - UUID
     dto - IdmIdentityContractDto
     </documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
@@ -32,19 +28,16 @@ Input:
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
 Logger LOG = LoggerFactory.getLogger("hrEndContract")
 
-LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+LOG.info("End contract dto: [{}]", dto)
 
-if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!")
-}
-
-if (dto.isValid()) {
-	throw new IllegalArgumentException("Contract must not be valid!")
 }
 
 def result = null
@@ -52,7 +45,7 @@ try {
 	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
 	def hasValidContracts = false
 	for (c in contracts) {
-		if (!c.isDisabled() &amp;&amp; c.isValid()) {
+		if (c.getState() != ContractState.EXCLUDED &amp;&amp; c.isValid()) {
 			hasValidContracts = true
 			break
 		}
@@ -62,6 +55,7 @@ try {
 		// disable identity
 		def identity = identityService.get(dto.getIdentity())
 		if (!identity.isDisabled()) {
+		    println "menim!"
 			identity.setDisabled(true)
 			identityService.save(identity)
 		}
@@ -70,9 +64,7 @@ try {
 	// remove manually added roles
 	def contractRoles = identityRoleService.findAllByContract(dto.getId())
 	for (role in contractRoles) {
-		if (!role.isAutomaticRole()) {
-			identityRoleService.delete(role, null)
-		}
+		identityRoleService.delete(role, null)
 	}
 	//
 	result = new OperationResult.Builder(OperationState.EXECUTED).build()

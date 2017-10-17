@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -193,7 +194,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		}).findFirst().get();
 
 		// Create default synchronization config
-		SysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
+		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setSystemMapping(mapping.getId());
 		syncConfigCustom.setCorrelationAttribute(nameAttribute.getId());
@@ -217,10 +218,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncA_MissingEntity() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -256,12 +257,12 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		this.getBean().changeResourceData();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -320,12 +321,12 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate_Filtered() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		this.getBean().changeResourceData();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
@@ -388,12 +389,12 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate_Filtered_Custom() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		this.getBean().changeResourceData();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -446,13 +447,13 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate_WrongEmail() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		// Set wrong email to resource
 		this.getBean().changeResourceDataWrongEmail();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -498,10 +499,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doUnLinked() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -560,10 +561,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncC_Unlinked_doLink() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -629,10 +630,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -711,10 +712,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncD_Missing_Account_doCreateAccount() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Create new identity THREE, with account
@@ -787,10 +788,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncD_Missing_Account_doDeleteEntity() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Delete all accounts in resource
@@ -848,10 +849,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncE_StrategyCreate() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Delete all accounts in resource
@@ -972,10 +973,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncE_StrategyWriteIfNull() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		// Find email attribute and change strategy on WRITE_IF_NULL
@@ -1062,10 +1063,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncE_StrategyWriteIfNull_EAV() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		// Find email attribute and change strategy on WRITE_IF_NULL
@@ -1164,7 +1165,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// call unlink
 		this.doStartSyncB_Linked_doUnLinked();
 		//
-		SysSyncConfigDto syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
+		AbstractSysSyncConfigDto syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
 
 		// Check state before sync
 		IdmIdentityDto identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
@@ -1218,7 +1219,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// call unlink
 		this.doStartSyncB_Linked_doUnLinked();
 		//
-		SysSyncConfigDto syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
+		AbstractSysSyncConfigDto syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
 		// Check state before sync
@@ -1284,10 +1285,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		SysSyncLogDto log = new SysSyncLogDto();
 		log.setSynchronizationConfig(syncConfigCustom.getId());
@@ -1301,13 +1302,13 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	
-	private SysSyncConfigDto setSyncConfigForEav(String configName) {
+	private AbstractSysSyncConfigDto setSyncConfigForEav(String configName) {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(configName);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());

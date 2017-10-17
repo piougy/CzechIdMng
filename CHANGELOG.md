@@ -1,6 +1,51 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [7.5.0] unreleased
+
+### Added
+
+#### Core module
+
+##### Scheduler
+
+- Added ``DependentTaskTrigger`` - execute task, when other task successfully ended. Dependent tasks are executed by ``LongRunningTaskExecuteDependentProcessor``.
+
+#### Acc module
+
+##### Provisioning
+
+- After add, remove or update ``IdmContractGuaranteeDto`` is execute provisioning for identity that own this contract.
+
+### Changed
+
+#### Core module
+
+##### Contracts
+
+- Service ``IdmContractGuaranteeService`` now implements EventableDtoService for method save and delete.
+
+##### Contracts
+
+- Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``ECXLUDED`` - change script is provided. Contract with state ``DISABLED`` is invalid now - all processed work with this state (automatic roles, end of contract process).
+- Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
+  - ``IdentityContractCreateByAutomaticRoleProcessor``
+  - ``IdentityContractDeleteProcessor``
+  - ``IdentityContractSaveProcessor``
+  - ``IdentityContractUpdateByAutomaticRoleProcessor``
+- Business logic from HR long running tasks (LRT) for HR processes was moved into processors. Enable / disable identity with no valid or excluded contracts is executed immediately after contract is changed. HR processors are using almost the same workflow as LRT (LRT variables were removed only), but its configurable now. Long running task were removed and will be unscheduled automatically after new version will be installed:
+  - ``AbstractWorkflowEventProcessor``
+  - ``HrContractExclusionProcess``
+  - ``HrEnableContractProcess``
+  - ``HrEndContractProcess``
+
+### Removed
+
+#### Core module
+
+##### Contracts
+
+- ``IdmIdentityContractRepository#deleteByIdentity`` was removed. It was skipping audit (bug).
 
 ## [7.4.0]
 

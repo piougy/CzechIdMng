@@ -47,16 +47,19 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
-			+ " (e.disabled = false)"
+			+ " (e.state is null or e.state != eu.bcvsolutions.idm.core.api.domain.ContractState.DISABLED)"
 			+ " and"
 			+ " (:identityId is null or e.identity.id = :identityId)"
 			+ " and"
 			+ "  (:onlyExterne is null or e.externe = :onlyExterne)"
 			+ " and"
-			+ " ( e.validTill is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validTill >= :date ))"
+			+ " ( e.validTill is null or (?#{[1] == null ? 'null' : ''} = 'null' or e.validTill >= :date ))"
 			+ " and"
-			+ " ( e.validFrom is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validFrom <= :date ))")
-	List<IdmIdentityContract> findAllValidContracts(@Param("identityId") UUID identityId, @Param("date") LocalDate date, @Param("onlyExterne") Boolean onlyExterne);
+			+ " ( e.validFrom is null or (?#{[1] == null ? 'null' : ''} = 'null' or e.validFrom <= :date ))")
+	List<IdmIdentityContract> findAllValidContracts(
+			@Param("identityId") UUID identityId, 
+			@Param("date") LocalDate date, 
+			@Param("onlyExterne") Boolean onlyExterne);
 	
 	/**
 	 * @deprecated use {@link #countByWorkPosition_Id(UUID)}
@@ -73,14 +76,6 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
 	
 	Long countByWorkPosition_TreeType_Id(UUID treeTypeId);
-
-	/**
-	 * Removes all contracts of given identity
-	 * 
-	 * @param identity
-	 * @return
-	 */
-	int deleteByIdentity(@Param("identity") IdmIdentity identity);
 	
 	/**
 	 * Returns expired contracts. Its useful to find enabled contracts only.

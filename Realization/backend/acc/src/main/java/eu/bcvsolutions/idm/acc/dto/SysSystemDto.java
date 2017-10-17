@@ -39,6 +39,7 @@ public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 	private UUID passwordPolicyGenerate;
 	private SysConnectorKeyDto connectorKey;
 	private SysConnectorServerDto connectorServer;
+	private SysBlockedOperationDto blockedOperation;
 
 	public String getName() {
 		return name;
@@ -145,5 +146,13 @@ public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 	@JsonIgnore
 	public IcConnectorInstance getConnectorInstance() {
 		return new IcConnectorInstanceImpl(this.getConnectorServer(), this.getConnectorKey(), this.isRemote());
+	}
+
+	public SysBlockedOperationDto getBlockedOperation() {
+		return blockedOperation;
+	}
+
+	public void setBlockedOperation(SysBlockedOperationDto blockedOperation) {
+		this.blockedOperation = blockedOperation;
 	}
 }

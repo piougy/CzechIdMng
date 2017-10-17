@@ -7,6 +7,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -41,6 +43,7 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 		@Index(name = "idx_sys_s_config_token", columnList = "token_attribute_id"),
 		@Index(name = "idx_sys_s_config_filter", columnList = "filter_attribute_id")
 		})
+@Inheritance(strategy = InheritanceType.JOINED)
 public class SysSyncConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;

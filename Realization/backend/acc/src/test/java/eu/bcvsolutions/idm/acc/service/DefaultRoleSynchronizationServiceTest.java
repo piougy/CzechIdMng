@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -40,8 +41,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
@@ -160,7 +161,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 
 		// Create default synchronization config
-		SysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
+		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
 		syncConfigCustom.setReconciliation(false);
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setSystemMapping(mapping.getId());
@@ -183,10 +184,10 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void doStartSyncA_MissingEntity() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -240,13 +241,13 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void doStartSyncB_Linked_doEntityUpdate() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		//Change node code to changed
 		this.getBean().changeOne();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -299,13 +300,13 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void doStartSyncB_MissingAccount_DeleteEntity() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		//Remove node code to changed
 		this.getBean().removeOne();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -361,10 +362,10 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void doStartSyncC_filterByToken() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
@@ -558,10 +559,10 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 		
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 	
 		SysSystemMappingDto systemMappingSync = systemMappingService.get(syncConfigCustom.getSystemMapping());
 		

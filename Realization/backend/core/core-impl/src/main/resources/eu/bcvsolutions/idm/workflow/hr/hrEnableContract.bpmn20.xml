@@ -8,8 +8,6 @@ last run of the task). If the identity, which is the owner of the contract, was 
 This process does not address the assignment of automatic roles, as it is done by an internal feature automatically.
 
 Input:
-    longRunningTaskId - UUID
-    scheduledTaskId - UUID
     dto - IdmIdentityContractDto</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
@@ -28,21 +26,22 @@ Input:
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
 Logger LOG = LoggerFactory.getLogger("hrEnableContract")
 
-LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+LOG.info("Enabled contract dto: [{}]", dto)
 
-if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!")
 }
 
 def result = null
 try {
 	// only valid contracts and enabled contracts
-	if (dto.isValid() &amp;&amp; !dto.isDisabled()) {
+	if (dto.isValid() &amp;&amp; dto.getState() != ContractState.EXCLUDED) {
 		def identity = identityService.get(dto.getIdentity())
 		if (identity.isDisabled()) {
 			identity.setDisabled(false)

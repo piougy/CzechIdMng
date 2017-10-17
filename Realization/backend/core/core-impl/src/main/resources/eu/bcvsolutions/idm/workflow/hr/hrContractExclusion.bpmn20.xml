@@ -14,8 +14,6 @@ The process starts for all identity contracts that are disabled. If the processe
 contract of the identity, the identity is disabled. No roles are removed neither by the process nor by standard CzechIdM features.
 
 Input:
-    longRunningTaskId - UUID
-    scheduledTaskId - UUID
     dto - IdmIdentityContractDto</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
@@ -34,14 +32,15 @@ Input:
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
 Logger LOG = LoggerFactory.getLogger("hrContractExclusion")
 
-LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+LOG.info("Exculded contract dto: [{}]", dto)
 
-if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!");
 }
 
@@ -50,7 +49,7 @@ try {
 	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
 	def hasValidContracts = false
 	for (c in contracts) {
-		if (!c.isDisabled() &amp;&amp; c.isValid()) {
+		if (c.getState() != ContractState.EXCLUDED &amp;&amp; c.isValid()) {
 			hasValidContracts = true
 			break
 		}

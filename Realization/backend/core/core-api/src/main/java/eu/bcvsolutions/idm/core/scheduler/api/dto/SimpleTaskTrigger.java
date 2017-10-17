@@ -10,6 +10,8 @@ import org.quartz.SimpleTrigger;
  */
 public class SimpleTaskTrigger extends AbstractTaskTrigger {
 
+	private static final long serialVersionUID = 1L;
+	
 	@NotNull
 	private DateTime fireTime;
 	

@@ -113,6 +113,25 @@ export default class EntityUtils {
   }
 
   /**
+   * Returns true, if entity is valid in future, but not now.
+   *
+   * @param  {object} entity
+   * @return {Boolean}
+   */
+  static isValidInFuture(entity) {
+    if (!entity) {
+      return false;
+    }
+    // entity does not support validable
+    if ((entity.validFrom === undefined || entity.validFrom === null)
+        && (entity.validTill === undefined || entity.validTill === null)) {
+      return false;
+    }
+    return ((entity.validFrom !== null && moment().startOf('day').isBefore(moment(entity.validFrom).startOf('day')))
+        && (entity.validTill === null || moment().startOf('day').isSameOrBefore(moment(entity.validTill).startOf('day'))));
+  }
+
+  /**
    * Returns true, if entity does not contain id (respectively entity._links.self)
    *
    * @param  {object}  entity

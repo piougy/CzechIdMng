@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Svanda
  */
 @Relation(collectionRelation = "identityContracts")
-public class IdmIdentityContractDto extends AbstractDto implements Disableable, ValidableEntity {
+public class IdmIdentityContractDto extends AbstractDto implements ValidableEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,11 +23,10 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
     private UUID identity;
     private LocalDate validFrom;
     private LocalDate validTill;
-    @Embedded(dtoClass = IdmIdentityDto.class)
-    private UUID guarantee;
     private String position;
     private boolean externe;
     private boolean disabled;
+	private ContractState state;
     private boolean main;
     @Embedded(dtoClass = IdmTreeNodeDto.class)
     private UUID workPosition;
@@ -66,14 +65,6 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
         this.validTill = validTill;
     }
 
-    public UUID getGuarantee() {
-        return guarantee;
-    }
-
-    public void setGuarantee(UUID guarantee) {
-        this.guarantee = guarantee;
-    }
-
     public String getPosition() {
         return position;
     }
@@ -89,13 +80,9 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
     public void setExterne(boolean externe) {
         this.externe = externe;
     }
-
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-    }
-
+    
     public boolean isDisabled() {
-        return disabled;
+        return state == null ? disabled : state.isDisabled();
     }
 
     public void setMain(boolean main) {
@@ -121,4 +108,23 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
     public String getDescription() {
         return description;
     }
+    
+    public void setState(ContractState state) {
+		this.state = state;
+	}
+    
+    public ContractState getState() {
+		return state;
+	}
+    
+    @Override
+    public boolean isValid(LocalDate targetDate) {
+    	return ValidableEntity.super.isValid(targetDate) && !isDisabled();
+    }
+    
+    @Override
+    public boolean isValidNowOrInFuture() {
+    	return ValidableEntity.super.isValidNowOrInFuture() && !isDisabled();
+    }
+    
 }

@@ -173,6 +173,20 @@
     "save": {
       "success_0": "N/A",
       "success": "Record [{{record}}] successfully saved"
+    },
+    "cancel": {
+      "action": "Cancel",
+      "header": "Cancel record",
+      "header_plural": "Cancel records",
+      "message": "Do you want to cancel selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to cancel <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while canceling [{{record}}].",
+      "success": "Selected record [{{record}}] successfully canceled",
+      "success_plural": "Selected records [{{records}}] were successfully canceled",
+      "approve": "Record cancel [{{record}}] has to be approved, task successfully created",
+      "approve_plural": "Records cancel [{{records}}] have to be approved, tasks successfully created",
+      "accepted": "Record cancel [{{record}}] run asynchronously (cancel has to be approved or run as long running task)",
+      "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
     }
   },
   "environment": {
@@ -499,11 +513,13 @@
       "EXECUTED": "Executed",
       "EXCEPTION": "Failed",
       "NOT_EXECUTED": "Not executed",
-      "CANCELED": "Canceled"
+      "CANCELED": "Canceled",
+      "BLOCKED": "Blocked"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
-      "CRON": "Cron"
+      "CRON": "Cron",
+      "DEPENDENT": "Other task"
     },
     "RolePriorityEnum": {
       "NONE": "None (0)",
@@ -536,6 +552,10 @@
     "ScriptAuthorityTypeEnum": {
       "CLASS_NAME": "Class",
       "SERVICE": "Service"
+    },
+    "ContractStateEnum": {
+      "EXCLUDED": "Excluded",
+      "DISABLED": "$t(label.disabled)"
     }
   },
   "dashboard": {
@@ -1753,8 +1773,8 @@
         "action": {
           "trigger-delete": {
             "header": "Remove scheduled run",
-            "message": "Do you really want to remove scheduled run [<strong>{{record}}</strong>]?",
-            "success": "Scheduled run [{{record}}] was removed."
+            "message": "Do you really want to remove scheduled run?",
+            "success": "Scheduled run was removed."
           },
           "trigger-create": {
             "header": "New scheduled run",
@@ -2278,12 +2298,16 @@
       },
       "disabled": {
         "label": "Inactive",
-        "help": "Inactive work position. Roles cannot be assigned to inactive position."
+        "help": "Inactive work position. Roles cannot be assigned to inactive position. Depends on position's state."
       },
       "description": "Note",
       "main": {
         "label": "Main position",
         "help": "Main / prime work position. It's created automatically when the user is created."
+      },
+      "state": {
+        "label": "Stav",
+        "help": "Contract's state"
       }
     },
     "TreeNode": {
@@ -2587,7 +2611,8 @@
         "label": "Parameters"
       }
     },
-    "ScheduleTask": {
+    "SchedulerTask": {
+      "_type": "Scheduled task",
       "id": "Identificator",
       "taskType": "Task type",
       "instanceId": {
@@ -2609,7 +2634,16 @@
             "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
             "text": "expression"
           }
+        },
+        "dependent": {
+          "initiatorTaskId": {
+            "label": "Other task",
+            "help": "Triggered, when other scheduled task successful end."
+          }
         }
+      },
+      "parameters": {
+        "label": "Parameters"
       }
     },
     "RoleRequest": {

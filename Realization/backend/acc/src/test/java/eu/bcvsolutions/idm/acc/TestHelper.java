@@ -2,12 +2,15 @@ package eu.bcvsolutions.idm.acc;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
@@ -111,4 +114,14 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	SysSystemEntityDto createSystemEntity(SysSystemDto system);
+	
+	/**
+	 * Create {@link AccAccountDto} and {@link AccIdentityAccountDto} for given
+	 * system and identity.
+	 * 
+	 * @param system
+	 * @param identity
+	 * @return
+	 */
+	AccIdentityAccountDto createIdentityAccount(SysSystemDto system, IdmIdentityDto identity);
 }

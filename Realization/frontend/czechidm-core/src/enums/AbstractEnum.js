@@ -18,14 +18,14 @@ export default class AbstractEnum {
   /**
    * Returns level decorator (Label)
    */
-  static getLevel() {
+  static getLevel(/* key*/) {
     return null;
   }
 
   /**
    * Returns icon
    */
-  static getIcon() {
+  static getIcon(/* key*/) {
     return null;
   }
 
@@ -53,5 +53,15 @@ export default class AbstractEnum {
         }
       }
     }
+  }
+
+  /**
+   * Returns true, when key is disabled
+   *
+   * @return {Boolean}
+   */
+  static isDisabled(/* key*/) {
+    // enabled by default
+    return false;
   }
 }

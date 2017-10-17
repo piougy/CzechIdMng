@@ -9,6 +9,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -236,6 +237,11 @@ public class EntityUtils {
 		Class<?> parameterClass = propertyDescriptor.getWriteMethod().getParameterTypes()[0];
 		if (value != null && String.class.equals(parameterClass) && !(value instanceof String)) {
 			value = String.valueOf(value);
+		}
+		if (value != null && !parameterClass.isAssignableFrom(value.getClass()) && !(value.getClass().isPrimitive() || parameterClass.isPrimitive())) {
+			throw new IllegalAccessException(
+					MessageFormat.format("Wrong type of value [{0}]. Value must be instance of [{1}] type, but has type [{2}]!",
+							value, parameterClass, value.getClass()));
 		}
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);
 	}

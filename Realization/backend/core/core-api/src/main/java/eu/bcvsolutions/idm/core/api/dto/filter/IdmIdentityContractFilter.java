@@ -6,6 +6,7 @@ import org.joda.time.LocalDate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
@@ -24,6 +25,7 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	private Boolean valid;
 	private Boolean main;
 	private Boolean validNowOrInFuture;
+	private ContractState state;
 	/**
 	 * Little dynamic search by role property and value
 	 */
@@ -100,6 +102,14 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	
 	public Boolean getValidNowOrInFuture() {
 		return validNowOrInFuture;
+	}
+	
+	public void setState(ContractState state) {
+		this.state = state;
+	}
+	
+	public ContractState getState() {
+		return state;
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmContractGuaranteeService extends 
-		ReadWriteDtoService<IdmContractGuaranteeDto, IdmContractGuaranteeFilter>,
+		EventableDtoService<IdmContractGuaranteeDto, IdmContractGuaranteeFilter>,
 		AuthorizableService<IdmContractGuaranteeDto> {
 
 }

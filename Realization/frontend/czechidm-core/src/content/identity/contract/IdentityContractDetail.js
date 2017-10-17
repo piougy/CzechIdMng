@@ -8,6 +8,7 @@ import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { IdentityContractManager, IdentityManager, TreeNodeManager, TreeTypeManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
+import ContractStateEnum from '../../../enums/ContractStateEnum';
 
 const identityContractManager = new IdentityContractManager();
 
@@ -135,6 +136,10 @@ class IdentityContractDetail extends Basic.AbstractContent {
     });
   }
 
+  onChangeState(state) {
+    this.refs.disabled.setValue(state ? ContractStateEnum.isContractDisabled(state.value) : null);
+  }
+
   render() {
     const { uiKey, entity, showLoading, params, _permissions } = this.props;
     const { _showLoading, forceSearchParameters, treeTypeId, entityFormData } = this.state;
@@ -178,12 +183,12 @@ class IdentityContractDetail extends Basic.AbstractContent {
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validFrom"
-                  label={this.i18n('label.validFrom')}/>
+                  label={ this.i18n('label.validFrom') }/>
 
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validTill"
-                  label={this.i18n('label.validTill')}/>
+                  label={ this.i18n('label.validTill') }/>
 
                 <Basic.Checkbox
                   ref="main"
@@ -194,10 +199,19 @@ class IdentityContractDetail extends Basic.AbstractContent {
                   ref="externe"
                   label={this.i18n('entity.IdentityContract.externe')}/>
 
+                <Basic.EnumSelectBox
+                  ref="state"
+                  enum={ ContractStateEnum }
+                  useSymbol={ false }
+                  label={ this.i18n('entity.IdentityContract.state.label') }
+                  helpBlock={ this.i18n('entity.IdentityContract.state.help') }
+                  onChange={ this.onChangeState.bind(this) }/>
+
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.IdentityContract.disabled.label')}
-                  helpBlock={this.i18n('entity.IdentityContract.disabled.help')}/>
+                  helpBlock={this.i18n('entity.IdentityContract.disabled.help')}
+                  readOnly />
 
                 <Basic.TextArea
                   ref="description"

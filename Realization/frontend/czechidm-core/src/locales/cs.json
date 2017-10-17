@@ -193,6 +193,22 @@
     "save": {
       "success_0": "N/A",
       "success_1": "Záznam [{{record}}] byl úspěšně uložen"
+    },
+    "cancel": {
+      "action": "Zrušit",
+      "header_0": "N/A",
+      "header_1": "Zrušit záznam",
+      "header_2": "Zrušit záznamy",
+      "header_5": "$t(action.cancel.header_2)",
+      "message_0": "N/A",
+      "message_1": "Opravdu chcete zrušit vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zrušit <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zrušit <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při rušení záznamu [{{record}}] nastala chyba",
+      "success_0": "N/A",
+      "success_1": "Vybraný záznam [{{record}}] byl úspěšně zrušen",
+      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny"
     }
   },
   "environment": {
@@ -520,11 +536,13 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
+    	"CANCELED": "Zrušeno",
+      "BLOCKED": "Blokováno"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
-      "CRON": "Cron"
+      "CRON": "Cron",
+      "DEPENDENT": "Jiná úloha"
     },
     "RolePriorityEnum": {
       "NONE": "Žádná (0)",
@@ -557,6 +575,10 @@
     "ScriptAuthorityTypeEnum": {
       "CLASS_NAME": "Třída",
       "SERVICE": "Služba"
+    },
+    "ContractStateEnum": {
+      "EXCLUDED": "Vyňat z evidenčního počtu",
+      "DISABLED": "$t(label.disabled)"
     }
   },
   "dashboard": {
@@ -1789,8 +1811,8 @@
         "action": {
           "trigger-delete": {
             "header": "Odebrat plánované spuštění",
-            "message": "Opravdu chcete odebrat plánované spuštění [<strong>{{record}}</strong>]?",
-            "success": "Plánované spuštění [{{record}}] bylo úspěšně odebráno."
+            "message": "Opravdu chcete odebrat plánované spuštění?",
+            "success": "Plánované spuštění bylo úspěšně odebráno."
           },
           "trigger-create": {
             "header": "Nové plánované spuštění",
@@ -2314,12 +2336,16 @@
       },
       "disabled": {
         "label": "Neaktivní",
-        "help": "Pozice je neplatná, nelze na ni vázat žádné role."
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Aktivita pozice se řídí stavem."
       },
       "description": "Popis",
       "main": {
         "label": "Hlavní pozice",
         "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
+      },
+      "state": {
+        "label": "Stav",
+        "help": "Stav pracovní pozice."
       }
     },
     "TreeNode": {
@@ -2623,7 +2649,8 @@
         "label": "Parametry úlohy"
       }
     },
-    "ScheduleTask": {
+    "SchedulerTask": {
+      "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
       "taskType": "Typ úlohy",
       "instanceId": {
@@ -2645,7 +2672,16 @@
             "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
             "text": "výraz"
           }
+        },
+        "dependent": {
+          "initiatorTaskId": {
+            "label": "Jiná úloha",
+            "help": "Spuštení na základě úspěšného dokončení vybrané naplánované úlohy"
+          }
         }
+      },
+      "parameters": {
+        "label": "Parametry"
       }
     },
     "RoleRequest": {

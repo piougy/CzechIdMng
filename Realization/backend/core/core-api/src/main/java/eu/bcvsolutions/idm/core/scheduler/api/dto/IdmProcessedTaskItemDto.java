@@ -2,15 +2,25 @@ package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
-@SuppressWarnings("serial")
+/**
+ * LRT item - contains processed item state.
+ * 
+ * @author Jan Helbich
+ *
+ */
+@Relation(collectionRelation = "processedTaskItems")
 public class IdmProcessedTaskItemDto extends AbstractDto {
 
+	private static final long serialVersionUID = 1L;
+	//
 	@JsonDeserialize(as = UUID.class)
 	private UUID referencedEntityId;
 	private String referencedDtoType;

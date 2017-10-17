@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -23,7 +24,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 @Component
 @Description("Validates identity's password before identity is created.")
-public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public class IdentityCreatePasswordValidateProcessor
+		extends CoreEventProcessor<IdmIdentityDto> 
+		implements IdentityProcessor {
 	
 	public static final String PROCESSOR_NAME = "identity-create-validate-password-processor";
 	private final IdmPasswordPolicyService passwordPolicyService;

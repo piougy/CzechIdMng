@@ -1,11 +1,10 @@
-package eu.bcvsolutions.idm.acc.service;
+package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,7 +45,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
+import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -58,20 +58,19 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
-import eu.bcvsolutions.idm.core.api.domain.RoleType;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
+import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 
 /**
- * Role synchronization and provisioning tests
+ * Tree synchronization tests
  * 
  * @author Svanda
  *
@@ -79,14 +78,14 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Rollback(false)
 @Service
-public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTest {
+public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTest {
 
-	private static final String SYNC_CONFIG_NAME = "syncConfigNameRole";
-	private static final String SYSTEM_NAME = "systemRole";
+	private static final String SYNC_CONFIG_NAME = "syncConfigName";
+	private static final String SYSTEM_NAME = "systemTreeName";
+	private static final String TREE_TYPE_TEST = "TREE_TEST";
+	private static final String NODE_NAME = "name";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
-	private static final String ROLE_NAME_TEN = "roleName10";
-	private static final String DATE_TABLE_CONNECTOR_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
 	@Autowired
 	private TestHelper helper;
@@ -98,8 +97,6 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private SysSystemMappingService systemMappingService;
 	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
-	@Autowired
-	private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
@@ -115,9 +112,13 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private ApplicationContext applicationContext;
 	@Autowired
-	private IdmRoleService roleService;
+	private IdmTreeTypeService treeTypeService;
+	@Autowired
+	private IdmTreeNodeService treeNodeService;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
 
 	private SysSystemDto system;
 	private SynchronizationService synchornizationService;
@@ -135,12 +136,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 	@Test
 	@Transactional
-	public void doCreateSyncConfig() {
-		
+	public void doCreateSyncConfig() {		
 		initData();
 
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
-		mappingFilter.setEntityType(SystemEntityType.ROLE);
+		mappingFilter.setEntityType(SystemEntityType.TREE);
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
@@ -153,20 +153,16 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 				.getContent();
 		SysSystemAttributeMappingDto uidAttribute = attributes.stream().filter(attribute -> {
 			return attribute.isUid();
-		}).findFirst().orElse(null);
-		
-		SysSystemAttributeMappingDto tokenAttribute = attributes.stream().filter(attribute -> {
-			return "changed".equals(attribute.getIdmPropertyName());
-		}).findFirst().orElse(null);
+		}).findFirst().get();
 
 
 		// Create default synchronization config
 		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
-		syncConfigCustom.setReconciliation(false);
+		syncConfigCustom.setReconciliation(true);
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setSystemMapping(mapping.getId());
 		syncConfigCustom.setCorrelationAttribute(uidAttribute.getId());
-		syncConfigCustom.setTokenAttribute(tokenAttribute.getId());
+		syncConfigCustom.setReconciliation(true);
 		syncConfigCustom.setName(SYNC_CONFIG_NAME);
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
@@ -213,25 +209,13 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
 		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(5, items.size());
+		Assert.assertEquals(6, items.size());
 		
-		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
-		roleFilter.setValue("1");
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+			return tree.getName().equals(TREE_TYPE_TEST);
+		}).findFirst().get();
 		
-		Assert.assertEquals(1, roleService.find(roleFilter, null).getTotalElements());
-		
-		roleFilter.setValue("2");
-		Assert.assertEquals(1, roleService.find(roleFilter, null).getTotalElements());
-		
-		roleFilter.setValue("3");
-		Assert.assertEquals(1, roleService.find(roleFilter, null).getTotalElements());
-		
-		roleFilter.setValue("4");
-		Assert.assertEquals(1, roleService.find(roleFilter, null).getTotalElements());
-		
-		roleFilter.setValue("5");
-		Assert.assertEquals(1, roleService.find(roleFilter, null).getTotalElements());
+		Assert.assertEquals(1, treeNodeService.findRoots(treeType.getId(), null).getContent().size());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -258,10 +242,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
-		roleFilter.setValue("1");
-		Assert.assertEquals("1", roleService.find(roleFilter, null).getContent().get(0).getDescription());
+		IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
+		nodeFilter.setProperty(NODE_NAME);
+		nodeFilter.setValue("111");
+		IdmTreeNodeDto treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
+		Assert.assertEquals("111", treeNode.getCode());
 
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
 		synchornizationService.process();
@@ -286,10 +271,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
 		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(5, items.size());
+		Assert.assertEquals(6, items.size());
 
 		// Check state after sync
-		Assert.assertEquals(CHANGED, roleService.find(roleFilter, null).getContent().get(0).getDescription());
+		treeNode = treeNodeService.get(treeNode.getId());
+		Assert.assertEquals(CHANGED, treeNode.getCode());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -314,15 +300,14 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
 		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.DELETE_ENTITY);
-		syncConfigCustom.setReconciliation(true);
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
-		roleFilter.setValue("1");
-		IdmRoleDto roleOne = roleService.find(roleFilter, null).getContent().get(0);
-		Assert.assertNotNull(roleOne);
+		IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
+		nodeFilter.setProperty(NODE_NAME);
+		nodeFilter.setValue("111");
+		IdmTreeNodeDto treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
+		Assert.assertNotNull(treeNode.getCode());
 		
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
 		synchornizationService.process();
@@ -338,7 +323,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
 		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
-		Assert.assertEquals(2, actions.size());
+		Assert.assertEquals(3, actions.size());
 
 		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.DELETE_ENTITY == action.getSyncAction();
@@ -350,8 +335,8 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync
-		roleOne = roleService.get(roleOne.getId());
-		Assert.assertNull(roleOne);
+		treeNode = treeNodeService.get(treeNode.getId());
+		Assert.assertNull(treeNode);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -359,7 +344,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 	
 	@Test
-	public void doStartSyncC_filterByToken() {
+	public void doStartSyncC_MissingEntity() {
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
 		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
@@ -367,24 +352,15 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertEquals(1, syncConfigs.size());
 		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
-		
-		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
-		roleFilter.setValue("3");
-		IdmRoleDto roleThree = roleService.find(roleFilter, null).getContent().get(0);
-		Assert.assertNotNull(roleThree);
-		IdmFormValueDto changedRole = (IdmFormValueDto) formService.getValues(roleThree.getId(), IdmRole.class, "changed").get(0);
-		Assert.assertNotNull(changedRole);
-
+		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"PARENT\").getValue();"
+				+ " def uidValue = account.getAttributeByName(\"__NAME__\").getValue();"
+				+ " if(parentValue != null && parentValue.equals(uidValue)){"
+				+ "	 account.getAttributeByName(\"PARENT\").setValues(null); return Boolean.TRUE;}}"
+				+ " \nreturn Boolean.FALSE;");
 		// Set sync config
-		syncConfigCustom.setReconciliation(false);
-		syncConfigCustom.setCustomFilter(true);
-		syncConfigCustom.setFilterOperation(IcFilterOperationType.GREATER_THAN);
-		syncConfigCustom.setFilterAttribute(syncConfigCustom.getTokenAttribute());
-		syncConfigCustom.setToken(changedRole.getStringValue());
-		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
-		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 		syncConfigService.save(syncConfigCustom);
 		//
@@ -402,27 +378,23 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
 		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
-		Assert.assertEquals(1, actions.size());
+		Assert.assertEquals(2, actions.size());
 
 		SysSyncActionLogDto createEntityActionLog = actions.stream().filter(action -> {
-			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
+			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
 		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(2, items.size());
-	
-		SysSyncItemLogDto item = items.stream().filter(logitem -> {
-			return "4".equals(logitem.getIdentification());
-		}).findFirst().orElse(null);
-		Assert.assertNotNull("Log for role 4 must exist!", item);
+		Assert.assertEquals(6, items.size());
 		
-		item = items.stream().filter(logitem -> {
-			return "5".equals(logitem.getIdentification());
-		}).findFirst().orElse(null);
-		Assert.assertNotNull("Log for role 5 must exist!", item);
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+			return tree.getName().equals(TREE_TYPE_TEST);
+		}).findFirst().get();
 		
+		Assert.assertEquals(2, treeNodeService.findRoots(treeType.getId(), null).getContent().size());
+
 		// Delete log
 		syncLogService.delete(log);
 	}
@@ -434,116 +406,149 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		// Delete all resource data
 		this.deleteAllResourceData();
 		
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+			return tree.getName().equals(TREE_TYPE_TEST);
+		}).findFirst().get();
 		
-		// Create role in IDM tree
-		IdmRoleDto roleTen = new IdmRoleDto();
-		roleTen.setName(ROLE_NAME_TEN);
-		roleTen.setPriority(2);
-		roleTen = roleService.save(roleTen);
+		// Create root node in IDM tree
+		IdmTreeNodeDto nodeRoot = new IdmTreeNodeDto();
+		nodeRoot.setCode("P1");
+		nodeRoot.setName(nodeRoot.getCode());
+		nodeRoot.setParent(null);
+		nodeRoot.setTreeType(treeType.getId());
+		nodeRoot = treeNodeService.save(nodeRoot);
+
+		// Create node in IDM tree
+		IdmTreeNodeDto nodeOne = new IdmTreeNodeDto();
+		nodeOne.setCode("P12");
+		nodeOne.setName(nodeOne.getCode());
+		nodeOne.setParent(nodeRoot.getId());
+		nodeOne.setTreeType(treeType.getId());
+		nodeOne = treeNodeService.save(nodeOne);
 		
 		// Check state before provisioning
-		TestRoleResource one = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
 		Assert.assertNull(one);
 	}
 	
-	@Test
-	public void provisioningB_CreateAccounts() {
+	@Test(expected = ProvisioningException.class) // Provisioning tree in incorrect order
+	public void provisioningB_CreateAccounts_withException() {
 
-		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
-		filter.setValue(ROLE_NAME_TEN);
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
 
-		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
-		Assert.assertNotNull(roleTen);
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
+
+		filter.setValue("P12");
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
 
 		// Check state before provisioning
-		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNull(ten);
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNull(one);
 
 		// Create mapping for provisioning
 		this.createProvisionigMapping();
 
-		// Save IDM role (must invoke provisioning)
-		roleService.save(roleTen);
+		// Save IDM node (must invoke provisioning)
+		// We didn't provisioning for root first ... expect throw exception
+		treeNodeService.save(nodeOne);
+	}
+	
+	@Test
+	public void provisioningC_CreateAccounts_correct() {
+		
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
+		
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
+
+		filter.setValue("P12");
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
 		
 		// Check state before provisioning
-		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNotNull(ten);
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNull(one);
+		TestTreeResource root = entityManager.find(TestTreeResource.class, "P1");
+		Assert.assertNull(root);
+		
+		// Save IDM node again (must invoke provisioning)
+		// Root first
+		treeNodeService.save(nodeRoot);
+		// Node next
+		treeNodeService.save(nodeOne);
+		
+		// Check state before provisioning
+		root = entityManager.find(TestTreeResource.class, "P1");
+		Assert.assertNotNull(root);
+		one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNotNull(one);
 	}
+	
 	
 	@Test
 	public void provisioningD_UpdateAccount() {
 		
-		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
-		filter.setValue(ROLE_NAME_TEN);
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
+		
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
 
-		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
-		Assert.assertNotNull(roleTen);
+		filter.setValue("P12");
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
 		
 		// Check state before provisioning
-		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNotNull(ten);
-		Assert.assertEquals(2, ten.getPriority());
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNotNull(one);
+		Assert.assertEquals("P12", one.getCode());
 		
-		roleTen.setPriority(10);
+		nodeOne.setCode(CHANGED);
 		
 		// Save IDM changed node (must invoke provisioning)
-		roleService.save(roleTen);
+		treeNodeService.save(nodeOne);
 		
-		// Check state after provisioning
-		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNotNull(ten);
-		Assert.assertEquals(10, ten.getPriority());
+		// Check state before provisioning
+		one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNotNull(one);
+		Assert.assertEquals(CHANGED, one.getCode());
 	}
 	
-	@Test
-	public void provisioningD_UpdateAccount_Extended_Attribute() {
+	@Test(expected=TreeNodeException.class)
+	public void provisioningE_DeleteAccount_IntegrityException() {
 		
-		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
-		filter.setValue(ROLE_NAME_TEN);
-
-		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
-		Assert.assertNotNull(roleTen);
-		Assert.assertTrue(formService.getValues(roleTen.getId(), IdmRole.class, "changed").isEmpty());
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
 		
-		// Check state before provisioning
-		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNotNull(ten);
-		Assert.assertEquals(null, ten.getModified());
-	
-		// Create extended attribute
-		LocalDateTime now = LocalDateTime.now();
-		formService.saveValues(roleTen.getId(), IdmRole.class, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
 		
-		// Save IDM changed node (must invoke provisioning)
-		roleService.save(roleTen);
-		
-		// Check state after provisioning
-		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNotNull(ten);
-		Assert.assertEquals(now.toString(DATE_TABLE_CONNECTOR_FORMAT), ten.getModified().toString(DATE_TABLE_CONNECTOR_FORMAT));
+		// Delete IDM node (must invoke provisioning) .. We delete node with some children ... must throw integrity exception
+		// Generally we counts with provisioning on every node ... include children (Recursively delete is not good idea!) 
+		treeNodeService.delete(nodeRoot);
 	}
 	
 	@Test
 	public void provisioningF_DeleteAccount() {
 		
-		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
-		filter.setValue(ROLE_NAME_TEN);
-
-		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
-		Assert.assertNotNull(roleTen);
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P12");
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
 		
-		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNotNull(ten);
+		// Delete IDM node (must invoke provisioning) .. We delete child
+		treeNodeService.delete(nodeOne);
 		
-		// Delete IDM role (must invoke provisioning)
-		roleService.delete(roleTen);
-		
-		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
-		Assert.assertNull(ten);
+		Assert.assertTrue(treeNodeService.find(filter, null).getContent().isEmpty());
 	}
 	
 	
@@ -551,7 +556,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Transactional
 	public void deleteAllResourceData() {
 		// Delete all
-		Query q = entityManager.createNativeQuery("DELETE FROM test_role_resource");
+		Query q = entityManager.createNativeQuery("DELETE FROM test_tree_resource");
 		q.executeUpdate();
 	}
 
@@ -569,36 +574,45 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		// Create provisioning mapping
 		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setEntityType(SystemEntityType.ROLE);
+		systemMapping.setEntityType(SystemEntityType.TREE);
+		systemMapping.setTreeType(systemMappingSync.getTreeType());
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setObjectClass(systemMappingSync.getObjectClass());
 		final SysSystemMappingDto syncMapping = systemMappingService.save(systemMapping);
-
-		createMapping(systemService.get(schemaObjectClassService.get(systemMappingSync.getObjectClass()).getSystem()),
-				syncMapping);
+		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		createMapping(system, syncMapping);
 
 	}
 	
 	private void initData() {
 
 		// create test system
-		system = helper.createSystem("test_role_resource");
+		system = helper.createSystem("test_tree_resource");
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
+		// key to EAV
+		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		formService.saveValues(system, formDefinition, "keyColumn", ImmutableList.of("ID"));
 
 		// generate schema for system
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
+
+		IdmTreeTypeDto treeType = new IdmTreeTypeDto();
+		treeType.setCode(TREE_TYPE_TEST);
+		treeType.setName(TREE_TYPE_TEST);
+		treeType = treeTypeService.save(treeType);
 		
 		// Create synchronization mapping
 		SysSystemMappingDto syncSystemMapping = new SysSystemMappingDto();
 		syncSystemMapping.setName("default_" + System.currentTimeMillis());
-		syncSystemMapping.setEntityType(SystemEntityType.ROLE);
+		syncSystemMapping.setEntityType(SystemEntityType.TREE);
+		syncSystemMapping.setTreeType(treeType.getId());
 		syncSystemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
 		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 
 		createMapping(system, syncMapping);
-		initRoleData();
+		initTreeData();
 		
 		syncConfigService.find(null).getContent().forEach(config -> {
 			syncConfigService.delete(config);
@@ -606,37 +620,44 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 	}
 	
-	private void initRoleData(){
+	private void initTreeData(){
 		deleteAllResourceData();
-		LocalDateTime now = LocalDateTime.now();
-		entityManager.persist(this.createRole("1", RoleType.TECHNICAL.name(), now.plusHours(1), 0));
-		entityManager.persist(this.createRole("2", RoleType.TECHNICAL.name(), now.plusHours(2), 0));
-		entityManager.persist(this.createRole("3", RoleType.TECHNICAL.name(), now.plusHours(3), 0));
-		entityManager.persist(this.createRole("4", RoleType.SYSTEM.name(), now.plusHours(4), 1));
-		entityManager.persist(this.createRole("5", RoleType.BUSINESS.name(), now.plusHours(5), 1));
-
+		
+		entityManager.persist(this.createNode("1", null));
+		entityManager.persist(this.createNode("2", "2"));
+		
+		entityManager.persist(this.createNode("11", "1"));
+		entityManager.persist(this.createNode("12", "1"));
+		entityManager.persist(this.createNode("111", "11"));
+		entityManager.persist(this.createNode("112", "11"));
+		entityManager.persist(this.createNode("1111", "111"));
+		
+		entityManager.persist(this.createNode("21", "2"));
+		entityManager.persist(this.createNode("22", "2"));
+		entityManager.persist(this.createNode("211", "21"));
+		entityManager.persist(this.createNode("212", "21"));
+		entityManager.persist(this.createNode("2111", "211"));
 	}
 	
-	private TestRoleResource createRole(String code, String type, LocalDateTime changed, int priority){
-		TestRoleResource role = new TestRoleResource();
-		role.setType(type);
-		role.setName(code);
-		role.setPriority(priority);
-		role.setModified(changed);
-		role.setDescription(code);
-		return role;
+	private TestTreeResource createNode(String code, String parent){
+		TestTreeResource node = new TestTreeResource();
+		node.setCode(code);
+		node.setName(code);
+		node.setParent(parent);
+		node.setId(code);
+		return node;
 	}
 	
 	@Transactional
 	public void changeOne(){
-		TestRoleResource one = entityManager.find(TestRoleResource.class, "1");
-		one.setDescription(CHANGED);
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "111");
+		one.setCode(CHANGED);
 		entityManager.persist(one);
 	}
 	
 	@Transactional
 	public void removeOne(){
-		TestRoleResource one = entityManager.find(TestRoleResource.class, "1");
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "111");
 		entityManager.remove(one);
 	}
 	
@@ -650,66 +671,46 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setIdmPropertyName("name");
+				attributeHandlingName.setEntityAttribute(false);
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				// For provisioning .. we need create UID
-				attributeHandlingName.setTransformToResourceScript("return entity.getName();");
+				attributeHandlingName.setTransformToResourceScript("if(uid){return uid;}\nreturn entity.getCode();");
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if ("TYPE".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("CODE".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("roleType");
+				attributeHandlingName.setIdmPropertyName("code");
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 			
-			} else if ("PRIORITY".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("PARENT".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("priority");
+				attributeHandlingName.setIdmPropertyName("parent");
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if ("APPROVE_REMOVE".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("NAME".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("approveRemove");
+				attributeHandlingName.setIdmPropertyName("name");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if ("MODIFIED".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("changed");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setEntityAttribute(false);
-				attributeHandlingName.setExtendedAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
-				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
-	
-			} else if ("DESCRIPTION".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("description");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setEntityAttribute(true);;
-				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
-				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
-	
 			}
 		});
 	}
 
-	private DefaultRoleSynchronizationServiceTest getBean() {
+	private DefaultTreeSynchronizationServiceTest getBean() {
 		return applicationContext.getBean(this.getClass());
 	}
 }

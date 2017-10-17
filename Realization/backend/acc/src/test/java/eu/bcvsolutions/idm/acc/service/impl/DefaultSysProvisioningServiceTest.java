@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.service;
+package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.fail;
 

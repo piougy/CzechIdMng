@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.service;
+package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -44,14 +44,15 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 
 	@Test
 	public void testSystemId() {
-		SysSystemDto system1 = helper.createTestResourceSystem(true);
-		SysSystemDto system2 = helper.createTestResourceSystem(true);
+		SysSystemDto system1 = helper.createTestResourceSystem(false);
+		SysSystemDto system2 = helper.createTestResourceSystem(false);
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system1.getId(),
 				UUID.randomUUID());
 		SysSystemEntityDto entity2 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
 				system2.getId(), UUID.randomUUID());
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system2.getId(),
 				UUID.randomUUID());
+		//
 		SysSystemEntityFilter testFilter = new SysSystemEntityFilter();
 		testFilter.setSystemId(system2.getId());
 		Page<SysSystemEntityDto> pages = entityService.find(testFilter, null);
@@ -61,13 +62,14 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 
 	@Test
 	public void testUid() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(false);
 		SysSystemEntityDto entity1 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
 				system.getId(), UUID.randomUUID());
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
+		//
 		SysSystemEntityFilter testFilter = new SysSystemEntityFilter();
 		testFilter.setUid(entity1.getUid());
 		Page<SysSystemEntityDto> pages = entityService.find(testFilter, null);
@@ -80,26 +82,28 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 	 */
 	@Test
 	public void testId() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(false);
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
 		SysSystemEntityDto entity3 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
 				system.getId(), UUID.randomUUID());
+		//
 		SysSystemEntityDto foundedEntity = entityService.get(entity3.getId());
 		assertEquals(entity3.getId(), foundedEntity.getId());
 	}
 
 	@Test
 	public void testEntityType() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = helper.createTestResourceSystem(false);
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.ROLE, system.getId(),
 				UUID.randomUUID());
 		SysSystemEntityDto entity2 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.TREE,
 				system.getId(), UUID.randomUUID());
 		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.IDENTITY, system.getId(),
 				UUID.randomUUID());
+		//
 		SysSystemEntityFilter testFilter = new SysSystemEntityFilter();
 		testFilter.setEntityType(entity2.getEntityType());
 		testFilter.setUid(entity2.getUid());
@@ -108,6 +112,14 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 		assertEquals(entity2.getId(), pages.getContent().get(0).getId());
 	}
 
+	/**
+	 * Create {@link SysSystemEntityDto}
+	 * @param uid
+	 * @param type
+	 * @param systemId
+	 * @param id
+	 * @return
+	 */
 	private SysSystemEntityDto createEntitySystem(String uid, SystemEntityType type, UUID systemId, UUID id) {
 		SysSystemEntityDto entity = new SysSystemEntityDto();
 		entity.setUid(uid);

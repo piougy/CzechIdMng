@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.service;
+package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,13 +53,16 @@ public class DefaultSysRoleSystemServiceFilterTest extends AbstractIntegrationTe
 		IdmRoleDto role = helper.createRole();
 		IdmRoleDto role2 = helper.createRole();
 		SysSystemDto system = helper.createTestResourceSystem(true);
+		//
 		SysSystemMappingDto sysSystemMappingDto = mappingService
 				.findBySystemId(system.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		SysRoleSystemDto roleSystem = createRoleSystem(role.getId(), system.getId(), sysSystemMappingDto.getId());
 		createRoleSystem(role2.getId(), system.getId(), sysSystemMappingDto.getId());
+		//
 		SysRoleSystemFilter roleFilter = new SysRoleSystemFilter();
 		roleFilter.setRoleId(role.getId());
 		Page<SysRoleSystemDto> pages = roleSystemService.find(roleFilter, null);
+		//
 		assertEquals(1, pages.getTotalElements());
 		assertEquals(roleSystem.getId(), pages.getContent().get(0).getId());
 	}
@@ -70,13 +73,16 @@ public class DefaultSysRoleSystemServiceFilterTest extends AbstractIntegrationTe
 		IdmRoleDto role2 = helper.createRole();
 		SysSystemDto system1 = helper.createTestResourceSystem(true);
 		SysSystemDto system2 = helper.createTestResourceSystem(true);
+		//
 		SysSystemMappingDto sysSystemMappingDto = mappingService
 				.findBySystemId(system1.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		createRoleSystem(role1.getId(), system1.getId(), sysSystemMappingDto.getId());
 		SysRoleSystemDto roleSystem2 = createRoleSystem(role2.getId(), system2.getId(), sysSystemMappingDto.getId());
+		//
 		SysRoleSystemFilter roleFilter = new SysRoleSystemFilter();
 		roleFilter.setSystemId(system2.getId());
 		Page<SysRoleSystemDto> pages = roleSystemService.find(roleFilter, null);
+		//
 		assertEquals(1, pages.getTotalElements());
 		assertEquals(roleSystem2.getId(), pages.getContent().get(0).getId());
 	}
@@ -87,12 +93,14 @@ public class DefaultSysRoleSystemServiceFilterTest extends AbstractIntegrationTe
 		IdmRoleDto role2 = helper.createRole();
 		SysSystemDto system1 = helper.createTestResourceSystem(true);
 		SysSystemDto system2 = helper.createTestResourceSystem(true);
+		//
 		SysSystemMappingDto sysSystemMappingDto1 = mappingService
 				.findBySystemId(system1.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		SysSystemMappingDto sysSystemMappingDto2 = mappingService
 				.findBySystemId(system2.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		SysRoleSystemDto roleSystem1 = createRoleSystem(role1.getId(), system1.getId(), sysSystemMappingDto1.getId());
 		createRoleSystem(role2.getId(), system1.getId(), sysSystemMappingDto2.getId());
+		//
 		SysRoleSystemFilter roleFilter = new SysRoleSystemFilter();
 		roleFilter.setSystemMappingId(sysSystemMappingDto1.getId());
 		Page<SysRoleSystemDto> pages = roleSystemService.find(roleFilter, null);
@@ -100,6 +108,14 @@ public class DefaultSysRoleSystemServiceFilterTest extends AbstractIntegrationTe
 		assertEquals(roleSystem1.getId(), pages.getContent().get(0).getId());
 	}
 
+	/**
+	 * Create {@link SysRoleSystemDto}
+	 * 
+	 * @param roleId
+	 * @param systemId
+	 * @param systemMappingId
+	 * @return
+	 */
 	private SysRoleSystemDto createRoleSystem(UUID roleId, UUID systemId, UUID systemMappingId) {
 		helper.createRole();
 		SysRoleSystemDto role = new SysRoleSystemDto();

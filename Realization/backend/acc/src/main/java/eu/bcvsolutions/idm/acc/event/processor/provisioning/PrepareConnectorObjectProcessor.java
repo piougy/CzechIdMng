@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -337,7 +338,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				if(!schemaAttributeOptional.isPresent()){
 					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND, ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
 				}
-				
+
 				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
 				if (schemaAttribute.isUpdateable()) {
 					if (schemaAttribute.isReturnedByDefault()) {	
@@ -602,6 +603,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			values.add(idmValue);
 			return Objects.equals(values, icValueTransformed);
 		} 
+		
+		// Multivalued values are equals, when value from system is null and value in IdM is empty list
+		if(schemaAttribute.isMultivalued() && idmValue != null && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
+			return true;
+		}
+		
+		// Multivalued values are equals, when value in IdM is null and value from system is empty list
+		if(schemaAttribute.isMultivalued() && icValueTransformed != null && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
+			return true;
+		}
+		
 		
 		return Objects.equals(idmValue, icValueTransformed);
 	}

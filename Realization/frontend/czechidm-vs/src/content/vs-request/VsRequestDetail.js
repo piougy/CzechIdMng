@@ -179,6 +179,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
     if (entity.multivalue) {
       const listResult = [];
+      if (!entity.values) {
+        return '';
+      }
       for (const item of entity.values) {
         const value = old ? item.oldValue : item.value;
         if (!old && item.change && showChanges) {
@@ -196,6 +199,9 @@ class VsRequestDetail extends Basic.AbstractContent {
       return listResult;
     }
 
+    if (!entity.value) {
+      return '';
+    }
     const value = old ? entity.value.oldValue : entity.value.value;
     if (!old && entity.value.change && showChanges) {
       return (<Basic.Label

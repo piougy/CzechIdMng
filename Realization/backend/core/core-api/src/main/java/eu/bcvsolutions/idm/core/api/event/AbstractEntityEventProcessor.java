@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -10,7 +14,6 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -59,19 +62,46 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 	public Class<E> getEntityClass() {
 		return entityClass;
 	}
-	
+
 	@Override
 	public String[] getEventTypes() {
-		return types.toArray(new String[types.size()]);
+		final Set<String> configTypes = getEventTypesFromConfiguration();
+		// Default event types can be overwritten using config property
+		final Set<String> eventTypesToUse = configTypes == null ? types : configTypes;
+		//
+		return eventTypesToUse.toArray(new String[eventTypesToUse.size()]);
 	}
-	
+
+	/**
+	 * Method returns {@link Collection} of event types for this processor.
+	 *
+	 * @return Collection of event types configured in app config. Null if configurationService is not defined, or if
+	 * config property is not defined.
+	 */
+	private Set<String> getEventTypesFromConfiguration() {
+		if (getConfigurationService() == null) {
+			return null;
+		}
+		//
+		final String configValue = getConfigurationService().getValue(
+			getConfigurationPrefix()
+				+ ConfigurationService.PROPERTY_SEPARATOR
+				+ PROPERTY_EVENT_TYPES);
+		//
+		return configValue == null ? null : Arrays.stream(configValue.split(ConfigurationService.PROPERTY_MULTIVALUED_SEPARATOR))
+			.map(String::trim)
+			.filter(s -> !s.isEmpty())
+			.collect(Collectors.toSet());
+	}
+
 	@Override
 	public boolean supports(EntityEvent<?> entityEvent) {
 		Assert.notNull(entityEvent);
 		Assert.notNull(entityEvent.getContent(), "Entity event does not contain content, content is required!");
 		//
+		final List<String> supportedEventTypes = Arrays.asList(getEventTypes());
 		return entityClass.isAssignableFrom(entityEvent.getContent().getClass())
-				&& (types.isEmpty() || types.contains(entityEvent.getType().name()));
+				&& (supportedEventTypes.isEmpty() || supportedEventTypes.contains(entityEvent.getType().name()));
 	}
 	
 	/* 

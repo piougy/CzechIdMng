@@ -54,7 +54,7 @@ if(attributeValue != null) {
 
 if(icAttributes != null){
 	for (IcAttribute icAttribute : icAttributes) {
-		if (disableAttributeName.equals(icAttribute.getName())) {
+		if (disableAttributeName.equalsIgnoreCase(icAttribute.getName())) {
 			Object disableValue = icAttribute.getValue();
 			if (disableValue == null) {
 				disabled = false;

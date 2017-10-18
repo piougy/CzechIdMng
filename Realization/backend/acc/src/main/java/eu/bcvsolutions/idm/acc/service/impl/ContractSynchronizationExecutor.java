@@ -323,6 +323,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					context.getLogItem().addToLog(MessageFormat.format("Finding guarantee [{0}].", guarantee));
 					IdmIdentityDto guarranteeDto = this.findIdentity(guarantee, context);
 					if (guarranteeDto != null) {
+						context.getLogItem()
+								.addToLog(MessageFormat.format("Guarantee [{0}] was found.", guarranteeDto.getCode()));
 						syncContract.getGuarantees().add(guarranteeDto);
 					}
 				});
@@ -332,6 +334,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				context.getLogItem().addToLog(MessageFormat.format("Finding guarantee [{0}].", transformedValue));
 				IdmIdentityDto guarranteeDto = this.findIdentity(transformedValue, context);
 				if (guarranteeDto != null) {
+					context.getLogItem()
+							.addToLog(MessageFormat.format("Guarantee [{0}] was found.", guarranteeDto.getCode()));
 					syncContract.getGuarantees().add(guarranteeDto);
 				}
 			}
@@ -397,8 +401,16 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					.format("Work position - was not not found directly from transformed value [{0}]!", value));
 			if (value instanceof String) {
 				// Find by code in default tree type
-				IdmTreeNodeFilter treeNodeFilter = new IdmTreeNodeFilter();
 				SysSyncContractConfigDto config = this.getConfig(context);
+				if (config.getDefaultTreeType() == null) {
+					context.getLogItem().addToLog(MessageFormat.format(
+							"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
+							value));
+					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
+							context.getLog(), context.getActionLogs());
+					return null;
+				}
+				IdmTreeNodeFilter treeNodeFilter = new IdmTreeNodeFilter();
 				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType,
 						IdmTreeTypeDto.class);
 				treeNodeFilter.setTreeTypeId(config.getDefaultTreeType());
@@ -461,7 +473,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
 					.get(SYNC_CONTRACT_FIELD);
 			IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
-			guaranteeFilter.setIdentityContractId(entity.getId());
+			guaranteeFilter.setIdentityContractId(contract.getId());
 
 			List<IdmContractGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
 
@@ -493,8 +505,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				guarantee.setGuarantee(identity.getId());
 				//
 				EntityEvent<IdmContractGuaranteeDto> guaranteeEvent = new ContractGuaranteeEvent(
-						ContractGuaranteeEventType.CREATE,
-						guarantee, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+						ContractGuaranteeEventType.CREATE, guarantee,
+						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
 				guaranteeService.publish(guaranteeEvent);
 			});
 		}

@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import joptsimple.internal.Strings;
 
 /**
  * Acc / Provisioning test helper
@@ -90,6 +91,18 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	 */
 	@Override
 	public SysSystemDto createSystem(String tableName, String systemName) {
+		return this.createSystem(tableName, systemName, "status", "name");
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param tableName
+	 * @param systemName
+	 * @return
+	 */
+	@Override
+	public SysSystemDto createSystem(String tableName, String systemName, String statusColumnName, String keyColumnName) {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
 		SysSystemDto system = new SysSystemDto();
@@ -121,10 +134,12 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 		IdmFormValueDto table = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("table"));
 		table.setValue(tableName);
 		values.add(table);
-		IdmFormValueDto keyColumn = new IdmFormValueDto(
-				savedFormDefinition.getMappedAttributeByCode("keyColumn"));
-		keyColumn.setValue("name");
-		values.add(keyColumn);
+		if(!Strings.isNullOrEmpty(keyColumnName)) {
+			IdmFormValueDto keyColumn = new IdmFormValueDto(
+					savedFormDefinition.getMappedAttributeByCode("keyColumn"));
+			keyColumn.setValue(keyColumnName);
+			values.add(keyColumn);
+		}
 		IdmFormValueDto passwordColumn = new IdmFormValueDto(
 				savedFormDefinition.getMappedAttributeByCode("passwordColumn"));
 		passwordColumn.setValue("password");
@@ -137,10 +152,12 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 				savedFormDefinition.getMappedAttributeByCode("rethrowAllSQLExceptions"));
 		rethrowAllSQLExceptions.setValue(true);
 		values.add(rethrowAllSQLExceptions);
-		IdmFormValueDto statusColumn = new IdmFormValueDto(
-				savedFormDefinition.getMappedAttributeByCode("statusColumn"));
-		statusColumn.setValue("status");
-		values.add(statusColumn);
+		if(!Strings.isNullOrEmpty(statusColumnName)) {
+			IdmFormValueDto statusColumn = new IdmFormValueDto(
+					savedFormDefinition.getMappedAttributeByCode("statusColumn"));
+			statusColumn.setValue(statusColumnName);
+			values.add(statusColumn);
+		}
 		IdmFormValueDto disabledStatusValue = new IdmFormValueDto(
 				savedFormDefinition.getMappedAttributeByCode("disabledStatusValue"));
 		disabledStatusValue.setValue("disabled");

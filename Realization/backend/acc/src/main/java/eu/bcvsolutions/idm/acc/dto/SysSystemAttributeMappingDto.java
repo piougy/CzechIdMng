@@ -31,6 +31,7 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean sendAlways = false;
 	private boolean sendOnlyIfNotNull = false;
 	private boolean authenticationAttribute = false;
+	private boolean sendOnPasswordChange = false;
 
 	public String getName() {
 		return name;
@@ -151,5 +152,12 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	public void setAuthenticationAttribute(boolean authenticationAttribute) {
 		this.authenticationAttribute = authenticationAttribute;
 	}
-
+	
+	public boolean isSendOnPasswordChange() {
+		return sendOnPasswordChange;
+	}
+	
+	public void setSendOnPasswordChange(boolean sendOnPasswordChange) {
+		this.sendOnPasswordChange = sendOnPasswordChange;
+	}
 }

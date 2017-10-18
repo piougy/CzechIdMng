@@ -1,9 +1,10 @@
-package eu.bcvsolutions.idm.acc.domain;
+package eu.bcvsolutions.idm.acc.config.domain;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.Configurable;

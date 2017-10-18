@@ -341,7 +341,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
 				if (schemaAttribute.isUpdateable()) {
-					if (schemaAttribute.isReturnedByDefault()) {	
+					if (schemaAttribute.isReturnedByDefault()) {
 						Object idmValue = fullAccountObject.get(provisioningAttribute);
 						IcAttribute attribute = existsConnectorObject.getAttributeByName(schemaAttribute.getName());
 						Object connectorValue = attribute != null ? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue()) : null;
@@ -473,6 +473,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 								provisioningAttribute);
 						if (updatedAttribute != null) {
 							updateConnectorObject.getAttributes().add(updatedAttribute);
+						}
+					} else {
+						// create attribute without target system read - password etc.
+						// filled values only
+						if (fullAccountObject.get(provisioningAttribute) != null) {
+							IcAttribute createdAttribute = createAttribute( 
+									schemaAttribute,
+									fullAccountObject.get(provisioningAttribute));
+							if (createdAttribute != null) {
+								updateConnectorObject.getAttributes().add(createdAttribute);
+							}
 						}
 					}
 				}

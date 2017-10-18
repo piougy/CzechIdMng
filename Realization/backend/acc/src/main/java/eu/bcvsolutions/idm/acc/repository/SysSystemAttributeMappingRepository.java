@@ -36,6 +36,8 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	        + " (?#{[0].isUid} is null or e.uid = ?#{[0].isUid})"
 	        + " and"
 			+ " (?#{[0].idmPropertyName} is null or lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
+			+ " and"
+	        + " (?#{[0].sendOnPasswordChange} is null or e.sendOnPasswordChange = ?#{[0].sendOnPasswordChange})"
 			)
 	Page<SysSystemAttributeMapping> find(SysSystemAttributeMappingFilter filter, Pageable pageable);
 	
@@ -47,8 +49,10 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			+ "e.systemMapping.objectClass.system.id = :systemId "
 			+ "AND "
 			+ "e.systemMapping.entityType = :entityType")
-	SysSystemAttributeMapping findAuthenticationAttribute(@Param("systemId") UUID systemId,
-			@Param("operationType") SystemOperationType operationType, @Param("entityType") SystemEntityType entityType);
+	SysSystemAttributeMapping findAuthenticationAttribute(
+			@Param("systemId") UUID systemId,
+			@Param("operationType") SystemOperationType operationType, 
+			@Param("entityType") SystemEntityType entityType);
 	
 	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
 			+ "e.uid = true "
@@ -83,7 +87,9 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	 * 
 	 * @param updatedEntityId
 	 * @param systemMappingId
+	 * @deprecated - skips audit, will be removed
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update #{#entityName} e set e.uid = false where e.systemMapping.id = :systemMappingId and (:updatedEntityId is null or e.id != :updatedEntityId)")
 	void clearIsUidAttribute(@Param("systemMappingId") UUID systemMappingId, @Param("updatedEntityId") UUID updatedEntityId);

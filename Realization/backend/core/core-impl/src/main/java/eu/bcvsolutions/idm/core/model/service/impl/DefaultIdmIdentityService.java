@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
@@ -246,17 +247,26 @@ public class DefaultIdmIdentityService
 							identity, 
 							ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));
 		// get all password change results
-		List<OperationResult> passwordChangeResults = new ArrayList<>();
+		// more provisioning operation can be executed for one password change - we need to distinct them by account id
+		Map<UUID, OperationResult> passwordChangeResults = new HashMap<>(); // accountId / result
 		context.getResults().forEach(eventResult -> {
 			eventResult.getResults().forEach(result -> {
-				if (result.getModel() != null && 
-						(result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())
-								|| result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name()))) {
-					passwordChangeResults.add(result);				
+				if (result.getModel() != null) {
+					boolean success = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
+					boolean failure = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name());
+					if (success || failure) {				
+						IdmAccountDto resultAccount = (IdmAccountDto) result.getModel().getParameters().get("account");
+						if (!passwordChangeResults.containsKey(resultAccount.getId())) {
+							passwordChangeResults.put(resultAccount.getId(), result);
+						} else if (failure) {
+							// failure has higher priority
+							passwordChangeResults.put(resultAccount.getId(), result);
+						}
+					}
 				}
 			});
 		});
-		return passwordChangeResults;
+		return new ArrayList<>(passwordChangeResults.values());
 	}
 	
 	@Override

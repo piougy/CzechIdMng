@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -65,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
@@ -86,6 +88,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Provisioning tests
  * 
  * @author Svanda
+ * @author Radek Tomiška
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -104,69 +107,30 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String EMAIL_TWO = "two.email@two.cz";
 	private static final String SYSTEM_NAME = "DefaultSysProvisioningServiceTest";
 
-	@Autowired
-	private TestHelper helper;
-	
-	@Autowired
-	private SysSystemService systemService;
-
-	@Autowired
-	private FormService formService;
-
-	@Autowired
-	private IdmIdentityService idmIdentityService;
-	
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	
-	@Autowired
-	private IdmIdentityRepository identityRepository;
-
-	@Autowired
-	private AccIdentityAccountService identityAccoutnService;
-
-	@Autowired
-	private AccAccountService accountService;
-
-	@Autowired
-	private ProvisioningService provisioningService;
-
-	@Autowired
-	private SysSystemMappingService systemEntityHandlingService;
-
-	@Autowired
-	private SysSystemAttributeMappingService systemAttributeMappingService;
-
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
-
-	@Autowired
-	private EntityManager entityManager;
-
-	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	
-	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	
-	@Autowired
-	private SysSystemEntityService systemEntityService;
-
-	@Autowired
-	private SysRoleSystemService roleSystemService;
-	
-	@Autowired
-	private SysRoleSystemAttributeService roleSystemAttributeService;
-	
-	@Autowired
-	private SysSystemMappingService systemMappingService;
-	
-	@Autowired
-	private IdmRoleService roleService;
-	
+	@Autowired private TestHelper helper;
+	@Autowired private SysSystemService systemService;
+	@Autowired private FormService formService;
+	@Autowired private IdmIdentityService idmIdentityService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmIdentityRepository identityRepository;
+	@Autowired private AccIdentityAccountService identityAccoutnService;
+	@Autowired private AccAccountService accountService;
+	@Autowired private ProvisioningService provisioningService;
+	@Autowired private SysSystemMappingService systemEntityHandlingService;
+	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
+	@Autowired private SysSchemaAttributeService schemaAttributeService;
+	@Autowired private EntityManager entityManager;
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private IdmTreeNodeService treeNodeService;
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private SysSystemEntityService systemEntityService;
+	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private SysRoleSystemAttributeService roleSystemAttributeService;
+	@Autowired private SysSystemMappingService systemMappingService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private ConfigurationService configurationService;
+	@Autowired private ProvisioningConfiguration provisioningConfiguration;
+	//
 	private List<SysSchemaObjectClassDto> objectClasses = null;
 	private SysSystemDto system = null;
 	private SysSystemMappingDto systemMapping = null;
@@ -1131,6 +1095,121 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloadedRoleTwo".equals(attribute.getName());
 		}).findFirst().isPresent());
+	}
+	
+	@Test
+	public void testPasswordChangeWithoutAdditionalAttributes() {
+		// prepare account on target system
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		IdmRoleDto role = helper.createRole();
+		helper.createRoleSystem(role, system);
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, role);
+		//
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
+		// Create new password one
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setAccounts(ImmutableList.of(account.getId().toString()));
+		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
+		passwordChange.setIdm(true);
+		//
+		// Do change of password for selected accounts
+		String previousFirtsName = identity.getFirstName();
+		String firstNameChange = "firstname-change";
+		identity.setFirstName(firstNameChange);
+		idmIdentityService.passwordChange(identity, passwordChange);
+		//
+		// Check correct password One
+		TestResource resource = helper.findResource(account.getRealUid());
+		Assert.assertNotNull(resource);
+		Assert.assertEquals(IDENTITY_PASSWORD_ONE, resource.getPassword());
+		Assert.assertEquals(previousFirtsName, resource.getFirstname());
+	}
+	
+	@Test
+	public void testPasswordChangeWithAdditionalAttributesInOneOperation() {
+		Assert.assertTrue(provisioningConfiguration.isSupportSendPasswordAttributes());
+		//
+		// prepare account on target system
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
+		SysSystemAttributeMappingDto firtstNameAttribute = systemAttributeMappingService.findBySystemMappingAndName(systemMapping.getId(), 
+				TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME); 
+		firtstNameAttribute.setSendOnPasswordChange(Boolean.TRUE);
+		systemAttributeMappingService.save(firtstNameAttribute);
+		
+		IdmRoleDto role = helper.createRole();
+		helper.createRoleSystem(role, system);
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, role);
+		//
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
+		// Create new password one
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setAccounts(ImmutableList.of(account.getId().toString()));
+		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
+		passwordChange.setIdm(true);
+		//
+		// Do change of password for selected accounts
+		String firstNameChange = "firstname-change";
+		identity.setFirstName(firstNameChange);
+		idmIdentityService.passwordChange(identity, passwordChange);
+		//
+		// Check correct password One
+		TestResource resource = helper.findResource(account.getRealUid());
+		Assert.assertNotNull(resource);
+		Assert.assertEquals(IDENTITY_PASSWORD_ONE, resource.getPassword());
+		Assert.assertEquals(firstNameChange, resource.getFirstname());
+	}
+	
+	@Test
+	public void testPasswordChangeWithAdditionalAttributesInTwoOperations() {
+		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES, false);
+		try {
+			Assert.assertFalse(provisioningConfiguration.isSupportSendPasswordAttributes());
+			// prepare account on target system
+			SysSystemDto system = helper.createTestResourceSystem(true);
+			SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
+			SysSystemAttributeMappingDto firtstNameAttribute = systemAttributeMappingService.findBySystemMappingAndName(systemMapping.getId(), 
+					TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME); 
+			firtstNameAttribute.setSendOnPasswordChange(Boolean.TRUE);
+			systemAttributeMappingService.save(firtstNameAttribute);
+			
+			IdmRoleDto role = helper.createRole();
+			helper.createRoleSystem(role, system);
+			IdmIdentityDto identity = helper.createIdentity();
+			helper.createIdentityRole(identity, role);
+			//
+			AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+			filter.setIdentityId(identity.getId());
+			AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+			AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
+			// Create new password one
+			PasswordChangeDto passwordChange = new PasswordChangeDto();
+			passwordChange.setAccounts(ImmutableList.of(account.getId().toString()));
+			passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
+			passwordChange.setIdm(true);
+			//
+			// Do change of password for selected accounts
+			String firstNameChange = "firstname-change";
+			identity.setFirstName(firstNameChange);
+			idmIdentityService.passwordChange(identity, passwordChange);
+			//
+			// Check correct password One
+			TestResource resource = helper.findResource(account.getRealUid());
+			Assert.assertNotNull(resource);
+			Assert.assertEquals(IDENTITY_PASSWORD_ONE, resource.getPassword());
+			Assert.assertEquals(firstNameChange, resource.getFirstname());
+		} finally {
+			configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES, true);
+			Assert.assertTrue(provisioningConfiguration.isSupportSendPasswordAttributes());
+		}
 	}
 	
 	private void initDataSystem() {

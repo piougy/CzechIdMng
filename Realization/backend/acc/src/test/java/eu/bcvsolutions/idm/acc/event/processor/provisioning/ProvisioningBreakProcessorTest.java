@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningBreakConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningBreakConfiguration;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;

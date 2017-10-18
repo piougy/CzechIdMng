@@ -697,6 +697,10 @@
       "disabledAttribute": {
         "label": "Je deaktivován",
         "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
+      },
+      "sendOnPasswordChange": {
+        "label": "Zahrnout při změně hesla",
+        "help": "Odesílat attribut při změně hesla do provisioningu."
       }
     },
     "RoleSystemAttribute": {

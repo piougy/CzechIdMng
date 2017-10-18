@@ -690,6 +690,10 @@
       "disabledAttribute": {
         "label": "Disabled",
         "tooltip": "Disabled attribute will not be used in provisioning in default state. It can still be overload and activated in roles."
+      },
+      "sendOnPasswordChange": {
+        "label": "Include on password change",
+        "help": "Send this attribute into provisioning, when password is changed."
       }
     },
     "RoleSystemAttribute": {

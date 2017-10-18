@@ -61,7 +61,6 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
  
 	public static final String NAME = "identityProvisioningService";
 	private final AccIdentityAccountService identityAccountService;
-	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
 	private final IdmRoleService roleService;
 	private final IdmIdentityService identityService;
@@ -78,7 +77,6 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			SysSystemEntityService systemEntityService,
 			AccAccountService accountService, 
 			AccIdentityAccountService identityAccountService,
-			AccIdentityAccountRepository identityAccountRepository,
 			ProvisioningExecutor provisioningExecutor,
 			EntityEventManager entityEventManager,
 			SysSchemaObjectClassService schemaObjectClassService,
@@ -94,13 +92,11 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		//
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
-		Assert.notNull(identityAccountRepository);
 		Assert.notNull(roleService);
 		Assert.notNull(identityService);
 		//
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
-		this.identityAccountRepository = identityAccountRepository;
 		this.roleService = roleService;
 		this.identityService = identityService;
 	}
@@ -118,39 +114,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			.forEach((identityAccount) -> {
 				doProvisioning(account, DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identity, IdmIdentityDto.class));
 			});
-	}
-
-	/**
-	 * Return all mapped attributes for this account (include overloaded attributes)
-	 * 
-	 * @param uid
-	 * @param account
-	 * @param entity
-	 * @param system
-	 * @param entityType
-	 * @return
-	 */
-	@Override
-	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, IdmIdentityDto entity, SysSystemDto system, SystemEntityType entityType) {
-		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
-		filter.setIdentityId(entity.getId());
-		filter.setSystemId(system.getId());
-		filter.setOwnership(Boolean.TRUE);
-		filter.setAccountId(account.getId());
-
-		// All identity account with flag ownership on true
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
-
-		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = findOverloadingAttributes(entity, system, identityAccounts, entityType);
-
-		// All default mapped attributes from system
-		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
-
-		// Final list of attributes use for provisioning
-		return compileAttributes(defaultAttributes, roleSystemAttributesAll, entityType);
-	}
-	
+	}	
 
 	/**
 	 * Return list of all overloading attributes for given identity, system and

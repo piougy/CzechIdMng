@@ -241,6 +241,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 ref="authenticationAttribute"
                 label={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.help')}/>
+              <Basic.Checkbox
+                ref="sendOnPasswordChange"
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}/>
               <Basic.Row>
                 <div className="col-lg-6">
                   <Basic.EnumSelectBox

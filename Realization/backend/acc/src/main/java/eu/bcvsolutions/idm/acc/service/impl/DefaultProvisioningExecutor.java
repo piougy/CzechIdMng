@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
@@ -50,6 +51,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final NotificationManager notificationManager;
 	private final SysSystemService systemService;
 	private final SecurityService securityService;
+	private final ProvisioningConfiguration provisioningConfiguration;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -59,13 +61,15 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			SysProvisioningBatchService batchService,
 			NotificationManager notificationManager,
 			SysSystemService systemService,
-			SecurityService securityService) {
+			SecurityService securityService,
+			ProvisioningConfiguration provisioningConfiguration) {
 		Assert.notNull(entityEventManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(batchService);
 		Assert.notNull(notificationManager);
 		Assert.notNull(systemService);
 		Assert.notNull(securityService);
+		Assert.notNull(provisioningConfiguration);
 		//
 		this.entityEventManager = entityEventManager;
 		this.provisioningOperationService = provisioningOperationService;
@@ -73,6 +77,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		this.notificationManager = notificationManager;
 		this.systemService = systemService;
 		this.securityService = securityService;
+		this.provisioningConfiguration = provisioningConfiguration;
 	}
 	
 	/**
@@ -209,5 +214,10 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			// It not possible get operation from embedded, missing request
 			cancel(operation);
 		}
+	}
+	
+	@Override
+	public ProvisioningConfiguration getConfiguration() {
+		return provisioningConfiguration;
 	}
 }

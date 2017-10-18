@@ -5,11 +5,10 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -53,9 +52,10 @@ public abstract class AbstractIdentityPasswordProcessor
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto);
 			Map<String, Object> parameters = new LinkedHashMap<>();
-			parameters.put("account",ImmutableMap.of(
-					"idm", Boolean.TRUE.toString(),
-					"uid", identity.getUsername()));
+			parameters.put("account", new IdmAccountDto(
+					identity.getId(), 
+					true, 
+					identity.getUsername()));
 			return new DefaultEventResult.Builder<>(event, this).setResult(
 					new OperationResult.Builder(OperationState.EXECUTED)
 						.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS, parameters))

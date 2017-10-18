@@ -801,8 +801,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 						return maxPriority == roleDto.getPriority();
 					}).sorted((att1, att2) -> {
 						// Second filtering, if we have same priority, then
-						// we
-						// will sort by role name
+						// we will sort by role name
 						SysRoleSystemDto roleSystem1 = roleSystemService.get(att1.getRoleSystem());
 						SysRoleSystemDto roleSystem2 = roleSystemService.get(att2.getRoleSystem());
 						//

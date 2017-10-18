@@ -34,7 +34,7 @@ class Dashboard extends Basic.AbstractContent {
       const DashboardComponent = component.component;
       const _span = component.span ? component.span : DEFAULT_SPAN;
       const spanDecorator = (
-        <div key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-${component.id}`} className={`col-lg-${_span}`}>
+        <div key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-${component.id}`} className={`col-lg-${_span} ${component.offset ? `col-lg-offset-${component.offset}` : ''}`}>
           <DashboardComponent entityId={userContext.username}/>
         </div>
       );
@@ -61,9 +61,9 @@ class Dashboard extends Basic.AbstractContent {
     }
     //
     return (
-      <Basic.Row>
+      <div>
         {dashboards}
-      </Basic.Row>
+      </div>
     );
   }
 }

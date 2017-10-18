@@ -45,7 +45,8 @@ public interface ConfigurationService {
 	// common properties default
 	static final int DEFAULT_ORDER = 0;
 	static final boolean DEFAULT_ENABLED = true;
-	
+	static final String PROPERTY_MULTIVALUED_SEPARATOR = ",";
+
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns {@code null}.
 	 * 

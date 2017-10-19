@@ -596,7 +596,8 @@
       "UPDATE": "Úprava",
       "DELETE": "Mazání",
       "EXECUTE": "Spouštění",
-      "PASSWORDCHANGE": "Změna hesla"
+      "PASSWORDCHANGE": "Změna hesla",
+      "CHANGEPERMISSION": "Změna oprávnění"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",

@@ -573,7 +573,8 @@
       "UPDATE": "Update",
       "DELETE": "Delete",
       "EXECUTE": "Execute",
-      "PASSWORDCHANGE": "Password change"
+      "PASSWORDCHANGE": "Password change",
+      "CHANGEPERMISSION": "Manage authorizations"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",

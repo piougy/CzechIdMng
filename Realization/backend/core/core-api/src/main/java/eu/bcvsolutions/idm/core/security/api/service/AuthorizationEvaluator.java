@@ -76,9 +76,9 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered,
 	Set<String> getPermissions(E authorizable, AuthorizationPolicy policy);
 	
 	/**
-	 * Returns base authorities configured for given policy. Authorities are used as "given what identity" could do - without entity is defined.
+	 * Returns base authorities configured for given policy. Authorities are used as "what given identity" could do - without entity is defined.
 	 * 
-	 * @param identityId
+	 * @param identityId - identity (logged)
 	 * @param policy
 	 * @return
 	 */

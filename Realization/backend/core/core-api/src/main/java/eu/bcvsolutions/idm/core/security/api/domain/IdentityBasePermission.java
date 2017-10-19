@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 
 public enum IdentityBasePermission implements BasePermission {
 	
-	PASSWORDCHANGE; // password change
-	// PASSWORDRESET; // TODO: password reset - resurrect password reset from CA
+	PASSWORDCHANGE, // password change
+	CHANGEPERMISSION; // create role request for changing identity permissions
 	
 	@Override
 	public String getName() {

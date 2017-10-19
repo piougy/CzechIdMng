@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.security.evaluator.role;
 
+import java.util.Set;
+import java.util.UUID;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -16,13 +19,18 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to role requests by identity
+ * Permissions to role requests by identity. 
+ * {@link IdentityBasePermission#CHANGEPERMISSION} is evaluated on transitive identity.
  * 
+ * @see {@link IdentityBasePermission}
  * @author Radek Tomiška
  *
  */
@@ -58,5 +66,31 @@ public class RoleRequestByIdentityEvaluator extends AbstractTransitiveEvaluator<
 				));
 		//
 		return builder.exists(subquery);
+	}
+	
+	@Override
+	public Set<String> getPermissions(IdmRoleRequest entity, AuthorizationPolicy policy) {
+		Set<String> permissions = super.getPermissions(entity, policy);
+		// add permissions, when CHANGEPERMISSION is available
+		if (PermissionUtils.hasPermission(permissions, IdentityBasePermission.CHANGEPERMISSION)) {
+			permissions.add(IdmBasePermission.READ.getName());
+			permissions.add(IdmBasePermission.CREATE.getName());
+			permissions.add(IdmBasePermission.UPDATE.getName());
+			permissions.add(IdmBasePermission.DELETE.getName());
+		}
+		return permissions;
+	}
+	
+	@Override
+	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
+		Set<String> authorities = super.getAuthorities(identityId, policy);
+		// add permissions, when CHANGEPERMISSION is available
+		if (PermissionUtils.hasPermission(authorities, IdentityBasePermission.CHANGEPERMISSION)) {
+			authorities.add(IdmBasePermission.READ.getName());
+			authorities.add(IdmBasePermission.CREATE.getName());
+			authorities.add(IdmBasePermission.UPDATE.getName());
+			authorities.add(IdmBasePermission.DELETE.getName());
+		}
+		return authorities;
 	}
 }

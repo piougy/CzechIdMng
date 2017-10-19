@@ -82,32 +82,19 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	public static final String DEFAULT_ROLE_NAME = "userRole";
 	
-	@Autowired
-	private InitApplicationData initApplicationData;	
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmTreeNodeService treeNodeService;	
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private IdmContractGuaranteeService contractGuaranteeService;
-	@Autowired
-	private SecurityService securityService;	
-	@Autowired
-	private ConfigurationService configurationService;	
-	@Autowired
-	private FormService formService;	
-	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	@Autowired
-	private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private InitApplicationData initApplicationData;	
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmTreeNodeService treeNodeService;	
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private SecurityService securityService;	
+	@Autowired private ConfigurationService configurationService;	
+	@Autowired private FormService formService;	
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -192,7 +179,11 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				role1 = this.roleService.save(role1);
 				// self policy
 				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
-				selfPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
+				selfPolicy.setPermissions(
+						IdmBasePermission.AUTOCOMPLETE, 
+						IdmBasePermission.READ, 
+						IdentityBasePermission.PASSWORDCHANGE, 
+						IdentityBasePermission.CHANGEPERMISSION);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
 				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());

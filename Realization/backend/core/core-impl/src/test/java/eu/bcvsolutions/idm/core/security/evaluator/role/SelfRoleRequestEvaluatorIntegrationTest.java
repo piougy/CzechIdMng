@@ -5,8 +5,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.InitDemoData;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -86,6 +88,26 @@ public class SelfRoleRequestEvaluatorIntegrationTest extends AbstractIntegration
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
 			conceptRoleRequestController.find(null, null, IdmBasePermission.READ);
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testCreateRoleRequestForSelf() {
+		IdmIdentityDto identityOne = helper.createIdentity();
+		// assign default role
+		helper.createIdentityRole(identityOne, roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME));
+		//
+		try {			
+			loginService.login(new LoginDto(identityOne.getUsername(), identityOne.getPassword()));
+			//
+			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+			roleRequest.setApplicant(identityOne.getId());
+			roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
+			roleRequest = roleRequestService.save(roleRequest, IdmBasePermission.CREATE);
+			//
+			Assert.notNull(roleRequest.getId());
 		} finally {
 			logout();
 		}

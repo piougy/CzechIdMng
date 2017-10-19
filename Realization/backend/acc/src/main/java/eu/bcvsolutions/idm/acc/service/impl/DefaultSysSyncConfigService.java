@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -42,19 +41,15 @@ public class DefaultSysSyncConfigService
 
 	private final SysSyncConfigRepository repository;
 	private final SysSyncLogService synchronizationLogService;
-	private final LookupService lookupService;
 
 	@Autowired
-	public DefaultSysSyncConfigService(SysSyncConfigRepository repository, SysSyncLogService synchronizationLogService,
-			LookupService lookupService) {
+	public DefaultSysSyncConfigService(SysSyncConfigRepository repository, SysSyncLogService synchronizationLogService) {
 		super(repository);
 		//
 		Assert.notNull(synchronizationLogService);
-		Assert.notNull(lookupService);
 		//
 		this.repository = repository;
 		this.synchronizationLogService = synchronizationLogService;
-		this.lookupService = lookupService;
 	}
 
 	@Override

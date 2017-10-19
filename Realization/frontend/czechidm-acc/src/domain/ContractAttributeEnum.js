@@ -130,5 +130,4 @@ ContractAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
 ContractAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
 ContractAttributeEnum.EXTERNE = Symbol('EXTERNE');
 ContractAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
-ContractAttributeEnum.DISABLED = Symbol('DISABLED');
 ContractAttributeEnum.GUARANTESS = Symbol('GUARANTESS');

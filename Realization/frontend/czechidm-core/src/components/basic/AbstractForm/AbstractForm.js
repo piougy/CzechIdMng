@@ -5,6 +5,7 @@ import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponen
 import merge from 'object-assign';
 import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
 import Loading from '../Loading/Loading';
+import _ from 'lodash';
 
 
 class AbstractForm extends AbstractContextComponent {
@@ -12,15 +13,27 @@ class AbstractForm extends AbstractContextComponent {
   constructor(props, context) {
     super(props, context);
     this.findFormComponentsKeys = this.findFormComponentsKeys.bind(this);
-    const componentsKeys = [];
+    const keys = [];
     // We need find our form components keys (only ReactElement) in form
-    this.findFormComponentsKeys(this.props.children, componentsKeys, this);
+    this.findFormComponentsKeys(this.props.children, keys, this);
     const mode = this.props.mode ? this.props.mode : ApiOperationTypeEnum.UPDATE;
     const { showLoading } = props;
-    this.state = { mode, showLoading: (showLoading != null ? showLoading : true), componentsKeys};
+    this.state = { mode, showLoading: (showLoading != null ? showLoading : true), componentsKeys: keys};
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.children !== this.props.children) {
+      const {componentsKeys} = this.state;
+      const newComponentKeys = [];
+      // We need find our form components keys and compare they with previous keys.
+      // If keys (component) changed, then we set new keys and set data.
+      this.findFormComponentsKeys(this.props.children, newComponentKeys, this);
+      if (!(_.isEqual(componentsKeys ? componentsKeys.sort() : [], newComponentKeys.sort()))) {
+        this.setState({componentsKeys: newComponentKeys}, () => {
+          this.setData(nextProps.data);
+        });
+      }
+    }
     if (nextProps.readOnly !== this.props.readOnly) {
       this.setReadOnly(nextProps.readOnly);
     }

@@ -573,8 +573,7 @@
       "UPDATE": "Update",
       "DELETE": "Delete",
       "EXECUTE": "Execute",
-      "PASSWORDCHANGE": "Password change",
-      "PASSWORDRESET": "Password reset"
+      "PASSWORDCHANGE": "Password change"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -641,7 +640,6 @@
       "admin": "Administrator",
       "button": {
         "login": "$t(content.login.header)",
-        "passwordReset": "$t(content.password.reset.button.passwordReset)",
         "passwordChange": "$t(content.password.change.button.passwordChange)",
         "logout": {
           "value": "Logout",
@@ -657,38 +655,6 @@
       }
     },
     "password": {
-      "reset": {
-        "header": "Password reset",
-        "title": "Password reset",
-        "username": "Enter your username",
-        "token": {
-          "label": "Verification code",
-          "placeholder": "Verification code received via SMS"
-        },
-        "password": "New password",
-        "passwordAgain": {
-          "label": "Password again",
-          "placeholder": "New password again"
-        },
-        "button": {
-          "haveToken": "I have already received the verification code",
-          "sendToken": "Send",
-          "passwordReset": "Password reset"
-        },
-        "message": {
-          "generateResetToken": {
-            "info": "This form can be used to reset the password for your user identity. After sending you will receive a verification code that you can use to reset your password. The password can be reset only once every 24 hours. If you already have a valid verification code, press 'I have already received'",
-            "success": "Verification code will be sent via SMS"
-          },
-          "passwordReset": {
-            "info": "On your phone number verification code was sent. Now you can change the password to your user account. If you do not receive an SMS message to a few minutes, please contact technical support. For technical problems, contact support at the email address helpdesk@bcvsolutions.eu",
-            "success": {
-              "title": "Reset your password successfully changed",
-              "message": "Your password was successfully changed on all your accounts"
-            }
-          }
-        }
-      },
       "change": {
         "header": "Change password",
         "title": "Change password",
@@ -992,9 +958,6 @@
           "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users?",
           "error": "When you activate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are activated"
-        },
-        "reset": {
-          "action": "Password reset"
         },
         "remove": {
           "action": "Remove"
@@ -1527,37 +1490,6 @@
         },
         "button": {
           "change": "Change password"
-        }
-      },
-      "passwordReset": {
-        "header": "Password reset",
-        "title": "Password reset",
-        "info": "Password will be reset to users above on selected systems",
-        "message": {
-          "loadResourcesFailed": "Error during loading account on system of user {{username}}",
-          "resetFailed": "Password reset for user {{username}} failed",
-          "resetSuccess": "Password reset for users {{usernames}} was successful"
-        },
-        "confirm": {
-          "title": "Password reset",
-          "message": "Do you really want to reset passwords for user <strong>{{username}}</strong> on selected systems?",
-          "message_plural": "Do you really want to reset passwords for <strong>{{count}}</strong> selected users on selected systems?"
-        },
-        "accounts": {
-          "empty": "User {{username}} doesn't have account on system {{resource}}"
-        },
-        "users": {
-          "empty": "Please, select users which you want to reset password."
-        },
-        "selection": {
-          "empty": "Please, select at least one users and system where you want to reset password"
-        },
-        "button": {
-          "reset": "Reset password"
-        },
-        "label": {
-          "selectAllUsername": "$t(label.selectAll) from given user",
-          "selectAllResource": "$t(label.selectAll) from given system"
         }
       },
       "identityRoleDetail": {
@@ -2809,14 +2741,6 @@
     "MUST_CHANGE_IDM_PASSWORD": {
       "title": "Password change required",
       "message": "It is required to change your password for CzechIdM."
-    },
-    "PASSWORD_RESET_GENERATE_TOKEN": {
-      "title": "Token wasn't sent",
-      "message": "{{0}}"
-    },
-    "PASSWORD_RESET_FAILED": {
-      "title": "Password reset wasn't completed",
-      "message": "{{0}}"
     },
     "PASSWORD_CHANGE_FAILED": {
       "title": "Password change wasn't completed",

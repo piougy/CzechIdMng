@@ -596,8 +596,7 @@
       "UPDATE": "Úprava",
       "DELETE": "Mazání",
       "EXECUTE": "Spouštění",
-      "PASSWORDCHANGE": "Změna hesla",
-      "PASSWORDRESET": "Reset hesla"
+      "PASSWORDCHANGE": "Změna hesla"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -664,7 +663,6 @@
       "admin": "Administrátor",
       "button": {
         "login": "$t(content.login.header)",
-        "passwordReset": "$t(content.password.reset.button.passwordReset)",
         "passwordChange": "$t(content.password.change.button.passwordChange)",
         "logout": {
           "value": "Odhlásit se",
@@ -680,38 +678,6 @@
       }
     },
     "password": {
-      "reset": {
-        "header": "Reset hesla",
-        "title": "Reset hesla",
-        "username": "Zadejte uživatelské jméno",
-        "token": {
-          "label": "Ověřovací kód",
-          "placeholder": "Ověřovací kód obdržený v SMS zprávě"
-        },
-        "password": "Nové heslo",
-        "passwordAgain": {
-          "label": "Heslo znovu",
-          "placeholder": "Nové heslo pro kontrolu"
-        },
-        "button": {
-          "haveToken": "Již jsem obdržel ověřovací kód",
-          "sendToken": "Odeslat",
-          "passwordReset": "Reset hesla"
-        },
-        "message": {
-          "generateResetToken": {
-            "info": "Tento formulář lze použít pro reset hesla Vaší uživatelské identity. Po odeslání Vám bude zaslán ověřovací kód, který budete moci použít pro nastavení nového hesla. Heslo lze resetovat pouze jednou za 24 hodin. Pokud již máte platný ověřovací kód, stiskněte tlačítko Již jsem obdržel ověřovací kód.",
-            "success": "Ověřovací kód Vám byl zaslán prostřednictvím SMS"
-          },
-          "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
-            "success": {
-              "title": "Reset hesla proběhl v pořádku",
-              "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
-            }
-          }
-        }
-      },
       "change": {
         "header": "Změna hesla",
         "title": "Změna hesla",
@@ -1025,9 +991,6 @@
           "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
-        },
-        "reset": {
-          "action": "Resetovat heslo"
         },
         "remove": {
           "action": "Odebrat"
@@ -1564,38 +1527,6 @@
         },
         "button": {
           "change": "Změnit heslo"
-        }
-      },
-      "passwordReset": {
-        "header": "Resetování hesla",
-        "title": "Resetování hesla",
-        "info": "Následujícím uživatelům bude resetováno heslo ve vybraných systémech",
-        "message": {
-          "loadResourcesFailed": "Při načítání účtů na systémech pro uživatele {{username}} nastala chyba",
-          "resetFailed": "Resetování hesla pro uživatele {{username}} selhalo",
-          "resetSuccess": "Resetování hesla pro uživatele {{usernames}} úspěšně proběhlo"
-        },
-        "confirm": {
-          "title": "Resetování hesla",
-          "message_1": "Opravdu požadujete resetovat hesla uživatele <strong>{{username}}</strong> na vybraných systémech?",
-          "message_2": "Opravdu požadujete resetovat hesla <strong>{{count}}</strong> vybraných uživatelů na vybraných systémech?",
-          "message_5": "Opravdu požadujete resetovat hesla <strong>{{count}}</strong> vybraných uživatelů na vybraných systémech?"
-        },
-        "accounts": {
-          "empty": "Uživatel {{username}} nemá účet na systému {{resource}}"
-        },
-        "users": {
-          "empty": "Vyberte prosím uživatele, kterým má býti resetováno heslo."
-        },
-        "selection": {
-          "empty": "Vyberte prosím alespoň jednoho uživatele a systém, na kterém má býti resetováno heslo"
-        },
-        "button": {
-          "reset": "Resetovat heslo"
-        },
-        "label": {
-          "selectAllUsername": "$t(label.selectAll) od daného uživatele",
-          "selectAllResource": "$t(label.selectAll) od daného systému"
         }
       },
       "identityRoleDetail": {
@@ -2847,14 +2778,6 @@
     "MUST_CHANGE_IDM_PASSWORD": {
       "title": "Je vyžadována změna Vašeho hesla",
       "message": "Vyžadována změna hesla pro CzechIdM."
-    },
-    "PASSWORD_RESET_GENERATE_TOKEN": {
-      "title": "Zaslání tokenu neproběhlo",
-      "message": "{{0}}"
-    },
-    "PASSWORD_RESET_FAILED": {
-      "title": "Reset hesla neproběhl",
-      "message": "{{0}}"
     },
     "PASSWORD_CHANGE_FAILED": {
       "title": "Změna hesla neproběhla",

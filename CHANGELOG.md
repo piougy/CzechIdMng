@@ -48,7 +48,11 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
-##### Contracts
+##### Identity
+
+- Password reset functionality was removed from core module. Password reset will be standalone module.
+
+##### Contractual relation
 
 - ``IdmIdentityContractRepository#deleteByIdentity`` was removed. It was skipping audit (bug).
 

@@ -732,14 +732,6 @@ module.exports = {
         'path': '/password/change',
         'icon': false,
         'access': [ { 'type': 'NOT_AUTHENTICATED' } ]
-      },
-      {
-        'id': 'password-reset',
-        'section': 'main',
-        'labelKey': 'content.password.reset.title',
-        'order': 20,
-        'path': '/password/reset',
-        'access': [ { 'type': 'DENY_ALL' } ]
       }
     ]
   }

@@ -208,9 +208,9 @@ class VsRequestDetail extends Basic.AbstractContent {
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
         level={VsValueChangeType.getLevel(entity.value.change)}
         style={entity.value.change === 'REMOVED' ? {textDecoration: 'line-through'} : null}
-        text={value ? value + '' : '' }/>);
+        text={value !== null ? value + '' : '' }/>);
     }
-    return value;
+    return value !== null ? value + '' : '';
   }
 
   render() {

@@ -236,15 +236,8 @@ class Roles extends Basic.AbstractContent {
    * @return {[type]} [description]
    */
   _canChangePermissions() {
-    const { userContext, identity, _permissions } = this.props;
-    const { entityId } = this.props.params;
-    // authority to create role requests is required
-    if (!SecurityManager.hasAuthority('ROLEREQUEST_CREATE')) {
-      return false;
-    }
-    // self or can edit by conventions
-    // TODO: how to check access for new role requests before creating new record?
-    return (entityId === userContext.username) || identityManager.canSave(identity, _permissions);
+    const { _permissions } = this.props;
+    return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
   }
 
   /**

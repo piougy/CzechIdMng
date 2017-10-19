@@ -7,9 +7,13 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -19,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
@@ -38,18 +43,22 @@ public class IdentityDeleteProcessor
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
 	private final AccIdentityAccountService identityAccountService;
 	private final SysProvisioningBreakRecipientService provisioningBreakRecipientService;
+	private final SysSyncConfigRepository syncConfigRepository;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
 			AccIdentityAccountService identityAccountService,
-			SysProvisioningBreakRecipientService provisioningBreakRecipientService) {
+			SysProvisioningBreakRecipientService provisioningBreakRecipientService,
+			SysSyncConfigRepository syncConfigRepository) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(identityAccountService);
 		Assert.notNull(provisioningBreakRecipientService);
+		Assert.notNull(syncConfigRepository);
 		//
 		this.identityAccountService = identityAccountService;
 		this.provisioningBreakRecipientService = provisioningBreakRecipientService;
+		this.syncConfigRepository = syncConfigRepository;
 	}
 	
 	@Override
@@ -59,8 +68,14 @@ public class IdentityDeleteProcessor
 
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		IdmIdentityDto identity = event.getContent();
+		
+		if(identity != null && identity.getId() != null) {
+			syncConfigRepository.clearDefaultLeader(identity.getId());
+		}
+		
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
-		filter.setIdentityId(event.getContent().getId());
+		filter.setIdentityId(identity.getId());
 		identityAccountService.find(filter, null).forEach(identityAccount -> {
 			identityAccountService.forceDelete(identityAccount);
 		});

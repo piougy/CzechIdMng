@@ -46,11 +46,12 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
   * use bean names, e.g. `@Service("identityService")`
   * use `@Transaction` annotation for service methods
   * use interfaces
-    * `Configurable` for configurations
-    * `Codeable` for entities with code and name - see database naming [convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
+    * ``Configurable`` for configurations
+    * ``Codeable`` for entities with code and name - see database naming [convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
     * ...
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
+  * ``final`` modifier only there, when is needed (its discutable, but we are using it this way)
 
 ### IDE
 * [Eclipse](https://wiki.czechidm.com/7.3/dev/quickstart/ide/eclipse)

@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
 ##### Identity
 
 - Warning notifications about expired password and before password expiration are not send to disabled identities.
+- Base permission ``CHANGEPERMISSION`` was added for identities. This permission is used for evaluating rights to identity's role requests - changing identity permissions. Add this new permission to your configured authorization policies (e.g for SelfIdentityEvaluator, SubordinatesEvaluator).
 
 ##### Contractual relation
 
@@ -53,7 +54,11 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
-##### Contracts
+##### Identity
+
+- Password reset functionality was removed from core module. Password reset will be standalone module.
+
+##### Contractual relation
 
 - ``IdmIdentityContractRepository#deleteByIdentity`` was removed. It was skipping audit (bug).
 

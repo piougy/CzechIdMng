@@ -102,13 +102,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     });
   }
 
-  onReset(bulkActionValue, usernames) {
-    // push state to redux
-    this.context.store.dispatch(this.dataManager.storeData('selected-usernames', usernames));
-    // redirect to reset page
-    this.context.router.push(`/identities/password/reset`);
-  }
-
   render() {
     const {
       uiKey,
@@ -211,8 +204,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: !deleteEnabled },
               { value: 'activate', niceLabel: this.i18n('action.activate.action'), action: this.onActivate.bind(this) },
-              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this) },
-              { value: 'password-reset', niceLabel: this.i18n('action.reset.action'), action: this.onReset.bind(this), disabled: true }
+              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this) }
             ]
           }
           buttons={

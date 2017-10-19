@@ -215,11 +215,11 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			return false;
 		}
 		if (operationType == ProvisioningEventType.CREATE) {
-			return Boolean.TRUE.equals(blockedOperation.getCreateOperation());
+			return blockedOperation.getCreateOperation();
 		} else if (operationType == ProvisioningEventType.DELETE) {
-			return Boolean.TRUE.equals(blockedOperation.getDeleteOperation());
+			return blockedOperation.getDeleteOperation();
 		} else if (operationType == ProvisioningEventType.UPDATE) {
-			return Boolean.TRUE.equals(blockedOperation.getUpdateOperation());
+			return blockedOperation.getUpdateOperation();
 		}
 		return false;
 	}
@@ -251,10 +251,6 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	 * @param system
 	 */
 	private void blockSystemForOperation(ProvisioningEventType event, SysSystemDto system) {
-		if (system.getBlockedOperation() == null) {
-			system.setBlockedOperation(new SysBlockedOperationDto());
-		}
-		//
 		if (event == ProvisioningEventType.CREATE) {
 			system.getBlockedOperation().blockCreate();
 		} else if (event == ProvisioningEventType.DELETE) {

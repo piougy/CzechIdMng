@@ -184,7 +184,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNull(system.getBlockedOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
 	}
 
 	@Test
@@ -209,7 +211,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNotNull(system.getBlockedOperation());
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
@@ -240,7 +241,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNull(system.getBlockedOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
 	}
 
 	@Test
@@ -268,7 +271,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNotNull(system.getBlockedOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
@@ -303,7 +305,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNull(system.getBlockedOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
 	}
 
 	@Test
@@ -335,7 +339,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNotNull(system.getBlockedOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
@@ -363,7 +366,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNull(system.getBlockedOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
 		//
 		provisioningService.doProvisioning(identity);
 		provisioningService.doProvisioning(identity); // block
@@ -374,7 +379,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(4, content.size()); // four notification (notification + parent) + previous
 		//
 		system = systemService.get(system.getId());
-		assertNotNull(system.getBlockedOperation());
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
@@ -460,7 +464,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		//
 		// subtrack 25 minutes from all items
 		long subtrackMinutes = 1500000;
-		List<Long> execudedItems = cacheProcessedItems.getExecudedItems(ProvisioningEventType.UPDATE);
+		List<Long> execudedItems = cacheProcessedItems.getExecutedItems(ProvisioningEventType.UPDATE);
 		// it isn't possible use foreEach or another stream function (reference)
 		for (Long item : execudedItems) {
 			execudedItems.set(execudedItems.indexOf(item), item - subtrackMinutes);
@@ -494,7 +498,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		//
 		// subtrack only 19 minutes from all items
 		long subtrackMinutes = 1140000;
-		List<Long> execudedItems = cacheProcessedItems.getExecudedItems(ProvisioningEventType.UPDATE);
+		List<Long> execudedItems = cacheProcessedItems.getExecutedItems(ProvisioningEventType.UPDATE);
 		// it isn't possible use foreEach or another stream function (reference)
 		for (Long item : execudedItems) {
 			execudedItems.set(execudedItems.indexOf(item), item - subtrackMinutes);
@@ -623,7 +627,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNotNull(system.getBlockedOperation());
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
@@ -651,7 +654,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(0, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNull(system.getBlockedOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
 	}
 	
 	@Test
@@ -680,7 +685,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(0, content.size());
 		//
 		system = systemService.get(system.getId());
-		assertNull(system.getBlockedOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
+		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
 		//
 		provisioningService.doProvisioning(identity); // block
 		//
@@ -695,7 +702,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(2, content.size()); // two notification (notification + parent)
 		//
 		system = systemService.get(system.getId());
-		assertNotNull(system.getBlockedOperation());
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());

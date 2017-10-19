@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysBlockedOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -63,8 +64,13 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 		if (dto.getConnectorServer() == null) {
 			dto.setConnectorServer(new SysConnectorServerDto());
 		}
+		// create default connector key
 		if (dto.getConnectorKey() == null) {
 			dto.setConnectorKey(new SysConnectorKeyDto());
+		}
+		// create default blocked operations
+		if (dto.getBlockedOperation() == null) {
+			dto.setBlockedOperation(new SysBlockedOperationDto());
 		}
 		if (!service.isNew(dto)) {
 			// Check if is connector changed
@@ -102,7 +108,7 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 	 * @param oldSystem
 	 */
 	private void clearProvisionignBreakCache(SysSystemDto newSystem, SysSystemDto oldSystem) {
-		if (newSystem.getBlockedOperation() == null || oldSystem == null || oldSystem.getBlockedOperation() == null) {
+		if (oldSystem == null) {
 			return;
 		}
 		// check if attribute operation disable change from false to true - then clear cache

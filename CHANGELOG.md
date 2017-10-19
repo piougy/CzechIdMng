@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 
 #### Acc module
 
+##### System
+- Add three new attributes for block system provisioning operation (createOperation, updateOperation, deleteOperation). All these attributes has default value false.
+
+
 ##### Provisioning
 
 - After add, remove or update ``IdmContractGuaranteeDto`` is execute provisioning for identity that own this contract.
@@ -22,17 +26,17 @@ All notable changes to this project will be documented in this file.
   - two ways are be configurable by application configuration ``idm.sec.acc.provisioning.supportSendPasswordAttributes`` (is effective for all target systems):
     - ``true``: additional password attributes will be send in one provisioning operation together with password
     - ``false``: additional password attributes will be send in new provisioning operation, after password change operation
+- Add provisioning break for basic operations (create, update, delete), provisioning break can be set per system or globally for all systems.
 
 ### Changed
 
-#### Core module
+##### Identity
 
-##### Contracts
+- Warning notifications about expired password and before password expiration are not send to disabled identities.
+
+##### Contractual relation
 
 - Service ``IdmContractGuaranteeService`` now implements EventableDtoService for method save and delete.
-
-##### Contracts
-
 - Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``ECXLUDED`` - change script is provided. Contract with state ``DISABLED`` is invalid now - all processed work with this state (automatic roles, end of contract process).
 - Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
   - ``IdentityContractCreateByAutomaticRoleProcessor``

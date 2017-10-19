@@ -9,6 +9,6 @@ UPDATE sys_system SET create_operation = false;
 UPDATE sys_system SET update_operation = false;
 UPDATE sys_system SET delete_operation = false;
 
-ALTER TABLE sys_system COLUMN create_operation SET DEFAULT false;
-ALTER TABLE sys_system COLUMN update_operation SET DEFAULT false;
-ALTER TABLE sys_system COLUMN delete_operation SET DEFAULT false;
+ALTER TABLE sys_system ALTER COLUMN create_operation SET DEFAULT false;
+ALTER TABLE sys_system ALTER COLUMN update_operation SET DEFAULT false;
+ALTER TABLE sys_system ALTER COLUMN delete_operation SET DEFAULT false;

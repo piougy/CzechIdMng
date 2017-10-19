@@ -460,7 +460,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		//
 		// subtrack 25 minutes from all items
 		long subtrackMinutes = 1500000;
-		List<Long> execudedItems = cacheProcessedItems.getExecudedItems(ProvisioningEventType.UPDATE);
+		List<Long> execudedItems = cacheProcessedItems.getExecutedItems(ProvisioningEventType.UPDATE);
 		// it isn't possible use foreEach or another stream function (reference)
 		for (Long item : execudedItems) {
 			execudedItems.set(execudedItems.indexOf(item), item - subtrackMinutes);
@@ -494,7 +494,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		//
 		// subtrack only 19 minutes from all items
 		long subtrackMinutes = 1140000;
-		List<Long> execudedItems = cacheProcessedItems.getExecudedItems(ProvisioningEventType.UPDATE);
+		List<Long> execudedItems = cacheProcessedItems.getExecutedItems(ProvisioningEventType.UPDATE);
 		// it isn't possible use foreEach or another stream function (reference)
 		for (Long item : execudedItems) {
 			execudedItems.set(execudedItems.indexOf(item), item - subtrackMinutes);

@@ -19,10 +19,9 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class SysProvisioningBreakItems {
 
-	private Map<ProvisioningEventType, List<Long>> executedItems;
+	private final Map<ProvisioningEventType, List<Long>> executedItems;
 
 	public SysProvisioningBreakItems() {
 		this.executedItems = new HashMap<>();
@@ -38,7 +37,7 @@ public class SysProvisioningBreakItems {
 	 * @param timestamp
 	 */
 	public void addItem(ProvisioningEventType provisioningType, Long timestamp) {
-		this.getExecudedItems(provisioningType).add(timestamp);
+		this.getExecutedItems(provisioningType).add(timestamp);
 	}
 
 	/**
@@ -47,7 +46,7 @@ public class SysProvisioningBreakItems {
 	 * @param provisioningType
 	 * @return
 	 */
-	public List<Long> getExecudedItems(ProvisioningEventType provisioningType) {
+	public List<Long> getExecutedItems(ProvisioningEventType provisioningType) {
 		return this.executedItems.get(provisioningType);
 	}
 
@@ -58,7 +57,7 @@ public class SysProvisioningBreakItems {
 	 * @return
 	 */
 	public int getSize(ProvisioningEventType provisioningType) {
-		return this.getExecudedItems(provisioningType).size();
+		return this.getExecutedItems(provisioningType).size();
 	}
 
 	/**
@@ -69,7 +68,7 @@ public class SysProvisioningBreakItems {
 	 * @param timestamp
 	 */
 	public void removeOlderRecordsThan(ProvisioningEventType provisioningType, Long timestamp) {
-		this.getExecudedItems(provisioningType).
+		this.getExecutedItems(provisioningType).
 		removeIf(
 				item -> item < timestamp
 				);
@@ -86,10 +85,10 @@ public class SysProvisioningBreakItems {
 		if (this.getSize(provisioningType) == 0) {
 			return null;
 		}
-		Long first = this.getExecudedItems(provisioningType).get(0);
+		Long first = this.getExecutedItems(provisioningType).get(0);
 		Long last = actualTimestamp;
 		if (last == null) {
-			last = this.getExecudedItems(provisioningType).get(this.getSize(provisioningType) - 1);
+			last = this.getExecutedItems(provisioningType).get(this.getSize(provisioningType) - 1);
 		}
 		return last - first;
 	}
@@ -103,7 +102,7 @@ public class SysProvisioningBreakItems {
 	 * @return
 	 */
 	public List<Long> getRecordsNewerThan(ProvisioningEventType provisioningType, Long timestamp) {
-		return this.getExecudedItems(provisioningType).stream().filter(item -> item >= timestamp)
+		return this.getExecutedItems(provisioningType).stream().filter(item -> item >= timestamp)
 				.collect(Collectors.toList());
 	}
 
@@ -126,6 +125,6 @@ public class SysProvisioningBreakItems {
 	 */
 	public void clearRecords(ProvisioningEventType provisioningType) {
 		Assert.notNull(provisioningType);
-		this.getExecudedItems(provisioningType).clear();
+		this.getExecutedItems(provisioningType).clear();
 	}
 }

@@ -25,14 +25,13 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-#### Core module
+##### Identity
 
-##### Contracts
+- Warning notifications about expired password and before password expiration are not send to disabled identities.
+
+##### Contractual relation
 
 - Service ``IdmContractGuaranteeService`` now implements EventableDtoService for method save and delete.
-
-##### Contracts
-
 - Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``ECXLUDED`` - change script is provided. Contract with state ``DISABLED`` is invalid now - all processed work with this state (automatic roles, end of contract process).
 - Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
   - ``IdentityContractCreateByAutomaticRoleProcessor``

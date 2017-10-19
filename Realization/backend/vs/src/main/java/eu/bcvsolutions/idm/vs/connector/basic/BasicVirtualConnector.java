@@ -294,6 +294,17 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		}
 
 		account = new VsAccountDto();
+		// Set ENABLE - if is supported
+		IcAttribute enableAttribute = geAttribute(attributes, IcAttributeInfo.ENABLE);
+		if (enableAttribute != null && this.virtualConfiguration.isDisableSupported()) {
+			Object attributeEnableValue = enableAttribute.getValue();
+			if (!(attributeEnableValue instanceof Boolean)) {
+				throw new IcException(
+						MessageFormat.format("ENABLE attribute value [{0}] must be Boolean!", attributeEnableValue));
+			}
+			account.setEnable((Boolean) attributeEnableValue);
+		}
+
 		account.setUid(uid);
 		account.setSystemId(this.systemId);
 		account.setConnectorKey(connectorKey);
@@ -429,8 +440,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	}
 
 	/**
-	 * Overwrite attributes form VS account with attributes from unresloved
-	 * requests
+	 * Overwrite attributes form VS account with attributes from unresloved requests
 	 * 
 	 * @param account
 	 * 
@@ -653,8 +663,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 	/**
 	 * We have to change system entity directly from VS module (request can be
-	 * started/executed async => standard process update UID in system entity
-	 * (ACC module) will not works!)
+	 * started/executed async => standard process update UID in system entity (ACC
+	 * module) will not works!)
 	 * 
 	 * @param uidValue
 	 * @param attributeUidValue
@@ -809,8 +819,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	}
 
 	/**
-	 * Load implementers by UUIDs in connector configuration. Throw exception
-	 * when identity not found.
+	 * Load implementers by UUIDs in connector configuration. Throw exception when
+	 * identity not found.
 	 * 
 	 * @param implementersString
 	 * @return
@@ -833,9 +843,9 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	}
 
 	/**
-	 * Load implementer roles by UUIDs in connector configuration. If none role
-	 * are set and none direct implementers are set, then will be used default
-	 * role. Throw exception when identity not found.
+	 * Load implementer roles by UUIDs in connector configuration. If none role are
+	 * set and none direct implementers are set, then will be used default role.
+	 * Throw exception when identity not found.
 	 * 
 	 * @param implementerRolesUUID
 	 * @param implementersFromConfig

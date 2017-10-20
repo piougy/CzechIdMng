@@ -19,9 +19,9 @@ public interface ProvisioningConfiguration extends Configurable {
 	 * - true: additional password attributes will be send in one provisioning operation together with password
 	 * - false: additional password attributes will be send in new provisioning operation, after password change operation
 	 */
-	static final String PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES = 
-			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "acc.provisioning.supportSendPasswordAttributes";
-	static final boolean DEFAULT_SUPPORT_SEND_PASSWORD_ATTRIBUTES = true;
+	static final String PROPERTY_SEND_PASSWORD_ATTRIBUTES_TOGETHER = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "acc.provisioning.sendPasswordAttributesTogether";
+	static final boolean DEFAULT_SEND_PASSWORD_ATTRIBUTES_TOGETHER = true;
 	
 	@Override
 	default java.lang.String getConfigurableType() {
@@ -36,7 +36,7 @@ public interface ProvisioningConfiguration extends Configurable {
 	@Override
 	default List<String> getPropertyNames() {
 		List<String> properties = new ArrayList<>();  // we are not using superclass properties - enable and order does not make a sense here
-		properties.add(PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES);
+		properties.add(PROPERTY_SEND_PASSWORD_ATTRIBUTES_TOGETHER);
 		return properties;
 	}
 	
@@ -53,5 +53,5 @@ public interface ProvisioningConfiguration extends Configurable {
 	 * 
 	 * @return
 	 */
-	boolean isSupportSendPasswordAttributes();
+	boolean isSendPasswordAttributesTogether();
 }

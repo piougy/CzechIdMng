@@ -367,7 +367,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			//
 			// password change operation
 			SysProvisioningOperationDto operation;
-			if (provisioningExecutor.getConfiguration().isSupportSendPasswordAttributes() && additionalProvisioningOperation != null) {
+			if (provisioningExecutor.getConfiguration().isSendPasswordAttributesTogether() && additionalProvisioningOperation != null) {
 				// all attributes as start
 				operation = additionalProvisioningOperation;
 				//

@@ -295,18 +295,25 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 		} else {
 			recipients = breakRecipientService.getAllRecipientsForGlobalConfiguration(operationType);
 		}
+		IdmMessageDto message = new IdmMessageDto.Builder()
+				.setTemplate(template)
+				.addParameter("systemName", system.getName())
+				.addParameter("operationName", operationType.name())
+				.addParameter("actualCount", actualCount)
+				.addParameter("minTime", minTime)
+				.addParameter("secTime", secTime)
+				.build();
+		//
+		// send different notification level for warning and disable
+		if (topic.equals((AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING))) {
+			message.setLevel(NotificationLevel.WARNING);
+		} else {
+			message.setLevel(NotificationLevel.ERROR);
+		}
 		//
 		notificationManager.send(
 				topic,
-				new IdmMessageDto.Builder()
-					.setTemplate(template)
-					.setLevel(NotificationLevel.WARNING)
-					.addParameter("systemName", system.getName())
-					.addParameter("operationName", operationType.name())
-					.addParameter("actualCount", actualCount)
-					.addParameter("minTime", minTime)
-					.addParameter("secTime", secTime)
-					.build(),
+				message,
 				recipients);
 	}
 

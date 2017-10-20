@@ -17,8 +17,8 @@ public class DefaultProvisioningConfiguration extends AbstractConfiguration impl
 	@Autowired private ProvisioningBreakConfiguration provisioningBreakConfiguration;
 	
 	@Override
-	public boolean isSupportSendPasswordAttributes() {
-		return getConfigurationService().getBooleanValue(PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES, DEFAULT_SUPPORT_SEND_PASSWORD_ATTRIBUTES);
+	public boolean isSendPasswordAttributesTogether() {
+		return getConfigurationService().getBooleanValue(PROPERTY_SEND_PASSWORD_ATTRIBUTES_TOGETHER, DEFAULT_SEND_PASSWORD_ATTRIBUTES_TOGETHER);
 	}
 
 	@Override

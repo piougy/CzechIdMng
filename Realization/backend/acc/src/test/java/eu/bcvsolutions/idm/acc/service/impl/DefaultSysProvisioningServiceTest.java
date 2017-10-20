@@ -1131,7 +1131,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testPasswordChangeWithAdditionalAttributesInOneOperation() {
-		Assert.assertTrue(provisioningConfiguration.isSupportSendPasswordAttributes());
+		Assert.assertTrue(provisioningConfiguration.isSendPasswordAttributesTogether());
 		//
 		// prepare account on target system
 		SysSystemDto system = helper.createTestResourceSystem(true);
@@ -1170,9 +1170,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testPasswordChangeWithAdditionalAttributesInTwoOperations() {
-		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES, false);
+		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_SEND_PASSWORD_ATTRIBUTES_TOGETHER, false);
 		try {
-			Assert.assertFalse(provisioningConfiguration.isSupportSendPasswordAttributes());
+			Assert.assertFalse(provisioningConfiguration.isSendPasswordAttributesTogether());
 			// prepare account on target system
 			SysSystemDto system = helper.createTestResourceSystem(true);
 			SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
@@ -1207,8 +1207,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			Assert.assertEquals(IDENTITY_PASSWORD_ONE, resource.getPassword());
 			Assert.assertEquals(firstNameChange, resource.getFirstname());
 		} finally {
-			configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_SUPPORT_SEND_PASSWORD_ATTRIBUTES, true);
-			Assert.assertTrue(provisioningConfiguration.isSupportSendPasswordAttributes());
+			configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_SEND_PASSWORD_ATTRIBUTES_TOGETHER, true);
+			Assert.assertTrue(provisioningConfiguration.isSendPasswordAttributesTogether());
 		}
 	}
 	

@@ -23,7 +23,7 @@ All notable changes to this project will be documented in this file.
 - It's possible to send additional attributes, when password is changed (e.g. password expiration in extended attribute). New flag ``sendOnPasswordChange`` was added to system attribute mapping - attribute with this flag checked will be send together with changed password to provisioning. Two ways for provisioning additional attributes are implemented:
   - send additional attributes together with new password in one provisioning operation
   - send additional attributes after password is changed in another provisioning operation
-  - two ways are be configurable by application configuration ``idm.sec.acc.provisioning.supportSendPasswordAttributes`` (is effective for all target systems):
+    - two ways are be configurable by application configuration ``idm.sec.acc.provisioning.sendPasswordAttributesTogether`` (is effective for all target systems):
     - ``true``: additional password attributes will be send in one provisioning operation together with password
     - ``false``: additional password attributes will be send in new provisioning operation, after password change operation
 - Add provisioning break for basic operations (create, update, delete), provisioning break can be set per system or globally for all systems.

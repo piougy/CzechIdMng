@@ -936,8 +936,8 @@
           "placeholder": "Assigned role"
         },
         "disabled": {
-          "label": "Inactive",
-          "placeholder": "Inactive"
+          "label": "$t(label.disabled)",
+          "placeholder": "$t(label.disabled)"
         }
       },
       "action": {
@@ -2021,7 +2021,7 @@
       "password": "Password",
       "passwordAgain": "Re-enter password",
       "homeOrganisation": "Home organization",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "internist": "Employee",
       "externe": "External contractor",
       "titleBefore": "Titles before",
@@ -2122,7 +2122,7 @@
       "roleType": "Type",
       "priority": "Priority",
       "priorityEnum": "Priority level",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "approvable": "Approval required",
       "superiorRoles": "Superior roles",
       "subRoles": "Subordinate roles",
@@ -2145,7 +2145,7 @@
       "_type": "Permission",
       "role": "Role",
       "disabled": {
-        "label": "Inactive",
+        "label": "$t(label.disabled)",
         "help": "Inactive policy will not be applied"
       },
       "description": {
@@ -2230,8 +2230,8 @@
         "title": "Authorizer and all managers for position in structure"
       },
       "disabled": {
-        "label": "Inactive",
-        "help": "Inactive work position. Roles cannot be assigned to inactive position. Depends on position's state."
+        "label": "$t(label.disabled)",
+        "help": "Invalid work position. Roles cannot be assigned to invalid position. Depends on position's state."
       },
       "description": "Note",
       "main": {
@@ -2248,7 +2248,7 @@
       "id": "Identifier",
       "code": "Code",
       "name": "Name",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "shortName": "Name",
       "parentId": "Superior element",
       "parent": {
@@ -2459,7 +2459,7 @@
       "basic": "Basic information",
       "bases": "Characters",
       "generateType": "Generation type",
-      "disabled": "Disabled",
+      "disabled": "$t(label.disabled)",
       "description": "Description",
       "defaultPolicy": "Default policy",
       "passwordLengthRequired": "Password length requirement",
@@ -2508,7 +2508,7 @@
       "vendor": "Provider",
       "version": "Version",
       "description": "Description",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "documentation": "Documentation",
       "build": "Build",
       "buildNumber": "Revision",
@@ -2522,7 +2522,7 @@
       "entityType": "Entity type",
       "eventTypes": "Event types",
       "order": "Order",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "disableable": "Cannot be inactivated",
       "closeable": "Closes processing"
     },

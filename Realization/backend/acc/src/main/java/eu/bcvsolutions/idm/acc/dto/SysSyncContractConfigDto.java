@@ -4,9 +4,6 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;

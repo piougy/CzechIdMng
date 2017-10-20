@@ -157,7 +157,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
                 level="success"
                 type="submit"
                 showLoading={_showLoading}>
-                {this.i18n('button.save')}
+                {this.i18n('button.saveAndContinue')}
               </Basic.Button>
             </Basic.PanelFooter>
           </Basic.Panel>

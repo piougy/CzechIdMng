@@ -256,7 +256,7 @@ export default class UiUtils {
    * @param {Integer}
    * @return {Integer}
    */
-  static getJoiIntegerValidation(max) {
+  static getIntegerValidation(max) {
     if (max) {
       return Joi.number().integer().allow(null).allow(0).positive().max(max);
     }

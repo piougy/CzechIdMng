@@ -56,7 +56,7 @@ public abstract class AbstractTransitiveEvaluator<E extends Identifiable> extend
 		if (entity == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
-		// evaluates permissions on IdmIdentity.class
+		// evaluates permissions on owner class
 		return authorizationManager.getPermissions(getOwner(entity));
 	}
 	

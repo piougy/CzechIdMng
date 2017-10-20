@@ -6,6 +6,11 @@ import { SystemManager } from '../../redux';
 
 const manager = new SystemManager();
 
+/**
+ * System detail tabs - route
+ *
+ * @author Radek Tomiška
+ */
 class System extends Basic.AbstractContent {
 
   componentDidMount() {

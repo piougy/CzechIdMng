@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -25,8 +26,9 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  *
  * @author Peter Sourek <peter.sourek@bcvsolutions.eu>
  */
-public abstract class AbstractIdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto> {
-
+public abstract class AbstractIdentityPasswordValidateProcessor 
+		extends CoreEventProcessor<IdmIdentityDto> 
+		implements IdentityProcessor {
 
 	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;

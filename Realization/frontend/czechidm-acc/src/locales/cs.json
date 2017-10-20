@@ -36,7 +36,8 @@
         },
         "loadRemoteConnectors": "Nahrát konektory ze vzdáleného serveru",
         "remoteConnectorServer": "Vzdálený konektor server",
-        "basic": "Základní informace"
+        "basic": "Základní informace",
+        "blockedOperationInfo": "Pozor, na systému jsou blokované některé operace [{{operations}}]!"
       },
       "entities": {
         "header": "Entity na koncovém systému <small>uložené v IdM</small>",
@@ -145,11 +146,28 @@
           "basicConfiguration": {
             "label": "Základní konfigurace"
           },
+          "specificConfiguration": {
+            "label": "Specifická konfigurace"
+          },
           "filterConfiguration": {
             "label": "Filtr"
           },
           "logs": {
             "label": "Logy"
+          }
+        },
+        "contractConfigDetail":{
+          "defaultTreeType": {
+            "label": "Výchozí typ struktury",
+            "helpBlock": "Vztahy budou přiřazeny (vyhledávány) na pozice v rámci vybrané stromové struktury."
+          },
+          "defaultTreeNode": {
+            "label": "Výchozí pozice ve struktuře",
+            "helpBlock": "Pokud není pro daný vztah vyplněna pozice (ve zdrojovém systému), pak bude vztah přiřazen na tuto výchozí."
+          },
+          "defaultLeader": {
+            "label": "Výchozí vedoucí",
+            "helpBlock": "Pokud není pro daný vztah vyplněn žádný vedoucí (ve zdrojovém systému), pak bude vztahu přiřazen tento výchozí vedoucí."
           }
         }
       },
@@ -399,6 +417,27 @@
         }
       }
     },
+    "contract": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
     "provisioningOperations": {
       "label": "Provisioning",
       "title" : "Provisioning - log operací",
@@ -468,6 +507,36 @@
         }
       }
     },
+    "provisioningBreakConfig": {
+      "title" : "Brzda provisioningu",
+      "header" : "Brzda provisioningu",
+      "save": {
+        "success": "Brzda provisioningu byla úspěšně uložena"
+      },
+      "create": {
+        "success": "Brzda provisioningu byla úspěšně vytvořena"
+      },
+      "recipientInfo": "Příjemce můžete přidat až po vytvoření brzdy.",
+      "removeFailture": "Žádné konfigurace nebyly odebrány.",
+      "action": {
+        "delete": {
+          "message_1": "Opravdu chcete odebrat vybraný záznam [<strong>{{record}}</strong>]?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
+          "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybrané záznamy?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
+          "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybraných záznamů?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>"
+        }
+      }
+    },
+    "provisioningBreakConfigRecipient": {
+      "title": "Příjemci",
+      "new": "Vytvořit nového příjemce",
+      "edit": "Editace příjemce",
+      "save": {
+        "success": "Příjemce byl úspešně uložen"
+      },
+      "create": {
+        "success": "Příjemce byl úspěšně vytvořen"
+      }
+    },
     "passwordPolicy": {
       "system": {
         "tab": "Navázané systémy",
@@ -479,6 +548,7 @@
     "System": {
       "_type": "Koncový systém",
       "name": "Název systému",
+      "blockedOperation": "Blokované operace",
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
@@ -513,6 +583,23 @@
       "password": "Heslo",
       "timeout": "Timeout",
       "useSsl": "SSL"
+    },
+    "BlockedOperation": {
+      "createOperation": {
+        "label": "Blokování operace vytvoření",
+        "help": "Všechny operace typu vytvoření budou blokovány",
+        "short": "Vytvoření"
+      },
+      "updateOperation": {
+        "label": "Blokování operace úprava",
+        "help": "Všechny operace typu úprava budou blokovány",
+        "short": "Úprava"
+      },
+      "deleteOperation": {
+        "label": "Blokování operace smazání",
+        "help": "Všechny operace typu smazání budou blokovány",
+        "short": "Smazání"
+      }
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",
@@ -613,6 +700,10 @@
       "disabledAttribute": {
         "label": "Je deaktivován",
         "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
+      },
+      "sendOnPasswordChange": {
+        "label": "Zahrnout při změně hesla",
+        "help": "Odesílat attribut při změně hesla do provisioningu."
       }
     },
     "RoleSystemAttribute": {
@@ -799,6 +890,50 @@
       "entityIdentifier": "Identifikátor entity (IdM)",
       "resultState": "Výsledek",
       "entity": "Entita (IdM)"
+    },
+    "ProvisioningBreakConfig": {
+      "operationType": {
+        "label": "Typ blokované operace",
+        "help": "Typ operace pro kterou bude mít brzda vliv."
+      },
+      "warningLimit": {
+        "label": "Limit pro varování",
+        "help": "Počet operací od kterých se bude posílat varovné hlášení."
+      },
+      "period": {
+        "label": "Perioda [min]",
+        "help": "Perioda po kterou jsou počítány limity operací. Jednotka jsou minuty."
+      },
+      "disableLimit": {
+        "label": "Limit pro zablokování",
+        "help": "Počet operací od kterých budou všechny následující operace zablokovány."
+      },
+      "warningTemplate": {
+        "label": "Šablona pro varovné hlášení",
+        "placeholder": "Výchozí šablona",
+        "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro varování. Pokud není šablona vybrána, bude použita výchozí šablona dle konfigurace notifikací (topic: acc:provisioningBreakWarning)."
+      },
+      "disableTemplate": {
+        "label": "Šablona pro blokační hlášení",
+        "placeholder": "Výchozí šablona",
+        "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro zablokování. Pokud není šablona vybrána, bude použita výchozí šablona dle konfigurace notifikací (topic: acc:provisioningBreakDisable)."
+      },
+      "actualOperationCount": {
+        "label": "Počet zpracovaných operací",
+        "help": "Počet zpracovaných operací pro tuto brzdu provisioningu (odposledního úspěšného provisioningu)."
+      },
+      "disabled": "Neaktivní",
+      "globalConfiguration": "Globální konfigurace"
+    },
+    "ProvisioningBreakConfigRecipient": {
+      "role": "Příjemci s rolí",
+      "identity": "Příjemce",
+      "type": {
+        "label": "Typ příjemce",
+        "role": "Role",
+        "identity": "Identita"
+      },
+      "name": "Příjemce"
     }
   },
   "enums" : {
@@ -806,7 +941,8 @@
       "IDENTITY": "Identita",
       "ROLE": "Role",
       "TREE": "Strom",
-      "ROLE_CATALOGUE": "Katalog rolí"
+      "ROLE_CATALOGUE": "Katalog rolí",
+      "CONTRACT": "Vztah identity"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -912,11 +1048,24 @@
     },
     "RoleAttributeEnum": {
       "NAME": "Název (String)",
-      "ROLE_TYPE": "Typ role (String - RoleType)",
+      "ROLE_TYPE": "Typ role (RoleType - String)",
       "APPROVE_REMOVE": "Schvalovat odebrání (Boolean)",
       "PRIORITY": "Priorita (Integer)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
+      "VALID_FROM": "Platnost od (LocalDate)",
+      "VALID_TILL": "Platnost do (LocalDate)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
+      "POSITION": "Název pozice (String)",
+      "EXTERNE": "Externista (boolean)",
+      "MAIN": "Hlavní vztah (boolean)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "STATE": "Stav (ContractState - String)"
     }
   },
   "permission": {
@@ -938,6 +1087,10 @@
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
       "message": "Pro systém [{{system}}] byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_BREAK_OPERATION_EXISTS": {
+      "title": "Duplicitní konfigurace brzdy pro systém",
+      "message": "Konfigurace brzdy pro tento typ operace [{{operationType}}] a systém [{{systemId}}] již existuje."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
@@ -1126,6 +1279,22 @@
     "ROLE_SYSTEM_ALREADY_EXISTS": {
       "title": "Duplicitní mapování",
       "message": "Mapování pro stejnou roli [{{role}}] a stejný systém [{{system}}] již existuje!"
+    },
+    "SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED": {
+      "title": "Typ synchronizované entity nemůže být změněn!",
+      "message": "Typ synchronizované entity, nemůže být u již existující konfigurace změněn!"
+    },
+    "PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE": {
+      "title": "Konfiguraci nebylo možné smazat",
+      "message": "Konfigurace: {{name}} je globální a nelze ji smazat."
+    },
+    "PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE": {
+      "title": "Konfiguraci nebylo možné uložit",
+      "message": "Konfigurace: {{name}} je globální a nelze ji uložit."
+    },
+    "PROVISIONING_SYSTEM_BLOCKED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] byl zablokován brzdou provisioningu."
     }
   }
 }

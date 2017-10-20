@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -35,26 +36,31 @@ import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
 @Component("accTreeTypeDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
 public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeTypeDto> {
-	
+
 	public static final String PROCESSOR_NAME = "tree-type-delete-processor";
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemService systemService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
-	
+	private final SysSyncConfigRepository syncConfigRepository;
+
 	@Autowired
 	public TreeTypeDeleteProcessor(SysSystemMappingService systemMappingService,
-			SysSystemService systemService, SysSchemaObjectClassService schemaObjectClassService) {
+			SysSystemService systemService,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSyncConfigRepository syncConfigRepository) {
 		super(TreeTypeEventType.DELETE);
 		//
 		Assert.notNull(systemMappingService);
 		Assert.notNull(systemService);
 		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(syncConfigRepository);
 		//
 		this.systemMappingService = systemMappingService;
 		this.systemService = systemService;
 		this.schemaObjectClassService = schemaObjectClassService;
+		this.syncConfigRepository = syncConfigRepository;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
@@ -66,22 +72,29 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 		Asserts.notNull(treeType, "TreeType must be set!");
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setTreeTypeId(treeType.getId());
-		
+
 		List<SysSystemMappingDto> mappings = systemMappingService.find(filter, null).getContent();
 		long count = mappings.size();
 		if (count > 0) {
-			SysSystemDto systemDto = systemService.get(schemaObjectClassService.get(mappings.get(0).getObjectClass()).getSystem());
-			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system",  systemDto.getCode()));
+			SysSystemDto systemDto = systemService
+					.get(schemaObjectClassService.get(mappings.get(0).getObjectClass()).getSystem());
+			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED,
+					ImmutableMap.of("treeType", treeType.getName(), "system", systemDto.getCode()));
 		}
-		
+
+		// Delete link to sync contract configuration
+		if (treeType != null && treeType.getId() != null) {
+			syncConfigRepository.clearDefaultTreeType(treeType.getId());
+		}
+
 		return new DefaultEventResult<>(event, this);
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return CoreEvent.DEFAULT_ORDER - 1;
 	}
-	
+
 	@Override
 	public boolean isDisableable() {
 		return false;

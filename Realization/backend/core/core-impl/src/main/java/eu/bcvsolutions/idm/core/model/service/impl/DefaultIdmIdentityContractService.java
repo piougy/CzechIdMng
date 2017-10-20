@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
@@ -48,6 +49,8 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * - identity contract is required for role assign
  * 
  * @author Radek Tomiška
+ * @see IdentityContractEvent
+ * @see IdentityContractProcessor
  *
  */
 public class DefaultIdmIdentityContractService 
@@ -78,6 +81,13 @@ public class DefaultIdmIdentityContractService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITYCONTRACT, getEntityClass());
+	}
+	
+	@Override
+	protected IdmIdentityContract toEntity(IdmIdentityContractDto dto, IdmIdentityContract entity) {
+		IdmIdentityContract contract = super.toEntity(dto, entity);
+		contract.setDisabled(dto.isDisabled()); // redundant attribute for queries
+		return contract;
 	}
 	
 	@Override
@@ -112,41 +122,53 @@ public class DefaultIdmIdentityContractService
 		if (filter.getMain() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.main), filter.getMain()));
 		}
-		if (filter.getValid() != null && filter.getValid()) {
-			final LocalDate today = LocalDate.now();
-			predicates.add(
-					builder.and(
-							builder.or(
-									builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validFrom), today),
-									builder.isNull(root.get(IdmIdentityContract_.validFrom))
-									),
-							builder.or(
-									builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), today),
-									builder.isNull(root.get(IdmIdentityContract_.validTill))
-									)
-							)
-					);
-		}
-		if (filter.getValid() != null && !filter.getValid()) {
-			final LocalDate today = LocalDate.now();
-			predicates.add(
-					builder.or(
-							builder.lessThan(root.get(IdmIdentityContract_.validTill), today),
-							builder.greaterThan(root.get(IdmIdentityContract_.validFrom), today)
-							)
-					);
+		if (filter.getValid() != null) {
+			if (filter.getValid()) {
+				final LocalDate today = LocalDate.now();
+				predicates.add(
+						builder.and(
+								builder.or(
+										builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validFrom), today),
+										builder.isNull(root.get(IdmIdentityContract_.validFrom))
+										),
+								builder.or(
+										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), today),
+										builder.isNull(root.get(IdmIdentityContract_.validTill))
+										),
+								builder.equal(root.get(IdmIdentityContract_.disabled), false)
+								)								
+						);
+			} else {
+				final LocalDate today = LocalDate.now();
+				predicates.add(
+						builder.or(
+								builder.lessThan(root.get(IdmIdentityContract_.validTill), today),
+								builder.greaterThan(root.get(IdmIdentityContract_.validFrom), today),
+								builder.equal(root.get(IdmIdentityContract_.disabled), true)
+								)
+						);
+			}
 		}
 		if (filter.getValidNowOrInFuture() != null) {
 			if (filter.getValidNowOrInFuture()) {
 				predicates.add(
-							builder.or(
-									builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), LocalDate.now()),
-									builder.isNull(root.get(IdmIdentityContract_.validTill))
-									)
-						);
+						builder.and(
+								builder.or(
+										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), LocalDate.now()),
+										builder.isNull(root.get(IdmIdentityContract_.validTill))
+										),
+								builder.equal(root.get(IdmIdentityContract_.disabled), false)
+							));
 			} else {
 				predicates.add(builder.lessThan(root.get(IdmIdentityContract_.validTill), LocalDate.now()));
 			}
+		}
+		if (filter.getState() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getState()));
+		}
+		// property
+		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getValue()));
 		}
 		
 		return predicates;
@@ -207,7 +229,7 @@ public class DefaultIdmIdentityContractService
 	 * - 2. valid (validable and not disabled)
 	 * - 3. with working position with default tree type
 	 * - 4. with working position with any tree type
-	 * - 5. other
+	 * - 5. other with lowest valid from
 	 * 
 	 * @param identityId
 	 * @return
@@ -272,7 +294,6 @@ public class DefaultIdmIdentityContractService
 			//
 			return builder.toComparison();
 		}
-		
 	}
 }
 

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -53,7 +53,7 @@ public class SynchronizationContext implements Serializable {
 	private String uid;
 	private IcConnectorObject icObject;
 	private IcSyncDeltaTypeEnum type;
-	private SysSyncConfigDto config;
+	private AbstractSysSyncConfigDto config;
 	private SysSystemDto system;
 	private SystemEntityType entityType;
 	private List<SysSystemAttributeMappingDto> mappedAttributes;
@@ -95,11 +95,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public SysSyncConfigDto getConfig() {
+	public AbstractSysSyncConfigDto getConfig() {
 		return config;
 	}
 
-	public SynchronizationContext addConfig(SysSyncConfigDto config) {
+	public SynchronizationContext addConfig(AbstractSysSyncConfigDto config) {
 		this.config = config;
 		return this;
 	}

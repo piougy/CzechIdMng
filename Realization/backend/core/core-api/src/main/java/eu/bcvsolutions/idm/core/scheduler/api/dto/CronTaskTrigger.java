@@ -6,9 +6,13 @@ import org.quartz.CronTrigger;
 
 /**
  * Cron task trigger
+ * 
+ * @author Radek Tomiška
  */
 public class CronTaskTrigger extends AbstractTaskTrigger {
 
+	private static final long serialVersionUID = 1L;
+	
 	@NotNull
 	private String cron;
 	

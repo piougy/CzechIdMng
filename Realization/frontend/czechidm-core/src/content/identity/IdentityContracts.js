@@ -7,6 +7,7 @@ import * as Utils from '../../utils';
 import { IdentityContractManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import ManagersInfo from './ManagersInfo';
+import ContractStateEnum from '../../enums/ContractStateEnum';
 
 const uiKey = 'identity-contracts';
 
@@ -71,7 +72,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
             uiKey={ this.getUiKey() }
             manager={ this.identityContractManager }
             forceSearchParameters={ new SearchParameters().setFilter('identity', entityId) }
-            rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+            rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
             showRowSelection={ SecurityManager.hasAuthority('IDENTITYCONTRACT_DELETE') }
             actions={
               [
@@ -166,6 +167,13 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               property="disabled"
               header={this.i18n('entity.IdentityContract.disabled.label')}
               face="bool"
+              width={100}
+              sort/>
+            <Advanced.Column
+              property="state"
+              header={this.i18n('entity.IdentityContract.state.label')}
+              face="enum"
+              enumClass={ ContractStateEnum }
               width={100}
               sort/>
             <Advanced.Column

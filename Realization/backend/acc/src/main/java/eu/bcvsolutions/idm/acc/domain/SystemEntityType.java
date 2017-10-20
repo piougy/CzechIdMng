@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.domain;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -18,7 +19,8 @@ public enum SystemEntityType {
 	IDENTITY(IdmIdentityDto.class),
 	ROLE(IdmRoleDto.class),
 	TREE(IdmTreeNodeDto.class),
-	ROLE_CATALOGUE(IdmRoleCatalogueDto.class);
+	ROLE_CATALOGUE(IdmRoleCatalogueDto.class),
+	CONTRACT(IdmIdentityContractDto.class);
 
 	private Class<? extends AbstractDto> entityType;
 
@@ -30,6 +32,7 @@ public enum SystemEntityType {
 		return entityType;
 	}
 	
+
 	public static SystemEntityType getByClass(Class<? extends AbstractDto> clazz) {
 		for(SystemEntityType systemEntityType : SystemEntityType.values()){
 			if(systemEntityType.getEntityType().equals(clazz)){

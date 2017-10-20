@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -25,7 +26,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 @Component
 @Description("Persists identity.")
-public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public class IdentitySaveProcessor
+		extends CoreEventProcessor<IdmIdentityDto> 
+		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private final IdmIdentityService service;

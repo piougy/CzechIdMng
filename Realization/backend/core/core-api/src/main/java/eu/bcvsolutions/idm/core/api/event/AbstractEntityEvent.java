@@ -9,6 +9,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
@@ -27,8 +28,9 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	private final Map<String, Serializable> properties = new LinkedHashMap<>();
 	@JsonIgnore
 	private final EventContext<E> context;
+	private Class<? extends E> eventClassType;
 	
-	public AbstractEntityEvent(EventType type, E content, Map<String, Serializable> properties, EventContext<E> context) {
+	public AbstractEntityEvent(EventType type, E content, Map<String, Serializable> properties, EventContext<E> context, Class<? extends E> eventClassType) {
 		super(content);
 		//
 		Assert.notNull(type, "Operation is required!");
@@ -39,14 +41,19 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 			this.properties.putAll(properties);
 		}
 		this.context = context == null ? new DefaultEventContext<>() : context;
+		this.eventClassType = eventClassType;
+	}
+	
+	public AbstractEntityEvent(EventType type, E content, Map<String, Serializable> properties, EventContext<E> context) {
+		this(type, content, properties, context, null);
 	}
 	
 	public AbstractEntityEvent(EventType type, E content, Map<String, Serializable> properties) {
-		this(type, content, properties, null);
+		this(type, content, properties, null, null);
 	}
 
 	public AbstractEntityEvent(EventType type, E content) {
-		this(type, content, null, null);
+		this(type, content, null, null, null);
 	}
 
 	@Override
@@ -110,9 +117,22 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	@Override
 	@JsonIgnore
     public ResolvableType getResolvableType() {
-        return ResolvableType.forClassWithGenerics(getClass().getSuperclass(), ResolvableType.forInstance(getContent()));
+		return ResolvableType.forClassWithGenerics(getClass().getSuperclass(), ResolvableType.forClass(this.getEventClassType()));
     }
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<? extends E> getEventClassType() {
+		if (eventClassType != null) {
+			return eventClassType;
+		} else {
+			if (this.content != null) {
+				return (Class<? extends E>) this.content.getClass();
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public String toString() {
 		// content cannot be null

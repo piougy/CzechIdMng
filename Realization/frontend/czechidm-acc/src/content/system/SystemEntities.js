@@ -14,7 +14,7 @@ const systemManager = new SystemManager();
 /**
  * Entities in target system
  *
- * @author Radek TomiškaS
+ * @author Radek Tomiška
  */
 class SystemEntitiesContent extends Advanced.AbstractTableContent {
 

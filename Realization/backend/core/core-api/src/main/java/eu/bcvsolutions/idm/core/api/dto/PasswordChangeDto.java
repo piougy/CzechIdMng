@@ -22,6 +22,7 @@ import java.util.List;
 public class PasswordChangeDto implements Serializable {
 
     private static final long serialVersionUID = 8418885222359043739L;
+    //
     @JsonDeserialize(using = GuardedStringDeserializer.class)
     @ApiModelProperty(notes = "Current password.", dataType = "string", example = "admin")
     private GuardedString oldPassword;

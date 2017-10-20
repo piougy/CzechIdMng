@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -50,4 +51,11 @@ public interface ProvisioningExecutor {
 	 * @param batch executed batch
 	 */
 	void cancel(SysProvisioningBatchDto batch);
+	
+	/**
+	 * Returns configuration for provisioning
+	 * 
+	 * @return
+	 */
+	ProvisioningConfiguration getConfiguration();
 }

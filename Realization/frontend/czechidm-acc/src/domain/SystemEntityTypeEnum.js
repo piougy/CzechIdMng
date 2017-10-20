@@ -2,6 +2,7 @@ import { Enums } from 'czechidm-core';
 import IdentityAttributeEnum from './IdentityAttributeEnum';
 import TreeAttributeEnum from './TreeAttributeEnum';
 import RoleAttributeEnum from './RoleAttributeEnum';
+import ContractAttributeEnum from './ContractAttributeEnum';
 import RoleCatalogueAttributeEnum from './RoleCatalogueAttributeEnum';
 
 /**
@@ -41,6 +42,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.ROLE_CATALOGUE: {
         return 'primary';
       }
+      case this.CONTRACT: {
+        return 'success';
+      }
       default: {
         return 'default';
       }
@@ -66,6 +70,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.ROLE_CATALOGUE: {
         return RoleCatalogueAttributeEnum;
       }
+      case this.CONTRACT: {
+        return ContractAttributeEnum;
+      }
       default: {
         return null;
       }
@@ -77,3 +84,4 @@ SystemEntityTypeEnum.IDENTITY = Symbol('IDENTITY');
 SystemEntityTypeEnum.TREE = Symbol('TREE');
 SystemEntityTypeEnum.ROLE = Symbol('ROLE');
 SystemEntityTypeEnum.ROLE_CATALOGUE = Symbol('ROLE_CATALOGUE');
+SystemEntityTypeEnum.CONTRACT = Symbol('CONTRACT');

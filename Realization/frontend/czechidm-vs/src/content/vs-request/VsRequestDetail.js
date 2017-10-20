@@ -179,6 +179,9 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
     if (entity.multivalue) {
       const listResult = [];
+      if (!entity.values) {
+        return '';
+      }
       for (const item of entity.values) {
         const value = old ? item.oldValue : item.value;
         if (!old && item.change && showChanges) {
@@ -196,15 +199,18 @@ class VsRequestDetail extends Basic.AbstractContent {
       return listResult;
     }
 
+    if (!entity.value) {
+      return '';
+    }
     const value = old ? entity.value.oldValue : entity.value.value;
     if (!old && entity.value.change && showChanges) {
       return (<Basic.Label
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
         level={VsValueChangeType.getLevel(entity.value.change)}
         style={entity.value.change === 'REMOVED' ? {textDecoration: 'line-through'} : null}
-        text={value ? value + '' : '' }/>);
+        text={value !== null ? value + '' : '' }/>);
     }
-    return value;
+    return value !== null ? value + '' : '';
   }
 
   render() {
@@ -222,13 +228,13 @@ class VsRequestDetail extends Basic.AbstractContent {
 
     const searchBefore = new Domain.SearchParameters()
     .setFilter('uid', entity ? entity.uid : null)
-    .setFilter('system', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
     .setFilter('createdBefore', entity ? entity.created : null)
     .setFilter('state', 'IN_PROGRESS');
 
     const searchAfter = new Domain.SearchParameters()
     .setFilter('uid', entity ? entity.uid : null)
-    .setFilter('system', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
     .setFilter('createdAfter', entity ? entity.created : null)
     .setFilter('state', 'IN_PROGRESS');
 

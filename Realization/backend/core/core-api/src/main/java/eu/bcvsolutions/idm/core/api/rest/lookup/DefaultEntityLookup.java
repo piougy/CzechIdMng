@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.util.Assert;
+
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -14,7 +16,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * Default entity lookup by {@code UUID} entityId.
  * Can be used for lookup {@link Codeable} entities too - dtoLookup has to be given
  * 
- * @param <E>
+ * @param <E> {@link BaseEntity} type
+ * 
  * @author Radek Tomiška
  */
 public class DefaultEntityLookup<E extends BaseEntity> implements EntityLookup<E> {
@@ -28,9 +31,12 @@ public class DefaultEntityLookup<E extends BaseEntity> implements EntityLookup<E
 	}
 
 	public DefaultEntityLookup(EntityManager entityManager, Class<E> entityClass, DtoLookup<?> dtoLookup) {
+		Assert.notNull(entityManager);
+		Assert.notNull(entityClass);
+		//
 		this.entityManager = entityManager;
 		this.entityClass = entityClass;
-		this.dtoLookup = dtoLookup;
+		this.dtoLookup = dtoLookup; // optional
 	}
 
 	@Override

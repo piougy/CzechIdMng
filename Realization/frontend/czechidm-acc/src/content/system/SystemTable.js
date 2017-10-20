@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
+import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 //
 import uuid from 'uuid';
 
@@ -90,6 +91,55 @@ export class SystemTable extends Advanced.AbstractTableContent {
       ]);
   }
 
+  /**
+   * Return div with all labels for system with information about blocked operations.
+   * There can't be used EnumLabel because every enumlable is on new line
+   */
+  _getBlockedOperations(system) {
+    if (system && system.blockedOperation) {
+      // every blocked operation has same level in this table
+      const level = 'error';
+      //
+      const createKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.CREATE);
+      const updateKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.UPDATE);
+      const deleteKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.DELETE);
+      return (
+        <div>
+        {
+          !system.blockedOperation.createOperation
+          ||
+          <span>
+            {' '}
+            <Basic.Label
+              level={level}
+              value={ProvisioningOperationTypeEnum.getNiceLabel(createKey)}/>
+          </span>
+        }
+        {
+          !system.blockedOperation.updateOperation
+          ||
+          <span>
+            {' '}
+            <Basic.Label
+              level={level}
+              value={ProvisioningOperationTypeEnum.getNiceLabel(updateKey)}/>
+          </span>
+        }
+        {
+          !system.blockedOperation.deleteOperation
+          ||
+          <span>
+            {' '}
+            <Basic.Label
+              level={level}
+              value={ProvisioningOperationTypeEnum.getNiceLabel(deleteKey)}/>
+          </span>
+        }
+        </div>
+      );
+    }
+  }
+
   render() {
     const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
     const { filterOpened } = this.state;
@@ -150,10 +200,18 @@ export class SystemTable extends Advanced.AbstractTableContent {
             sort={false}/>
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="virtual" sort face="bool" width="75px" rendered={_.includes(columns, 'virtual')}/>
           <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
           <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
           <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
+          <Advanced.Column
+            property="blockedOperation"
+            width="12%"
+            cell={({ rowIndex, data }) => {
+              return (
+                this._getBlockedOperations(data[rowIndex])
+              );
+            }}
+            rendered={_.includes(columns, 'blockedOperation')}/>
         </Advanced.Table>
       </div>
     );
@@ -171,7 +229,7 @@ SystemTable.propTypes = {
 };
 
 SystemTable.defaultProps = {
-  columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue'],
+  columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue', 'blockedOperation'],
   filterOpened: false,
   _showLoading: false,
   forceSearchParameters: new Domain.SearchParameters(),

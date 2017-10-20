@@ -88,11 +88,12 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	Set<String> getPermissions(Serializable id);
 	
 	/**
-	 * Evaluates authorization permission on given dto
+	 * Evaluates authorization permission on given dto.
 	 *  
 	 * @param dto
 	 * @param permission base permissions to evaluate (all permission needed)
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	DTO checkAccess(DTO dto, BasePermission... permission);
 }

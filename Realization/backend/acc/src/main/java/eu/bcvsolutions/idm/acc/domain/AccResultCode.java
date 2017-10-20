@@ -47,13 +47,14 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "Schema attribute %s defines typ %s, but we were unable to load this class!"),
 	PROVISIONING_ATTRIBUTE_MORE_UID(HttpStatus.CONFLICT, "More then one UID attribute was found for system %s. Only one UID attribute can be defined!"),
 	PROVISIONING_ROLE_ATTRIBUTE_MORE_UID(HttpStatus.CONFLICT, "More then one UID attribute was found for role %s and system %s. Only one UID attribute can be defined!"),
-	PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING(HttpStatus.BAD_REQUEST, "Value of UID attribute must be String, but value is %s (on system [%s])."),
+	PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING(HttpStatus.BAD_REQUEST, "Value of UID attribute must be String, but value is [%s] (on system [%s])."),
 	PROVISIONING_ATTRIBUTE_UID_NOT_FOUND(HttpStatus.NOT_FOUND, "UID attribute (mapped attribute marked as 'Is identifier') was not found for system %s. UID attribute is mandatory for provisioning/sync!"),
 	PROVISIONING_GENERATED_UID_IS_NULL(HttpStatus.NOT_FOUND, "Generated UID is null (for system [%s])! Account UID must be not null and String value."),
 	PROVISIONING_DUPLICATE_ROLE_MAPPING(HttpStatus.CONFLICT, "Was found more attribute definitions for same role %s, system %s and entity type %s!"),
 	PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR(HttpStatus.BAD_REQUEST, "After provisioning for UID %s, connector returned more UID "
 			+ "(for more object classes). This returned UIDs but isn't same [%s]. This is inconsistent state."),
 	PROVISIONING_SYSTEM_DISABLED(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System is disabled."),
+	PROVISIONING_SYSTEM_BLOCKED(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is blocked due to provisioning break configuration."),
 	PROVISIONING_SYSTEM_READONLY(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System is readonly."),
 	PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Preparing attribubes for object with uid [%s] on system [%s] (operation type [%s], object class [%s]) failed."),
 	PROVISIONING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Provisioning operation for object with uid [%s] on system [%s], operation type [%s], object class [%s] failed."),
@@ -63,6 +64,10 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT(HttpStatus.CONFLICT, "Strategies [%s] and [%s] are in conflict, for attribute [%s]!"),
 	PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Account for parent node [%s] was not found!"),
 	PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS(HttpStatus.NOT_FOUND, "Too many accounts for parent node [%s] was found! Excepted only one for same system!"),
+	PROVISIONING_BREAK_OPERATION_EXISTS(HttpStatus.CONFLICT, "Operation [%s] for system [%s] already exists!"),
+	PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE(HttpStatus.BAD_REQUEST, "Global configuration for operation [%s] can't be saved. Use confgiguration properties!"),
+	PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE(HttpStatus.BAD_REQUEST, "Global configuration for operation [%s] can't be deleted. Use confgiguration properties!"),
+	PROVISIONING_BREAK_RECIPIENT_CONFLICT(HttpStatus.CONFLICT, "For recipient exists settings for role and identity. Allowed is only one property!"),
 	//
 	// Synchronization
 	SYNCHRONIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Synchronization [%s] not found!"),
@@ -84,6 +89,8 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] and acc account: [{}] was not found tree accounts!"),
 	SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] was not found accounts!"),
 	SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM attribute %s not found!"),
+	SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL(HttpStatus.BAD_REQUEST, "IDM attribute [%s] cannot be null!"),
+	SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED(HttpStatus.BAD_REQUEST, "Type of sync configuration cannot be changed (old type: [%s], new type: [%s])!"),
 	//
 	// authentication against system
 	AUTHENTICATION_AGAINST_SYSTEM_FAILED(HttpStatus.BAD_REQUEST, "Authentication failed! For system [%s] and username [%s]."),

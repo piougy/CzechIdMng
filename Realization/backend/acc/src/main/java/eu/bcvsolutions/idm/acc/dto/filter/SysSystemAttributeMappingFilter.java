@@ -12,15 +12,12 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  */
 public class SysSystemAttributeMappingFilter extends QuickFilter {
 	
-	private UUID systemId;
-	
-	private UUID systemMappingId;
-	
-	private UUID schemaAttributeId;
-	
-	private String idmPropertyName;
-	
+	private UUID systemId;	
+	private UUID systemMappingId;	
+	private UUID schemaAttributeId;	
+	private String idmPropertyName;	
 	private Boolean isUid;
+	private Boolean sendOnPasswordChange;
 
 	public Boolean getIsUid() {
 		return isUid;
@@ -62,4 +59,11 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 		this.schemaAttributeId = schemaAttributeId;
 	}
 	
+	public void setSendOnPasswordChange(Boolean sendOnPasswordChange) {
+		this.sendOnPasswordChange = sendOnPasswordChange;
+	}
+	
+	public Boolean getSendOnPasswordChange() {
+		return sendOnPasswordChange;
+	}
 }

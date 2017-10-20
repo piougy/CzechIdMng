@@ -21,9 +21,9 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -60,7 +60,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
  *
  */
 @Service
-public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor<SysSyncConfigDto> implements SynchronizationService {
+public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> implements SynchronizationService {
 
 	private final SysSystemAttributeMappingService attributeHandlingService;
 	private final SysSyncConfigService synchronizationConfigService;
@@ -116,9 +116,9 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 	
 	@Override
-	public SysSyncConfigDto startSynchronizationEvent(SysSyncConfigDto config) {
-		CoreEvent<SysSyncConfigDto> event = new CoreEvent<SysSyncConfigDto>(SynchronizationEventType.START, config);
-		return (SysSyncConfigDto) entityEventManager.process(event).getContent(); 
+	public AbstractSysSyncConfigDto startSynchronizationEvent(AbstractSysSyncConfigDto config) {
+		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(SynchronizationEventType.START, config,null, null, AbstractSysSyncConfigDto.class);
+		return (AbstractSysSyncConfigDto) entityEventManager.process(event).getContent(); 
 	}
 	
 	/**
@@ -126,7 +126,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
-	public void startSynchronization(SysSyncConfigDto config) {
+	public void startSynchronization(AbstractSysSyncConfigDto config) {
 		DefaultSynchronizationService taskExecutor = new DefaultSynchronizationService(attributeHandlingService,
 				synchronizationConfigService, synchronizationLogService, accountService, systemEntityService,
 				entityEventManager, longRunningTaskManager, executors, systemMappingService, systemService, schemaObjectClassService);
@@ -139,13 +139,13 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
-	public SysSyncConfigDto call() {
+	public AbstractSysSyncConfigDto call() {
 		return super.call();
 	}
 		
 	@Override
 	public String getDescription() {
-		SysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
 		if (config == null) {
 			return "Synchronization long running task";
 		}
@@ -156,8 +156,8 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	 * Called from long running task
 	 */
 	@Override
-	public SysSyncConfigDto process() {
-		SysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
+	public AbstractSysSyncConfigDto process() {
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
 		//
 		if (config == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_NOT_FOUND,
@@ -185,13 +185,13 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 	
 	@Override
-	public SysSyncConfigDto stopSynchronizationEvent(SysSyncConfigDto config) {
-		CoreEvent<SysSyncConfigDto> event = new CoreEvent<SysSyncConfigDto>(SynchronizationEventType.CANCEL, config);
-		return (SysSyncConfigDto) entityEventManager.process(event).getContent(); 
+	public AbstractSysSyncConfigDto stopSynchronizationEvent(AbstractSysSyncConfigDto config) {
+		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(SynchronizationEventType.CANCEL, config, null, null, AbstractSysSyncConfigDto.class);
+		return (AbstractSysSyncConfigDto) entityEventManager.process(event).getContent(); 
 	}
 	
 	@Override
-	public SysSyncConfigDto stopSynchronization(SysSyncConfigDto config){
+	public AbstractSysSyncConfigDto stopSynchronization(AbstractSysSyncConfigDto config){
 		Assert.notNull(config);
 		// Synchronization must be running
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
@@ -228,7 +228,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(configId);
 		Assert.notNull(actionType);
 
-		SysSyncConfigDto config = synchronizationConfigService.get(configId);
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
@@ -270,7 +270,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
-		SysSyncConfigDto config = synchronizationConfigService.get(configId);
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		AccAccountDto account = accountService.get(accountId);
 
@@ -306,7 +306,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(actionType);
 		Assert.notNull(entityId);
 
-		SysSyncConfigDto config = synchronizationConfigService.get(configId);
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 	
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
@@ -335,7 +335,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(actionType);
 		Assert.notNull(accountId);
 
-		SysSyncConfigDto config = synchronizationConfigService.get(configId);
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		AccAccountDto account = accountService.get(accountId);
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());

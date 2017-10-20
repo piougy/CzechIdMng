@@ -22,7 +22,8 @@ public enum AccGroupPermission implements GroupPermission {
 	ROLEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLECATALOGUEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE);
+	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
+	CONTRACTACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -59,6 +60,11 @@ public enum AccGroupPermission implements GroupPermission {
 	//
 	public static final String SYNCHRONIZATION_CREATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SYNCHRONIZATION_UPDATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "UPDATE";
+	//
+	public static final String CONTRACT_ACCOUNT_READ = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "READ";
+	public static final String CONTRACT_ACCOUNT_CREATE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONTRACT_ACCOUNT_UPDATE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CONTRACT_ACCOUNT_DELETE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

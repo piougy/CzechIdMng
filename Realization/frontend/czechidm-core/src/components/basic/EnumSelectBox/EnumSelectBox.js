@@ -59,7 +59,8 @@ class EnumSelectBox extends SelectBox {
     if (enumItem && enumItem.value && !enumItem[SelectBox.ITEM_FULL_KEY]) {
       item = _.merge({}, enumItem, {
         [SelectBox.NICE_LABEL]: enumItem.niceLabel ? enumItem.niceLabel : this._findNiceLabel(enumItem.value),
-        [SelectBox.ITEM_FULL_KEY]: enumItem.value
+        [SelectBox.ITEM_FULL_KEY]: enumItem.value,
+        disabled: this._isDisabled(enumItem.value)
       });
     } else {
       item = _.merge({}, enumItem);
@@ -77,7 +78,8 @@ class EnumSelectBox extends SelectBox {
       _.merge(item, {
         [SelectBox.NICE_LABEL]: niceLabel,
         [SelectBox.ITEM_FULL_KEY]: itemFullKey,
-        value: key
+        value: key,
+        disabled: this._isDisabled(key)
       });
     }
     return item;
@@ -122,6 +124,35 @@ class EnumSelectBox extends SelectBox {
       }
     }
     return null;
+  }
+
+  _isDisabled(value) {
+    if (!value) {
+      return false;
+    }
+    let rawValue;
+    if (typeof value === 'symbol') {
+      rawValue = this._findKeyBySymbol(value);
+    } else {
+      rawValue = value;
+    }
+    //
+    const enumeration = this.props.enum;
+    const { options } = this.props;
+    if (enumeration) {
+      return enumeration.isDisabled(rawValue);
+    }
+    if (options) {
+      for (const item in options) {
+        if (options[item].value === rawValue) {
+          return options[item].disabled === true;
+        }
+        if (options[item] === rawValue) {
+          return false;
+        }
+      }
+    }
+    return false;
   }
 
   normalizeValue(value) {

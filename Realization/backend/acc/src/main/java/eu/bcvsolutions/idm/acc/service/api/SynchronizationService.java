@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationCancelProcessor;
@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncConfigDto> {
+public interface SynchronizationService extends LongRunningTaskExecutor<AbstractSysSyncConfigDto> {
 
 	public static final String WF_VARIABLE_KEY_UID = "uid";
 	public static final String WF_VARIABLE_KEY_ENTITY_TYPE = "entityType";
@@ -37,7 +37,7 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	 * @param config
 	 * @return
 	 */
-	SysSyncConfigDto startSynchronizationEvent(SysSyncConfigDto config);
+	AbstractSysSyncConfigDto startSynchronizationEvent(AbstractSysSyncConfigDto config);
 	
 	/**
 	 * Main method for cancel running synchronization by given configuration.
@@ -45,7 +45,7 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	 * @param config
 	 * @return
 	 */
-	SysSyncConfigDto stopSynchronizationEvent(SysSyncConfigDto config);
+	AbstractSysSyncConfigDto stopSynchronizationEvent(AbstractSysSyncConfigDto config);
 	
 	/**
 	 * Default implementation of synchronization. By default is call from {@link ProvisioningStartProcessor}
@@ -53,7 +53,7 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	 * @param config
 	 * @return
 	 */
-	void startSynchronization(SysSyncConfigDto config);
+	void startSynchronization(AbstractSysSyncConfigDto config);
 	
 	/**
 	 * Default implementation cancel running synchronization. By default is call from {@link SynchronizationCancelProcessor}
@@ -61,7 +61,7 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	 * @param config
 	 * @return
 	 */
-	SysSyncConfigDto stopSynchronization(SysSyncConfigDto config);
+	AbstractSysSyncConfigDto stopSynchronization(AbstractSysSyncConfigDto config);
 
 	/**
 	 * Basic method for item synchronization. Item is obtained from target resource (searched). This method

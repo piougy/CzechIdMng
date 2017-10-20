@@ -221,4 +221,6 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		assertEquals(2, grantedAuthorities.size());
 		assertTrue(grantedAuthorities.containsAll(DEFAULT_AUTHORITIES));
 	}
+	
+	
 }

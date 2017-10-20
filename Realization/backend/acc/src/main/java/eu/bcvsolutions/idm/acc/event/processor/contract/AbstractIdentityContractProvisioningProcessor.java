@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
 /**
@@ -17,7 +18,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
  * 
  * @author Radek Tomiška
  */
-public abstract class AbstractIdentityContractProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityContractDto> {
+public abstract class AbstractIdentityContractProvisioningProcessor
+		extends CoreEventProcessor<IdmIdentityContractDto> 
+		implements IdentityContractProcessor {
 
 	protected static final String PROPERTY_INCLUDE_SUBORDINATES = "includeSubordinates";
 	protected static final String PROPERTY_PREVIOUS_SUBORDINATES = "idm:previous-subordinates"; // contains Set<UUID>

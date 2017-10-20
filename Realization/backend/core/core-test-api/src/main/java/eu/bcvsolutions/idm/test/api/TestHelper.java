@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.joda.time.LocalDate;
 
@@ -15,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
@@ -274,5 +276,25 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
-
+	
+	/**
+	 * Enables given processor
+	 * 
+	 * @param processorType
+	 */
+	void enable(Class<? extends EntityEventProcessor<?>> processorType);
+	
+	/**
+	 * Disables given processor
+	 * 
+	 * @param processorType
+	 */
+	void disable(Class<? extends EntityEventProcessor<?>> processorType);
+	
+	/**
+	 * Wait for result - usable for asynchronous tests
+	 * 
+	 * @param continueFunction
+	 */
+	void waitForResult(Function<String, Boolean> continueFunction);
 }

@@ -34,22 +34,22 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	public static final String PROCESSOR_NAME = "tree-node-delete-processor";
 	private final IdmTreeNodeService service;
 	private final IdmRoleTreeNodeService roleTreeNodeService;
+	private final IdmIdentityContractRepository identityContractRepository;
 	
 	@Autowired
 	public TreeNodeDeleteProcessor(
 			IdmTreeNodeService service,
 			IdmIdentityContractRepository identityContractRepository,
-			TreeNodeSaveProcessor saveProcessor,
 			IdmRoleTreeNodeService roleTreeNodeService) {
 		super(TreeNodeEventType.DELETE);
 		//
 		Assert.notNull(service);
-		Assert.notNull(saveProcessor);
 		Assert.notNull(identityContractRepository);
 		Assert.notNull(roleTreeNodeService);
 		//
 		this.service = service;
 		this.roleTreeNodeService = roleTreeNodeService;	
+		this.identityContractRepository = identityContractRepository;
 	}
 	
 	@Override
@@ -60,6 +60,10 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		IdmTreeNodeDto treeNode = event.getContent();
+		//
+		if (identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS, ImmutableMap.of("treeNode", treeNode.getName()));
+		}
 		// remove related automatic roles
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setTreeNodeId(treeNode.getId());

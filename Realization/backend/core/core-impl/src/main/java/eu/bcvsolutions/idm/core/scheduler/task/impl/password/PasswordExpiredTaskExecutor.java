@@ -53,6 +53,7 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 	public Page<IdmPasswordDto> getItemsToProcess(Pageable pageable) {
 		IdmPasswordFilter filter = new IdmPasswordFilter();
 		filter.setValidTill(expiration);
+		filter.setIdentityDisabled(Boolean.FALSE);
 		return passwordService.find(filter, pageable);
 	}
 

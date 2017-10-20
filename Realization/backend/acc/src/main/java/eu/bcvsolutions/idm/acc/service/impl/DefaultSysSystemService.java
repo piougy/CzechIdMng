@@ -21,43 +21,37 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
-import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -87,7 +81,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 @Service
 public class DefaultSysSystemService 
-		extends AbstractReadWriteDtoService<SysSystemDto, SysSystem, SysSystemFilter>
+		extends AbstractFormableService<SysSystemDto, SysSystem, SysSystemFilter>
 		implements SysSystemService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysSystemService.class);
@@ -96,12 +90,8 @@ public class DefaultSysSystemService
 	private final IcConfigurationFacade icConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
 	private final SysSchemaAttributeService attributeService;
-	private final SysSystemEntityService systemEntityService;
-	private final AccAccountRepository accountRepository;
 	private final SysSyncConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
-	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final ConfidentialStorage confidentialStorage;
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemFormValueService systemFormValueService;
@@ -117,29 +107,22 @@ public class DefaultSysSystemService
 			IcConfigurationFacade icConfigurationFacade, 
 			SysSchemaObjectClassService objectClassService,
 			SysSchemaAttributeService attributeService, 
-			SysSystemEntityService systemEntityService,
-			AccAccountRepository accountRepository, 
 			SysSyncConfigService synchronizationConfigService,
 			FormPropertyManager formPropertyManager, 
-			SysProvisioningOperationRepository provisioningOperationRepository,
-			SysProvisioningArchiveRepository provisioningArchiveRepository,
 			ConfidentialStorage confidentialStorage,
 			IcConnectorFacade connectorFacade,
 			SysSystemFormValueService systemFormValueService,
 			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			SysSchemaObjectClassService schemaObjectClassService) {
-		super(systemRepository);
+			SysSchemaObjectClassService schemaObjectClassService,
+			EntityEventManager entityEventManager) {
+		super(systemRepository, entityEventManager, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
 		Assert.notNull(objectClassService);
 		Assert.notNull(attributeService);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(accountRepository);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(formPropertyManager);
-		Assert.notNull(provisioningOperationRepository);
-		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemFormValueService);
@@ -152,12 +135,8 @@ public class DefaultSysSystemService
 		this.icConfigurationFacade = icConfigurationFacade;
 		this.objectClassService = objectClassService;
 		this.attributeService = attributeService;
-		this.systemEntityService = systemEntityService;
-		this.accountRepository = accountRepository;
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
-		this.provisioningOperationRepository = provisioningOperationRepository;
-		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.confidentialStorage = confidentialStorage;
 		this.connectorFacade = connectorFacade;
 		this.systemFormValueService = systemFormValueService;
@@ -173,38 +152,6 @@ public class DefaultSysSystemService
 			return systemRepository.findAll(pageable);
 		}
 		return systemRepository.find(filter, pageable);
-	}
-
-	@Override
-	public SysSystemDto save(SysSystemDto dto, BasePermission... permission) {
-		// create default connector server
-		if (dto.getConnectorServer() == null) {
-			dto.setConnectorServer(new SysConnectorServerDto());
-		}
-		if (dto.getConnectorKey() == null) {
-			dto.setConnectorKey(new SysConnectorKeyDto());
-		}
-		if(!isNew(dto)){
-			// Check if is connector changed
-			SysSystemDto oldSystem = this.get(dto.getId());
-			if(!dto.getConnectorKey().equals(oldSystem.getConnectorKey())){
-				// If is connector changed, we set virtual to false. (Virtual connectors set this attribute on true by themselves)
-				dto.setVirtual(false);
-			}
-		}
-		SysSystemDto newSystem = super.save(dto, permission);
-		//
-		// after save entity save password to confidential storage
-		// save password from remote connector server to confidential storage
-		if (dto.getConnectorServer().getPassword() != null) {
-			// save for newSystem
-			confidentialStorage.save(newSystem.getId(), SysSystem.class, REMOTE_SERVER_PASSWORD,
-					dto.getConnectorServer().getPassword().asString());
-			//
-			// set asterix
-			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
-		}
-		return newSystem;
 	}
 
 	@Override
@@ -229,50 +176,6 @@ public class DefaultSysSystemService
 		}
 		//
 		return entity;
-	}
-
-	@Override
-	@Transactional
-	public void delete(SysSystemDto system, BasePermission... permission) {
-		Assert.notNull(system);
-		//
-		// if exists provisioning operations, then is not posible to delete system
-		SysProvisioningOperationFilter operationFilter = new SysProvisioningOperationFilter();
-		operationFilter.setSystemId(system.getId());
-		if (provisioningOperationRepository.find(operationFilter, null).getTotalElements() > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_OPERATIONS,
-					ImmutableMap.of( "system", system.getName()));
-		}
-		if (accountRepository.countBySystem_Id(system.getId()) > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS,
-					ImmutableMap.of("system", system.getName()));
-		}
-		// delete system entities
-		SysSystemEntityFilter systemEntityFilter = new SysSystemEntityFilter();
-		systemEntityFilter.setSystemId(system.getId());
-		systemEntityService.find(systemEntityFilter, null).forEach(systemEntity -> {
-			systemEntityService.delete(systemEntity);
-		});
-		// delete synchronization configs
-		SysSyncConfigFilter synchronizationConfigFilter = new SysSyncConfigFilter();
-		synchronizationConfigFilter.setSystemId(system.getId());
-		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
-			synchronizationConfigService.delete(config);
-		});
-		
-		// delete schema
-		SysSchemaObjectClassFilter filter = new SysSchemaObjectClassFilter();
-		filter.setSystemId(system.getId());
-		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
-			objectClassService.delete(schemaObjectClass);
-		});
-		// delete archived provisioning operations
-		provisioningArchiveRepository.deleteBySystem_Id(system.getId());
-		//
-		formService.deleteValues(system);
-		//
-		super.delete(system, permission);
-
 	}
 
 	@Override
@@ -547,7 +450,7 @@ public class DefaultSysSystemService
 						schemaAttributesCache, mappedAttributesCache);
 
 				// Duplicate sync configs
-				List<SysSyncConfigDto> syncConfigs = findSyncConfigs(id);
+				List<AbstractSysSyncConfigDto> syncConfigs = findSyncConfigs(id);
 				syncConfigs.stream().filter(syncConfig -> {
 					
 					// Find configuration of sync for this mapping
@@ -701,7 +604,7 @@ public class DefaultSysSystemService
 	 */
 	private void duplicateSyncConf(UUID syncConfigId, SysSystemMappingDto duplicatedMapping,
 			Map<UUID, UUID> mappedAttributesCache) {
-		SysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
+		AbstractSysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
 		clonedSyncConfig.setSystemMapping(duplicatedMapping.getId());
 		//
 		if (clonedSyncConfig.getFilterAttribute() != null) {
@@ -745,7 +648,7 @@ public class DefaultSysSystemService
 	 * @param id
 	 * @return
 	 */
-	private List<SysSyncConfigDto> findSyncConfigs(UUID id) {
+	private List<AbstractSysSyncConfigDto> findSyncConfigs(UUID id) {
 		SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
 		syncConfigFilter.setSystemId(id);
 		return synchronizationConfigService.find(syncConfigFilter, null).getContent();
@@ -860,7 +763,6 @@ public class DefaultSysSystemService
 		key.setBundleVersion("2.2.4");
 		return key;
 	}
-
 
 	protected FormService getFormService() {
 		return formService;

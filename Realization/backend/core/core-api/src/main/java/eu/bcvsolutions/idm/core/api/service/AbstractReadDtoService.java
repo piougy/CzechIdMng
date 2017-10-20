@@ -66,7 +66,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	private final Class<F> filterClass;
 	private final Class<DTO> dtoClass;
 	@Autowired
-	private ModelMapper modelMapper;
+	protected ModelMapper modelMapper;
 	@Autowired
 	private ApplicationContext context;
 	//
@@ -105,8 +105,19 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Class<DTO> getDtoClass() {
+		return ((Class<DTO>)this.getDtoClass(null));
+	}
+	
+	/**
+	 * Returns {@link BaseDto} type class, which is controlled by this service
+	 * @param entity 
+	 * 
+	 * @return
+	 */
+	protected Class<? extends DTO> getDtoClass(E entity) {
 		return dtoClass;
 	}
 
@@ -116,7 +127,19 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Class<E> getEntityClass() {
+		return (Class<E>) this.getEntityClass(null);
+	}
+	
+	/**
+	 * Returns {@link BaseEntity} type class, which is controlled by this
+	 * service
+	 * @param dto 
+	 * 
+	 * @return
+	 */
+	protected Class<? extends E> getEntityClass(DTO dto) {
 		return entityClass;
 	}
 
@@ -274,7 +297,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			return null;
 		}
 		if (dto == null) {
-			return modelMapper.map(entity, dtoClass);
+			return modelMapper.map(entity, this.getDtoClass(entity));
 		}
 		modelMapper.map(entity, dto);
 		return dto;
@@ -311,7 +334,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		List<DTO> dtos = new ArrayList<>();
 		entities.forEach(entity -> {
 			try {
-				DTO newDto = dtoClass.newInstance();
+				DTO newDto = this.getDtoClass(entity).newInstance();
 				if (newDto instanceof AbstractDto) {
 					((AbstractDto) newDto).setTrimmed(trimmed);
 				}
@@ -350,7 +373,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			modelMapper.map(dto, entity);
 			return entity;
 		}
-		return modelMapper.map(dto, entityClass);
+		return modelMapper.map(dto, getEntityClass(dto));
 	}
 	
 	@Override
@@ -361,7 +384,15 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return dto;
 	}
 	
-	public E checkAccess(E entity, BasePermission... permission) {
+	/**
+	 * Evaluates authorization permission on given entity.
+	 *  
+	 * @param dto
+	 * @param permission base permissions to evaluate (all permission needed)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	protected E checkAccess(E entity, BasePermission... permission) {
 		if (entity == null) {
 			// nothing to check
 			return null;

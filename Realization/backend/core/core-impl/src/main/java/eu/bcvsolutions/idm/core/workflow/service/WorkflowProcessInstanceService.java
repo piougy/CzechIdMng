@@ -4,26 +4,44 @@ import java.util.Map;
 
 import org.activiti.engine.runtime.ProcessInstance;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 /**
  * Service for control workflow process instances.
+ * 
  * @author svandav
  *
  */
 public interface WorkflowProcessInstanceService {
-	public final static String OBJECT_TYPE = "objectType";
-	public final static String OBJECT_IDENTIFIER = "objectIdentifier";
-	public final static String APPLICANT_USERNAME = "applicantUsername";
-	public final static String APPLICANT_IDENTIFIER = "applicantIdentifier";
-	public final static String ACTIVITI_SKIP_EXPRESSION_ENABLED = "_ACTIVITI_SKIP_EXPRESSION_ENABLED";
-	public final static String PROCESS_INSTANCE_ID = "processInstanceId"; // we need processInstanceId have accessible in subprocess (set in wf start listener)
+	
+	final static String OBJECT_TYPE = "objectType";
+	final static String OBJECT_IDENTIFIER = "objectIdentifier";
+	final static String APPLICANT_USERNAME = "applicantUsername";
+	final static String APPLICANT_IDENTIFIER = "applicantIdentifier";
+	final static String ACTIVITI_SKIP_EXPRESSION_ENABLED = "_ACTIVITI_SKIP_EXPRESSION_ENABLED";
+	final static String PROCESS_INSTANCE_ID = "processInstanceId"; // we need processInstanceId have accessible in subprocess (set in wf start listener)
 	
 	/**
 	 * Implementer is user really start the process (For example implementer is administrator given permission to user)
 	 */
-	public final static String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
+	final static String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
+	
+	/**
+	 * Name of the workflow variable which stores the operation result
+	 * 
+	 * of type {@link OperationResult}.
+	 */
+	final static String VARIABLE_OPERATION_RESULT = "operationResult";
+	
+	/**
+	 * Name of the workflow variable which stores the input dto
+	 * 
+	 * of type {@link BaseDto}.
+	 */
+	final static String VARIABLE_DTO = "dto";
 	
 	/**
 	 * Start new workflow process. To new process instance will be put variables objectType, objectIdentifier, applicant, implementer

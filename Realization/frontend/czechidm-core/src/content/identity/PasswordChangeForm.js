@@ -164,7 +164,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
         //
         this.refs.form.processEnded();
       });
-      // TODO: do we want reset password input after change?
+      // TODO: do we want clear password input after change?
       /* this.refs.form.setData({
         accounts: formData.accounts,
         oldPassword: null,

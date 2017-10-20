@@ -193,6 +193,22 @@
     "save": {
       "success_0": "N/A",
       "success_1": "Záznam [{{record}}] byl úspěšně uložen"
+    },
+    "cancel": {
+      "action": "Zrušit",
+      "header_0": "N/A",
+      "header_1": "Zrušit záznam",
+      "header_2": "Zrušit záznamy",
+      "header_5": "$t(action.cancel.header_2)",
+      "message_0": "N/A",
+      "message_1": "Opravdu chcete zrušit vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zrušit <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zrušit <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při rušení záznamu [{{record}}] nastala chyba",
+      "success_0": "N/A",
+      "success_1": "Vybraný záznam [{{record}}] byl úspěšně zrušen",
+      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny"
     }
   },
   "environment": {
@@ -520,11 +536,13 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
+    	"CANCELED": "Zrušeno",
+      "BLOCKED": "Blokováno"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
-      "CRON": "Cron"
+      "CRON": "Cron",
+      "DEPENDENT": "Jiná úloha"
     },
     "RolePriorityEnum": {
       "NONE": "Žádná (0)",
@@ -557,6 +575,10 @@
     "ScriptAuthorityTypeEnum": {
       "CLASS_NAME": "Třída",
       "SERVICE": "Služba"
+    },
+    "ContractStateEnum": {
+      "EXCLUDED": "Vyňat z evidenčního počtu",
+      "DISABLED": "$t(label.disabled)"
     }
   },
   "dashboard": {
@@ -575,7 +597,7 @@
       "DELETE": "Mazání",
       "EXECUTE": "Spouštění",
       "PASSWORDCHANGE": "Změna hesla",
-      "PASSWORDRESET": "Reset hesla"
+      "CHANGEPERMISSION": "Změna oprávnění"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -642,7 +664,6 @@
       "admin": "Administrátor",
       "button": {
         "login": "$t(content.login.header)",
-        "passwordReset": "$t(content.password.reset.button.passwordReset)",
         "passwordChange": "$t(content.password.change.button.passwordChange)",
         "logout": {
           "value": "Odhlásit se",
@@ -658,38 +679,6 @@
       }
     },
     "password": {
-      "reset": {
-        "header": "Reset hesla",
-        "title": "Reset hesla",
-        "username": "Zadejte uživatelské jméno",
-        "token": {
-          "label": "Ověřovací kód",
-          "placeholder": "Ověřovací kód obdržený v SMS zprávě"
-        },
-        "password": "Nové heslo",
-        "passwordAgain": {
-          "label": "Heslo znovu",
-          "placeholder": "Nové heslo pro kontrolu"
-        },
-        "button": {
-          "haveToken": "Již jsem obdržel ověřovací kód",
-          "sendToken": "Odeslat",
-          "passwordReset": "Reset hesla"
-        },
-        "message": {
-          "generateResetToken": {
-            "info": "Tento formulář lze použít pro reset hesla Vaší uživatelské identity. Po odeslání Vám bude zaslán ověřovací kód, který budete moci použít pro nastavení nového hesla. Heslo lze resetovat pouze jednou za 24 hodin. Pokud již máte platný ověřovací kód, stiskněte tlačítko Již jsem obdržel ověřovací kód.",
-            "success": "Ověřovací kód Vám byl zaslán prostřednictvím SMS"
-          },
-          "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
-            "success": {
-              "title": "Reset hesla proběhl v pořádku",
-              "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
-            }
-          }
-        }
-      },
       "change": {
         "header": "Změna hesla",
         "title": "Změna hesla",
@@ -1003,9 +992,6 @@
           "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
-        },
-        "reset": {
-          "action": "Resetovat heslo"
         },
         "remove": {
           "action": "Odebrat"
@@ -1544,38 +1530,6 @@
           "change": "Změnit heslo"
         }
       },
-      "passwordReset": {
-        "header": "Resetování hesla",
-        "title": "Resetování hesla",
-        "info": "Následujícím uživatelům bude resetováno heslo ve vybraných systémech",
-        "message": {
-          "loadResourcesFailed": "Při načítání účtů na systémech pro uživatele {{username}} nastala chyba",
-          "resetFailed": "Resetování hesla pro uživatele {{username}} selhalo",
-          "resetSuccess": "Resetování hesla pro uživatele {{usernames}} úspěšně proběhlo"
-        },
-        "confirm": {
-          "title": "Resetování hesla",
-          "message_1": "Opravdu požadujete resetovat hesla uživatele <strong>{{username}}</strong> na vybraných systémech?",
-          "message_2": "Opravdu požadujete resetovat hesla <strong>{{count}}</strong> vybraných uživatelů na vybraných systémech?",
-          "message_5": "Opravdu požadujete resetovat hesla <strong>{{count}}</strong> vybraných uživatelů na vybraných systémech?"
-        },
-        "accounts": {
-          "empty": "Uživatel {{username}} nemá účet na systému {{resource}}"
-        },
-        "users": {
-          "empty": "Vyberte prosím uživatele, kterým má býti resetováno heslo."
-        },
-        "selection": {
-          "empty": "Vyberte prosím alespoň jednoho uživatele a systém, na kterém má býti resetováno heslo"
-        },
-        "button": {
-          "reset": "Resetovat heslo"
-        },
-        "label": {
-          "selectAllUsername": "$t(label.selectAll) od daného uživatele",
-          "selectAllResource": "$t(label.selectAll) od daného systému"
-        }
-      },
       "identityRoleDetail": {
         "label": "Detail záznamu"
       },
@@ -1789,8 +1743,8 @@
         "action": {
           "trigger-delete": {
             "header": "Odebrat plánované spuštění",
-            "message": "Opravdu chcete odebrat plánované spuštění [<strong>{{record}}</strong>]?",
-            "success": "Plánované spuštění [{{record}}] bylo úspěšně odebráno."
+            "message": "Opravdu chcete odebrat plánované spuštění?",
+            "success": "Plánované spuštění bylo úspěšně odebráno."
           },
           "trigger-create": {
             "header": "Nové plánované spuštění",
@@ -2314,12 +2268,16 @@
       },
       "disabled": {
         "label": "Neaktivní",
-        "help": "Pozice je neplatná, nelze na ni vázat žádné role."
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Aktivita pozice se řídí stavem."
       },
       "description": "Popis",
       "main": {
         "label": "Hlavní pozice",
         "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
+      },
+      "state": {
+        "label": "Stav",
+        "help": "Stav pracovní pozice."
       }
     },
     "TreeNode": {
@@ -2623,7 +2581,8 @@
         "label": "Parametry úlohy"
       }
     },
-    "ScheduleTask": {
+    "SchedulerTask": {
+      "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
       "taskType": "Typ úlohy",
       "instanceId": {
@@ -2645,7 +2604,16 @@
             "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
             "text": "výraz"
           }
+        },
+        "dependent": {
+          "initiatorTaskId": {
+            "label": "Jiná úloha",
+            "help": "Spuštení na základě úspěšného dokončení vybrané naplánované úlohy"
+          }
         }
+      },
+      "parameters": {
+        "label": "Parametry"
       }
     },
     "RoleRequest": {
@@ -2811,14 +2779,6 @@
     "MUST_CHANGE_IDM_PASSWORD": {
       "title": "Je vyžadována změna Vašeho hesla",
       "message": "Vyžadována změna hesla pro CzechIdM."
-    },
-    "PASSWORD_RESET_GENERATE_TOKEN": {
-      "title": "Zaslání tokenu neproběhlo",
-      "message": "{{0}}"
-    },
-    "PASSWORD_RESET_FAILED": {
-      "title": "Reset hesla neproběhl",
-      "message": "{{0}}"
     },
     "PASSWORD_CHANGE_FAILED": {
       "title": "Změna hesla neproběhla",

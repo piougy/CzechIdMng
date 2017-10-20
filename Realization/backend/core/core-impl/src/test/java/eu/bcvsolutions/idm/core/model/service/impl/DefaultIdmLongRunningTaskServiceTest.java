@@ -24,13 +24,10 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Marek Klement
  *
  */
-
 public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdmLongRunningTaskService idmLongRunningTaskService;
-	@Autowired
-	private LongRunningTaskManager manager;
+	@Autowired private IdmLongRunningTaskService idmLongRunningTaskService;
+	@Autowired private LongRunningTaskManager manager;
 
 	@Before
 	public void logIn(){

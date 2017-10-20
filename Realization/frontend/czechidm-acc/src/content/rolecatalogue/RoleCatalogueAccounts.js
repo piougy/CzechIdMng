@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { RoleCatalogueAccountManager, AccountManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'role-catalogue-accounts-table';
 const manager = new RoleCatalogueAccountManager();
@@ -79,6 +80,7 @@ class RoleCatalogueAccounts extends Advanced.AbstractTableContent {
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleCatalogueId', entityId);
+    const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE_CATALOGUE));
 
     return (
       <div>
@@ -177,9 +179,10 @@ class RoleCatalogueAccounts extends Advanced.AbstractTableContent {
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.SelectBox
                   ref="account"
-                  manager={accountManager}
-                  label={this.i18n('acc:entity.Account._type')}
-                  readOnly={!Utils.Entity.isNew(detail.entity)}
+                  manager={ accountManager }
+                  label={ this.i18n('acc:entity.Account._type') }
+                  readOnly={ !Utils.Entity.isNew(detail.entity) }
+                  forceSearchParameters={ accountSearchParameters }
                   required/>
                 <Basic.Checkbox
                   ref="ownership"

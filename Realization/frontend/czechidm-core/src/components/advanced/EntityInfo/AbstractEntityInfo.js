@@ -40,7 +40,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * if entityIdentifier is setted and entity not - then loads entity from BE.
    */
   loadEntityIfNeeded() {
-    const { entity, _entity } = this.props;
+    const { entity, _entity, face } = this.props;
     const manager = this.getManager();
     if (!manager || !this.getEntityId()) {
       // nothing to load
@@ -56,6 +56,10 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
             && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
           this.context.store.dispatch(manager.autocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
+            // TODO: move to other place - is called only when entity is not given
+            if (!ex && (face === 'full' || (face === 'link' && this.getLink()))) {
+              this._onEnter();
+            }
             this.setState({
               error: ex
             });
@@ -180,15 +184,20 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return null;
   }
 
+  getNiceLabel() {
+    const _entity = this.getEntity();
+    //
+    return this.getManager().getNiceLabel(_entity);
+  }
+
   /**
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel() {
     const { className, style } = this.props;
-    const _entity = this.getEntity();
     //
     return (
-      <span className={className} style={style}>{ this.getManager().getNiceLabel(_entity) }</span>
+      <span className={className} style={style}>{ this.getNiceLabel() }</span>
     );
   }
 

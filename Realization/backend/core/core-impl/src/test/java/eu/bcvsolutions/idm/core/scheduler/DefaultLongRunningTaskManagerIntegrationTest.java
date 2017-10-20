@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -25,10 +24,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.exception.ConcurrentExecutionException;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Long running tasks test
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
+	@Autowired private TestHelper helper;
 	@Autowired private IdmLongRunningTaskService service;
 	@Autowired private ConfigurationService configurationService;
 	//
@@ -134,7 +136,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		Function<String, Boolean> continueFunction = res -> {
 			return !manager.getLongRunningTask(futureTask).isRunning();
 		};
-		waitForResult(continueFunction);
+		helper.waitForResult(continueFunction);
 		//
 		manager.cancel(taskExecutor.getLongRunningTaskId());
 		//
@@ -157,7 +159,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		Function<String, Boolean> continueFunction = res -> {
 			return !manager.getLongRunningTask(taskExecutor).isRunning();
 		};
-		waitForResult(continueFunction);
+		helper.waitForResult(continueFunction);
 		//
 		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
@@ -200,21 +202,17 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertTrue(taskTwo.isRunning());
 	}
 	
-	@Test
+	@Test(expected = ConcurrentExecutionException.class)
 	public void testDisallowConcurrentExecution() {
 		TestTaskExecutor executorOne = new TestTaskExecutor();
 		executorOne.setCount(30L);
 		LongRunningFutureTask<Boolean> longRunningFutureTask = manager.execute(executorOne);
-		waitForResult(res -> {
+		helper.waitForResult(res -> {
 			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
 		});		
 		TestTaskExecutor executorTwo = new TestTaskExecutor();
 		executorTwo.setCount(10L);
 		manager.executeSync(executorTwo);
-		IdmLongRunningTaskDto lrt = service.get(executorTwo.getLongRunningTaskId());
-		//
-		assertEquals(OperationState.EXCEPTION, lrt.getResultState());
-		assertEquals(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING.name(), lrt.getResult().getModel().getStatusEnum());
 	}
 	
 	private class TestSimpleLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {
@@ -286,17 +284,5 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 			return result;
 		}
 		
-	}
-	
-	protected static void waitForResult(Function<String, Boolean> continueFunction) {
-		int counter = 0;
-		while(continueFunction.apply(null) && (counter < 25)) {
-			counter++;
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException ex) {
-				throw new CoreException(ex);
-			}
-		};
 	}
 }

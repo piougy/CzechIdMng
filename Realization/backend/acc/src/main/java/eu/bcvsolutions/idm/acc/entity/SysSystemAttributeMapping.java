@@ -109,6 +109,10 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	@Column(name = "authentication_attribute", nullable = false)
 	private boolean authenticationAttribute = false;
 	
+	@Audited
+	@Column(name = "send_on_password_change", nullable = false)
+	private boolean sendOnPasswordChange = false;
+	
 	public String getIdmPropertyName() {
 		return idmPropertyName;
 	}
@@ -227,5 +231,13 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 
 	public void setAuthenticationAttribute(boolean authenticationAttribute) {
 		this.authenticationAttribute = authenticationAttribute;
+	}
+	
+	public boolean isSendOnPasswordChange() {
+		return sendOnPasswordChange;
+	}
+	
+	public void setSendOnPasswordChange(boolean sendOnPasswordChange) {
+		this.sendOnPasswordChange = sendOnPasswordChange;
 	}
 }

@@ -115,20 +115,23 @@ class DateTimePicker extends AbstractFormComponent {
     }
   }
 
-
   onChange(value) {
     if (value && value._isAMomentObject) {
       value = moment(value, this.getFormat());
     }
+    let result = true;
     if (this.props.onChange) {
-      this.props.onChange(value);
-    } else {
-      this.setState({
-        value
-      }, () => {
-        this.validate();
-      });
+      result = this.props.onChange(value);
     }
+    // if onChange listener returns false, then we can end
+    if (result === false) {
+      return;
+    }
+    this.setState({
+      value
+    }, () => {
+      this.validate();
+    });
   }
 
   getValue() {
@@ -156,7 +159,7 @@ class DateTimePicker extends AbstractFormComponent {
 
   _clear() {
     this.refs.input.setState({ inputValue: null }); // we need to set empty string, null does not work
-    this.setState({ value: null }, () => { this.validate(); });
+    this.onChange(null);
   }
   _openDialog() {
     const dateTimePicker = this.refs.input;
@@ -229,7 +232,7 @@ class DateTimePicker extends AbstractFormComponent {
                 level="default"
                 className="btn-sm"
                 disabled={disabled || readOnly}
-                style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
+                style={{marginTop: 0, height: '34px', borderLeftWidth: 0, borderRadius: 0 }}
                 onClick={this._openDialog.bind(this)}>
                 <Icon type="fa" icon="calendar"/>
               </Button>
@@ -237,7 +240,7 @@ class DateTimePicker extends AbstractFormComponent {
                 level="default"
                 className="btn-sm"
                 disabled={disabled || readOnly}
-                style={{marginTop: '0px', height: '34px'}}
+                style={{marginTop: 0, height: '34px', borderLeftWidth: 0, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                 onClick={this._clear.bind(this)}>
                 <Icon type="fa" icon="remove"/>
               </Button>

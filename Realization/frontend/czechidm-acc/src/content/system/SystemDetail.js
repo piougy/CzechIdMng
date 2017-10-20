@@ -71,6 +71,15 @@ class SystemDetail extends Basic.AbstractContent {
       };
     }
 
+    if (entity && entity.blockedOperation) {
+      data = {
+        ...data,
+        createOperation: entity.blockedOperation.createOperation,
+        updateOperation: entity.blockedOperation.updateOperation,
+        deleteOperation: entity.blockedOperation.deleteOperation
+      };
+    }
+
     this.refs.form.setData(data);
     this.refs.name.focus();
   }
@@ -102,6 +111,11 @@ class SystemDetail extends Basic.AbstractContent {
           port: entity.port,
           timeout: entity.timeout,
           useSsl: entity.useSsl
+        },
+        blockedOperation: {
+          createOperation: entity.createOperation,
+          updateOperation: entity.updateOperation,
+          deleteOperation: entity.deleteOperation
         }
       };
 
@@ -152,16 +166,36 @@ class SystemDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity } = this.props;
     const { _showLoading, showConfigurationRemoteServer } = this.state;
+    //
+    const blockedOperationLabels = [];
+    if (entity.blockedOperation) {
+      if (entity.blockedOperation.createOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.createOperation.short'));
+      }
+      if (entity.blockedOperation.updateOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.updateOperation.short'));
+      }
+      if (entity.blockedOperation.deleteOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.deleteOperation.short'));
+      }
+    }
+
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
-
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
               <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')} >
+                <Basic.Alert
+                  level="warning"
+                  icon="exclamation-sign"
+                  rendered={ blockedOperationLabels.length > 0 }
+                  text={ this.i18n('blockedOperationInfo', { operations: blockedOperationLabels.join(', ') }) }
+                  className="no-margin"/>
+
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -217,10 +251,6 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.System.description')}
                   max={255}/>
                 <Basic.Checkbox
-                  ref="virtual"
-                  label={this.i18n('acc:entity.System.virtual')}
-                  readOnly/>
-                <Basic.Checkbox
                   ref="queue"
                   label={this.i18n('acc:entity.System.queue.label')}
                   helpBlock={this.i18n('acc:entity.System.queue.help')}/>
@@ -228,6 +258,18 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="readonly"
                   label={this.i18n('acc:entity.System.readonly.label')}
                   helpBlock={this.i18n('acc:entity.System.readonly.help')}/>
+                <Basic.Checkbox
+                  ref="createOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
+                <Basic.Checkbox
+                  ref="updateOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.updateOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.updateOperation.help')}/>
+                <Basic.Checkbox
+                  ref="deleteOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.deleteOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.deleteOperation.help')}/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>

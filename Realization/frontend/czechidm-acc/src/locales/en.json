@@ -502,13 +502,13 @@
       }
     },
     "provisioningBreakConfig": {
-      "title" : "Provisioning break",
-      "header" : "Provisioning break",
+      "title" : "Provisioning brake",
+      "header" : "Provisioning brake",
       "save": {
-        "success": "Provisioning break successfully saved"
+        "success": "Provisioning brake successfully saved"
       },
       "create": {
-        "success": "Provisioning break successfully created"
+        "success": "Provisioning brake successfully created"
       },
       "recipientInfo": "You can add the recipients only after the brake has been created.",
       "removeFailture": "No configurations have been removed.",
@@ -1283,7 +1283,11 @@
     },
     "PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE": {
       "title": "Configuration could not be saved",
-      "message": "Configuration: {{name}}is global and can not be saved."
+      "message": "Configuration: {{name}} is global and can not be saved."
+    },
+    "PROVISIONING_SYSTEM_BLOCKED": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] was blocked by provisioning brake."
     }
   }
 }

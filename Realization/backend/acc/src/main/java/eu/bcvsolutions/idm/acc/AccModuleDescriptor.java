@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
@@ -56,7 +57,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 		//
 		configs.add(new NotificationConfigurationDto(
 				TOPIC_PROVISIONING_BREAK_WARNING,
-				null,
+				NotificationLevel.WARNING,
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains warning with information about provisioning operation.",
 				getNotificationTemplateId("provisioningWarning"))
@@ -64,7 +65,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 		//
 		configs.add(new NotificationConfigurationDto(
 				TOPIC_PROVISIONING_BREAK_DISABLE,
-				null,
+				NotificationLevel.WARNING,
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about blocked system for provisioning operation.",
 				getNotificationTemplateId("provisioningDisable"))

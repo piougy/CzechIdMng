@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { ContractAccountManager, AccountManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'contract-accounts-table';
 const manager = new ContractAccountManager();
@@ -81,6 +82,7 @@ class ContractAccountsContent extends Advanced.AbstractTableContent {
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('contract', entityId);
+    const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT));
     //
     return (
       <div>
@@ -177,9 +179,10 @@ class ContractAccountsContent extends Advanced.AbstractTableContent {
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.SelectBox
                   ref="account"
-                  manager={accountManager}
-                  label={this.i18n('acc:entity.Account._type')}
-                  readOnly={!Utils.Entity.isNew(detail.entity)}
+                  manager={ accountManager }
+                  label={ this.i18n('acc:entity.Account._type') }
+                  readOnly={ !Utils.Entity.isNew(detail.entity) }
+                  forceSearchParameters={ accountSearchParameters }
                   required/>
                 <Basic.Checkbox
                   ref="ownership"

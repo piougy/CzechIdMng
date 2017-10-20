@@ -192,7 +192,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 forceSearchParameters={forceSearchParameters}
                 onChange={this._schemaAttributeChange.bind(this)}
                 label={this.i18n('acc:entity.SystemAttributeMapping.schemaAttribute')}
-                required/>
+                required
+                pageSize={ Domain.SearchParameters.MAX_SIZE }/>
               <Basic.TextField
                 ref="name"
                 label={this.i18n('acc:entity.SystemAttributeMapping.name.label')}

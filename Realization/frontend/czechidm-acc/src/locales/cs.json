@@ -1291,6 +1291,10 @@
     "PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE": {
       "title": "Konfiguraci nebylo možné uložit",
       "message": "Konfigurace: {{name}} je globální a nelze ji uložit."
+    },
+    "PROVISIONING_SYSTEM_BLOCKED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] byl zablokován brzdou provisioningu."
     }
   }
 }

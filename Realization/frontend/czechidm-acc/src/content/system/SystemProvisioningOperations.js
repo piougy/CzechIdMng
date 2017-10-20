@@ -5,6 +5,11 @@ import { Basic, Domain } from 'czechidm-core';
 import ProvisioningOperations from '../provisioning/ProvisioningOperations';
 import { ProvisioningOperationTable } from '../provisioning/ProvisioningOperationTable';
 
+/**
+ * Provisioning opretions route
+ *
+ * @author Radek Tomiška
+ */
 export default class SystemProvisioningOparationContent extends Basic.AbstractContent {
 
   constructor(props, context) {

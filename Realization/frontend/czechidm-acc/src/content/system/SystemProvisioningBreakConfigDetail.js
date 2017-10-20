@@ -13,10 +13,10 @@ const manager = new ProvisioningBreakConfigManager();
 const DEFAULT_PERIOD = 20;
 
 /**
- * TODO: problem with attribute period validation trought joi and required nto working
+ * TODO: problem with attribute period validation trought joi and required not working
  *
+ * @author Ondřej Kopr
  */
-
 class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -28,6 +28,10 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
   getUiKey() {
     return uiKey;
+  }
+
+  getNavigationKey() {
+    return 'system-provisioning-break-config';
   }
 
   getManager() {
@@ -47,6 +51,8 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
@@ -145,53 +151,60 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.label')}
                 required/>
               <Basic.TextField
-                ref="warningLimit"
-                validation={ Utils.Ui.getJoiIntegerValidation() }
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.label')}/>
-              <Basic.TextField
-                ref="disableLimit"
-                validation={ Utils.Ui.getJoiIntegerValidation() }
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.label')}/>
-              <Basic.TextField
                 ref="period"
                 type="number"
                 value={DEFAULT_PERIOD}
                 required
-                validation={ Utils.Ui.getJoiIntegerValidation() }
+                validation={ Utils.Ui.getIntegerValidation() }
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.period.help')}
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.period.label')}/>
-              <Basic.SelectBox
-                ref="warningTemplate"
-                manager={this.notificationTemplatemanager}
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.label')}/>
-              <Basic.SelectBox
-                ref="disableTemplate"
-                manager={this.notificationTemplatemanager}
-                helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.label')}/>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.TextField
+                    ref="warningLimit"
+                    type="number"
+                    validation={ Utils.Ui.getIntegerValidation() }
+                    helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.help')}
+                    label={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.label')}/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.SelectBox
+                    ref="warningTemplate"
+                    manager={ this.notificationTemplatemanager }
+                    placeholder={ this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.placeholder') }
+                    helpBlock={ this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.help') }
+                    label={ this.i18n('acc:entity.ProvisioningBreakConfig.warningTemplate.label') }/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.TextField
+                    ref="disableLimit"
+                    type="number"
+                    validation={ Utils.Ui.getIntegerValidation() }
+                    helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.help')}
+                    label={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.label')}/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.SelectBox
+                    ref="disableTemplate"
+                    manager={this.notificationTemplatemanager}
+                    placeholder={ this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.placeholder') }
+                    helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.help')}
+                    label={this.i18n('acc:entity.ProvisioningBreakConfig.disableTemplate.label')}/>
+                </Basic.Col>
+              </Basic.Row>
+
               <Basic.TextField
                 ref="actualOperationCount"
                 readOnly
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.help')}
-                label={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}/>
+                label={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}
+                rendered={ !Utils.Entity.isNew(entity) }/>
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.disabled')}/>
             </Basic.AbstractForm>
-
-            <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={_showLoading}>
-              <Basic.PanelHeader text={this.i18n('acc:content.provisioningBreakConfigRecipient.title')}/>
-                <Basic.Alert level="info" text={this.i18n('recipientInfo')} rendered={isNew}/>
-                <SystemProvisioningBreakConfigRecipientTable
-                  uiKey={'provisioningBreakConfigRecipient' + configId}
-                  manager={this.provisioningBreakRecipientManager}
-                  forceSearchParameters={this.provisioningBreakRecipientManager.getSearchParameters().setFilter('breakConfigId', configId)}
-                  provisioningBreakConfigId={configId}
-                  rendered={!isNew} />
-            </Basic.Panel>
 
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
@@ -204,9 +217,21 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 level="success"
                 type="submit"
                 showLoading={_showLoading}>
-                {this.i18n('button.save')}
+                {this.i18n('button.saveAndContinue')}
               </Basic.Button>
             </Basic.PanelFooter>
+
+            <Basic.Panel className="no-border" showLoading={_showLoading}>
+              <Basic.PanelHeader text={this.i18n('acc:content.provisioningBreakConfigRecipient.title')}/>
+              <Basic.Alert level="info" text={this.i18n('recipientInfo')} rendered={isNew}/>
+              <SystemProvisioningBreakConfigRecipientTable
+                uiKey={ `provisioning-break-config-recipient-${configId}` }
+                manager={ this.provisioningBreakRecipientManager }
+                forceSearchParameters={ this.provisioningBreakRecipientManager.getSearchParameters().setFilter('breakConfigId', configId) }
+                provisioningBreakConfigId={ configId }
+                rendered={ !isNew } />
+            </Basic.Panel>
+
           </Basic.Panel>
         </form>
       </div>

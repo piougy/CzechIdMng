@@ -37,7 +37,7 @@
         "loadRemoteConnectors": "Nahrát konektory ze vzdáleného serveru",
         "remoteConnectorServer": "Vzdálený konektor server",
         "basic": "Základní informace",
-        "blockedOperationInfo": "Pozor na systému jsou blokované některé operace!"
+        "blockedOperationInfo": "Pozor, na systému jsou blokované některé operace [{{operations}}]!"
       },
       "entities": {
         "header": "Entity na koncovém systému <small>uložené v IdM</small>",
@@ -587,15 +587,18 @@
     "BlockedOperation": {
       "createOperation": {
         "label": "Blokování operace vytvoření",
-        "help": "Všechny operace typu vytvoření budou blokovány"
+        "help": "Všechny operace typu vytvoření budou blokovány",
+        "short": "Vytvoření"
       },
       "updateOperation": {
         "label": "Blokování operace úprava",
-        "help": "Všechny operace typu úprava budou blokovány"
+        "help": "Všechny operace typu úprava budou blokovány",
+        "short": "Úprava"
       },
       "deleteOperation": {
         "label": "Blokování operace smazání",
-        "help": "Všechny operace typu smazání budou blokovány"
+        "help": "Všechny operace typu smazání budou blokovány",
+        "short": "Smazání"
       }
     },
     "RoleSystem": {
@@ -907,11 +910,13 @@
       },
       "warningTemplate": {
         "label": "Šablona pro varovné hlášení",
-        "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro varování."
+        "placeholder": "Výchozí šablona",
+        "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro varování. Pokud není šablona vybrána, bude použita výchozí šablona dle konfigurace notifikací (topic: acc:provisioningBreakWarning)."
       },
       "disableTemplate": {
         "label": "Šablona pro blokační hlášení",
-        "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro zablokování."
+        "placeholder": "Výchozí šablona",
+        "help": "Zpráva s touto šablonou bude odeslána v případě překročení limitu pro zablokování. Pokud není šablona vybrána, bude použita výchozí šablona dle konfigurace notifikací (topic: acc:provisioningBreakDisable)."
       },
       "actualOperationCount": {
         "label": "Počet zpracovaných operací",

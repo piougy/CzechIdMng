@@ -166,13 +166,18 @@ class SystemDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity } = this.props;
     const { _showLoading, showConfigurationRemoteServer } = this.state;
-
-    let showBlockedInfo = false;
-    if (entity && entity.blockedOperation &&
-      (entity.blockedOperation.createOperation ||
-        entity.blockedOperation.updateOperation ||
-        entity.blockedOperation.deleteOperation)) {
-      showBlockedInfo = true;
+    //
+    const blockedOperationLabels = [];
+    if (entity.blockedOperation) {
+      if (entity.blockedOperation.createOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.createOperation.short'));
+      }
+      if (entity.blockedOperation.updateOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.updateOperation.short'));
+      }
+      if (entity.blockedOperation.deleteOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.deleteOperation.short'));
+      }
     }
 
     return (
@@ -187,9 +192,10 @@ class SystemDetail extends Basic.AbstractContent {
                 <Basic.Alert
                   level="warning"
                   icon="exclamation-sign"
-                  rendered={showBlockedInfo}
-                  text={this.i18n('blockedOperationInfo')}
-                  style={{ marginLeft: 0, marginRight: 0 }} />
+                  rendered={ blockedOperationLabels.length > 0 }
+                  text={ this.i18n('blockedOperationInfo', { operations: blockedOperationLabels.join(', ') }) }
+                  className="no-margin"/>
+
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -244,10 +250,6 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}
                   max={255}/>
-                <Basic.Checkbox
-                  ref="virtual"
-                  label={this.i18n('acc:entity.System.virtual')}
-                  readOnly/>
                 <Basic.Checkbox
                   ref="queue"
                   label={this.i18n('acc:entity.System.queue.label')}

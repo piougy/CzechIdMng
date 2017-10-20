@@ -37,7 +37,7 @@
         "loadRemoteConnectors": "Load connector from remote server",
         "remoteConnectorServer": "Remote connector server",
         "basic": "Basic information",
-        "blockedOperationInfo": "Beware on system are blocked some operations!"
+        "blockedOperationInfo": "Warning: on system are blocked some operations [{{operations}}]!"
       },
       "entities": {
         "header": "Entities in system <small>managed in IdM</small>",
@@ -580,15 +580,18 @@
     "BlockedOperation": {
       "createOperation": {
         "label": "Block create operation",
-        "help": "All creation operations will be blocked"
+        "help": "All creation operations will be blocked",
+        "short": "Create"
       },
       "updateOperation": {
         "label": "Block edit operation",
-        "help": "All editing operations will be blocked"
+        "help": "All editing operations will be blocked",
+        "short": "Update"
       },
       "deleteOperation": {
         "label": "Block delete operation",
-        "help": "All deletion operations will be blocked"
+        "help": "All deletion operations will be blocked",
+        "short": "Delete"
       }
     },
     "RoleSystem": {
@@ -900,11 +903,13 @@
       },
       "warningTemplate": {
         "label": "Warning template",
-        "help": "A message with this template will be sent if the warning limit is exceeded."
+        "placeholder": "Default template",
+        "help": "A message with this template will be sent if the warning limit is exceeded. Otherwise default template will be used, by notification configuration (topic: acc:provisioningBreakWarning)."
       },
       "disableTemplate": {
         "label": "Disable template",
-        "help": "A message with this template will be sent if the block limit is exceeded."
+        "placeholder": "Default template",
+        "help": "A message with this template will be sent if the block limit is exceeded. Otherwise default template will be used, by notification configuration (topic: acc:provisioningBreakWarning)."
       },
       "actualOperationCount": {
         "label": "Number of processed operations",

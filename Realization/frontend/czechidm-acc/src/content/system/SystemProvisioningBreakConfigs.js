@@ -9,6 +9,9 @@ import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTyp
 const uiKey = 'provisioning-break-config-table';
 const manager = new ProvisioningBreakConfigManager();
 
+/**
+* @author Ondrej Kopr
+*/
 export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTableContent {
 
   constructor(props, context) {

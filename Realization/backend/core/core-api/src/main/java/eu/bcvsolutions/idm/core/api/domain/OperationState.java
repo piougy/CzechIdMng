@@ -10,8 +10,8 @@ public enum OperationState {
 	RUNNING, // running
 	EXECUTED, // The operation was successfully executed
 	EXCEPTION, // There was an exception during execution
-	NOT_EXECUTED, // The operation was not executed because of some reason (in queue, readonly system ... etc)
-	BLOCKED, // The operation was blocked by provisioning break configuration
+	NOT_EXECUTED, // The operation was not executed because of some reason (in queue, something is disabled ... etc)
+	BLOCKED, // The operation was blocked  (e.g something is disabled)
 	CANCELED; // canceled by some reason (administrator etc.) 
 	
 	/**

@@ -5,7 +5,11 @@ import { Basic } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 import SystemTable from './SystemTable';
 
-
+/**
+ * Content with table of systems
+ *
+ * @author Radek Tomiška
+ */
 export default class Systems extends Basic.AbstractContent {
 
   constructor(props, context) {

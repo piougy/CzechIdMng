@@ -3,16 +3,16 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
+
+const ROLE_TYPE = 'roleType';
+const IDENTITY_TYPE = 'identityType';
+
 /**
 * Table of provisioning break recipient
 *
 * @author Ondrej Kopr
 *
 */
-
-const ROLE_TYPE = 'roleType';
-const IDENTITY_TYPE = 'identityType';
-
 export class SystemProvisioningBreakConfigRecipientTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -166,12 +166,24 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
   _getRecipientName(entity) {
     if (entity && entity.role) {
       if (entity._embedded) {
-        return entity._embedded.role.code;
+        return (
+          <Advanced.EntityInfo
+            entityType="role"
+            entityIdentifier={ entity.role }
+            entity={ entity._embedded.role }
+            face="popover"/>
+        );
       }
       return entity.role;
     } else if (entity && entity.identity) {
       if (entity._embedded) {
-        return entity._embedded.identity.username;
+        return (
+          <Advanced.EntityInfo
+            entityType="identity"
+            entityIdentifier={ entity.identity }
+            entity={ entity._embedded.identity }
+            face="popover"/>
+        );
       }
       return entity.identity;
     }

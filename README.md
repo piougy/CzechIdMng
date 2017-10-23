@@ -1,8 +1,8 @@
 # CzechIdM 7
 
-CzechIdM is an opensource identity management tool for user accounts that automates the operations associated with establishing, canceling, or changing identity.
+CzechIdM is an opensource identity management tool for user accounts that automates the operations associated with establishing and managing identities.
 
-CzechIdM manages user accounts, roles, groups, organizational rankings, and their relationship to individual applications and data. All the performed operations are logged, so it is always possible to verify who has what access and why.
+CzechIdM manages user accounts, roles, groups, organizational structures, and their relationships to individual applications and data. All performed operations are recorded, so you always have a complete overview of who has what access and why.
 
 ![IdM base structure](https://wiki.czechidm.com/_media/idm_schema.png)
 

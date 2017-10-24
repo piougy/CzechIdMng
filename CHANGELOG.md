@@ -1,7 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.5.0] unreleased
+## [7.6.0] unreleased
+
+### Added
+
+#### Acc module
+
+### Removed
+
+## [7.5.0]
 
 ### Added
 

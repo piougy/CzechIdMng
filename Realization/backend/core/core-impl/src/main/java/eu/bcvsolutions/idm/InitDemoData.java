@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -373,7 +374,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
 				description.setPersistentType(PersistentType.TEXT);
-				description.setFaceType("TEXTAREA");
+				description.setFaceType(BaseFaceType.TEXTAREA);
 				description = formService.saveAttribute(IdmIdentity.class, description);
 				
 				IdmFormAttributeDto rich = new IdmFormAttributeDto();
@@ -381,7 +382,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
 				rich.setPersistentType(PersistentType.TEXT);
-				description.setFaceType("RICHTEXTAREA");
+				description.setFaceType(BaseFaceType.RICHTEXTAREA);
 				rich = formService.saveAttribute(IdmIdentity.class, rich);
 				
 				IdmFormAttributeDto sure = new IdmFormAttributeDto();
@@ -413,7 +414,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				currency.setCode("currency");
 				currency.setName("Price");
 				currency.setPersistentType(PersistentType.DOUBLE);
-				currency.setFaceType("CURRENCY");				
+				currency.setFaceType(BaseFaceType.CURRENCY);			
 				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
 				IdmFormAttributeDto date = new IdmFormAttributeDto();

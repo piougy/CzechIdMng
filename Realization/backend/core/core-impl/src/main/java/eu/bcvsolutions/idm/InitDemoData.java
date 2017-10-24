@@ -373,7 +373,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
 				description.setPersistentType(PersistentType.TEXT);
-				description.setFaceType("TEEXTAREA");
+				description.setFaceType("TEXTAREA");
 				description = formService.saveAttribute(IdmIdentity.class, description);
 				
 				IdmFormAttributeDto rich = new IdmFormAttributeDto();

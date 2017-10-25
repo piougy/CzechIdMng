@@ -181,8 +181,7 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
             <Advanced.Column
               property="actualOperationCount"
               face="text"
-              header={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}
-              sort/>
+              header={this.i18n('acc:entity.ProvisioningBreakConfig.actualOperationCount.label')}/>
             <Advanced.Column
               property="period"
               face="text"

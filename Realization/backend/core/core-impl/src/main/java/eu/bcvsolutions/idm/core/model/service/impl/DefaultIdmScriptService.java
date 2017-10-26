@@ -225,9 +225,9 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
 			LOG.error("Backup for script: {} failed, error message: {}", dto.getCode(),
-					e.getLocalizedMessage());
+					e.getLocalizedMessage(), e);
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
-					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
+					ImmutableMap.of("code", dto.getCode()));
 		}
 	}
 

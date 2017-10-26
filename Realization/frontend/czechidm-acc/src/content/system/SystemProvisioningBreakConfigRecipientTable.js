@@ -249,7 +249,8 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
-              <Basic.Button ref="yesButton" level="success" onClick={this.saveDetail.bind(this)}>{this.i18n('button.create')}</Basic.Button>
+              <Basic.Button ref="yesButton" level="success" onClick={this.saveDetail.bind(this)} rendered={isNew}>{this.i18n('button.create')}</Basic.Button>
+              <Basic.Button ref="yesButton" level="success" onClick={this.saveDetail.bind(this)} rendered={!isNew}>{this.i18n('button.save')}</Basic.Button>
             </Basic.Modal.Footer>
           </form>
       </Basic.Modal>

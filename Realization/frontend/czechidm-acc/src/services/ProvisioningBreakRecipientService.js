@@ -16,7 +16,10 @@ export default class ProvisioningBreakRecipientService extends Services.Abstract
     if (!entity) {
       return '';
     }
-    return `${entity._embedded.identity.username}`;
+    if (entity._embedded && entity._embedded.identity) {
+      return `${entity._embedded.identity.username}`;
+    }
+    return `${entity._embedded.role.name}`;
   }
 
   getApiPath() {

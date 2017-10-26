@@ -145,8 +145,6 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Script's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
-		IdmIdentityDto dto = identityService.getByUsername("kopr");
-		notificationManager.send("aaa", new IdmMessageDto.Builder().setLevel(NotificationLevel.INFO).build(), dto);
 		return super.get(backendId);
 	}
 	

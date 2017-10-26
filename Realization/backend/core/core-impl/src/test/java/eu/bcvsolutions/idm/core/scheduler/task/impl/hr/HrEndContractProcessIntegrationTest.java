@@ -90,8 +90,6 @@ public class HrEndContractProcessIntegrationTest extends AbstractHrProcessIntegr
 		enableAllProcessors();
 		//
 		IdmIdentityContractDto dto = prepareTestData2();
-		assertEquals(true, identityService.get(dto.getIdentity()).isDisabled());
-		assertNotEquals(0, identityRoleService.findAllByContract(dto.getId()).size());
 		//
 		process(lrt, dto);
 		//

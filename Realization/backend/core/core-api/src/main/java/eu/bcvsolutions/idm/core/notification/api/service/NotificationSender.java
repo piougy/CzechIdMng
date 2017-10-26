@@ -9,13 +9,17 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 
 /**
- * Notification system
- *
- * TODO: move to core api (requires IdmIdentity refactoring - sender and recipient should be represented as uuid + username)
+ * Notification system. Notifications can be send to registered identities only. 
+ * Sending notifications directly to email, phone etc. is not supported.
+ * One notification can be send to more channels (e.g. email, websocket, sms). 
+ * This is the reason why {@link #send(IdmMessageDto, List)} methods returns more than one notification.
  * 
  * @author Radek Tomiška 
+ * 
+ * @see {@link IdmNotificationLogDto}
  *
  */
 public interface NotificationSender<N extends BaseNotification> extends Plugin<String> {
@@ -23,7 +27,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	static final String DEFAULT_TOPIC = "default";
 	
 	/**
-	 * Returns this manager's {@link IdmNotificationDto} type.
+	 * Returns this sender's {@link IdmNotificationDto} type.
 	 * 
 	 * @return
 	 */
@@ -70,9 +74,20 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param topic
 	 * @param message
 	 * @param recipients
-	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
+	 * @return list of sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
 	List<N> send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients);
+	
+	/**
+	 * Sends message with topic to given identities.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @param sender [optional] notification from identity (e.g. admin sends notification to helpdesk identity)
+	 * @param recipients
+	 * @return list of sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
+	 */
+	List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients);
 	
 	/**
 	 * Sends given notification

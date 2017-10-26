@@ -13,6 +13,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,10 +30,10 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
@@ -57,7 +58,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Marek Klement
  *
  */
-public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
+public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrationTest {
 
 	private static final String TOPIC = "idm:test";
 	private static final String TEST_TEMPLATE = "testTemplate";
@@ -74,7 +75,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
 	@Autowired private ConfigurationService configurationService;
 	//
-	NotificationConfigurationDto config = null;
+	IdmNotificationConfigurationDto config = null;
 
 	@Before
 	public void clear() {
@@ -83,7 +84,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		emailLogRepository.deleteAll();
 		idmNotificationRepository.deleteAll();
 		//
-		config = new NotificationConfigurationDto();
+		config = new IdmNotificationConfigurationDto();
 		config.setTopic(TOPIC);
 		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE);
 		config = notificationConfigurationService.save(config);
@@ -441,7 +442,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		// create config, for email, topic and without level = wildcard
-		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
 		config.setTopic(topic); // topic
 		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
 		config = notificationConfigurationService.save(config);
@@ -480,7 +481,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		// create config, for email, topic, template and without level = wildcard
-		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
 		config.setTopic(topic); // topic
 		config.setTemplate(template.getId()); // template
 		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
@@ -520,7 +521,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		// create config, for email, topic, template and without level = wildcard
-		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
 		config.setTopic(topic); // topic
 		config.setTemplate(template.getId()); // template
 		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
@@ -565,14 +566,14 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		// create config, for email, topic, template and without level = wildcard
-		NotificationConfigurationDto config1 = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config1 = new IdmNotificationConfigurationDto();
 		config1.setTopic(topic); // topic
 		config1.setTemplate(template1.getId()); // template
 		config1.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
 		config1 = notificationConfigurationService.save(config1);
 		//
 		// create second config, for console, topic, template and without level = wildcard
-		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
 		config.setTopic(topic); // same topic
 		config.setTemplate(template2.getId()); // different template
 		config.setNotificationType(IdmConsoleLog.NOTIFICATION_TYPE); // console
@@ -633,14 +634,14 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		// create config, for email, topic, template and without level = wildcard
-		NotificationConfigurationDto config1 = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config1 = new IdmNotificationConfigurationDto();
 		config1.setTopic(topic); // topic
 		config1.setTemplate(template1.getId()); // template
 		config1.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
 		config1 = notificationConfigurationService.save(config1);
 		//
 		// create second config, for console, topic, template and without level = wildcard
-		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
 		config.setTopic(topic); // same topic
 		config.setTemplate(template2.getId()); // different template
 		config.setNotificationType(IdmConsoleLog.NOTIFICATION_TYPE); // console
@@ -668,6 +669,35 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(textMessage, notification2.getMessage().getHtmlMessage());
 		assertEquals(textMessage, notification2.getMessage().getSubject());
 		assertEquals(textMessage, notification2.getMessage().getTextMessage());
+	}
+	
+	@Test
+	public void sendNofificationToConsoleIfTopicNotFound() {
+		String topic = helper.createName();
+		// create config, for email, topic, template and without level = wildcard
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
+		config.setTopic(topic); // topic
+		config.setLevel(NotificationLevel.INFO);
+		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE); // email
+		config = notificationConfigurationService.save(config);
+		//
+		IdmIdentityDto identity = helper.createIdentity();
+		List<IdmNotificationLogDto> notifications = notificationManager.send(
+				topic, 
+				new IdmMessageDto
+					.Builder()
+					.setLevel(NotificationLevel.SUCCESS) // set level
+					.setMessage("message")
+					.setSubject("subject")
+					.build(),
+				identity);
+		//
+		assertEquals(1, notifications.size());
+		//
+		// console channel is expected, because topic configuration is wrong
+		IdmNotificationLogDto notification = notifications.get(0);
+		//
+		Assert.assertEquals(IdmConsoleLog.NOTIFICATION_TYPE, notification.getType());
 	}
 
 	private IdmNotificationTemplateDto createTestTemplate(String body, String subject) {

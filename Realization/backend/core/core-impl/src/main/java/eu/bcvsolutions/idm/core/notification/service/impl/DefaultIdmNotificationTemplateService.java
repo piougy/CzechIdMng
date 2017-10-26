@@ -38,7 +38,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -212,15 +211,26 @@ public class DefaultIdmNotificationTemplateService extends
 		IdmMessageDto newMessage;
 		// if is set model from message build with them
 		if (message.getModel() != null) {
-			newMessage = new IdmMessageDto.Builder().setHtmlMessage(bodyHtml.toString())
-					.setTextMessage(bodyText.toString()).setSubject(message.getModel().getStatusEnum())
+			newMessage = new IdmMessageDto
+					.Builder()
+					.setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString())
+					.setSubject(message.getModel().getStatusEnum())
 					.setLevel(message.getLevel()) // level get from old message
-					.setTemplate(template).setParameters(model).setModel(message.getModel()).build();
+					.setTemplate(template)
+					.setParameters(model)
+					.setModel(message.getModel()).build();
 		} else {
 			// Build IdmMessage
-			newMessage = new IdmMessageDto.Builder().setHtmlMessage(bodyHtml.toString())
-					.setTextMessage(bodyText.toString()).setSubject(subject.toString()).setLevel(message.getLevel()) // level
-					.setTemplate(template).setParameters(model).build();
+			newMessage = new IdmMessageDto
+					.Builder()
+					.setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString())
+					.setSubject(subject.toString())
+					.setLevel(message.getLevel()) // level
+					.setTemplate(template)
+					.setParameters(model)
+					.build();
 		}
 		//
 		return newMessage;
@@ -382,8 +392,7 @@ public class DefaultIdmNotificationTemplateService extends
 			// this state is possible send message to topic that hasn't set any configurations
 			IdmNotificationLogDto notification = new IdmNotificationLogDto();
 			notification.setTopic(topic);
-			IdmMessageDto newMessage = creteMessage(message.getTemplate(), message.getLevel(), message.getModel(), message.getParameters());
-			notification.setMessage(this.buildMessage(newMessage, false));
+			notification.setMessage(this.buildMessage(message, false));
 			notifications.add(notification);
 			return notifications;
 		}
@@ -399,14 +408,10 @@ public class DefaultIdmNotificationTemplateService extends
 			if (message.getTemplate() != null) {
 				// exist template in message
 				finalMessage = this.buildMessage(message, false);
-			} else if (configuration.getTemplate() != null) {			
-				finalMessage = this.buildMessage(
-						creteMessage(
-							this.get(configuration.getTemplate()), 
-							message.getLevel(), 
-							message.getModel(), 
-							message.getParameters())
-						, false);
+			} else if (configuration.getTemplate() != null) {	
+				finalMessage = new IdmMessageDto(message);
+				finalMessage.setTemplate(this.get(configuration.getTemplate()));
+				finalMessage = this.buildMessage(finalMessage, false);
 			} else {
 				finalMessage = message;
 			}
@@ -429,25 +434,6 @@ public class DefaultIdmNotificationTemplateService extends
 		}
 		//
 		return notifications;
-	}
-	
-	/**
-	 * Create {@link IdmMessageDto} for notifications
-	 * 
-	 * @param template
-	 * @param level
-	 * @param model
-	 * @param parameters
-	 * @return
-	 */
-	private IdmMessageDto creteMessage(IdmNotificationTemplateDto template, NotificationLevel level, ResultModel model, Map<String, Object> parameters) {
-		// create and build new message
-		IdmMessageDto newMessage = new IdmMessageDto();
-		newMessage.setLevel(level);
-		newMessage.setTemplate(template);
-		newMessage.setParameters(parameters);
-		newMessage.setModel(model);
-		return newMessage;
 	}
 
 	/**

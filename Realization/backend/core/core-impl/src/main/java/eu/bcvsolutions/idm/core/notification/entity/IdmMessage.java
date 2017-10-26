@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 
 /**
  * Notification content
@@ -34,12 +35,13 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 @Embeddable
 public class IdmMessage {
 	
-	public static final NotificationLevel DEFAULT_LEVEL = NotificationLevel.INFO;
+	@Deprecated
+	public static final NotificationLevel DEFAULT_LEVEL = IdmMessageDto.DEFAULT_LEVEL;
 
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "level", nullable = false, length = 45)
-	private NotificationLevel level = DEFAULT_LEVEL;
+	private NotificationLevel level = IdmMessageDto.DEFAULT_LEVEL;
 
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "subject", length = DefaultFieldLengths.NAME)

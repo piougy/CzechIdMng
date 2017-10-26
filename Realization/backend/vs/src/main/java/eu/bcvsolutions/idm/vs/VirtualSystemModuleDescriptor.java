@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
@@ -48,10 +48,10 @@ public class VirtualSystemModuleDescriptor extends PropertyModuleDescriptor {
 	}
 	
 	@Override
-	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
-		List<NotificationConfigurationDto> configs = new ArrayList<>();
+	public List<IdmNotificationConfigurationDto> getDefaultNotificationConfigurations() {
+		List<IdmNotificationConfigurationDto> configs = new ArrayList<>();
 		
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_VS_REQUEST_CREATED, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,

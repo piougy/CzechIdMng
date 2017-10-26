@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 
 /**
  * Configuration for notification routing
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDt
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationConfigurationService extends ReadWriteDtoService<NotificationConfigurationDto, EmptyFilter> {
+public interface IdmNotificationConfigurationService extends ReadWriteDtoService<IdmNotificationConfigurationDto, EmptyFilter> {
 
 	/**
 	 * Returns default notification sender. Will be used for notification's topics, which can not be found in configuration.
@@ -42,7 +42,7 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * @param notificationType
 	 * @return
 	 */
-	NotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType);
+	IdmNotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType);
 	
 	/**
 	 * Returns registered senders notification types.
@@ -71,5 +71,5 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * @param level
 	 * @return
 	 */
-	List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level);
+	List<IdmNotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level);
 }

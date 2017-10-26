@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
@@ -89,7 +89,7 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 		}
 		
 		// create config
-		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		IdmNotificationConfigurationDto config = new IdmNotificationConfigurationDto();
 		config.setTopic(TOPIC);
 		config.setLevel(NotificationLevel.SUCCESS);
 		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE);

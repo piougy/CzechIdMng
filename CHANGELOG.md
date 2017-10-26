@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 
 #### Acc module
 
+### Changed
+
+#### Core module
+
+##### Notification
+- ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
+
 ### Removed
 
 ## [7.5.1]

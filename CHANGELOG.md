@@ -9,6 +9,12 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+## [7.5.1]
+
+##### Contractual relation
+
+- Long running tasks (LRT) for HR processes were restored - they are useful for pre-production checks (disable processors + show what LRT wants to process).
+
 ## [7.5.0]
 
 ### Added

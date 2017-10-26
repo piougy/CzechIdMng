@@ -146,7 +146,7 @@ public class SchedulerController implements BaseController {
 		int first = pageable.getPageNumber() * pageable.getPageSize();
 		int last = pageable.getPageSize() + first;
 		List<Task> taskPage = tasks.subList(
-				first < tasks.size() ? first : tasks.size() - 1, 
+				first < tasks.size() ? first : tasks.size() > 0 ? tasks.size() - 1 : 0, 
 				last < tasks.size() ? last : tasks.size());
 		//
 		return pageToResources(new PageImpl(taskPage, pageable, tasks.size()), Task.class);

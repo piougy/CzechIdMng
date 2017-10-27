@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
@@ -63,61 +63,61 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	}
 	
 	@Override
-	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+	public List<IdmNotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		// TODO: this doesn't make good sense now - should be moved to xml at all?
 		//
-		List<NotificationConfigurationDto> configs = new ArrayList<>();
+		List<IdmNotificationConfigurationDto> configs = new ArrayList<>();
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_CHANGE_IDENTITY_ROLES, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about result WF (change identity roles).", 
 				getNotificationTemplateId("changeIdentityRole")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_DISAPPROVE_IDENTITY_ROLES, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about disapprove role request.", 
 				getNotificationTemplateId("disapproveIdentityRole")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_RETURN_REQUEST_IDENTITY_ROLES, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about return role request.", 
 				getNotificationTemplateId("returnRequestIdentityRole")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_WF_TASK_ASSIGNED, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about new assigned task to user.", 
 				getNotificationTemplateId("wfTaskNotificationMessage")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_WF_TASK_CREATED, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about new assigned task to user.", 
 				getNotificationTemplateId("wfTaskNotificationMessage")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_PASSWORD_EXPIRATION_WARNING, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Password expiration warning.", 
 				getNotificationTemplateId("passwordExpirationWarning")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_PASSWORD_EXPIRED, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Password expired.", 
 				getNotificationTemplateId("passwordExpired")));
 		//
-		configs.add(new NotificationConfigurationDto(
+		configs.add(new IdmNotificationConfigurationDto(
 				TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,

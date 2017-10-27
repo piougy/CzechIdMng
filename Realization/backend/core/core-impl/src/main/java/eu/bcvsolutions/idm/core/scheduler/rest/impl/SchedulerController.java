@@ -40,6 +40,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -107,6 +109,16 @@ public class SchedulerController implements BaseController {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_READ, description = "") })
 				})
+	@ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
 	public Resources<Task> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
@@ -146,7 +158,7 @@ public class SchedulerController implements BaseController {
 		int first = pageable.getPageNumber() * pageable.getPageSize();
 		int last = pageable.getPageSize() + first;
 		List<Task> taskPage = tasks.subList(
-				first < tasks.size() ? first : tasks.size() - 1, 
+				first < tasks.size() ? first : tasks.size() > 0 ? tasks.size() - 1 : 0, 
 				last < tasks.size() ? last : tasks.size());
 		//
 		return pageToResources(new PageImpl(taskPage, pageable, tasks.size()), Task.class);

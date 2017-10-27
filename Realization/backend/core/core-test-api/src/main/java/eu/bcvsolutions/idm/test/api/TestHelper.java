@@ -29,6 +29,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 public interface TestHelper {
 	
 	/**
+	 * Creates random unique name
+	 * 
+	 * @return
+	 */
+	String createName();
+	
+	/**
 	 * Creates test identity with random username
 	 * 
 	 * @return

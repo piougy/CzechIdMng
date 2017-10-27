@@ -64,7 +64,7 @@ public class DefaultIdmNotificationLogService
 			dto.setState(NotificationState.PARTLY);
 		} else {
 			dto.setState(NotificationState.NOT);
-		}		
+		}	
 		return dto;
 	}
 }

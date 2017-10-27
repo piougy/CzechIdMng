@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "notificationConfigurations")
-public class NotificationConfigurationDto extends AbstractDto {
+public class IdmNotificationConfigurationDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,10 +25,10 @@ public class NotificationConfigurationDto extends AbstractDto {
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
 	private UUID template;
 
-	public NotificationConfigurationDto() {
+	public IdmNotificationConfigurationDto() {
 	}
 
-	public NotificationConfigurationDto(
+	public IdmNotificationConfigurationDto(
 			String topic, 
 			NotificationLevel level, 
 			String notificationType,
@@ -41,7 +41,7 @@ public class NotificationConfigurationDto extends AbstractDto {
 		this.template = template;
 	}
 
-	public NotificationConfigurationDto(NotificationConfigurationDto other) {
+	public IdmNotificationConfigurationDto(IdmNotificationConfigurationDto other) {
 		topic = other.getTopic();
 		level = other.getLevel();
 		notificationType = other.getNotificationType();

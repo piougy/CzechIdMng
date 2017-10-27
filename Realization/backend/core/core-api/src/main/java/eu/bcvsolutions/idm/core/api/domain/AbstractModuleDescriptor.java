@@ -9,7 +9,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
@@ -124,7 +124,7 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	 * Returns empty notifications list
 	 */
 	@Override
-	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+	public List<IdmNotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		return Collections.emptyList();
 	}
 

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -160,11 +162,24 @@ public class IdmNotificationLogController
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_CREATE, description = ""),
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_UPDATE, description = "")})
 				})
-	public IdmNotificationLogDto postDto(@RequestBody @NotNull IdmNotificationLogDto dto) {		
-		LOG.debug("Notification log [{}] was created and notification will be send.", dto);
-		final IdmNotificationLogDto result = notificationManager.send(dto);
+	public IdmNotificationLogDto postDto(@RequestBody @NotNull IdmNotificationLogDto notification) {		
+		LOG.debug("Notification log [{}] was created and notification will be send.", notification);
+		List<IdmNotificationLogDto> results = notificationManager.send(
+				notification.getTopic(), 
+				notification.getMessage(), 
+				(IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, notification.getIdentitySender()),
+				notification.getRecipients()
+					.stream()
+					.map(recipient -> {
+						return (IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, recipient.getIdentityRecipient());
+					}).collect(Collectors.toList())
+				);
 		// TODO: send method should result notification or ex to prevent another loading
-		return getDto(result.getId());
+		// TODO: parent notification should be returned ...
+		if (results.isEmpty()) {
+			return null;
+		}
+		return getDto(results.get(0).getId());
 	}
 
 	@ResponseBody

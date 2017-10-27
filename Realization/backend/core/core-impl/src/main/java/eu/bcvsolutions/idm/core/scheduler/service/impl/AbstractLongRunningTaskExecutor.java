@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.quartz.DisallowConcurrentExecution;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -34,11 +35,11 @@ import eu.bcvsolutions.idm.core.scheduler.exception.ConcurrentExecutionException
 
 /**
  * Template for long running task executor. This template persists long running tasks.
- * 
+ *
  * TODO: interface only + AOP executor
  * TODO: refactor autowired fields to bean post processors
  * TODO: Configurable API
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -49,16 +50,16 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Autowired private LookupService entityLookupService;
 	@Autowired private EntityEventManager entityEventManager;
 	//
-	private ParameterConverter parameterConverter;	
+	private ParameterConverter parameterConverter;
 	private UUID taskId;
 	protected Long count = null;
 	protected Long counter = null;
-	
+
 	@Override
 	public String getName() {
 		return this.getClass().getCanonicalName();
 	}
-	
+
 	/**
 	 * Default implementation returns module by package conventions.
 	 */
@@ -66,12 +67,12 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	public String getModule() {
 		return EntityUtils.getModule(this.getClass());
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return AutowireHelper.getBeanDescription(this.getClass());
 	}
-	
+
 	/**
 	 * Returns configurable task parameters. Don't forget to override this method additively.
 	 */
@@ -80,13 +81,13 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		// any parameter for now
 		return new ArrayList<>();
 	}
-	
+
 	@Override
 	public void init(Map<String, Object> properties) {
 		count = null;
 		counter = null;
 	}
-	
+
 	/**
 	 * Returns persistent task parameter values. Don't forget to override this method additively.
 	 */
@@ -94,11 +95,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	public Map<String, Object> getProperties() {
 		return new HashMap<>();
 	}
-	
+
 	/**
 	 * Starts given task
 	 * - persists task properties
-	 * 
+	 *
 	 * @return
 	 */
 	protected boolean start() {
@@ -114,6 +115,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		setStateProperties(task);
 		//
 		task.setRunning(true);
+		DateTime taskStarted = DateTime.now();
+		task.setTaskStarted(taskStarted);
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		task.setStateful(isStateful());
 		Map<String, Object> taskProperties = task.getTaskProperties();
@@ -125,10 +128,10 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		service.save(task);
 		return true;
 	}
-	
+
 	/**
 	 * Validates task before start e.q. if task already running or to prevent run task concurrently.
-	 * 
+	 *
 	 * @param task persisted task to validate
 	 */
 	@Override
@@ -141,7 +144,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		if (!OperationState.isRunnable(task.getResultState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
 		}
-		// 
+		//
 		if (this.getClass().isAnnotationPresent(DisallowConcurrentExecution.class)) {
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 			filter.setTaskType(getName());
@@ -154,19 +157,20 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 						// not self
 						return !t.getId().equals(task.getId());
 					})
-					.collect(Collectors.toList());			
+					.collect(Collectors.toList());
 			if (!runningTasks.isEmpty()) {
 				throw new ConcurrentExecutionException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", getName()));
 			}
 		}
 	}
-	
+
 	@Override
 	public V call() {
 		try {
 			if (!start()) {
 				return null;
 			}
+
 			V result = process();
 			//
 			return end(result, null);
@@ -174,10 +178,10 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			return end(null, ex);
 		}
 	}
-	
+
 	/**
 	 * TODO: save result into long running task - blob, text?
-	 * 
+	 *
 	 * @param result
 	 * @param ex
 	 * @return
@@ -195,15 +199,15 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			if (ex instanceof ResultCodeException) {
 				resultModel = ((ResultCodeException) ex).getError().getError();
 			} else {
-				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED,
 					ImmutableMap.of(
-							"taskId", taskId, 
+							"taskId", taskId,
 							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId()));
 			}
 			LOG.error(resultModel.toString(), ex);
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-		} else if(OperationState.isRunnable(task.getResultState())) { 
+		} else if(OperationState.isRunnable(task.getResultState())) {
 			// executed standardly
 			LOG.debug("Long running task ended [{}] standardly, previous state [{}], result [{}].", taskId, task.getResultState(), result);
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
@@ -215,7 +219,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		//
 		return result;
 	}
-	
+
 	/**
 	 * Override for count support
 	 */
@@ -223,7 +227,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	public Long getCount() {
 		return count;
 	}
-	
+
 	/**
 	 * Override for counter support
 	 */
@@ -231,7 +235,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	public Long getCounter() {
 		return counter;
 	}
-	
+
 	/**
 	 * Override for counter support
 	 */
@@ -247,7 +251,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	public void setCounter(Long counter) {
 		this.counter = counter;
 	}
-	
+
 	@Override
 	public Long increaseCounter(){
 		return this.counter++;
@@ -267,15 +271,15 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		}
 		return task.isRunning() && OperationState.isRunnable(task.getResultState());
 	}
-	
+
 	@Override
 	public boolean isStateful() {
 		return true;
 	}
-	
+
 	/**
 	 * Return parameter converter helper
-	 * 
+	 *
 	 * @return
 	 */
 	protected ParameterConverter getParameterConverter() {
@@ -284,10 +288,10 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		}
 		return parameterConverter;
 	}
-	
+
 	/**
 	 * Sets executor's state properties (count..) to long running task instance
-	 * 
+	 *
 	 * @param longRunningTask
 	 * @param taskExecutor
 	 */
@@ -298,12 +302,12 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			task.setCounter(0L);
 		}
 	}
-	
+
 	@Override
 	public UUID getLongRunningTaskId() {
 		return taskId;
 	}
-	
+
 	@Override
 	public void setLongRunningTaskId(UUID taskId) {
 		this.taskId = taskId;

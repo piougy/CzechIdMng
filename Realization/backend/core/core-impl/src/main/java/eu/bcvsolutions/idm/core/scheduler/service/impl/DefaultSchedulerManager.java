@@ -50,10 +50,10 @@ import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 
 /**
- * Default implementation of {@link SchedulerManager}. 
+ * Default implementation of {@link SchedulerManager}.
  * This implementation adds long running task to queue and not execute them directly.
  * It is needed for choose server instance id, where task will be physically executed (more instances can read one database).
- * 
+ *
  * @author Radek Tomiška
  */
 public class DefaultSchedulerManager implements SchedulerManager {
@@ -66,7 +66,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	private final ApplicationContext context;
 	private final Scheduler scheduler;
 	private final IdmDependentTaskTriggerRepository dependentTaskTriggerRepository;
-	
+
 	@Autowired
 	public DefaultSchedulerManager(
 			ApplicationContext context,
@@ -80,10 +80,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		this.scheduler = scheduler;
 		this.dependentTaskTriggerRepository = dependentTaskTriggerRepository;
 	}
-	
+
 	@Override
 	@SuppressWarnings({ "unchecked" })
-	public List<Task> getSupportedTasks() {				
+	public List<Task> getSupportedTasks() {
 		return context.getBeansOfType(SchedulableTaskExecutor.class)
 				.entrySet()
 				.stream()
@@ -107,7 +107,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	public List<Task> getAllTasks() {
 		try {
 			List<Task> tasks = new ArrayList<>();
-			
+
 			for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(DEFAULT_GROUP_NAME))) {
 				Task task = getTask(jobKey);
 				if (task != null) {
@@ -120,15 +120,15 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			throw new CoreException(ex);
 		}
 	}
-	
+
 	@Override
 	public Task getTask(String taskId) {
 		return getTask(getKey(taskId));
 	}
-	
+
 	/**
 	 * Returns task by given key
-	 * 
+	 *
 	 * @param jobKey
 	 * @return
 	 */
@@ -153,7 +153,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 			// scheduled triggers - native
 			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
-				TriggerState state = scheduler.getTriggerState(trigger.getKey());	
+				TriggerState state = scheduler.getTriggerState(trigger.getKey());
 				if (trigger instanceof CronTrigger) {
 					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state)));
 				} else if (trigger instanceof SimpleTrigger) {
@@ -176,10 +176,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task was removed too.", jobKey, ex);
 				return null;
 			}
-			throw new CoreException(ex);	
+			throw new CoreException(ex);
 		}
 	}
-	
+
 	@Override
 	public Task createTask(Task task) {
 		Assert.notNull(task);
@@ -207,7 +207,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			} catch (ResultCodeException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED,
 						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
 			}
 			// create job detail - job definition
@@ -218,8 +218,8 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					.usingJobData(jobDataMap)
 					.storeDurably()
 					.build();
-			// add job 
-			scheduler.addJob(jobDetail, false);			
+			// add job
+			scheduler.addJob(jobDetail, false);
 			//
 			LOG.debug("Job '{}' ({}) was created and registered", taskId, task.getTaskType());
 			//
@@ -230,7 +230,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 
 	@Override
-	public void deleteTask(String taskId) {		
+	public void deleteTask(String taskId) {
 		try {
 			scheduler.deleteJob(new JobKey(taskId, DEFAULT_GROUP_NAME));
 		} catch (org.quartz.SchedulerException ex) {
@@ -240,14 +240,19 @@ public class DefaultSchedulerManager implements SchedulerManager {
 
 	@Override
 	public AbstractTaskTrigger runTask(String taskId) {
+		return runTask(taskId, false);
+	}
+
+	@Override
+	public AbstractTaskTrigger runTask(String taskId, boolean dryRun) {
 		// run job - add simple trigger
 		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
 		trigger.setTaskId(taskId);
 		trigger.setDescription("run manually");
 		trigger.setFireTime(new DateTime());
-		return createTrigger(taskId, trigger);
+		return createTrigger(taskId, trigger, dryRun);
 	}
-	
+
 	@Override
 	public boolean interruptTask(String taskId) {
 		try {
@@ -259,6 +264,11 @@ public class DefaultSchedulerManager implements SchedulerManager {
 
 	@Override
 	public AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger) {
+		return createTrigger(taskId, trigger, false);
+	}
+
+	@Override
+	public AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger, boolean dryRun) {
 		Assert.notNull(taskId);
 		Assert.notNull(trigger);
 		//
@@ -266,11 +276,11 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		trigger.setId(triggerId);
 		trigger.setTaskId(taskId);
 		//
-		// 
+		// TODO use of visitor pattern may be good
 		if (trigger instanceof CronTaskTrigger) {
-			createTriggerInternal(taskId, (CronTaskTrigger) trigger);
+			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun);
 		} else if (trigger instanceof SimpleTaskTrigger) {
-			createTriggerInternal(taskId, (SimpleTaskTrigger) trigger);
+			createTriggerInternal(taskId, (SimpleTaskTrigger) trigger, dryRun);
 		} else if(trigger instanceof DependentTaskTrigger) {
 			createTriggerInternal(taskId, (DependentTaskTrigger) trigger);
 		} else {
@@ -278,8 +288,8 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		}
 		return trigger;
 	}
-	
-	private void createTriggerInternal(String taskId, CronTaskTrigger trigger) {
+
+	private void createTriggerInternal(String taskId, CronTaskTrigger trigger, boolean dryRun) {
 		CronTaskTrigger cronTaskTrigger = (CronTaskTrigger) trigger;
 		CronScheduleBuilder cronBuilder;
 		try {
@@ -298,14 +308,15 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						.forJob(getKey(taskId))
 						.withDescription(cronTaskTrigger.getDescription())
 						.withSchedule(cronBuilder)
+						.usingJobData(AbstractSchedulableTaskExecutor.DRY_RUN, dryRun)
 						.startNow()
 						.build());
 		} catch (org.quartz.SchedulerException ex) {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
 		}
 	}
-	
-	private void createTriggerInternal(String taskId, SimpleTaskTrigger trigger) {
+
+	private void createTriggerInternal(String taskId, SimpleTaskTrigger trigger, boolean dryRun) {
 		try {
 			scheduler.scheduleJob(
 					TriggerBuilder.newTrigger()
@@ -314,12 +325,13 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						.withDescription(trigger.getDescription())
 						.withSchedule(SimpleScheduleBuilder.simpleSchedule())
 						.startAt(((SimpleTaskTrigger) trigger).getFireTime().toDate())
+						.usingJobData(AbstractSchedulableTaskExecutor.DRY_RUN, dryRun)
 						.build());
 		} catch (org.quartz.SchedulerException ex) {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
 		}
 	}
-	
+
 	private void createTriggerInternal(String taskId, DependentTaskTrigger trigger) {
 		dependentTaskTriggerRepository.save(new IdmDependentTaskTrigger(trigger.getInitiatorTaskId(), taskId));
 	}
@@ -332,7 +344,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					dependentTaskTriggerRepository.delete(EntityUtils.toUuid(triggerId));
 				} catch (ClassCastException ex) {
 					throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TRIGGER_FAILED, ex);
-				}				
+				}
 			}
 		} catch (org.quartz.SchedulerException ex) {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TRIGGER_FAILED, ex);
@@ -356,10 +368,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_RESUME_TRIGGER_FAILED, ex);
 		}
 	}
-	
+
 	/**
 	 * Returns job key to given taskId
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */

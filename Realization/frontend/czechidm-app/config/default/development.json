@@ -22,7 +22,7 @@
   },
   "recaptcha": {
     "enabled": true,
-    "siteKey": "todo"
+    "siteKey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
   },
   "locale": {
     "supported": ["cs", "en"],

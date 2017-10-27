@@ -254,6 +254,26 @@ public class SchedulerController implements BaseController {
 			@PathVariable String taskId) {
 		return schedulerService.runTask(taskId); 
 	}
+	// TODO annotations
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/dry-run")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
+	@ApiOperation(
+			value = "Execute scheduled task",
+			nickname = "executeSchedulerTask",
+			tags={ SchedulerController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_EXECUTE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_EXECUTE, description = "") })
+			},
+			notes = "Create long running task (LRT) by scheduled task definition immediately. Created task will be added to LRTs queue.")
+	public AbstractTaskTrigger dryRunTask(
+			@ApiParam(value = "Task identifier.", required = true)
+			@PathVariable String taskId) {
+		return schedulerService.runTask(taskId, true);
+	}
 
 	/**
 	 * Creates one time trigger for task
@@ -287,7 +307,7 @@ public class SchedulerController implements BaseController {
 	/**
 	 * Creates cron trigger for task
 	 *
-	 * @param taskName name of task
+	 * @param taskId name of task
 	 * @param trigger trigger data
 	 * @return trigger data containing name
 	 */
@@ -345,7 +365,7 @@ public class SchedulerController implements BaseController {
 	/**
 	 * Removes trigger
 	 *
-	 * @param taskName name of task
+	 * @param taskId name of task
 	 * @param triggerName name of trigger
 	 */
 	@ResponseBody

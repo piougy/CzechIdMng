@@ -44,6 +44,8 @@
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
     "disabled": "Disabled",
+    "inactive": "Disabled",
+    "active": "Active",
     "property": "Attribute",
     "value": "Value",
     "yes": "Yes",
@@ -514,7 +516,8 @@
       "EXCEPTION": "Failed",
       "NOT_EXECUTED": "Not executed",
       "CANCELED": "Canceled",
-      "BLOCKED": "Blocked"
+      "BLOCKED": "Blocked",
+      "DRY_RUN" : "Dry run"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
@@ -1701,7 +1704,8 @@
         "header": "Scheduled tasks",
         "title": "Scheduled tasks",
         "button": {
-          "run": "Run manually"
+          "run": "Run manually",
+          "dryRun": "Run as dryRun (demo process)"
         },
         "action": {
           "trigger-delete": {
@@ -2532,6 +2536,9 @@
       "taskDescription": "Description",
       "count": "Count",
       "counter": "Processed",
+      "started": "Started",
+      "notstarted": "Not started yet!",
+      "history": "List of all processed items",
       "result": {
         "state": "State"
       },
@@ -2544,6 +2551,32 @@
         "label": "Parameters"
       }
     },
+    "QueueItem": {
+      "header": "List of all processed items",
+      "add": "Add to queue"
+    },
+    "LongRunningTaskItem": {
+      "header": "Detail",
+      "entityName": "Entity",
+      "state": "State",
+      "entityType": "Entity type",
+      "created": "Created",
+      "history": "History of processed entities",
+      "filter": {
+        "state": {
+          "placeholder": "State"
+        },
+        "text": {
+          "placeholder": "Text"
+        },
+        "from": {
+          "placeholder": "Date from..."
+        },
+        "till": {
+          "placeholder": "Date till..."
+        }
+      }
+    },
     "SchedulerTask": {
       "_type": "Scheduled task",
       "id": "Identificator",
@@ -2553,6 +2586,7 @@
         "help": "Execute on server (instance identifier)"
       },
       "description": "Description",
+      "dryRun" : "Dry run",
       "triggers": "Scheduled starts",
       "trigger": {
         "_type": {

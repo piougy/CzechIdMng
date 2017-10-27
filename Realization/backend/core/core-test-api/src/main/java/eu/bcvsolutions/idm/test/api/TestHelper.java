@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import org.joda.time.LocalDate;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -17,46 +18,49 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Creates common test entities
- * 
+ *
  * @author Radek Tomiška
  *
  */
 public interface TestHelper {
-	
+
 	/**
 	 * Creates random unique name
-	 * 
+	 *
 	 * @return
 	 */
 	String createName();
-	
+
 	/**
 	 * Creates test identity with random username
-	 * 
+	 *
 	 * @return
 	 */
 	IdmIdentityDto createIdentity();
 
 	/**
 	 * Creates test identity with given username
-	 * 
+	 *
 	 * @param username
 	 * @return
 	 */
 	IdmIdentityDto createIdentity(String username);
-	
+
 	/**
 	 * Creates test RoleCatalogue with random code and name
 	 *
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue();
-	
+
 	/**
 	 * Creates test RoleCatalogue with given code = name
 	 *
@@ -64,7 +68,7 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue(String code);
-	
+
 	/**
 	 * Creates test RoleCatalogue with given code = name and parent.
 	 * @param code
@@ -72,10 +76,10 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId);
-	
+
 	/**
 	 * Deletes identity
-	 * 
+	 *
 	 * @param id
 	 */
 	void deleteIdentity(UUID id);
@@ -85,10 +89,10 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmTreeTypeDto createTreeType();
-	
+
 	/**
 	 * Creates tree type with given name = code
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -96,43 +100,43 @@ public interface TestHelper {
 
 	/**
 	 * Creates tree node with random name and code
-	 * 
+	 *
 	 * @return
 	 */
 	IdmTreeNodeDto createTreeNode();
 
 	/**
 	 * Creates tree node under default tree structure
-	 * 
+	 *
 	 * @see {@link IdmTreeTypeService#getDefaultTreeType()}
 	 * @param name
 	 * @param parent
 	 * @return
 	 */
 	IdmTreeNodeDto createTreeNode(String code, IdmTreeNodeDto parent);
-	IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, String code, IdmTreeNodeDto parent);	
+	IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, String code, IdmTreeNodeDto parent);
 	IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, IdmTreeNodeDto parent);
 
 	void deleteTreeNode(UUID id);
 
 	/**
 	 * Creates role with random name
-	 * 
+	 *
 	 * @return
 	 */
 	IdmRoleDto createRole();
 
 	/**
 	 * Creates role with given name
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
 	IdmRoleDto createRole(String name);
-	
+
 	/**
 	 * Creates role with given id and name
-	 * 
+	 *
 	 * @param id [optional] if no id is given, then new id is generated
 	 * @param name
 	 * @return
@@ -141,42 +145,42 @@ public interface TestHelper {
 
 	/**
 	 * Deletes role
-	 * 
+	 *
 	 * @param id
 	 */
 	void deleteRole(UUID id);
 
 	/**
 	 * Creates automatic role
-	 * 
+	 *
 	 * @param role
 	 * @param treeNode
 	 * @param skipLongRunningTask
 	 * @return
 	 */
 	IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask);
-	
+
 	/**
-	 * Creates uuid permission evaluator authorization policy 
-	 * 
+	 * Creates uuid permission evaluator authorization policy
+	 *
 	 * @param role
 	 * @param permission
 	 * @return
 	 */
 	IdmAuthorizationPolicyDto createUuidPolicy(UUID roleId, UUID authorizableEntity, BasePermission... permission);
-	
+
 	/**
-	 * Creates base permission evaluator authorization policy 
-	 * 
+	 * Creates base permission evaluator authorization policy
+	 *
 	 * @param role
 	 * @param permission
 	 * @return
 	 */
 	IdmAuthorizationPolicyDto createBasePolicy(UUID role, BasePermission... permission);
-	
+
 	/**
-	 * Creates base permission evaluator authorization policy 
-	 * 
+	 * Creates base permission evaluator authorization policy
+	 *
 	 * @param role
 	 * @param groupPermission
 	 * @param authorizableType
@@ -184,9 +188,9 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission);
-	
+
 	/**
-	 * Creates specific permission evaluator authorization policy 
+	 * Creates specific permission evaluator authorization policy
 	 * @param role
 	 * @param groupPermission
 	 * @param authorizableType
@@ -195,53 +199,53 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmAuthorizationPolicyDto createSpecificPolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, String evaluatorType, BasePermission... permission);
-	
+
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
-	 * 
+	 *
 	 * @param identity
 	 * @param role
 	 * @return
 	 */
 	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role);
-	
+
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
-	 * 
+	 *
 	 * @param identityContract
 	 * @param role
 	 * @return
 	 */
 	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role);
-	
+
 	/**
 	 * Returns prime identity contract
-	 * 
+	 *
 	 * @param identityId
 	 * @return
 	 */
 	IdmIdentityContractDto getPrimeContract(UUID identityId);
-	
+
 	/**
 	 * Creates simple identity contract
-	 * 
+	 *
 	 * @param identity
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
-	
+
 	/**
 	 * Creates identity contract on given position
-	 * 
+	 *
 	 * @param identity
 	 * @param position
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position);
-	
+
 	/**
 	 * Creates identity contract on given position
-	 * 
+	 *
 	 * @param identity
 	 * @param position
 	 * @param validFrom
@@ -249,17 +253,17 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
-	
+
 	/**
 	 * Deletes identity's contract
-	 * 
+	 *
 	 * @param id
 	 */
 	void deleteIdentityContact(UUID id);
-	
+
 	/**
 	 * Creates identity contract's guarantee
-	 * 
+	 *
 	 * @param identityContractId
 	 * @param identityId
 	 * @return
@@ -268,7 +272,7 @@ public interface TestHelper {
 
 	/**
 	 * Assign roles through role request (manual, execute immediately)
-	 * 
+	 *
 	 * @param contract
 	 * @param roles roles to add
 	 * @return
@@ -276,32 +280,59 @@ public interface TestHelper {
 	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRoleDto... roles);
 
 	/**
-	 * Assign roles through role request (manual, execute immediately)
-	 * @param contract
-	 * @param startInNewTransaction
-	 * @param roles
+	* Assign roles through role request (manual, execute immediately)
+	* @param contract
+	* @param startInNewTransaction
+	* @param roles
+	* @return
+	*/
+ 	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
+
+	/**
+	 * Gets processed item by given LRT
+	 *
+	 * @param lrt IdmLongRunningTaskDto
 	 * @return
 	 */
-	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
-	
+	IdmProcessedTaskItemDto getProcessedItem(IdmLongRunningTaskDto lrt);
+
+	/**
+	 * Gets processed item by given scheduled task
+	 *
+	 * @param d IdmScheduledTaskDto
+	 * @return
+	 */
+	IdmProcessedTaskItemDto getProcessedItem(IdmScheduledTaskDto d);
+
+	/**
+	 * Gets processed item by given scheduled task and given state
+	 *
+	 * @param d IdmScheduledTaskDto
+	 * @param state OperationState
+	 * @return
+	 */
+	IdmProcessedTaskItemDto getProcessedItem(IdmScheduledTaskDto d, OperationState state);
+
 	/**
 	 * Enables given processor
-	 * 
+	 *
 	 * @param processorType
 	 */
 	void enable(Class<? extends EntityEventProcessor<?>> processorType);
-	
+
 	/**
 	 * Disables given processor
-	 * 
+	 *
 	 * @param processorType
 	 */
 	void disable(Class<? extends EntityEventProcessor<?>> processorType);
-	
+
 	/**
 	 * Wait for result - usable for asynchronous tests
-	 * 
+	 *
 	 * @param continueFunction
 	 */
 	void waitForResult(Function<String, Boolean> continueFunction);
+
+	IdmScheduledTaskDto createSchedulableTask();
 }

@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -67,6 +68,9 @@ public class IdmLongRunningTask extends AbstractEntity {
 	
 	@Column(name = "thread_name", length = DefaultFieldLengths.NAME)
 	private String threadName;
+
+	@Column(name = "task_started")
+	private DateTime taskStarted;
 	
 	@NotNull
 	@Embedded
@@ -82,6 +86,17 @@ public class IdmLongRunningTask extends AbstractEntity {
 	
 	@Column(name = "stateful", nullable = false)
 	private boolean stateful;
+
+	@Column(name = "dry_run", nullable = false)
+	private Boolean dryRun;
+
+	public void setTaskStarted(DateTime date){
+		taskStarted = date;
+	}
+
+	public DateTime getTaskStarted(){
+		return taskStarted;
+	}
 
 	public String getTaskType() {
 		return taskType;
@@ -191,4 +206,11 @@ public class IdmLongRunningTask extends AbstractEntity {
 	public void setStateful(boolean stateful) {
 		this.stateful = stateful;
 	}
+
+	public Boolean isDryRun() {return dryRun != null && dryRun;}
+
+	public void setDryRun(Boolean dryRun) {
+		this.dryRun = dryRun;
+	}
+
 }

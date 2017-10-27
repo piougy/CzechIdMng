@@ -113,7 +113,7 @@ public class IdmLongRunningTaskController
 	@ApiOperation(
 			value = "LRT detail", 
 			nickname = "getLongRunningTask", 
-			response = IdmLongRunningTaskDto.class, 
+			response = IdmLongRunningTaskDto.class,
 			tags={ IdmLongRunningTaskController.TAG }, 
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -126,6 +126,8 @@ public class IdmLongRunningTaskController
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
+
+
 	
 	/**
 	 * Cancels running job

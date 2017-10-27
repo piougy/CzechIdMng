@@ -15,6 +15,7 @@ export default class SchedulerRoutes extends Basic.AbstractContent {
   }
 
   render() {
+    console.log();
     return (
       <div>
         { this.renderPageHeader({ icon: 'fa:calendar-times-o'}) }

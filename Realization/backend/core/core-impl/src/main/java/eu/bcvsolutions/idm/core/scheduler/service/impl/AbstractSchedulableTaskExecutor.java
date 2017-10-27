@@ -17,21 +17,23 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Schedulable task services (this services will be automatically available as scheduled tasks)
- * 
+ *
  * @author Radek Tomiška
  * @author Jan Helbich
  *
  */
-public abstract class AbstractSchedulableTaskExecutor<V> 
-		extends AbstractLongRunningTaskExecutor<V> 
+public abstract class AbstractSchedulableTaskExecutor<V>
+		extends AbstractLongRunningTaskExecutor<V>
 		implements SchedulableTaskExecutor<V> {
+
+	protected static final String DRY_RUN = "dryRun";
 
 	@Autowired protected SecurityService securityService;
 	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
 	@Autowired protected IdmScheduledTaskService scheduledTaskService;
 	//
 	private UUID scheduledTaskId;
-	
+
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		// run as system - called from scheduler internally
@@ -43,21 +45,20 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		// add task to queue only - quartz will start take care of the rest
 		createIdmLongRunningTask(context, taskDto);
 	}
-	
+
 	@Override
 	public UUID getScheduledTaskId() {
 		if (this.scheduledTaskId == null) {
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService
 					.findByLongRunningTaskId(this.getLongRunningTaskId());
-			this.scheduledTaskId = scheduledTask == null ? null : scheduledTask.getId(); 
+			this.scheduledTaskId = scheduledTask == null ? null : scheduledTask.getId();
 		}
 		return this.scheduledTaskId;
 	}
-
+	
 	protected IdmScheduledTaskDto createIdmScheduledTask(String taskName) {
 		IdmScheduledTaskDto t = new IdmScheduledTaskDto();
 		t.setQuartzTaskName(taskName);
-		t.setDryRun(false);
 		return scheduledTaskService.save(t);
 	}
 
@@ -71,14 +72,18 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		longRunningTask.setInstanceId(context.getMergedJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 		longRunningTask.setScheduledTask(taskDto.getId());
 		longRunningTask.setStateful(isStateful());
+		longRunningTask.setDryRun(context.getMergedJobDataMap().getBoolean(DRY_RUN));
 		//
 		return longRunningTaskService.save(longRunningTask);
 	}
-	
+
 	private IdmScheduledTaskDto getScheduledTask(JobExecutionContext context) {
 		String taskName = context.getJobDetail().getKey().getName();
 		IdmScheduledTaskDto dto = scheduledTaskService.findByQuartzTaskName(taskName);
-		return dto == null ? createIdmScheduledTask(taskName) : dto;
+		if (dto == null) {
+			dto = createIdmScheduledTask(taskName);
+		}
+		return dto;
 	}
 
 }

@@ -101,6 +101,25 @@ export default class SchedulerManager extends EntityManager {
     };
   }
 
+  runDryTask(taskId, cb) {
+    const uiKey = SchedulerManager.UI_KEY_TASKS;
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().runDryTask(taskId)
+        .then(() => {
+          if (cb) {
+            cb();
+          }
+          dispatch(this.dataManager.stopRequest(uiKey));
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.dataManager.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
   /**
    * Deletes given trigger
    *

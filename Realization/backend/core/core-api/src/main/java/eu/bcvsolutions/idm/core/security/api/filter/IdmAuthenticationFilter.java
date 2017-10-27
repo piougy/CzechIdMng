@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface IdmAuthenticationFilter {
 	
-	public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+	String AUTHORIZATION_HEADER_NAME = "Authorization";
 
 	/**
 	 * Authenticate user based on authorization token in HTTP header.
@@ -27,7 +27,7 @@ public interface IdmAuthenticationFilter {
 	 * @return
 	 * 		Whether the authorization was successful
 	 */
-	public boolean authorize(String token, HttpServletRequest request, HttpServletResponse response);
+	boolean authorize(String token, HttpServletRequest request, HttpServletResponse response);
 	
 	/**
 	 * Return the name of HTTP header carrying the Authorization token.

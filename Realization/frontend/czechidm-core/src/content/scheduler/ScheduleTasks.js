@@ -59,6 +59,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         entity[`parameter-${parameterName}`] = entity.parameters[parameterName];
       });
     }
+    if (entity.parameters && entity.parameters.dryRun) {
+      entity.dryRun = true;
+    }
     super.showDetail(entity, () => {
       this.refs.taskType.focus();
     });
@@ -101,6 +104,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       _.keys(taskType.parameters).map(parameterName => {
         entity.parameters[parameterName] = this.refs[`parameter-${parameterName}`].getValue();
       });
+    }
+    //
+    if (entity.dryRun) {
+      entity.parameters.dryRun = true;
     }
     //
     if (entity.id === undefined) {
@@ -150,6 +157,15 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
+      this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+    }));
+  }
+
+  onDryRun(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.context.store.dispatch(this.getManager().runDryTask(entity.id, () => {
       this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
     }));
   }
@@ -218,6 +234,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         entity: {}
       }
     });
+  }
+
+  getLevel(data) {
+    if (data.parameters && data.parameters.dryRun) {
+      return 'info';
+    }
+    return 'success';
   }
 
   render() {
@@ -378,7 +401,17 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         <Basic.Icon icon="trash"/>
                       </Basic.Button>
                       <Basic.Button
-                        level="success"
+                        level= "info"
+                        onClick={this.onDryRun.bind(this, data[rowIndex])}
+                        className="btn-xs"
+                        title={this.i18n('button.dryRun')}
+                        titlePlacement="bottom"
+                        style={{ marginLeft: 3 }}
+                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE'])}>
+                        <Basic.Icon icon="play"/>
+                      </Basic.Button>
+                      <Basic.Button
+                        level= "success"
                         onClick={this.onRun.bind(this, data[rowIndex])}
                         className="btn-xs"
                         title={this.i18n('button.run')}

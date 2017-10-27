@@ -189,8 +189,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       ref="disabled"
                       placeholder={ this.i18n('filter.disabled.placeholder') }
                       options={ [
-                        { value: 'true', niceLabel: this.i18n('label.disabled') },
-                        { value: 'false', niceLabel: this.i18n('label.enabled') }
+                        { value: 'true', niceLabel: this.i18n('label.inactive') },
+                        { value: 'false', niceLabel: this.i18n('label.active') }
                       ]}/>
                   </div>
                 </Basic.Row>

@@ -26,12 +26,4 @@ public class IdmScheduledTaskDto extends AbstractDto {
 		this.quartzTaskName = quartzTaskName;
 	}
 
-	public boolean isDryRun() {
-		return dryRun;
-	}
-
-	public void setDryRun(boolean dryRun) {
-		this.dryRun = dryRun;
-	}
-
 }

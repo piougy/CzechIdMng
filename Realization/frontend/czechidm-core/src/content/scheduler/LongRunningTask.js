@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -76,6 +77,18 @@ class LongRunningTask extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Shows modal detail with given entity
+   */
+   showDetail(entity) {
+     if (entity.id === undefined) {
+       const uuidId = uuid.v1();
+       this.context.router.push(`long-running-task/new?id=${uuidId}`);
+     } else {
+       this.context.router.push(`long-running-task/${encodeURIComponent(entity.id)}`);
+     }
+   }
+
   render() {
     const { rendered, instanceId, entityIdentifier, entity, _showLoading, header } = this.props;
     //
@@ -99,8 +112,10 @@ class LongRunningTask extends Basic.AbstractContent {
       <Basic.Panel showLoading={_showLoading}>
         <Basic.Confirm ref="confirm-cancel" level="warning"/>
         <Basic.Confirm ref="confirm-interrupt" level="danger"/>
-
-        <Basic.PanelHeader text={ header || <span>{ Utils.Ui.getSimpleJavaType(_entity.taskType) } <small>{ _entity.taskDescription }</small></span> } />
+        <Basic.PanelHeader text={ header || <span><Advanced.DetailButton
+            title={this.i18n('button.detail')}
+            onClick={this.showDetail.bind(this, _entity)}/>
+            <span> </span>{ Utils.Ui.getSimpleJavaType(_entity.taskType) } <small>{ _entity.taskDescription }</small></span> } />
         <Basic.PanelBody>
           <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
           {

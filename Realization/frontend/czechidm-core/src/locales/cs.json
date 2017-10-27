@@ -44,6 +44,8 @@
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
+    "active": "Aktivní",
+    "inactive": "Neaktivní",
     "property": "Atribut",
     "value": "Hodnota",
     "yes": "Ano",
@@ -537,7 +539,8 @@
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
     	"CANCELED": "Zrušeno",
-      "BLOCKED": "Blokováno"
+      "BLOCKED": "Blokováno",
+      "DRY_RUN" : "Zkušební běh"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
@@ -1738,7 +1741,8 @@
         "header": "Naplánované úlohy",
         "title": "Naplánované úlohy",
         "button": {
-          "run": "Spustit ručně"
+          "run": "Spustit ručně",
+          "dryRun": "Spustit zkušební běh"
         },
         "action": {
           "trigger-delete": {
@@ -2569,6 +2573,8 @@
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
+      "started": "Spuštěno",
+      "notstarted": "Úloha nebyla spuštěna!",
       "result": {
         "state": "Stav"
       },
@@ -2581,6 +2587,32 @@
         "label": "Parametry úlohy"
       }
     },
+    "LongRunningTaskItem": {
+      "header": "Detail",
+      "entityName": "Entita",
+      "state": "Stav",
+      "entityType": "Typ entity",
+      "created": "Vytvořeno",
+      "history": "Historie všech zpracovaných entit",
+      "filter": {
+        "state": {
+          "placeholder": "Stav"
+        },
+        "text": {
+          "placeholder": "Text"
+        },
+        "from": {
+          "placeholder": "Datum od..."
+        },
+        "till": {
+          "placeholder": "Datum do..."
+        }
+      }
+    },
+    "QueueItem": {
+      "header": "Seznam všech zpracovaných entit",
+      "add": "Přidat do seznamu"
+    },
     "SchedulerTask": {
       "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
@@ -2590,6 +2622,7 @@
         "help": "Spustit na serveru (identifikátor instance)"
       },
       "description": "Popis",
+      "dryRun" : "Zkušební běh",
       "triggers": "Plánovaná spuštění",
       "trigger": {
         "_type": {

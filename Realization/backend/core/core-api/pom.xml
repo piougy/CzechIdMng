@@ -6,6 +6,7 @@
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-core</artifactId>
 		<version>7.6.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>idm-core-api</artifactId>

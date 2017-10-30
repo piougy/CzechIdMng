@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+##### Role request
+- Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
+
 ## [7.5.1]
 
 ##### Contractual relation

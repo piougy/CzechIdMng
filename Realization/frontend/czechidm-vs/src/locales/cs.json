@@ -215,11 +215,11 @@
     },
     "VS_IMPLEMENTER_WAS_NOT_FOUND": {
       "title": "Realizátor pro virtuální systém nebyl nalezen!",
-      "message": "Realizátor pro identitifákor [{{implementer}}] pro vyrtuální systém nebyl nalzen! "
+      "message": "Realizátor [{{implementer}}] pro vyrtuální systém nebyl nalzen! "
     },
     "VS_IMPLEMENTER_ROLE_WAS_NOT_FOUND": {
       "title": "Role realizátorů pro virtuální systém nebyla nalezena!",
-      "message": "Role pro identitifákor [{{role}}] pro vyrtuální systém nebyla nalzena! "
+      "message": "Role [{{role}}] pro vyrtuální systém nebyla nalezena! "
     },
     "VS_REQUEST_REALIZE_WRONG_STATE": {
       "title": "Požadavek na virtuálním systému nemůže být realizován!",

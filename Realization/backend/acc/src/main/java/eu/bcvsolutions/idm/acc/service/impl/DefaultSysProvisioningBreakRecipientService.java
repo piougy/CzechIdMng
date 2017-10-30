@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningBreakConfiguration;
-import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
@@ -66,6 +65,12 @@ public class DefaultSysProvisioningBreakRecipientService extends
 	}
 	
 	@Override
+	public AuthorizableType getAuthorizableType() {
+		// TODO: internal by provisioning break
+		return null;
+	}
+	
+	@Override
 	public SysProvisioningBreakRecipientDto save(SysProvisioningBreakRecipientDto dto, BasePermission... permission) {
 		if (dto.getRole() != null && dto.getIdentity() != null) {
 			LOG.error("For recipient exists settings for role and identity. Allowed is only one property!");
@@ -109,11 +114,6 @@ public class DefaultSysProvisioningBreakRecipientService extends
 		}
 		//
 		return recipients;
-	}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.SYSTEM, getEntityClass());
 	}
 	
 	@Override

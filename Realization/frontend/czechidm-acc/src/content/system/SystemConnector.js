@@ -221,7 +221,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { formInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+    const { formInstance, availableFrameworks, availableRemoteFrameworks, entity, _permissions } = this.props;
     const { error, showLoading, remoteConnectorError } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
@@ -246,14 +246,17 @@ class SystemConnectorContent extends Basic.AbstractContent {
       // connector setting is ready
       content = (
         <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
-          <Advanced.EavForm ref="eav" formInstance={formInstance}/>
-          <Basic.PanelFooter>
+          <Advanced.EavForm
+            ref="eav"
+            formInstance={formInstance}
+            readOnly={ !manager.canSave(entity, _permissions) }/>
+          <Basic.PanelFooter rendered={ manager.canSave(entity, _permissions) }>
             <Basic.Button
               type="submit"
               level="success"
               showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}>
-              {this.i18n('button.save')}
+              showLoadingText={ this.i18n('button.saving') }>
+              { this.i18n('button.save') }
             </Basic.Button>
           </Basic.PanelFooter>
         </form>
@@ -271,10 +274,10 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
         <Basic.Panel showLoading={_showLoading} className="no-border no-margin">
           <Basic.AbstractForm
-            rendered={_availableConnectors.length !== 0}
+            rendered={ _availableConnectors.length !== 0 }
             ref="formConnector"
-            uiKey={uiKey}
-            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
+            uiKey={ uiKey }
+            readOnly={ !manager.canSave(entity, _permissions) }
             style={{ paddingBottom: 0 }}>
 
             <div style={{ display: 'inline-flex', width: '100%'}}>
@@ -283,7 +286,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
                 value={pickConnector ? pickConnector.value : null}
                 options={_availableConnectors}
-                readOnly={remoteConnectorError}
+                readOnly={remoteConnectorError || !manager.canSave(entity, _permissions) }
                 clearable={false}
                 onChange={this.saveConnector.bind(this)}
                 style={{ width: '100%'}} />
@@ -293,7 +296,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 level="success"
                 disabled={error || remoteConnectorError}
                 onClick={this.save.bind(this, true)}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
+                rendered={ manager.canSave(entity, _permissions) && pickConnector !== undefined}
                 title={ this.i18n('button.checkSystemTooltip') }
                 titlePlacement="bottom">
                 <Basic.Icon type="fa" icon="check-circle"/>
@@ -315,11 +318,13 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
 SystemConnectorContent.propTypes = {
   formInstance: PropTypes.oject,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 SystemConnectorContent.defaultProps = {
   formInstance: null,
-  _showLoading: false
+  _showLoading: false,
+  _permissions: null
 };
 
 function select(state, component) {
@@ -329,7 +334,8 @@ function select(state, component) {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
     formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`),
     availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS),
-    availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS)
+    availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 

@@ -5,14 +5,17 @@ import { connect } from 'react-redux';
 import { Basic, Managers, Utils, Enums } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
+const systemManager = new SystemManager();
+
 /**
  * Target system detail content
+ *
+ * @author Radek Tomiška
  */
 class SystemDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.manager = new SystemManager();
     this.passwordPolicyManager = new Managers.PasswordPolicyManager();
     //
     let showConfigurationRemoteServer = false;
@@ -120,11 +123,11 @@ class SystemDetail extends Basic.AbstractContent {
       };
 
       if (Utils.Entity.isNew(saveEntity)) {
-        this.context.store.dispatch(this.manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, newError) => {
+        this.context.store.dispatch(systemManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, newError) => {
           this._afterSave(createdEntity, newError, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.context.store.dispatch(systemManager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
           this._afterSave(patchedEntity, newError, afterAction);
         }));
       }
@@ -164,7 +167,7 @@ class SystemDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity } = this.props;
+    const { uiKey, entity, _permissions } = this.props;
     const { _showLoading, showConfigurationRemoteServer } = this.state;
     //
     const blockedOperationLabels = [];
@@ -188,7 +191,10 @@ class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
-              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')} >
+              <Basic.AbstractForm
+                ref="form"
+                uiKey={ uiKey }
+                readOnly={ !systemManager.canSave(entity, _permissions) } >
                 <Basic.Alert
                   level="warning"
                   icon="exclamation-sign"
@@ -286,7 +292,7 @@ class SystemDetail extends Basic.AbstractContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={ Utils.Entity.isNew(entity) ? Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
+                rendered={ systemManager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
@@ -303,13 +309,19 @@ class SystemDetail extends Basic.AbstractContent {
 
 SystemDetail.propTypes = {
   entity: PropTypes.object,
-  uiKey: PropTypes.string.isRequired
+  uiKey: PropTypes.string.isRequired,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 SystemDetail.defaultProps = {
+  _permissions: null
 };
 
-function select() {
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
   return {
+    _permissions: systemManager.getPermissions(state, null, component.entity.id)
   };
 }
 

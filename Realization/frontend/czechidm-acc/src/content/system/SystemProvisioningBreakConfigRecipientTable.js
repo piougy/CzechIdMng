@@ -260,7 +260,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
           manager={manager}
           filterOpened={filterOpened}
           forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection}
+          showRowSelection={ Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -293,6 +293,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
           <Advanced.Column
             header=""
             className="detail-button"
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
             cell={
               ({ rowIndex, data }) => {
                 return (

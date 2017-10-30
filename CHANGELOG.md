@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 #### Acc module
 
-- [#797](https://redmine.czechidm.com/issues/797) - Target system security was hidden by provisioning break (fixed).
+- [#797](https://redmine.czechidm.com/issues/797) - target system security was hidden by provisioning break (fixed). ``SysSystemRepository#find`` method is deprecated and will be removed - use ``SysSystemService#find`` method instead.
 
 ## [7.5.1]
 

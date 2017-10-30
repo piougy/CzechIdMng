@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
+import org.apache.http.util.Asserts;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -104,6 +105,11 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			// update system entity, when identifier on target system differs
 			if (resultUid != null && resultUid.getUidValue() != null) {
 				SysSystemEntityDto systemEntity = systemEntityService.getByProvisioningOperation(provisioningOperation);
+				// If system entity was not found, we try found system entity by returned UID
+				if(systemEntity == null) {
+					systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, provisioningOperation.getEntityType(), resultUid.getUidValue());
+				}
+				Asserts.notNull(systemEntity, "Systeme entity cannot be null!");
 				if(!systemEntity.getUid().equals(resultUid.getUidValue()) || systemEntity.isWish()) {
 					systemEntity.setUid(resultUid.getUidValue());
 					systemEntity.setWish(false);
@@ -116,6 +122,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		} catch (Exception ex) {
 			provisioningOperationService.handleFailed(provisioningOperation, ex);
 		}
+
 		// set operation back to content
 		event.setContent(provisioningOperation);
 		return new DefaultEventResult<>(event, this);

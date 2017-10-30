@@ -207,7 +207,7 @@
   "error": {
     "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
       "title": "Nelze smazat účet [{{uid}}] na virtuálním systému",
-      "message": "Účet [{{uid}}] na vyrtuálním systému nelze smazat, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovali požadavek na jeho vytvoření! "
+      "message": "Účet [{{uid}}] na virtuálním systému nelze smazat, protože nebyl nalezen. Ujistěte se, že jste nejdříve realizovali požadavek na jeho vytvoření! "
     },
     "VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST": {
       "title": "Nelze upravit účet [{{uid}}] na virtuálním systému",

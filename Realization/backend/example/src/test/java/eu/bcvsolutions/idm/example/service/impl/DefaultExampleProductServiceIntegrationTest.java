@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -31,6 +33,12 @@ public class DefaultExampleProductServiceIntegrationTest extends AbstractIntegra
 	public void init() {
 		service = context.getAutowireCapableBeanFactory().createBean(DefaultExampleProductService.class);
 	}
+	
+//	@BeforeClass
+//	public static void disableTestsOnCiServer() {
+//	    //String profilesFromConsole = System.getProperty("spring.profiles.active", "");
+//	    Assume.assumeFalse(true);
+//	}
 	
 	@Test
 	public void testQuickFilter(){

@@ -168,7 +168,7 @@ class SystemDetail extends Basic.AbstractContent {
     const { _showLoading, showConfigurationRemoteServer } = this.state;
     //
     const blockedOperationLabels = [];
-    if (entity.blockedOperation) {
+    if (entity && entity.blockedOperation) {
       if (entity.blockedOperation.createOperation) {
         blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.createOperation.short'));
       }

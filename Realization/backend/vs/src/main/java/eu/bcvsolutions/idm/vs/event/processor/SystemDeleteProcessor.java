@@ -98,12 +98,14 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 		});
 
 		// Delete vs account form definition
-		String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(),
-				system.getId());
-		IdmFormDefinitionDto definition = this.formDefinitionService.findOneByTypeAndCode(VsAccount.class.getName(),
-				virtualSystemKey);
-		if (definition != null) {
-			formDefinitionService.delete(definition);
+		if(system.getConnectorKey() != null) {
+			String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(),
+					system.getId());
+			IdmFormDefinitionDto definition = this.formDefinitionService.findOneByTypeAndCode(VsAccount.class.getName(),
+					virtualSystemKey);
+			if (definition != null) {
+				formDefinitionService.delete(definition);
+			}
 		}
 
 		// Delete vs implementers

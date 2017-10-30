@@ -57,6 +57,11 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 	}
 
 	@Test
+	public void idFilterTest() {
+
+	}
+
+	@Test
 	public void textFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
@@ -93,9 +98,12 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSystemDto system = createRoleSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 		SysSystemMappingDto systemMapping = createMappingSystem(entityType, objectClass);
+
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
+		SysSchemaAttributeDto schemaAttribute2 = createSchemaAttribute(objectClass);
 
 		SysSystemAttributeMappingDto attributeMapping = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute2.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSchemaAttributeId(schemaAttribute.getId());
@@ -103,6 +111,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		Page<SysSystemAttributeMappingDto> result = attributeMappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
 		assertTrue(result.getContent().contains(attributeMapping));
+		assertFalse(result.getContent().contains(attributeMapping2));
 	}
 
 	@Test
@@ -113,17 +122,20 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 
 		SysSystemDto system = createRoleSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-		SysSystemMappingDto systemMapping = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto systemMapping1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto systemMapping2 = createMappingSystem(entityType, objectClass);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setSystemMappingId(systemMapping.getId());
+		filter.setSystemMappingId(systemMapping1.getId());
 
 		Page<SysSystemAttributeMappingDto> result = attributeMappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
-		assertTrue(result.getContent().contains(attributeMapping));
+		assertTrue(result.getContent().contains(attributeMapping1));
+		assertFalse(result.getContent().contains(attributeMapping2));
 	}
 
 	@Test
@@ -132,19 +144,27 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.MERGE;
 
-		SysSystemDto system = createRoleSystem();
-		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-		SysSystemMappingDto systemMapping = createMappingSystem(entityType, objectClass);
-		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
+		SysSystemDto system1 = createRoleSystem();
+		SysSystemDto system2 = createRoleSystem();
+		SysSchemaObjectClassDto objectClass1 = createObjectClass(system1);
+		SysSchemaObjectClassDto objectClass2 = createObjectClass(system2);
 
-		SysSystemAttributeMappingDto attributeMapping = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
+		SysSystemMappingDto systemMapping1 = createMappingSystem(entityType, objectClass1);
+		SysSystemMappingDto systemMapping2 = createMappingSystem(entityType, objectClass2);
+		SysSchemaAttributeDto schemaAttribute1 = createSchemaAttribute(objectClass1);
+		SysSchemaAttributeDto schemaAttribute2 = createSchemaAttribute(objectClass2);
+
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, strategyType, schemaAttribute1.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute2.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setSystemId(system.getId());
+		filter.setSystemId(system1.getId());
 
 		Page<SysSystemAttributeMappingDto> result = attributeMappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
-		assertTrue(result.getContent().contains(attributeMapping));
+		assertTrue(result.getContent().contains(attributeMapping1));
+		assertFalse(result.getContent().contains(attributeMapping2));
+
 	}
 
 	@Test
@@ -182,20 +202,23 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 
 		SysSystemDto system = createRoleSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-		SysSystemMappingDto systemMapping = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto systemMapping1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto systemMapping2 = createMappingSystem(entityType, objectClass);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
-		attributeMapping.setUid(false);
-		attributeMappingService.save(attributeMapping);
-		createAttributeMappingSystem(systemMapping, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute.getId());
+		attributeMapping2.setUid(false);
+		attributeMappingService.save(attributeMapping2);
+		createAttributeMappingSystem(systemMapping1, AttributeMappingStrategyType.SET, schemaAttribute.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setIsUid(false);
 
 		Page<SysSystemAttributeMappingDto> result = attributeMappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
-		assertTrue(result.getContent().contains(attributeMapping));
+		assertTrue(result.getContent().contains(attributeMapping2));
+		assertFalse(result.getContent().contains(attributeMapping1));
 	}
 
 	private SysSystemDto createRoleSystem() {
@@ -224,7 +247,6 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSystemMappingDto mapping = new SysSystemMappingDto();
 		mapping.setName("Name" + UUID.randomUUID());
 		mapping.setEntityType(type);
-		mapping.setTreeType(UUID.randomUUID());
 		mapping.setObjectClass(objectClass.getId());
 		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		return mappingService.save(mapping);

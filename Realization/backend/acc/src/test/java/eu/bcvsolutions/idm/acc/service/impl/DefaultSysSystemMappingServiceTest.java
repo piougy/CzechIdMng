@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
@@ -51,6 +52,33 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		super.logout();
 	}
 
+	//TODO Test ID search
+
+	@Test
+	public void idFilterTest() {
+		IdmBasePermission permission = IdmBasePermission.ADMIN;
+		SystemEntityType entityType = SystemEntityType.IDENTITY;
+
+		SysSystemDto system = createRoleSystem();
+		SysSchemaObjectClassDto objectClass = createObjectClass(system);
+
+		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass);
+		System.out.println("-----------------------------");
+		System.out.println(mappingSystem1.getId());
+		System.out.println(mappingSystem2.getId());
+		System.out.println(mappingSystem1.getId() == mappingSystem2.getId());
+		System.out.println("-----------------------------");
+
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
+		filter.setId(mappingSystem1.getId());
+
+		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
+		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(mappingSystem1));
+		assertFalse(result.getContent().contains(mappingSystem2));
+	}
+
 	@Test
 	public void textFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
@@ -60,20 +88,21 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
 		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
-		mappingSystem1.setName("Name01");
+		mappingSystem1.setName("SomeName01");
 		mappingService.save(mappingSystem1);
 		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass);
-		mappingSystem2.setName("Name02");
+		mappingSystem2.setName("SomeName02");
 		mappingService.save(mappingSystem2);
 		SysSystemMappingDto mappingSystem3 = createMappingSystem(entityType, objectClass);
-		mappingSystem3.setName("Name22");
+		mappingSystem3.setName("SomeName22");
 		mappingService.save(mappingSystem3);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
-		filter.setText("Name0");
+		filter.setText("SomeName0");
 
 		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
+		assertTrue(result.getContent().contains(mappingSystem1));
 		assertTrue(result.getContent().contains(mappingSystem2));
 	}
 
@@ -110,7 +139,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
 		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
-		SysSystemMappingDto mappingSystem2 = createProvisioningMappingSystem(SystemEntityType.CONTRACT, objectClass);
+		SysSystemMappingDto mappingSystem2 = createProvisioningMappingSystem(SystemEntityType.ROLE, objectClass);
 		SysSystemMappingDto mappingSystem3 = createProvisioningMappingSystem(entityType, objectClass);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
@@ -129,14 +158,18 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 
 		SysSystemDto system = createRoleSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-		SysSystemMappingDto mappingSystem = createMappingSystem(entityType, objectClass);
-		createMappingSystem(entityType, objectClass);
+		SysSystemDto system2 = createRoleSystem();
+		SysSchemaObjectClassDto objectClass2 = createObjectClass(system2);
+
+		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass2);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(system.getId());
 		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
-		assertEquals(2, result.getTotalElements());
-		assertTrue(result.getContent().contains(mappingSystem));
+		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(mappingSystem1));
+		assertFalse(result.getContent().contains(mappingSystem2));
 	}
 
 	@Test
@@ -145,35 +178,53 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
 		SysSystemDto system = createRoleSystem();
+		SysSystemDto system2 = createRoleSystem();
+
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-		SysSystemMappingDto mappingSystem = createMappingSystem(entityType, objectClass);
+		SysSchemaObjectClassDto objectClass2 = createObjectClass(system2);
+
+		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass2);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
-		filter.setObjectClassId(mappingSystem.getObjectClass());
+		filter.setObjectClassId(mappingSystem1.getObjectClass());
 		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(mappingSystem1));
+		assertFalse(result.getContent().contains(mappingSystem2));
 	}
 
 	@Test
 	public void treeTypeIdFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
+
 		IdmTreeTypeDto treeType = new IdmTreeTypeDto();
 		treeType.setName("SomeTreeTypeName");
 		treeType.setCode("CodeCodeCodeCode");
-		treeTypeService.save(treeType);
+		treeType = treeTypeService.save(treeType);
+
+		IdmTreeTypeDto treeType2 = new IdmTreeTypeDto();
+		treeType2.setName("SomeTreeTypeName2");
+		treeType2.setCode("CodeCodeCodeCode2");
+		treeType2 = treeTypeService.save(treeType2);
 
 		SysSystemDto system = createRoleSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
-		SysSystemMappingDto mappingSystem = createMappingSystem(entityType, objectClass);
-		mappingSystem.setTreeType(treeType.getId());
-		mappingService.save(mappingSystem);
+		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		mappingSystem1.setTreeType(treeType.getId());
+		mappingSystem1 = mappingService.save(mappingSystem1);
+		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass);
+		mappingSystem2.setTreeType(treeType2.getId());
+		mappingSystem2 = mappingService.save(mappingSystem2);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
-		filter.setTreeTypeId(mappingSystem.getTreeType());
+		filter.setTreeTypeId(mappingSystem1.getTreeType());
 		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
-		assertTrue(result.getContent().contains(mappingSystem));
+		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(mappingSystem1));
+		assertFalse(result.getContent().contains(mappingSystem2));
 	}
 
 	private SysSystemDto createRoleSystem() {
@@ -194,7 +245,6 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SysSystemMappingDto mapping = new SysSystemMappingDto();
 		mapping.setName("Name" + UUID.randomUUID());
 		mapping.setEntityType(type);
-		mapping.setTreeType(UUID.randomUUID());
 		mapping.setObjectClass(objectClass.getId());
 		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		return mappingService.save(mapping);

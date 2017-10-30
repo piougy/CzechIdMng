@@ -55,8 +55,8 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SysSystemDto system = createRoleSystem();
 
-		createProvisioningArchive(SystemEntityType.CONTRACT, system);
-		createProvisioningArchive(SystemEntityType.IDENTITY, system);
+		SysProvisioningArchiveDto provisioningOperation1 = createProvisioningArchive(SystemEntityType.CONTRACT, system);
+		SysProvisioningArchiveDto provisioningOperation2 = createProvisioningArchive(SystemEntityType.IDENTITY, system);
 		SysProvisioningArchiveDto provisioningOperation3 = createProvisioningArchive(SystemEntityType.CONTRACT, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
@@ -64,7 +64,9 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
+		assertTrue(result.getContent().contains(provisioningOperation1));
 		assertTrue(result.getContent().contains(provisioningOperation3));
+		assertFalse(result.getContent().contains(provisioningOperation2));
 	}
 
 	@Test
@@ -78,9 +80,9 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		SysProvisioningArchiveDto provisioningArchive2 = createProvisioningArchive(entityType, system);
 		provisioningArchive2.setOperationType(ProvisioningEventType.UPDATE);
 		archiveService.save(provisioningArchive2);
-		SysProvisioningArchiveDto provisioningOperation3 = createProvisioningArchive(entityType, system);
-		provisioningOperation3.setOperationType(ProvisioningEventType.UPDATE);
-		archiveService.save(provisioningOperation3);
+		SysProvisioningArchiveDto provisioningArchive3 = createProvisioningArchive(entityType, system);
+		provisioningArchive3.setOperationType(ProvisioningEventType.UPDATE);
+		archiveService.save(provisioningArchive3);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setOperationType(ProvisioningEventType.UPDATE);
@@ -88,6 +90,8 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
 		assertFalse(result.getContent().contains(provisioningArchive1));
+		assertTrue(result.getContent().contains(provisioningArchive2));
+		assertTrue(result.getContent().contains(provisioningArchive3));
 	}
 
 	@Test
@@ -95,17 +99,21 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system1 = createRoleSystem();
+		SysSystemDto system2 = createRoleSystem();
 
-		createProvisioningArchive(entityType, system);
-		SysProvisioningArchiveDto provisioningArchive = createProvisioningArchive(entityType, system);
+		SysProvisioningArchiveDto provisioningArchive1 = createProvisioningArchive(entityType, system1);
+		SysProvisioningArchiveDto provisioningArchive2 = createProvisioningArchive(entityType, system1);
+		SysProvisioningArchiveDto provisioningArchive3 = createProvisioningArchive(entityType, system2);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(system.getId());
+		filter.setSystemId(system1.getId());
 
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
-		assertTrue(result.getContent().contains(provisioningArchive));
+		assertTrue(result.getContent().contains(provisioningArchive1));
+		assertTrue(result.getContent().contains(provisioningArchive2));
+		assertFalse(result.getContent().contains(provisioningArchive3));
 	}
 
 	@Test
@@ -124,11 +132,15 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(provisioningArchive1));
+		assertFalse(result.getContent().contains(provisioningArchive2));
 		assertFalse(result.getContent().contains(provisioningArchive3));
 	}
 
 	/*@Test
 	public void batchIdFilterTest() {
+		// how to set batch?!
+
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		SysSystemDto system = createRoleSystem();
@@ -155,16 +167,18 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 
 		createProvisioningArchive(entityType, system);
 
-		SysProvisioningArchiveDto provisioningArchive = createProvisioningArchive(entityType, system);
-		provisioningArchive.setEntityIdentifier(UUID.randomUUID());
-		archiveService.save(provisioningArchive);
+		SysProvisioningArchiveDto provisioningArchive1 = createProvisioningArchive(entityType, system);
+		provisioningArchive1.setEntityIdentifier(UUID.randomUUID());
+		archiveService.save(provisioningArchive1);
+		SysProvisioningArchiveDto provisioningArchive2 = createProvisioningArchive(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setEntityIdentifier(provisioningArchive.getEntityIdentifier());
+		filter.setEntityIdentifier(provisioningArchive1.getEntityIdentifier());
 
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
-		assertTrue(result.getContent().contains(provisioningArchive));
+		assertTrue(result.getContent().contains(provisioningArchive1));
+		assertFalse(result.getContent().contains(provisioningArchive2));
 	}
 
 	@Test
@@ -188,6 +202,7 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
 		assertFalse(result.getContent().contains(provisioningArchive1));
+		assertTrue(result.getContent().contains(provisioningArchive2));
 	}
 
 	private SysSystemDto createRoleSystem() {

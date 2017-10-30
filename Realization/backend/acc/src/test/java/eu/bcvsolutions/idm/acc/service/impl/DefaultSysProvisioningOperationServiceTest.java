@@ -67,6 +67,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
 		assertTrue(result.getContent().contains(provisioningOperation3));
+
 	}
 
 	@Test
@@ -97,17 +98,20 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system2 = createRoleSystem();
+		SysSystemDto system1 = createRoleSystem();
 
-		createProvisioningOperation(entityType, system);
-		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(entityType, system);
+		createProvisioningOperation(entityType, system2);
+		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system1);
+		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system2);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(system.getId());
+		filter.setSystemId(system2.getId());
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
-		assertTrue(result.getContent().contains(provisioningOperation));
+		assertTrue(result.getContent().contains(provisioningOperation2));
+		assertFalse(result.getContent().contains(provisioningOperation1));
 	}
 
 	@Test
@@ -126,20 +130,27 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(provisioningOperation1));
+		assertFalse(result.getContent().contains(provisioningOperation2));
 		assertFalse(result.getContent().contains(provisioningOperation3));
 	}
 
-	/*@Test
+	@Test
 	public void batchIdFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		SysSystemDto system = createRoleSystem();
 
 		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto();
-		batchService.save(provisioningBatch);
+		provisioningBatch = batchService.save(provisioningBatch);
 
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
+		provisioningOperation1.setBatch(provisioningBatch.getId());
+		provisioningOperation1 = operationService.save(provisioningOperation1);
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
+		provisioningOperation2.setBatch(provisioningBatch.getId());
+		provisioningOperation2 = operationService.save(provisioningOperation2);
+		SysProvisioningOperationDto provisioningOperation3 = createProvisioningOperation(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setBatchId(provisioningBatch.getId());
@@ -147,7 +158,9 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
 		assertTrue(result.getContent().contains(provisioningOperation1));
-	}*/
+		assertTrue(result.getContent().contains(provisioningOperation2));
+		assertFalse(result.getContent().contains(provisioningOperation3));
+	}
 
 	@Test
 	public void entityIdentifierFilterTest() {
@@ -157,16 +170,18 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		createProvisioningOperation(entityType, system);
 
-		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(entityType, system);
-		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
-		operationService.save(provisioningOperation);
+		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
+		provisioningOperation1.setEntityIdentifier(UUID.randomUUID());
+		operationService.save(provisioningOperation1);
+		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setEntityIdentifier(provisioningOperation.getEntityIdentifier());
+		filter.setEntityIdentifier(provisioningOperation1.getEntityIdentifier());
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
-		assertTrue(result.getContent().contains(provisioningOperation));
+		assertTrue(result.getContent().contains(provisioningOperation1));
+		assertFalse(result.getContent().contains(provisioningOperation2));
 	}
 
 	@Test
@@ -179,7 +194,6 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		resultState.setState(OperationState.CREATED);
 
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
-
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
 		provisioningOperation2.setResult(resultState);
 		operationService.save(provisioningOperation2);
@@ -189,6 +203,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(provisioningOperation2));
 		assertFalse(result.getContent().contains(provisioningOperation1));
 	}
 

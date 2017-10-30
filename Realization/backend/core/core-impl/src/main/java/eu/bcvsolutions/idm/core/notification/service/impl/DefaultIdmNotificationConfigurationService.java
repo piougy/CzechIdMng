@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -18,18 +23,21 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -42,7 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service("notificationConfigurationService")
 public class DefaultIdmNotificationConfigurationService 
-		extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, EmptyFilter>
+		extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, IdmNotificationConfigurationFilter>
 		implements IdmNotificationConfigurationService {
 	
 	private final IdmNotificationConfigurationRepository repository;
@@ -170,5 +178,28 @@ public class DefaultIdmNotificationConfigurationService
 	public List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level) {
 		return toDtos(repository.findByTopicAndLevel(topic, level), false);
 	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmNotificationConfiguration> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmNotificationConfigurationFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//topic of notification configuration
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.topic), filter.getText()));
+		}
+		//level of notification configuration
+		if (filter.getLevel() != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.level), filter.getLevel()));
+		}
+		//notification type of notification configuration
+		if (StringUtils.isNotEmpty(filter.getNotificationType())) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.notificationType), filter.getNotificationType()));
+		}
+		//template uuid of notification configuration
+		if (filter.getTemplateId() != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.template).get(AbstractEntity_.id), filter.getTemplateId()));
+		}		
+		//
+		return predicates;
+		}
 
 }

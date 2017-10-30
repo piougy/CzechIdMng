@@ -3,12 +3,12 @@ package eu.bcvsolutions.idm.core.notification.api.service;
 import java.util.List;
 import java.util.Set;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 
 /**
  * Configuration for notification routing
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDt
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationConfigurationService extends ReadWriteDtoService<NotificationConfigurationDto, EmptyFilter> {
+public interface IdmNotificationConfigurationService extends ReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfigurationFilter> {
 
 	/**
 	 * Returns default notification sender. Will be used for notification's topics, which can not be found in configuration.

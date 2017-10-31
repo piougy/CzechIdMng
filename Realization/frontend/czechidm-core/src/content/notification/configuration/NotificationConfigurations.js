@@ -40,6 +40,20 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
     this.context.store.dispatch(manager.fetchSupportedNotificationTypes());
   }
 
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
   showDetail(entity) {
     super.showDetail(entity, () => {
       this.refs.topic.focus();
@@ -84,6 +98,43 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
             uiKey={uiKey}
             manager={this.getManager()}
             showRowSelection={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_UPDATE'])}
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm">
+                  <Basic.Row>
+                    <div className="col-lg-4">
+                      <Basic.EnumSelectBox
+                        ref="level"
+                        placeholder={this.i18n('entity.NotificationConfiguration.level')}
+                        enum={NotificationLevelEnum}/>
+                    </div>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.TextField
+                        ref="text"
+                        placeholder={this.i18n('entity.NotificationConfiguration.topic')}/>
+                    </div>
+                    <div className="col-lg-4 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+
+                  <Basic.Row>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.TextField
+                        ref="notificationType"
+                        placeholder={this.i18n('entity.NotificationConfiguration.notificationType')}/>
+                    </div>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.SelectBox
+                        ref="template"
+                        placeholder={this.i18n('entity.NotificationConfiguration.template')}
+                        multiSelect={false}
+                        manager={notificationTemplateManager}/>
+                    </div>
+                    </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
+            }
             actions={
               SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_DELETE'])
               ?

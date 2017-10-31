@@ -12,37 +12,91 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
-public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationTest{
-	@Autowired private IdmNotificationConfigurationService idmNotificationConfService;
-	@Autowired private TestHelper testHelper;
+/**
+ * Filter test for notification configuration
+ * 
+ * @author Patrik Stloukal
+ *
+ */
+public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationTest {
+	@Autowired
+	private IdmNotificationConfigurationService idmNotificationConfService;
+	@Autowired
+	private IdmNotificationTemplateService idmNotificationTemplateService;
 
 	@Before
-	public void login(){
+	public void login() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 
 	@After
-	public void logout(){
+	public void logout() {
 		super.logout();
 	}
-	
+
 	@Test
-	public void testTopicFilter(){		
-		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test", "sms", UUID.randomUUID());
+	public void testTopicFilter() {
+		String text = "someText" + System.currentTimeMillis();
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test001", text,
+				null);
 		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
-		filter.setText("core:test");
+		filter.setText("core:test001");
+		filter.setNotificationType(text);
 		Page<NotificationConfigurationDto> result = idmNotificationConfService.find(filter, null);
 		assertEquals(1, result.getTotalElements());
-		assertEquals(notification.getId(),result.getContent().get(0).getId());
+		assertEquals(notification.getId(), result.getContent().get(0).getId());
 	}
-	
-	private NotificationConfigurationDto createNotification(NotificationLevel level, String topic, String notificationType, UUID templateId) {
+
+	@Test
+	public void testLevelFilter() {
+		String text = "someText" + System.currentTimeMillis();
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.ERROR, "core:test002", text,
+				null);
+		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
+		filter.setLevel(NotificationLevel.ERROR);
+		filter.setNotificationType(text);
+		Page<NotificationConfigurationDto> result = idmNotificationConfService.find(filter, null);
+		assertEquals(1, result.getTotalElements());
+		assertEquals(notification.getId(), result.getContent().get(0).getId());
+	}
+
+	@Test
+	public void testTemplateIdFilter() {
+		String text = "someText" + System.currentTimeMillis();
+		IdmNotificationTemplateDto templ = createTemplate("template " + System.currentTimeMillis(), "code",
+				"testFilter");
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test003", text,
+				templ.getId());
+		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
+		filter.setTemplate(templ.getId());
+		filter.setNotificationType(text);
+		Page<NotificationConfigurationDto> result = idmNotificationConfService.find(filter, null);
+		assertEquals(1, result.getTotalElements());
+		assertEquals(notification.getId(), result.getContent().get(0).getId());
+	}
+
+	@Test
+	public void testNotificationTypeFilter() {
+		String text = "someText" + System.currentTimeMillis();
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test004", text,
+				null);
+		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
+		filter.setNotificationType(text);
+		filter.setText("core:test004");
+		Page<NotificationConfigurationDto> result = idmNotificationConfService.find(filter, null);
+		assertEquals(1, result.getTotalElements());
+		assertEquals(notification.getId(), result.getContent().get(0).getId());
+	}
+
+	private NotificationConfigurationDto createNotification(NotificationLevel level, String topic,
+			String notificationType, UUID templateId) {
 		NotificationConfigurationDto notification = new NotificationConfigurationDto();
 		notification.setLevel(level);
 		notification.setTopic(topic);
@@ -50,5 +104,14 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 		notification.setTemplate(templateId);
 		notification = idmNotificationConfService.save(notification);
 		return notification;
+	}
+
+	private IdmNotificationTemplateDto createTemplate(String name, String code, String subject) {
+		IdmNotificationTemplateDto templ = new IdmNotificationTemplateDto();
+		templ.setName(name);
+		templ.setCode(code);
+		templ.setSubject(subject);
+		templ = idmNotificationTemplateService.save(templ);
+		return templ;
 	}
 }

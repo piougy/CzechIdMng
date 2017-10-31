@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 public class IdmNotificationConfigurationFilter extends QuickFilter{	
 	private NotificationLevel level;
 	private String notificationType;
-	private UUID templateId;
+	private UUID template;
 	// topic->text
 	
 	public String getNotificationType() {
@@ -29,11 +29,11 @@ public class IdmNotificationConfigurationFilter extends QuickFilter{
 	public void setNotificationType(String notificationType) {
 		this.notificationType = notificationType;
 	}
-	public UUID getTemplateId() {
-		return templateId;
+	public UUID getTemplate() {
+		return template;
 	}
-	public void setTemplateId(UUID templateId) {
-		this.templateId = templateId;
+	public void setTemplate(UUID templateId) {
+		this.template = templateId;
 	}	
 
 }

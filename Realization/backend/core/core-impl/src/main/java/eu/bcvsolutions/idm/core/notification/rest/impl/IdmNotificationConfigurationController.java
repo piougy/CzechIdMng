@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import io.swagger.annotations.Api;
@@ -53,7 +54,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmNotificationConfigurationController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmNotificationConfigurationController extends AbstractReadWriteDtoController<NotificationConfigurationDto, EmptyFilter> {
+public class IdmNotificationConfigurationController extends AbstractReadWriteDtoController<NotificationConfigurationDto, IdmNotificationConfigurationFilter> {
 
 	protected static final String TAG = "Notification configuration";
 	private final IdmNotificationConfigurationService configurationService;

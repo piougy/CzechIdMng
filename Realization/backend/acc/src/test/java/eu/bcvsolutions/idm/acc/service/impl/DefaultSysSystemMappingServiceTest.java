@@ -52,33 +52,6 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		super.logout();
 	}
 
-	//TODO Test ID search
-
-	@Test
-	public void idFilterTest() {
-		IdmBasePermission permission = IdmBasePermission.ADMIN;
-		SystemEntityType entityType = SystemEntityType.IDENTITY;
-
-		SysSystemDto system = createRoleSystem();
-		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-
-		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
-		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass);
-		System.out.println("-----------------------------");
-		System.out.println(mappingSystem1.getId());
-		System.out.println(mappingSystem2.getId());
-		System.out.println(mappingSystem1.getId() == mappingSystem2.getId());
-		System.out.println("-----------------------------");
-
-		SysSystemMappingFilter filter = new SysSystemMappingFilter();
-		filter.setId(mappingSystem1.getId());
-
-		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
-		assertEquals(1, result.getTotalElements());
-		assertTrue(result.getContent().contains(mappingSystem1));
-		assertFalse(result.getContent().contains(mappingSystem2));
-	}
-
 	@Test
 	public void textFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
@@ -124,10 +97,6 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		assertEquals(2, result.getTotalElements());
 		assertTrue(result.getContent().contains(mappingSystem2));
 		assertFalse(result.getContent().contains(mappingSystem3));
-
-		filter.setEntityType(SystemEntityType.ROLE_CATALOGUE);
-		Page<SysSystemMappingDto> result2 = mappingService.find(filter, null, permission);
-		assertEquals(0, result2.getTotalElements());
 	}
 
 	@Test
@@ -144,6 +113,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setOperationType(SystemOperationType.PROVISIONING);
+		filter.setSystemId(system.getId());
 
 		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_.schemaAttribute;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -57,11 +58,6 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 	}
 
 	@Test
-	public void idFilterTest() {
-
-	}
-
-	@Test
 	public void textFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
@@ -73,15 +69,15 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
 		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
-		attributeMapping1.setName("Name01");
+		attributeMapping1.setName("OriginalName01");
 		attributeMappingService.save(attributeMapping1);
 
 		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
-		attributeMapping2.setName("Name21");
+		attributeMapping2.setName("OriginalName21");
 		attributeMappingService.save(attributeMapping2);
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setText("Name0");
+		filter.setText("OriginalName0");
 
 		Page<SysSystemAttributeMappingDto> result = attributeMappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
@@ -208,12 +204,13 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 
 		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
 		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute.getId());
-		attributeMapping2.setUid(false);
+		attributeMapping2.setUid(true);
 		attributeMappingService.save(attributeMapping2);
 		createAttributeMappingSystem(systemMapping1, AttributeMappingStrategyType.SET, schemaAttribute.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setIsUid(false);
+		filter.setIsUid(true);
+		filter.setSystemId(system.getId());
 
 		Page<SysSystemAttributeMappingDto> result = attributeMappingService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
@@ -258,7 +255,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		attributeMapping.setSystemMapping(systemMapping.getId());
 		attributeMapping.setSchemaAttribute(schemaAttribute);
 		attributeMapping.setStrategyType(mappingStrategyType);
-		attributeMapping.setUid(true);
+		attributeMapping.setUid(false);
 		return attributeMappingService.save(attributeMapping);
 	}
 

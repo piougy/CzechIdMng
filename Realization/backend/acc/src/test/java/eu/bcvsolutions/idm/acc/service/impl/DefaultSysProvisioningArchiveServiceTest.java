@@ -86,6 +86,7 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setOperationType(ProvisioningEventType.UPDATE);
+		filter.setSystemId(system.getId());
 
 		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
@@ -137,28 +138,6 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		assertFalse(result.getContent().contains(provisioningArchive3));
 	}
 
-	/*@Test
-	public void batchIdFilterTest() {
-		// how to set batch?!
-
-		IdmBasePermission permission = IdmBasePermission.ADMIN;
-		SystemEntityType entityType = SystemEntityType.IDENTITY;
-		SysSystemDto system = createRoleSystem();
-
-		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto();
-		batchService.save(provisioningBatch);
-
-		SysProvisioningArchiveDto provisioningArchive1 = createProvisioningArchive(entityType, system);
-		SysProvisioningArchiveDto provisioningArchive2 = createProvisioningArchive(entityType, system);
-
-		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setBatchId(provisioningBatch.getId());
-
-		Page<SysProvisioningArchiveDto> result = archiveService.find(filter, null, permission);
-		assertEquals(2, result.getTotalElements());
-		assertTrue(result.getContent().contains(provisioningArchive1));
-	}*/
-
 	@Test
 	public void entityIdentifierFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
@@ -169,7 +148,7 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 
 		SysProvisioningArchiveDto provisioningArchive1 = createProvisioningArchive(entityType, system);
 		provisioningArchive1.setEntityIdentifier(UUID.randomUUID());
-		archiveService.save(provisioningArchive1);
+		provisioningArchive1 = archiveService.save(provisioningArchive1);
 		SysProvisioningArchiveDto provisioningArchive2 = createProvisioningArchive(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();

@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExec
  * contracts that are both valid (meaning validFrom and validTill) and excluded.
  * 
  * @author Jan Helbich
+ * @since 7.5.1
  *
  */
 @Service

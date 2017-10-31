@@ -167,7 +167,7 @@ class SystemDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, _permissions } = this.props;
+    const { uiKey, entity } = this.props;
     const { _showLoading, showConfigurationRemoteServer } = this.state;
     //
     const blockedOperationLabels = [];
@@ -193,8 +193,8 @@ class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
               <Basic.AbstractForm
                 ref="form"
-                uiKey={ uiKey }
-                readOnly={ !systemManager.canSave(entity, _permissions) } >
+                uiKey={ uiKey}
+                readOnly={ Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } >
                 <Basic.Alert
                   level="warning"
                   icon="exclamation-sign"
@@ -292,7 +292,7 @@ class SystemDetail extends Basic.AbstractContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={ systemManager.canSave(entity, _permissions) }
+                rendered={ Utils.Entity.isNew(entity) ? Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

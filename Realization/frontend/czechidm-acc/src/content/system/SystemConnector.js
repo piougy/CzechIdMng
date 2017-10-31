@@ -9,6 +9,12 @@ import { SystemManager } from '../../redux';
 const uiKey = 'eav-connector-';
 const manager = new SystemManager();
 
+/**
+ * System connector configuration
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
 class SystemConnectorContent extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -221,7 +227,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { formInstance, availableFrameworks, availableRemoteFrameworks, entity, _permissions } = this.props;
+    const { formInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
     const { error, showLoading, remoteConnectorError } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
@@ -248,15 +254,15 @@ class SystemConnectorContent extends Basic.AbstractContent {
         <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
           <Advanced.EavForm
             ref="eav"
-            formInstance={formInstance}
-            readOnly={ !manager.canSave(entity, _permissions) }/>
-          <Basic.PanelFooter rendered={ manager.canSave(entity, _permissions) }>
+            formInstance={ formInstance }
+            readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }/>
+          <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
             <Basic.Button
               type="submit"
               level="success"
               showLoadingIcon
-              showLoadingText={ this.i18n('button.saving') }>
-              { this.i18n('button.save') }
+              showLoadingText={this.i18n('button.saving')}>
+              {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>
         </form>
@@ -274,21 +280,21 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
         <Basic.Panel showLoading={_showLoading} className="no-border no-margin">
           <Basic.AbstractForm
-            rendered={ _availableConnectors.length !== 0 }
+            rendered={_availableConnectors.length !== 0}
             ref="formConnector"
-            uiKey={ uiKey }
-            readOnly={ !manager.canSave(entity, _permissions) }
+            uiKey={uiKey}
+            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
             style={{ paddingBottom: 0 }}>
 
             <div style={{ display: 'inline-flex', width: '100%'}}>
               <Basic.EnumSelectBox
                 ref="connector"
-                placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
-                value={pickConnector ? pickConnector.value : null}
-                options={_availableConnectors}
-                readOnly={remoteConnectorError || !manager.canSave(entity, _permissions) }
-                clearable={false}
-                onChange={this.saveConnector.bind(this)}
+                placeholder={ this.i18n('acc:entity.System.connectorKey.connectorName') }
+                value={ pickConnector ? pickConnector.value : null }
+                options={ _availableConnectors }
+                readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') || remoteConnectorError }
+                clearable={ false }
+                onChange={ this.saveConnector.bind(this) }
                 style={{ width: '100%'}} />
 
               <Basic.Button
@@ -296,7 +302,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 level="success"
                 disabled={error || remoteConnectorError}
                 onClick={this.save.bind(this, true)}
-                rendered={ manager.canSave(entity, _permissions) && pickConnector !== undefined}
+                rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && pickConnector !== undefined }
                 title={ this.i18n('button.checkSystemTooltip') }
                 titlePlacement="bottom">
                 <Basic.Icon type="fa" icon="check-circle"/>

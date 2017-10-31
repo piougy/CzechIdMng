@@ -22,10 +22,6 @@ class SystemService extends Services.AbstractService {
     return 'SYSTEM';
   }
 
-  supportsAuthorization() {
-    return false;
-  }
-
   /**
    * Returns default searchParameters for current entity type
    *

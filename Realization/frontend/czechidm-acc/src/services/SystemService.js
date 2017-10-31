@@ -14,9 +14,12 @@ class SystemService extends Services.AbstractService {
     return system.name;
   }
 
-  // dto
   supportsPatch() {
     return false;
+  }
+
+  getGroupPermission() {
+    return 'SYSTEM';
   }
 
   /**

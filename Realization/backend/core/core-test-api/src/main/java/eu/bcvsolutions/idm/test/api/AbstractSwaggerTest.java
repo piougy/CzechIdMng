@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -35,6 +36,12 @@ public abstract class AbstractSwaggerTest extends AbstractRestTest {
 	private String outputDir;
 	@Value("${springfox.documentation.swagger.outputFilename:swagger.json}")
 	private String filename;
+	
+	@BeforeClass
+	public static void disableTestsOnDocumentation() {
+		// when property '-DdocumentationOnly' is given in maven build, then all integration tests 
+		// are skipped. AbstractSwaggerTest is executed, because generate artifacts (swagger.json) for documentation itself.
+	}
 	
 	/**
 	 * Converts module's swagger endpoint to json

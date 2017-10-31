@@ -19,6 +19,12 @@ All notable changes to this project will be documented in this file.
 ##### Role request
 - Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
 
+## [7.5.2]
+
+#### Acc module
+
+- [#797](https://redmine.czechidm.com/issues/797) - target system security was hidden by provisioning break (fixed). ``SysSystemRepository#find`` method is deprecated and will be removed - use ``SysSystemService#find`` method instead.
+
 ## [7.5.1]
 
 ##### Contractual relation

@@ -131,6 +131,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               property=""
               header=""
               className="detail-button"
+              rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
               cell={
                 ({ rowIndex, data }) => {
                   return (

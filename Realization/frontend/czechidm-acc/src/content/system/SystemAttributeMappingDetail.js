@@ -174,7 +174,11 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading}>
+            <Basic.AbstractForm
+              ref="form"
+              data={ attribute }
+              showLoading={ _showLoading }
+              readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
               <Basic.Checkbox
                 ref="disabledAttribute"
                 onChange={this._checkboxChanged.bind(this, 'disabledAttribute', null)}
@@ -305,10 +309,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 {this.i18n('button.back')}
               </Basic.Button>
               <Basic.Button
-                onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
-                showLoading={_showLoading}>
+                showLoading={ _showLoading }
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>

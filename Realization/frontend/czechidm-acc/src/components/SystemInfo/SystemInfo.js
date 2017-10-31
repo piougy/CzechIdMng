@@ -70,10 +70,6 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
         value: this.getManager().getNiceLabel(entity)
       },
       {
-        label: this.i18n('acc:entity.System.connectorKey._type'),
-        value: Utils.Ui.getSimpleJavaType(entity.connectorKey.connectorName)
-      },
-      {
         label: this.i18n('acc:entity.System.readonly.label'),
         value: (entity.readonly ? this.i18n('label.yes') : this.i18n('label.no'))
       },

@@ -1,11 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.5.0]
+## [7.5.2] unreleased
+
+#### Acc module
+
+- [#797](https://redmine.czechidm.com/issues/797) - target system security was hidden by provisioning break (fixed). ``SysSystemRepository#find`` method is deprecated and will be removed - use ``SysSystemService#find`` method instead.
+
+## [7.5.1]
+
+#### Core module
 
 ##### Contractual relation
 
-- Long running tasks (LRT) for HR processes were restored - they are useful for pre-production checks (disable processors + show what LRT wants to process). 
+- Long running tasks (LRT) for HR processes were restored - they are useful for pre-production checks (disable processors + show what LRT wants to process).
 
 
 ## [7.5.0]

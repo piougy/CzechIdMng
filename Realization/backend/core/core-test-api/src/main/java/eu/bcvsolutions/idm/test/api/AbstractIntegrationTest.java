@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.test.api;
 
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,17 @@ public abstract class AbstractIntegrationTest {
 	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
 	private TransactionTemplate template;
+	
+	@BeforeClass
+	public static void disableTestsOnDocumentation() {
+		// when property '-DdocumentationOnly' is given in maven build, then all integration tests 
+		// are skipped. Override this method, when concrete tests have to be executed - e.g. AbstractSwaggerTest 
+		// is executed, because generate artifacts (swagger.json) for documentation itself.
+		// Unit test are executed every time, they are quickly executed, but integration tests can take some time 
+		// and we want build artifact without waiting (e.q. when hotfix needs to be released).
+	    Boolean documentationOnly = Boolean.valueOf(System.getProperty("documentationOnly", "false"));
+	    Assume.assumeFalse(documentationOnly);
+	}
 	
 	/**
 	 * Log in as "boss" with all authorities

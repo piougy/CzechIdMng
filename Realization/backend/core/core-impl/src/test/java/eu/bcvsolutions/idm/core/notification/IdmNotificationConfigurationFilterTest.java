@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
@@ -26,10 +27,9 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationTest {
-	@Autowired
-	private IdmNotificationConfigurationService idmNotificationConfService;
-	@Autowired
-	private IdmNotificationTemplateService idmNotificationTemplateService;
+	
+	@Autowired private IdmNotificationConfigurationService idmNotificationConfService;
+	@Autowired private IdmNotificationTemplateService idmNotificationTemplateService;
 
 	@Before
 	public void login() {
@@ -44,7 +44,7 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 	@Test
 	public void testTopicFilter() {
 		String text = "someText" + System.currentTimeMillis();
-		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test001", text,
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, CoreModuleDescriptor.MODULE_ID + ":test001", text,
 				null);
 		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
 		filter.setText("core:test001");
@@ -57,7 +57,7 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 	@Test
 	public void testLevelFilter() {
 		String text = "someText" + System.currentTimeMillis();
-		NotificationConfigurationDto notification = createNotification(NotificationLevel.ERROR, "core:test002", text,
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.ERROR, CoreModuleDescriptor.MODULE_ID + ":test002", text,
 				null);
 		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
 		filter.setLevel(NotificationLevel.ERROR);
@@ -72,7 +72,7 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 		String text = "someText" + System.currentTimeMillis();
 		IdmNotificationTemplateDto templ = createTemplate("template " + System.currentTimeMillis(), "code",
 				"testFilter");
-		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test003", text,
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, CoreModuleDescriptor.MODULE_ID + ":test003", text,
 				templ.getId());
 		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
 		filter.setTemplate(templ.getId());
@@ -85,7 +85,7 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 	@Test
 	public void testNotificationTypeFilter() {
 		String text = "someText" + System.currentTimeMillis();
-		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, "core:test004", text,
+		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, CoreModuleDescriptor.MODULE_ID + ":test004", text,
 				null);
 		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
 		filter.setNotificationType(text);
@@ -111,7 +111,6 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 		templ.setName(name);
 		templ.setCode(code);
 		templ.setSubject(subject);
-		templ = idmNotificationTemplateService.save(templ);
-		return templ;
+		return idmNotificationTemplateService.save(templ);
 	}
 }

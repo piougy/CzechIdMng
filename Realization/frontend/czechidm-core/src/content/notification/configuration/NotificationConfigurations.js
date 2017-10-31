@@ -131,7 +131,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                         multiSelect={false}
                         manager={notificationTemplateManager}/>
                     </div>
-                    </Basic.Row>
+                  </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
             }

@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
+##### Identity
+- Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project. 
+
 ##### Notification
 - ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
 

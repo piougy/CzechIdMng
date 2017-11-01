@@ -111,7 +111,7 @@ class IdentityDetail extends Basic.AbstractContent {
             <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
-              <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
+              <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255} />
 
               <Basic.Row>
                 <div className="col-lg-6">

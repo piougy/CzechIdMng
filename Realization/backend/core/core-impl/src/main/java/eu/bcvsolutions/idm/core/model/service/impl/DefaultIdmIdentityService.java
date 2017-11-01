@@ -274,18 +274,23 @@ public class DefaultIdmIdentityService
 		if (identity == null) {
 			return null;
 		}
+		// if lastname is blank, then username is returned
+		if (StringUtils.isBlank(identity.getLastName())) {
+			return identity.getUsername();
+		}
+		//
 		StringBuilder sb = new StringBuilder();
-		if (identity.getTitleBefore() != null) {
+		if (StringUtils.isNotEmpty(identity.getTitleBefore())) {
 			sb.append(identity.getTitleBefore()).append(' ');
 		}
-		if (identity.getFirstName() != null) {
+		if (StringUtils.isNotEmpty(identity.getFirstName())) {
 			sb.append(identity.getFirstName()).append(' ');
 		}
-		if (identity.getLastName() != null) {
-			sb.append(identity.getLastName()).append(' ');
+		if (StringUtils.isNotEmpty(identity.getLastName())) {
+			sb.append(identity.getLastName());
 		}
-		if (identity.getTitleAfter() != null) {
-			sb.append(identity.getTitleAfter()).append(' ');
+		if (StringUtils.isNotEmpty(identity.getTitleAfter())) {
+			sb.append(", ").append(identity.getTitleAfter());
 		}
 		return sb.toString().trim();
 	}

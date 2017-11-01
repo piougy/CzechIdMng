@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
@@ -74,19 +75,14 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testReferentialIntegrity() {
-		IdmIdentityDto identity = new IdmIdentityDto();
-		String username = "delete_test_" + System.currentTimeMillis();
-		identity.setUsername(username);
-		identity.setPassword(new GuardedString("heslo"));
-		identity.setFirstName("Test");
-		identity.setLastName("Identity");
-		identity = identityService.save(identity);
+		IdmIdentityDto identity = helper.createIdentity();
+		String username = identity.getUsername();
 		// eav
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue("one");
 		formService.saveValues(identity.getId(), IdmIdentity.class, formDefinition, Lists.newArrayList(value1));
-		// role guarantee
+		// role with guarantee
 		IdmRoleDto role = new IdmRoleDto();
 		String roleName = "test_r_" + System.currentTimeMillis();
 		role.setName(roleName);
@@ -164,5 +160,15 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identity.setEmail("email_wrong");
 		identity = identityService.save(identity);
 	}
-
+	
+	@Test
+	@Transactional
+	public void testSaveIdentityWithoutLastname() {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		String username = "validation_test_" + System.currentTimeMillis();
+		identity.setUsername(username);
+		identity = identityService.save(identity);
+		//
+		Assert.notNull(identity.getId());
+	}
 }

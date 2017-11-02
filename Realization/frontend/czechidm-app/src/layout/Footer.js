@@ -6,7 +6,9 @@ import {Basic} from 'czechidm-core';
 import packageInfo from '../../package.json';
 
 /**
- * Idm footer
+ * IdM footer with links
+ *
+ * @author Radek Tomiška
  */
 class Footer extends Basic.AbstractContent {
 
@@ -36,7 +38,6 @@ class Footer extends Basic.AbstractContent {
     return (
       <footer>
         <div className="pull-left">
-          {/* TODO: about page - #74 */}
           <span title={this.i18n('app.version.backend') + ': ' + backendVersion} className="hidden">
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>

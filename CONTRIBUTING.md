@@ -85,10 +85,18 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Character `_` at the start of attribute or method => private attribute or method
 * use less variables
 * use `encodeURIComponent` to encode parameters used directly in urls e.g. ``this.context.router.push(`identity/${encodeURIComponent(entity.username)}/profile`)``
+* use `super.componentDidMount();` in all contents (extends `AbstractContent`).
 
 ### IDE
 
 * [Atom](https://wiki.czechidm.com/7.3/dev/quickstart/ide/atom)
+
+## Documentation
+
+### Convention
+
+* Create relative links - e.g. [[.:configuration|Configuration]] - when version is released, then namespace is copied.
+* TODO: screen shot conventions
 
 
 ## Our Development Process

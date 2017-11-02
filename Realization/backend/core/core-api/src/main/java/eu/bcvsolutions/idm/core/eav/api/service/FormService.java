@@ -48,7 +48,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Returns true, when given owner type support eav forms. If {@link AbstractDto} owner type is given, 
-	 * then underlying {@link AbstractEntity} is resolved automaticaly => {@link AbstractEntity} has 
+	 * then underlying {@link AbstractEntity} is resolved automatically => {@link AbstractEntity} has 
 	 * to implement  {@link FormableEntity}.
 	 * 
 	 * @param ownerType

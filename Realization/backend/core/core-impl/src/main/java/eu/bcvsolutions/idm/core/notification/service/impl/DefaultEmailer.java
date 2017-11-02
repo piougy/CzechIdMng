@@ -44,26 +44,13 @@ public class DefaultEmailer implements Emailer {
 	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEmailer.class);
 	
-	@Autowired
-	private CamelContext camelContext;
-	
-	@Autowired 
-	private IdmEmailLogService emailLogService;
-
-	@Autowired
-    private ProducerTemplate producerTemplate;
-	
-	@Autowired
-	private EmailerConfiguration configuration;
-	
-	@Autowired
-	private IdmNotificationTemplateService notificationTemplateService;
-	
-	@Autowired
-	private IdmIdentityService identityService;
-	
-	@Autowired
-	private EntityEventManager entityEventManager;
+	@Autowired private CamelContext camelContext;
+	@Autowired private IdmEmailLogService emailLogService;
+	@Autowired private ProducerTemplate producerTemplate;
+	@Autowired private EmailerConfiguration configuration;
+	@Autowired private IdmNotificationTemplateService notificationTemplateService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private EntityEventManager entityEventManager;
 
 	
 	@Transactional
@@ -126,10 +113,15 @@ public class DefaultEmailer implements Emailer {
 	 */
 	private Endpoint configureEndpoint() {
 		StringBuilder endpoint = new StringBuilder(MessageFormat.format("{0}://{1}:{2}", configuration.getProtocol(), configuration.getHost(), configuration.getPort()));
-		// append principals
+		// append credentials [optional]
 		String username = configuration.getUsername();
-		if (StringUtils.isNotBlank(username)) {
-			endpoint.append(MessageFormat.format("?username={0}&password={1}", username, configuration.getPassword().asString()));
+		if (StringUtils.isNotBlank(username)) {		
+			// password is optional too, but null cannot be given - empty stryng is given instead
+			endpoint.append(MessageFormat.format(
+					"?username={0}&password={1}", 
+					username, 
+					configuration.getPassword() == null ? "" : configuration.getPassword().asString())
+					);
 		}		
 		return camelContext.getEndpoint(endpoint.toString());
 	}

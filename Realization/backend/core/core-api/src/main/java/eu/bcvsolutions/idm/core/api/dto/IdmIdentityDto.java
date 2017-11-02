@@ -43,7 +43,6 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private transient GuardedString password;	
 	@Size(max = DefaultFieldLengths.NAME)
 	private String firstName;
-	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	private String lastName;
 	@Email

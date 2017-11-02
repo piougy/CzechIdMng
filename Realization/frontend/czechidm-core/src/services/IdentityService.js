@@ -32,6 +32,9 @@ class IdentityService extends FormableEntityService {
   getNiceLabel(entity) {
     let toString = '';
     if (entity) {
+      if (!entity.lastName) {
+        return entity.username;
+      }
       toString += this.getFullName(entity);
       toString += (entity.username ? ` (${entity.username})` : '');
     }

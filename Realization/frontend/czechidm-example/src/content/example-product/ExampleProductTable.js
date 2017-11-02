@@ -89,16 +89,16 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text.placeholder')}/>
-                  </div>
-                  <div className="col-lg-4">
-                  </div>
-                  <div className="col-lg-4 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>

@@ -65,7 +65,6 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	private String firstName;
 
 	@Audited
-	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "last_name", length = DefaultFieldLengths.NAME)
 	private String lastName;

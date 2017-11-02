@@ -115,7 +115,7 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?

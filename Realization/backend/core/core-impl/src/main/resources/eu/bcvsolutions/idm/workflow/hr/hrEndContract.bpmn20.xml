@@ -55,7 +55,6 @@ try {
 		// disable identity
 		def identity = identityService.get(dto.getIdentity())
 		if (!identity.isDisabled()) {
-		    println "menim!"
 			identity.setDisabled(true)
 			identityService.save(identity)
 		}

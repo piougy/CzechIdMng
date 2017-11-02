@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
@@ -30,7 +32,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper testHelper;
+	@Autowired private TestHelper helper;
 	@Autowired private IdmTreeTypeService treeTypeService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private IdmTreeNodeForestContentService treeNodeForestContentService;
@@ -43,6 +45,15 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	@After
 	public void logout() {
 		super.logout();
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testReferentialIntegrity() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
+	    helper.createIdentityContact(identity, treeNode);
+	    // tree node cannot be deleted, when some contract are defined on this node
+	    treeNodeService.delete(treeNode);
 	}
 	
 	@Test
@@ -205,10 +216,10 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testForestIndexAfterBulkMove() {
 		int rootCount = 5;
 		// prepare new tree type
-		IdmTreeTypeDto treeType = testHelper.createTreeType();
+		IdmTreeTypeDto treeType = helper.createTreeType();
 		// create root nodes
 		for (int i = 0; i < rootCount; i++) {
-			testHelper.createTreeNode(treeType, null);
+			helper.createTreeNode(treeType, null);
 		}
 		// move nodes to the first node
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();

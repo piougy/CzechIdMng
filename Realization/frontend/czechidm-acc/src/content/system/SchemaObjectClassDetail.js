@@ -156,6 +156,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
                 onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
                 showLoading={_showLoading}>
                 {this.i18n('button.saveAndContinue')}
               </Basic.Button>

@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
+##### Identity
+- Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project. 
+
 ##### Notification
 - ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
 
@@ -18,6 +21,12 @@ All notable changes to this project will be documented in this file.
 
 ##### Role request
 - Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
+
+## [7.5.2]
+
+#### Acc module
+
+- [#797](https://redmine.czechidm.com/issues/797) - target system security was hidden by provisioning break (fixed). ``SysSystemRepository#find`` method is deprecated and will be removed - use ``SysSystemService#find`` method instead.
 
 ## [7.5.1]
 

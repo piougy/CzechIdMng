@@ -167,7 +167,7 @@ public class IdmNotificationLogController
 		List<IdmNotificationLogDto> results = notificationManager.send(
 				notification.getTopic(), 
 				notification.getMessage(), 
-				(IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, notification.getIdentitySender()),
+				notification.getIdentitySender() == null ? null : (IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, notification.getIdentitySender()),
 				notification.getRecipients()
 					.stream()
 					.map(recipient -> {

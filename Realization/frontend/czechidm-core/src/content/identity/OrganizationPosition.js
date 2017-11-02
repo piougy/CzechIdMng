@@ -63,7 +63,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
         } else {
           // link to tree node detail
           items.push(
-            <li key={`op-${treeNode.id}`}>
+            <li key={`op-${treeNode.id}`} title={ this.i18n('content.identity.profile.organizationPosition.title') }>
               <Link to={`/tree/nodes/${treeNode.id}/detail`}>
                 { this.treeNodeManager.getNiceLabel(treeNode) }
               </Link>
@@ -79,7 +79,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
     );
     //
     return (
-      <ol className="breadcrumb" title={ this.i18n('content.identity.profile.organizationPosition.title') } style={{ marginBottom: 10 }}>
+      <ol className="breadcrumb" style={{ marginBottom: 10 }}>
         { items }
       </ol>
     );

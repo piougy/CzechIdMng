@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Accounts on target system
@@ -57,4 +58,11 @@ public interface AccAccountService extends
 	 * @return
 	 */
 	Page<AccAccountDto> findExpired(DateTime expirationDate, Pageable pageable);
+
+	/**
+	 * Load object from the connector
+	 * @param account
+	 * @return
+	 */
+	IcConnectorObject getConnectorObject(AccAccountDto account);
 }

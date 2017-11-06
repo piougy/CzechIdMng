@@ -47,6 +47,13 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
     this.setState({
       systemEntity: entity.systemEntity
     }, ()=> {
+      manager.getService().getConnectorObject(entity.id)
+      .then(json => {
+        this.setState({connectorObject: json});
+      })
+      .catch(error => {
+        this.addError(error);
+      });
       super.showDetail(entity, () => {
         this.refs.uid.focus();
       });
@@ -75,7 +82,7 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
   render() {
     const { entityId } = this.props.params;
     const { _showLoading } = this.props;
-    const { detail, systemEntity } = this.state;
+    const { detail, systemEntity, connectorObject } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
 
@@ -238,6 +245,19 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                   label={ this.i18n('acc:entity.SystemEntity.entityType') }
                   hidden={ systemEntity }/>
               </Basic.AbstractForm>
+              <Basic.Row>
+                <Basic.Col lg={ 12 }>
+                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('acc:entity.SystemEntity.attributes')}</h3>
+                  <Basic.Table
+                    showLoading = {!connectorObject || !this.state.hasOwnProperty('connectorObject')}
+                    data={connectorObject ? connectorObject.attributes : null}
+                    noData={this.i18n('component.basic.Table.noData')}
+                    className="table-bordered">
+                    <Basic.Column property="name" header={this.i18n('label.property')}/>
+                    <Basic.Column property="values" header={this.i18n('label.value')}/>
+                  </Basic.Table>
+                </Basic.Col>
+              </Basic.Row>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

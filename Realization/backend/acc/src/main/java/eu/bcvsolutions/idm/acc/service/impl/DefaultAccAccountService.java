@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +23,15 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccContractAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -32,11 +40,20 @@ import eu.bcvsolutions.idm.acc.repository.AccRoleCatalogueAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccTreeAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 
 /**
  * Accounts on target system
@@ -59,6 +76,10 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 	private final ApplicationContext applicationContext;
 	private ProvisioningService provisioningService;
 	private final SysSystemEntityService systemEntityService;
+	private final SysSystemService systemService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
+	private final SysSchemaAttributeService schemaAttributeService;
+
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultAccAccountService.class);
 
 	@Autowired
@@ -66,7 +87,8 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 			AccIdentityAccountRepository accIdentityAccountRepository, ApplicationContext applicationContext,
 			SysSystemEntityService systemEntityService, AccRoleAccountRepository roleAccountRepository,
 			AccTreeAccountRepository treeAccountRepository, AccContractAccountRepository contractAccountRepository,
-			AccRoleCatalogueAccountRepository roleCatalogueAccountRepository) {
+			AccRoleCatalogueAccountRepository roleCatalogueAccountRepository, SysSystemService systemService,
+			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService) {
 		super(accountRepository);
 		//
 		Assert.notNull(accIdentityAccountRepository);
@@ -77,6 +99,9 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		Assert.notNull(roleCatalogueAccountRepository);
 		Assert.notNull(treeAccountRepository);
 		Assert.notNull(contractAccountRepository);
+		Assert.notNull(systemService);
+		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(schemaAttributeService);
 
 		//
 		this.accIdentityAccountRepository = accIdentityAccountRepository;
@@ -87,6 +112,9 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		this.roleCatalogueAccountRepository = roleCatalogueAccountRepository;
 		this.treeAccountRepository = treeAccountRepository;
 		this.contractAccountRepository = contractAccountRepository;
+		this.systemService = systemService;
+		this.schemaAttributeService = schemaAttributeService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 
 	@Override
@@ -139,18 +167,19 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		// prevent cycle - we only need clean db in this case
 		roleAccountRepository.deleteByAccount(this.getEntity(account.getId()));
 
-		// delete all role-catalogue accounts we are calling repository instead service to
+		// delete all role-catalogue accounts we are calling repository instead service
+		// to
 		// prevent cycle - we only need clean db in this case
 		roleCatalogueAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-		
+
 		// delete all tree accounts we are calling repository instead service to
 		// prevent cycle - we only need clean db in this case
 		treeAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-		
+
 		// delete all contract accounts we are calling repository instead service to
 		// prevent cycle - we only need clean db in this case
 		contractAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-		
+
 		//
 		super.delete(account);
 		// TODO: move to event
@@ -199,4 +228,51 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		return toDtoPage(
 				accountRepository.findByEndOfProtectionLessThanAndInProtectionIsTrue(expirationDate, pageable));
 	}
+
+	@Override
+	public IcConnectorObject getConnectorObject(AccAccountDto account) {
+		Assert.notNull(account, "Account cannot be null!");
+		this.checkAccess(account, IdmBasePermission.READ);
+		List<SysSchemaAttributeDto> schemaAttributes = this.getSchemaAttributes(account.getSystem(), null);
+		if(schemaAttributes == null) {
+			return null;
+		}
+		IcConnectorObject fullObject = this.systemService.readConnectorObject(account.getSystem(), account.getRealUid(), null);
+		return this.getConnectorObjectForSchema(fullObject, schemaAttributes);
+	}
+
+	/**
+	 * Return only attributes for witch we have schema attribute definitions.
+	 * @param fullObject
+	 * @param schemaAttributes
+	 * @return
+	 */
+	private IcConnectorObject getConnectorObjectForSchema(IcConnectorObject fullObject,
+			List<SysSchemaAttributeDto> schemaAttributes) {
+		if(fullObject == null || schemaAttributes == null) {
+			return null;
+		}
+
+		List<IcAttribute> allAttributes = fullObject.getAttributes();
+		List<IcAttribute> resultAttributes = allAttributes.stream().filter(attribute -> {
+			return schemaAttributes.stream().filter(schemaAttribute -> attribute.getName().equals(schemaAttribute.getName())).findFirst().isPresent();
+		}).collect(Collectors.toList());
+		return new IcConnectorObjectImpl(fullObject.getUidValue(),fullObject.getObjectClass(), resultAttributes);
+	}
+
+	private List<SysSchemaAttributeDto> getSchemaAttributes(UUID systemId, String schema) {
+		SysSchemaObjectClassFilter schemaFilter = new SysSchemaObjectClassFilter();
+		schemaFilter.setSystemId(systemId);
+		schemaFilter.setObjectClassName(schema != null ? schema : IcObjectClassInfo.ACCOUNT);
+
+		List<SysSchemaObjectClassDto> schemas = schemaObjectClassService.find(schemaFilter, null).getContent();
+		if (schemas.size() != 1) {
+			return null;
+		}
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setObjectClassId(schemas.get(0).getId());
+		schemaAttributeFilter.setSystemId(systemId);
+		return schemaAttributeService.find(schemaAttributeFilter, null).getContent();
+	}
+
 }

@@ -20,4 +20,17 @@ export default class SystemEntityManager extends Managers.EntityManager {
   getCollectionType() {
     return 'systemEntities';
   }
+
+  fetchConnectorObject(entityId, uiKey = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getConnectorObject(entityId)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
 }

@@ -612,7 +612,8 @@
       "_type": "Entita na systému",
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
-      "system": "Napojený systém"
+      "system": "Napojený systém",
+      "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {
       "auxiliary": "Pomocný objekt",

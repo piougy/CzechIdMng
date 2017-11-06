@@ -605,7 +605,8 @@
       "_type": "Entity in system",
       "entityType": "Entity type",
       "uid": "Identifier in system",
-      "system": "Connected system"
+      "system": "Connected system",
+      "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {
       "auxiliary": "Auxiliary",

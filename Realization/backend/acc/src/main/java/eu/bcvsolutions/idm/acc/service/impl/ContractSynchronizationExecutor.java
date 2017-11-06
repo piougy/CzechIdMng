@@ -460,8 +460,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					return null;
 
 				} else {
-					MessageFormat.format("Work position - One node [{1}] was found for code [{0}]!", value,
-							nodes.get(0).getId());
+					context.getLogItem()
+					.addToLog(MessageFormat.format("Work position - One node [{1}] was found for code [{0}]!", value,
+							nodes.get(0).getId()));
 					return nodes.get(0);
 				}
 			}

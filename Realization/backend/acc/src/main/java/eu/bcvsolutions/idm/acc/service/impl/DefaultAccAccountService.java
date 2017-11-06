@@ -260,6 +260,12 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		return new IcConnectorObjectImpl(fullObject.getUidValue(),fullObject.getObjectClass(), resultAttributes);
 	}
 
+	/**
+	 * Find schema's attributes for the system id and schema name.
+	 * @param systemId
+	 * @param schema - If is schema name null, then will used default '__ACCOUNT__'.
+	 * @return
+	 */
 	private List<SysSchemaAttributeDto> getSchemaAttributes(UUID systemId, String schema) {
 		SysSchemaObjectClassFilter schemaFilter = new SysSchemaObjectClassFilter();
 		schemaFilter.setSystemId(systemId);

@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
+import org.codehaus.groovy.syntax.SyntaxException;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.aop.support.AopUtils;
@@ -139,6 +142,18 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		try {
 			GroovyShell shell = new GroovyShell();
 			return shell.parse(script);
+		} catch (MultipleCompilationErrorsException e) {
+			// get last error, it is possible add all errors
+			Object error = e.getErrorCollector().getLastError();
+			if (error instanceof SyntaxErrorMessage) {
+				SyntaxErrorMessage syntaxErrorMessage = (SyntaxErrorMessage)error;
+				SyntaxException cause = syntaxErrorMessage.getCause();
+				//
+				throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_SYNTAX_VALIDATION,
+						ImmutableMap.of("message", cause.getOriginalMessage(), "line", cause.getLine()), e);
+			}
+			//
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_VALIDATION, e);
 		} catch (CompilationFailedException ex) {
 			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_VALIDATION, ex);
 		}

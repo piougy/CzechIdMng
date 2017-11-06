@@ -1168,6 +1168,22 @@
         }
       }
     },
+    "confidentialStorage": {
+      "header": "Šifrovaný obsah",
+      "title": "Šifrovaný obsah",
+      "label": "Šifrovaný obsah",
+      "filter": {
+        "text": "Klíč / Typ identity majitele",
+        "ownerId": "Id majitele",
+        "key": "Klíč",
+        "ownerType": "Typ identity majitele",
+        "value": "Hodnota"
+      },
+      "edit": {
+        "title": "Detail obsahu",
+        "header": "{{name}} Detail obsahu"
+      }
+    },
     "scripts": {
       "header": "Definice skriptů",
       "title": "Definice skriptů",
@@ -2080,6 +2096,12 @@
       "parent": {
         "name": "Nadřazená složka v katalogu"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Id majitele",
+      "key": "Klíč",
+      "ownerType": "Typ identity majitele",
+      "serializableValue": "Hodnota"
     },
     "Script": {
       "name": "Název skriptu",

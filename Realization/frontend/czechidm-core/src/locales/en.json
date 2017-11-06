@@ -1135,6 +1135,21 @@
         }
       }
     },
+    "confidentialStorage": {
+      "header": "Confidential storage",
+      "title": "Confidential storage",
+      "label": "Confidential storage",
+      "filter": {
+        "text": "Key / Owner type",
+        "ownerId": "Owner Id",
+        "key": "Key",
+        "ownerType": "Owner type"
+      },
+      "edit": {
+        "title": "Detail of storage",
+        "header": "{{name}} Detail of storage"
+      }
+    },
     "scripts": {
       "header": "Script definitions",
       "title": "Script definitions",
@@ -2043,6 +2058,12 @@
       "parent": {
         "name": "Parent folder in catalog"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Owner Id",
+      "key": "Key",
+      "ownerType": "Owner type",
+      "serializableValue": "Value"
     },
     "Script": {
       "name": "Script name",

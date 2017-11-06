@@ -696,7 +696,17 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
               }
             ]
-          }
+          },
+          {
+            'id': 'confidential-storage',
+            'labelKey': 'content.confidentialStorage.header',
+            'titleKey': 'content.confidentialStorage.title',
+            'icon': 'fa:lock',
+            'iconColor': '#272fd8',
+            'order': 70,
+            'path': '/confidential-storage',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ],
+          },
         ]
       },
       {

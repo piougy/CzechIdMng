@@ -33,6 +33,13 @@ public interface ConfidentialStorage {
 	void delete(UUID ownerId, Class<? extends Identifiable> ownerType, String key);
 	
 	/**
+	 * Deletes all values by owner id
+	 * 
+	 * @param ownerId
+	 */
+	void delete(UUID ownerId);
+	
+	/**
 	 * Get value by owner and key
 	 * 
 	 * @param ownerId values owner identifier

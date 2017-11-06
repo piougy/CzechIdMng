@@ -4,14 +4,14 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
+import * as Advanced from '../../components/advanced';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, IdentityManager, RoleCatalogueManager, SecurityManager } from '../../redux';
+import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../redux';
 
 const roleManager = new RoleManager();
-const identityManger = new IdentityManager();
 const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
@@ -225,11 +225,11 @@ class RoleDetail extends Basic.AbstractContent {
                   manager={roleManager}
                   multiSelect
                   rendered={ false }/> {/* TODO: redesign subroles agenda */}
-                <Basic.SelectBox
+                <Advanced.EntitySelectBox
                   ref="guarantees"
                   label={this.i18n('entity.Role.guarantees')}
                   multiSelect
-                  manager={identityManger}/>
+                  entityType="identity"/>
                 <Basic.Checkbox
                   ref="approveRemove"
                   label={this.i18n('entity.Role.approveRemove')}/>

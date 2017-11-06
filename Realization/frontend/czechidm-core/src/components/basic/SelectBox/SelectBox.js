@@ -339,11 +339,11 @@ class SelectBox extends AbstractFormComponent {
 
     let itemFullKey = _niceLabel;
     if (inputLower) {
-      if (!_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+      if (_niceLabel !== null && !_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
         for (const field of this.props.searchInFields) {
-          if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
+          if (item[field] !== null && item[field].toLowerCase().indexOf(inputLower) >= 0) {
             itemFullKey = itemFullKey + ' (' + item[field] + ')';
-            break;
+            continue;
           }
         }
       }
@@ -444,7 +444,6 @@ class SelectBox extends AbstractFormComponent {
     return (
         <Select
           ref="selectComponent"
-          filterOptions={false}
           isLoading={isLoading}
           value={value}
           onChange={this.onChange}
@@ -471,7 +470,6 @@ SelectBox.propTypes = {
   ...AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
   manager: PropTypes.instanceOf(EntityManager).isRequired,
-  // TODO: searchInFields is not implemented now
   searchInFields: PropTypes.arrayOf(PropTypes.string).isRequired,
   fieldLabel: PropTypes.string,
   value: PropTypes.oneOfType([

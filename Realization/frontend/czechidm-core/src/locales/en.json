@@ -298,6 +298,9 @@
           }
         }
       },
+      "EntitySelectBox": {
+        "defaultHelpBlock": "Searching is done in the following attributes: {{searchInFields}}."
+      },
       "Filter": {
         "option": {
           "yes": "Yes",
@@ -2888,6 +2891,10 @@
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy script contains compile errors",
       "message": "Groovy script contains compile errors"
+    },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy script contains syntax errors",
+      "message": "Error message: {{message}} at line {{line}}."
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy script did not past safety check!",

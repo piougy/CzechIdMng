@@ -88,15 +88,14 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
     if (component) {
       const EntityInfoComponent = component.component;
       return (
-        <span style={ style}>
-          <EntityInfoComponent
-            entity={ entity }
-            entityIdentifier={ entityIdentifier }
-            face={ face }
-            className={ classNames }
-            showLoading={ showLoading }
-            showLink={ showLink }/>
-        </span>
+        <EntityInfoComponent
+          entity={ entity }
+          entityIdentifier={ entityIdentifier }
+          face={ face }
+          className={ classNames }
+          showLoading={ showLoading }
+          showLink={ showLink }
+          style={ style }/>
       );
     }
     //

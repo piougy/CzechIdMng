@@ -2,10 +2,12 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -13,6 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -111,11 +114,43 @@ public class DefaultConfigurationService
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public List<String> getValues(String key) {
+		String value = getValue(key);
+		if (StringUtils.isBlank(value)) {
+			return Collections.<String>emptyList();
+		}
+		return Arrays
+				.stream(value.split(PROPERTY_MULTIVALUED_SEPARATOR))
+				.filter(StringUtils::isNotBlank)
+				.map(String::trim)
+				.collect(Collectors.toList());
+	}
+	
+	
+	@Override
 	@Transactional
 	public void setValue(String key, String value) {
 		Assert.hasText(key);
 		//
 		saveConfiguration(new IdmConfigurationDto(key, value));
+	}
+	
+	@Override
+	@Transactional
+	public void setValues(String key, List<String> values) {
+		Assert.hasText(key);
+		//
+		// join not null values
+		String value = null;
+		if (values != null) {
+			values.removeIf(Objects::isNull);
+			if (CollectionUtils.isNotEmpty(values)) {
+				value = StringUtils.join(values, PROPERTY_MULTIVALUED_SEPARATOR);
+			}
+		}
+		//
+		setValue(key, value);
 	}
 	
 	@Override
@@ -217,7 +252,7 @@ public class DefaultConfigurationService
 				confidential = false;
 				LOG.trace("Configuration value for key [{}] was found in database.", key);
 			}			
-		} else {
+		} else if(env != null) {
 			// try to find value in property configuration
 			value = env.getProperty(key);
 			confidential = shouldBeConfidential(key);

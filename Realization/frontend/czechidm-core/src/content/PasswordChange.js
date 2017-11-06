@@ -29,6 +29,8 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this.selectNavigationItem('password-change');
     const data = {};
     const { query } = this.props.location;
@@ -38,6 +40,10 @@ class PasswordChange extends Basic.AbstractContent {
     }
     this.refs.form.setData(data);
     this.refs.username.focus();
+  }
+
+  hideFooter() {
+    return true;
   }
 
   getContentKey() {

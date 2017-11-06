@@ -6,7 +6,7 @@
       "homePage": "http://www.bcvsolutions.eu"
     },
     "serviceDesk": "ServiceDesk",
-    "helpDesk": "Help",
+    "helpDesk": "Wiki",
     "version": {
       "frontend": "Version",
       "backend": "Backend version",

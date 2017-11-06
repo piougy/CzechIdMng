@@ -320,6 +320,9 @@
           }
         }
       },
+      "EntitySelectBox": {
+        "defaultHelpBlock": "Vyhledávání je realizováno v těchto atributech: {{searchInFields}}."
+      },
       "Filter": {
         "option": {
           "yes": "Ano",

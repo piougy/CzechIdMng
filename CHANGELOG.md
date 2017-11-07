@@ -30,6 +30,9 @@ All notable changes to this project will be documented in this file.
 ##### Role request
 - Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
 
+##### Evaluator 'IdentityAccountByIdentityEvaluator'
+- Evaluator 'IdentityAccountByIdentityEvaluator' was removed and replaced by 'IdentityAccountByAccountEvaluator'.
+
 ## [7.5.2]
 
 #### Acc module

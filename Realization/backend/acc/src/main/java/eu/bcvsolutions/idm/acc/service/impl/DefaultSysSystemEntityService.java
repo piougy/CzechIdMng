@@ -22,10 +22,13 @@ import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Entities on target system
@@ -34,35 +37,40 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service("sysSystemEntityService")
-public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<SysSystemEntityDto, SysSystemEntity, SysSystemEntityFilter> implements SysSystemEntityService {
+public class DefaultSysSystemEntityService
+		extends AbstractReadWriteDtoService<SysSystemEntityDto, SysSystemEntity, SysSystemEntityFilter>
+		implements SysSystemEntityService {
 
 	private final SysSystemEntityRepository repository;
 	private final AccAccountRepository accountRepository;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
-	
+	private final SysSystemService systemService;
+
 	@Autowired
-	public DefaultSysSystemEntityService(
-			SysSystemEntityRepository systemEntityRepository,
-			AccAccountRepository accountRepository,
-			SysProvisioningOperationRepository provisioningOperationRepository) {
+	public DefaultSysSystemEntityService(SysSystemEntityRepository systemEntityRepository,
+			AccAccountRepository accountRepository, SysProvisioningOperationRepository provisioningOperationRepository,
+			SysSystemService systemService) {
 		super(systemEntityRepository);
 		//
 		Assert.notNull(accountRepository);
 		Assert.notNull(provisioningOperationRepository);
+		Assert.notNull(systemService);
 		//
 		this.repository = systemEntityRepository;
 		this.accountRepository = accountRepository;
 		this.provisioningOperationRepository = provisioningOperationRepository;
+		this.systemService = systemService;
 	}
-	
+
 	@Override
-	protected Page<SysSystemEntity> findEntities(SysSystemEntityFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSystemEntity> findEntities(SysSystemEntityFilter filter, Pageable pageable,
+			BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
 		return repository.find(filter, pageable);
 	}
-	
+
 	@Override
 	@Transactional
 	public void delete(SysSystemEntityDto systemEntityDto, BasePermission... permission) {
@@ -83,16 +91,26 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteDtoService<S
 		//
 		super.delete(systemEntityDto, permission);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
-	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid) {
+	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType,
+			String uid) {
 		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(system.getId(), entityType, uid));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public SysSystemEntityDto getByProvisioningOperation(ProvisioningOperation operation) {
-		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(operation.getSystem(), operation.getEntityType(), operation.getSystemEntityUid()));
+		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(operation.getSystem(), operation.getEntityType(),
+				operation.getSystemEntityUid()));
+	}
+
+	@Override
+	public IcConnectorObject getConnectorObject(SysSystemEntityDto systemEntity) {
+		Assert.notNull(systemEntity, "System entity cannot be null!");
+		this.checkAccess(systemEntity, IdmBasePermission.READ);
+
+		return this.systemService.readConnectorObject(systemEntity.getSystem(), systemEntity.getUid(), null);
 	}
 }

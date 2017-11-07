@@ -320,6 +320,9 @@
           }
         }
       },
+      "EntitySelectBox": {
+        "defaultHelpBlock": "Vyhledávání je realizováno v těchto atributech: {{searchInFields}}."
+      },
       "Filter": {
         "option": {
           "yes": "Ano",
@@ -2929,6 +2932,10 @@
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
+    },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy skript obsahuje chyby syntaxe",
+      "message": "Chybová zpráva: {{message}} na řádku {{line}}."
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy skript neprošel bezpečností kontrolou!",

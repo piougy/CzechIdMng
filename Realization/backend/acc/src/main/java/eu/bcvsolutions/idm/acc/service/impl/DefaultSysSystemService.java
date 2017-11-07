@@ -268,7 +268,6 @@ public class DefaultSysSystemService
 	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
 		Assert.notNull(systemId, "System ID cannot be null!");
 		Assert.notNull(uid, "Account UID cannot be null!");
-		Assert.notNull(objectClass, "Object class cannot be null!");
 		
 		SysSystemDto system = this.get(systemId);
 		Assert.notNull(system, "System cannot be null!");

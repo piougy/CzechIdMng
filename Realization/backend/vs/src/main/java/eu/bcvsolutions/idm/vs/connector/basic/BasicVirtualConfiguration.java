@@ -57,7 +57,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 			order = 20, 
 			face = FACE_IDENTITY_SELECT, 
 			displayName = "Implementers", 
-			helpMessage = "The realization task will be created for these implementers. Every implementer must be an identity in CzechIdM. Values are UUIDs of identities (multivalue).")
+			helpMessage = "Requests for implementing changes on the real system will be created for these implementers. Every implementer must be an identity in CzechIdM. Values are UUIDs of identities (multivalued).")
 	public UUID[] getImplementers() {
 		return implementers;
 	}
@@ -70,7 +70,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 			order = 30, 
 			face = FACE_ROLE_SELECT, 
 			displayName = "Roles of implementers", 
-			helpMessage = "All identities with these roles will be implementers. Every role must be a role in CzechIdM. Values are UUIDs of roles (multivalue).")
+			helpMessage = "All identities with these roles will be implementers. Every role must be a role in CzechIdM. Values are UUIDs of roles (multivalued).")
 	public UUID[] getImplementerRoles() {
 		return implementerRoles;
 	}

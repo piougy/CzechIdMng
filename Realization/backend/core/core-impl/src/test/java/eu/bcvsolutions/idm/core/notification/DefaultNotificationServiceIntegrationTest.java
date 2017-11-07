@@ -1,16 +1,10 @@
 package eu.bcvsolutions.idm.core.notification;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
@@ -22,10 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
@@ -35,7 +26,6 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
-import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
@@ -47,7 +37,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.impl.DefaultIdmNotificationTemplateService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -61,7 +50,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrationTest {
 
 	private static final String TOPIC = "idm:test";
-	private static final String TEST_TEMPLATE = "testTemplate";
 
 	@Autowired private TestHelper helper;
 	@Autowired private NotificationManager notificationManager;
@@ -73,7 +61,6 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	@Autowired private IdmEmailLogService emailLogService;
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
-	@Autowired private ConfigurationService configurationService;
 	//
 	IdmNotificationConfigurationDto config = null;
 
@@ -180,167 +167,6 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		emailService.send(new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		filter.setSent(false);
 		assertEquals(2, emailLogService.find(filter, null).getTotalElements());
-	}
-
-	@Test
-	public void redeployExistTemplate() {
-		String backupFolder = "/tmp/idm_test_backup/";
-		//
-		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
-		//
-		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
-		filter.setText(TEST_TEMPLATE);
-		//
-		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
-		//
-		assertEquals(1, testTemplates.size());
-		IdmNotificationTemplateDto testTemplate = testTemplates.get(0);
-		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
-		//
-		// redeploy
-		IdmNotificationTemplateDto testTemplateNew = notificationTemplateService.redeploy(testTemplate);
-		//
-		// after redeploy must be id same
-		assertEquals(testTemplateNew.getId(), testTemplate.getId());
-		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
-	}
-
-	@Test
-	public void redeployWithoutBackupFolder() {
-		String backupPath = configurationService.getValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG);
-		if (backupPath != null) {
-			configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
-		}
-		//
-		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
-		filter.setText(TEST_TEMPLATE);
-		//
-		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
-		//
-		assertEquals(1, testTemplates.size());
-		IdmNotificationTemplateDto testTemplate = testTemplates.get(0);
-		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
-		//
-		try {
-			notificationTemplateService.redeploy(testTemplate);
-			fail();
-		} catch (Exception e) {
-			assertTrue(e instanceof ResultCodeException);
-			ResultCodeException resultCode = (ResultCodeException) e;
-			assertEquals(resultCode.getError().getError().getStatusEnum(),
-					CoreResultCode.BACKUP_FOLDER_NOT_FOUND.name());
-		}
-	}
-
-	@Test
-	public void redeployWithBackupFolder() {
-		String backupFolder = "/tmp/idm_test_backup/";
-		//
-		File directory = new File(backupFolder);
-		if (directory.exists() && directory.isDirectory()) {
-			try {
-				FileUtils.deleteDirectory(directory);
-			} catch (IOException e) {
-				fail();
-			}
-		}
-		//
-		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
-		//
-		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
-		filter.setText(TEST_TEMPLATE);
-		//
-		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
-		//
-		assertEquals(1, testTemplates.size());
-		IdmNotificationTemplateDto testTemplate = testTemplates.get(0);
-		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
-		//
-		try {
-			IdmNotificationTemplateDto newDto = notificationTemplateService.redeploy(testTemplate);
-			assertEquals(testTemplate.getCode(), newDto.getCode());
-			//
-			DateTime date = new DateTime();
-			DecimalFormat decimalFormat = new DecimalFormat("00");
-			directory = new File(backupFolder + "templates/" + date.getYear()
-					+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
-			File[] files = directory.listFiles();
-			assertEquals(1, files.length);
-			File backup = files[0];
-			assertTrue(backup.exists());
-			assertTrue(backup.getName().contains("admin"));
-			assertTrue(backup.getName().contains(testTemplate.getCode()));
-		} catch (Exception e) {
-			fail();
-		}
-		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
-	}
-
-	@Test
-	public void redeployExistTemplateAndCheckBackup() {
-		// check if exist directory and remove it with all files in
-		String backupFolder = "/tmp/idm_test_backup/";
-		//
-		File directory = new File(backupFolder);
-		if (directory.exists() && directory.isDirectory()) {
-			try {
-				FileUtils.deleteDirectory(directory);
-			} catch (IOException e) {
-				fail();
-			}
-		}
-		//
-		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
-		//
-		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
-		filter.setText(TEST_TEMPLATE);
-		//
-		List<IdmNotificationTemplateDto> testTemplates = notificationTemplateService.find(filter, null).getContent();
-		//
-		assertEquals(1, testTemplates.size());
-		IdmNotificationTemplateDto testTemplate = testTemplates.get(0);
-		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
-		//
-		IdmNotificationTemplateDto testTemplateNew = notificationTemplateService.redeploy(testTemplate);
-		//
-		assertEquals(testTemplateNew.getId(), testTemplate.getId());
-		//
-		// after redeploy check directory
-		DateTime date = new DateTime();
-		DecimalFormat decimalFormat = new DecimalFormat("00");
-		directory = new File(backupFolder + "templates/" + date.getYear()
-				+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
-		assertTrue(directory.exists());
-		assertTrue(directory.isDirectory());
-		//
-		File[] files = directory.listFiles();
-		assertEquals(1, files.length);
-		File backup = files[0];
-		assertTrue(backup.exists());
-		assertTrue(backup.getName().contains("admin"));
-		assertTrue(backup.getName().contains(testTemplateNew.getCode()));
-	}
-
-	@Test
-	public void redeployNewTemplate() {
-		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
-		String name = "temp_" + System.currentTimeMillis();
-		template.setCode(name);
-		template.setName(name);
-		template.setBodyText(name);
-		template.setSubject(name);
-		template = notificationTemplateService.save(template);
-		//
-		// check exception
-		try {
-			notificationTemplateService.redeploy(template);
-			fail();
-		} catch (Exception e) {
-			assertTrue(e instanceof ResultCodeException);
-			ResultCodeException resultCode = (ResultCodeException) e;
-			assertEquals(resultCode.getError().getError().getStatusEnum(),
-					CoreResultCode.NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND.name());
-		}
 	}
 
 	@Test

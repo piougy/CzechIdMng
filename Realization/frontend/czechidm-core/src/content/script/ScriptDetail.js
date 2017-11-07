@@ -176,7 +176,8 @@ export default class ScriptDetail extends Basic.AbstractContent {
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
+              dropup>
               <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
             </Basic.SplitButton>
           </Basic.PanelFooter>

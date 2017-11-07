@@ -42,6 +42,8 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 
 	private static final String TEST_SCRIPT_CODE_1 = "testScript1";
 	private static final String TEST_SCRIPT_CODE_2 = "testScript2";
+	private static final String TEST_SCRIPT_CODE_3 = "testScript3";
+	private static final String TEST_SCRIPT_CODE_OVERRIDE = "testScriptOverride";
 	
 	private static final String TEST_SCRIPT_NAME_1 = "Test script 1";
 	
@@ -87,6 +89,20 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 		authorities = scriptAuthorityService.find(filter, null).getContent();
 
 		assertEquals(0, authorities.size());
+	}
+	
+	@Test
+	public void initFromMultipleLocations() {
+		IdmScriptDto script3 = scriptService.getByCode(TEST_SCRIPT_CODE_3);
+		IdmScriptDto scriptOverride = scriptService.getByCode(TEST_SCRIPT_CODE_OVERRIDE);
+		
+		assertNotNull(script3);
+		assertNotNull(scriptOverride);
+
+		assertEquals(TEST_SCRIPT_CODE_3, script3.getCode());
+		assertEquals(TEST_SCRIPT_CODE_OVERRIDE, scriptOverride.getCode());
+		//
+		assertEquals("String overrideUpdate;", scriptOverride.getScript().trim());
 	}
 
 	@Test
@@ -162,7 +178,7 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 	}
 
 	@Test
-	public void tryRedepoloyScript() {
+	public void tryRedeployScript() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, TEST_BACKUP_FOLDER);
 		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 

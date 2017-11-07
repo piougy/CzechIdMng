@@ -1,0 +1,18 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+	Test script 2, for testing backup, deploy, redeploy.
+-->
+<script>
+	<code>testScriptOverride</code>
+	<name>Test script override</name>
+	<body>
+		<![CDATA[
+String overrideUpdate;
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>test</parameters>
+	<allowClasses />
+    <services/>
+</script>

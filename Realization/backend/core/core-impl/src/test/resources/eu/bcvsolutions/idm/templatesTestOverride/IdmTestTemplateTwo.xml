@@ -1,0 +1,27 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Template for tests
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
+	<name>Test notification template Two</name>
+	<code>testTemplateTwo</code>
+	<subject>CzechIdM - test template $code</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>
+$test</br>
+$code</br>
+$list</br>
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>test, code, list</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

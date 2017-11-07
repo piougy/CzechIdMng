@@ -1076,7 +1076,9 @@
       "SYSTEM": "Napojené systémy",
       "SYNCHRONIZATION": "Synchronizace",
       "TREEACCOUNT": "Účty pro prvky stromu",
-      "IDENTITYACCOUNT": "Účty pro identity"
+      "IDENTITYACCOUNT": "Účty pro identity",
+      "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
+      "PROVISIONINGBREAK": "Brzda provisioningu"
     }
   },
   "error": {

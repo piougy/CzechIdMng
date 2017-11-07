@@ -484,6 +484,7 @@
 				</dependencies>
 
 				<configuration>
+					<argLine>-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true</argLine>
 					<threadCount>1</threadCount>
 				</configuration>
 			</plugin>

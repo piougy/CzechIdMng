@@ -15,6 +15,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -82,8 +83,10 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	 * By default this is set to {@code true}.
 	 * 
 	 * @see #registeredSuffixPatternMatch
+	 * @deprecated Look out: works for @RepositoryRestControllers only 
 	 */
 	@Override
+	@Deprecated
 	public void configurePathMatch(PathMatchConfigurer configurer) {
 		// enable encoded slash in path parameters
 		UrlPathHelper urlPathHelper = new UrlPathHelper();
@@ -95,6 +98,17 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		//
 		// this will be useful in future ...
 		// configurer.setUseRegisteredSuffixPatternMatch(true);
+	}
+	
+	/**
+	 * Content negotiation
+	 * - disable path extension, we want to support '.' in url path parameter.
+	 */
+	@Override
+	public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+		configurer
+			.favorPathExtension(false) // disable path extension
+			.favorParameter(true); // enable 'format' parameter usage
 	}
 
 	/**

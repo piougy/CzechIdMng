@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
@@ -32,8 +33,10 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -128,6 +131,27 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		this.lookupService = lookupService;
 		this.guaranteeService = guaranteeService;
 		this.treeNodeService = treeNodeService;
+	}
+	
+	@Override
+	protected SynchronizationContext validate(UUID synchronizationConfigId) {
+
+		AbstractSysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
+		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
+		Assert.notNull(mapping);
+		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
+		attributeHandlingFilter.setSystemMappingId(mapping.getId());
+		List<SysSystemAttributeMappingDto> mappedAttributes = systemAttributeMappingService
+				.find(attributeHandlingFilter, null).getContent();
+		SysSystemAttributeMappingDto ownerAttribute = mappedAttributes.stream().filter(attribute -> {
+			return CONTRACT_IDENTITY_FIELD.equals(attribute.getIdmPropertyName());
+		}).findFirst().orElse(null);
+		
+		if (ownerAttribute == null) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST,
+					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
+		}
+		return super.validate(synchronizationConfigId);
 	}
 
 	/**
@@ -436,8 +460,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					return null;
 
 				} else {
-					MessageFormat.format("Work position - One node [{1}] was found for code [{0}]!", value,
-							nodes.get(0).getId());
+					context.getLogItem()
+					.addToLog(MessageFormat.format("Work position - One node [{1}] was found for code [{0}]!", value,
+							nodes.get(0).getId()));
 					return nodes.get(0);
 				}
 			}
@@ -464,6 +489,12 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected IdmIdentityContractDto save(IdmIdentityContractDto entity, boolean skipProvisioning) {
+		
+		if (entity.getIdentity() == null) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,
+					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
+		}
+		
 		EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(
 				contractService.isNew(entity) ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 				entity, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));

@@ -30,6 +30,7 @@ import RoleSelect from './RoleSelect/RoleSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
+import EntitySelectBox from './EntitySelectBox/EntitySelectBox';
 
 const Components = {
   Table,
@@ -65,7 +66,8 @@ const Components = {
   RoleSelect,
   Recaptcha,
   IdentitiesInfo,
-  SchedulerTaskInfo
+  SchedulerTaskInfo,
+  EntitySelectBox
 };
 
 Components.version = '0.0.1';

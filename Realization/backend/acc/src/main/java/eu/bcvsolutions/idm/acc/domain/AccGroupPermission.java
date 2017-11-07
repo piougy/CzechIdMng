@@ -16,18 +16,31 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 public enum AccGroupPermission implements GroupPermission {
 	
-	SYSTEM(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	SYSTEM(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	IDENTITYACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLECATALOGUEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
-	CONTRACTACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
+	CONTRACTACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	PROVISIONINGBREAK(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),;
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String SYSTEM_AUTOCOMPLETE = "SYSTEM" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String SYSTEM_READ = "SYSTEM" + BasePermission.SEPARATOR + "READ";
 	public static final String SYSTEM_CREATE = "SYSTEM" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SYSTEM_UPDATE = "SYSTEM" + BasePermission.SEPARATOR + "UPDATE";
@@ -65,6 +78,12 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String CONTRACT_ACCOUNT_CREATE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONTRACT_ACCOUNT_UPDATE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONTRACT_ACCOUNT_DELETE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String PROVISIONINGBREAK_ADMIN = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String PROVISIONINGBREAK_READ = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "READ";
+	public static final String PROVISIONINGBREAK_CREATE = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "CREATE";
+	public static final String PROVISIONINGBREAK_UPDATE = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String PROVISIONINGBREAK_DELETE = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

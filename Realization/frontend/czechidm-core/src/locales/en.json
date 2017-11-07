@@ -5,7 +5,8 @@
       "name": "BCV solutions s.r.o.",
       "homePage": "http://www.bcvsolutions.eu"
     },
-    "helpdesk": "HelpDesk",
+    "serviceDesk": "ServiceDesk",
+    "helpDesk": "Wiki",
     "version": {
       "frontend": "Version",
       "backend": "Backend version",
@@ -296,6 +297,9 @@
             "title": "Show info card"
           }
         }
+      },
+      "EntitySelectBox": {
+        "defaultHelpBlock": "Searching is done in the following attributes: {{searchInFields}}."
       },
       "Filter": {
         "option": {
@@ -2908,6 +2912,10 @@
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy script contains compile errors",
       "message": "Groovy script contains compile errors"
+    },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy script contains syntax errors",
+      "message": "Error message: {{message}} at line {{line}}."
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy script did not past safety check!",

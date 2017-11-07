@@ -184,7 +184,11 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={mapping} showLoading={_showLoading}>
+            <Basic.AbstractForm
+              ref="form"
+              data={ mapping }
+              showLoading={ _showLoading }
+              readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
               <Basic.SelectBox
                 ref="system"
                 manager={systemManager}
@@ -242,10 +246,10 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                 {this.i18n('button.back')}
               </Basic.Button>
               <Basic.Button
-                onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
-                showLoading={_showLoading}>
+                showLoading={ _showLoading }
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 {this.i18n('button.saveAndContinue')}
               </Basic.Button>
             </Basic.PanelFooter>

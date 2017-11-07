@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Entities on target system
@@ -32,5 +33,12 @@ public interface SysSystemEntityService extends ReadWriteDtoService<SysSystemEnt
 	 * @return
 	 */
 	SysSystemEntityDto getByProvisioningOperation(ProvisioningOperation operation);
+
+	/**
+	 * Load object from the connector
+	 * @param systemEntity
+	 * @return
+	 */
+	IcConnectorObject getConnectorObject(SysSystemEntityDto systemEntity);
 	
 }

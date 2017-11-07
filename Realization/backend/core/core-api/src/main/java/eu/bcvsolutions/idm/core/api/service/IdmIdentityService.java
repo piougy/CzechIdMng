@@ -34,7 +34,8 @@ public interface IdmIdentityService extends
 	IdmIdentityDto getByUsername(String username);
 
 	/**
-	 * Better "toString"
+	 * Better "toString".
+	 * Returns identity's fullName with titles if lastName is not blank, otherwise returns username 
 	 * 
 	 * @param identity
 	 * @return

@@ -23,7 +23,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningBreakConfiguration;
-import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
@@ -74,6 +73,12 @@ public class DefaultSysProvisioningBreakConfigService extends
 		this.breakRecipientService = breakRecipientService;
 		this.cacheManager = cacheManager;
 		this.provisioningBreakConfiguration = provisioningBreakConfiguration;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		// TODO: provisioning break group
+		return null;
 	}
 	
 	@Override
@@ -204,11 +209,6 @@ public class DefaultSysProvisioningBreakConfigService extends
 		globalConfig.setWarningLimit(provisioningBreakConfiguration.getWarningLimit(eventType));
 		globalConfig.setTrimmed(true);
 		return globalConfig;
-	}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.SYSTEM, getEntityClass());
 	}
 	
 	@Override

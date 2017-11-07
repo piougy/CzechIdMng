@@ -149,7 +149,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected final EntityEventManager entityEventManager;
 	private final EntityManager entityManager;
 	protected AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor;
-	private final SysSystemMappingService systemMappingService;
+	protected final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
 

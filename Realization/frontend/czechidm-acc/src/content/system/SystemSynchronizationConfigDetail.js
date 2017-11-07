@@ -286,9 +286,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       }
       actions.push(
         <div>
-            <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
-            <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)} </label>
-        </div>);
+          <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
+          <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)} </label>
+        </div>
+      );
     }
     return actions;
   }
@@ -396,7 +397,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')} className="bordered">
             <form onSubmit={this.save.bind(this, false, false, finalEntityType)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
+                <Basic.AbstractForm
+                  ref="form"
+                  data={synchronizationConfig}
+                  showLoading={innerShowLoading}
+                  className="panel-body"
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                   <Basic.Checkbox
                     ref="enabled"
                     label={this.i18n('acc:entity.SynchronizationConfig.enabled')}

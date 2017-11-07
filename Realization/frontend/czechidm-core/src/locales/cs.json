@@ -5,7 +5,8 @@
       "name": "BCV solutions s.r.o.",
       "homePage": "http://www.bcvsolutions.eu"
     },
-    "helpdesk": "HelpDesk",
+    "serviceDesk": "ServiceDesk",
+    "helpDesk": "Wiki",
     "version": {
       "frontend": "Verze",
       "backend": "Verze rozhraní",
@@ -318,6 +319,9 @@
             "title": "Zobrazit vizitku"
           }
         }
+      },
+      "EntitySelectBox": {
+        "defaultHelpBlock": "Vyhledávání je realizováno v těchto atributech: {{searchInFields}}."
       },
       "Filter": {
         "option": {
@@ -2950,6 +2954,10 @@
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
+    },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy skript obsahuje chyby syntaxe",
+      "message": "Chybová zpráva: {{message}} na řádku {{line}}."
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy skript neprošel bezpečností kontrolou!",

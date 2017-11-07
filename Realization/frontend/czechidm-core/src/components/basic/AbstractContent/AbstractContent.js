@@ -5,7 +5,7 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
 import PageHeader from '../PageHeader/PageHeader';
 import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
-import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '../../../redux/config/actions';
+import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
 
 /**
 * Basic content = page representation
@@ -22,6 +22,15 @@ export default class AbstractContent extends AbstractContextComponent {
   componentDidMount() {
     if (this.getNavigationKey()) {
       this.selectNavigationItem(this.getNavigationKey());
+    }
+    if (this.hideFooter()) {
+      this.context.store.dispatch(hideFooter(true));
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.hideFooter()) {
+      this.context.store.dispatch(hideFooter(false));
     }
   }
 
@@ -97,6 +106,49 @@ export default class AbstractContent extends AbstractContextComponent {
   }
 
   /**
+   * Reloads current route
+   */
+  reloadRoute() {
+    this.context.router.replace(this.context.store.getState().routing.location.pathname);
+  }
+
+  /**
+   * Makes redirect to error pages or show given error.
+   *
+   * @param  {error} error from BE
+   */
+  handleError(error) {
+    if (!error) {
+      return;
+    }
+    //
+    const message = {};
+    if (error.statusCode === 403) {
+      this.context.router.push('/error/403');
+      message.hidden = true;
+    } else if (error.statusCode === 404) {
+      if (error.parameters && error.parameters.entity) {
+        this.context.router.push(`/error/404?id=${error.parameters.entity}`);
+        message.hidden = true;
+      } else {
+        this.context.router.push(`/error/404`);
+        message.hidden = true;
+      }
+    }
+    //
+    this.addErrorMessage(message, error);
+  }
+
+  /**
+   * Hide footer on some contents.
+   *
+   * @return {bool} true - content footer will not be rendered
+   */
+  hideFooter() {
+    return false;
+  }
+
+  /**
    * Default Page header with page title based on navigation item
    *
    * @param {object} props PageHeader properties e.g. style, className
@@ -132,40 +184,6 @@ export default class AbstractContent extends AbstractContextComponent {
         <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
       </ContentHeader>
     );
-  }
-
-  /**
-   * Reloads current route
-   */
-  reloadRoute() {
-    this.context.router.replace(this.context.store.getState().routing.location.pathname);
-  }
-
-  /**
-   * Makes redirect to error pages or show given error.
-   *
-   * @param  {error} error from BE
-   */
-  handleError(error) {
-    if (!error) {
-      return;
-    }
-    //
-    const message = {};
-    if (error.statusCode === 403) {
-      this.context.router.push('/error/403');
-      message.hidden = true;
-    } else if (error.statusCode === 404) {
-      if (error.parameters && error.parameters.entity) {
-        this.context.router.push(`/error/404?id=${error.parameters.entity}`);
-        message.hidden = true;
-      } else {
-        this.context.router.push(`/error/404`);
-        message.hidden = true;
-      }
-    }
-    //
-    this.addErrorMessage(message, error);
   }
 }
 

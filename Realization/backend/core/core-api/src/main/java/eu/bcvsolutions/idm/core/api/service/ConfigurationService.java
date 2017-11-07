@@ -62,6 +62,7 @@ public interface ConfigurationService {
 	 * Default separator is supported {@link #PROPERTY_MULTIVALUED_SEPARATOR} only.
 	 * Values are trimmed automatically - e.g. key=value1, value2
 	 *  
+	 * @since 7.6.0
 	 * @param key
 	 * @return
 	 */
@@ -79,6 +80,7 @@ public interface ConfigurationService {
 	 * Sets multi values property.
 	 * Default separator is supported {@link ConfigurationService#PROPERTY_MULTIVALUED_SEPARATOR} only.
 	 * 
+	 * @since 7.6.0
 	 * @param key
 	 * @param values
 	 */

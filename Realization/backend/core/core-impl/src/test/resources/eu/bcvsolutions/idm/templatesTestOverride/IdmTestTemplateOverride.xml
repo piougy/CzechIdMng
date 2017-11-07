@@ -1,0 +1,20 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Template for tests
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
+	<name>Test notification template - override</name>
+	<code>testTemplateOverride</code>
+	<subject>CzechIdM - test isOverriden</subject>
+	<bodyHtml>
+<![CDATA[
+isOverriden
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

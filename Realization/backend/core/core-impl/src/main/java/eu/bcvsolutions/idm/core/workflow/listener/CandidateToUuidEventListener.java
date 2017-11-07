@@ -5,7 +5,6 @@ import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.delegate.event.impl.ActivitiEntityEventImpl;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -13,16 +12,15 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Listener call after task created. Convert task candidates from user name to identifier (UUID)
+ * 
  * @author svandav
  *
  */
-
-@Component
 public class CandidateToUuidEventListener implements ActivitiEventListener {
+	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CandidateToUuidEventListener.class);
 
-	@Autowired
-	private LookupService lookupService;
+	@Autowired private LookupService lookupService;
 
 	@Override
 	public void onEvent(ActivitiEvent event) {

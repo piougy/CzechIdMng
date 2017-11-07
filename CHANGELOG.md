@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+#### Core module
+
+- [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
+
 #### Acc module
 
 ### Changed
@@ -12,10 +16,14 @@ All notable changes to this project will be documented in this file.
 #### Core module
 
 ##### Identity
-- Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project. 
+- Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
 
 ##### Notification
 - ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
+
+##### Script
+
+- Methods ``IdmScriptService#getScriptByName``, ``IdmScriptService#getScriptByCode`` are deprecated and will be removed - use ``IdmScriptService#getByCode`` method instead.
 
 ### Removed
 

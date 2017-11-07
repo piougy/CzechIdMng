@@ -1,0 +1,18 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+	Test script 2, for testing backup, deploy, redeploy.
+-->
+<script>
+	<code>testScript3</code>
+	<name>Test script 3</name>
+	<body>
+		<![CDATA[
+String s3;
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>test3</parameters>
+	<allowClasses />
+    <services/>
+</script>

@@ -107,7 +107,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(connectorObject);
 		Assert.assertEquals(userOneName, connectorObject.getUidValue());
 		Assert.assertNotNull(connectorObject.getAttributeByName(eavAttributeName));
-		Assert.assertEquals(userOneName, connectorObject.getAttributeByName(eavAttributeName));
+		Assert.assertEquals(userOneName, connectorObject.getAttributeByName(eavAttributeName).getValue());
 
 	}
 
@@ -156,6 +156,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		resource.setLastname(code);
 		resource.setModified(modified);
 		resource.setStatus(code);
+		resource.setEavAttribute(code);
 
 		return resource;
 	}

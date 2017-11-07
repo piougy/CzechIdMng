@@ -24,42 +24,42 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 public interface AccAccountRepository extends AbstractEntityRepository<AccAccount> {
 	
-	@Query(value = "select e from AccAccount e left join e.systemEntity se " +
-	        " where" +
-	        " (?#{[0].id} is null or e.id = ?#{[0].id})" +
-	        " and" +
-	        " ("
-	        + " ?#{[0].text} is null "
-	        + " or lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-	        + " or lower(se.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-	        + " )" +
-	        " and" +
-	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +
-	        " and" +
-	        " (?#{[0].uid} is null or e.uid = ?#{[0].uid})" +
-	        " and" +
-	        " (?#{[0].systemEntityId} is null or se.id = ?#{[0].systemEntityId})" +
-	        " and" +
-	        " ((?#{[0].identityId} is null and ?#{[0].ownership} is null) or exists"
-	        	+ " ("
-	        	+ 	" from AccIdentityAccount ia where ia.account = e "
-	        		+ "	and (?#{[0].identityId} is null or ia.identity.id = ?#{[0].identityId})"
-	        		+ " and (?#{[0].ownership} is null or ia.ownership = ?#{[0].ownership})"
-	        	+ " )" +
-        	" )" +
-	        " and" +
-	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})" +
-	        " and" +   
-	        " ((?#{[0].supportChangePassword} is null or ?#{[0].supportChangePassword} = false) or exists"
-	        	+ " ("
-	        	  + " from SysSystemAttributeMapping sam join sam.systemMapping sm join sam.schemaAttribute sa where sm.objectClass.system = e.system "
-	        	  + " and sm.operationType = 'PROVISIONING'"
-	        	  + " and sa.name = '" + ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME + "'"
-	        	+ " )" +
-        	" )" +
-        	" and" +
-	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
-	Page<AccAccount> find(AccAccountFilter filter, Pageable pageable);
+//	@Query(value = "select e from AccAccount e left join e.systemEntity se " +
+//	        " where" +
+//	        " (?#{[0].id} is null or e.id = ?#{[0].id})" +
+//	        " and" +
+//	        " ("
+//	        + " ?#{[0].text} is null "
+//	        + " or lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+//	        + " or lower(se.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+//	        + " )" +
+//	        " and" +
+//	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +
+//	        " and" +
+//	        " (?#{[0].uid} is null or e.uid = ?#{[0].uid})" +
+//	        " and" +
+//	        " (?#{[0].systemEntityId} is null or se.id = ?#{[0].systemEntityId})" +
+//	        " and" +
+//	        " ((?#{[0].identityId} is null and ?#{[0].ownership} is null) or exists"
+//	        	+ " ("
+//	        	+ 	" from AccIdentityAccount ia where ia.account = e "
+//	        		+ "	and (?#{[0].identityId} is null or ia.identity.id = ?#{[0].identityId})"
+//	        		+ " and (?#{[0].ownership} is null or ia.ownership = ?#{[0].ownership})"
+//	        	+ " )" +
+//        	" )" +
+//	        " and" +
+//	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})" +
+//	        " and" +   
+//	        " ((?#{[0].supportChangePassword} is null or ?#{[0].supportChangePassword} = false) or exists"
+//	        	+ " ("
+//	        	  + " from SysSystemAttributeMapping sam join sam.systemMapping sm join sam.schemaAttribute sa where sm.objectClass.system = e.system "
+//	        	  + " and sm.operationType = 'PROVISIONING'"
+//	        	  + " and sa.name = '" + ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME + "'"
+//	        	+ " )" +
+//        	" )" +
+//        	" and" +
+//	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
+//	Page<AccAccount> find(AccAccountFilter filter, Pageable pageable);
 	
 	/**
 	 * 

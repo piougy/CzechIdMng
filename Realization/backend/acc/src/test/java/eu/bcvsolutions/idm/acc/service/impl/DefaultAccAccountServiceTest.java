@@ -1,13 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
-import org.apache.http.util.Asserts;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Assert;
@@ -15,43 +11,31 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
-import eu.bcvsolutions.idm.acc.entity.TestContractResource;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.security.evaluator.AccountByIdentityEvaluator;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -76,6 +60,12 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 	private EntityManager entityManager;
 	@Autowired
 	private ApplicationContext applicationContext;
+	@Autowired
+	private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired
+	private AccIdentityAccountService identityAccountService;
+	@Autowired
+	private LoginService loginService;
 
 	@Before
 	public void init() {
@@ -94,6 +84,18 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		String eavAttributeName = "EAV_ATTRIBUTE";
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		// Create role with evaluator
+		IdmRoleDto role = helper.createRole();
+		IdmAuthorizationPolicyDto policyAccount = new IdmAuthorizationPolicyDto();
+		policyAccount.setRole(role.getId());
+		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
+		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
+		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		authorizationPolicyService.save(policyAccount);
+
 		// Change resources (set state on exclude) .. must be call in transaction
 		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
 		AccAccountDto account = new AccAccountDto();
@@ -102,6 +104,63 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		account.setAccountType(AccountType.PERSONAL);
 		account.setUid(userOneName);
 		account = accountService.save(account);
+
+		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();
+		accountIdentityOne.setIdentity(identity.getId());
+		accountIdentityOne.setOwnership(true);
+		accountIdentityOne.setAccount(account.getId());
+		accountIdentityOne = identityAccountService.save(accountIdentityOne);
+
+		// Assign role with evaluator
+		helper.createIdentityRole(identity, role);
+
+		logout();
+		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		Assert.assertNotNull(connectorObject);
+		Assert.assertEquals(userOneName, connectorObject.getUidValue());
+		Assert.assertNotNull(connectorObject.getAttributeByName(eavAttributeName));
+		Assert.assertEquals(userOneName, connectorObject.getAttributeByName(eavAttributeName).getValue());
+
+	}
+
+	/**
+	 * We do not create relation Identity account ... we must not have the
+	 * permissions on the account
+	 */
+	@Test(expected = ForbiddenEntityException.class)
+	public void getConnectorObjectForbiddenTest() {
+		String userOneName = "UserOne";
+		String eavAttributeName = "EAV_ATTRIBUTE";
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		// Create role with evaluator
+		IdmRoleDto role = helper.createRole();
+		IdmAuthorizationPolicyDto policyAccount = new IdmAuthorizationPolicyDto();
+		policyAccount.setRole(role.getId());
+		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
+		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
+		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		authorizationPolicyService.save(policyAccount);
+
+		// Change resources (set state on exclude) .. must be call in transaction
+		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
+		AccAccountDto account = new AccAccountDto();
+		account.setEntityType(SystemEntityType.IDENTITY);
+		account.setSystem(system.getId());
+		account.setAccountType(AccountType.PERSONAL);
+		account.setUid(userOneName);
+		account = accountService.save(account);
+
+		// Assign role with evaluator
+		helper.createIdentityRole(identity, role);
+
+		logout();
+		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 
 		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
 		Assert.assertNotNull(connectorObject);
@@ -118,7 +177,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		SysSystemDto system = initData();
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
-		// Find and delete EAV schema attribute. 
+		// Find and delete EAV schema attribute.
 		SysSchemaAttributeDto eavAttribute = schemaAttributeService.find(schemaAttributeFilter, null).getContent()
 				.stream().filter(attribute -> attribute.getName().equalsIgnoreCase(eavAttributeName)).findFirst()
 				.orElse(null);
@@ -133,6 +192,81 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		account.setAccountType(AccountType.PERSONAL);
 		account.setUid(userOneName);
 		account = accountService.save(account);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();
+		accountIdentityOne.setIdentity(identity.getId());
+		accountIdentityOne.setOwnership(true);
+		accountIdentityOne.setAccount(account.getId());
+		accountIdentityOne = identityAccountService.save(accountIdentityOne);
+
+		// Create role with evaluator
+		IdmRoleDto role = helper.createRole();
+		IdmAuthorizationPolicyDto policyAccount = new IdmAuthorizationPolicyDto();
+		policyAccount.setRole(role.getId());
+		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
+		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
+		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		authorizationPolicyService.save(policyAccount);
+
+		// Assign role with evaluator
+		helper.createIdentityRole(identity, role);
+
+		logout();
+		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		Assert.assertNotNull(connectorObject);
+		Assert.assertEquals(userOneName, connectorObject.getUidValue());
+		// EAV attribute must be null, because we deleted the schema definition
+		Assert.assertNull(connectorObject.getAttributeByName(eavAttributeName));
+
+	}
+
+	/**
+	 * We do not create relation Identity account ... we must not have the
+	 * permissions on the account
+	 */
+	@Test(expected = ForbiddenEntityException.class)
+	public void getConnectorObjectNotFullForbiddenTest() {
+		String userOneName = "UserOne";
+		String eavAttributeName = "EAV_ATTRIBUTE";
+		SysSystemDto system = initData();
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+		// Find and delete EAV schema attribute.
+		SysSchemaAttributeDto eavAttribute = schemaAttributeService.find(schemaAttributeFilter, null).getContent()
+				.stream().filter(attribute -> attribute.getName().equalsIgnoreCase(eavAttributeName)).findFirst()
+				.orElse(null);
+		Assert.assertNotNull(eavAttribute);
+		schemaAttributeService.delete(eavAttribute);
+		Assert.assertNotNull(system);
+		// Change resources (set state on exclude) .. must be call in transaction
+		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
+		AccAccountDto account = new AccAccountDto();
+		account.setEntityType(SystemEntityType.IDENTITY);
+		account.setSystem(system.getId());
+		account.setAccountType(AccountType.PERSONAL);
+		account.setUid(userOneName);
+		account = accountService.save(account);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		// Create role with evaluator
+		IdmRoleDto role = helper.createRole();
+		IdmAuthorizationPolicyDto policyAccount = new IdmAuthorizationPolicyDto();
+		policyAccount.setRole(role.getId());
+		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
+		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
+		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		authorizationPolicyService.save(policyAccount);
+
+		// Assign role with evaluator
+		helper.createIdentityRole(identity, role);
+
+		logout();
+		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 
 		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
 		Assert.assertNotNull(connectorObject);

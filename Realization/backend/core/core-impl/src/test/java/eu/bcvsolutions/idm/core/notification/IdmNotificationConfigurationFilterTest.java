@@ -95,6 +95,12 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 		assertEquals(notification.getId(), result.getContent().get(0).getId());
 	}
 
+	/**
+	 * Creates notification configuration, saves it in service and returns it
+	 * 
+	 * @return
+	 * 
+	 */
 	private NotificationConfigurationDto createNotification(NotificationLevel level, String topic,
 			String notificationType, UUID templateId) {
 		NotificationConfigurationDto notification = new NotificationConfigurationDto();
@@ -106,6 +112,11 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 		return notification;
 	}
 
+	/**
+	 * Creates and returns notification template
+	 * 
+	 * @return
+	 */
 	private IdmNotificationTemplateDto createTemplate(String name, String code, String subject) {
 		IdmNotificationTemplateDto templ = new IdmNotificationTemplateDto();
 		templ.setName(name);

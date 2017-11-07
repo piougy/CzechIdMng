@@ -183,7 +183,7 @@ public class DefaultIdmNotificationConfigurationService
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//topic of notification configuration
 		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.like(builder.lower(root.get(IdmNotificationConfiguration_.topic)),( "%" + filter.getText() + "%")));
+			predicates.add(builder.like(builder.lower(root.get(IdmNotificationConfiguration_.topic)),( "%" + filter.getText().toLowerCase() + "%")));
 		}
 		//level of notification configuration
 		if (filter.getLevel() != null) {
@@ -191,7 +191,7 @@ public class DefaultIdmNotificationConfigurationService
 		}
 		//notification type of notification configuration
 		if (StringUtils.isNotEmpty(filter.getNotificationType())) {
-			predicates.add(builder.like(builder.lower(root.get(IdmNotificationConfiguration_.notificationType)), "%" + filter.getNotificationType() + "%"));
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.notificationType), filter.getNotificationType()));
 		}
 		//template uuid of notification configuration
 		if (filter.getTemplate() != null) {

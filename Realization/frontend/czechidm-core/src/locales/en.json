@@ -604,7 +604,9 @@
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
-      "WORKFLOWDEFINITION": "Workflow - definitions"
+      "WORKFLOWDEFINITION": "Workflow - definitions",
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+
     }
   },
   "content": {
@@ -1151,7 +1153,7 @@
       },
       "edit": {
         "title": "Detail of storage",
-        "header": "{{name}} Detail of storage"
+        "header": "Detail encrypted value"
       }
     },
     "scripts": {
@@ -2067,7 +2069,9 @@
       "ownerId": "Owner Id",
       "key": "Key",
       "ownerType": "Owner type",
-      "serializableValue": "Value"
+      "serializableValue": "Value",
+      "created": "Date of creation",
+      "originalCreator": "Name of creator"
     },
     "Script": {
       "name": "Script name",

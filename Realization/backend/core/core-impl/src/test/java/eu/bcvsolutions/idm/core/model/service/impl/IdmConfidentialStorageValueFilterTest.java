@@ -50,7 +50,7 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 	public void testOwnerIdFilter() {
 		IdmIdentityDto human = testHelper.createIdentity();
 		String key = "test001";
-		createValue(human, IdmIdentity.class,key, UUID.randomUUID());
+		createValue(human, IdmIdentity.class, key, UUID.randomUUID());
 		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
 		filter.setOwnerId(human.getId());
 		filter.setKey(key);
@@ -64,7 +64,7 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 	public void testOwnerTypeFilter() {
 		IdmIdentityDto human = testHelper.createIdentity();
 		String key = "test002";
-		createValue(human, IdmIdentity.class,key, UUID.randomUUID());
+		createValue(human, IdmIdentity.class, key, UUID.randomUUID());
 		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
 		filter.setOwnerType(IdmIdentity.class.getName());
 		filter.setKey(key);
@@ -73,7 +73,7 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		assertEquals(1, result.getTotalElements());
 		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
 	}
-	
+
 	@Test
 	public void testKeyFilter() {
 		IdmIdentityDto human = testHelper.createIdentity();
@@ -85,7 +85,8 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		Serializable serializable = defaultStorageService.get(human.getId(), IdmIdentity.class, key);
 		assertEquals(1, result.getTotalElements());
 		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
-	}  
+	}
+
 	@Test
 	public void testTextFilter() {
 		IdmIdentityDto human = testHelper.createIdentity();
@@ -97,9 +98,15 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		Serializable serializable = defaultStorageService.get(human.getId(), IdmIdentity.class, key);
 		assertEquals(1, result.getTotalElements());
 		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
-	} 
-	
-	private void createValue(Identifiable owner, Class<? extends Identifiable> ownerType, String key, Serializable value) {
+	}
+
+	/**
+	 * Creates record in confidential storage repository
+	 * 
+	 * @param owner, ownerType, key, value
+	 */
+	private void createValue(Identifiable owner, Class<? extends Identifiable> ownerType, String key,
+			Serializable value) {
 		defaultStorageService.save(UUID.fromString(owner.getId().toString()), ownerType, key, value);
 	}
 }

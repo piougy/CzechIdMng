@@ -5,7 +5,9 @@ import { ConfidentialStorageValueManager } from '../../redux';
 import ConfidentialStorageValueTable from './ConfidentialStorageValueTable';
 
 /**
-* Content with all
+* Content with all confidential storage values
+*
+* @author Patrik Stloukal
 */
 class ConfidentialStorageValues extends Basic.AbstractContent {
 

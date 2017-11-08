@@ -9,6 +9,8 @@ const confidentialStorageValueManager = new ConfidentialStorageValueManager();
 
 /**
  * Confidential storage value detail content
+ *
+ * @author Patrik Stloukal
  */
 class ConfidentialStorageValueContent extends Basic.AbstractContent {
 
@@ -45,7 +47,7 @@ class ConfidentialStorageValueContent extends Basic.AbstractContent {
           !entity
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:clone"/>
+            <Basic.Icon value="fa:lock"/>
             {' '}
             {
               <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>

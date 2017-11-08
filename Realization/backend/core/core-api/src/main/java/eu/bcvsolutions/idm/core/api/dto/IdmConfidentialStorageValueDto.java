@@ -26,18 +26,12 @@ public class IdmConfidentialStorageValueDto extends AbstractDto {
 	private String ownerType;
 
 	private String key;
-	
+
 	@JsonIgnore
 	private byte[] value;
-	
+
+	@JsonProperty(access = Access.READ_ONLY)
 	private Serializable serializableValue;
-
-	public IdmConfidentialStorageValueDto() {
-	}
-
-	public IdmConfidentialStorageValueDto(UUID id) {
-		super(id);
-	}
 
 	public UUID getOwnerId() {
 		return ownerId;
@@ -78,7 +72,5 @@ public class IdmConfidentialStorageValueDto extends AbstractDto {
 	public void setSerializableValue(Serializable serializableValue) {
 		this.serializableValue = serializableValue;
 	}
-	
-	
 
 }

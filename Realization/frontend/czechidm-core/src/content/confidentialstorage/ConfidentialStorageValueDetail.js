@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import { ConfidentialStorageValueManager } from '../../redux';
 
 /**
@@ -11,15 +10,13 @@ import { ConfidentialStorageValueManager } from '../../redux';
  * * key
  * * value
  *
+ * @author Patrik Stloukal
  */
 export default class ConfidentialStorageValueDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
     this.confidentialStorageValueManager = new ConfidentialStorageValueManager();
-    this.state = {
-      showLoading: false
-    };
   }
 
   getContentKey() {
@@ -33,7 +30,7 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
   }
 
   /**
-   * Method check if props in this component is'nt different from new props.
+   * Method check if props in this component isn't different from new props.
    */
   componentWillReceiveProps(nextProps) {
     // check id of old and new entity
@@ -56,7 +53,6 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
 
   render() {
     const { uiKey} = this.props;
-    const { showLoading } = this.state;
     return (
       <div>
           <Basic.AbstractForm
@@ -79,13 +75,26 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
           </Basic.Row>
           <Basic.TextField ref="key" label={this.i18n('entity.ConfidentialStorageValue.key')} />
           <Basic.TextField ref="serializableValue" label={this.i18n('entity.ConfidentialStorageValue.serializableValue')} />
+          <Basic.Row>
+            <div className="col-lg-6">
+            <Basic.TextField
+              ref="originalCreator"
+              readOnly
+              label={this.i18n('entity.ConfidentialStorageValue.originalCreator')}
+              />
+          </div>
+            <div className="col-lg-6">
+            <Basic.DateTimePicker
+              ref="created"
+              readOnly
+              label={this.i18n('entity.ConfidentialStorageValue.created')}
+              timeFormat={ this.i18n('format.times') }/>
+          </div>
+          </Basic.Row>
           </Basic.AbstractForm>
-
-          <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+          <Basic.PanelFooter>
+          <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
           </Basic.PanelFooter>
-          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-          <input type="submit" className="hidden"/>
       </div>
     );
   }

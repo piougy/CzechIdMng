@@ -3,17 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [7.6.0] unreleased
 
-### Added
+### Removed
 
-#### Core module
+##### Role request
+- Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
 
-- [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
-
-#### Acc module
+##### Evaluator 'IdentityAccountByIdentityEvaluator'
+- Evaluator 'IdentityAccountByIdentityEvaluator' was removed and replaced by 'IdentityAccountByAccountEvaluator'.
 
 ### Changed
-
-#### Core module
 
 ##### Identity
 - Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
@@ -25,13 +23,10 @@ All notable changes to this project will be documented in this file.
 
 - Methods ``IdmScriptService#getScriptByName``, ``IdmScriptService#getScriptByCode`` are deprecated and will be removed - use ``IdmScriptService#getByCode`` method instead.
 
-### Removed
+### Added
 
-##### Role request
-- Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
+- [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
 
-##### Evaluator 'IdentityAccountByIdentityEvaluator'
-- Evaluator 'IdentityAccountByIdentityEvaluator' was removed and replaced by 'IdentityAccountByAccountEvaluator'.
 
 ## [7.5.2]
 

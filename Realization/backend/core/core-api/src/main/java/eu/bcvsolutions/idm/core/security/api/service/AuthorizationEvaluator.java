@@ -95,7 +95,7 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered,
 	boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission);
 	
 	/**
-	 * Returns true, when 
+	 * Returns true, when evaluator supports base permissions from ui
 	 * 
 	 * @return
 	 */

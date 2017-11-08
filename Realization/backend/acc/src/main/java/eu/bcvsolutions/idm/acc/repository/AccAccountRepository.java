@@ -10,10 +10,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -24,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 public interface AccAccountRepository extends AbstractEntityRepository<AccAccount> {
 	
-
 	/**
 	 * 
 	 * @param system
@@ -46,7 +43,9 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	 * 
 	 * @param systemEntity
 	 * @return
+	 * @deprecated Will be removed - skips audit
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update #{#entityName} e set e.systemEntity = null where e.systemEntity.id = :systemEntityId")
 	int clearSystemEntity(@Param("systemEntityId") UUID systemEntityId);

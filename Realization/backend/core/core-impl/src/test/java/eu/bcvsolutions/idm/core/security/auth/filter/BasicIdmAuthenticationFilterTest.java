@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * Test authentication using the basic scheme. 
+ * 
  * @author Jan Helbich
  */
 public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
@@ -41,5 +42,4 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 				.contentType(HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
-
 }

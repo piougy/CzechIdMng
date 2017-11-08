@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface IdmAuthenticationFilter {
 	
-	public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+	static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+	
+	static final String AUTHENTICATION_TOKEN_NAME = "cidmst";
 
 	/**
 	 * Authenticate user based on authorization token in HTTP header.
@@ -27,7 +29,7 @@ public interface IdmAuthenticationFilter {
 	 * @return
 	 * 		Whether the authorization was successful
 	 */
-	public boolean authorize(String token, HttpServletRequest request, HttpServletResponse response);
+	boolean authorize(String token, HttpServletRequest request, HttpServletResponse response);
 	
 	/**
 	 * Return the name of HTTP header carrying the Authorization token.
@@ -38,6 +40,17 @@ public interface IdmAuthenticationFilter {
 	 */
 	default String getAuthorizationHeaderName() {
 		return AUTHORIZATION_HEADER_NAME;
+	}
+	
+	/**
+	 * Return the name of url parameter (GET) carrying the Authorization token.
+	 * Default is "cidmst".
+	 * 
+	 * @return token parameter name
+	 * @since 7.6.0
+	 */
+	default String getTokenParameterName() {
+		return TOKEN_PARAMETER_NAME;
 	}
 	
 	/**

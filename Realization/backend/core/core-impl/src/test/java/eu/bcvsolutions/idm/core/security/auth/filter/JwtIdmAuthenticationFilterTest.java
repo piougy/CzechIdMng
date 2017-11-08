@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
+import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -27,6 +28,7 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * JWT authentication test.
+ * 
  * @author Jan Helbich
  *
  */
@@ -51,6 +53,19 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 			.andExpect(content().contentType(HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_ADMIN_USERNAME)));
 	}
+	
+	@Test
+	public void testAuthSuccessWithUrlToken() throws Exception {
+		String token = getAuthToken(AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
+				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority())));
+		
+		getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
+				.param(IdmAuthenticationFilter.TOKEN_PARAMETER_NAME, token)
+				.contentType(HAL_CONTENT_TYPE))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TEST_ADMIN_USERNAME)));
+	}
 
 	@Test
 	public void testTokenModified() throws Exception {
@@ -70,8 +85,12 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 			.andExpect(status().is(403));
 	}
 	
+	@Test
+	public void testTokenUrlParameter() {
+		
+	}
+	
 	protected String getAuthToken(IdmJwtAuthenticationDto d) throws IOException {
 		return jwtMapper.writeToken(d);
 	}
-
 }

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.security.api.auth.filter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -28,9 +30,12 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * and authentication flow.
  *
  * @author Jan Helbich
+ * @author Radek Tomiška
  */
 public class AuthenticationFilter extends GenericFilterBean {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationFilter.class);
+	//
 	@Autowired private SecurityService securityService;
 	@Autowired private List<IdmAuthenticationFilter> filters;
 	@Autowired private EnabledEvaluator enabledEvaluator;
@@ -68,7 +73,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 
 		// transform the token from all matching auth. headers and find first successful
 		Optional<String> succToken = HttpFilterUtils
-				.filterTransformHeaders(getAuthHeader(req, filter), filter.getAuthorizationHeaderPrefix())
+				.filterTransformHeaders(getTokens(req, filter), filter.getAuthorizationHeaderPrefix())
 				.stream()
 				.filter(token -> filter.authorize(token, req, res))
 				.findFirst();
@@ -88,8 +93,18 @@ public class AuthenticationFilter extends GenericFilterBean {
 		return securityService.isAuthenticated();
 	}
 
-	private List<String> getAuthHeader(HttpServletRequest request, IdmAuthenticationFilter filter) {
-		return HttpFilterUtils.getHeaders(request, filter.getAuthorizationHeaderName());
+	private List<String> getTokens(HttpServletRequest request, IdmAuthenticationFilter filter) {
+		List<String> tokens = new ArrayList<>();
+		String token = request.getParameter(filter.getTokenParameterName());
+		if (StringUtils.isNotBlank(token)) {
+			LOG.trace("Authorization token found in url parameter [{}].", filter.getTokenParameterName());
+			tokens.add(token);
+		}
+		tokens.addAll(HttpFilterUtils.getHeaders(request, filter.getAuthorizationHeaderName()));
+		//
+		LOG.trace("Authorization token found [{}].", tokens.size());
+		//
+		return tokens;
 	}
 
 }

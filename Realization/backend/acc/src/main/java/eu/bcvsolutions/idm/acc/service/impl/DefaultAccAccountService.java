@@ -59,7 +59,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -81,7 +80,8 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
  *
  */
 @Service("accAccountService")
-public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAccountDto, AccAccount, AccAccountFilter>
+public class DefaultAccAccountService 
+		extends AbstractReadWriteDtoService<AccAccountDto, AccAccount, AccAccountFilter>
 		implements AccAccountService {
 
 	private final AccAccountRepository accountRepository;
@@ -132,6 +132,11 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		this.systemService = systemService;
 		this.schemaAttributeService = schemaAttributeService;
 		this.schemaObjectClassService = schemaObjectClassService;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.ACCOUNT, getEntityClass());
 	}
 
 	@Override
@@ -297,18 +302,9 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 	}
 
 	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.ACCOUNT, getEntityClass());
-	}
-
-	@Override
 	protected List<Predicate> toPredicates(Root<AccAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			AccAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
-		}
 		// full search
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(//

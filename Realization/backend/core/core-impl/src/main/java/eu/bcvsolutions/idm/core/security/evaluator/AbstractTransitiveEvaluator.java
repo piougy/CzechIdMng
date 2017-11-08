@@ -37,7 +37,7 @@ public abstract class AbstractTransitiveEvaluator<E extends Identifiable> extend
 	protected abstract Class<? extends Identifiable> getOwnerType();
 	
 	/**
-	 * Transitive evaluator doesn't support base perrmissions from ui
+	 * Transitive evaluator doesn't support base permissions from ui
 	 * 
 	 * @see #getAuthorities(UUID, AuthorizationPolicy)
 	 * @see #getPermissions(Identifiable, AuthorizationPolicy)

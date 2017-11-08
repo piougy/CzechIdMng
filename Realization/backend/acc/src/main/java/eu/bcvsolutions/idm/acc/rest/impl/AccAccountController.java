@@ -235,8 +235,8 @@ public class AccAccountController extends DefaultReadWriteDtoController<AccAccou
 	
 	@Override
 	protected AccAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		AccAccountFilter filter = new AccAccountFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
+		AccAccountFilter filter = new AccAccountFilter(parameters);
+		//
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setSystemEntityId(getParameterConverter().toUuid(parameters, "systemEntityId"));
 		//

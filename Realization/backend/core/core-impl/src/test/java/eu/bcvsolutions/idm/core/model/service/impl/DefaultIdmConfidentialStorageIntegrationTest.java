@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Tests for "naive" confidential storage (values are persisted in standard database)
@@ -37,7 +36,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	private static final String STORAGE_KEY_ONE = "test_key_one";
 	private static final String STORAGE_KEY_TWO = "test_key_two";
 	//
-	@Autowired private TestHelper helper;
 	@Autowired private IdmConfidentialStorageValueRepository repository;
 	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private CryptService cryptService;

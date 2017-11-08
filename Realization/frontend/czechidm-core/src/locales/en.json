@@ -2332,6 +2332,7 @@
       "name": "Name",
       "code": "Code",
       "subject": "Subject",
+      "_type": "Notification Template",
       "parameter": {
         "name": "Parameters",
         "help": "List of template parameters. Parameters separate by comma."

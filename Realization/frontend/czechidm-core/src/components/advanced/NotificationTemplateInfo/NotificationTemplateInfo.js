@@ -7,6 +7,7 @@ import * as Basic from '../../basic';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux/';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import UiUtils from '../../../utils/UiUtils';
 
 const manager = new NotificationTemplateManager();
 
@@ -37,41 +38,52 @@ export class NotificationTemplateInfo extends AbstractEntityInfo {
     return true;
   }
 
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
-    //
-    if (!rendered) {
-      return null;
-    }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    const classNames = classnames(
-      'notification-template-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+  getLink() {
+    return `/notification/templates/${encodeURIComponent(this.getEntityId())}`;
+  }
+
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'fa:envelope-square';
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('entity.NotificationTemplate._type');
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    return [
+      {
+        label: this.i18n('entity.NotificationTemplate.name'),
+        value: entity.name
+      },
+      {
+        label: this.i18n('entity.NotificationTemplate.code'),
+        value: entity.code
+      },
+      {
+        label: this.i18n('entity.NotificationTemplate.subject'),
+        value: UiUtils.substringBegin(entity.subject, 30, ' ')
+      },
+      {
+        label: this.i18n('entity.NotificationTemplate.bodyText'),
+        value: UiUtils.substringBegin(entity.bodyText, 30, ' ')
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={`notification/templates/${entityIdentifier}`}>{manager.getNiceLabel(_entity)}</Link>
-    );
+    ];
   }
 }
 

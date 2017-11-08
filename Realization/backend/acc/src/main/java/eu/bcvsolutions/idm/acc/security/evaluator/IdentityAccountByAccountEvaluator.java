@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -21,25 +21,26 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to identity accounts by identity
+ * Permissions to identity accounts by account
  * 
  * @author Radek Tomiška
+ * @author svandav
  */
 @Component
-@Description("Permissions to identity accounts by identity")
-public class IdentityAccountByIdentityEvaluator extends AbstractTransitiveEvaluator<AccIdentityAccount> {
+@Description("Permissions to identity accounts by account")
+public class IdentityAccountByAccountEvaluator extends AbstractTransitiveEvaluator<AccIdentityAccount> {
 
 	@Autowired private AuthorizationManager authorizationManager;
 	@Autowired private SecurityService securityService;
 	
 	@Override
 	protected Identifiable getOwner(AccIdentityAccount entity) {
-		return entity.getIdentity();
+		return entity.getAccount();
 	}
 	
 	@Override
 	protected Class<? extends Identifiable> getOwnerType() {
-		return IdmIdentity.class;
+		return AccAccount.class;
 	}
 	
 	@Override
@@ -48,12 +49,12 @@ public class IdentityAccountByIdentityEvaluator extends AbstractTransitiveEvalua
 			return null;
 		}
 		// identity subquery
-		Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
-		Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
+		Subquery<AccAccount> subquery = query.subquery(AccAccount.class);
+		Root<AccAccount> subRoot = subquery.from(AccAccount.class);
 		subquery.select(subRoot);		
 		subquery.where(builder.and(
 				authorizationManager.getPredicate(subRoot, query, builder, permission),
-				builder.equal(root.get(AccIdentityAccount_.identity), subRoot) // correlation attribute
+				builder.equal(root.get(AccIdentityAccount_.account), subRoot) // correlation attribute
 				));
 		//
 		return builder.exists(subquery);

@@ -1,12 +1,17 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.identityconnectors.framework.common.objects.ObjectClass;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +25,10 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -31,7 +38,15 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccContractAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -44,15 +59,17 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
-import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 
 /**
@@ -115,14 +132,6 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		this.systemService = systemService;
 		this.schemaAttributeService = schemaAttributeService;
 		this.schemaObjectClassService = schemaObjectClassService;
-	}
-
-	@Override
-	protected Page<AccAccount> findEntities(AccAccountFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return accountRepository.findAll(pageable);
-		}
-		return accountRepository.find(filter, pageable);
 	}
 
 	@Override
@@ -234,36 +243,42 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		Assert.notNull(account, "Account cannot be null!");
 		this.checkAccess(account, IdmBasePermission.READ);
 		List<SysSchemaAttributeDto> schemaAttributes = this.getSchemaAttributes(account.getSystem(), null);
-		if(schemaAttributes == null) {
+		if (schemaAttributes == null) {
 			return null;
 		}
-		IcConnectorObject fullObject = this.systemService.readConnectorObject(account.getSystem(), account.getRealUid(), null);
+		IcConnectorObject fullObject = this.systemService.readConnectorObject(account.getSystem(), account.getRealUid(),
+				null);
 		return this.getConnectorObjectForSchema(fullObject, schemaAttributes);
 	}
 
 	/**
 	 * Return only attributes for witch we have schema attribute definitions.
+	 * 
 	 * @param fullObject
 	 * @param schemaAttributes
 	 * @return
 	 */
 	private IcConnectorObject getConnectorObjectForSchema(IcConnectorObject fullObject,
 			List<SysSchemaAttributeDto> schemaAttributes) {
-		if(fullObject == null || schemaAttributes == null) {
+		if (fullObject == null || schemaAttributes == null) {
 			return null;
 		}
 
 		List<IcAttribute> allAttributes = fullObject.getAttributes();
 		List<IcAttribute> resultAttributes = allAttributes.stream().filter(attribute -> {
-			return schemaAttributes.stream().filter(schemaAttribute -> attribute.getName().equals(schemaAttribute.getName())).findFirst().isPresent();
+			return schemaAttributes.stream()
+					.filter(schemaAttribute -> attribute.getName().equals(schemaAttribute.getName())).findFirst()
+					.isPresent();
 		}).collect(Collectors.toList());
-		return new IcConnectorObjectImpl(fullObject.getUidValue(),fullObject.getObjectClass(), resultAttributes);
+		return new IcConnectorObjectImpl(fullObject.getUidValue(), fullObject.getObjectClass(), resultAttributes);
 	}
 
 	/**
 	 * Find schema's attributes for the system id and schema name.
+	 * 
 	 * @param systemId
-	 * @param schema - If is schema name null, then will used default '__ACCOUNT__'.
+	 * @param schema
+	 *            - If is schema name null, then will used default '__ACCOUNT__'.
 	 * @return
 	 */
 	private List<SysSchemaAttributeDto> getSchemaAttributes(UUID systemId, String schema) {
@@ -279,6 +294,98 @@ public class DefaultAccAccountService extends AbstractReadWriteDtoService<AccAcc
 		schemaAttributeFilter.setObjectClassId(schemas.get(0).getId());
 		schemaAttributeFilter.setSystemId(systemId);
 		return schemaAttributeService.find(schemaAttributeFilter, null).getContent();
+	}
+
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.ACCOUNT, getEntityClass());
+	}
+
+	@Override
+	protected List<Predicate> toPredicates(Root<AccAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			AccAccountFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// id
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
+		}
+		// full search
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(//
+					builder.like(builder.lower(root.get(AccAccount_.uid)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(AccAccount_.systemEntity).get(SysSystemEntity_.uid)),
+							"%" + filter.getText().toLowerCase() + "%")));
+		}
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(AccAccount_.system).get(SysSystem_.id), filter.getSystemId()));
+		}
+		if (filter.getSystemEntityId() != null) {
+			predicates.add(builder.equal(root.get(AccAccount_.systemEntity).get(SysSystemEntity_.id),
+					filter.getSystemEntityId()));
+		}
+		if (filter.getUid() != null) {
+			predicates.add(builder.equal(root.get(AccAccount_.uid), filter.getUid()));
+		}
+		if (filter.getIdentityId() != null || filter.getOwnership() != null) {
+			Subquery<AccIdentityAccount> identityAccountSubquery = query.subquery(AccIdentityAccount.class);
+			Root<AccIdentityAccount> subRootIdentityAccount = identityAccountSubquery.from(AccIdentityAccount.class);
+			identityAccountSubquery.select(subRootIdentityAccount);
+
+			Predicate predicate = builder
+					.and(builder.equal(subRootIdentityAccount.get(AccIdentityAccount_.account), root));
+			Predicate identityPredicate = builder.equal(
+					subRootIdentityAccount.get(AccIdentityAccount_.identity).get(IdmIdentity_.id),
+					filter.getIdentityId());
+			Predicate ownerPredicate = builder.equal(subRootIdentityAccount.get(AccIdentityAccount_.ownership),
+					filter.getOwnership());
+
+			if (filter.getIdentityId() != null && filter.getOwnership() == null) {
+				predicate = builder.and(predicate, identityPredicate);
+			} else if (filter.getOwnership() != null && filter.getIdentityId() == null) {
+				predicate = builder.and(predicate, ownerPredicate);
+			} else {
+				predicate = builder.and(predicate, identityPredicate, ownerPredicate);
+			}
+
+			identityAccountSubquery.where(predicate);
+			predicates.add(builder.exists(identityAccountSubquery));
+		}
+		if (filter.getAccountType() != null) {
+			predicates.add(builder.equal(root.get(AccAccount_.accountType), filter.getAccountType()));
+		}
+		
+		if (filter.getSupportChangePassword() != null && filter.getSupportChangePassword()) {
+			Subquery<SysSystemAttributeMapping> systemAttributeMappingSubquery = query
+					.subquery(SysSystemAttributeMapping.class);
+			Root<SysSystemAttributeMapping> subRootSystemAttributeMapping = systemAttributeMappingSubquery
+					.from(SysSystemAttributeMapping.class);
+			systemAttributeMappingSubquery.select(subRootSystemAttributeMapping);
+
+			Predicate predicate = builder.and(builder.equal(
+					subRootSystemAttributeMapping//
+					.get(SysSystemAttributeMapping_.schemaAttribute)//
+					.get(SysSchemaAttribute_.objectClass)//
+					.get(SysSchemaObjectClass_.system),//
+					root.get(AccAccount_.system)),
+					builder.equal(subRootSystemAttributeMapping//
+							.get(SysSystemAttributeMapping_.systemMapping)//
+							.get(SysSystemMapping_.operationType), SystemOperationType.PROVISIONING),
+					builder.equal(subRootSystemAttributeMapping//
+							.get(SysSystemAttributeMapping_.schemaAttribute)//
+							.get(SysSchemaAttribute_.name), ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)
+					);
+
+			systemAttributeMappingSubquery.where(predicate);
+			predicates.add(builder.exists(systemAttributeMappingSubquery));
+		}
+
+		if (filter.getEntityType() != null) {
+			predicates.add(builder.equal(root.get(AccAccount_.entityType), filter.getEntityType()));
+		}
+
+		//
+		return predicates;
+
 	}
 
 }

@@ -51,6 +51,14 @@ export default class AccountService extends Services.AbstractService {
       });
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'ACCOUNT';
+  }
+
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('systemEntity.uid');
   }

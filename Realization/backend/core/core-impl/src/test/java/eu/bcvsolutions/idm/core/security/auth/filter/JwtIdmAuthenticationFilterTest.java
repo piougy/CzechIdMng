@@ -85,11 +85,6 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 			.andExpect(status().is(403));
 	}
 	
-	@Test
-	public void testTokenUrlParameter() {
-		
-	}
-	
 	protected String getAuthToken(IdmJwtAuthenticationDto d) throws IOException {
 		return jwtMapper.writeToken(d);
 	}

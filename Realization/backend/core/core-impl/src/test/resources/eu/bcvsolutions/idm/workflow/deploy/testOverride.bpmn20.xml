@@ -4,7 +4,7 @@
              xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
              typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
              targetNamespace="http://www.bcvsolutions.eu/testDeployAndRun">
-  <process id="testEmailer" name="Process for test deploy and run Override" isExecutable="true">
+  <process id="testOverride" name="Process for test deploy and run" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="mailtask1"></sequenceFlow>

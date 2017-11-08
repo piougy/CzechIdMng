@@ -15,14 +15,15 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
 
 /**
  * Test deploy and run process with groovy script
+ * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 public class DeployAndRunProcessTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testDeployAndRun";
-	private static final String TEST_PROCESS_KEY_OVERRIDE = "testEmailer";
-	private static final String TEST_PROCESS_KEY_TWO = "testEmailer";
+	private static final String TEST_PROCESS_KEY_OVERRIDE = "testOverride";
+	private static final String TEST_PROCESS_KEY_TWO = "testEmailerTwo";
 	//
 	@Autowired private WorkflowProcessDefinitionService definitionService;
 

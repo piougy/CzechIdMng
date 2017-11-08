@@ -60,7 +60,7 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority())));
 		
 		getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
-				.param(IdmAuthenticationFilter.TOKEN_PARAMETER_NAME, token)
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
 				.contentType(HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(HAL_CONTENT_TYPE))

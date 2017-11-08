@@ -50,7 +50,7 @@ public interface IdmAuthenticationFilter {
 	 * @since 7.6.0
 	 */
 	default String getTokenParameterName() {
-		return TOKEN_PARAMETER_NAME;
+		return AUTHENTICATION_TOKEN_NAME;
 	}
 	
 	/**

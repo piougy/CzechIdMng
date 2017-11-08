@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
@@ -133,7 +134,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		clearProvisioningBreakAndCache(system.getId());
 		//
 		// deletes all confidential values
-		confidentialStorage.delete(system.getId());
+		confidentialStorage.deleteAll(system.getId(), SysSystem.class);
 		//
 		// deletes identity
 		service.deleteInternal(system);

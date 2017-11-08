@@ -36,8 +36,9 @@ public interface ConfidentialStorage {
 	 * Deletes all values by owner id
 	 * 
 	 * @param ownerId
+	 * @since 7.6.0
 	 */
-	void delete(UUID ownerId);
+	void deleteAll(UUID ownerId, Class<? extends Identifiable> ownerType);
 	
 	/**
 	 * Get value by owner and key

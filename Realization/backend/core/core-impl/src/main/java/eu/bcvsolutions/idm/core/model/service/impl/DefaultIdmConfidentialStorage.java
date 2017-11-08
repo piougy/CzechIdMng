@@ -80,8 +80,12 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	
 	@Override
 	@Transactional
-	public void delete(UUID ownerId) {
-		this.repository.deleteByOwnerId(ownerId);
+	public void deleteAll(UUID ownerId, Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerId);
+		Assert.notNull(ownerType);
+		//
+		LOG.debug("Delete all values for owner [{},{}] from confidential storage", ownerId, ownerType);
+		this.repository.deleteByOwnerIdAndOwnerType(ownerId, getOwnerType(ownerType));
 	}
 
 	/**

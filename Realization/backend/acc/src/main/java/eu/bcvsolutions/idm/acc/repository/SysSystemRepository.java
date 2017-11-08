@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
@@ -21,6 +22,14 @@ public interface SysSystemRepository extends AbstractEntityRepository<SysSystem>
 
 	SysSystem findOneByName(@Param("name") String name);
 	
+	/**
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 * @deprecated use {@link SysSystemService#find(SysSystemFilter, Pageable, eu.bcvsolutions.idm.core.security.api.domain.BasePermission...)}
+	 */
+	@Deprecated
 	@Query(value = "select e from SysSystem e" +
 	        " where" +
 	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}) "

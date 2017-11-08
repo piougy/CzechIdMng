@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Utils} from 'czechidm-core';
+import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 import { SchemaObjectClassManager, SchemaAttributeManager } from '../../redux';
 
 const uiKey = 'schema-attribute';
@@ -146,7 +146,8 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
                 onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
-                showLoading={_showLoading}>
+                showLoading={_showLoading}
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>

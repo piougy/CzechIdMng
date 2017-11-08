@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExec
  * for contracts that are not valid (meaning validFrom and validTill).
  * 
  * @author Jan Helbich
- *
+ * @since 7.5.1
  */
 @Service
 @Description("HR process - end of contract")

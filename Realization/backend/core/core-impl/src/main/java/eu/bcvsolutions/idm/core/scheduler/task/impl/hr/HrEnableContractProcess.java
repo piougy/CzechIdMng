@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExec
  * enabled.
  * 
  * @author Jan Helbich
+ * @since 7.5.1
  *
  */
 @Service

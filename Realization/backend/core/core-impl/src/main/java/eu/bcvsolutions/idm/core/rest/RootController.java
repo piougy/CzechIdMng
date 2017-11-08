@@ -14,11 +14,6 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
  */
 @Controller
 public class RootController implements BaseController {
-
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String root() {
-		return redirectUrl();
-	}
 	
 	@RequestMapping(value = "/api", method = RequestMethod.GET)
 	public String rootApi() {

@@ -290,19 +290,23 @@ class Table extends AbstractComponent {
     if (!data || data.length === 0) {
       if (showLoading) {
         content.push(
-          <tr>
-            <td colSpan={ columns.length }>
-              <Loading showLoading className="static"/>
-            </td>
-          </tr>
+          <tbody>
+            <tr>
+              <td colSpan={ columns.length }>
+                <Loading showLoading className="static"/>
+              </td>
+            </tr>
+          </tbody>
         );
       } else {
         content.push(
-          <tr className="no-data">
-            <td colSpan={ columns.length }>
-              <Alert text={ noData }/>
-            </td>
-          </tr>
+          <tbody>
+            <tr className="no-data">
+              <td colSpan={ columns.length }>
+                <Alert text={ noData }/>
+              </td>
+            </tr>
+          </tbody>
         );
       }
     } else {

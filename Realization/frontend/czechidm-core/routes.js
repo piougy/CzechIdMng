@@ -399,6 +399,16 @@ module.exports = {
       ]
     },
     {
+      path: 'confidential-storage',
+      component: require('./src/content/confidentialstorage/ConfidentialStorageValues'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ]
+    },
+    {
+      path: 'confidential-storage/:entityId',
+      component: require('./src/content/confidentialstorage/ConfidentialStorageValueContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ]
+    },
+    {
       path: 'audit',
       component: require('./src/content/audit/AuditRoutes'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]

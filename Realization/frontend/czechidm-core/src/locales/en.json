@@ -605,7 +605,9 @@
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
-      "WORKFLOWDEFINITION": "Workflow - definitions"
+      "WORKFLOWDEFINITION": "Workflow - definitions",
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+
     }
   },
   "content": {
@@ -1138,6 +1140,21 @@
           "label": "Text",
           "placeholder": "Code / Name / Description"
         }
+      }
+    },
+    "confidentialStorage": {
+      "header": "Confidential storage",
+      "title": "Confidential storage",
+      "label": "Confidential storage",
+      "filter": {
+        "text": "Key / Owner type",
+        "ownerId": "Owner Id",
+        "key": "Key",
+        "ownerType": "Owner type"
+      },
+      "edit": {
+        "title": "Detail of storage",
+        "header": "Detail encrypted value"
       }
     },
     "scripts": {
@@ -2048,6 +2065,14 @@
       "parent": {
         "name": "Parent folder in catalog"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Owner Id",
+      "key": "Key",
+      "ownerType": "Owner type",
+      "serializableValue": "Value",
+      "created": "Date of creation",
+      "creator": "Creator"
     },
     "Script": {
       "name": "Script name",

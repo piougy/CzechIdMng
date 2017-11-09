@@ -628,7 +628,8 @@
       "PASSWORDPOLICY": "Politiky hesel",
       "ROLEREQUEST": "Agenda žádostí o role",
       "SCHEDULER": "Nastavení plánovače",
-      "WORKFLOWDEFINITION": "Workflow - definice"
+      "WORKFLOWDEFINITION": "Workflow - definice",
+      "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah"
     }
   },
   "content": {
@@ -1171,6 +1172,22 @@
           "label": "Text",
           "placeholder": "Kód / Název / Popis"
         }
+      }
+    },
+    "confidentialStorage": {
+      "header": "Šifrovaný obsah",
+      "title": "Šifrovaný obsah",
+      "label": "Šifrovaný obsah",
+      "filter": {
+        "text": "Klíč / Typ identity majitele",
+        "ownerId": "Id majitele",
+        "key": "Klíč",
+        "ownerType": "Typ identity majitele",
+        "value": "Hodnota"
+      },
+      "edit": {
+        "title": "Detail obsahu",
+        "header": "Detail šifrované hodnoty"
       }
     },
     "scripts": {
@@ -2085,6 +2102,14 @@
       "parent": {
         "name": "Nadřazená složka v katalogu"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Id majitele",
+      "key": "Klíč",
+      "ownerType": "Typ identity majitele",
+      "serializableValue": "Hodnota",
+      "creator": "Tvůrce",
+      "created": "Datum vytvoření"
     },
     "Script": {
       "name": "Název skriptu",

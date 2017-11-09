@@ -33,7 +33,7 @@ describe('Basic Table', function basicTableTestSuite() {
     const tableWrapper = shallowRenderer.getRenderOutput();
     it('- table without data should return Alert with no data', function test() {
       const body = tableWrapper.props.children.props.children.props.children[1][0];
-      const noDataAlert = body.props.children.props.children.props.children;
+      const noDataAlert = body.props.children.props.children;
       expect(noDataAlert).to.not.be.null();
       expect(noDataAlert.type).to.equal(Basic.Alert);
       expect(noDataAlert.props.level).to.equal('info');

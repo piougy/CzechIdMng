@@ -25,6 +25,7 @@ public class IdmConfidentialStorageValueDto extends AbstractDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	private String ownerType;
 
+	@JsonProperty(access = Access.READ_ONLY)
 	private String key;
 
 	@JsonIgnore

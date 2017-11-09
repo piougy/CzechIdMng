@@ -97,18 +97,17 @@ export class ConfidentialStorageValueTable extends Advanced.AbstractTableContent
                       ref="key"
                       placeholder={this.i18n('filter.key')}/>
                   </div>
-                <div className="col-lg-4">
-                  <Advanced.Filter.TextField
-                    ref="ownerType"
-                    placeholder={this.i18n('filter.ownerType')}/>
-                </div>
+                  <div className="col-lg-4">
+                    <Advanced.Filter.TextField
+                      ref="ownerType"
+                      placeholder={this.i18n('filter.ownerType')}/>
+                  </div>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
           filterOpened={!filterOpened}
-          _searchParameters={ this.getSearchParameters() }
-          >
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -125,8 +124,7 @@ export class ConfidentialStorageValueTable extends Advanced.AbstractTableContent
           <Advanced.Column property="key" sort />
           <Advanced.Column
                 property="ownerId"
-                cell={({ rowIndex, data, property}) => this._getCellOwnerId( rowIndex, data, property) }
-                />
+                cell={({ rowIndex, data, property}) => this._getCellOwnerId( rowIndex, data, property) }/>
           <Advanced.Column property="ownerType" sort />
         </Advanced.Table>
       </div>
@@ -136,6 +134,7 @@ export class ConfidentialStorageValueTable extends Advanced.AbstractTableContent
 
 ConfidentialStorageValueTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
+  ConfidentialStorageValueManager: PropTypes.object.isRequired
 };
 
 ConfidentialStorageValueTable.defaultProps = {

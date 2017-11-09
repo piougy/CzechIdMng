@@ -2071,7 +2071,7 @@
       "ownerType": "Owner type",
       "serializableValue": "Value",
       "created": "Date of creation",
-      "originalCreator": "Name of creator"
+      "creator": "Creator"
     },
     "Script": {
       "name": "Script name",

@@ -38,8 +38,12 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/confidential-storage-values")
-@Api(value = IdmConfidentialStorageValueController.TAG, description = "Confidential storage value", tags = {
-		IdmConfidentialStorageValueController.TAG }, produces = BaseController.APPLICATION_HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+@Api(
+		value = IdmConfidentialStorageValueController.TAG,
+		description = "Confidential storage value",
+		tags = { IdmConfidentialStorageValueController.TAG },
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmConfidentialStorageValueController
 		extends AbstractReadDtoController<IdmConfidentialStorageValueDto, IdmConfidentialStorageValueFilter> {
 

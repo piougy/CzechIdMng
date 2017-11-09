@@ -2107,7 +2107,7 @@
       "key": "Klíč",
       "ownerType": "Typ identity majitele",
       "serializableValue": "Hodnota",
-      "originalCreator": "Jméno vytvořitele hodnoty",
+      "creator": "Tvůrce",
       "created": "Datum vytvoření"
     },
     "Script": {

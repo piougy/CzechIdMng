@@ -26,18 +26,10 @@ class ConfidentialStorageValueContent extends Basic.AbstractContent {
     this.selectNavigationItem('confidential-storage');
     const { entityId } = this.props.params;
 
-    if (this._getIsNew()) {
-      this.context.store.dispatch(confidentialStorageValueManager.receiveEntity(entityId, { }));
-    } else {
-      this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(confidentialStorageValueManager.fetchEntity(entityId));
-    }
+    this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
+    this.context.store.dispatch(confidentialStorageValueManager.fetchEntity(entityId));
   }
 
-  _getIsNew() {
-    const { query } = this.props.location;
-    return (query) ? query.new : null;
-  }
   render() {
     const { entity, showLoading } = this.props;
     return (
@@ -50,7 +42,7 @@ class ConfidentialStorageValueContent extends Basic.AbstractContent {
             <Basic.Icon value="fa:lock"/>
             {' '}
             {
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
+              <span>{this.i18n('edit.header')}</span>
             }
           </Basic.PageHeader>
         }

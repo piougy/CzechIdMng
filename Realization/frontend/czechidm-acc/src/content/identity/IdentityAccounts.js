@@ -7,7 +7,7 @@ import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { IdentityAccountManager, AccountManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
-import AccountTable from '../account/AccountTable';
+import AccountTableComponent, { AccountTable } from '../account/AccountTable';
 
 const uiKey = 'identity-accounts-table';
 const manager = new IdentityAccountManager();
@@ -84,7 +84,6 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
     const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
     const forceAccountSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
     const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
-
     //
     return (
       <div>
@@ -93,12 +92,13 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
         <Basic.Tabs style={{ paddingTop: 15 }}>
           <Basic.Tab eventKey={1} title={this.i18n('header')}>
-            <AccountTable uiKey="accounts-table"
+            <AccountTableComponent
+              uiKey="accounts-table"
               showLoading={_showLoading}
               forceSearchParameters={forceAccountSearchParameters}
               forceSystemEntitySearchParameters={forceSystemEntitySearchParameters}
-              columns={['system']}
-            />
+              columns={ _.difference(AccountTable.defaultProps.columns, ['system', 'entityType']) }
+              showAddButton={ false }/>
           </Basic.Tab>
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>
             <Advanced.Table

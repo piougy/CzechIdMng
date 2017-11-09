@@ -15,21 +15,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class IdmJwtAuthenticationDto {
 
 	private String currentUsername;
-
 	private UUID currentIdentityId;
-	
 	private String originalUsername;
-	
 	private UUID originalIdentityId;
-	
 	@JsonProperty("exp")
 	private DateTime expiration;
-	
 	@JsonProperty("iat")
 	private DateTime issuedAt;
-	
 	private Collection<DefaultGrantedAuthorityDto> authorities;
-
 	private String fromModule;
 
 	public IdmJwtAuthenticationDto() {

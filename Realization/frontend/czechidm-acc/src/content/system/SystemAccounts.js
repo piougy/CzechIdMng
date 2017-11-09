@@ -37,8 +37,6 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
 
     return (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
@@ -49,7 +47,7 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
             showLoading={_showLoading}
             forceSearchParameters={forceSearchParameters}
             forceSystemEntitySearchParameters={forceSystemEntitySearchParameters}
-          />
+            showFilter/>
         </Basic.Panel>
       </div>
     );

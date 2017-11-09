@@ -131,6 +131,7 @@ class AccountTable extends Advanced.AbstractTableContent {
     }
     return (
       <div>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -271,6 +272,17 @@ class AccountTable extends Advanced.AbstractTableContent {
                   enum={ SystemEntityTypeEnum }
                   label={ this.i18n('acc:entity.SystemEntity.entityType') }
                   hidden={ systemEntity }/>
+                <Basic.Checkbox
+                  ref="inProtection"
+                  label={ this.i18n('acc:entity.Account.inProtection') }
+                  readOnly>
+                </Basic.Checkbox>
+                <Basic.DateTimePicker
+                  mode="date"
+                  ref="endOfProtection"
+                  label={ this.i18n('acc:entity.Account.endOfProtection') }
+                  readOnly/>
+
               </Basic.AbstractForm>
 
               <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') }/>

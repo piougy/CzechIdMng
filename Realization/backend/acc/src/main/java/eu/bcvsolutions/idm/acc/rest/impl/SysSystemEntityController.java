@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -26,6 +28,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -40,7 +44,6 @@ import io.swagger.annotations.AuthorizationScope;;
 
 /**
  * Entities on target system
- * 
  * 
  * @author Radek Tomiška
  *
@@ -206,7 +209,7 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 			@PathVariable @NotNull String backendId) {
 		SysSystemEntityDto systemEntity = this.getDto(backendId);
 		if(systemEntity == null) {
-			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		IcConnectorObject connectorObject = ((SysSystemEntityService)getService())
 				.getConnectorObject(systemEntity, IdmBasePermission.READ);

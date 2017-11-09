@@ -140,7 +140,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               property=""
               header=""
               className="detail-button"
-              rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
+              rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_READ']) }
               cell={
                 ({ rowIndex, data }) => {
                   return (
@@ -174,7 +174,10 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading }
+                readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 <Basic.SelectBox
                   ref="system"
                   manager={systemManager}
@@ -192,19 +195,17 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   label={this.i18n('acc:entity.SystemEntity.entityType')}
                   required/>
               </Basic.AbstractForm>
-              <Basic.Row>
-                <Basic.Col lg={ 12 }>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('acc:entity.SystemEntity.attributes')}</h3>
-                  <Basic.Table
-                    showLoading = {!detail || !detail.hasOwnProperty('connectorObject')}
-                    data={detail && detail.connectorObject ? detail.connectorObject.attributes : null}
-                    noData={this.i18n('component.basic.Table.noData')}
-                    className="table-bordered">
-                    <Basic.Column property="name" header={this.i18n('label.property')}/>
-                    <Basic.Column property="values" header={this.i18n('label.value')}/>
-                  </Basic.Table>
-                </Basic.Col>
-              </Basic.Row>
+
+              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') }/>
+
+              <Basic.Table
+                showLoading = {!detail || !detail.hasOwnProperty('connectorObject')}
+                data={detail && detail.connectorObject ? detail.connectorObject.attributes : null}
+                noData={this.i18n('component.basic.Table.noData')}
+                className="table-bordered">
+                <Basic.Column property="name" header={this.i18n('label.property')}/>
+                <Basic.Column property="values" header={this.i18n('label.value')}/>
+              </Basic.Table>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>
@@ -219,7 +220,8 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

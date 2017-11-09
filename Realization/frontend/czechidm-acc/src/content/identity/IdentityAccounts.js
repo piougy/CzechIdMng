@@ -101,84 +101,82 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
             />
           </Basic.Tab>
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>
-            <Basic.Panel className="no-border last">
-              <Advanced.Table
-                ref="table"
-                uiKey={uiKey}
-                manager={this.getManager()}
-                forceSearchParameters={forceSearchParameters}
-                showRowSelection={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE'])}
-                rowClass={({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; }}
-                actions={
-                  Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE'])
-                  ?
-                  [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-                  :
-                  null
-                }
-                buttons={
-                  [
-                    <Basic.Button
-                      level="success"
-                      key="add_button"
-                      className="btn-xs"
-                      onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                      rendered={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_CREATE'])}>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
-                      {this.i18n('button.add')}
-                    </Basic.Button>
-                  ]
-                }>
-                <Advanced.Column
-                  property=""
-                  header=""
-                  className="detail-button"
-                  rendered={ Managers.SecurityManager.hasAuthority('ACCOUNT_READ') }
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        <Advanced.DetailButton
-                          title={this.i18n('button.detail')}
-                          rendered={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_READ'])}
-                          onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                      );
+            <Advanced.Table
+              ref="table"
+              uiKey={uiKey}
+              manager={this.getManager()}
+              forceSearchParameters={forceSearchParameters}
+              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE'])}
+              rowClass={({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; }}
+              actions={
+                Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE'])
+                ?
+                [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+                :
+                null
+              }
+              buttons={
+                [
+                  <Basic.Button
+                    level="success"
+                    key="add_button"
+                    className="btn-xs"
+                    onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
+                    rendered={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_CREATE'])}>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.add')}
+                  </Basic.Button>
+                ]
+              }>
+              <Advanced.Column
+                property=""
+                header=""
+                className="detail-button"
+                rendered={ Managers.SecurityManager.hasAuthority('ACCOUNT_READ') }
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        rendered={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_READ'])}
+                        onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    );
+                  }
+                }/>
+              <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
+              <Advanced.Column
+                header={this.i18n('acc:entity.System.name')}
+                cell={
+                  /* eslint-disable react/no-multi-comp */
+                  ({rowIndex, data}) => {
+                    return (
+                      <Advanced.EntityInfo
+                        entityType="system"
+                        entityIdentifier={ data[rowIndex]._embedded.account.system }
+                        face="popover" />
+                    );
+                  }
+                }/>
+              <Advanced.Column
+                header={this.i18n('acc:entity.IdentityAccount.role')}
+                cell={
+                  /* eslint-disable react/no-multi-comp */
+                  ({rowIndex, data}) => {
+                    if (!data[rowIndex]._embedded.identityRole) {
+                      return null;
                     }
-                  }/>
-                <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
-                <Advanced.Column
-                  header={this.i18n('acc:entity.System.name')}
-                  cell={
-                    /* eslint-disable react/no-multi-comp */
-                    ({rowIndex, data}) => {
-                      return (
-                        <Advanced.EntityInfo
-                          entityType="system"
-                          entityIdentifier={ data[rowIndex]._embedded.account.system }
-                          face="popover" />
-                      );
-                    }
-                  }/>
-                <Advanced.Column
-                  header={this.i18n('acc:entity.IdentityAccount.role')}
-                  cell={
-                    /* eslint-disable react/no-multi-comp */
-                    ({rowIndex, data}) => {
-                      if (!data[rowIndex]._embedded.identityRole) {
-                        return null;
-                      }
-                      return (
-                        <Advanced.EntityInfo
-                          entityType="role"
-                          entityIdentifier={ data[rowIndex]._embedded.identityRole.role }
-                          entity={ data[rowIndex]._embedded.identityRole._embedded.role}
-                          face="popover" />
-                      );
-                    }
-                  } />
-                <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
-              </Advanced.Table>
-            </Basic.Panel>
+                    return (
+                      <Advanced.EntityInfo
+                        entityType="role"
+                        entityIdentifier={ data[rowIndex]._embedded.identityRole.role }
+                        entity={ data[rowIndex]._embedded.identityRole._embedded.role}
+                        face="popover" />
+                    );
+                  }
+                } />
+              <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
+            </Advanced.Table>
 
             <Basic.Modal
               bsSize="large"

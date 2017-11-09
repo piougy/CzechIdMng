@@ -82,7 +82,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { entityId, userContext } = this.props;
+    const { entityId, userContext, passwordChangeType } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -101,7 +101,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
       newPassword: formData.newPassword,
       accounts: []
     };
-    if (IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) {
+    if (passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) {
       requestData.all = true;
       requestData.idm = true;
     } else {

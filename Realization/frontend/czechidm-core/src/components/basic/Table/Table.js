@@ -73,7 +73,7 @@ class Table extends AbstractComponent {
       }
       properties.map(property => {
         children.push(
-          <DefaultCell property={property} data={data}/>
+          <DefaultCell property={ property } data={ data }/>
         );
       });
     }
@@ -182,6 +182,9 @@ class Table extends AbstractComponent {
   _isAllRowsSelected() {
     const { data } = this.props;
     const { selectedRows } = this.state;
+    if (!data || data.lenght === 0) {
+      return false;
+    }
     for (let i = 0; i < data.length; i++) {
       if (!selectedRows.has(this.getIdentifier(i))) {
         return false;
@@ -290,23 +293,19 @@ class Table extends AbstractComponent {
     if (!data || data.length === 0) {
       if (showLoading) {
         content.push(
-          <tbody>
-            <tr>
-              <td colSpan={ columns.length }>
-                <Loading showLoading className="static"/>
-              </td>
-            </tr>
-          </tbody>
+          <tr>
+            <td colSpan={ columns.length }>
+              <Loading showLoading className="static"/>
+            </td>
+          </tr>
         );
       } else {
         content.push(
-          <tbody>
-            <tr className="no-data">
-              <td colSpan={ columns.length }>
-                <Alert text={ noData }/>
-              </td>
-            </tr>
-          </tbody>
+          <tr>
+            <td colSpan={ columns.length }>
+              <Alert text={ noData } className="no-data"/>
+            </td>
+          </tr>
         );
       }
     } else {

@@ -104,4 +104,9 @@ public class AccountByIdentityEvaluator extends AbstractAuthorizationEvaluator<A
 		//
 		return builder.exists(subquery);
 	}
+	
+	@Override
+	public boolean supportsPermissions() {
+		return false;
+	}
 }

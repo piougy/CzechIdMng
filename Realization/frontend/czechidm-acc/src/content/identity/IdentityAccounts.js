@@ -17,8 +17,6 @@ const identityManager = new Managers.IdentityManager();
 /**
  * Identity accounts
  *
- * TODO: accounts should be shown (not identityAccount)
- *
  * @author Radek Tomiška
  */
 class IdentityAccountsContent extends Advanced.AbstractTableContent {
@@ -92,7 +90,8 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Tabs>
+
+        <Basic.Tabs style={{ paddingTop: 15 }}>
           <Basic.Tab eventKey={1} title={this.i18n('header')}>
             <AccountTable uiKey="accounts-table"
               showLoading={_showLoading}

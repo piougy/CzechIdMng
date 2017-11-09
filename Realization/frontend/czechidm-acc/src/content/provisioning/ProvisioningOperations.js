@@ -197,23 +197,23 @@ class ProvisioningOperations extends Basic.AbstractContent {
                 <Basic.AbstractForm data={detail.entity} readOnly>
 
                   <Basic.Row>
-                    <div className="col-lg-4">
+                    <Basic.Col lg={ 4 }>
                       <Basic.LabelWrapper label={this.i18n('entity.created')}>
                         <div style={{ margin: '7px 0' }}>
                           <Advanced.DateValue value={detail.entity.created} showTime/>
                         </div>
                       </Basic.LabelWrapper>
-                    </div>
-                    <div className="col-lg-8">
+                    </Basic.Col>
+                    <Basic.Col lg={ 8 }>
                       <Basic.EnumLabel ref="operationType" label={this.i18n('acc:entity.ProvisioningOperation.operationType')} enum={ProvisioningOperationTypeEnum}/>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
 
                   <Basic.Row>
-                    <div className="col-lg-4">
+                    <Basic.Col lg={ 4 }>
                       <Basic.EnumLabel ref="entityType" label={this.i18n('acc:entity.SystemEntity.entityType')} enum={SystemEntityTypeEnum}/>
-                    </div>
-                    <div className="col-lg-8">
+                    </Basic.Col>
+                    <Basic.Col lg={ 8 }>
                       <Basic.LabelWrapper label={this.i18n('acc:entity.ProvisioningOperation.entity')}>
                         {
                           !detail.entity.entityIdentifier
@@ -223,11 +223,11 @@ class ProvisioningOperations extends Basic.AbstractContent {
                           <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }} face="popover"/>
                         }
                       </Basic.LabelWrapper>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
 
                   <Basic.Row>
-                    <div className="col-lg-4">
+                    <Basic.Col lg={ 4 }>
                       <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
                         <Advanced.EntityInfo
                           entityType="system"
@@ -236,20 +236,21 @@ class ProvisioningOperations extends Basic.AbstractContent {
                           style={{ margin: 0 }}
                           face="popover"/>
                       </Basic.LabelWrapper>
-                    </div>
-                    <div className="col-lg-8">
+                    </Basic.Col>
+                    <Basic.Col lg={ 8 }>
                       <Basic.LabelWrapper label={this.i18n('acc:entity.SystemEntity.uid')}>
                         <div style={{ margin: '7px 0' }}>
                           {detail.entity.systemEntityUid}
                         </div>
                       </Basic.LabelWrapper>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
 
                 </Basic.AbstractForm>
                 <br />
 
-                <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('detail.result') }</h3>
+                <Basic.ContentHeader text={ this.i18n('detail.result') }/>
+
                 <div style={{ marginBottom: 15 }}>
                   <Basic.EnumValue value={detail.entity.resultState} enum={Enums.OperationStateEnum}/>
                   {
@@ -284,26 +285,26 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   </div>
                 }
                 <Basic.Row>
-                  <div className="col-lg-6">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('detail.accountObject')}</h3>
+                  <Basic.Col lg={ 6 }>
                     <Basic.Table
                       data={accountData}
                       noData={this.i18n('component.basic.Table.noData')}
-                      className="table-bordered">
+                      className="table-bordered"
+                      header={ this.i18n('detail.accountObject') }>
                       <Basic.Column property="property" header={this.i18n('label.property')}/>
                       <Basic.Column property="value" header={this.i18n('label.value')}/>
                     </Basic.Table>
-                  </div>
-                  <div className="col-lg-6">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('detail.connectorObject')}</h3>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
                     <Basic.Table
                       data={connectorData}
                       noData={this.i18n('component.basic.Table.noData')}
-                      className="table-bordered">
+                      className="table-bordered"
+                      header={ this.i18n('detail.connectorObject') }>
                       <Basic.Column property="property" header={this.i18n('label.property')}/>
                       <Basic.Column property="value" header={this.i18n('label.value')}/>
                     </Basic.Table>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </div>
             }

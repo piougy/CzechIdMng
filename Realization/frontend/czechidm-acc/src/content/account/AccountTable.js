@@ -131,103 +131,103 @@ class AccountTable extends Advanced.AbstractTableContent {
     }
     return (
       <div>
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKey}
-            manager={this.getManager()}
-            showFilter={showFilter}
-            forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-            rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
-            actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-              ?
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              ]
-            }
-            filter={
-              tableFilter
-            }
-            _searchParameters={ this.getSearchParameters() }>
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="accountType"
-              rendered={_.includes(columns, 'accountType')}
-              header={ this.i18n('acc:entity.Account.accountType') }
-              width={ 75 }
-              sort
-              face="enum"
-              enumClass={ AccountTypeEnum } />
-            <Advanced.Column
-              property="entityType"
-              rendered={_.includes(columns, 'entityType')}
-              header={ this.i18n('acc:entity.SystemEntity.entityType') }
-              width={ 75 }
-              sort
-              face="enum"
-              enumClass={ SystemEntityTypeEnum }/>
-            <Advanced.ColumnLink
-              to={
-                ({ rowIndex, data }) => {
-                  this.showDetail(data[rowIndex]);
-                }
+        <Advanced.Table
+          ref="table"
+          uiKey={uiKey}
+          manager={this.getManager()}
+          showFilter={showFilter}
+          forceSearchParameters={forceSearchParameters}
+          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+          rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
+          actions={
+            Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
+            ?
+            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+            :
+            null
+          }
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, { accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
+                rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
+            ]
+          }
+          filter={
+            tableFilter
+          }
+          _searchParameters={ this.getSearchParameters() }>
+          <Advanced.Column
+            property=""
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
               }
-              property="uid"
-              header={this.i18n('acc:entity.Account.uid')}/>
-            <Advanced.Column
-              header={this.i18n('acc:entity.System.name')}
-              rendered={_.includes(columns, 'system')}
-              cell={
-                /* eslint-disable react/no-multi-comp */
-                ({rowIndex, data}) => {
-                  return (
-                    <Advanced.EntityInfo
-                      entityType="system"
-                      entityIdentifier={ data[rowIndex]._embedded.systemEntity.system }
-                      face="popover" />
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="inProtection"
-              header={this.i18n('acc:entity.Account.inProtection')}
-              face="bool" />
-            <Advanced.Column
-              property="endOfProtection"
-              header={this.i18n('acc:entity.Account.endOfProtection')}
-              face="datetime" />
-            <Advanced.Column property="_embedded.systemEntity.uid"
-              rendered={_.includes(columns, 'systemEntity')}
-              header={this.i18n('acc:entity.Account.systemEntity')}
-              face="text" />
-          </Advanced.Table>
+            }/>
+          <Advanced.Column
+            property="accountType"
+            rendered={_.includes(columns, 'accountType')}
+            header={ this.i18n('acc:entity.Account.accountType') }
+            width={ 75 }
+            sort
+            face="enum"
+            enumClass={ AccountTypeEnum } />
+          <Advanced.Column
+            property="entityType"
+            rendered={_.includes(columns, 'entityType')}
+            header={ this.i18n('acc:entity.SystemEntity.entityType') }
+            width={ 75 }
+            sort
+            face="enum"
+            enumClass={ SystemEntityTypeEnum }/>
+          <Advanced.ColumnLink
+            to={
+              ({ rowIndex, data }) => {
+                this.showDetail(data[rowIndex]);
+              }
+            }
+            property="uid"
+            header={this.i18n('acc:entity.Account.uid')}/>
+          <Advanced.Column
+            header={this.i18n('acc:entity.System.name')}
+            rendered={_.includes(columns, 'system')}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({rowIndex, data}) => {
+                return (
+                  <Advanced.EntityInfo
+                    entityType="system"
+                    entityIdentifier={ data[rowIndex]._embedded.systemEntity.system }
+                    face="popover" />
+                );
+              }
+            }/>
+          <Advanced.Column
+            property="inProtection"
+            header={this.i18n('acc:entity.Account.inProtection')}
+            face="bool" />
+          <Advanced.Column
+            property="endOfProtection"
+            header={this.i18n('acc:entity.Account.endOfProtection')}
+            face="datetime" />
+          <Advanced.Column property="_embedded.systemEntity.uid"
+            rendered={_.includes(columns, 'systemEntity')}
+            header={this.i18n('acc:entity.Account.systemEntity')}
+            face="text" />
+        </Advanced.Table>
 
         <Basic.Modal
           bsSize="large"
@@ -272,19 +272,18 @@ class AccountTable extends Advanced.AbstractTableContent {
                   label={ this.i18n('acc:entity.SystemEntity.entityType') }
                   hidden={ systemEntity }/>
               </Basic.AbstractForm>
-              <Basic.Row>
-                <Basic.Col lg={ 12 }>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('acc:entity.SystemEntity.attributes')}</h3>
-                  <Basic.Table
-                    showLoading = {!connectorObject && !this.state.hasOwnProperty('connectorObject')}
-                    data={connectorObject ? connectorObject.attributes : null}
-                    noData={this.i18n('component.basic.Table.noData')}
-                    className="table-bordered">
-                    <Basic.Column property="name" header={this.i18n('label.property')}/>
-                    <Basic.Column property="values" header={this.i18n('label.value')}/>
-                  </Basic.Table>
-                </Basic.Col>
-              </Basic.Row>
+
+              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') }/>
+
+              <Basic.Table
+                showLoading = {!connectorObject && !this.state.hasOwnProperty('connectorObject')}
+                data={connectorObject ? connectorObject.attributes : null}
+                noData={this.i18n('component.basic.Table.noData')}
+                className="table-bordered">
+                <Basic.Column property="name" header={this.i18n('label.property')}/>
+                <Basic.Column property="values" header={this.i18n('label.value')}/>
+              </Basic.Table>
+
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

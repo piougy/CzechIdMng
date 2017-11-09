@@ -10,18 +10,21 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
  *
  */
 
-public interface IdmScriptService extends 
-		ReadWriteDtoService<IdmScriptDto, IdmScriptFilter>, Recoverable<IdmScriptDto>,
+public interface IdmScriptService extends
+		ReadWriteDtoService<IdmScriptDto, IdmScriptFilter>, 
+		Recoverable<IdmScriptDto>,
 		CodeableService<IdmScriptDto> {
 
 	/**
 	 * Return {@link IdmScriptDto} by name. This method return script by name,
 	 * for one name may exist one or more script, method return only first!
-	 * For code use method getScriptByCode.
+	 * For code use method {@link #getByCode(String)}.
 	 * 
 	 * @param name
 	 * @return
+	 * @deprecated use {@link #getByCode(String)}
 	 */
+	@Deprecated
 	IdmScriptDto getScriptByName(String name);
 	
 	/**

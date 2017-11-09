@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
@@ -22,11 +23,14 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemService extends EventableDtoService<SysSystemDto, SysSystemFilter>,
-		CodeableService<SysSystemDto>, CloneableService<SysSystemDto> {
+public interface SysSystemService extends 
+		EventableDtoService<SysSystemDto, SysSystemFilter>,
+		CodeableService<SysSystemDto>, 
+		CloneableService<SysSystemDto>,
+		AuthorizableService<SysSystemDto> {
 
-	public static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
-	public static final String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
+	static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
+	static final String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 
 	/**
 	 * Generate and persist schema to system. Use connector info and connector

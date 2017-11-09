@@ -15,8 +15,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -29,18 +32,22 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import joptsimple.internal.Strings;
 
 /**
  * Acc / Provisioning test helper
@@ -61,6 +68,8 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	@Autowired private DataSource dataSource;
 	@Autowired private SysSystemRepository systemRepository;
 	@Autowired private SysSystemEntityService systemEntityService;
+	@Autowired private AccAccountService accountService;
+	@Autowired private AccIdentityAccountService identityAccountService;
 	
 	/**
 	 * Create test system connected to same database (using configuration from dataSource)
@@ -82,6 +91,18 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	 */
 	@Override
 	public SysSystemDto createSystem(String tableName, String systemName) {
+		return this.createSystem(tableName, systemName, "status", "name");
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param tableName
+	 * @param systemName
+	 * @return
+	 */
+	@Override
+	public SysSystemDto createSystem(String tableName, String systemName, String statusColumnName, String keyColumnName) {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
 		SysSystemDto system = new SysSystemDto();
@@ -113,10 +134,12 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 		IdmFormValueDto table = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("table"));
 		table.setValue(tableName);
 		values.add(table);
-		IdmFormValueDto keyColumn = new IdmFormValueDto(
-				savedFormDefinition.getMappedAttributeByCode("keyColumn"));
-		keyColumn.setValue("name");
-		values.add(keyColumn);
+		if(!Strings.isNullOrEmpty(keyColumnName)) {
+			IdmFormValueDto keyColumn = new IdmFormValueDto(
+					savedFormDefinition.getMappedAttributeByCode("keyColumn"));
+			keyColumn.setValue(keyColumnName);
+			values.add(keyColumn);
+		}
 		IdmFormValueDto passwordColumn = new IdmFormValueDto(
 				savedFormDefinition.getMappedAttributeByCode("passwordColumn"));
 		passwordColumn.setValue("password");
@@ -129,10 +152,12 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 				savedFormDefinition.getMappedAttributeByCode("rethrowAllSQLExceptions"));
 		rethrowAllSQLExceptions.setValue(true);
 		values.add(rethrowAllSQLExceptions);
-		IdmFormValueDto statusColumn = new IdmFormValueDto(
-				savedFormDefinition.getMappedAttributeByCode("statusColumn"));
-		statusColumn.setValue("status");
-		values.add(statusColumn);
+		if(!Strings.isNullOrEmpty(statusColumnName)) {
+			IdmFormValueDto statusColumn = new IdmFormValueDto(
+					savedFormDefinition.getMappedAttributeByCode("statusColumn"));
+			statusColumn.setValue(statusColumnName);
+			values.add(statusColumn);
+		}
 		IdmFormValueDto disabledStatusValue = new IdmFormValueDto(
 				savedFormDefinition.getMappedAttributeByCode("disabledStatusValue"));
 		disabledStatusValue.setValue("disabled");
@@ -277,5 +302,21 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 		systemEntity.setSystem(system.getId());
 		systemEntity.setWish(true);
 		return systemEntityService.save(systemEntity);
+	}
+
+	@Override
+	public AccIdentityAccountDto createIdentityAccount(SysSystemDto system, IdmIdentityDto identity) {
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(system.getId());
+		account.setUid(identity.getUsername());
+		account.setAccountType(AccountType.PERSONAL);
+		account = accountService.save(account);
+
+		AccIdentityAccountDto accountIdentity = new AccIdentityAccountDto();
+		accountIdentity.setIdentity(identity.getId());
+		accountIdentity.setOwnership(true);
+		accountIdentity.setAccount(account.getId());
+
+		return identityAccountService.save(accountIdentity);
 	}
 }

@@ -12,11 +12,6 @@ module.exports = {
       access: [ { type: 'PERMIT_ALL' } ]
     },
     {
-      path: 'password/reset',
-      component: require('./src/content/PasswordReset'),
-      access: [ { type: 'PERMIT_ALL' } ]
-    },
-    {
       path: 'password/change',
       component: require('./src/content/PasswordChange'),
       access: [ { type: 'PERMIT_ALL' } ]
@@ -116,10 +111,6 @@ module.exports = {
       path: 'identities',
       component: require('./src/content/identity/Identities'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
-    },
-    {
-      path: 'identities/password/reset',
-      component: require('./src/content/identity/PasswordReset')
     },
     {
       path: 'organizations',
@@ -406,6 +397,16 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
         }
       ]
+    },
+    {
+      path: 'confidential-storage',
+      component: require('./src/content/confidentialstorage/ConfidentialStorageValues'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ]
+    },
+    {
+      path: 'confidential-storage/:entityId',
+      component: require('./src/content/confidentialstorage/ConfidentialStorageValueContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ]
     },
     {
       path: 'audit',

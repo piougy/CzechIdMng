@@ -28,7 +28,9 @@ import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTem
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
-import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo.js';
+import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
+import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
+import EntitySelectBox from './EntitySelectBox/EntitySelectBox';
 
 const Components = {
   Table,
@@ -63,7 +65,9 @@ const Components = {
   ScriptArea,
   RoleSelect,
   Recaptcha,
-  IdentitiesInfo
+  IdentitiesInfo,
+  SchedulerTaskInfo,
+  EntitySelectBox
 };
 
 Components.version = '0.0.1';

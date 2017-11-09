@@ -198,6 +198,30 @@ module.exports = {
       'faceType': 'ROLE-SELECT',
       'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
       'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
+    },
+    {
+      'id': 'identity-select-box',
+      'type': 'entity-select-box',
+      'priority': 0,
+      'entityType': ['identity'],
+      'searchInFields': ['username', 'firstName', 'lastName', 'email'],
+      'manager': require('./src/redux').IdentityManager
+    },
+    {
+      'id': 'role-select-box',
+      'type': 'entity-select-box',
+      'priority': 0,
+      'entityType': ['role'],
+      'searchInFields': ['name', 'description'],
+      'manager': require('./src/redux').RoleManager
+    },
+    {
+      'id': 'tree-node-select-box',
+      'type': 'entity-select-box',
+      'priority': 0,
+      'entityType': ['treeNode'],
+      'searchInFields': ['code', 'name'],
+      'manager': require('./src/redux').TreeNodeManager
     }
   ]
 };

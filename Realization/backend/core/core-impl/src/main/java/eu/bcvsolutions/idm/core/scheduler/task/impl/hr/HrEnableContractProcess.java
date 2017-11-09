@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 
 /**
  * HR process - enable identity's contract process. The processes is started
@@ -17,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
  * enabled.
  * 
  * @author Jan Helbich
+ * @since 7.5.1
  *
  */
 @Service

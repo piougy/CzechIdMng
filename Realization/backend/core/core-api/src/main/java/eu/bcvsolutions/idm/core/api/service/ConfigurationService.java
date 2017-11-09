@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * - all public properties should start with {@value #IDM_PUBLIC_PROPERTY_PREFIX} prefix. This properties are visible for everyone (public endpoits etc.)
  * - all private properties should start with {@value #IDM_PRIVATE_PROPERTY_PREFIX} prefix. This properties are visible by logged identity authority
  * - after prefix moduleId should be given - e.g. idm.pub.core.
+ * - Separator {@value #PROPERTY_MULTIVALUED_SEPARATOR} is supported for multi values properites.
+ * - Multivalue properties are trimmed automatically - e.g. is posible to use 'key=value1, value2'
  * 
  * @author Radek Tomiška 
  */
@@ -45,7 +47,8 @@ public interface ConfigurationService {
 	// common properties default
 	static final int DEFAULT_ORDER = 0;
 	static final boolean DEFAULT_ENABLED = true;
-	
+	static final String PROPERTY_MULTIVALUED_SEPARATOR = ","; // multi value default separator
+
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns {@code null}.
 	 * 
@@ -55,12 +58,33 @@ public interface ConfigurationService {
 	String getValue(String key);
 	
 	/**
+	 * Return multi values property. 
+	 * Default separator is supported {@link #PROPERTY_MULTIVALUED_SEPARATOR} only.
+	 * Values are trimmed automatically - e.g. key=value1, value2
+	 *  
+	 * @since 7.6.0
+	 * @param key
+	 * @return
+	 */
+	List<String> getValues(String key);
+	
+	/**
 	 * Set given configuration value. Creates new, if configuration with given key does not exist. 
 	 * 
 	 * @param key
 	 * @param value
 	 */
 	void setValue(String key, String value);
+	
+	/**
+	 * Sets multi values property.
+	 * Default separator is supported {@link ConfigurationService#PROPERTY_MULTIVALUED_SEPARATOR} only.
+	 * 
+	 * @since 7.6.0
+	 * @param key
+	 * @param values
+	 */
+	void setValues(String key, List<String> values);
 	
 	/**
 	 * Deletes value by given key

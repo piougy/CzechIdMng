@@ -25,10 +25,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -49,7 +50,9 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 @Component("accIdentityPasswordValidateProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Validates identity's and all selected systems password, when password is changed.")
-public class IdentityPasswordValidateProcessor extends AbstractIdentityProcessor {
+public class IdentityPasswordValidateProcessor
+		extends CoreEventProcessor<IdmIdentityDto> 
+		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory

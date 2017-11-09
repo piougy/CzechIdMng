@@ -72,7 +72,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
             uiKey={ this.getUiKey() }
             manager={ this.identityContractManager }
             forceSearchParameters={ new SearchParameters().setFilter('identity', entityId) }
-            rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+            rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
             showRowSelection={ SecurityManager.hasAuthority('IDENTITYCONTRACT_DELETE') }
             actions={
               [

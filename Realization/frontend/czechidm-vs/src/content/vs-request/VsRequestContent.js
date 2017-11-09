@@ -29,7 +29,7 @@ class VsRequestContent extends Basic.AbstractContent {
    * Selected navigation item
    */
   getNavigationKey() {
-    return 'vs-request-detail';
+    return 'vs-requests';
   }
 
   componentDidMount() {

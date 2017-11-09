@@ -1,29 +1,47 @@
 package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -41,8 +59,14 @@ import io.swagger.annotations.AuthorizationScope;
 public class SchedulerController implements BaseController {
 
 	protected static final String TAG = "Scheduler";
-	@Autowired 
-	private SchedulerManager schedulerService;
+	private static final String PROPERTY_TASK_TYPE = "taskType";
+	private static final String PROPERTY_DESCRIPTION = "description";
+	private static final String PROPERTY_INSTANCE_ID = "instanceId";
+	//
+	@Autowired private SchedulerManager schedulerService;
+	@Autowired private LookupService lookupService;
+	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
+	private ParameterConverter parameterConverter = null;
 	
 	/**
 	 * Returns all registered tasks
@@ -67,16 +91,17 @@ public class SchedulerController implements BaseController {
 	}
 
 	/**
-	 * Returns all scheduled tasks
+	 * Finds scheduled tasks
 	 *
 	 * @return all tasks
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	@ApiOperation(
-			value = "Get all scheduled tasks", 
-			nickname = "getSchedulerTasks", 
+			value = "Search scheduled tasks", 
+			nickname = "searchSchedulerTasks", 
 			tags={ SchedulerController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -84,8 +109,59 @@ public class SchedulerController implements BaseController {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_READ, description = "") })
 				})
-	public Resources<Task> getAll() {
-		return new Resources<>(schedulerService.getAllTasks());
+	@ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
+	public Resources<Task> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		String text = getParameterConverter().toString(parameters, DataFilter.PARAMETER_TEXT);
+		List<Task> tasks = schedulerService
+				.getAllTasks()
+				.stream()
+				.filter(task -> {
+					// filter - like name or description only
+					return StringUtils.isEmpty(text) || task.getTaskType().getSimpleName().toLowerCase().contains(text.toLowerCase())
+							|| (task.getDescription() != null && task.getDescription().toLowerCase().contains(text.toLowerCase()));
+				})
+				.sorted((taskOne, taskTwo) -> {
+					Sort sort = pageable.getSort();
+					if (pageable.getSort() == null) {
+						return 0;
+					}
+					int compareAscValue = 0;
+					boolean asc = true;
+					// "naive" sort implementation
+					if (sort.getOrderFor(PROPERTY_TASK_TYPE) != null) {
+						asc = sort.getOrderFor(PROPERTY_TASK_TYPE).isAscending();
+						compareAscValue = taskOne.getTaskType().getSimpleName().compareTo(taskTwo.getTaskType().getSimpleName());
+					}
+					if (sort.getOrderFor(PROPERTY_DESCRIPTION) != null) {
+						asc = sort.getOrderFor(PROPERTY_DESCRIPTION).isAscending();
+						compareAscValue = taskOne.getDescription().compareTo(taskTwo.getDescription());
+					}
+					if (sort.getOrderFor(PROPERTY_INSTANCE_ID) != null) {
+						asc = sort.getOrderFor(PROPERTY_INSTANCE_ID).isAscending();
+						compareAscValue = taskOne.getInstanceId().compareTo(taskTwo.getInstanceId());
+					}
+					return asc ? compareAscValue : compareAscValue * -1;
+				})
+				.collect(Collectors.toList());
+		// "naive" pagination
+		int first = pageable.getPageNumber() * pageable.getPageSize();
+		int last = pageable.getPageSize() + first;
+		List<Task> taskPage = tasks.subList(
+				first < tasks.size() ? first : tasks.size() > 0 ? tasks.size() - 1 : 0, 
+				last < tasks.size() ? last : tasks.size());
+		//
+		return pageToResources(new PageImpl(taskPage, pageable, tasks.size()), Task.class);
 	}
 	
 	@ResponseBody
@@ -236,6 +312,35 @@ public class SchedulerController implements BaseController {
 			@Valid @RequestBody CronTaskTrigger trigger) {
 		return schedulerService.createTrigger(taskId, trigger);
 	}
+	
+	/**
+	 * Creates dependent trigger for task
+	 *
+	 * @param taskName name of task
+	 * @param trigger trigger data
+	 * @return trigger data containing name
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/triggers/dependent")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_CREATE + "')")
+	@ApiOperation(
+			value = "Create dependent trigger", 
+			nickname = "postDependentTrigger", 
+			tags={ SchedulerController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_CREATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_CREATE, description = "") })
+				},
+			notes = "Create trigger, which is triggered, when other scheduled task ends.")
+	public AbstractTaskTrigger createDependentTrigger(
+			@ApiParam(value = "Task identifier.", required = true)
+			@PathVariable String taskId, 
+			@ApiParam(value = "Cron trigger definition.", required = true)
+			@Valid @RequestBody DependentTaskTrigger trigger) {
+		return schedulerService.createTrigger(taskId, trigger);
+	}
 
 	/**
 	 * Removes trigger
@@ -322,5 +427,21 @@ public class SchedulerController implements BaseController {
 		schedulerService.resumeTrigger(taskId, triggerName);
 		//
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
+	
+	private ParameterConverter getParameterConverter() {
+		if (parameterConverter == null) {
+			parameterConverter = new ParameterConverter(lookupService);
+		}
+		return parameterConverter;
+	}
+	
+	protected Resources<?> pageToResources(Page<Object> page, Class<?> domainType) {
+
+		if (page.getContent().isEmpty()) {
+			return pagedResourcesAssembler.toEmptyResource(page, domainType, null);
+		}
+
+		return pagedResourcesAssembler.toResource(page);
 	}
 }

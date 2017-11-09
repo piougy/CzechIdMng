@@ -41,7 +41,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -70,6 +74,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private LookupService lookupService;
+	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
 	//
 	private IdmTreeTypeDto treeType = null;
 	private IdmTreeNodeDto nodeA = null;
@@ -255,13 +260,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(contract.getValidFrom(), identityRole.getValidFrom());
 			assertEquals(contract.getValidTill(), identityRole.getValidTill());
-			if (identityRole.getRoleTreeNode().equals(nodeA)) {
+			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD)) {
+			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeF)) {
+			if (identityRole.getRoleTreeNode().equals(nodeF.getId())) {
 				assertEquals(roleC, identityRole.getRole());
 			}
 		}
@@ -320,13 +325,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getRoleTreeNode().equals(nodeA)) {
+			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD)) {
+			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeF)) {
+			if (identityRole.getRoleTreeNode().equals(nodeF.getId())) {
 				assertEquals(roleC, identityRole.getRole());
 			}
 		}
@@ -338,13 +343,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getRoleTreeNode().equals(nodeA)) {
+			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD)) {
+			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeE)) {
+			if (identityRole.getRoleTreeNode().equals(nodeE.getId())) {
 				assertEquals(roleD, identityRole.getRole());
 			}
 		}
@@ -501,6 +506,60 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 	
 	@Test
+	public void testDontAssingRoleForDisabledContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setWorkPosition(nodeD.getId());
+		contractD.setState(ContractState.DISABLED);
+		contractD = service.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testDisableContractWithAssignedRoles() {
+		prepareAutomaticRoles();
+		//
+		// prepare identity and contract
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setValidFrom(new LocalDate().minusDays(1));
+		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setWorkPosition(nodeD.getId());
+		contract = service.save(contract);
+		//
+		// test after create
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
+		assertEquals(3, identityRoles.size());
+		for(IdmIdentityRoleDto identityRole : identityRoles) {
+			assertEquals(contract.getValidFrom(), identityRole.getValidFrom());
+			assertEquals(contract.getValidTill(), identityRole.getValidTill());
+		};
+		// test after change
+		contract.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		assertTrue(identityRoles.isEmpty());
+		// enable again
+		contract.setState(null);
+		contract = service.save(contract);
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		assertEquals(3, identityRoles.size());
+	}
+	
+	@Test
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
 		IdmRoleDto role = helper.createRole();
@@ -511,13 +570,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
 		//
+		waitForAutomaticRoleIsAdded(roleTreeNode);
+		//
 		helper.deleteRole(role.getId());
 		//
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
 	}
 	
 	@Test
-	public void testReferentialIntegrityOnTreeType() {
+	public void testReferentialIntegrityOnTreeNode() {
 		// prepare data
 		IdmRoleDto role = helper.createRole();
 		IdmTreeNodeDto treeNode = helper.createTreeNode();
@@ -527,9 +588,28 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
 		//
+		waitForAutomaticRoleIsAdded(roleTreeNode);
+		//
 		helper.deleteTreeNode(treeNode.getId());
 		//
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
+	}
+	
+	private void waitForAutomaticRoleIsAdded(IdmRoleTreeNodeDto roleTreeNode) {
+		helper.waitForResult(res -> {
+			// automatic role is added asynchronously - we need to wait for it, before delete
+			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+			filter.setTaskType(this.getClass().getCanonicalName());
+			filter.setRunning(Boolean.TRUE);
+			filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
+			for(IdmLongRunningTaskDto longRunningTask : longRunningTaskService.find(filter, null)) {
+				if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE)
+						.equals(roleTreeNode.getId())) {
+					return false;
+				}
+			};
+			return true;
+		});
 	}
 	
 	@Test
@@ -799,4 +879,143 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertEquals(1, contracts.size());
 	}
 	
+	@Test
+	public void testDisableIdentityAfterExcludeContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		Assert.assertFalse(identity.isDisabled());
+		//
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityMoreContracts() {
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityContact(identity);
+		Assert.assertFalse(identity.isDisabled());
+		//
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityAfterIncludeContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		contract.setState(null);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityAfterEnableContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		contract.setState(null);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterDisableContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterInvalidateContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setValidFrom(LocalDate.now().plusDays(1));
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
+	
+	@Test
+	public void testEnableIdentityAfterValidateContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		contract.setValidFrom(LocalDate.now().plusDays(1));
+		contract = service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		contract.setValidFrom(LocalDate.now());
+		service.save(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterDeleteContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		service.delete(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());	
+	}
+	
+	@Test
+	public void testEnableIdentityAfterCreateValidContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		service.delete(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		helper.createIdentityContact(identity);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertFalse(identity.isDisabled());
+	}
+	
+	@Test
+	public void testDisableIdentityAfterCreateInvalidContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		service.delete(contract);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		//
+		helper.createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
+		//
+		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+	}
 }

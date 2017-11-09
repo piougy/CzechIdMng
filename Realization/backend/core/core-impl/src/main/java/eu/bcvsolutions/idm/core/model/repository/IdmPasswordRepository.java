@@ -21,18 +21,26 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassword> {
 	
 	@Query(value = ""
-			+ "SELECT e FROM #{#entityName} e"
-	        + " WHERE"
+			+ "select e from #{#entityName} e"
+	        + " where"
 	        + " (?#{[0].password} is null or e.password = ?#{[0].password})"
-	        + " AND"
+	        + " and"
 	        + " (?#{[0].validTill == null ? 'null' : ''} = 'null' or e.validTill <= ?#{[0].validTill})"
-	        + " AND"
+	        + " and"
 	        + " (?#{[0].validFrom == null ? 'null' : ''} = 'null' or e.validFrom >= ?#{[0].validFrom})"
-	        + " AND"
+	        + " and"
 	        + " (?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId})"
-	        + " AND"
-	        + " (?#{[0].mustChange} is null or e.mustChange = ?#{[0].mustChange})")
+	        + " and"
+	        + " (?#{[0].mustChange} is null or e.mustChange = ?#{[0].mustChange})"
+	        + " and"
+	        + " (?#{[0].identityDisabled} is null or e.identity.disabled = ?#{[0].identityDisabled})")
 	Page<IdmPassword> find(IdmPasswordFilter filter, Pageable pageable);
 	
+	/**
+	 * Identity has one password (or any).
+	 * 
+	 * @param identityId
+	 * @return
+	 */
 	IdmPassword findOneByIdentity_Id(@Param("identityId") UUID identityId);
 }

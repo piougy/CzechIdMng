@@ -5,14 +5,17 @@ import { connect } from 'react-redux';
 import { Basic, Managers, Utils, Enums } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
+const systemManager = new SystemManager();
+
 /**
  * Target system detail content
+ *
+ * @author Radek Tomiška
  */
 class SystemDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.manager = new SystemManager();
     this.passwordPolicyManager = new Managers.PasswordPolicyManager();
     //
     let showConfigurationRemoteServer = false;
@@ -71,6 +74,15 @@ class SystemDetail extends Basic.AbstractContent {
       };
     }
 
+    if (entity && entity.blockedOperation) {
+      data = {
+        ...data,
+        createOperation: entity.blockedOperation.createOperation,
+        updateOperation: entity.blockedOperation.updateOperation,
+        deleteOperation: entity.blockedOperation.deleteOperation
+      };
+    }
+
     this.refs.form.setData(data);
     this.refs.name.focus();
   }
@@ -102,15 +114,20 @@ class SystemDetail extends Basic.AbstractContent {
           port: entity.port,
           timeout: entity.timeout,
           useSsl: entity.useSsl
+        },
+        blockedOperation: {
+          createOperation: entity.createOperation,
+          updateOperation: entity.updateOperation,
+          deleteOperation: entity.deleteOperation
         }
       };
 
       if (Utils.Entity.isNew(saveEntity)) {
-        this.context.store.dispatch(this.manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, newError) => {
+        this.context.store.dispatch(systemManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, newError) => {
           this._afterSave(createdEntity, newError, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.context.store.dispatch(systemManager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
           this._afterSave(patchedEntity, newError, afterAction);
         }));
       }
@@ -152,16 +169,39 @@ class SystemDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity } = this.props;
     const { _showLoading, showConfigurationRemoteServer } = this.state;
+    //
+    const blockedOperationLabels = [];
+    if (entity && entity.blockedOperation) {
+      if (entity.blockedOperation.createOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.createOperation.short'));
+      }
+      if (entity.blockedOperation.updateOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.updateOperation.short'));
+      }
+      if (entity.blockedOperation.deleteOperation) {
+        blockedOperationLabels.push(this.i18n('acc:entity.BlockedOperation.deleteOperation.short'));
+      }
+    }
+
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
-
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
-              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')} >
+              <Basic.AbstractForm
+                ref="form"
+                uiKey={ uiKey}
+                readOnly={ Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } >
+                <Basic.Alert
+                  level="warning"
+                  icon="exclamation-sign"
+                  rendered={ blockedOperationLabels.length > 0 }
+                  text={ this.i18n('blockedOperationInfo', { operations: blockedOperationLabels.join(', ') }) }
+                  className="no-margin"/>
+
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -217,10 +257,6 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.System.description')}
                   max={255}/>
                 <Basic.Checkbox
-                  ref="virtual"
-                  label={this.i18n('acc:entity.System.virtual')}
-                  readOnly/>
-                <Basic.Checkbox
                   ref="queue"
                   label={this.i18n('acc:entity.System.queue.label')}
                   helpBlock={this.i18n('acc:entity.System.queue.help')}/>
@@ -228,6 +264,18 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="readonly"
                   label={this.i18n('acc:entity.System.readonly.label')}
                   helpBlock={this.i18n('acc:entity.System.readonly.help')}/>
+                <Basic.Checkbox
+                  ref="createOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
+                <Basic.Checkbox
+                  ref="updateOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.updateOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.updateOperation.help')}/>
+                <Basic.Checkbox
+                  ref="deleteOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.deleteOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.deleteOperation.help')}/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
@@ -261,13 +309,19 @@ class SystemDetail extends Basic.AbstractContent {
 
 SystemDetail.propTypes = {
   entity: PropTypes.object,
-  uiKey: PropTypes.string.isRequired
+  uiKey: PropTypes.string.isRequired,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 SystemDetail.defaultProps = {
+  _permissions: null
 };
 
-function select() {
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
   return {
+    _permissions: systemManager.getPermissions(state, null, component.entity.id)
   };
 }
 

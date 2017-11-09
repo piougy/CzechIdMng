@@ -1,26 +1,103 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.5.0] unreleased
+## [7.6.0] unreleased
+
+### Removed
+
+##### Role request
+- Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
+
+##### Evaluator 'IdentityAccountByIdentityEvaluator'
+- Evaluator 'IdentityAccountByIdentityEvaluator' was removed and replaced by 'IdentityAccountByAccountEvaluator'.
 
 ### Changed
 
+##### Identity
+- Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
+
+##### Notification
+- ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
+
+##### Script
+
+- Methods ``IdmScriptService#getScriptByName``, ``IdmScriptService#getScriptByCode`` are deprecated and will be removed - use ``IdmScriptService#getByCode`` method instead.
+
+### Added
+
+- [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
+
+
+## [7.5.2]
+
+#### Acc module
+
+- [#797](https://redmine.czechidm.com/issues/797) - target system security was hidden by provisioning break (fixed). ``SysSystemRepository#find`` method is deprecated and will be removed - use ``SysSystemService#find`` method instead.
+
+## [7.5.1]
+
+##### Contractual relation
+
+- Long running tasks (LRT) for HR processes were restored - they are useful for pre-production checks (disable processors + show what LRT wants to process).
+
+## [7.5.0]
+
+### Added
+
 #### Core module
 
-##### Contracts
+##### Scheduler
 
-- Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``EXLUDED`` - change script is provided.
+- Added ``DependentTaskTrigger`` - execute task, when other task successfully ended. Dependent tasks are executed by ``LongRunningTaskExecuteDependentProcessor``.
+
+#### Acc module
+
+##### System
+- Add three new attributes for block system provisioning operation (createOperation, updateOperation, deleteOperation). All these attributes has default value false.
+
+
+##### Provisioning
+
+- After add, remove or update ``IdmContractGuaranteeDto`` is execute provisioning for identity that own this contract.
+- It's possible to send additional attributes, when password is changed (e.g. password expiration in extended attribute). New flag ``sendOnPasswordChange`` was added to system attribute mapping - attribute with this flag checked will be send together with changed password to provisioning. Two ways for provisioning additional attributes are implemented:
+  - send additional attributes together with new password in one provisioning operation
+  - send additional attributes after password is changed in another provisioning operation
+    - two ways are be configurable by application configuration ``idm.sec.acc.provisioning.sendPasswordAttributesTogether`` (is effective for all target systems):
+    - ``true``: additional password attributes will be send in one provisioning operation together with password
+    - ``false``: additional password attributes will be send in new provisioning operation, after password change operation
+- Add provisioning break for basic operations (create, update, delete), provisioning break can be set per system or globally for all systems.
+
+### Changed
+
+##### Identity
+
+- Warning notifications about expired password and before password expiration are not send to disabled identities.
+- Base permission ``CHANGEPERMISSION`` was added for identities. This permission is used for evaluating rights to identity's role requests - changing identity permissions. Add this new permission to your configured authorization policies (e.g for SelfIdentityEvaluator, SubordinatesEvaluator).
+
+##### Contractual relation
+
+- Service ``IdmContractGuaranteeService`` now implements EventableDtoService for method save and delete.
+- Attribute ``state`` was added. Attribute disabled was removed from ``IdmIdentityContractDto`` as redundant to new state. Previously disabled contracts is enabled with state ``ECXLUDED`` - change script is provided. Contract with state ``DISABLED`` is invalid now - all processed work with this state (automatic roles, end of contract process).
 - Contract processors were moved into ``eu.bcvsolutions.idm.core.model.event.processor.contract`` package:
   - ``IdentityContractCreateByAutomaticRoleProcessor``
   - ``IdentityContractDeleteProcessor``
   - ``IdentityContractSaveProcessor``
   - ``IdentityContractUpdateByAutomaticRoleProcessor``
+- Business logic from HR long running tasks (LRT) for HR processes was moved into processors. Enable / disable identity with no valid or excluded contracts is executed immediately after contract is changed. HR processors are using almost the same workflow as LRT (LRT variables were removed only), but its configurable now. Long running task were removed and will be unscheduled automatically after new version will be installed:
+  - ``AbstractWorkflowEventProcessor``
+  - ``HrContractExclusionProcess``
+  - ``HrEnableContractProcess``
+  - ``HrEndContractProcess``
 
 ### Removed
 
 #### Core module
 
-##### Contracts
+##### Identity
+
+- Password reset functionality was removed from core module. Password reset will be standalone module.
+
+##### Contractual relation
 
 - ``IdmIdentityContractRepository#deleteByIdentity`` was removed. It was skipping audit (bug).
 

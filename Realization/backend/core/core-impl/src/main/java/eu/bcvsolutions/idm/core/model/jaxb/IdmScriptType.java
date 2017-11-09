@@ -14,6 +14,7 @@ public class IdmScriptType {
 	private String type;
 	private String body;
 	private String parameters;
+	private String description;
 	private IdmScriptAllowClassesType allowClasses;
 	private IdmScriptServicesType services;
 
@@ -88,4 +89,14 @@ public class IdmScriptType {
 	public void setParameters(String parameters) {
 		this.parameters = parameters;
 	}
+
+	@XmlElement(type = String.class)
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 }

@@ -62,7 +62,7 @@ public interface IdentityConfiguration extends Configurable {
 	
 	@Override
 	default List<String> getPropertyNames() {
-		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sence here
+		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sense here
 		properties.add(getPropertyName(PROPERTY_IDENTITY_DELETE));
 		properties.add(getPropertyName(PROPERTY_IDENTITY_CHANGE_PASSWORD));
 		properties.add(getPropertyName(PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT));

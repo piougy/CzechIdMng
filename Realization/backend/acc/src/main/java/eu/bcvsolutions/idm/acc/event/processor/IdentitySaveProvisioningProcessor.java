@@ -11,7 +11,8 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -28,7 +29,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioning after identity is saved.")
-public class IdentitySaveProvisioningProcessor extends AbstractIdentityProcessor {
+public class IdentitySaveProvisioningProcessor
+		extends CoreEventProcessor<IdmIdentityDto> 
+		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);

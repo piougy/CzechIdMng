@@ -4,17 +4,21 @@ import org.joda.time.LocalDate;
 
 import java.util.UUID;
 
+/**
+ * Password filtering
+ * 
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ *
+ */
 public class IdmPasswordFilter extends QuickFilter {
 
     private String password;
-
     private LocalDate validTill;
-
     private LocalDate validFrom;
-
     private UUID identityId;
-
     private Boolean mustChange;
+    private Boolean identityDisabled;
 
     public LocalDate getValidTill() {
         return validTill;
@@ -55,4 +59,12 @@ public class IdmPasswordFilter extends QuickFilter {
     public void setIdentityId(UUID identityId) {
         this.identityId = identityId;
     }
+    
+    public void setIdentityDisabled(Boolean identityDisabled) {
+		this.identityDisabled = identityDisabled;
+	}
+    
+    public Boolean getIdentityDisabled() {
+		return identityDisabled;
+	}
 }

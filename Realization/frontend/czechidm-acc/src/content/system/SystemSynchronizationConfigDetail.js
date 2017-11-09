@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
@@ -20,6 +21,9 @@ const synchronizationConfigManager = new SynchronizationConfigManager();
 const systemMappingManager = new SystemMappingManager();
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const workflowProcessDefinitionManager = new Managers.WorkflowProcessDefinitionManager();
+const treeNodeManager = new Managers.TreeNodeManager();
+const treeTypeManager = new Managers.TreeTypeManager();
+const identityManager = new Managers.IdentityManager();
 
 class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
@@ -31,7 +35,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       activeKey: 1,
       forceSearchCorrelationAttribute: new Domain.SearchParameters()
         .setFilter('mappingId', Domain.SearchParameters.BLANK_UUID), // dependant select box
-      enabled: null
+      enabled: null,
+      defaultTreeType: null,
+      treeNodeSearchParameters: new Domain.SearchParameters().setFilter('treeTypeId', Domain.SearchParameters.BLANK_UUID)
     };
   }
 
@@ -95,29 +101,43 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(startSynchronization, close, event) {
+  save(startSynchronization, close, entityType, event) {
     if (event) {
       event.preventDefault();
     }
     const formValid = this.refs.form.isFormValid();
     const formFilterValid = this.refs.formFilter.isFormValid();
+    if (this.refs.formSpecific) {
+      const formSpecificValid = this.refs.formSpecific.isFormValid();
+      if (!formSpecificValid) {
+        this.setState({activeKey: 2});
+        return;
+      }
+    }
     if (!formValid) {
       this.setState({activeKey: 1});
       return;
     }
     if (!formFilterValid) {
-      this.setState({activeKey: 2});
+      this.setState({activeKey: 3});
       return;
     }
     this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
+    const filterData = this.refs.formFilter.getData(false);
+    if (this.refs.formSpecific) {
+      const specificData = this.refs.formSpecific.getData(false);
+        // Merge specific data to form.
+      _.merge(formEntity, specificData);
+    }
     // Merge filter data to form.
-    const formFilter = this.refs.formFilter.getData();
-    formEntity.customFilter = formFilter.customFilter;
-    formEntity.filterAttribute = formFilter.filterAttribute;
-    formEntity.filterOperation = formFilter.filterOperation;
-    formEntity.tokenAttribute = formFilter.tokenAttribute;
-    formEntity.customFilterScript = formFilter.customFilterScript;
+    _.merge(formEntity, filterData);
+
+    if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
+      formEntity._type = 'SysSyncContractConfigDto';
+    } else {
+      formEntity._type = 'SysSyncConfigDto';
+    }
     //
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -131,8 +151,16 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         }
       }));
     } else {
-      this.context.store.dispatch(synchronizationConfigManager.updateEntity(formEntity, `${uiKey}-detail`,
-         startSynchronization ? this.afterSaveAndStartSynchronization.bind(this, formEntity, null) : this.afterSave.bind(this, formEntity, null, close)));
+      this.context.store.dispatch(synchronizationConfigManager.updateEntity(formEntity, `${uiKey}-detail`, (updatedEntity, error) => {
+        if (startSynchronization) {
+          this.afterSaveAndStartSynchronization(updatedEntity, error);
+        } else {
+          this.afterSave(updatedEntity, error, close);
+        }
+        if (!error && this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
     }
   }
 
@@ -258,9 +286,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       }
       actions.push(
         <div>
-            <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
-            <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)} </label>
-        </div>);
+          <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
+          <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)} </label>
+        </div>
+      );
     }
     return actions;
   }
@@ -275,6 +304,61 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     });
   }
 
+  _getEntityType(synchronizationConfig, entityType) {
+    if (entityType !== undefined) {
+      return entityType;
+    }
+    if (synchronizationConfig && synchronizationConfig._embedded && synchronizationConfig._embedded.systemMapping) {
+      return synchronizationConfig._embedded.systemMapping.entityType;
+    }
+    return null;
+  }
+
+  _onChangeTreeType(treeType) {
+    const treeTypeId = treeType ? treeType.id : null;
+    this.setState({
+      treeTypeId,
+      treeNodeSearchParameters: this.state.treeNodeSearchParameters.setFilter('treeTypeId', treeTypeId || Domain.SearchParameters.BLANK_UUID)
+    }, () => {
+      this.refs.defaultTreeNode.setValue(null);
+    });
+  }
+
+  _renderContractConfig(show) {
+    const {treeNodeSearchParameters, treeTypeId} = this.state;
+    const {_synchronizationConfig} = this.props;
+    const isNew = this._getIsNew();
+    let resutlTreeTypeId = treeTypeId;
+    if (!resutlTreeTypeId && _synchronizationConfig) {
+      resutlTreeTypeId = isNew ? treeTypeId : _synchronizationConfig.defaultTreeType;
+    }
+    return (
+      <div>
+        <Basic.SelectBox
+          ref="defaultTreeType"
+          required
+          manager={treeTypeManager}
+          label={this.i18n('contractConfigDetail.defaultTreeType.label')}
+          helpBlock={this.i18n('contractConfigDetail.defaultTreeType.helpBlock')}
+          hidden={!show}
+          onChange={this._onChangeTreeType.bind(this)}/>
+        <Basic.SelectBox
+          ref="defaultTreeNode"
+          manager={treeNodeManager}
+          label={this.i18n('contractConfigDetail.defaultTreeNode.label')}
+          helpBlock={this.i18n('contractConfigDetail.defaultTreeNode.helpBlock')}
+          forceSearchParameters={treeNodeSearchParameters}
+          hidden={!resutlTreeTypeId || !show}/>
+        <Basic.SelectBox
+          ref="defaultLeader"
+          manager={identityManager}
+          label={this.i18n('contractConfigDetail.defaultLeader.label')}
+          helpBlock={this.i18n('contractConfigDetail.defaultLeader.helpBlock')}
+          hidden={!show}/>
+      </div>
+    );
+  }
+
   render() {
     const { _showLoading, _synchronizationConfig } = this.props;
     const { systemMappingId, showLoading, activeKey, entityType, enabled } = this.state;
@@ -287,16 +371,17 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
     const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
-
     let isSelectedTree = false;
-    if (entityType !== undefined) {
-      if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+    let specificConfiguration = null;
+    const finalEntityType = this._getEntityType(synchronizationConfig, entityType);
+    if (finalEntityType) {
+      if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
       }
-    } else {
-      if (synchronizationConfig && synchronizationConfig._embedded && synchronizationConfig._embedded.systemMapping
-          && synchronizationConfig._embedded.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
-        isSelectedTree = true;
+    }
+    if (finalEntityType) {
+      if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
+        specificConfiguration = this._renderContractConfig(true);
       }
     }
     return (
@@ -310,9 +395,14 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
         <Basic.Tabs activeKey={activeKey} onSelect={this._onChangeSelectTabs.bind(this)}>
           <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')} className="bordered">
-            <form onSubmit={this.save.bind(this, false, false)}>
+            <form onSubmit={this.save.bind(this, false, false, finalEntityType)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
+                <Basic.AbstractForm
+                  ref="form"
+                  data={synchronizationConfig}
+                  showLoading={innerShowLoading}
+                  className="panel-body"
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                   <Basic.Checkbox
                     ref="enabled"
                     label={this.i18n('acc:entity.SynchronizationConfig.enabled')}
@@ -431,7 +521,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                   <Basic.SplitButton
                     level="success"
                     title={this.i18n('button.saveAndContinue')}
-                    onClick={this.save.bind(this, false, false)}
+                    onClick={this.save.bind(this, false, false, finalEntityType)}
                     showLoading={innerShowLoading}
                     type="submit"
                     showLoadingIcon
@@ -442,12 +532,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     <Basic.MenuItem
                       eventKey="1"
                       rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
-                      onClick={this.save.bind(this, true, false)}>
+                      onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
                     <Basic.MenuItem
                       eventKey="2"
-                      onClick={this.save.bind(this, false, true)}>
+                      onClick={this.save.bind(this, false, true, finalEntityType)}>
                       {this.i18n('button.saveAndClose')}
                     </Basic.MenuItem>
                   </Basic.SplitButton>
@@ -455,7 +545,46 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               </Basic.Panel>
             </form>
           </Basic.Tab>
-          <Basic.Tab eventKey={2} title={this.i18n('tabs.filterConfiguration.label')} className="bordered">
+          <Basic.Tab rendered={specificConfiguration} eventKey={2} title={this.i18n('tabs.specificConfiguration.label')} className="bordered">
+            <form onSubmit={this.save.bind(this)}>
+              <Basic.Panel className="no-border">
+                <Basic.AbstractForm ref="formSpecific" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
+                  {specificConfiguration}
+                </Basic.AbstractForm>
+                <Basic.PanelFooter>
+                  <Basic.Button type="button" level="link"
+                    onClick={this.context.router.goBack}
+                    showLoading={innerShowLoading}>
+                    {this.i18n('button.back')}
+                  </Basic.Button>
+                  <Basic.SplitButton
+                    level="success"
+                    title={this.i18n('button.saveAndContinue')}
+                    onClick={this.save.bind(this, false, false, finalEntityType)}
+                    showLoading={innerShowLoading}
+                    type="submit"
+                    showLoadingIcon
+                    showLoadingText={this.i18n('button.saving')}
+                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
+                    pullRight
+                    dropup>
+                    <Basic.MenuItem
+                      eventKey="1"
+                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      onClick={this.save.bind(this, true, false, finalEntityType)}>
+                      {this.i18n('button.saveAndStartSynchronization')}
+                    </Basic.MenuItem>
+                    <Basic.MenuItem
+                      eventKey="2"
+                      onClick={this.save.bind(this, false, true, finalEntityType)}>
+                      {this.i18n('button.saveAndClose')}
+                    </Basic.MenuItem>
+                  </Basic.SplitButton>
+                </Basic.PanelFooter>
+              </Basic.Panel>
+            </form>
+          </Basic.Tab>
+          <Basic.Tab eventKey={3} title={this.i18n('tabs.filterConfiguration.label')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
                 <Basic.AbstractForm ref="formFilter" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
@@ -504,7 +633,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                   <Basic.SplitButton
                     level="success"
                     title={this.i18n('button.saveAndContinue')}
-                    onClick={this.save.bind(this, false, false)}
+                    onClick={this.save.bind(this, false, false, finalEntityType)}
                     showLoading={innerShowLoading}
                     type="submit"
                     showLoadingIcon
@@ -515,12 +644,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     <Basic.MenuItem
                       eventKey="1"
                       rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
-                      onClick={this.save.bind(this, true, false)}>
+                      onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
                     <Basic.MenuItem
                       eventKey="2"
-                      onClick={this.save.bind(this, false, true)}>
+                      onClick={this.save.bind(this, false, true, finalEntityType)}>
                       {this.i18n('button.saveAndClose')}
                     </Basic.MenuItem>
                   </Basic.SplitButton>
@@ -528,7 +657,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               </Basic.Panel>
             </form>
           </Basic.Tab>
-          <Basic.Tab eventKey={3} title={this.i18n('tabs.logs.label')}>
+          <Basic.Tab eventKey={4} title={this.i18n('tabs.logs.label')}>
             <Basic.ContentHeader rendered={synchronizationConfig} style={{ marginBottom: 0, paddingLeft: 15 }}>
               <Basic.Icon value="transfer"/>
               {' '}

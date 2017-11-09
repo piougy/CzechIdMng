@@ -22,7 +22,9 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Jan Helbich
  *
  */
-public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRunningTaskExecutor<V> implements SchedulableTaskExecutor<V> {
+public abstract class AbstractSchedulableTaskExecutor<V> 
+		extends AbstractLongRunningTaskExecutor<V> 
+		implements SchedulableTaskExecutor<V> {
 
 	@Autowired protected SecurityService securityService;
 	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
@@ -52,7 +54,6 @@ public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRun
 		return this.scheduledTaskId;
 	}
 
-	
 	protected IdmScheduledTaskDto createIdmScheduledTask(String taskName) {
 		IdmScheduledTaskDto t = new IdmScheduledTaskDto();
 		t.setQuartzTaskName(taskName);

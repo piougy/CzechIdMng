@@ -9,6 +9,12 @@ import { SystemManager } from '../../redux';
 const uiKey = 'eav-connector-';
 const manager = new SystemManager();
 
+/**
+ * System connector configuration
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
 class SystemConnectorContent extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -246,8 +252,11 @@ class SystemConnectorContent extends Basic.AbstractContent {
       // connector setting is ready
       content = (
         <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
-          <Advanced.EavForm ref="eav" formInstance={formInstance}/>
-          <Basic.PanelFooter>
+          <Advanced.EavForm
+            ref="eav"
+            formInstance={ formInstance }
+            readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }/>
+          <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
             <Basic.Button
               type="submit"
               level="success"
@@ -280,12 +289,12 @@ class SystemConnectorContent extends Basic.AbstractContent {
             <div style={{ display: 'inline-flex', width: '100%'}}>
               <Basic.EnumSelectBox
                 ref="connector"
-                placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
-                value={pickConnector ? pickConnector.value : null}
-                options={_availableConnectors}
-                readOnly={remoteConnectorError}
-                clearable={false}
-                onChange={this.saveConnector.bind(this)}
+                placeholder={ this.i18n('acc:entity.System.connectorKey.connectorName') }
+                value={ pickConnector ? pickConnector.value : null }
+                options={ _availableConnectors }
+                readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') || remoteConnectorError }
+                clearable={ false }
+                onChange={ this.saveConnector.bind(this) }
                 style={{ width: '100%'}} />
 
               <Basic.Button
@@ -293,7 +302,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 level="success"
                 disabled={error || remoteConnectorError}
                 onClick={this.save.bind(this, true)}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
+                rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && pickConnector !== undefined }
                 title={ this.i18n('button.checkSystemTooltip') }
                 titlePlacement="bottom">
                 <Basic.Icon type="fa" icon="check-circle"/>
@@ -315,11 +324,13 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
 SystemConnectorContent.propTypes = {
   formInstance: PropTypes.oject,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 SystemConnectorContent.defaultProps = {
   formInstance: null,
-  _showLoading: false
+  _showLoading: false,
+  _permissions: null
 };
 
 function select(state, component) {
@@ -329,7 +340,8 @@ function select(state, component) {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
     formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`),
     availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS),
-    availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS)
+    availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 

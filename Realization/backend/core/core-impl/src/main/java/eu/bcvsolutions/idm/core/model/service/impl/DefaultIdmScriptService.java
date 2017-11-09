@@ -6,14 +6,16 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -57,14 +59,17 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * Default service for script
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 @Service("scriptService")
-public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, IdmScriptFilter>
+public class DefaultIdmScriptService 
+		extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, IdmScriptFilter>
 		implements IdmScriptService {
 
+	// TODO: script + common template configuration
 	private static final String SCRIPT_FOLDER = "idm.sec.core.script.folder";
 	private static final String SCRIPT_FILE_SUFIX = "idm.sec.core.script.fileSuffix";
+	private static final String DEFAULT_SCRIPT_FILE_SUFIX = "**/**.xml";
 	private static final String SCRIPT_DEFAULT_BACKUP_FOLDER = "scripts/";
 	private static final String SCRIPT_DEFAULT_TYPE = "groovy";
 
@@ -170,38 +175,19 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	@Override
 	@Transactional
 	public void init() {
-		//
-		Resource[] resources = getScriptsResource();
-		Unmarshaller jaxbUnmarshaller = null;
-		//
-		try {
-			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
-		}
-		for (Resource resource : resources) {
-			try {
-				IdmScriptType scriptType = (IdmScriptType) jaxbUnmarshaller.unmarshal(resource.getInputStream());
-				//
-				// if script exist don't save again
-				IdmScriptDto script = this.getScriptByCode(scriptType.getCode());
-				LOG.info("[DefaultIdmScriptService] Load script with code {}, Exists script in system: {}",
-						scriptType.getCode(), script != null);
-				//
-				if (script == null) {
-					script = typeToDto(scriptType, null);
-					// save script
-					script = this.save(script);
-					// save authorities
-					this.scriptAuthorityService.saveAll(authorityTypeToDto(scriptType, script));
-				}
-			} catch (JAXBException e1) {
-				LOG.error("Script validation failed, file name: {}, error message: {}",
-						resource.getFilename(), e1.getLocalizedMessage());
-			} catch (IOException e) {
-				LOG.error("Failed get input stream from, file name: {}, error message: {}",
-						resource.getFilename(), e.getLocalizedMessage());
+		for (IdmScriptType scriptType : findScripts().values()) {
+			IdmScriptDto script = this.getByCode(scriptType.getCode());
+			// if script exist don't save it again => init only
+			if (script != null) {
+				LOG.info("Load script with code [{}], script is already initialized, skipping.", scriptType.getCode());
+				continue;
 			}
+			//
+			LOG.info("Load script with code [{}], script will be initialized.", scriptType.getCode());
+			// save script
+			script = this.save(typeToDto(scriptType, null));
+			// save authorities
+			this.scriptAuthorityService.saveAll(authorityTypeToDto(scriptType, script));
 		}
 	}
 
@@ -225,14 +211,32 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
 			LOG.error("Backup for script: {} failed, error message: {}", dto.getCode(),
-					e.getLocalizedMessage());
+					e.getLocalizedMessage(), e);
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
-					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
+					ImmutableMap.of("code", dto.getCode()));
 		}
 	}
 
 	@Override
 	public IdmScriptDto redeploy(IdmScriptDto dto) {
+		IdmScriptType foundType = findScripts().get(dto.getCode());
+		//
+		if (foundType == null) {
+			throw new ResultCodeException(CoreResultCode.SCRIPT_XML_FILE_NOT_FOUND,
+					ImmutableMap.of("code", dto.getCode()));
+		}
+		//
+		return deployNewAndBackupOld(dto, foundType);
+	}
+
+	/**
+	 * Return list of {@link IdmScriptType} from resources.
+	 * {@link IdmScriptType} are found by configured locations and by priority - last one wins.
+	 * So default location should be configured first, then external, etc. 
+	 * 
+	 * @return <code, script>
+	 */
+	private Map<String, IdmScriptType> findScripts() {
 		Unmarshaller jaxbUnmarshaller = null;
 		//
 		try {
@@ -240,53 +244,43 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		} catch (JAXBException e) {
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
+		// last script with the same is used
+		// => last location has the highest priority
+		Map<String, IdmScriptType> scripts = new HashMap<>();
 		//
-		Resource[] resources = getScriptsResource();
-		List<IdmScriptType> types = new ArrayList<>();
-		for (Resource resource : resources) {
+		for(String location : configurationService.getValues(SCRIPT_FOLDER)) {
+			location = location + configurationService.getValue(SCRIPT_FILE_SUFIX, DEFAULT_SCRIPT_FILE_SUFIX);
+			Map<String, IdmScriptType> locationScripts = new HashMap<>();
 			try {
-				IdmScriptType scriptType = (IdmScriptType) jaxbUnmarshaller.unmarshal(resource.getInputStream());
+				Resource[] resources = applicationContext.getResources(location);
+				LOG.debug("Found [{}] resources on location [{}]", resources == null ? 0 : resources.length, location);
 				//
-				types.add(scriptType);
-			} catch (JAXBException e1) {
-				LOG.error("Script validation failed, file name: {}, error message: {}",
-						resource.getFilename(), e1.getLocalizedMessage());
-			} catch (IOException e) {
-				LOG.error("Failed get input stream from, file name: {}, error message: {}",
-						resource.getFilename(), e.getLocalizedMessage());
+				if (ArrayUtils.isNotEmpty(resources)) {
+					for (Resource resource : resources) {
+						try {
+							IdmScriptType scriptType = (IdmScriptType) jaxbUnmarshaller.unmarshal(resource.getInputStream());
+							//
+							// log error, if script with the same code was found twice in one resource
+							if (locationScripts.containsKey(scriptType.getCode())) {
+								LOG.error("More scripts with code [{}], category [{}] found on the same location [{}].",
+										scriptType.getCode(),
+										scriptType.getCategory());
+							}
+							// last one wins
+							locationScripts.put(scriptType.getCode(), scriptType);
+						} catch (JAXBException ex) {
+							LOG.error("Script validation failed, file name [{}].", resource.getFilename(), ex);
+						} catch (IOException ex) {
+							LOG.error("Failed get input stream from, file name [{}].", resource.getFilename(), ex);
+						}							
+					}
+					scripts.putAll(locationScripts);
+				}
+			} catch (IOException ex) {
+				throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR, ImmutableMap.of("path", location), ex);
 			}
 		}
-		//
-		List<IdmScriptType> foundType = types.stream().filter(type -> type.getCode().equals(dto.getCode()))
-				.collect(Collectors.toList());
-		//
-		if (foundType.isEmpty()) {
-			throw new ResultCodeException(CoreResultCode.SCRIPT_XML_FILE_NOT_FOUND,
-					ImmutableMap.of("code", dto.getCode()));
-		} else if (foundType.size() > 1) {
-			// more than one code found throw error
-			throw new ResultCodeException(CoreResultCode.SCRIPT_MORE_CODE_FOUND,
-					ImmutableMap.of("code", dto.getCode()));
-		}
-		//
-		return deployNewAndBackupOld(dto, foundType.get(0));
-	}
-
-	/**
-	 * Return array of {@link Resource} with all resource with scripts.
-	 * 
-	 * @return
-	 */
-	private Resource[] getScriptsResource() {
-		Resource[] resources = null;
-		try {
-			resources = applicationContext.getResources(
-					configurationService.getValue(SCRIPT_FOLDER) + configurationService.getValue(SCRIPT_FILE_SUFIX));
-		} catch (IOException e) {
-			throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR, ImmutableMap.of("path",
-					configurationService.getValue(SCRIPT_FOLDER) + configurationService.getValue(SCRIPT_FILE_SUFIX)), e);
-		}
-		return resources;
+		return scripts;
 	}
 
 	/**
@@ -310,6 +304,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		script.setName(type.getName());
 		script.setCategory(type.getCategory());
 		script.setScript(type.getBody());
+		script.setDescription(type.getDescription());
 		// parameter isn't implemented yet
 		// script.setParameter(type.getParameters());
 		// attribute TYPE from IdmScriptType isn't implemented yet.
@@ -422,6 +417,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		// type.setParameters(dto.getParameter());
 		type.setBody(dto.getScript());
 		type.setCategory(dto.getCategory());
+		type.setDescription(dto.getDescription());
 		type.setType(SCRIPT_DEFAULT_TYPE);
 		//
 		if (authorities != null && !authorities.isEmpty()) {

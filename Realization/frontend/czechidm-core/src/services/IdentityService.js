@@ -32,6 +32,9 @@ class IdentityService extends FormableEntityService {
   getNiceLabel(entity) {
     let toString = '';
     if (entity) {
+      if (!entity.lastName) {
+        return entity.username;
+      }
       toString += this.getFullName(entity);
       toString += (entity.username ? ` (${entity.username})` : '');
     }
@@ -62,45 +65,12 @@ class IdentityService extends FormableEntityService {
   }
 
   /**
-   * Resets users pasword in given systems (by json)
-   *
-   * @param username {string}
-   * @param passwordResetDto {object}
-   * @return {Promise}
-   */
-  passwordReset(username, passwordResetDto) {
-    return RestApiService.put(this.getApiPath() + `/${encodeURIComponent(username)}/password/reset`, passwordResetDto);
-  }
-
-
-  /**
    * Generates password based on configured idm policies
    *
    * @return {Promise}
    */
   generatePassword() {
     return passwordPolicyService.generatePassword();
-  }
-
-  /**
-   * Generates token, whitch is required for reset given user's password
-   *
-   * @param username {string}
-   * @return {Promise}
-   */
-  generatePasswordResetToken(username) {
-    return RestApiService.post(this.getApiPath() + `/password/reset/token?name=${encodeURIComponent(username)}`);
-  }
-
-  /**
-   * Resets password by given token. Token is generated for specific username.
-   * @return {Promise}
-   */
-  paswordResetByToken(token, password) {
-    return RestApiService.put(this.getApiPath() + `/password/reset/token`, {
-      token,
-      password
-    });
   }
 
   /**

@@ -1,6 +1,6 @@
 {
   "name": "czechidm-core",
-  "version": "7.5.0-snapshot",
+  "version": "7.6.0-snapshot",
   "description": "Core module for CzechIdM",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "github-markdown-css": "2.2.1",
     "metismenu": "2.5.0",
     "react-datetime": "2.2.0",
-    "react-select": "1.0.0-rc.10"
+    "react-select": "1.0.0-rc.3"
   },
   "peerDependencies": {
     "eslint": "^1.10.3",
@@ -49,7 +49,7 @@
     "draft-js": "0.10.0",
     "draft-js-export-html": "0.5.2",
     "es6-promise": "3.1.2",
-    "font-awesome": "^4.6.1",
+    "font-awesome": "4.7.0",
     "i18next": "3.4.4",
     "i18next-browser-languagedetector": "1.0.1",
     "i18next-localstorage-cache": "0.3.0",

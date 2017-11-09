@@ -63,7 +63,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		contracts.add(otherContract);
 		contracts.add(mainContract);
 		//
-		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
+		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);	
 		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		//
 		Assert.assertEquals(mainContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());

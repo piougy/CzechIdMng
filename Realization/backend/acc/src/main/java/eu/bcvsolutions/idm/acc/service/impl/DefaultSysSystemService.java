@@ -9,10 +9,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -20,10 +25,10 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -34,6 +39,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -53,8 +59,10 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
@@ -115,7 +123,6 @@ public class DefaultSysSystemService
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			EntityEventManager entityEventManager) {
-		
 		super(systemRepository, entityEventManager, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -129,7 +136,6 @@ public class DefaultSysSystemService
 		Assert.notNull(systemMappingService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(formService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -146,11 +152,8 @@ public class DefaultSysSystemService
 	}
 	
 	@Override
-	protected Page<SysSystem> findEntities(SysSystemFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return systemRepository.findAll(pageable);
-		}
-		return systemRepository.find(filter, pageable);
+	public AuthorizableType getAuthorizableType() {
+		return null; //new AuthorizableType(AccGroupPermission.SYSTEM, getEntityClass());
 	}
 
 	@Override
@@ -181,6 +184,31 @@ public class DefaultSysSystemService
 	@Transactional(readOnly = true)
 	public SysSystemDto getByCode(String name) {
 		return toDto(systemRepository.findOneByName(name));
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<SysSystem> root, CriteriaQuery<?> query, CriteriaBuilder builder, SysSystemFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// quick
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(
+					builder.or(
+							builder.like(builder.lower(root.get(SysSystem_.name)), "%" + filter.getText().toLowerCase() + "%"),
+							builder.like(builder.lower(root.get(SysSystem_.description)), "%" + filter.getText().toLowerCase() + "%")
+							));
+			
+		}
+		if (filter.getVirtual() != null) {
+			predicates.add(builder.equal(root.get(SysSystem_.virtual), filter.getVirtual()));
+		}
+		if (filter.getPasswordPolicyGenerationId() != null) {
+			predicates.add(builder.equal(root.get(SysSystem_.passwordPolicyGenerate).get(IdmPasswordPolicy_.id), filter.getPasswordPolicyGenerationId()));		
+		}
+		if (filter.getPasswordPolicyValidationId() != null) {
+			predicates.add(builder.equal(root.get(SysSystem_.passwordPolicyValidate).get(IdmPasswordPolicy_.id), filter.getPasswordPolicyValidationId()));
+		}
+		//
+		return predicates;
 	}
 
 	@Override
@@ -240,7 +268,6 @@ public class DefaultSysSystemService
 	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
 		Assert.notNull(systemId, "System ID cannot be null!");
 		Assert.notNull(uid, "Account UID cannot be null!");
-		Assert.notNull(objectClass, "Object class cannot be null!");
 		
 		SysSystemDto system = this.get(systemId);
 		Assert.notNull(system, "System cannot be null!");
@@ -449,7 +476,7 @@ public class DefaultSysSystemService
 						schemaAttributesCache, mappedAttributesCache);
 
 				// Duplicate sync configs
-				List<SysSyncConfigDto> syncConfigs = findSyncConfigs(id);
+				List<AbstractSysSyncConfigDto> syncConfigs = findSyncConfigs(id);
 				syncConfigs.stream().filter(syncConfig -> {
 					
 					// Find configuration of sync for this mapping
@@ -603,7 +630,7 @@ public class DefaultSysSystemService
 	 */
 	private void duplicateSyncConf(UUID syncConfigId, SysSystemMappingDto duplicatedMapping,
 			Map<UUID, UUID> mappedAttributesCache) {
-		SysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
+		AbstractSysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
 		clonedSyncConfig.setSystemMapping(duplicatedMapping.getId());
 		//
 		if (clonedSyncConfig.getFilterAttribute() != null) {
@@ -647,7 +674,7 @@ public class DefaultSysSystemService
 	 * @param id
 	 * @return
 	 */
-	private List<SysSyncConfigDto> findSyncConfigs(UUID id) {
+	private List<AbstractSysSyncConfigDto> findSyncConfigs(UUID id) {
 		SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
 		syncConfigFilter.setSystemId(id);
 		return synchronizationConfigService.find(syncConfigFilter, null).getContent();

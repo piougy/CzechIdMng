@@ -44,4 +44,13 @@ public interface ValidableEntity {
 		return EntityUtils.isValid(this, targetDate);
 	}
 	
+	/**
+	 * Returns true, if entity is valid now or in future.
+	 * 
+	 * @return
+	 */
+	default boolean isValidNowOrInFuture() {
+		return EntityUtils.isValidNowOrInFuture(this);
+	}
+	
 }

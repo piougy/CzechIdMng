@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 
 /**
- * This error class propagates exception into front end. It contains a message and HTTP status code and unique id.
+ * Core exception with result code. Exception contains a message and status code and unique id.
  * Every error has it's unique id under which you can find it in log.
  * 
  * @author Radek Tomiška 

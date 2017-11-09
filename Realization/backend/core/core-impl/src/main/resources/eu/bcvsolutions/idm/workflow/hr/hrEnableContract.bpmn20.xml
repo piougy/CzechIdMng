@@ -8,8 +8,6 @@ last run of the task). If the identity, which is the owner of the contract, was 
 This process does not address the assignment of automatic roles, as it is done by an internal feature automatically.
 
 Input:
-    longRunningTaskId - UUID
-    scheduledTaskId - UUID
     dto - IdmIdentityContractDto</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
@@ -34,9 +32,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecuto
 
 Logger LOG = LoggerFactory.getLogger("hrEnableContract")
 
-LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+LOG.info("Enabled contract dto: [{}]", dto)
 
-if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!")
 }
 

@@ -22,6 +22,11 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  */
 public interface EntityEventProcessor<E extends Serializable> extends Ordered, Configurable {
 	
+	/**
+	 * Event types from configuration
+	 */
+	static final String PROPERTY_EVENT_TYPES = "eventTypes";
+	
 	@Override
 	default String getConfigurableType() {
 		return "processor";

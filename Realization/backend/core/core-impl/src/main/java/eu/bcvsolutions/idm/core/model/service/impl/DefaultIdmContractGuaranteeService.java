@@ -10,7 +10,8 @@ import javax.persistence.criteria.Root;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
@@ -25,11 +26,13 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmContractGuaranteeService 
-		extends AbstractReadWriteDtoService<IdmContractGuaranteeDto, IdmContractGuarantee, IdmContractGuaranteeFilter> 
+		extends AbstractEventableDtoService<IdmContractGuaranteeDto, IdmContractGuarantee, IdmContractGuaranteeFilter> 
 		implements IdmContractGuaranteeService {
 	
-	public DefaultIdmContractGuaranteeService(IdmContractGuaranteeRepository repository) {
-		super(repository);
+	public DefaultIdmContractGuaranteeService(
+			IdmContractGuaranteeRepository repository,
+			EntityEventManager entityEventManager) {
+		super(repository, entityEventManager);
 	}
 	
 	@Override

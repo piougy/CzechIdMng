@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -148,11 +148,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	public SysSyncConfigDto process(UUID synchronizationConfigId) {
+	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
 				
-		SysSyncConfigDto config = context.getConfig();
+		AbstractSysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
 		SysSystemDto system = context.getSystem();
 		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
@@ -472,7 +472,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionsLog
 	 */
 	@Override
-	protected void startExport(SystemEntityType entityType, SysSyncConfigDto config,
+	protected void startExport(SystemEntityType entityType, AbstractSysSyncConfigDto config,
 			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
@@ -587,7 +587,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private void processTreeSync(SynchronizationContext context,
 			Map<String, IcConnectorObject> accountsMap) {
 		
-		SysSyncConfigDto config = context.getConfig();
+		AbstractSysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
 		SysSystemDto system = context.getSystem();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
@@ -691,7 +691,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	private Collection<String> findRoots(SysSystemAttributeMappingDto parentAttribute,
-										 Map<String, IcConnectorObject> accountsMap, SysSyncConfigDto config, SynchronizationContext context) {
+										 Map<String, IcConnectorObject> accountsMap, AbstractSysSyncConfigDto config, SynchronizationContext context) {
 		Set<String> roots = Sets.newHashSet();
 		if (parentAttribute == null) {
 			return roots;

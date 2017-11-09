@@ -56,7 +56,8 @@ log4js.configure({
   // replaceConsole: true
 });
 const logger = log4js.getLogger();
-logger.setLevel(!config.logger || !config.logger.level ? 'DEBUG' : config.logger.level);
+const level = ConfigLoader.getConfig('logger.level', !config.logger || !config.logger.level ? 'DEBUG' : config.logger.level);
+logger.setLevel(level);
 global.LOGGER = logger;
 
 // debug setting

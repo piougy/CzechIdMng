@@ -16,10 +16,11 @@ import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.AbstractIdentityProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -39,7 +40,9 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
  */
 @Component
 @Description("Check if defined fields on identity was changed. If yes, then send notification. (Extended attributes is not supported now)")
-public class IdentityMonitoredFieldsProcessor extends AbstractIdentityProcessor {
+public class IdentityMonitoredFieldsProcessor
+		extends CoreEventProcessor<IdmIdentityDto> 
+		implements IdentityProcessor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityMonitoredFieldsProcessor.class);
 

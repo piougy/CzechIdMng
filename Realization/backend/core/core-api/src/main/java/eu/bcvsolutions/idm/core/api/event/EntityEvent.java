@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.springframework.core.ResolvableTypeProvider;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -95,4 +96,25 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @return
 	 */
 	Integer getProcessedOrder();
+	
+	
+	/**
+	 * Returns true, if event's type equals given eventType.
+	 * 
+	 * @param event
+	 * @param eventType
+	 * @return
+	 */
+	default boolean hasType(EventType eventType) {
+		Assert.notNull(eventType);
+		//
+		return eventType.name() == getType().name();
+	}
+
+	/**
+	 * Event class type. If is not field 'eventClassType' sets (in constructor), then will be used class from content.
+	 * Processors with this generic class will be called.
+	 * @return
+	 */
+	Class<? extends E> getEventClassType();
 }

@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -72,6 +73,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
@@ -451,7 +453,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmContractGuaranteeService.class)
 	public IdmContractGuaranteeService contractGuaranteeService() {
-		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository);
+		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository, entityEventManager());
 	}
 	
 	/**
@@ -512,4 +514,16 @@ public class IdmServiceConfiguration {
 	public IdmRoleGuaranteeService roleGuaranteeService() {
 		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository);
 	}
+	
+	/**
+	 * Confidential storage value
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmConfidentialStorageValueService.class)
+	public IdmConfidentialStorageValueService confidentialStorageValueService() {
+		return new DefaultIdmConfidentialStorageValueService(confidentialStorageValueRepository, cryptService());
+	}
+	
 }

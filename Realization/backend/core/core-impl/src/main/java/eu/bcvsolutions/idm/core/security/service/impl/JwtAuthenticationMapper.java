@@ -28,9 +28,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.DefaultGrantedAuthorityDto;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
+import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 
 /**
- * Reads authentication from token and provides conversions from / to dto nd to token. 
+ * Reads authentication from token and provides conversions from / to dto and to token. 
  * 
  * @author Radek Tomiška
  *
@@ -38,7 +39,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 @Component
 public class JwtAuthenticationMapper {
 
-	public static final String AUTHENTICATION_TOKEN_NAME = "CIDMST";
+	public static final String AUTHENTICATION_TOKEN_NAME = IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME.toUpperCase();
 	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.security.jwt.secret.token";
 	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
 	//

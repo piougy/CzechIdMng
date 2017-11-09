@@ -11,6 +11,9 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Accounts on target system
@@ -20,7 +23,9 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  */
 public interface AccAccountService extends 
 		ReadWriteDtoService<AccAccountDto, AccAccountFilter>, 
-		ScriptEnabled {
+		ScriptEnabled,
+		AuthorizableService<AccAccountDto>
+		{
 
 	@Deprecated
 	/**
@@ -57,4 +62,12 @@ public interface AccAccountService extends
 	 * @return
 	 */
 	Page<AccAccountDto> findExpired(DateTime expirationDate, Pageable pageable);
+
+	/**
+	 * Load object from the connector
+	 * @param account
+	 * @param permissions
+	 * @return
+	 */
+	IcConnectorObject getConnectorObject(AccAccountDto account, BasePermission... permissions);
 }

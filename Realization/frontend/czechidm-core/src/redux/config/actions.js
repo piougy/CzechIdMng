@@ -277,3 +277,15 @@ export function getNavigationItem(configState, id) {
   }
   return navigation.get(ConfigLoader.NAVIGATION_BY_ID).get(id);
 }
+
+/**
+ * Hide footer on some contents.
+ *
+ * @return {bool} true - content footer will not be rendered
+ */
+export function hideFooter(hidden = false) {
+  return {
+    type: Actions.HIDE_FOOTER,
+    [Properties.HIDE_FOOTER]: hidden
+  };
+}

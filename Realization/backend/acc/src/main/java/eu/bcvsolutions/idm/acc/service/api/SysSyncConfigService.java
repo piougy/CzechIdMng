@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author svandav
  *
  */
-public interface SysSyncConfigService extends ReadWriteDtoService<SysSyncConfigDto, SysSyncConfigFilter>, CloneableService<SysSyncConfigDto> {
+public interface SysSyncConfigService extends ReadWriteDtoService<AbstractSysSyncConfigDto, SysSyncConfigFilter>, CloneableService<AbstractSysSyncConfigDto> {
 
 	/**
 	 * Method check if synchronization with given config running.
@@ -19,10 +19,10 @@ public interface SysSyncConfigService extends ReadWriteDtoService<SysSyncConfigD
 	 * @param config
 	 * @return
 	 */
-	boolean isRunning(SysSyncConfigDto config);
+	boolean isRunning(AbstractSysSyncConfigDto config);
 	
 	/**
-	 * Return count of {@link SysSyncConfigDto} for {@link SysSystemMappingDto}
+	 * Return count of {@link AbstractSysSyncConfigDto} for {@link SysSystemMappingDto}
 	 * 
 	 * @param mappingDto
 	 * @return

@@ -91,6 +91,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 		this.originalModifier = auditable.getOriginalModifier();
 		this.originalModifierId = auditable.getOriginalModifierId();
 		this.transactionId = auditable.getTransactionId();
+		this.realmId = auditable.getRealmId();
 	}
 
 	@Override

@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
@@ -26,25 +25,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
    * @return {object} component or null
    */
   static getComponent(entityType) {
-    if (!entityType) {
-      return null;
-    }
-    return componentService.getComponentDefinitions(ComponentService.ENTITY_INFO_COMPONENT_TYPE).find(component => {
-      if (!component.entityType) {
-        return false;
-      }
-      // multiple types
-      if (_.isArray(component.entityType)) {
-        for (const entityTypeItem of component.entityType) {
-          if (entityTypeItem.toLowerCase() === entityType.toLowerCase()) {
-            return true;
-          }
-        }
-        return false;
-      }
-      // single value
-      return component.entityType.toLowerCase() === entityType.toLowerCase();
-    });
+    return componentService.getEntityInfoComponent(entityType);
   }
 
   /**
@@ -88,15 +69,14 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
     if (component) {
       const EntityInfoComponent = component.component;
       return (
-        <span style={ style}>
-          <EntityInfoComponent
-            entity={ entity }
-            entityIdentifier={ entityIdentifier }
-            face={ face }
-            className={ classNames }
-            showLoading={ showLoading }
-            showLink={ showLink }/>
-        </span>
+        <EntityInfoComponent
+          entity={ entity }
+          entityIdentifier={ entityIdentifier }
+          face={ face }
+          className={ classNames }
+          showLoading={ showLoading }
+          showLink={ showLink }
+          style={ style }/>
       );
     }
     //

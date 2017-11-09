@@ -20,7 +20,7 @@ class Configurations extends Advanced.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: false,
+      filterOpened: true,
       detail: {
         show: false,
         entity: {}
@@ -38,6 +38,7 @@ class Configurations extends Advanced.AbstractTableContent {
     if (SecurityManager.hasAuthority('CONFIGURATION_ADMIN')) {
       this.context.store.dispatch(manager.fetchAllConfigurationsFromEnvironment());
     }
+    this.refs.text.focus();
   }
 
   getManager() {

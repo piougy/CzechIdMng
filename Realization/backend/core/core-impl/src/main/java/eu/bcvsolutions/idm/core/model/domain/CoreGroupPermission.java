@@ -31,8 +31,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE,
-			IdentityBasePermission.PASSWORDCHANGE),
-			// IdentityBasePermission.PASSWORDRESET),
+			IdentityBasePermission.PASSWORDCHANGE,
+			IdentityBasePermission.CHANGEPERMISSION),
 	IDENTITYCONTRACT(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.AUTOCOMPLETE,
@@ -145,7 +145,10 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
-			IdmBasePermission.DELETE);
+			IdmBasePermission.DELETE),
+	CONFIDENTIALSTORAGEVALUE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -245,6 +248,8 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String WORKFLOW_DEFINITION_CREATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String WORKFLOW_DEFINITION_UPDATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String WORKFLOW_DEFINITION_DELETE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String CONFIDENTIAL_STORAGE_VALUE_READ = "CONFIDENTIALSTORAGEVALUE" + BasePermission.SEPARATOR + "READ";
 	
 	private final List<BasePermission> permissions;
 

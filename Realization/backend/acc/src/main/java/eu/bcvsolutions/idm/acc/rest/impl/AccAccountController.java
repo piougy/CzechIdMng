@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,11 +32,15 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
+import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -56,7 +62,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Account on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccAccountController extends DefaultReadWriteDtoController<AccAccountDto, AccAccountFilter> {
+public class AccAccountController extends AbstractReadWriteDtoController<AccAccountDto, AccAccountFilter> {
 	
 	protected static final String TAG = "Accounts";
 	//
@@ -202,10 +208,80 @@ public class AccAccountController extends DefaultReadWriteDtoController<AccAccou
 		return dto;
 	}
 	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/connector-object", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Connector object for the account. Contains only attributes for witch have a schema attribute definitons.", 
+			nickname = "getConnectorObject", 
+			response = IcConnectorObject.class, 
+			tags = { SysSystemEntityController.TAG }, 
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+					})
+	public ResponseEntity<IcConnectorObject> getConnectorObject(
+			@ApiParam(value = "Account's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		AccAccountDto account = this.getDto(backendId);
+		if(account == null) {
+			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
+		}
+		IcConnectorObject connectorObject = ((AccAccountService)getService())
+				.getConnectorObject(account, IdmBasePermission.READ);
+		if(connectorObject == null) {
+			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<IcConnectorObject>(connectorObject, HttpStatus.OK);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnAccount", 
+			tags = { AccAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Account's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
+	}
+	
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete accounts (selectbox usage)", 
+			nickname = "autocompleteAccounts", 
+			tags = { AccAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
 	@Override
 	protected AccAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		AccAccountFilter filter = new AccAccountFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
+		AccAccountFilter filter = new AccAccountFilter(parameters);
+		//
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setSystemEntityId(getParameterConverter().toUuid(parameters, "systemEntityId"));
 		//

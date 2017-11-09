@@ -5,7 +5,8 @@
       "name": "BCV solutions s.r.o.",
       "homePage": "http://www.bcvsolutions.eu"
     },
-    "helpdesk": "HelpDesk",
+    "serviceDesk": "ServiceDesk",
+    "helpDesk": "Wiki",
     "version": {
       "frontend": "Version",
       "backend": "Backend version",
@@ -173,6 +174,20 @@
     "save": {
       "success_0": "N/A",
       "success": "Record [{{record}}] successfully saved"
+    },
+    "cancel": {
+      "action": "Cancel",
+      "header": "Cancel record",
+      "header_plural": "Cancel records",
+      "message": "Do you want to cancel selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to cancel <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while canceling [{{record}}].",
+      "success": "Selected record [{{record}}] successfully canceled",
+      "success_plural": "Selected records [{{records}}] were successfully canceled",
+      "approve": "Record cancel [{{record}}] has to be approved, task successfully created",
+      "approve_plural": "Records cancel [{{records}}] have to be approved, tasks successfully created",
+      "accepted": "Record cancel [{{record}}] run asynchronously (cancel has to be approved or run as long running task)",
+      "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
     }
   },
   "environment": {
@@ -282,6 +297,10 @@
             "title": "Show info card"
           }
         }
+      },
+      "EntitySelectBox": {
+        "componentNotFound": "Select box component for type [{{entityType}}] is not registered. Fix component descriptor.",
+        "defaultHelpBlock": "Searching is done in the following attributes: {{searchInFields}}."
       },
       "Filter": {
         "option": {
@@ -499,11 +518,13 @@
       "EXECUTED": "Executed",
       "EXCEPTION": "Failed",
       "NOT_EXECUTED": "Not executed",
-      "CANCELED": "Canceled"
+      "CANCELED": "Canceled",
+      "BLOCKED": "Blocked"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
-      "CRON": "Cron"
+      "CRON": "Cron",
+      "DEPENDENT": "Other task"
     },
     "RolePriorityEnum": {
       "NONE": "None (0)",
@@ -558,7 +579,7 @@
       "DELETE": "Delete",
       "EXECUTE": "Execute",
       "PASSWORDCHANGE": "Password change",
-      "PASSWORDRESET": "Password reset"
+      "CHANGEPERMISSION": "Manage authorizations"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -584,7 +605,9 @@
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
-      "WORKFLOWDEFINITION": "Workflow - definitions"
+      "WORKFLOWDEFINITION": "Workflow - definitions",
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+
     }
   },
   "content": {
@@ -625,7 +648,6 @@
       "admin": "Administrator",
       "button": {
         "login": "$t(content.login.header)",
-        "passwordReset": "$t(content.password.reset.button.passwordReset)",
         "passwordChange": "$t(content.password.change.button.passwordChange)",
         "logout": {
           "value": "Logout",
@@ -641,38 +663,6 @@
       }
     },
     "password": {
-      "reset": {
-        "header": "Password reset",
-        "title": "Password reset",
-        "username": "Enter your username",
-        "token": {
-          "label": "Verification code",
-          "placeholder": "Verification code received via SMS"
-        },
-        "password": "New password",
-        "passwordAgain": {
-          "label": "Password again",
-          "placeholder": "New password again"
-        },
-        "button": {
-          "haveToken": "I have already received the verification code",
-          "sendToken": "Send",
-          "passwordReset": "Password reset"
-        },
-        "message": {
-          "generateResetToken": {
-            "info": "This form can be used to reset the password for your user identity. After sending you will receive a verification code that you can use to reset your password. The password can be reset only once every 24 hours. If you already have a valid verification code, press 'I have already received'",
-            "success": "Verification code will be sent via SMS"
-          },
-          "passwordReset": {
-            "info": "On your phone number verification code was sent. Now you can change the password to your user account. If you do not receive an SMS message to a few minutes, please contact technical support. For technical problems, contact support at the email address helpdesk@bcvsolutions.eu",
-            "success": {
-              "title": "Reset your password successfully changed",
-              "message": "Your password was successfully changed on all your accounts"
-            }
-          }
-        }
-      },
       "change": {
         "header": "Change password",
         "title": "Change password",
@@ -953,8 +943,8 @@
           "placeholder": "Assigned role"
         },
         "disabled": {
-          "label": "Inactive",
-          "placeholder": "Inactive"
+          "label": "$t(label.disabled)",
+          "placeholder": "$t(label.disabled)"
         }
       },
       "action": {
@@ -976,9 +966,6 @@
           "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users?",
           "error": "When you activate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are activated"
-        },
-        "reset": {
-          "action": "Password reset"
         },
         "remove": {
           "action": "Remove"
@@ -1153,6 +1140,21 @@
           "label": "Text",
           "placeholder": "Code / Name / Description"
         }
+      }
+    },
+    "confidentialStorage": {
+      "header": "Confidential storage",
+      "title": "Confidential storage",
+      "label": "Confidential storage",
+      "filter": {
+        "text": "Key / Owner type",
+        "ownerId": "Owner Id",
+        "key": "Key",
+        "ownerType": "Owner type"
+      },
+      "edit": {
+        "title": "Detail of storage",
+        "header": "Detail encrypted value"
       }
     },
     "scripts": {
@@ -1513,37 +1515,6 @@
           "change": "Change password"
         }
       },
-      "passwordReset": {
-        "header": "Password reset",
-        "title": "Password reset",
-        "info": "Password will be reset to users above on selected systems",
-        "message": {
-          "loadResourcesFailed": "Error during loading account on system of user {{username}}",
-          "resetFailed": "Password reset for user {{username}} failed",
-          "resetSuccess": "Password reset for users {{usernames}} was successful"
-        },
-        "confirm": {
-          "title": "Password reset",
-          "message": "Do you really want to reset passwords for user <strong>{{username}}</strong> on selected systems?",
-          "message_plural": "Do you really want to reset passwords for <strong>{{count}}</strong> selected users on selected systems?"
-        },
-        "accounts": {
-          "empty": "User {{username}} doesn't have account on system {{resource}}"
-        },
-        "users": {
-          "empty": "Please, select users which you want to reset password."
-        },
-        "selection": {
-          "empty": "Please, select at least one users and system where you want to reset password"
-        },
-        "button": {
-          "reset": "Reset password"
-        },
-        "label": {
-          "selectAllUsername": "$t(label.selectAll) from given user",
-          "selectAllResource": "$t(label.selectAll) from given system"
-        }
-      },
       "identityRoleDetail": {
         "label": "Record details"
       },
@@ -1757,8 +1728,8 @@
         "action": {
           "trigger-delete": {
             "header": "Remove scheduled run",
-            "message": "Do you really want to remove scheduled run [<strong>{{record}}</strong>]?",
-            "success": "Scheduled run [{{record}}] was removed."
+            "message": "Do you really want to remove scheduled run?",
+            "success": "Scheduled run was removed."
           },
           "trigger-create": {
             "header": "New scheduled run",
@@ -2072,7 +2043,7 @@
       "password": "Password",
       "passwordAgain": "Re-enter password",
       "homeOrganisation": "Home organization",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "internist": "Employee",
       "externe": "External contractor",
       "titleBefore": "Titles before",
@@ -2094,6 +2065,14 @@
       "parent": {
         "name": "Parent folder in catalog"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Owner Id",
+      "key": "Key",
+      "ownerType": "Owner type",
+      "serializableValue": "Value",
+      "created": "Date of creation",
+      "creator": "Creator"
     },
     "Script": {
       "name": "Script name",
@@ -2173,7 +2152,7 @@
       "roleType": "Type",
       "priority": "Priority",
       "priorityEnum": "Priority level",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "approvable": "Approval required",
       "superiorRoles": "Superior roles",
       "subRoles": "Subordinate roles",
@@ -2196,7 +2175,7 @@
       "_type": "Permission",
       "role": "Role",
       "disabled": {
-        "label": "Inactive",
+        "label": "$t(label.disabled)",
         "help": "Inactive policy will not be applied"
       },
       "description": {
@@ -2281,8 +2260,8 @@
         "title": "Authorizer and all managers for position in structure"
       },
       "disabled": {
-        "label": "Inactive",
-        "help": "Inactive work position. Roles cannot be assigned to inactive position. Depends on position's state."
+        "label": "$t(label.disabled)",
+        "help": "Invalid work position. Roles cannot be assigned to invalid position. Depends on position's state."
       },
       "description": "Note",
       "main": {
@@ -2299,7 +2278,7 @@
       "id": "Identifier",
       "code": "Code",
       "name": "Name",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "shortName": "Name",
       "parentId": "Superior element",
       "parent": {
@@ -2510,7 +2489,7 @@
       "basic": "Basic information",
       "bases": "Characters",
       "generateType": "Generation type",
-      "disabled": "Disabled",
+      "disabled": "$t(label.disabled)",
       "description": "Description",
       "defaultPolicy": "Default policy",
       "passwordLengthRequired": "Password length requirement",
@@ -2559,7 +2538,7 @@
       "vendor": "Provider",
       "version": "Version",
       "description": "Description",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "documentation": "Documentation",
       "build": "Build",
       "buildNumber": "Revision",
@@ -2573,7 +2552,7 @@
       "entityType": "Entity type",
       "eventTypes": "Event types",
       "order": "Order",
-      "disabled": "Inactive",
+      "disabled": "$t(label.disabled)",
       "disableable": "Cannot be inactivated",
       "closeable": "Closes processing"
     },
@@ -2595,7 +2574,8 @@
         "label": "Parameters"
       }
     },
-    "ScheduleTask": {
+    "SchedulerTask": {
+      "_type": "Scheduled task",
       "id": "Identificator",
       "taskType": "Task type",
       "instanceId": {
@@ -2617,7 +2597,16 @@
             "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
             "text": "expression"
           }
+        },
+        "dependent": {
+          "initiatorTaskId": {
+            "label": "Other task",
+            "help": "Triggered, when other scheduled task successful end."
+          }
         }
+      },
+      "parameters": {
+        "label": "Parameters"
       }
     },
     "RoleRequest": {
@@ -2784,14 +2773,6 @@
       "title": "Password change required",
       "message": "It is required to change your password for CzechIdM."
     },
-    "PASSWORD_RESET_GENERATE_TOKEN": {
-      "title": "Token wasn't sent",
-      "message": "{{0}}"
-    },
-    "PASSWORD_RESET_FAILED": {
-      "title": "Password reset wasn't completed",
-      "message": "{{0}}"
-    },
     "PASSWORD_CHANGE_FAILED": {
       "title": "Password change wasn't completed",
       "message": "{{0}}"
@@ -2936,6 +2917,10 @@
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy script contains compile errors",
       "message": "Groovy script contains compile errors"
+    },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy script contains syntax errors",
+      "message": "Error message: {{message}} at line {{line}}."
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy script did not past safety check!",

@@ -1,7 +1,7 @@
 import { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Utils, Advanced, Managers } from 'czechidm-core';
+import { Advanced, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 const manager = new SystemManager();
@@ -70,16 +70,16 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
         value: this.getManager().getNiceLabel(entity)
       },
       {
-        label: this.i18n('acc:entity.System.connectorKey._type'),
-        value: Utils.Ui.getSimpleJavaType(entity.connectorKey.connectorName)
-      },
-      {
         label: this.i18n('acc:entity.System.readonly.label'),
         value: (entity.readonly ? this.i18n('label.yes') : this.i18n('label.no'))
       },
       {
-        label: this.i18n('acc:entity.System.virtual.label'),
-        value: (entity.virtual ? this.i18n('label.yes') : this.i18n('label.no'))
+        label: this.i18n('acc:entity.System.disabled'),
+        value: (entity.disabled ? this.i18n('label.yes') : this.i18n('label.no'))
+      },
+      {
+        label: this.i18n('acc:entity.System.queue.label'),
+        value: (entity.queue ? this.i18n('label.yes') : this.i18n('label.no'))
       }
     ];
   }

@@ -14,8 +14,6 @@ The process starts for all identity contracts that are disabled. If the processe
 contract of the identity, the identity is disabled. No roles are removed neither by the process nor by standard CzechIdM features.
 
 Input:
-    longRunningTaskId - UUID
-    scheduledTaskId - UUID
     dto - IdmIdentityContractDto</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
@@ -40,9 +38,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecuto
 
 Logger LOG = LoggerFactory.getLogger("hrContractExclusion")
 
-LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+LOG.info("Exculded contract dto: [{}]", dto)
 
-if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!");
 }
 

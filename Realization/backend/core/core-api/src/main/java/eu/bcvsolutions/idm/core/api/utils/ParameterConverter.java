@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
@@ -24,11 +25,16 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
  */
 public class ParameterConverter {
 
-	private final LookupService lookupService;
+	private LookupService lookupService;
+	
+	public ParameterConverter() {
+	}
 	
 	public ParameterConverter(LookupService lookupService) {
-		Assert.notNull(lookupService);
-		//
+		this.lookupService = lookupService;
+	}
+	
+	public void setLookupService(LookupService lookupService) {
 		this.lookupService = lookupService;
 	}
 	
@@ -234,6 +240,7 @@ public class ParameterConverter {
 	    if(StringUtils.isEmpty(parameterValue)) {
 	    	return null;
 	    }
+	    Assert.notNull(lookupService, "Lookup service is not defined. Initialize converter properly.");
 		T entity = (T) lookupService.lookupEntity(entityClass, parameterValue);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
@@ -292,11 +299,44 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public DateTime toDateTime(Map<String, Object> parameters, String parameterName) {
+		Object valueAsObject = parameters.get(parameterName);
+		if (valueAsObject instanceof DateTime) {
+			return (DateTime) valueAsObject;
+		}
 		String valueAsString = toString(parameters, parameterName);
 		if (valueAsString == null || valueAsString.isEmpty()) {
 			return null;
 		} else {
 			return new DateTime(valueAsString);
+		}
+	}
+	
+	/**
+	 * Converts parameter {@code DateTime} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public LocalDate toLocalDate(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+	    //
+		return toLocalDate(parameters.toSingleValueMap(), parameterName);
+	}
+	
+	/**
+	 * Converts parameter {@code DateTime} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public LocalDate toLocalDate(Map<String, Object> parameters, String parameterName) {
+		String valueAsString = toString(parameters, parameterName);
+		if (valueAsString == null || valueAsString.isEmpty()) {
+			return null;
+		} else {
+			return new LocalDate(valueAsString);
 		}
 	}
 }

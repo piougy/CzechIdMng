@@ -10,13 +10,14 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 
 /**
  * HR process - end of identity's contract process. The processes is started
  * for contracts that are not valid (meaning validFrom and validTill).
  * 
  * @author Jan Helbich
- *
+ * @since 7.5.1
  */
 @Service
 @Description("HR process - end of contract")

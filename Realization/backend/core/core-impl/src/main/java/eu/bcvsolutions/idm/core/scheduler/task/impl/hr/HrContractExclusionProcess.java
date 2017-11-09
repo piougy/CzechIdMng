@@ -11,12 +11,14 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 
 /**
  * HR process - identity's contract exclusion. The processes is started for
  * contracts that are both valid (meaning validFrom and validTill) and excluded.
  * 
  * @author Jan Helbich
+ * @since 7.5.1
  *
  */
 @Service
@@ -26,7 +28,8 @@ public class HrContractExclusionProcess extends AbstractWorkflowStatefulExecutor
 
 	private static final String PROCESS_NAME = "hrContractExclusion";
 
-	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	/**
 	 * {@inheritDoc}

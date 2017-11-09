@@ -19,7 +19,7 @@ public interface IdmRoleRequestService extends
 		AuthorizableService<IdmRoleRequestDto> {
 
 	/**
-	 * Start approval process for given request
+	 * Start approval process for given request. Request approving will be started in new transaction.
 	 * 
 	 * @param requestId
 	 * @param checkRight - If is true, then will be check right for immediately execution (if is requires)
@@ -49,7 +49,7 @@ public interface IdmRoleRequestService extends
 	IdmRoleRequestDto executeRequest(UUID requestId);
 
 	/**
-	 * Start approval procces for this request
+	 * Start approval procces for this request.
 	 * @param request
 	 * @param checkRight
 	 * @param event
@@ -64,10 +64,5 @@ public interface IdmRoleRequestService extends
 	 */
 	void cancel(IdmRoleRequestDto dto);
 
-	/**
-	 * Internal start request. Start in new transaction 
-	 * @param requestId
-	 * @param checkRight - If is true, then will be check right for immediately execution (if is requires)
-	 */
-	IdmRoleRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight);
+
 }

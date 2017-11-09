@@ -26,11 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
@@ -54,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmNotificationConfigurationController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmNotificationConfigurationController extends AbstractReadWriteDtoController<NotificationConfigurationDto, IdmNotificationConfigurationFilter> {
+public class IdmNotificationConfigurationController extends AbstractReadWriteDtoController<IdmNotificationConfigurationDto, IdmNotificationConfigurationFilter> {
 
 	protected static final String TAG = "Notification configuration";
 	private final IdmNotificationConfigurationService configurationService;
@@ -111,7 +110,7 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 	@ApiOperation(
 			value = "Notification configuration item detail", 
 			nickname = "getNotificationConfiguration", 
-			response = NotificationConfigurationDto	.class, 
+			response = IdmNotificationConfigurationDto	.class, 
 			tags = { IdmNotificationConfigurationController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -133,7 +132,7 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 	@ApiOperation(
 			value = "Create / update notification configuration item", 
 			nickname = "postNotificationConfiguration", 
-			response = NotificationConfigurationDto.class, 
+			response = IdmNotificationConfigurationDto.class, 
 			tags = { IdmNotificationConfigurationController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -143,7 +142,7 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONCONFIGURATION_CREATE, description = ""),
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONCONFIGURATION_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(@Valid @RequestBody @NotNull NotificationConfigurationDto dto) {
+	public ResponseEntity<?> post(@Valid @RequestBody @NotNull IdmNotificationConfigurationDto dto) {
 		return super.post(dto);
 	}
 	
@@ -154,7 +153,7 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 	@ApiOperation(
 			value = "Update notification configuration item", 
 			nickname = "putNotificationConfiguration", 
-			response = NotificationConfigurationDto.class, 
+			response = IdmNotificationConfigurationDto.class, 
 			tags = { IdmNotificationConfigurationController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -165,7 +164,7 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Item's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
-			@Valid @RequestBody @NotNull NotificationConfigurationDto dto){
+			@Valid @RequestBody @NotNull IdmNotificationConfigurationDto dto){
 		return super.put(backendId, dto);
 	}
 	

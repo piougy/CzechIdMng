@@ -14,7 +14,7 @@ const systemManager = new SystemManager();
 /**
  * Entities in target system
  *
- * @author Radek TomiškaS
+ * @author Radek Tomiška
  */
 class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
@@ -41,6 +41,15 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
       system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
+    });
+    manager.getService().getConnectorObject(entity.id)
+    .then(json => {
+      const detail = this.state.detail;
+      detail.connectorObject = json;
+      this.setState({detail});
+    })
+    .catch(error => {
+      this.addError(error);
     });
     //
     super.showDetail(entityFormData, () => {
@@ -131,6 +140,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               property=""
               header=""
               className="detail-button"
+              rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
               cell={
                 ({ rowIndex, data }) => {
                   return (
@@ -182,12 +192,19 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   label={this.i18n('acc:entity.SystemEntity.entityType')}
                   required/>
               </Basic.AbstractForm>
-
-              {/*
-              <Basic.ContentHeader>
-                Vazby <small> v idm</small>
-              </Basic.ContentHeader>
-              TODO: accounts*/}
+              <Basic.Row>
+                <Basic.Col lg={ 12 }>
+                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('acc:entity.SystemEntity.attributes')}</h3>
+                  <Basic.Table
+                    showLoading = {!detail || !detail.hasOwnProperty('connectorObject')}
+                    data={detail && detail.connectorObject ? detail.connectorObject.attributes : null}
+                    noData={this.i18n('component.basic.Table.noData')}
+                    className="table-bordered">
+                    <Basic.Column property="name" header={this.i18n('label.property')}/>
+                    <Basic.Column property="values" header={this.i18n('label.value')}/>
+                  </Basic.Table>
+                </Basic.Col>
+              </Basic.Row>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

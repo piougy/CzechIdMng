@@ -42,6 +42,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -89,15 +91,10 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
-	public DefaultIdmRoleRequestService(
-			IdmRoleRequestRepository repository,
-			IdmConceptRoleRequestService conceptRoleRequestService,
-			IdmIdentityRoleService identityRoleService,
-			IdmIdentityService identityService,
-			ObjectMapper objectMapper,
-			SecurityService securityService,
-			ApplicationContext applicationContext,
-			WorkflowProcessInstanceService workflowProcessInstanceService,
+	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
+			IdmConceptRoleRequestService conceptRoleRequestService, IdmIdentityRoleService identityRoleService,
+			IdmIdentityService identityService, ObjectMapper objectMapper, SecurityService securityService,
+			ApplicationContext applicationContext, WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityEventManager entityEventManager) {
 		super(repository);
 		//
@@ -120,26 +117,30 @@ public class DefaultIdmRoleRequestService
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityEventManager = entityEventManager;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.ROLEREQUEST, getEntityClass());
 	}
-	
+
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleRequestFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			IdmRoleRequestFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// applicant
 		if (filter.getApplicantId() != null) {
-			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id), filter.getApplicantId()));
+			predicates.add(
+					builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id), filter.getApplicantId()));
 		}
 		// duplicatedToRequestId
 		if (filter.getDuplicatedToRequestId() != null) {
-			predicates.add(builder.equal(root.get(IdmRoleRequest_.duplicatedToRequest).get(IdmRoleRequest_.id), filter.getDuplicatedToRequestId()));
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.duplicatedToRequest).get(IdmRoleRequest_.id),
+					filter.getDuplicatedToRequestId()));
 		}
-		// 
+		//
 		if (StringUtils.isNotEmpty(filter.getApplicant())) {
-			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.username), filter.getApplicant()));
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.username),
+					filter.getApplicant()));
 		}
 		//
 		if (filter.getState() != null) {
@@ -156,22 +157,34 @@ public class DefaultIdmRoleRequestService
 	@Transactional
 	public IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight) {
 		try {
-			return this.getIdmRoleRequestService().startRequestNewTransactional(requestId, checkRight);
+			IdmRoleRequestService service = this.getIdmRoleRequestService();
+			if (!(service instanceof DefaultIdmRoleRequestService)) {
+				throw new CoreException("We expects instace of DefaultIdmRoleRequestService!");
+			}
+			return ((DefaultIdmRoleRequestService) service).startRequestNewTransactional(requestId, checkRight);
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(requestId);
-			this.addToLog(request, Throwables.getStackTraceAsString(ex));
+			Throwable exceptionToLog = resolveException(ex);
+			this.addToLog(request, Throwables.getStackTraceAsString(exceptionToLog));
 			request.setState(RoleRequestState.EXCEPTION);
 			return save(request);
 		}
 	}
-	
-	@Override
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
+
+	/**
+	 * Internal start request. Start in new transaction
+	 * 
+	 * @param requestId
+	 * @param checkRight
+	 *            - If is true, then will be check right for immediately execution
+	 *            (if is requires)
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight) {
 		return this.getIdmRoleRequestService().startRequestInternal(requestId, checkRight);
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight) {
@@ -181,9 +194,8 @@ public class DefaultIdmRoleRequestService
 		IdmRoleRequestDto request = get(requestId);
 		Assert.notNull(request, "Role request DTO is required!");
 		Assert.isTrue(
-				RoleRequestState.CONCEPT == request.getState() 
-				|| RoleRequestState.DUPLICATED == request.getState() 
-				|| RoleRequestState.EXCEPTION == request.getState(),
+				RoleRequestState.CONCEPT == request.getState() || RoleRequestState.DUPLICATED == request.getState()
+						|| RoleRequestState.EXCEPTION == request.getState(),
 				"Only role request with CONCEPT or EXCEPTION or DUPLICATED state can be started!");
 
 		IdmRoleRequestDto duplicant = validateOnDuplicity(request);
@@ -191,23 +203,26 @@ public class DefaultIdmRoleRequestService
 		if (duplicant != null) {
 			request.setState(RoleRequestState.DUPLICATED);
 			request.setDuplicatedToRequest(duplicant.getId());
-			this.addToLog(request, MessageFormat.format("This request [{0}] is duplicated to another change permissions request [{1}]", request.getId(), duplicant.getId()));
+			this.addToLog(request,
+					MessageFormat.format("This request [{0}] is duplicated to another change permissions request [{1}]",
+							request.getId(), duplicant.getId()));
 			return this.save(request);
 		}
-		
+
 		// Duplicant is fill, but request is not duplicated (maybe in past)
-		if (request.getDuplicatedToRequest() != null){
+		if (request.getDuplicatedToRequest() != null) {
 			request.setDuplicatedToRequest(null);
 		}
-		
+
 		// Check on same applicants in all role concepts
 		boolean identityNotSame = this.get(request.getId()).getConceptRoles().stream().anyMatch(concept -> {
 			// get contract dto from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-			if(contract == null){
+			if (contract == null) {
 				// If is contract from concept null, then contract via identity role must works
-				contract = (IdmIdentityContractDto) identityRoleService.get(concept.getIdentityRole()).getEmbedded().get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+				contract = (IdmIdentityContractDto) identityRoleService.get(concept.getIdentityRole()).getEmbedded()
+						.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
 			}
 			return !request.getApplicant().equals(contract.getIdentity());
 		});
@@ -216,7 +231,7 @@ public class DefaultIdmRoleRequestService
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
 					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
 		}
-	
+
 		// Convert whole request to JSON and persist (without logs and embedded data)
 		try {
 			IdmRoleRequestDto requestOriginal = get(requestId);
@@ -229,19 +244,20 @@ public class DefaultIdmRoleRequestService
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
 		IdmRoleRequestDto savedRequest = this.save(request);
-		
+
 		// Throw event
 		Map<String, Serializable> variables = new HashMap<>();
 		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
-		return entityEventManager.process(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables)).getContent();
+		return entityEventManager.process(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables))
+				.getContent();
 	}
-	
 
 	@Override
 	@Transactional
-	public boolean startApprovalProcess(IdmRoleRequestDto request, boolean checkRight, EntityEvent<IdmRoleRequestDto> event,  String wfDefinition){
+	public boolean startApprovalProcess(IdmRoleRequestDto request, boolean checkRight,
+			EntityEvent<IdmRoleRequestDto> event, String wfDefinition) {
 		// If is request marked as executed immediately, then we will check right
-		// and do realization immediately (without start approval process) 
+		// and do realization immediately (without start approval process)
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
 					.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_EXECUTE);
@@ -262,9 +278,9 @@ public class DefaultIdmRoleRequestService
 
 			// Execute request immediately
 			return true;
-		}else {
+		} else {
 			IdmIdentityDto applicant = identityService.get(request.getApplicant());
-			
+
 			Map<String, Object> variables = new HashMap<>();
 			// Minimize size of DTO persisting to WF
 			IdmRoleRequestDto eventRequest = event.getContent();
@@ -272,40 +288,33 @@ public class DefaultIdmRoleRequestService
 			eventRequest.setConceptRoles(null);
 			eventRequest.setOriginalRequest(null);
 			variables.put(EntityEvent.EVENT_PROPERTY, event);
-			
+
 			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
-					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(), variables);
+					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(),
+					variables);
 			// We have to refresh request (maybe was changed in wf process)
 			request = this.get(request.getId());
 			request.setWfProcessId(processInstance.getProcessInstanceId());
 			this.save(request);
 		}
-		
+
 		return false;
-	}	
-	
+	}
+
 	@Override
 	@Transactional
 	public IdmRoleRequestDto executeRequest(UUID requestId) {
-		try {
-			return this.executeRequestInternal(requestId);
-		} catch (Exception ex) {
-			LOG.error(ex.getLocalizedMessage(), ex);
-			IdmRoleRequestDto request = get(requestId);
-			this.addToLog(request, Throwables.getStackTraceAsString(ex));
-			request.setState(RoleRequestState.EXCEPTION);
-			return save(request);
-		}
+		// We can`t catch and log exception to request, because this transaction will be
+		// marked as to rollback.
+		// We can`t run this method in new transaction, because changes on request
+		// (state modified in WF for example) is in uncommited transaction!
+		return this.executeRequestInternal(requestId);
 	}
-	
-	protected IdmRoleRequestDto executeRequestInternal(UUID requestId) {
+
+	private IdmRoleRequestDto executeRequestInternal(UUID requestId) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRoleRequestDto request = this.get(requestId);
 		Assert.notNull(request, "Role request is required!");
-//		if(RoleRequestState.APPROVED != request.getState() && RoleRequestState.CONCEPT != request.getState()){
-//			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTE_WRONG_STATE,
-//					ImmutableMap.of("state", request.getState()));
-//		}
 
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
 		IdmIdentityDto identity = identityService.get(request.getApplicant());
@@ -330,7 +339,8 @@ public class DefaultIdmRoleRequestService
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+			// Concepts in concept state will be executed too (for situation, when will be
+			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
@@ -349,7 +359,8 @@ public class DefaultIdmRoleRequestService
 			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+			// Concepts in concept state will be executed too (for situation, when will be
+			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
@@ -364,33 +375,30 @@ public class DefaultIdmRoleRequestService
 		});
 
 		// Delete identity role
-		concepts.stream()
-			.filter(concept -> {
-				return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
-			})
-			.filter(concept -> {
-				// Only approved concepts can be executed
-				// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
-				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-			})
-			.filter(concept -> {
-				return concept.getIdentityRole() != null;
-			}) 
-			.forEach(concept -> {
-				IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-				if (identityRole != null) {
-					concept.setState(RoleRequestState.EXECUTED);
-					concept.setIdentityRole(null); // we have to remove relation on
-													// deleted identityRole
-					String message = MessageFormat.format(
-							"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
-							identityRole.getId(), concept.getId());
-					conceptRoleRequestService.addToLog(concept, message);
-					conceptRoleRequestService.addToLog(request, message);
-					conceptRoleRequestService.save(concept);
-					identityRoleService.delete(identityRole);
-				}
-			});
+		concepts.stream().filter(concept -> {
+			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
+		}).filter(concept -> {
+			// Only approved concepts can be executed
+			// Concepts in concept state will be executed too (for situation, when will be
+			// approval event disabled)
+			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+		}).filter(concept -> {
+			return concept.getIdentityRole() != null;
+		}).forEach(concept -> {
+			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+			if (identityRole != null) {
+				concept.setState(RoleRequestState.EXECUTED);
+				concept.setIdentityRole(null); // we have to remove relation on
+												// deleted identityRole
+				String message = MessageFormat.format(
+						"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
+						identityRole.getId(), concept.getId());
+				conceptRoleRequestService.addToLog(concept, message);
+				conceptRoleRequestService.addToLog(request, message);
+				conceptRoleRequestService.save(concept);
+				identityRoleService.delete(identityRole);
+			}
+		});
 
 		identityRoleService.saveAll(identityRolesToSave);
 		conceptRoleRequestService.saveAll(conceptsToSave);
@@ -398,7 +406,7 @@ public class DefaultIdmRoleRequestService
 		return this.save(request);
 
 	}
-	
+
 	@Override
 	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto) {
 		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
@@ -406,16 +414,16 @@ public class DefaultIdmRoleRequestService
 		if (requestDto != null) {
 			requestDto.setConceptRoles(conceptRoleRequestService.findAllByRoleRequest(requestDto.getId()));
 		}
-		
-		if(requestDto != null && requestDto.getWfProcessId() != null){
+
+		if (requestDto != null && requestDto.getWfProcessId() != null) {
 			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId());
 			// TODO: create trimmed variant in workflow process instance service
-			if(processDto != null) {
+			if (processDto != null) {
 				processDto.setProcessVariables(null);
 			}
 			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processDto);
 		}
-		
+
 		return requestDto;
 	}
 
@@ -489,16 +497,16 @@ public class DefaultIdmRoleRequestService
 		LOG.info(text);
 
 	}
-	
+
 	@Override
 	public void delete(IdmRoleRequestDto dto, BasePermission... permission) {
-		
+
 		// Find all request where is this request duplicated and remove relation
 		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
 		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
 		this.find(conceptRequestFilter, null).getContent().forEach(duplicant -> {
 			duplicant.setDuplicatedToRequest(null);
-			if(RoleRequestState.DUPLICATED == duplicant.getState()){
+			if (RoleRequestState.DUPLICATED == duplicant.getState()) {
 				duplicant.setState(RoleRequestState.CONCEPT);
 				duplicant.setDuplicatedToRequest(null);
 			}
@@ -506,7 +514,7 @@ public class DefaultIdmRoleRequestService
 			this.addToLog(duplicant, message);
 			this.save(duplicant);
 		});
-		
+
 		// Stop connected WF process
 		cancelWF(dto);
 
@@ -516,7 +524,7 @@ public class DefaultIdmRoleRequestService
 		});
 		super.delete(dto);
 	}
-	
+
 	@Override
 	public void cancel(IdmRoleRequestDto dto) {
 		cancelWF(dto);
@@ -528,17 +536,17 @@ public class DefaultIdmRoleRequestService
 		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
 			WorkflowFilterDto filter = new WorkflowFilterDto();
 			filter.setProcessInstanceId(dto.getWfProcessId());
-			
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.searchInternal(filter, false).getResources();
-			if(resources.isEmpty()){
-				// Process with this ID not exist ... maybe was ended 
-				this.addToLog(dto,
-						MessageFormat.format(
-								"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
-								dto.getWfProcessId()));
+
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
+					.searchInternal(filter, false).getResources();
+			if (resources.isEmpty()) {
+				// Process with this ID not exist ... maybe was ended
+				this.addToLog(dto, MessageFormat.format(
+						"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
+						dto.getWfProcessId()));
 				return;
 			}
-			
+
 			workflowProcessInstanceService.delete(dto.getWfProcessId(),
 					"Role request use this WF, was deleted. This WF was deleted too.");
 			this.addToLog(dto,
@@ -574,12 +582,14 @@ public class DefaultIdmRoleRequestService
 		}
 		return this.roleRequestService;
 	}
-	
+
 	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
 		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
 
-		potentialDuplicatedRequests.addAll(toDtos(repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.IN_PROGRESS), false));
-		potentialDuplicatedRequests.addAll(toDtos(repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.APPROVED), false));
+		potentialDuplicatedRequests.addAll(toDtos(
+				repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.IN_PROGRESS), false));
+		potentialDuplicatedRequests.addAll(toDtos(
+				repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.APPROVED), false));
 
 		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
 				.filter(requestDuplicate -> {
@@ -593,10 +603,10 @@ public class DefaultIdmRoleRequestService
 		return null;
 	}
 
-	
 	/**
-	 * Trim request and his role concepts. Remove embedded objects.
-	 * It is important for minimize size of dto persisted for example in WF process. 
+	 * Trim request and his role concepts. Remove embedded objects. It is important
+	 * for minimize size of dto persisted for example in WF process.
+	 * 
 	 * @param requestOriginal
 	 */
 	private void trimRequest(IdmRoleRequestDto requestOriginal) {
@@ -607,4 +617,29 @@ public class DefaultIdmRoleRequestService
 			concept.setLog(null);
 		});
 	}
+
+	/**
+	 * If exception causal chain contains cause instance of ResultCodeException,
+	 * then is return primary.
+	 * 
+	 * @param ex
+	 * @return
+	 */
+	private Throwable resolveException(Exception ex) {
+		Assert.notNull(ex);
+		Throwable exceptionToLog = null;
+		List<Throwable> causes = Throwables.getCausalChain(ex);
+		// If is some cause instance of ResultCodeException, then we will use only it
+		// (for better show on frontend)
+		Throwable resultCodeException = causes.stream().filter(cause -> {
+			if (cause instanceof ResultCodeException) {
+				return true;
+			}
+			return false;
+		}).findFirst().orElse(null);
+
+		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
+		return exceptionToLog;
+	}
+
 }

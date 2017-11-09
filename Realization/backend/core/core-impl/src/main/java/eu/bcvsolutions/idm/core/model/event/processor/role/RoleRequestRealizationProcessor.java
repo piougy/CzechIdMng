@@ -22,20 +22,20 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventTyp
 @Component
 @Description("Realization request for change permissions")
 public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleRequestDto> {
-	
+
 	public static final String PROCESSOR_NAME = "role-request-realization-processor";
-	
+
 	private final IdmRoleRequestService service;
-	
+
 	@Autowired
 	public RoleRequestRealizationProcessor(IdmRoleRequestService service) {
-		super(RoleRequestEventType.EXCECUTE); 
+		super(RoleRequestEventType.EXCECUTE);
 		//
 		Assert.notNull(service);
 		//
 		this.service = service;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
@@ -44,9 +44,8 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 	@Override
 	public EventResult<IdmRoleRequestDto> process(EntityEvent<IdmRoleRequestDto> event) {
 		IdmRoleRequestDto dto = event.getContent();
-		//
 		event.setContent(service.executeRequest(dto.getId()));
-		//		
+
 		return new DefaultEventResult<>(event, this);
 	}
 }

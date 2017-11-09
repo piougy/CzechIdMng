@@ -27,7 +27,7 @@ export default class ContractStateEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
     switch (sym) {
       case this.EXCLUDED: {
-        return 'info';
+        return 'warning';
       }
       case this.DISABLED: {
         return 'danger';

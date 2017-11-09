@@ -174,7 +174,11 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading}>
+            <Basic.AbstractForm
+              ref="form"
+              data={ attribute }
+              showLoading={ _showLoading }
+              readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
               <Basic.Checkbox
                 ref="disabledAttribute"
                 onChange={this._checkboxChanged.bind(this, 'disabledAttribute', null)}
@@ -192,7 +196,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 forceSearchParameters={forceSearchParameters}
                 onChange={this._schemaAttributeChange.bind(this)}
                 label={this.i18n('acc:entity.SystemAttributeMapping.schemaAttribute')}
-                required/>
+                required
+                pageSize={ Domain.SearchParameters.MAX_SIZE }/>
               <Basic.TextField
                 ref="name"
                 label={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
@@ -241,6 +246,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 ref="authenticationAttribute"
                 label={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.help')}/>
+              <Basic.Checkbox
+                ref="sendOnPasswordChange"
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}/>
               <Basic.Row>
                 <div className="col-lg-6">
                   <Basic.EnumSelectBox
@@ -300,10 +309,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 {this.i18n('button.back')}
               </Basic.Button>
               <Basic.Button
-                onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
-                showLoading={_showLoading}>
+                showLoading={ _showLoading }
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>

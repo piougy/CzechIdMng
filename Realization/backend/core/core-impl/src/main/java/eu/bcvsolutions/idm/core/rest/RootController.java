@@ -14,7 +14,12 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
  */
 @Controller
 public class RootController implements BaseController {
-
+	
+	/**
+	 * When FE is on root path, then FE has prioritized
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String root() {
 		return redirectUrl();

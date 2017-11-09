@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 
 public interface IdmNotificationTemplateService extends 
-ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
+		ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 		Recoverable<IdmNotificationTemplateDto>,
 		CodeableService<IdmNotificationTemplateDto> {
 

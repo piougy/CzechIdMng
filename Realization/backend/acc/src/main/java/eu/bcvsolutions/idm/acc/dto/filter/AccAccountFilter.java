@@ -2,9 +2,13 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 
 /**
  * Filter for accounts
@@ -12,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  * @author Radek Tomiška
  *
  */
-public class AccAccountFilter extends QuickFilter {
+public class AccAccountFilter extends DataFilter {
 	
 	private UUID systemEntityId;	
 	private UUID systemId;	
@@ -22,6 +26,14 @@ public class AccAccountFilter extends QuickFilter {
 	private Boolean ownership;
 	private Boolean supportChangePassword;
 	private SystemEntityType entityType;  
+	
+	public AccAccountFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public AccAccountFilter(MultiValueMap<String, Object> data) {
+		super(AccAccountDto.class, data);
+	}
 	
 	public UUID getSystemEntityId() {
 		return systemEntityId;

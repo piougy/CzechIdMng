@@ -77,6 +77,16 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 			repository.delete(storageValue);
 		}
 	}
+	
+	@Override
+	@Transactional
+	public void deleteAll(UUID ownerId, Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerId);
+		Assert.notNull(ownerType);
+		//
+		LOG.debug("Delete all values for owner [{},{}] from confidential storage", ownerId, ownerType);
+		this.repository.deleteByOwnerIdAndOwnerType(ownerId, getOwnerType(ownerType));
+	}
 
 	/**
 	 * {@inheritDoc}

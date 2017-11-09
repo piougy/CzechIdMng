@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -82,32 +83,19 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	public static final String DEFAULT_ROLE_NAME = "userRole";
 	
-	@Autowired
-	private InitApplicationData initApplicationData;	
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmTreeNodeService treeNodeService;	
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private IdmContractGuaranteeService contractGuaranteeService;
-	@Autowired
-	private SecurityService securityService;	
-	@Autowired
-	private ConfigurationService configurationService;	
-	@Autowired
-	private FormService formService;	
-	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	@Autowired
-	private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private InitApplicationData initApplicationData;	
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmTreeNodeService treeNodeService;	
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private SecurityService securityService;	
+	@Autowired private ConfigurationService configurationService;	
+	@Autowired private FormService formService;	
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -192,7 +180,11 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				role1 = this.roleService.save(role1);
 				// self policy
 				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
-				selfPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
+				selfPolicy.setPermissions(
+						IdmBasePermission.AUTOCOMPLETE, 
+						IdmBasePermission.READ, 
+						IdentityBasePermission.PASSWORDCHANGE, 
+						IdentityBasePermission.CHANGEPERMISSION);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
 				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());
@@ -382,7 +374,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
 				description.setPersistentType(PersistentType.TEXT);
-				description.setFaceType("TEEXTAREA");
+				description.setFaceType(BaseFaceType.TEXTAREA);
 				description = formService.saveAttribute(IdmIdentity.class, description);
 				
 				IdmFormAttributeDto rich = new IdmFormAttributeDto();
@@ -390,7 +382,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
 				rich.setPersistentType(PersistentType.TEXT);
-				description.setFaceType("RICHTEXTAREA");
+				description.setFaceType(BaseFaceType.RICHTEXTAREA);
 				rich = formService.saveAttribute(IdmIdentity.class, rich);
 				
 				IdmFormAttributeDto sure = new IdmFormAttributeDto();
@@ -422,7 +414,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				currency.setCode("currency");
 				currency.setName("Price");
 				currency.setPersistentType(PersistentType.DOUBLE);
-				currency.setFaceType("CURRENCY");				
+				currency.setFaceType(BaseFaceType.CURRENCY);			
 				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
 				IdmFormAttributeDto date = new IdmFormAttributeDto();

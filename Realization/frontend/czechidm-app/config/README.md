@@ -77,3 +77,7 @@ __This example override navigation for core module:__
 * Change order for tab `user-profile`.
 * Change order for sub tab `profile-personal`.
 * Permit and change order and access for sub tab `profile-accounts`.
+
+## Change configuration after build
+
+ When frontend is build by gulp, then selected configuration by profile and stage is moved (and transformed) into application as ``config.js`` file . This file can be found in application on root path (e.g. ``dist/config.js``). Configuration in this file can be changed and will be used in application - application rebuild is not needed (just F5).

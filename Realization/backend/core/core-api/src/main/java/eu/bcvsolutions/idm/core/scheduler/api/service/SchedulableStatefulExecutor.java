@@ -24,9 +24,11 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	
 	/**
 	 * Name of the workflow variable which stores the operation result
+	 * TODO: use WorkflowProcessInstanceService.VARIABLE_OPERATION_RESULT after wf api will be moved to core api
+	 * 
 	 * of type {@link OperationResult}.
 	 */
-	public static final String OPERATION_RESULT_VAR = "operationResult";
+	static final String OPERATION_RESULT_VAR = "operationResult";
 	
 	/**
 	 * Returns a pageable result set of DTOs the task should process.

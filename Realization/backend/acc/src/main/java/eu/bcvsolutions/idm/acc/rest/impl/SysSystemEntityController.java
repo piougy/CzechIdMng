@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -208,7 +209,7 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
 		}
 		IcConnectorObject connectorObject = ((SysSystemEntityService)getService())
-				.getConnectorObject(systemEntity);
+				.getConnectorObject(systemEntity, IdmBasePermission.READ);
 		if(connectorObject == null) {
 			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
 		}

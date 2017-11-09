@@ -35,8 +35,11 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -227,7 +230,7 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
 		}
 		IcConnectorObject connectorObject = ((AccAccountService)getService())
-				.getConnectorObject(account);
+				.getConnectorObject(account, IdmBasePermission.READ);
 		if(connectorObject == null) {
 			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
 		}
@@ -252,6 +255,27 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 			@ApiParam(value = "Account's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete accounts (selectbox usage)", 
+			nickname = "autocompleteAccounts", 
+			tags = { AccAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
 	}
 	
 	@Override

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.security.BasicPermission;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -107,9 +109,9 @@ public class DefaultSysSystemEntityService
 	}
 
 	@Override
-	public IcConnectorObject getConnectorObject(SysSystemEntityDto systemEntity) {
+	public IcConnectorObject getConnectorObject(SysSystemEntityDto systemEntity, BasePermission... permissions ) {
 		Assert.notNull(systemEntity, "System entity cannot be null!");
-		this.checkAccess(systemEntity, IdmBasePermission.READ);
+		this.checkAccess(systemEntity, permissions);
 
 		return this.systemService.readConnectorObject(systemEntity.getSystem(), systemEntity.getUid(), null);
 	}

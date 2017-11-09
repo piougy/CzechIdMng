@@ -65,6 +65,15 @@ public class AccountByIdentityEvaluator extends AbstractAuthorizationEvaluator<A
 		});
 		return permissions;
 	}
+	
+	/**
+	 * Returns transitive authorities by identity
+	 */
+	@Override
+	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
+		// evaluates authorities on owner type class
+		return authorizationManager.getAuthorities(identityId, IdmIdentity.class);
+	}
 
 	@Override
 	public Predicate getPredicate(Root<AccAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,

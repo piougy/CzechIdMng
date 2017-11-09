@@ -1,11 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -58,7 +55,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		SysSystemDto system = createRoleSystem();
 
 		createProvisioningOperation(SystemEntityType.CONTRACT, system);
-		createProvisioningOperation(SystemEntityType.IDENTITY, system);
+		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(SystemEntityType.IDENTITY, system);
 		SysProvisioningOperationDto provisioningOperation3 = createProvisioningOperation(SystemEntityType.CONTRACT, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
@@ -67,7 +64,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
 		assertTrue(result.getContent().contains(provisioningOperation3));
-
+		assertFalse(result.getContent().contains(provisioningOperation2));
 	}
 
 	@Test
@@ -90,6 +87,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
+		assertTrue(result.getContent().contains(provisioningOperation2));
 		assertFalse(result.getContent().contains(provisioningOperation1));
 	}
 

@@ -1,11 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
@@ -14,6 +10,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,12 +43,13 @@ public class DefaultSysProvisioningBatchServiceTest extends AbstractIntegrationT
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 
 		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto();
+		provisioningBatch.setId(UUID.randomUUID());
 		batchService.save(provisioningBatch);
 
 		EmptyFilter filter = new EmptyFilter();
 
 		Page<SysProvisioningBatchDto> result = batchService.find(filter, null, permission);
-		assertEquals(1, result.getTotalElements());
+		assertTrue(result.getContent().contains(provisioningBatch));
 	}
 
 }

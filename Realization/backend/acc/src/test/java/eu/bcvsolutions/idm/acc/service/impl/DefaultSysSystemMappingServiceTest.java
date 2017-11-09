@@ -2,12 +2,10 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.DefaultTestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -15,13 +13,11 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +37,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private DefaultTestHelper testHelper;
 
 	@Before
 	public void init() {
@@ -57,16 +54,16 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
-		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
 		mappingSystem1.setName("SomeName01");
 		mappingService.save(mappingSystem1);
-		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(entityType, objectClass);
 		mappingSystem2.setName("SomeName02");
 		mappingService.save(mappingSystem2);
-		SysSystemMappingDto mappingSystem3 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem3 = testHelper.createMappingSystem(entityType, objectClass);
 		mappingSystem3.setName("SomeName22");
 		mappingService.save(mappingSystem3);
 
@@ -83,12 +80,12 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 	public void typeFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
-		createMappingSystem(SystemEntityType.CONTRACT, objectClass);
-		SysSystemMappingDto mappingSystem2 = createMappingSystem(SystemEntityType.CONTRACT, objectClass);
-		SysSystemMappingDto mappingSystem3 = createMappingSystem(SystemEntityType.ROLE, objectClass);
+		testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
+		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
+		SysSystemMappingDto mappingSystem3 = testHelper.createMappingSystem(SystemEntityType.ROLE, objectClass);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setEntityType(SystemEntityType.CONTRACT);
@@ -104,10 +101,10 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
-		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
 		SysSystemMappingDto mappingSystem2 = createProvisioningMappingSystem(SystemEntityType.ROLE, objectClass);
 		SysSystemMappingDto mappingSystem3 = createProvisioningMappingSystem(entityType, objectClass);
 
@@ -126,13 +123,13 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
-		SysSystemDto system2 = createRoleSystem();
+		SysSystemDto system2 = createSystem();
 		SysSchemaObjectClassDto objectClass2 = createObjectClass(system2);
 
-		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
-		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass2);
+		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(entityType, objectClass2);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(system.getId());
@@ -147,14 +144,14 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
-		SysSystemDto system2 = createRoleSystem();
+		SysSystemDto system = createSystem();
+		SysSystemDto system2 = createSystem();
 
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 		SysSchemaObjectClassDto objectClass2 = createObjectClass(system2);
 
-		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
-		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass2);
+		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(entityType, objectClass2);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setObjectClassId(mappingSystem1.getObjectClass());
@@ -179,13 +176,13 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		treeType2.setCode("CodeCodeCodeCode2");
 		treeType2 = treeTypeService.save(treeType2);
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
-		SysSystemMappingDto mappingSystem1 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
 		mappingSystem1.setTreeType(treeType.getId());
 		mappingSystem1 = mappingService.save(mappingSystem1);
-		SysSystemMappingDto mappingSystem2 = createMappingSystem(entityType, objectClass);
+		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(entityType, objectClass);
 		mappingSystem2.setTreeType(treeType2.getId());
 		mappingSystem2 = mappingService.save(mappingSystem2);
 
@@ -197,7 +194,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		assertFalse(result.getContent().contains(mappingSystem2));
 	}
 
-	private SysSystemDto createRoleSystem() {
+	private SysSystemDto createSystem() {
 		SysSystemDto system = new SysSystemDto();
 		system.setName("system_" + UUID.randomUUID());
 		return systemService.save(system);
@@ -208,16 +205,6 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		objectClass.setSystem(system.getId());
 		objectClass.setObjectClassName("__ACCOUNT__");
 		return schemaObjectClassService.save(objectClass);
-	}
-
-	private SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass) {
-		// system mapping
-		SysSystemMappingDto mapping = new SysSystemMappingDto();
-		mapping.setName("Name" + UUID.randomUUID());
-		mapping.setEntityType(type);
-		mapping.setObjectClass(objectClass.getId());
-		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		return mappingService.save(mapping);
 	}
 
 	private SysSystemMappingDto createProvisioningMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass) {

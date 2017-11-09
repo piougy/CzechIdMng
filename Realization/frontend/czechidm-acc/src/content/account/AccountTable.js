@@ -49,13 +49,15 @@ class AccountTable extends Advanced.AbstractTableContent {
     this.setState({
       systemEntity: entity.systemEntity
     }, ()=> {
-      manager.getService().getConnectorObject(entity.id)
-      .then(json => {
-        this.setState({connectorObject: json});
-      })
-      .catch(error => {
-        this.addError(error);
-      });
+      if (!Utils.Entity.isNew(entity)) {
+        manager.getService().getConnectorObject(entity.id)
+        .then(json => {
+          this.setState({connectorObject: json});
+        })
+        .catch(error => {
+          this.addError(error);
+        });
+      }
       super.showDetail(entity, () => {
         this.refs.uid.focus();
       });
@@ -238,8 +240,8 @@ class AccountTable extends Advanced.AbstractTableContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -283,13 +285,14 @@ class AccountTable extends Advanced.AbstractTableContent {
 
               </Basic.AbstractForm>
 
-              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') }/>
+              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
 
               <Basic.Table
                 showLoading = {!connectorObject && !this.state.hasOwnProperty('connectorObject')}
                 data={connectorObject ? connectorObject.attributes : null}
                 noData={this.i18n('component.basic.Table.noData')}
-                className="table-bordered">
+                className="table-bordered"
+                rendered={ !Utils.Entity.isNew(detail.entity) }>
                 <Basic.Column property="name" header={this.i18n('label.property')}/>
                 <Basic.Column property="values" header={this.i18n('label.value')}/>
               </Basic.Table>

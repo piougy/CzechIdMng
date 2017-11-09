@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import eu.bcvsolutions.idm.InitTestData;

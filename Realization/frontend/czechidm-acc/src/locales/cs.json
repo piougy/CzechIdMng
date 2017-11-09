@@ -356,7 +356,7 @@
         }
       },
       "accounts": {
-        "header": "Účty na koncovém systému",
+        "header": "Účty na systémech",
         "title": "Účty na systému",
         "edit": {
           "header": "Detail účtu na koncovém systému"
@@ -398,8 +398,9 @@
     },
     "identity": {
       "accounts": {
-        "header": "Účty na koncovém systému",
-        "title": "Účty na systému",
+        "header": "Účty na systémech",
+        "identity-accounts":"Vazby na účty",
+        "title": "Účty na systémech",
         "edit": {
           "header": "Detail účtu na koncovém systému"
         },

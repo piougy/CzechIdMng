@@ -244,9 +244,9 @@ public class DefaultAccAccountService
 	}
 
 	@Override
-	public IcConnectorObject getConnectorObject(AccAccountDto account) {
+	public IcConnectorObject getConnectorObject(AccAccountDto account, BasePermission... permissions) {
 		Assert.notNull(account, "Account cannot be null!");
-		this.checkAccess(account, IdmBasePermission.READ);
+		this.checkAccess(account, permissions);
 		List<SysSchemaAttributeDto> schemaAttributes = this.getSchemaAttributes(account.getSystem(), null);
 		if (schemaAttributes == null) {
 			return null;

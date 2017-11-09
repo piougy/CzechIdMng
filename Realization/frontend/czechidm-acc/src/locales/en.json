@@ -356,7 +356,7 @@
         }
       },
       "accounts": {
-        "header": "Accounts in system",
+        "header": "Accounts in systems",
         "title": "Accounts",
         "edit": {
           "header": "Account details in system"
@@ -398,7 +398,8 @@
     },
     "identity": {
       "accounts": {
-        "header": "Accounts in system",
+        "header": "Accounts in systems",
+        "identity-accounts":"Links to accounts",
         "title": "Accounts",
         "edit": {
           "header": "Account details in system"

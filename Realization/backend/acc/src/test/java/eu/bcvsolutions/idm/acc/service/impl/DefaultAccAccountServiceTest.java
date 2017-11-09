@@ -34,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -117,7 +119,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		logout();
 		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 
-		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account, IdmBasePermission.READ);
 		Assert.assertNotNull(connectorObject);
 		Assert.assertEquals(userOneName, connectorObject.getUidValue());
 		Assert.assertNotNull(connectorObject.getAttributeByName(eavAttributeName));
@@ -162,7 +164,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		logout();
 		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 
-		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account, IdmBasePermission.READ);
 		Assert.assertNotNull(connectorObject);
 		Assert.assertEquals(userOneName, connectorObject.getUidValue());
 		Assert.assertNotNull(connectorObject.getAttributeByName(eavAttributeName));
@@ -216,7 +218,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		logout();
 		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 
-		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account, IdmBasePermission.READ);
 		Assert.assertNotNull(connectorObject);
 		Assert.assertEquals(userOneName, connectorObject.getUidValue());
 		// EAV attribute must be null, because we deleted the schema definition
@@ -268,7 +270,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		logout();
 		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 
-		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account, IdmBasePermission.READ);
 		Assert.assertNotNull(connectorObject);
 		Assert.assertEquals(userOneName, connectorObject.getUidValue());
 		// EAV attribute must be null, because we deleted the schema definition

@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
@@ -20,34 +19,6 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
   }
 
   /**
-   * Returns entity info component by given type
-   *
-   * @param  {string} entityType
-   * @return {object} component or null
-   */
-  static getComponent(entityType) {
-    if (!entityType) {
-      return null;
-    }
-    return componentService.getComponentDefinitions(ComponentService.ENTITY_INFO_COMPONENT_TYPE).find(component => {
-      if (!component.entityType) {
-        return false;
-      }
-      // multiple types
-      if (_.isArray(component.entityType)) {
-        for (const entityTypeItem of component.entityType) {
-          if (entityTypeItem.toLowerCase() === entityType.toLowerCase()) {
-            return true;
-          }
-        }
-        return false;
-      }
-      // single value
-      return component.entityType.toLowerCase() === entityType.toLowerCase();
-    });
-  }
-
-  /**
    * Returns entity's nice label. Useful for localization params etc.
    *
    * @param  {string} entityType
@@ -59,7 +30,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
       return null;
     }
     //
-    const component = EntityInfo.getComponent(entityType);
+    const component = componentService.getEntityInfoComponent(entityType);
     if (!component || !component.manager) {
       return null;
     }

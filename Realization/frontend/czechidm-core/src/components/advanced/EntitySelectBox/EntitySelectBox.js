@@ -17,66 +17,6 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     super(props, context);
   }
 
-  /**
-   * Returns entity info component by given type. Geto component cann't be static
-   *
-   * @return {object} component or null
-   */
-  getComponent() {
-    const { showSearchFields, helpBlock, entityType, ...others } = this.props;
-    // entityType must exists!
-    if (!entityType) {
-      return null;
-    }
-    //
-    const finalProps = others;
-    //
-    // for one entity type can be found more components we want only component with highest prio
-    let finalComponent = null;
-    //
-    componentService.getComponentDefinitions(ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE).find(component => {
-      if (!component.entityType) {
-        return;
-      }
-      // entity type must be single value, every select box has only one type of entities, now :-)
-      if (component.entityType.toLowerCase() === entityType.toLowerCase()) {
-        if (finalComponent == null) {
-          finalComponent = component;
-        } else if (finalComponent.priority < component.priority) {
-          finalComponent = component;
-        }
-      }
-    });
-    //
-    // If component descriptor override also component use rathem them (has bigger priority)
-    if (finalComponent.component) {
-      const AnotherComponent = finalComponent.component;
-      return <AnotherComponent ref="selectComponent" {...others} />;
-    }
-    //
-    // if show search fileds add every searchInFields to helpBlock
-    if (showSearchFields) {
-      const searchInFields = finalComponent.searchInFields;
-      let finalHelpBlock;
-      if (helpBlock) {
-        finalHelpBlock = helpBlock + this.i18n('component.advanced.EntitySelectBox.defaultHelpBlock', { searchInFields: searchInFields.join(', ') });
-      } else {
-        finalHelpBlock = this.i18n('component.advanced.EntitySelectBox.defaultHelpBlock', { searchInFields: searchInFields.join(', ') });
-      }
-      //
-      finalProps.helpBlock = finalHelpBlock;
-    }
-    //
-    const manager = new finalComponent.Manager();
-    return (
-      <Basic.SelectBox
-        {...finalProps}
-        ref="selectComponent"
-        manager={manager}
-        searchInFields={finalComponent.searchInFields}/>
-    );
-  }
-
   getValue() {
     return this.refs.selectComponent.getValue();
   }
@@ -85,17 +25,74 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     this.refs.selectComponent.setValue(value);
   }
 
+  /**
+   * Returns component's help block
+   */
+  _getHelpBlock(component) {
+    if (!component) {
+      return null;
+    }
+    const { showDefaultHelpBlock, helpBlock } = this.props;
+    const finalHelpBlock = [];
+    //
+    // external helpBlock has the highest priority
+    if (helpBlock) {
+      finalHelpBlock.push(<div>{ helpBlock }</div>);
+    }
+    // if show search fileds add every searchInFields to helpBlock
+    if (showDefaultHelpBlock) {
+      const searchInFields = component.searchInFields;
+      if (searchInFields) {
+        finalHelpBlock.push(<div>{ this.i18n('component.advanced.EntitySelectBox.defaultHelpBlock', { searchInFields: searchInFields.join(', ') }) }</div>);
+      }
+    }
+    //
+    return finalHelpBlock;
+  }
+
   render() {
-    const { rendered } = this.props;
+    const { rendered, showDefaultHelpBlock, helpBlock, entityType, ...others } = this.props;
     // standard rendered - we dont propagate rendered to underliyng component
     if (!rendered) {
       return null;
     }
-    return this.getComponent();
+    //
+    // for one entity type can be found more components we want only component with highest prio
+    const component = componentService.getEntitySelectBoxComponent(entityType);
+    if (!component) {
+      return (
+        <Basic.Alert
+          level="warning"
+          text={ this.i18n('component.advanced.EntitySelectBox.componentNotFound', { entityType }) }
+          className="no-margin"/>
+      );
+    }
+    //
+    // If component descriptor override also component use rathem them (has bigger priority)
+    if (component.component) {
+      const CustomEntitySelectBoxComponent = component.component;
+      return (
+        <CustomEntitySelectBoxComponent
+          ref="selectComponent"
+          helpBlock={ this._getHelpBlock(component) }
+          {...others} />
+        );
+    }
+    //
+    const ManagerType = component.manager;
+    const manager = new ManagerType;
+    return (
+      <Basic.SelectBox
+        ref="selectComponent"
+        manager={ manager }
+        searchInFields={ component.searchInFields }
+        helpBlock={ this._getHelpBlock(component) }
+        {...others}/>
+    );
   }
 }
 EntitySelectBox.propTypes = {
-  ...Basic.AbstractContextComponent.propTypes,
+  ...Basic.SelectBox.propTypes,
   /**
    * Entity type (e.g. identity, role ...) for more info see README or component-descriptor
    */
@@ -105,9 +102,9 @@ EntitySelectBox.propTypes = {
    *
    * @type BOOLEAN
    */
-  showSearchFields: PropTypes.bool
+  showDefaultHelpBlock: PropTypes.bool
 };
 EntitySelectBox.defaultProps = {
-  ...Basic.AbstractContextComponent.defaultProps,
-  showSearchFields: false
+  ...Basic.SelectBox.defaultProps,
+  showDefaultHelpBlock: false
 };

@@ -299,6 +299,7 @@
         }
       },
       "EntitySelectBox": {
+        "componentNotFound": "Select box component for type [{{entityType}}] is not registered. Fix component descriptor.",
         "defaultHelpBlock": "Searching is done in the following attributes: {{searchInFields}}."
       },
       "Filter": {

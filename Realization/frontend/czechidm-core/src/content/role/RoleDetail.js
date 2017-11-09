@@ -229,7 +229,8 @@ class RoleDetail extends Basic.AbstractContent {
                   ref="guarantees"
                   label={this.i18n('entity.Role.guarantees')}
                   multiSelect
-                  entityType="identity"/>
+                  entityType="identity"
+                  showDefaultHelpBlock/>
                 <Basic.Checkbox
                   ref="approveRemove"
                   label={this.i18n('entity.Role.approveRemove')}/>

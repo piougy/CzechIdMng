@@ -321,6 +321,7 @@
         }
       },
       "EntitySelectBox": {
+        "componentNotFound": "Komponenta pro select box typu [{{entityType}}] není zaregistrovaná. Opravte konfiguraci komponent.",
         "defaultHelpBlock": "Vyhledávání je realizováno v těchto atributech: {{searchInFields}}."
       },
       "Filter": {

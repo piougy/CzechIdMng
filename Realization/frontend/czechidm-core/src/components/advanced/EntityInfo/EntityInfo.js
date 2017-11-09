@@ -19,6 +19,16 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
   }
 
   /**
+   * Returns entity info component by given type
+   *
+   * @param  {string} entityType
+   * @return {object} component or null
+   */
+  static getComponent(entityType) {
+    return componentService.getEntityInfoComponent(entityType);
+  }
+
+  /**
    * Returns entity's nice label. Useful for localization params etc.
    *
    * @param  {string} entityType
@@ -30,7 +40,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
       return null;
     }
     //
-    const component = componentService.getEntityInfoComponent(entityType);
+    const component = EntityInfo.getComponent(entityType);
     if (!component || !component.manager) {
       return null;
     }

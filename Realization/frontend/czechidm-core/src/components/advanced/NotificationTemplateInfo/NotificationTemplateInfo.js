@@ -17,6 +17,7 @@ const manager = new NotificationTemplateManager();
  *
  * @author Radek Tomiška (main component)
  * @author Peter Sourek
+ * @author Petr Hanák
  */
 export class NotificationTemplateInfo extends AbstractEntityInfo {
 

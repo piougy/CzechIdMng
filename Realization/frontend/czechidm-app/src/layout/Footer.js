@@ -42,12 +42,11 @@ class Footer extends Basic.AbstractContent {
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>
           <span style={{margin: '0 10px'}} className="hidden">|</span>
-          &copy; { moment(new Date()).format('YYYY') } &nbsp;&nbsp;
           <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.serviceDesk')}</a>
-          <span style={{margin: '0 10px'}}>|</span>
           <a href="https://wiki.czechidm.com/start" target="_blank">{this.i18n('app.helpDesk')}</a>
+          <span style={{margin: '0 10px'}}>|</span>
+          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.serviceDesk')}</a>
           <span style={{margin: '0 10px'}}>|</span>
           <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('content.about.link')}>{this.i18n('content.about.link')}</a>
         </div>

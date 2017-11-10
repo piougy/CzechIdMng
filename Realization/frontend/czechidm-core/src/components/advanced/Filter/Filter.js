@@ -16,6 +16,22 @@ import FilterDateTimePicker from './FilterDateTimePicker';
  */
 export default class Filter extends Basic.AbstractContextComponent {
 
+  getComponent(property) {
+    return this.refs.filterForm.getComponent(property);
+  }
+
+  isFormValid() {
+    return this.refs.filterForm.isFormValid();
+  }
+
+  getData() {
+    return this.refs.filterForm.getData();
+  }
+
+  setData(filterData) {
+    this.refs.filterForm.setData(filterData);
+  }
+
   useFilter(event) {
     const { onSubmit } = this.props;
     if (onSubmit) {

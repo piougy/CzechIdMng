@@ -15,7 +15,7 @@ const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
 
 /**
- * Identity accounts
+ * System accounts
  *
  * @author Radek Tomiška
  */
@@ -97,7 +97,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
               showLoading={_showLoading}
               forceSearchParameters={forceAccountSearchParameters}
               forceSystemEntitySearchParameters={forceSystemEntitySearchParameters}
-              columns={ _.difference(AccountTable.defaultProps.columns, ['system', 'entityType']) }
+              columns={ _.difference(AccountTable.defaultProps.columns, ['entityType']) }
               showAddButton={ false }/>
           </Basic.Tab>
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>

@@ -4,6 +4,8 @@ import * as Basic from '../../basic';
 
 /**
  * Component with two TextField and password estimator.
+ *
+ * @author Ondřej Kopr
  */
 class PasswordField extends Basic.AbstractFormComponent {
 
@@ -15,9 +17,11 @@ class PasswordField extends Basic.AbstractFormComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.refs.newPassword.setValue(nextProps.newPassword);
-    this.refs.newPasswordAgain.setValue(nextProps.newPasswordAgain);
-    this._updatePasswordForValidation(nextProps.newPassword);
+    if (this.props.newPassword !== nextProps.newPassword) {
+      this.refs.newPassword.setValue(nextProps.newPassword);
+      this._updatePasswordForValidation(nextProps.newPassword);
+      this.refs.newPasswordAgain.setValue(nextProps.newPasswordAgain);
+    }
   }
 
   getValue() {

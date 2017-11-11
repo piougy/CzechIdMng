@@ -25,8 +25,10 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
 
 /**
@@ -37,7 +39,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
  */
 @Component
 @Description("Permissions to accounts by identity")
-public class AccountByIdentityEvaluator extends AbstractAuthorizationEvaluator<AccAccount> {
+public class ReadAccountByIdentityEvaluator extends AbstractAuthorizationEvaluator<AccAccount> {
 
 	@Autowired
 	private SecurityService securityService;
@@ -61,7 +63,10 @@ public class AccountByIdentityEvaluator extends AbstractAuthorizationEvaluator<A
 
 		identityAccounts.forEach(identityAccount -> {
 			BaseEntity identity = lookupService.lookupEntity(IdmIdentity.class, identityAccount.getIdentity());
-			permissions.addAll(authorizationManager.getPermissions(identity));
+			Set<String> identityPermissions = authorizationManager.getPermissions(identity);
+			if(PermissionUtils.hasPermission(identityPermissions, IdmBasePermission.READ)) {
+				permissions.add(IdmBasePermission.READ.name());
+			}
 		});
 		return permissions;
 	}
@@ -71,8 +76,11 @@ public class AccountByIdentityEvaluator extends AbstractAuthorizationEvaluator<A
 	 */
 	@Override
 	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
-		// evaluates authorities on owner type class
-		return authorizationManager.getAuthorities(identityId, IdmIdentity.class);
+		Set<String> authorities = super.getAuthorities(identityId, policy);
+		if(PermissionUtils.hasPermission(authorizationManager.getAuthorities(identityId, IdmIdentity.class), IdmBasePermission.READ)) {
+		   authorities.add(IdmBasePermission.READ.name());
+		}
+		return authorities;
 	}
 
 	@Override

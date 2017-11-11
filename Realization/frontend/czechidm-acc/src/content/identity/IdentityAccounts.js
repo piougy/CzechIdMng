@@ -76,6 +76,14 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
     super.afterSave(entity, error);
   }
 
+  _onChangeSelectTabs(activeTab) {
+    if (activeTab === 2) {
+      this.refs.table.getWrappedInstance().reload();
+    } else if (activeTab === 1) {
+      this.refs.accountTable.getWrappedInstance().reload();
+    }
+  }
+
   render() {
     const { entityId } = this.props.params;
     const { _showLoading, _permissions } = this.props;
@@ -90,14 +98,15 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.Tabs style={{ paddingTop: 15 }}>
+        <Basic.Tabs style={{ paddingTop: 15 }} onSelect={this._onChangeSelectTabs.bind(this)}>
           <Basic.Tab eventKey={1} title={this.i18n('header')}>
             <AccountTableComponent
+              ref="accountTable"
               uiKey="accounts-table"
               showLoading={_showLoading}
               forceSearchParameters={forceAccountSearchParameters}
               forceSystemEntitySearchParameters={forceSystemEntitySearchParameters}
-              columns={ _.difference(AccountTable.defaultProps.columns, ['system', 'entityType']) }
+              columns={ _.difference(AccountTable.defaultProps.columns, ['entityType', 'systemEntity']) }
               showAddButton={ false }/>
           </Basic.Tab>
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>

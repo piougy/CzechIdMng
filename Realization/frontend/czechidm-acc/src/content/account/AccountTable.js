@@ -128,6 +128,10 @@ export class AccountTable extends Advanced.AbstractTableContent {
    );
   }
 
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
   render() {
     const {
       _showLoading,
@@ -365,4 +369,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(AccountTable);
+export default connect(select, null, null, { withRef: true})(AccountTable);

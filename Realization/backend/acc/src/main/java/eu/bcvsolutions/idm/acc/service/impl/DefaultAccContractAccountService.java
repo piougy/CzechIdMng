@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
@@ -20,6 +22,8 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccContractAccount;
 import eu.bcvsolutions.idm.acc.entity.AccContractAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
+import eu.bcvsolutions.idm.acc.event.AccountEvent;
+import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccContractAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
@@ -42,15 +46,14 @@ public class DefaultAccContractAccountService
 	private final AccAccountService accountService;
 
 	@Autowired
-	public DefaultAccContractAccountService(AccContractAccountRepository repository,
-			AccAccountService accountService) {
+	public DefaultAccContractAccountService(AccContractAccountRepository repository, AccAccountService accountService) {
 		super(repository);
 		//
 		Assert.notNull(accountService);
 		//
 		this.accountService = accountService;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.CONTRACTACCOUNT, getEntityClass());
@@ -87,25 +90,31 @@ public class DefaultAccContractAccountService
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
+			accountService.publish(new AccountEvent(AccountEventType.DELETE, accountService.get(account),
+					ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount,
+							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
 		}
 	}
-	
+
 	@Override
-	protected List<Predicate> toPredicates(Root<AccContractAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			AccContractAccountFilter filter) {
+	protected List<Predicate> toPredicates(Root<AccContractAccount> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, AccContractAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
-		if(filter.getAccountId() != null) {
-			predicates.add(builder.equal(root.get(AccContractAccount_.account).get(AccAccount_.id), filter.getAccountId()));
+		if (filter.getAccountId() != null) {
+			predicates.add(
+					builder.equal(root.get(AccContractAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}
-		if(filter.getContractId() != null) {
-			predicates.add(builder.equal(root.get(AccContractAccount_.contract).get(IdmIdentityContract_.id), filter.getContractId()));
+		if (filter.getContractId() != null) {
+			predicates.add(builder.equal(root.get(AccContractAccount_.contract).get(IdmIdentityContract_.id),
+					filter.getContractId()));
 		}
-		if(filter.getSystemId() != null) {
-			predicates.add(builder.equal(root.get(AccContractAccount_.account).get(AccAccount_.system).get(SysSystem_.id), filter.getSystemId()));
+		if (filter.getSystemId() != null) {
+			predicates
+					.add(builder.equal(root.get(AccContractAccount_.account).get(AccAccount_.system).get(SysSystem_.id),
+							filter.getSystemId()));
 		}
-		if(filter.isOwnership() != null) {
+		if (filter.isOwnership() != null) {
 			predicates.add(builder.equal(root.get(AccContractAccount_.ownership), filter.isOwnership()));
 		}
 		//

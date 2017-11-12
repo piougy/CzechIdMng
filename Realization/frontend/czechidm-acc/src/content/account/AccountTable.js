@@ -157,10 +157,10 @@ export class AccountTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           manager={this.getManager()}
           forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_UPDATE'])}
           rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
           actions={
-            Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
+            Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_UPDATE'])
             ?
             [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
             :

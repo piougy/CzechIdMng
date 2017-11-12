@@ -15,7 +15,7 @@ const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
 
 /**
- * Identity accounts
+ * System accounts
  *
  * @author Radek Tomiška
  */

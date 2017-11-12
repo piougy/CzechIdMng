@@ -116,26 +116,10 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               ]
             }
             filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <div className="col-lg-4">
-                      <Advanced.Filter.EnumSelectBox
-                        ref="entityType"
-                        placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-                        enum={SystemEntityTypeEnum}/>
-                    </div>
-                    <div className="col-lg-4">
-                      <Advanced.Filter.TextField
-                        ref="text"
-                        placeholder={this.i18n('filter.text.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
+              <Filter
+                ref="filterForm"
+                onSubmit={ this.useFilter.bind(this) }
+                onCancel={ this.cancelFilter.bind(this) } />
             }
             _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
@@ -253,3 +237,38 @@ function select(state, component) {
 }
 
 export default connect(select)(SystemEntitiesContent);
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ */
+class Filter extends Advanced.Filter {
+
+  render() {
+    const { onSubmit, onCancel } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="entityType"
+                placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
+                enum={ SystemEntityTypeEnum }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={ this.i18n('acc:content.system.entities.filter.text.placeholder') }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } className="text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+    );
+  }
+}

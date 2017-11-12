@@ -13,9 +13,6 @@ Encapsulates all features for filter. Filter works nice together with advanced t
 | FilterBooleanSelectBox | Boolean select |
 | FilterDateTimePicker | DateTime select. Default operator EQ |
 
-Components, which are descendant of AbstractFormComponent (e.g. FilterTextField),
-new
-
 ## Usage
 ```html
 ...

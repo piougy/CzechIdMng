@@ -89,45 +89,6 @@ export class AccountTable extends Advanced.AbstractTableContent {
     });
   }
 
-  _getTableFilter() {
-    const { forceSearchParameters } = this.props;
-    //
-    return (
-      <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm">
-        <Basic.Row>
-          <Basic.Col lg={ 8 }>
-            <Advanced.Filter.TextField
-              ref="text"
-              placeholder={this.i18n('filter.text.placeholder')}/>
-          </Basic.Col>
-          <Basic.Col lg={ 4 } className="text-right">
-            <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-          </Basic.Col>
-        </Basic.Row>
-        <Basic.Row className="last">
-          <Basic.Col lg={ 4 }>
-            <Advanced.Filter.EnumSelectBox
-              ref="accountType"
-              placeholder={ this.i18n('acc:entity.Account.accountType') }
-              enum={ AccountTypeEnum }/>
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-            <Advanced.Filter.EnumSelectBox
-              ref="entityType"
-              placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-              enum={ SystemEntityTypeEnum }
-              rendered={ !forceSearchParameters.getFilters().has('entityType') }/>
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-
-          </Basic.Col>
-        </Basic.Row>
-      </Basic.AbstractForm>
-    </Advanced.Filter>
-   );
-  }
-
   reload() {
     this.refs.table.getWrappedInstance().reload();
   }
@@ -181,7 +142,11 @@ export class AccountTable extends Advanced.AbstractTableContent {
             ]
           }
           filter={
-             this._getTableFilter()
+            <Filter
+              ref="filterForm"
+              onSubmit={ this.useFilter.bind(this) }
+              onCancel={ this.cancelFilter.bind(this) }
+              forceSearchParameters={ forceSearchParameters }/>
           }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
@@ -370,3 +335,50 @@ function select(state, component) {
 }
 
 export default connect(select, null, null, { withRef: true})(AccountTable);
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ */
+class Filter extends Advanced.Filter {
+
+  render() {
+    const { onSubmit, onCancel, forceSearchParameters } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row>
+            <Basic.Col lg={ 8 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={this.i18n('filter.text.placeholder')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } className="text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </Basic.Col>
+          </Basic.Row>
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="accountType"
+                placeholder={ this.i18n('acc:entity.Account.accountType') }
+                enum={ AccountTypeEnum }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="entityType"
+                placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
+                enum={ SystemEntityTypeEnum }
+                rendered={ !forceSearchParameters.getFilters().has('entityType') }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+    );
+  }
+}

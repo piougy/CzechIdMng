@@ -2029,6 +2029,7 @@
     },
     "name": "Name",
     "created": "Created",
+    "creator": "Creator",
     "validFrom": "Valid from",
     "validTill": "Valid till",
 
@@ -2071,8 +2072,8 @@
       "key": "Key",
       "ownerType": "Owner type",
       "serializableValue": "Value",
-      "created": "Date of creation",
-      "creator": "Creator"
+      "created": "$t(entity.created)",
+      "creator": "$t(entity.creator)"
     },
     "Script": {
       "name": "Script name",

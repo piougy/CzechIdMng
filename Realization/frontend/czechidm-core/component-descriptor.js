@@ -203,6 +203,7 @@ module.exports = {
       'id': 'identity-select-box',
       'type': 'entity-select-box',
       'priority': 0,
+      'localizationKey': 'entity.Identity',
       'entityType': ['identity'],
       'searchInFields': ['username', 'firstName', 'lastName', 'email'],
       'manager': require('./src/redux').IdentityManager
@@ -211,6 +212,7 @@ module.exports = {
       'id': 'role-select-box',
       'type': 'entity-select-box',
       'priority': 0,
+      'localizationKey': 'entity.Role',
       'entityType': ['role'],
       'searchInFields': ['name', 'description'],
       'manager': require('./src/redux').RoleManager
@@ -219,6 +221,7 @@ module.exports = {
       'id': 'tree-node-select-box',
       'type': 'entity-select-box',
       'priority': 0,
+      'localizationKey': 'entity.TreeNode',
       'entityType': ['treeNode'],
       'searchInFields': ['code', 'name'],
       'manager': require('./src/redux').TreeNodeManager

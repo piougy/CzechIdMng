@@ -259,7 +259,7 @@
         "noResultsText": "No result",
         "searchPromptText": "Start typing ...",
         "searchingText": "Searching ...",
-        "result": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
+        "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
       },
       "Table" : {
         "Pagination" : {

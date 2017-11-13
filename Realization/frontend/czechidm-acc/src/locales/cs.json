@@ -1274,6 +1274,10 @@
       "title": "Účet [{{uid}}] nemůže být smazán!",
       "message": "Účet [{{uid}}] nemůže být smazán! Je chráněn před smazáním!"
     },
+    "ACCOUNT_CANNOT_UPDATE_IS_PROTECTED": {
+      "title": "Účet [{{uid}}] nemůže být upraven!",
+      "message": "Účet [{{uid}}] nemůže být vyjmut z chráněného režimu manuálně!"
+    },
     "SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED": {
       "title": "Typ struktury nelze odebrat",
       "message": "Typ struktury [{{treeType}}] je již použit v mapování u systému [{{system}}]. Před odebráním tohoto typu odstraňte mapování ze systému."

@@ -257,12 +257,14 @@ export class AccountTable extends Advanced.AbstractTableContent {
                   hidden={ systemEntity }/>
                 <Basic.Checkbox
                   ref="inProtection"
-                  label={ this.i18n('acc:entity.Account.inProtection') }>
+                  label={ this.i18n('acc:entity.Account.inProtection') }
+                  readOnly>
                 </Basic.Checkbox>
                 <Basic.DateTimePicker
                   mode="datetime"
                   ref="endOfProtection"
-                  label={ this.i18n('acc:entity.Account.endOfProtection') }/>
+                  label={ this.i18n('acc:entity.Account.endOfProtection') }
+                  readOnly={ !detail.entity.inProtection }/>
 
               </Basic.AbstractForm>
 

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
@@ -201,6 +204,29 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
+	@ApiOperation(
+			value = "Update account", 
+			nickname = "patchAccount", 
+			response = AccAccountDto.class, 
+			tags = { AccAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Account's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
+	}
+	
+	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@ApiOperation(
@@ -226,7 +252,13 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 		if (dto.getSystemEntity() != null) {
 			SysSystemEntityDto systemEntity = systemEntityService.get(dto.getSystemEntity());
 			dto.setEntityType(systemEntity.getEntityType());
-		}		
+		}
+		if (!getService().isNew(dto)) {
+			AccAccountDto previous = getDto(dto.getId());
+			if(previous.isInProtection() && !dto.isInProtection()) {
+				throw new ResultCodeException(AccResultCode.ACCOUNT_CANNOT_UPDATE_IS_PROTECTED, ImmutableMap.of("uid", dto.getUid()));
+			}
+		}
 		return dto;
 	}
 	

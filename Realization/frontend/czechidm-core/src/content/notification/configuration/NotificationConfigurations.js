@@ -93,6 +93,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
   render() {
     const { _showLoading, _supportedNotificationTypesLoading, _supportedNotificationTypes } = this.props;
     const { detail, filterOpened } = this.state;
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -180,7 +181,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.topic })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm data={detail.entity} showLoading={_showLoading}>
+              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading}>
                 <Basic.TextField
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}

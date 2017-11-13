@@ -128,7 +128,6 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     //
     // If component descriptor override pageSize use it!
     const pageSizeFinal = component.pageSize ? component.pageSize : pageSize;
-    console.log(123, pageSizeFinal);
     //
     // If component descriptor override also component use rathem them (has bigger priority)
     if (component.component) {

@@ -73,7 +73,7 @@ class Table extends AbstractComponent {
       }
       properties.map(property => {
         children.push(
-          <DefaultCell property={property} data={data}/>
+          <DefaultCell property={ property } data={ data }/>
         );
       });
     }
@@ -182,6 +182,9 @@ class Table extends AbstractComponent {
   _isAllRowsSelected() {
     const { data } = this.props;
     const { selectedRows } = this.state;
+    if (!data || data.lenght === 0) {
+      return false;
+    }
     for (let i = 0; i < data.length; i++) {
       if (!selectedRows.has(this.getIdentifier(i))) {
         return false;
@@ -275,22 +278,6 @@ class Table extends AbstractComponent {
       return null;
     }
 
-    if (!data || data.length === 0) {
-      // TODO: colspan with table header will be better - column definition are needed in this variant
-      if (this.props.showLoading) {
-        return (
-          <div className="basic-table">
-            <Loading showLoading className="static"/>
-          </div>
-        );
-      }
-      return (
-        <div className="basic-table">
-          <Alert text={noData}/>
-        </div>
-      );
-    }
-
     const columns = this._resolveColumns();
     const columnsHeaders = this.renderHeader(columns);
     const body = this.renderBody(columns);
@@ -302,10 +289,35 @@ class Table extends AbstractComponent {
       { 'table-no-header': noHeader }
     );
     //
+    const content = [];
+    if (!data || data.length === 0) {
+      if (showLoading) {
+        content.push(
+          <tr>
+            <td colSpan={ columns.length }>
+              <Loading showLoading className="static"/>
+            </td>
+          </tr>
+        );
+      } else {
+        content.push(
+          <tr>
+            <td colSpan={ columns.length }>
+              <Alert text={ noData } className="no-data"/>
+            </td>
+          </tr>
+        );
+      }
+    } else {
+      content.push(columnsHeaders);
+      content.push(body);
+      content.push(footer);
+    }
+    //
     return (
       <div className={classNames(className, 'basic-table')}>
-        <Loading showLoading={showLoading}>
-          <table className={classNamesTable}>
+        <Loading showLoading={ showLoading && data && data.length > 0 }>
+          <table className={ classNamesTable }>
             {
               !header || noHeader
               ||
@@ -317,9 +329,7 @@ class Table extends AbstractComponent {
                 </tr>
               </thead>
             }
-            { columnsHeaders }
-            { body }
-            { footer }
+            { content }
           </table>
         </Loading>
       </div>

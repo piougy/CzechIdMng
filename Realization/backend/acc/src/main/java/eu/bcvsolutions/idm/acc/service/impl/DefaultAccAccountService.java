@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,10 +12,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,14 +22,14 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -47,24 +43,20 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
+import eu.bcvsolutions.idm.acc.event.AccountEvent;
+import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.AccContractAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.AccRoleAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.AccRoleCatalogueAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.AccTreeAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -74,66 +66,41 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 /**
  * Accounts on target system
  * 
- * TODO: event processing - see account delete
- * 
  * @author Radek Tomiška
+ * @author svandav
  *
  */
 @Service("accAccountService")
-public class DefaultAccAccountService 
-		extends AbstractReadWriteDtoService<AccAccountDto, AccAccount, AccAccountFilter>
+public class DefaultAccAccountService extends AbstractEventableDtoService<AccAccountDto, AccAccount, AccAccountFilter>
 		implements AccAccountService {
 
 	private final AccAccountRepository accountRepository;
-	private final AccIdentityAccountRepository accIdentityAccountRepository;
-	private final AccRoleAccountRepository roleAccountRepository;
-	private final AccTreeAccountRepository treeAccountRepository;
-	private final AccContractAccountRepository contractAccountRepository;
-	private final AccRoleCatalogueAccountRepository roleCatalogueAccountRepository;
-	private final ApplicationContext applicationContext;
-	private ProvisioningService provisioningService;
-	private final SysSystemEntityService systemEntityService;
+	private final AccIdentityAccountService identityAccountService;
 	private final SysSystemService systemService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
 
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultAccAccountService.class);
-
 	@Autowired
 	public DefaultAccAccountService(AccAccountRepository accountRepository,
-			AccIdentityAccountRepository accIdentityAccountRepository, ApplicationContext applicationContext,
-			SysSystemEntityService systemEntityService, AccRoleAccountRepository roleAccountRepository,
-			AccTreeAccountRepository treeAccountRepository, AccContractAccountRepository contractAccountRepository,
-			AccRoleCatalogueAccountRepository roleCatalogueAccountRepository, SysSystemService systemService,
-			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService) {
-		super(accountRepository);
+			AccIdentityAccountService identityAccountService, SysSystemService systemService,
+			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService,
+			EntityEventManager entityEventManager) {
+		super(accountRepository, entityEventManager);
 		//
-		Assert.notNull(accIdentityAccountRepository);
+		Assert.notNull(identityAccountService);
 		Assert.notNull(accountRepository);
-		Assert.notNull(applicationContext);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(roleAccountRepository);
-		Assert.notNull(roleCatalogueAccountRepository);
-		Assert.notNull(treeAccountRepository);
-		Assert.notNull(contractAccountRepository);
 		Assert.notNull(systemService);
 		Assert.notNull(schemaObjectClassService);
 		Assert.notNull(schemaAttributeService);
 
 		//
-		this.accIdentityAccountRepository = accIdentityAccountRepository;
+		this.identityAccountService = identityAccountService;
 		this.accountRepository = accountRepository;
-		this.applicationContext = applicationContext;
-		this.systemEntityService = systemEntityService;
-		this.roleAccountRepository = roleAccountRepository;
-		this.roleCatalogueAccountRepository = roleCatalogueAccountRepository;
-		this.treeAccountRepository = treeAccountRepository;
-		this.contractAccountRepository = contractAccountRepository;
 		this.systemService = systemService;
 		this.schemaAttributeService = schemaAttributeService;
 		this.schemaObjectClassService = schemaObjectClassService;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.ACCOUNT, getEntityClass());
@@ -160,57 +127,32 @@ public class DefaultAccAccountService
 	@Override
 	@Transactional
 	public void delete(AccAccountDto account, BasePermission... permission) {
-		delete(account, true, null);
-	}
-
-	@Override
-	@Transactional
-	public void delete(AccAccountDto account, boolean deleteTargetAccount, UUID entityId) {
 		Assert.notNull(account);
-		// We do not allow delete account in protection
-		if (account.isAccountProtectedAndValid()) {
-			throw new ResultCodeException(AccResultCode.ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED,
-					ImmutableMap.of("uid", account.getUid()));
+		// delete all identity accounts (call event)
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setAccountId(account.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+				.getContent();
+		identityAccounts.forEach(identityAccount -> {
+			identityAccountService.delete(identityAccount);
+		});
+
+		AccAccountDto potentialProtectedAccount = get(account);
+
+		// Account was already deleted during relations identity-accounts deletion
+		if (potentialProtectedAccount == null) {
+			return;
+		}
+		// If was account marked as protected (after we try delete all
+		// identity-accounts), then we don't want delete account. We have to prevent
+		// throw "account is protected" exception, because we need do commit (not
+		// rollback).
+		if (!account.isAccountProtectedAndValid() && potentialProtectedAccount.isAccountProtectedAndValid()) {
+			return;
 		}
 
-		// delete all identity accounts we are calling repository instead service to
-		// prevent cycle - we only need clean db in this case
-		accIdentityAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-
-		// delete all role accounts we are calling repository instead service to
-		// prevent cycle - we only need clean db in this case
-		roleAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-
-		// delete all role-catalogue accounts we are calling repository instead service
-		// to
-		// prevent cycle - we only need clean db in this case
-		roleCatalogueAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-
-		// delete all tree accounts we are calling repository instead service to
-		// prevent cycle - we only need clean db in this case
-		treeAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-
-		// delete all contract accounts we are calling repository instead service to
-		// prevent cycle - we only need clean db in this case
-		contractAccountRepository.deleteByAccount(this.getEntity(account.getId()));
-
-		//
-		super.delete(account);
-		// TODO: move to event
-		if (deleteTargetAccount) {
-			if (provisioningService == null) {
-				provisioningService = applicationContext.getBean(ProvisioningService.class);
-			}
-			if (account.getSystemEntity() != null) {
-				SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
-				if (SystemEntityType.CONTRACT == systemEntityDto.getEntityType()) {
-					LOG.warn(MessageFormat.format("Provisioning is not supported for contract now [{0}]!",
-							account.getUid()));
-					return;
-				}
-				this.provisioningService.doDeleteProvisioning(account, systemEntityDto.getEntityType(), entityId);
-			}
-		}
+		this.publish(new AccountEvent(AccountEventType.DELETE, account,
+				ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, Boolean.TRUE)));
 	}
 
 	@Override
@@ -349,7 +291,7 @@ public class DefaultAccAccountService
 		if (filter.getAccountType() != null) {
 			predicates.add(builder.equal(root.get(AccAccount_.accountType), filter.getAccountType()));
 		}
-		
+
 		if (filter.getSupportChangePassword() != null && filter.getSupportChangePassword()) {
 			Subquery<SysSystemAttributeMapping> systemAttributeMappingSubquery = query
 					.subquery(SysSystemAttributeMapping.class);
@@ -357,19 +299,17 @@ public class DefaultAccAccountService
 					.from(SysSystemAttributeMapping.class);
 			systemAttributeMappingSubquery.select(subRootSystemAttributeMapping);
 
-			Predicate predicate = builder.and(builder.equal(
-					subRootSystemAttributeMapping//
+			Predicate predicate = builder.and(builder.equal(subRootSystemAttributeMapping//
 					.get(SysSystemAttributeMapping_.schemaAttribute)//
 					.get(SysSchemaAttribute_.objectClass)//
-					.get(SysSchemaObjectClass_.system),//
+					.get(SysSchemaObjectClass_.system), //
 					root.get(AccAccount_.system)),
 					builder.equal(subRootSystemAttributeMapping//
 							.get(SysSystemAttributeMapping_.systemMapping)//
 							.get(SysSystemMapping_.operationType), SystemOperationType.PROVISIONING),
 					builder.equal(subRootSystemAttributeMapping//
 							.get(SysSystemAttributeMapping_.schemaAttribute)//
-							.get(SysSchemaAttribute_.name), ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)
-					);
+							.get(SysSchemaAttribute_.name), ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME));
 
 			systemAttributeMappingSubquery.where(predicate);
 			predicates.add(builder.exists(systemAttributeMappingSubquery));

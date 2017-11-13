@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
  */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = { 
-		FlywayAutoConfiguration.class // see {@link IdmFlywayAutoConfiguration}lass 
+		FlywayAutoConfiguration.class // see {@link IdmFlywayAutoConfiguration} class 
 		})
 @EnableCaching
 @EnablePluginRegistries({ ModuleDescriptor.class })

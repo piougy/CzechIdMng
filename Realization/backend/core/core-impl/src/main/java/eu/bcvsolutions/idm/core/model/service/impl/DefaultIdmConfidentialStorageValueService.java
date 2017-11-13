@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConfidentialStorageValueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConfidentialStorageValueFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
@@ -47,7 +46,8 @@ public class DefaultIdmConfidentialStorageValueService extends
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.CONFIDENTIALSTORAGEVALUE, getEntityClass());
+		// configuration storage can be loaded externally and we will not be able to implement our authorization policies
+		return null;
 	}
 
 	@Override
@@ -64,20 +64,6 @@ public class DefaultIdmConfidentialStorageValueService extends
 	protected List<Predicate> toPredicates(Root<IdmConfidentialStorageValue> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, IdmConfidentialStorageValueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-		// owner id
-		if (filter.getOwnerId() != null) {
-			predicates.add(builder.equal(root.get(IdmConfidentialStorageValue_.ownerId), filter.getOwnerId()));
-		}
-		// owner type
-		if (StringUtils.isNotEmpty(filter.getOwnerType())) {
-			predicates.add(builder.like(builder.lower(root.get(IdmConfidentialStorageValue_.ownerType)),
-					"%" + filter.getOwnerType().toLowerCase() + "%"));
-		}
-		// key
-		if (StringUtils.isNotEmpty(filter.getKey())) {
-			predicates.add(builder.like(builder.lower(root.get(IdmConfidentialStorageValue_.key)),
-					"%" + filter.getKey().toLowerCase() + "%"));
-		}
 		// text - key, owner type
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
@@ -85,6 +71,18 @@ public class DefaultIdmConfidentialStorageValueService extends
 							"%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get(IdmConfidentialStorageValue_.key)),
 							"%" + filter.getText().toLowerCase() + "%")));
+		}
+		// owner id
+		if (filter.getOwnerId() != null) {
+			predicates.add(builder.equal(root.get(IdmConfidentialStorageValue_.ownerId), filter.getOwnerId()));
+		}
+		// owner type
+		if (StringUtils.isNotEmpty(filter.getOwnerType())) {
+			predicates.add(builder.equal(root.get(IdmConfidentialStorageValue_.ownerType), filter.getOwnerType()));
+		}
+		// key
+		if (StringUtils.isNotEmpty(filter.getKey())) {
+			predicates.add(builder.equal(root.get(IdmConfidentialStorageValue_.key), filter.getKey()));
 		}
 		return predicates;
 	}

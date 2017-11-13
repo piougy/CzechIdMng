@@ -31,6 +31,7 @@ public class AccAccountDto extends AbstractDto {
 	private UUID system;
 	@Embedded(dtoClass = SysSystemEntityDto.class)
 	private UUID systemEntity;
+	@JsonProperty(access = Access.READ_ONLY)
 	private boolean inProtection;
 	private DateTime endOfProtection;
 	private String realUid;

@@ -15,8 +15,9 @@ const systemManager = new SystemManager();
  * Accounts on target system
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
-class AccountTable extends Advanced.AbstractTableContent {
+export class AccountTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -49,13 +50,15 @@ class AccountTable extends Advanced.AbstractTableContent {
     this.setState({
       systemEntity: entity.systemEntity
     }, ()=> {
-      manager.getService().getConnectorObject(entity.id)
-      .then(json => {
-        this.setState({connectorObject: json});
-      })
-      .catch(error => {
-        this.addError(error);
-      });
+      if (!Utils.Entity.isNew(entity)) {
+        manager.getService().getConnectorObject(entity.id)
+        .then(json => {
+          this.setState({connectorObject: json});
+        })
+        .catch(error => {
+          this.addError(error);
+        });
+      }
       super.showDetail(entity, () => {
         this.refs.uid.focus();
       });
@@ -86,148 +89,133 @@ class AccountTable extends Advanced.AbstractTableContent {
     });
   }
 
-  _getTableFilter() {
-    return (
-      <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm">
-        <Basic.Row>
-          <Basic.Col lg={ 8 }>
-            <Advanced.Filter.TextField
-              ref="text"
-              placeholder={this.i18n('filter.text.placeholder')}/>
-          </Basic.Col>
-          <Basic.Col lg={ 4 } className="text-right">
-            <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-          </Basic.Col>
-        </Basic.Row>
-        <Basic.Row className="last">
-          <Basic.Col lg={ 4 }>
-            <Advanced.Filter.EnumSelectBox
-              ref="accountType"
-              placeholder={ this.i18n('acc:entity.Account.accountType') }
-              enum={ AccountTypeEnum }/>
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-            <Advanced.Filter.EnumSelectBox
-              ref="entityType"
-              placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-              enum={ SystemEntityTypeEnum }/>
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-
-          </Basic.Col>
-        </Basic.Row>
-      </Basic.AbstractForm>
-    </Advanced.Filter>
-   );
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
   }
 
   render() {
-    const { _showLoading, uiKey, forceSearchParameters, forceSystemEntitySearchParameters, columns, showFilter, _permissions} = this.props;
+    const {
+      _showLoading,
+      uiKey,
+      forceSearchParameters,
+      forceSystemEntitySearchParameters,
+      columns,
+      _permissions,
+      showAddButton
+    } = this.props;
     const { detail, systemEntity, connectorObject } = this.state;
-    let tableFilter = null;
-    if (showFilter) {
-      tableFilter = this._getTableFilter();
+    //
+    let systemId = null;
+    if (forceSearchParameters.getFilters().has('systemId')) {
+      systemId = forceSearchParameters.getFilters().get('systemId');
     }
+    //
     return (
       <div>
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKey}
-            manager={this.getManager()}
-            showFilter={showFilter}
-            forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-            rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
-            actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-              ?
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              ]
-            }
-            filter={
-              tableFilter
-            }
-            _searchParameters={ this.getSearchParameters() }>
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="accountType"
-              rendered={_.includes(columns, 'accountType')}
-              header={ this.i18n('acc:entity.Account.accountType') }
-              width={ 75 }
-              sort
-              face="enum"
-              enumClass={ AccountTypeEnum } />
-            <Advanced.Column
-              property="entityType"
-              rendered={_.includes(columns, 'entityType')}
-              header={ this.i18n('acc:entity.SystemEntity.entityType') }
-              width={ 75 }
-              sort
-              face="enum"
-              enumClass={ SystemEntityTypeEnum }/>
-            <Advanced.ColumnLink
-              to={
-                ({ rowIndex, data }) => {
-                  this.showDetail(data[rowIndex]);
-                }
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Advanced.Table
+          ref="table"
+          uiKey={uiKey}
+          manager={this.getManager()}
+          forceSearchParameters={forceSearchParameters}
+          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])}
+          rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
+          actions={
+            Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])
+            ?
+            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+            :
+            null
+          }
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this.showDetail.bind(this, { system: systemId, accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
+                rendered={ showAddButton && Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_CREATE']) }>
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
+            ]
+          }
+          filter={
+            <Filter
+              ref="filterForm"
+              onSubmit={ this.useFilter.bind(this) }
+              onCancel={ this.cancelFilter.bind(this) }
+              forceSearchParameters={ forceSearchParameters }/>
+          }
+          _searchParameters={ this.getSearchParameters() }>
+          <Advanced.Column
+            property=""
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
               }
-              property="uid"
-              header={this.i18n('acc:entity.Account.uid')}/>
-            <Advanced.Column
-              header={this.i18n('acc:entity.System.name')}
-              rendered={_.includes(columns, 'system')}
-              cell={
-                /* eslint-disable react/no-multi-comp */
-                ({rowIndex, data}) => {
-                  return (
-                    <Advanced.EntityInfo
-                      entityType="system"
-                      entityIdentifier={ data[rowIndex]._embedded.systemEntity.system }
-                      face="popover" />
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="inProtection"
-              header={this.i18n('acc:entity.Account.inProtection')}
-              face="bool" />
-            <Advanced.Column
-              property="endOfProtection"
-              header={this.i18n('acc:entity.Account.endOfProtection')}
-              face="datetime" />
-            <Advanced.Column property="_embedded.systemEntity.uid"
-              rendered={_.includes(columns, 'systemEntity')}
-              header={this.i18n('acc:entity.Account.systemEntity')}
-              face="text" />
-          </Advanced.Table>
+            }/>
+          <Advanced.Column
+            property="accountType"
+            rendered={_.includes(columns, 'accountType')}
+            header={ this.i18n('acc:entity.Account.accountType') }
+            width={ 75 }
+            sort
+            face="enum"
+            enumClass={ AccountTypeEnum } />
+          <Advanced.Column
+            property="entityType"
+            rendered={_.includes(columns, 'entityType')}
+            header={ this.i18n('acc:entity.SystemEntity.entityType') }
+            width={ 75 }
+            sort
+            face="enum"
+            enumClass={ SystemEntityTypeEnum }/>
+          <Advanced.ColumnLink
+            to={
+              ({ rowIndex, data }) => {
+                this.showDetail(data[rowIndex]);
+              }
+            }
+            property="uid"
+            header={this.i18n('acc:entity.Account.uid')}
+            rendered={_.includes(columns, 'uid')}/>
+          <Advanced.Column
+            header={this.i18n('acc:entity.System.name')}
+            rendered={_.includes(columns, 'system')}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({rowIndex, data}) => {
+                return (
+                  <Advanced.EntityInfo
+                    entityType="system"
+                    entityIdentifier={ data[rowIndex]._embedded.systemEntity.system }
+                    face="popover" />
+                );
+              }
+            }/>
+          <Advanced.Column
+            property="inProtection"
+            header={this.i18n('acc:entity.Account.inProtection')}
+            face="bool"
+            rendered={_.includes(columns, 'inProtection')}/>
+          <Advanced.Column
+            property="endOfProtection"
+            header={this.i18n('acc:entity.Account.endOfProtection')}
+            face="datetime"
+            rendered={_.includes(columns, 'endOfProtection')}/>
+          <Advanced.Column property="_embedded.systemEntity.uid"
+            rendered={_.includes(columns, 'systemEntity')}
+            header={this.i18n('acc:entity.Account.systemEntity')}
+            face="text" />
+        </Advanced.Table>
 
         <Basic.Modal
           bsSize="large"
@@ -237,8 +225,8 @@ class AccountTable extends Advanced.AbstractTableContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -248,7 +236,7 @@ class AccountTable extends Advanced.AbstractTableContent {
                   ref="system"
                   manager={systemManager}
                   label={this.i18n('acc:entity.Account.system')}
-                  readOnly
+                  readOnly={ !Utils.Entity.isNew(detail.entity) || systemId }
                   required/>
                 <Basic.TextField
                   ref="uid"
@@ -271,20 +259,31 @@ class AccountTable extends Advanced.AbstractTableContent {
                   enum={ SystemEntityTypeEnum }
                   label={ this.i18n('acc:entity.SystemEntity.entityType') }
                   hidden={ systemEntity }/>
+                <Basic.Checkbox
+                  ref="inProtection"
+                  label={ this.i18n('acc:entity.Account.inProtection') }
+                  readOnly>
+                </Basic.Checkbox>
+                <Basic.DateTimePicker
+                  mode="datetime"
+                  ref="endOfProtection"
+                  label={ this.i18n('acc:entity.Account.endOfProtection') }
+                  readOnly={ !detail.entity.inProtection }/>
+
               </Basic.AbstractForm>
-              <Basic.Row>
-                <Basic.Col lg={ 12 }>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('acc:entity.SystemEntity.attributes')}</h3>
-                  <Basic.Table
-                    showLoading = {!connectorObject && !this.state.hasOwnProperty('connectorObject')}
-                    data={connectorObject ? connectorObject.attributes : null}
-                    noData={this.i18n('component.basic.Table.noData')}
-                    className="table-bordered">
-                    <Basic.Column property="name" header={this.i18n('label.property')}/>
-                    <Basic.Column property="values" header={this.i18n('label.value')}/>
-                  </Basic.Table>
-                </Basic.Col>
-              </Basic.Row>
+
+              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+
+              <Basic.Table
+                showLoading = {!connectorObject && !this.state.hasOwnProperty('connectorObject')}
+                data={connectorObject ? connectorObject.attributes : null}
+                noData={this.i18n('component.basic.Table.noData')}
+                className="table-bordered"
+                rendered={ !Utils.Entity.isNew(detail.entity) }>
+                <Basic.Column property="name" header={this.i18n('label.property')}/>
+                <Basic.Column property="values" header={this.i18n('label.value')}/>
+              </Basic.Table>
+
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>
@@ -312,14 +311,19 @@ class AccountTable extends Advanced.AbstractTableContent {
 }
 
 AccountTable.propTypes = {
-  _showLoading: PropTypes.bool,
-  uiKey: PropTypes.string,
-  forceSearchParameters: PropTypes.object,
-  forceSystemEntitySearchParameters: PropTypes.object
+  uiKey: PropTypes.string.isRequired,
+  forceSearchParameters: PropTypes.object.isRequired,
+  forceSystemEntitySearchParameters: PropTypes.object,
+  /**
+   * Button for create user will be shown
+   */
+  showAddButton: PropTypes.bool,
+  //
+  _showLoading: PropTypes.bool
 };
 AccountTable.defaultProps = {
-  columns: ['entityType', 'accountType', 'systemEntity'],
-  showFilter: false,
+  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity'],
+  showAddButton: true,
   _showLoading: false,
 };
 
@@ -332,4 +336,51 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(AccountTable);
+export default connect(select, null, null, { withRef: true})(AccountTable);
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ */
+class Filter extends Advanced.Filter {
+
+  render() {
+    const { onSubmit, onCancel, forceSearchParameters } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row>
+            <Basic.Col lg={ 8 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={this.i18n('filter.text.placeholder')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } className="text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </Basic.Col>
+          </Basic.Row>
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="accountType"
+                placeholder={ this.i18n('acc:entity.Account.accountType') }
+                enum={ AccountTypeEnum }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="entityType"
+                placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
+                enum={ SystemEntityTypeEnum }
+                rendered={ !forceSearchParameters.getFilters().has('entityType') }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+    );
+  }
+}

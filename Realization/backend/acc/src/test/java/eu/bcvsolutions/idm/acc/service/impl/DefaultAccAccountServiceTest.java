@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.security.evaluator.AccountByIdentityEvaluator;
+import eu.bcvsolutions.idm.acc.security.evaluator.ReadAccountByIdentityEvaluator;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -95,7 +95,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		policyAccount.setRole(role.getId());
 		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
 		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
-		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
 		authorizationPolicyService.save(policyAccount);
 
 		// Change resources (set state on exclude) .. must be call in transaction
@@ -146,7 +146,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		policyAccount.setRole(role.getId());
 		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
 		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
-		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
 		authorizationPolicyService.save(policyAccount);
 
 		// Change resources (set state on exclude) .. must be call in transaction
@@ -209,7 +209,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		policyAccount.setRole(role.getId());
 		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
 		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
-		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
 		authorizationPolicyService.save(policyAccount);
 
 		// Assign role with evaluator
@@ -261,7 +261,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		policyAccount.setRole(role.getId());
 		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
 		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
-		policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+		policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
 		authorizationPolicyService.save(policyAccount);
 
 		// Assign role with evaluator

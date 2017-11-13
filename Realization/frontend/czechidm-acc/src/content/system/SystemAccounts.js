@@ -1,7 +1,8 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 //
 import { Domain, Advanced, Basic } from 'czechidm-core';
-import AccountTable from '../account/AccountTable';
+import AccountTableComponent, { AccountTable } from '../account/AccountTable';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 /**
@@ -34,22 +35,19 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
 
-
     return (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
-          <AccountTable uiKey="system-accounts-table"
-            entityId={entityId}
-            showLoading={_showLoading}
-            forceSearchParameters={forceSearchParameters}
-            forceSystemEntitySearchParameters={forceSystemEntitySearchParameters}
-          />
+          <AccountTableComponent
+            uiKey="system-accounts-table"
+            showLoading={ _showLoading }
+            forceSearchParameters={ forceSearchParameters }
+            forceSystemEntitySearchParameters={ forceSystemEntitySearchParameters }
+            columns={ _.difference(AccountTable.defaultProps.columns, ['system']) }/>
         </Basic.Panel>
       </div>
     );

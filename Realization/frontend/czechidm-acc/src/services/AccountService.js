@@ -3,15 +3,16 @@ import { Domain } from 'czechidm-core';
 import AccountTypeEnum from '../domain/AccountTypeEnum';
 import { Utils } from 'czechidm-core';
 
+/**
+ * Accounts on target system
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
 export default class AccountService extends Services.AbstractService {
 
   constructor() {
     super();
-  }
-
-  // dto
-  supportsPatch() {
-    return false;
   }
 
   getNiceLabel(entity) {
@@ -23,6 +24,19 @@ export default class AccountService extends Services.AbstractService {
 
   getApiPath() {
     return '/accounts';
+  }
+
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'ACCOUNT';
+  }
+
+  // dto
+  supportsPatch() {
+    return true;
   }
 
   /**
@@ -49,14 +63,6 @@ export default class AccountService extends Services.AbstractService {
         }
         return jsonResponse;
       });
-  }
-
-  supportsAuthorization() {
-    return true;
-  }
-
-  getGroupPermission() {
-    return 'ACCOUNT';
   }
 
   getDefaultSearchParameters() {

@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 ##### Evaluator 'IdentityAccountByIdentityEvaluator'
 - Evaluator 'IdentityAccountByIdentityEvaluator' was removed and replaced by 'IdentityAccountByAccountEvaluator'.
 
+##### AccAccountService
+- Deprecated method 'delete(AccAccountDto account, boolean deleteTargetAccount, UUID entityId)' was removed. AccAccountService supported events now, parameters 'deleteTargetAccount' and 'entityId' were transformed to properties of delete event.
+
 ### Changed
 
 ##### Identity

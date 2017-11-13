@@ -6,7 +6,7 @@
       "homePage": "http://www.bcvsolutions.eu"
     },
     "serviceDesk": "ServiceDesk",
-    "helpDesk": "Wiki",
+    "helpDesk": "Nápověda",
     "version": {
       "frontend": "Verze",
       "backend": "Verze rozhraní",
@@ -1179,10 +1179,10 @@
       "title": "Šifrovaný obsah",
       "label": "Šifrovaný obsah",
       "filter": {
-        "text": "Klíč / Typ identity majitele",
+        "text": "Klíč / Typ majitele",
         "ownerId": "Id majitele",
         "key": "Klíč",
-        "ownerType": "Typ identity majitele",
+        "ownerType": "Typ majitele",
         "value": "Hodnota"
       },
       "edit": {
@@ -2066,6 +2066,7 @@
     },
     "name": "Název",
     "created": "Vytvořeno",
+    "creator": "Vytvořil",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
 
@@ -2106,10 +2107,10 @@
     "ConfidentialStorageValue": {
       "ownerId": "Id majitele",
       "key": "Klíč",
-      "ownerType": "Typ identity majitele",
+      "ownerType": "Typ majitele",
       "serializableValue": "Hodnota",
-      "creator": "Tvůrce",
-      "created": "Datum vytvoření"
+      "created": "$t(entity.created)",
+      "creator": "$t(entity.creator)"
     },
     "Script": {
       "name": "Název skriptu",

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
@@ -32,12 +37,12 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -114,6 +119,26 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete accounts (selectbox usage)", 
+			nickname = "autocompleteAccounts", 
+			tags = { AccAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@ApiOperation(
@@ -179,6 +204,29 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
+	@ApiOperation(
+			value = "Update account", 
+			nickname = "patchAccount", 
+			response = AccAccountDto.class, 
+			tags = { AccAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Account's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
+	}
+	
+	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@ApiOperation(
@@ -204,37 +252,14 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 		if (dto.getSystemEntity() != null) {
 			SysSystemEntityDto systemEntity = systemEntityService.get(dto.getSystemEntity());
 			dto.setEntityType(systemEntity.getEntityType());
-		}		
+		}
+		if (!getService().isNew(dto)) {
+			AccAccountDto previous = getDto(dto.getId());
+			if(previous.isInProtection() && !dto.isInProtection()) {
+				throw new ResultCodeException(AccResultCode.ACCOUNT_CANNOT_UPDATE_IS_PROTECTED, ImmutableMap.of("uid", dto.getUid()));
+			}
+		}
 		return dto;
-	}
-	
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
-	@RequestMapping(value = "/{backendId}/connector-object", method = RequestMethod.GET)
-	@ApiOperation(
-			value = "Connector object for the account. Contains only attributes for witch have a schema attribute definitons.", 
-			nickname = "getConnectorObject", 
-			response = IcConnectorObject.class, 
-			tags = { SysSystemEntityController.TAG }, 
-			authorizations = {
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
-					})
-	public ResponseEntity<IcConnectorObject> getConnectorObject(
-			@ApiParam(value = "Account's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId) {
-		AccAccountDto account = this.getDto(backendId);
-		if(account == null) {
-			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
-		}
-		IcConnectorObject connectorObject = ((AccAccountService)getService())
-				.getConnectorObject(account, IdmBasePermission.READ);
-		if(connectorObject == null) {
-			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
-		}
-		return new ResponseEntity<IcConnectorObject>(connectorObject, HttpStatus.OK);
 	}
 	
 	@Override
@@ -257,25 +282,33 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 		return super.getPermissions(backendId);
 	}
 	
-	
-	@Override
 	@ResponseBody
-	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_AUTOCOMPLETE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/connector-object", method = RequestMethod.GET)
 	@ApiOperation(
-			value = "Autocomplete accounts (selectbox usage)", 
-			nickname = "autocompleteAccounts", 
-			tags = { AccAccountController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_AUTOCOMPLETE, description = "") })
-				})
-	public Resources<?> autocomplete(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable) {
-		return super.autocomplete(parameters, pageable);
+			value = "Connector object for the account. Contains only attributes for witch have a schema attribute definitons.", 
+			nickname = "getConnectorObject", 
+			response = IcConnectorObject.class, 
+			tags = { SysSystemEntityController.TAG }, 
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+					})
+	public ResponseEntity<IcConnectorObject> getConnectorObject(
+			@ApiParam(value = "Account's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		AccAccountDto account = this.getDto(backendId);
+		if(account == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IcConnectorObject connectorObject = ((AccAccountService)getService())
+				.getConnectorObject(account, IdmBasePermission.READ);
+		if(connectorObject == null) {
+			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<IcConnectorObject>(connectorObject, HttpStatus.OK);
 	}
 	
 	@Override

@@ -118,10 +118,10 @@ export class AccountTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           manager={this.getManager()}
           forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_UPDATE'])}
+          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])}
           rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
           actions={
-            Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_UPDATE'])
+            Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])
             ?
             [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
             :
@@ -134,7 +134,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, { system: systemId, accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                rendered={ showAddButton && Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                rendered={ showAddButton && Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_CREATE']) }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}

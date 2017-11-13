@@ -64,21 +64,29 @@ public class ReadAccountByIdentityEvaluator extends AbstractAuthorizationEvaluat
 		identityAccounts.forEach(identityAccount -> {
 			BaseEntity identity = lookupService.lookupEntity(IdmIdentity.class, identityAccount.getIdentity());
 			Set<String> identityPermissions = authorizationManager.getPermissions(identity);
-			if(PermissionUtils.hasPermission(identityPermissions, IdmBasePermission.READ)) {
+			if (PermissionUtils.hasPermission(identityPermissions, IdmBasePermission.READ)) {
 				permissions.add(IdmBasePermission.READ.name());
+			}
+			if (PermissionUtils.hasPermission(identityPermissions, IdmBasePermission.AUTOCOMPLETE)) {
+				permissions.add(IdmBasePermission.AUTOCOMPLETE.name());
 			}
 		});
 		return permissions;
 	}
-	
+
 	/**
 	 * Returns transitive authorities by identity
 	 */
 	@Override
 	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
 		Set<String> authorities = super.getAuthorities(identityId, policy);
-		if(PermissionUtils.hasPermission(authorizationManager.getAuthorities(identityId, IdmIdentity.class), IdmBasePermission.READ)) {
-		   authorities.add(IdmBasePermission.READ.name());
+		if (PermissionUtils.hasPermission(authorizationManager.getAuthorities(identityId, IdmIdentity.class),
+				IdmBasePermission.READ)) {
+			authorities.add(IdmBasePermission.READ.name());
+		}
+		if (PermissionUtils.hasPermission(authorizationManager.getAuthorities(identityId, IdmIdentity.class),
+				IdmBasePermission.AUTOCOMPLETE)) {
+			authorities.add(IdmBasePermission.AUTOCOMPLETE.name());
 		}
 		return authorities;
 	}
@@ -112,7 +120,7 @@ public class ReadAccountByIdentityEvaluator extends AbstractAuthorizationEvaluat
 		//
 		return builder.exists(subquery);
 	}
-	
+
 	@Override
 	public boolean supportsPermissions() {
 		return false;

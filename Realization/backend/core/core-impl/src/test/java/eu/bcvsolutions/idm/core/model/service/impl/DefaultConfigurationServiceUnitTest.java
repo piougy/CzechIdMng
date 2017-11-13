@@ -92,7 +92,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Test
 	public void testSaveValues() {
 		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.save(any(IdmConfiguration.class))).thenAnswer(answer);
+		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
 		//
 		service.setValues("key", Lists.newArrayList(VALUE_ONE, VALUE_TWO, VALUE_THREE));
 		//
@@ -102,7 +102,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Test
 	public void testSaveValuesWithNull() {
 		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.save(any(IdmConfiguration.class))).thenAnswer(answer);
+		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
 		//
 		service.setValues("key", null);
 		//
@@ -112,7 +112,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Test
 	public void testSaveValuesWithEmptyList() {
 		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.save(any(IdmConfiguration.class))).thenAnswer(answer);
+		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
 		//
 		service.setValues("key", Lists.newArrayList());
 		//
@@ -122,7 +122,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Test
 	public void testSaveValuesWithNullValue() {
 		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.save(any(IdmConfiguration.class))).thenAnswer(answer);
+		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
 		//
 		String nullValue = null;
 		service.setValues("key", Lists.newArrayList(nullValue));
@@ -133,7 +133,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Test
 	public void testSaveValuesWithNullValues() {
 		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.save(any(IdmConfiguration.class))).thenAnswer(answer);
+		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
 		//
 		service.setValues("key", Lists.newArrayList(null, VALUE_ONE, null, null, VALUE_TWO, VALUE_THREE));
 		//

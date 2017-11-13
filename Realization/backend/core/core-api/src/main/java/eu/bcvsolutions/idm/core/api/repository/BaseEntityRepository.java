@@ -21,10 +21,18 @@ public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializa
 		extends PagingAndSortingRepository<E, ID>, JpaSpecificationExecutor<E> {
 
 	/**
-	 * Find all is not supposed to be used on big recourd counts
+	 * Find all is not supposed to be used on big record counts
 	 */
 	@Override
 	@Transactional(timeout = 10, readOnly = true)
 	Iterable<E> findAll();
+	
+	/**
+	 * Saves an entity and flushes changes instantly.
+	 * 
+	 * @param entity
+	 * @return the saved entity
+	 */
+	E saveAndFlush(E entity);
 }
 

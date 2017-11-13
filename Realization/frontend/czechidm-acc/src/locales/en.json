@@ -315,6 +315,10 @@
           "success": "IdM attribute [{{name}}] successfully created",
           "header": "New IdM attribute"
         }
+      },
+      "roles": {
+        "title" : "Roles",
+        "header" : "Roles <small>assigned roles</small>"
       }
     },
     "role": {
@@ -529,6 +533,10 @@
       "create": {
         "success": "Recipient successfully created"
       }
+    },
+    "systemAssignedRoles": {
+      "title" : "Roles",
+      "header": "assigned roles"
     },
     "passwordPolicy": {
     "system": {

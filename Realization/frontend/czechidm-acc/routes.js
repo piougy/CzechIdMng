@@ -130,6 +130,11 @@ module.exports = {
           path: 'break-configs/:configId/detail',
           component: require('./src/content/system/SystemProvisioningBreakConfigDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'roles',
+          component: require('./src/content/system/SystemRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         }
       ]
     },

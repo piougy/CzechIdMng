@@ -47,24 +47,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
     return 'content.notificationConfigurations';
   }
 
-  cancelFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    console.log(777, this.refs.filterForm.getData());
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
-  }
-
-  useFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    console.log(666, this.refs.filterForm.getData());
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
-  }
-
   showDetail(entity, event) {
-    console.log(123, event, entity );
     if (event) {
       event.preventDefault();
     }
@@ -107,51 +90,9 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
     super.afterSave(entity, error);
   }
 
-  _getAdvancedFilter(_supportedNotificationTypes) {
-    return (
-    <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm">
-        <Basic.Row>
-          <div className="col-lg-4">
-            <Advanced.Filter.EnumSelectBox
-              ref="level"
-              placeholder={this.i18n('entity.NotificationConfiguration.level')}
-              enum={NotificationLevelEnum}/>
-          </div>
-          <div className="col-lg-4">
-            <Advanced.Filter.TextField
-              ref="text"
-              placeholder={this.i18n('entity.NotificationConfiguration.topic')}/>
-          </div>
-          <div className="col-lg-4 text-right">
-            <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-          </div>
-        </Basic.Row>
-        <Basic.Row>
-          <div className="col-lg-4">
-            <Advanced.Filter.EnumSelectBox
-              ref="notificationType"
-              placeholder={this.i18n('entity.NotificationConfiguration.notificationType')}
-              options={!_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}/>
-          </div>
-          <div className="col-lg-4">
-            <Advanced.Filter.SelectBox
-              ref="template"
-              placeholder={this.i18n('entity.NotificationConfiguration.template')}
-              multiSelect={false}
-              manager={notificationTemplateManager}/>
-          </div>
-        </Basic.Row>
-      </Basic.AbstractForm>
-    </Advanced.Filter>
-    );
-  }
-
   render() {
     const { _showLoading, _supportedNotificationTypesLoading, _supportedNotificationTypes } = this.props;
     const { detail, filterOpened } = this.state;
-    console.log(123, this.refs.filterForm ? this.refs.filterForm.getData() : 123);
-    console.log(999, detail);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -169,7 +110,6 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
             _searchParameters={ this.getSearchParameters() }
             manager={this.getManager()}
             showRowSelection={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_UPDATE'])}
-            filter={this._getAdvancedFilter(_supportedNotificationTypes)}
             actions={
               SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_DELETE'])
               ?
@@ -190,7 +130,15 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }>
+            }
+            filter={
+              <Filter
+                ref="filterForm"
+                onSubmit={ this.useFilter.bind(this) }
+                onCancel={ this.cancelFilter.bind(this) }
+                supportedNotificationTypes={_supportedNotificationTypes}/>
+            }
+            >
             <Advanced.Column
               property=""
               header=""
@@ -299,3 +247,55 @@ function select(state, component) {
 }
 
 export default connect(select)(NotificationConfigurations);
+
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ * @author Patrik Stloukal
+ */
+class Filter extends Advanced.Filter {
+
+  render() {
+    const { onSubmit, onCancel, supportedNotificationTypes } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row>
+            <div className="col-lg-4">
+              <Advanced.Filter.EnumSelectBox
+                ref="level"
+                placeholder={this.i18n('entity.NotificationConfiguration.level')}
+                enum={NotificationLevelEnum}/>
+            </div>
+            <div className="col-lg-4">
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={this.i18n('entity.NotificationConfiguration.topic')}/>
+            </div>
+            <div className="col-lg-4 text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </div>
+          </Basic.Row>
+          <Basic.Row>
+            <div className="col-lg-4">
+              <Advanced.Filter.EnumSelectBox
+                ref="notificationType"
+                placeholder={this.i18n('entity.NotificationConfiguration.notificationType')}
+                options={!supportedNotificationTypes ? null : supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}/>
+            </div>
+            <div className="col-lg-4">
+              <Advanced.Filter.SelectBox
+                ref="template"
+                placeholder={this.i18n('entity.NotificationConfiguration.template')}
+                multiSelect={false}
+                manager={notificationTemplateManager}/>
+            </div>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+      );
+  }
+}

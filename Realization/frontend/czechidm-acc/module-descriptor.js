@@ -100,6 +100,15 @@ module.exports = {
             'order': 70,
             'path': '/system/:entityId/provisioning',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          },
+          {
+            'id': 'system-assigned-roles',
+            'type': 'TAB',
+            'labelKey': 'acc:content.systemAssignedRoles.title',
+            'titleKey': 'acc:content.systemAssignedRoles.header',
+            'order': 80,
+            'path': '/system/:entityId/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
         ]
       },

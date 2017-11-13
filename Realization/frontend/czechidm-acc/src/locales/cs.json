@@ -332,6 +332,10 @@
           "success": "Atribut [{{name}}] IdM byl úspěšně vytvořen",
           "header": "Nový atribut IdM"
         }
+      },
+      "roles": {
+        "title" : "Role",
+        "header" : "Role <small>přiřazené role</small>"
       }
     },
     "role": {
@@ -566,6 +570,10 @@
       "create": {
         "success": "Příjemce byl úspěšně vytvořen"
       }
+    },
+    "systemAssignedRoles": {
+      "title": "Role",
+      "header": "přiřazené role"
     },
     "passwordPolicy": {
       "system": {

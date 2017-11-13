@@ -49,62 +49,57 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
     }
   }
 
-  closeDetail() {
-  }
-
   render() {
     const { uiKey, entity } = this.props;
+    //
     return (
-      <div>
+      <Basic.Panel>
         <Basic.AbstractForm
           ref="form"
           uiKey={uiKey}
           readOnly
           style={{ padding: '15px 15px 0 15px' }}>
-        <Basic.Row>
-          <div className="col-lg-6">
-            <Basic.TextField
-              ref="ownerId"
-              label={this.i18n('entity.ConfidentialStorageValue.ownerId')}
-              max={255}/>
-          </div>
-          <div className="col-lg-6">
-            <Basic.TextField
-              ref="ownerType"
-              label={this.i18n('entity.ConfidentialStorageValue.ownerType')}/>
-          </div>
-        </Basic.Row>
-        <Basic.TextField ref="key" label={this.i18n('entity.ConfidentialStorageValue.key')} />
-        <Basic.TextField ref="serializableValue" label={this.i18n('entity.ConfidentialStorageValue.serializableValue')} />
-        <Basic.Row>
-          <div className="col-lg-6">
-            {/* TODO: this will be nice new advanced component, add this component also for ownerId */}
-            <div className="form-group">
-              <label>
-                {this.i18n('entity.ConfidentialStorageValue.creator')}
-              </label>
-              <div>
+          <Basic.Row>
+            <div className="col-lg-6">
+              <Basic.TextField
+                ref="ownerId"
+                label={this.i18n('entity.ConfidentialStorageValue.ownerId')}
+                max={255}/>
+            </div>
+            <div className="col-lg-6">
+              <Basic.TextField
+                ref="ownerType"
+                label={this.i18n('entity.ConfidentialStorageValue.ownerType')}/>
+            </div>
+          </Basic.Row>
+          <Basic.TextField ref="key" label={this.i18n('entity.ConfidentialStorageValue.key')} />
+          <Basic.TextField ref="serializableValue" label={this.i18n('entity.ConfidentialStorageValue.serializableValue')} />
+          <Basic.Row>
+            <div className="col-lg-6">
+              {/* TODO: this will be nice new advanced component, add this component also for ownerId */}
+              <Basic.LabelWrapper
+                label={ this.i18n('entity.ConfidentialStorageValue.creator') }>
                 <Advanced.EntityInfo
                   entityType="identity"
-                  entityIdentifier={entity !== null ? entity.creator : null}
-                  face="link"
+                  entityIdentifier={ entity !== null ? entity.creator : null }
+                  face="popover"
                   ref="creator"/>
-              </div>
+              </Basic.LabelWrapper>
             </div>
-          </div>
-          <div className="col-lg-6">
-            <Basic.DateTimePicker
-              ref="created"
-              readOnly
-              label={this.i18n('entity.ConfidentialStorageValue.created')}
-              timeFormat={ this.i18n('format.times') }/>
-          </div>
-        </Basic.Row>
+            <div className="col-lg-6">
+              <Basic.DateTimePicker
+                ref="created"
+                readOnly
+                label={this.i18n('entity.ConfidentialStorageValue.created')}
+                timeFormat={ this.i18n('format.times') }/>
+            </div>
+          </Basic.Row>
         </Basic.AbstractForm>
+
         <Basic.PanelFooter>
           <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
         </Basic.PanelFooter>
-      </div>
+      </Basic.Panel>
     );
   }
 }

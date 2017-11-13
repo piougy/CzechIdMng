@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
@@ -20,6 +22,8 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccRoleCatalogueAccount;
 import eu.bcvsolutions.idm.acc.entity.AccRoleCatalogueAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
+import eu.bcvsolutions.idm.acc.event.AccountEvent;
+import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccRoleCatalogueAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleCatalogueAccountService;
@@ -87,7 +91,9 @@ public class DefaultAccRoleCatalogueAccountService
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
+			accountService.publish(new AccountEvent(AccountEventType.DELETE, accountService.get(account),
+					ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount,
+							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
 		}
 	}
 

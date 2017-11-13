@@ -78,7 +78,7 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 			policyAccount.setRole(role.getId());
 			policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
 			policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
-			policyAccount.setEvaluator(AccountByIdentityEvaluator.class);
+			policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
 			authorizationPolicyService.save(policyAccount);
 			
 			helper.createIdentityRole(identity, role);

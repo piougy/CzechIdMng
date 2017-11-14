@@ -433,7 +433,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 				//
 				// value can be null, but we want it
 				if (value == null) {
-					revisionValues.put(field.getName(), value);
+					revisionValues.put(field.getName(), null);
 					continue;
 				}
 				//

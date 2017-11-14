@@ -64,14 +64,14 @@ public class WorkflowConfig {
 	 * Attribute that is in WF. Enable or disable send notification. When this
 	 * attribute is empty is send notification 
 	 */
-	public static String SEND_NOTIFICATION_FROM_WF_ATTRIBUTE = "sendNotification";
+	public static final String SEND_NOTIFICATION_FROM_WF_ATTRIBUTE = "sendNotification";
 	
 	/*
 	 * Configuration attribute that allow global enable
 	 * or disable bulk sending notification from WF
 	 * This application property has higher priority than attribute set into task. 
 	 */
-	public static String  SEND_NOTIFICATION_CONFIGURATION_PROPERTY = "idm.sec.core.wf.notification.send";
+	public static final String SEND_NOTIFICATION_CONFIGURATION_PROPERTY = "idm.sec.core.wf.notification.send";
 
 	@Configuration
 	@ConditionalOnClass(name = "javax.persistence.EntityManagerFactory")

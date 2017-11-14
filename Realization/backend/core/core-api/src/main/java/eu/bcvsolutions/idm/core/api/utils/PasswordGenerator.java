@@ -414,7 +414,7 @@ public class PasswordGenerator {
 			
 			randFile.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
+			throw new IllegalArgumentException("Diceware IO exception, see log.", e);
 		}
 	}
 	
@@ -431,7 +431,7 @@ public class PasswordGenerator {
             }
 			outputStream.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
+			throw new IllegalArgumentException("Diceware IO exception, see log.", e);
 		}
         return newFile;
 	}
@@ -455,7 +455,7 @@ public class PasswordGenerator {
 			
 			randFile.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
+			throw new IllegalArgumentException("Diceware IO exception, see log.", e);
 		}
 
 		return word;

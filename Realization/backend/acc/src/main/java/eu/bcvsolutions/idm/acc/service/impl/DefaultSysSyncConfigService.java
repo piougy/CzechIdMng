@@ -15,11 +15,13 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
@@ -59,7 +61,7 @@ public class DefaultSysSyncConfigService
 			if (!dto.getClass().equals(persistedConfig.getClass())) {
 				throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED,
 						ImmutableMap.of("old", persistedConfig.getClass().getSimpleName(), "new",
-								persistedConfig.getClass().getSimpleName()));
+								dto.getClass().getSimpleName()));
 			}
 		}
 		return super.save(dto, permission);
@@ -79,6 +81,9 @@ public class DefaultSysSyncConfigService
 		if (dto instanceof SysSyncContractConfigDto) {
 			return SysSyncContractConfig.class;
 		}
+		if (dto instanceof SysSyncIdentityConfigDto) {
+			return SysSyncIdentityConfig.class;
+		}
 		return SysSyncConfig.class;
 	}
 
@@ -86,6 +91,9 @@ public class DefaultSysSyncConfigService
 	protected Class<? extends AbstractSysSyncConfigDto> getDtoClass(SysSyncConfig entity) {
 		if (entity instanceof SysSyncContractConfig) {
 			return SysSyncContractConfigDto.class;
+		}
+		if (entity instanceof SysSyncIdentityConfig) {
+			return SysSyncIdentityConfigDto.class;
 		}
 		return SysSyncConfigDto.class;
 	}

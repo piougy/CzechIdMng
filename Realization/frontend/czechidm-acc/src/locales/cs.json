@@ -169,6 +169,12 @@
             "label": "Výchozí vedoucí",
             "helpBlock": "Pokud není pro daný vztah vyplněn žádný vedoucí (ve zdrojovém systému), pak bude vztahu přiřazen tento výchozí vedoucí."
           }
+        },
+        "identityConfigDetail":{
+          "defaultRole": {
+            "label": "Výchozí role",
+            "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
+          }
         }
       },
       "systemSynchronizationLogDetail": {

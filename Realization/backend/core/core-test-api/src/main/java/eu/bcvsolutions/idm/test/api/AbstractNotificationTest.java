@@ -17,7 +17,9 @@ import com.nilhcem.fakesmtp.server.SMTPServerHandler;
  */
 public class AbstractNotificationTest extends AbstractIntegrationTest {
 
-	protected static int DEFAULT_SMTP_PORT = 2525;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractNotificationTest.class);
+	
+	protected static final int DEFAULT_SMTP_PORT = 2525;
 	protected static final String TOPIC = "idm:smtpTest";
 	protected static final String TEST_TEMPLATE = "testTemplate";
 	protected static final String FROM = "idm-test@bcvsolutions.eu";
@@ -86,11 +88,19 @@ public class AbstractNotificationTest extends AbstractIntegrationTest {
 		
 		if (index.exists() && index.isDirectory()) {
 			String [] files = index.list();
-			for (String file : files) {
-				File currentFile = new File(index.getPath(),file);
-				currentFile.delete();
+			if (files != null) {
+				for (String file : files) {
+					File currentFile = new File(index.getPath(),file);
+					boolean delete = currentFile.delete();
+					if (!delete) {
+						LOG.warn("Test email [{}], wasnt removed.", currentFile.getAbsolutePath());	
+					}
+				}
+				boolean delete = index.delete();
+				if (!delete) {
+					LOG.warn("Index folder for test emails, want removed. Folder: [{}]", index.getAbsolutePath());
+				}
 			}
-			index.delete();
 		}
 	}
 }

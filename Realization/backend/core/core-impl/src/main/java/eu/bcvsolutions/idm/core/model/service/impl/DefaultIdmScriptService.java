@@ -199,7 +199,14 @@ public class DefaultIdmScriptService
 		//
 		File backupFolder = new File(directory);
 		if (!backupFolder.exists()) {
-			backupFolder.mkdirs();
+			boolean success = backupFolder.mkdirs();
+			// if make dir after check if exist, throw error.
+			if (!success) {
+				LOG.error("Backup for script: {} failed, backup folder path: [{}] can't be created.", dto.getCode(),
+						backupFolder.getAbsolutePath());
+				throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
+						ImmutableMap.of("code", dto.getCode()));
+			}
 		}
 		//
 		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
@@ -213,7 +220,7 @@ public class DefaultIdmScriptService
 			LOG.error("Backup for script: {} failed, error message: {}", dto.getCode(),
 					e.getLocalizedMessage(), e);
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
-					ImmutableMap.of("code", dto.getCode()));
+					ImmutableMap.of("code", dto.getCode()), e);
 		}
 	}
 
@@ -376,9 +383,8 @@ public class DefaultIdmScriptService
 		// add date folder
 		DateTime date = new DateTime();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
-		String completePath = backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+		return backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
 				+ decimalFormat.format(date.getDayOfMonth()) + "/";
-		return completePath;
 	}
 
 	/**

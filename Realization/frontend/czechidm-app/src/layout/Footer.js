@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 //
 import {Basic} from 'czechidm-core';
 import packageInfo from '../../package.json';

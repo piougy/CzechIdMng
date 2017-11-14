@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 
 /**
  * Password policies entity:
@@ -362,55 +361,35 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	}
 	
 	public String getSpecialCharBase() {
-		if (specialCharBase == null) {
-			return PasswordGenerator.SPECIAL_CHARACTERS;
-		}
 		return specialCharBase;
 	}
 
 	public void setSpecialCharBase(String specialCharBase) {
-		if (!specialCharBase.equals(PasswordGenerator.SPECIAL_CHARACTERS)) {
-			this.specialCharBase = specialCharBase;
-		}
+		this.specialCharBase = specialCharBase;
 	}
 
 	public String getUpperCharBase() {
-		if (upperCharBase == null) {
-			return PasswordGenerator.UPPER_CHARACTERS;
-		}
 		return upperCharBase;
 	}
 
 	public void setUpperCharBase(String upperCharBase) {
-		if (!upperCharBase.equals(PasswordGenerator.UPPER_CHARACTERS)) {
-			this.upperCharBase = upperCharBase;
-		}
+		this.upperCharBase = upperCharBase;
 	}
 
 	public String getNumberBase() {
-		if (numberBase == null) {
-			return PasswordGenerator.NUMBERS;
-		}
 		return numberBase;
 	}
 
 	public void setNumberBase(String numberBase) {
-		if (!numberBase.equals(PasswordGenerator.NUMBERS)) {
-			this.numberBase = numberBase;
-		}
+		this.numberBase = numberBase;
 	}
 
 	public String getLowerCharBase() {
-		if (lowerCharBase == null) {
-			return PasswordGenerator.LOWER_CHARACTERS;
-		}
 		return lowerCharBase;
 	}
 
 	public void setLowerCharBase(String lowerCharBase) {
-		if (!lowerCharBase.equals(PasswordGenerator.LOWER_CHARACTERS)) {
-			this.lowerCharBase = lowerCharBase;
-		}
+		this.lowerCharBase = lowerCharBase;
 	}
 	
 	public String getDescription() {

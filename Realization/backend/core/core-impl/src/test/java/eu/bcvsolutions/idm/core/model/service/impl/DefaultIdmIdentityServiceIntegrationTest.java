@@ -171,4 +171,15 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		//
 		Assert.notNull(identity.getId());
 	}
+	
+	@Test
+	@Transactional
+	public void testModifiedAfterUpdateIdentity() {
+		IdmIdentityDto identity = helper.createIdentity();
+		Assert.isNull(identity.getModified());
+		//
+		identity.setDescription("update");
+		identity = identityService.save(identity);
+		Assert.notNull(identity.getModified());
+	}
 }

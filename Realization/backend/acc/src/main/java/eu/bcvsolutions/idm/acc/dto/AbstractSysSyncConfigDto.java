@@ -29,7 +29,8 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "_type")
 @JsonSubTypes({
 	@JsonSubTypes.Type(value = SysSyncConfigDto.class),
-	@JsonSubTypes.Type(value = SysSyncContractConfigDto.class)
+	@JsonSubTypes.Type(value = SysSyncContractConfigDto.class),
+	@JsonSubTypes.Type(value = SysSyncIdentityConfigDto.class)
 })
 @Relation(collectionRelation = "synchronizationConfigs")
 public abstract class AbstractSysSyncConfigDto extends AbstractDto {

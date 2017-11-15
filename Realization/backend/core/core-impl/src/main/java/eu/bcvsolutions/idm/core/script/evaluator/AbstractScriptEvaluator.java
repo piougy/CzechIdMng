@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 
 public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategory>, ScriptEnabled {
 	
-	public static String SCRIPT_EVALUATOR = "scriptEvaluator";
+	public static final String SCRIPT_EVALUATOR = "scriptEvaluator";
 	
 	@Autowired
 	private GroovyScriptService groovyScriptService;

@@ -12,6 +12,8 @@ import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationU
 import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import help from './SyncConfigFilterHelp_cs.md';
+import SyncIdentityConfig from '../sync/SyncIdentityConfig';
+import SyncContractConfig from '../sync/SyncContractConfig';
 
 const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
@@ -21,9 +23,6 @@ const synchronizationConfigManager = new SynchronizationConfigManager();
 const systemMappingManager = new SystemMappingManager();
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const workflowProcessDefinitionManager = new Managers.WorkflowProcessDefinitionManager();
-const treeNodeManager = new Managers.TreeNodeManager();
-const treeTypeManager = new Managers.TreeTypeManager();
-const identityManager = new Managers.IdentityManager();
 
 class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
@@ -35,9 +34,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       activeKey: 1,
       forceSearchCorrelationAttribute: new Domain.SearchParameters()
         .setFilter('mappingId', Domain.SearchParameters.BLANK_UUID), // dependant select box
-      enabled: null,
-      defaultTreeType: null,
-      treeNodeSearchParameters: new Domain.SearchParameters().setFilter('treeTypeId', Domain.SearchParameters.BLANK_UUID)
+      enabled: null
     };
   }
 
@@ -135,6 +132,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
     if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
       formEntity._type = 'SysSyncContractConfigDto';
+    } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
+      formEntity._type = 'SysSyncIdentityConfigDto';
     } else {
       formEntity._type = 'SysSyncConfigDto';
     }
@@ -314,51 +313,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     return null;
   }
 
-  _onChangeTreeType(treeType) {
-    const treeTypeId = treeType ? treeType.id : null;
-    this.setState({
-      treeTypeId,
-      treeNodeSearchParameters: this.state.treeNodeSearchParameters.setFilter('treeTypeId', treeTypeId || Domain.SearchParameters.BLANK_UUID)
-    }, () => {
-      this.refs.defaultTreeNode.setValue(null);
-    });
-  }
-
-  _renderContractConfig(show) {
-    const {treeNodeSearchParameters, treeTypeId} = this.state;
-    const {_synchronizationConfig} = this.props;
-    const isNew = this._getIsNew();
-    let resutlTreeTypeId = treeTypeId;
-    if (!resutlTreeTypeId && _synchronizationConfig) {
-      resutlTreeTypeId = isNew ? treeTypeId : _synchronizationConfig.defaultTreeType;
-    }
-    return (
-      <div>
-        <Basic.SelectBox
-          ref="defaultTreeType"
-          required
-          manager={treeTypeManager}
-          label={this.i18n('contractConfigDetail.defaultTreeType.label')}
-          helpBlock={this.i18n('contractConfigDetail.defaultTreeType.helpBlock')}
-          hidden={!show}
-          onChange={this._onChangeTreeType.bind(this)}/>
-        <Basic.SelectBox
-          ref="defaultTreeNode"
-          manager={treeNodeManager}
-          label={this.i18n('contractConfigDetail.defaultTreeNode.label')}
-          helpBlock={this.i18n('contractConfigDetail.defaultTreeNode.helpBlock')}
-          forceSearchParameters={treeNodeSearchParameters}
-          hidden={!resutlTreeTypeId || !show}/>
-        <Basic.SelectBox
-          ref="defaultLeader"
-          manager={identityManager}
-          label={this.i18n('contractConfigDetail.defaultLeader.label')}
-          helpBlock={this.i18n('contractConfigDetail.defaultLeader.helpBlock')}
-          hidden={!show}/>
-      </div>
-    );
-  }
-
   render() {
     const { _showLoading, _synchronizationConfig } = this.props;
     const { systemMappingId, showLoading, activeKey, entityType, enabled } = this.state;
@@ -381,7 +335,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
     if (finalEntityType) {
       if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
-        specificConfiguration = this._renderContractConfig(true);
+        specificConfiguration = <SyncContractConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
+      } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
+        specificConfiguration = <SyncIdentityConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
       }
     }
     return (
@@ -439,6 +395,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     hidden={!isSelectedTree}
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.help')}
                     label={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.label')}/>
+                  <Basic.SelectBox
+                    ref="correlationAttribute"
+                    manager={systemAttributeMappingManager}
+                    forceSearchParameters={forceSearchCorrelationAttribute}
+                    label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
+                    required/>
                   <Basic.TextField
                     ref="token"
                     label={this.i18n('acc:entity.SynchronizationConfig.token')}/>
@@ -452,7 +414,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                        className="no-margin"
                        text={this.i18n('situationActionsAndWf')}/>
                   </Basic.LabelWrapper>
-
                   <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.linkedAction') } className="marginable"/>
                   <Basic.EnumSelectBox
                     className=""
@@ -472,12 +433,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     ref="unlinkedAction"
                     enum={SynchronizationUnlinkedActionTypeEnum}
                     label={this.i18n('situationAction')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="correlationAttribute"
-                    manager={systemAttributeMappingManager}
-                    forceSearchParameters={forceSearchCorrelationAttribute}
-                    label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
                     required/>
                   <Basic.SelectBox
                     ref="unlinkedActionWfKey"
@@ -548,9 +503,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           <Basic.Tab rendered={specificConfiguration} eventKey={2} title={this.i18n('tabs.specificConfiguration.label')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="formSpecific" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
-                  {specificConfiguration}
-                </Basic.AbstractForm>
+                {specificConfiguration}
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"
                     onClick={this.context.router.goBack}

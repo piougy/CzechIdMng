@@ -291,7 +291,14 @@ public class DefaultIdmNotificationTemplateService extends
 		//
 		File backupFolder = new File(directory);
 		if (!backupFolder.exists()) {
-			backupFolder.mkdirs();
+			boolean success = backupFolder.mkdirs();
+			// if make dir after check if exist, throw error.
+			if (!success) {
+				LOG.error("Backup for template: {} failed, backup folder path: [{}] can't be created.", dto.getCode(),
+						backupFolder.getAbsolutePath());
+				throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
+						ImmutableMap.of("code", dto.getCode()));
+			}
 		}
 		//
 		IdmNotificationTemplateType type = dtoToType(dto);
@@ -480,9 +487,8 @@ public class DefaultIdmNotificationTemplateService extends
 		// add date folder
 		DateTime date = new DateTime();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
-		String completePath = backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+		return backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
 				+ decimalFormat.format(date.getDayOfMonth()) + "/";
-		return completePath;
 	}
 
 	/**

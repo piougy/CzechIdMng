@@ -169,6 +169,12 @@
             "label": "Default leader",
             "helpBlock": "If the none leader for a given relation is filled in the source system, then this will be used as the default."
           }
+        },
+        "identityConfigDetail":{
+          "defaultRole": {
+            "label": "Default role",
+            "helpBlock": "When sync creating a relation between identity and account, this role will be assigned to the identity. This role will be linked to the main contractual relationship of identity."
+          }
         }
       },
       "systemSynchronizationLogDetail": {

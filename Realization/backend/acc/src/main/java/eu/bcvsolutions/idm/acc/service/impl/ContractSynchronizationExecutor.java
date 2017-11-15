@@ -477,6 +477,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	private SysSyncContractConfigDto getConfig(SynchronizationContext context) {
+		Assert.isInstanceOf(SysSyncContractConfigDto.class, context.getConfig(), "For identity sync must be sync configuration instance of SysSyncContractConfigDto!");
 		return ((SysSyncContractConfigDto) context.getConfig());
 	}
 

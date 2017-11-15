@@ -798,7 +798,8 @@
       "secured": {
         "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
         "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
-      }
+      },
+      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='https://wiki.czechidm.com/devel/dev/configuration/backend' target='_blank'>konfigurace aplikace</a>."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",

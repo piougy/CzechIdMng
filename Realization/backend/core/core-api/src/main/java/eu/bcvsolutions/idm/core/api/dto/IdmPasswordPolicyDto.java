@@ -46,10 +46,10 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 	private Integer passphraseWords;
 	private String prohibitedCharacters;
 	private boolean defaultPolicy = false;
-	private String specialCharBase;
-	private String upperCharBase;
-	private String numberBase;
-	private String lowerCharBase;
+	private String specialCharBase = PasswordGenerator.SPECIAL_CHARACTERS;
+	private String upperCharBase = PasswordGenerator.UPPER_CHARACTERS;
+	private String numberBase = PasswordGenerator.NUMBERS;
+	private String lowerCharBase = PasswordGenerator.LOWER_CHARACTERS;
 	private Integer maxHistorySimilar;
 	private String identityAttributeCheck;
 	private boolean disabled = false;
@@ -247,55 +247,35 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 	}
 
 	public String getSpecialCharBase() {
-		if (specialCharBase == null) {
-			return PasswordGenerator.SPECIAL_CHARACTERS;
-		}
 		return specialCharBase;
 	}
 
 	public void setSpecialCharBase(String specialCharBase) {
-		if (!specialCharBase.equals(PasswordGenerator.SPECIAL_CHARACTERS)) {
-			this.specialCharBase = specialCharBase;
-		}
+		this.specialCharBase = specialCharBase;
 	}
 
 	public String getUpperCharBase() {
-		if (upperCharBase == null) {
-			return PasswordGenerator.UPPER_CHARACTERS;
-		}
 		return upperCharBase;
 	}
 
 	public void setUpperCharBase(String upperCharBase) {
-		if (!upperCharBase.equals(PasswordGenerator.UPPER_CHARACTERS)) {
-			this.upperCharBase = upperCharBase;
-		}
+		this.upperCharBase = upperCharBase;
 	}
 
 	public String getNumberBase() {
-		if (numberBase == null) {
-			return PasswordGenerator.NUMBERS;
-		}
 		return numberBase;
 	}
 
 	public void setNumberBase(String numberBase) {
-		if (!numberBase.equals(PasswordGenerator.NUMBERS)) {
-			this.numberBase = numberBase;
-		}
+		this.numberBase = numberBase;
 	}
 
 	public String getLowerCharBase() {
-		if (lowerCharBase == null) {
-			return PasswordGenerator.LOWER_CHARACTERS;
-		}
 		return lowerCharBase;
 	}
 
 	public void setLowerCharBase(String lowerCharBase) {
-		if (!lowerCharBase.equals(PasswordGenerator.LOWER_CHARACTERS)) {
-			this.lowerCharBase = lowerCharBase;
-		}
+		this.lowerCharBase = lowerCharBase;
 	}
 
 	public Integer getMaxHistorySimilar() {

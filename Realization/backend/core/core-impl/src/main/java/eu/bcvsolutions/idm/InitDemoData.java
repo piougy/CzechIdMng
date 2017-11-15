@@ -74,8 +74,8 @@ import eu.bcvsolutions.idm.core.security.evaluator.role.SelfRoleRequestEvaluator
 public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
-	private static final String PARAMETER_DEMO_DATA_ENABLED = "idm.sec.core.demo.data.enabled";
-	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data.created";
+	public static final String PARAMETER_DEMO_DATA_ENABLED = "idm.sec.core.demo.data.enabled";
+	public static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data.created";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
 	public static final String FORM_ATTRIBUTE_UUID = "uuid";
@@ -175,9 +175,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 					passwordPolicyService.save(passGenerate);
 				}
 				//
-				IdmRoleDto role1 = new IdmRoleDto();
-				role1.setName(DEFAULT_ROLE_NAME);
-				role1 = this.roleService.save(role1);
+				// role may exists from another module initialization
+				IdmRoleDto role1 = this.roleService.getByCode(DEFAULT_ROLE_NAME);
+				if (role1 == null) {
+					role1 = new IdmRoleDto();
+					role1.setName(DEFAULT_ROLE_NAME);
+					role1 = this.roleService.save(role1);
+				}
 				// self policy
 				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
 				selfPolicy.setPermissions(

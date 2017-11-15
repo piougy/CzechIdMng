@@ -102,8 +102,9 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           },
           {
-            'id': 'system-assigned-roles',
+            'id': 'system-roles',
             'type': 'TAB',
+            'icon': 'fa:universal-access',
             'labelKey': 'acc:content.systemAssignedRoles.title',
             'titleKey': 'acc:content.systemAssignedRoles.header',
             'order': 80,

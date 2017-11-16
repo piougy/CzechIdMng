@@ -3092,7 +3092,8 @@
     "number": {
       "min" : "Minimální hodnota je: {{count}}!",
       "base" : "Položka musí být číslo!",
-      "max" : "Maximální hodnota je: {{count}}!"
+      "max" : "Maximální hodnota je: {{count}}!",
+      "integer": "Celé číslo (integer)"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"

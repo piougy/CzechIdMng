@@ -564,9 +564,9 @@
         "success": "Recipient successfully created"
       }
     },
-    "systemAssignedRoles": {
+    "systemRoles": {
       "title" : "Roles",
-      "header": "assigned roles"
+      "header": "Roles <small>connected roles</small>"
     },
     "passwordPolicy": {
     "system": {

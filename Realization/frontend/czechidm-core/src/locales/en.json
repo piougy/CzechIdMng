@@ -3085,7 +3085,8 @@
     "number": {
       "min" : "Min value is: {{count}}!",
       "base" : "Value must be number!",
-      "max" : "Max value is: {{count}}!"
+      "max" : "Max value is: {{count}}!",
+      "integer": "Integer number"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"

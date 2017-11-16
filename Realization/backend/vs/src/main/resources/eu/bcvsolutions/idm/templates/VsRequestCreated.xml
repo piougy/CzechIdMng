@@ -145,7 +145,7 @@ New virtual system request (for realization) was created and send to implementer
     #if($previousUrl)
     <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
     border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
-          Pro tento účet a systém, existuje nevyřešený požadavek nebo požadavky. Věnujte pozornost přednostně předchozím požadavkům. Detail posledního požadavku je <a href='$previousUrl'>zde</a>.
+          Pro tento účet a systém existuje nevyřešený požadavek nebo požadavky. Věnujte pozornost přednostně předchozím požadavkům. Detail posledního požadavku je <a href='$previousUrl'>zde</a>.
     </div>
     #end
     Cílový stav na systému (pro účet <b>$request.getUid()</b>):<br/>
@@ -162,7 +162,7 @@ New virtual system request (for realization) was created and send to implementer
     </div>
     
     <br/>Hello,<br />
-    was created request to implement change for account '<b>$request.getUid()</b>' on virtual system '<b>$systemName</b>'.<br />
+    the request was created to implement the change for the account '<b>$request.getUid()</b>' on the virtual system '<b>$systemName</b>'.<br />
     <br />
 
     Contact information: <br />
@@ -194,17 +194,17 @@ New virtual system request (for realization) was created and send to implementer
     #end
     <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
     border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
-        <b>Ensure that required changes will be maked.</b><br/>
+        <b>Ensure that required changes will be done.</b><br/>
         <br/>
-        You can confirm or deny realization <a href='$url'>here</a>.
+        You can confirm or deny the request implementation <a href='$url'>here</a>.
     </div>
     #if($previousUrl)
     <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #fcf8e3; color: #8a6d3b; padding: 10px;
     border: 1px solid; border-radius: 4px; border-color: #f0ebc0;">
-          For this account and system, there is a pending request or requirements. Prioritize previous requirements. The detail of the last request is <a href='$previousUrl'>here</a>.
+          For this account and system, there is a pending request or requests. Prioritize previous requirements. The detail of the last request is <a href='$previousUrl'>here</a>.
     </div>
     #end
-    Target state on the target system (for account <b>$request.getUid()</b>):<br/>
+    Target state on the target system (for the account <b>$request.getUid()</b>):<br/>
     <br/>
     #printAttributes($wishAttributes 'ENG')
     <br />

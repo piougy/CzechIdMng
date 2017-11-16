@@ -105,8 +105,8 @@ module.exports = {
             'id': 'system-roles',
             'type': 'TAB',
             'icon': 'fa:universal-access',
-            'labelKey': 'acc:content.systemAssignedRoles.title',
-            'titleKey': 'acc:content.systemAssignedRoles.header',
+            'labelKey': 'acc:content.systemRoles.title',
+            'titleKey': 'acc:content.systemRoles.header',
             'order': 80,
             'path': '/system/:entityId/roles',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]

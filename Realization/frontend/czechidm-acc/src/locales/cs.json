@@ -541,9 +541,9 @@
         "success": "Příjemce byl úspěšně vytvořen"
       }
     },
-    "systemAssignedRoles": {
+    "systemRoles": {
       "title": "Role",
-      "header": "přiřazené role"
+      "header": "Role <small>připojené role</small>"
     },
     "passwordPolicy": {
       "system": {

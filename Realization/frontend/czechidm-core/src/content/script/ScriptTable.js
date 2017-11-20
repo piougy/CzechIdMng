@@ -85,7 +85,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/scripts/${uuidId}?new=1`);
     } else {
-      this.context.router.push('/scripts/' + entity.id);
+      this.context.router.push(`/scripts/${entity.id}/detail`);
     }
   }
 
@@ -167,7 +167,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="code" sort />
+          <Advanced.ColumnLink to="scripts/:id/detail" property="code" sort />
           <Advanced.Column property="name" sort />
           <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
           <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {

@@ -235,6 +235,10 @@ public class DefaultIdmScriptService
 		//
 		return deployNewAndBackupOld(dto, foundType);
 	}
+	
+	public List<IdmScriptDto> getScriptReferences(IdmScriptDto script) {
+		return null;
+	}
 
 	/**
 	 * Return list of {@link IdmScriptType} from resources.

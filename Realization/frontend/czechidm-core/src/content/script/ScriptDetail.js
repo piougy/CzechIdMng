@@ -112,7 +112,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
         showLoading: false
       }, this.refs.form.processEnded());
       //
-      this.context.router.replace('/scripts/' + entity.id);
+      this.context.router.replace('/scripts/' + entity.id + '/detail');
     }
   }
 
@@ -131,14 +131,14 @@ export default class ScriptDetail extends Basic.AbstractContent {
             readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
             style={{ padding: '15px 15px 0 15px' }}>
           <Basic.Row>
-            <div className="col-lg-2">
+            <div className="col-lg-4">
               <Basic.TextField
                 ref="code"
                 label={this.i18n('entity.Script.code')}
                 required
                 max={255}/>
             </div>
-            <div className="col-lg-10">
+            <div className="col-lg-8">
               <Basic.TextField
                 ref="name"
                 label={this.i18n('entity.Script.name')}

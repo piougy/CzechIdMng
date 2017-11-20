@@ -254,29 +254,4 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 		service.backup(script);
 		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
 	}
-	
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}/getScriptReferences", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
-	@ApiOperation(
-			value = "Script references", 
-			nickname = "scriptReferences", 
-			response = IdmScriptDto.class, 
-			tags = { IdmScriptController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") })
-				})
-	public ResponseEntity<?> getScriptReferences(
-			@ApiParam(value = "Script's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId) {
-		IdmScriptDto script = service.get(backendId);
-		if (script == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
-		}
-		service.getScriptReferences(script);
-		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
-	}
 }

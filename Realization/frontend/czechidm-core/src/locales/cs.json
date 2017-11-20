@@ -1221,7 +1221,6 @@
         "title": "Detail skriptu",
         "header": "{{name}} detail skriptu"
       },
-      "scriptAuthorities": "Oprávnění skriptu",
       "scriptAuthoritySaveFirst": "Oprávnění skriptu můžete přidat až po uložení.",
       "create": {
         "title": "Nový skript",
@@ -1232,17 +1231,28 @@
       },
       "filter": {
         "text": "Kód / Název / Popis"
-      }
-    },
-    "scriptAuthorities": {
-      "create": {
-        "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
       },
-      "edit": {
-        "header": "Editace autorizace pro skript <small>{{name}}</small>"
+      "detail": {
+        "header" : "Základní informace",
+        "title" : "Základní informace"
       },
-      "save": {
-        "success": "Oprávnění pro skript bylo úspěšně uloženo"
+      "authorities": {
+          "header": "Oprávnění skriptu",
+          "title": "Oprávnění skriptu",
+          "edit": {
+            "header": "Editace autorizace pro skript <small>{{name}}</small>"
+          },
+          "create": {
+            "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
+          },
+          "save": {
+            "header": "Oprávnění pro skript bylo úspěšně uloženo",
+            "success": "Oprávnění pro skript bylo úspěšně uloženo"
+          }
+      },
+      "references": {
+        "header" : "Použití scriptu",
+        "title" : "Použití scriptu"
       }
     },
     "roles": {

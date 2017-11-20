@@ -706,7 +706,7 @@ module.exports = {
               {
                 'id': 'script-detail',
                 'type': 'TAB',
-                'labelKey': 'content.scripts.basic',
+                'labelKey': 'content.scripts.detail.title',
                 'order': 100,
                 'path': '/scripts/:entityId/detail',
                 'icon': 'fa:newspaper-o',
@@ -715,7 +715,7 @@ module.exports = {
               {
                 'id': 'script-authorities',
                 'type': 'TAB',
-                'labelKey': 'content.scripts.authorities',
+                'labelKey': 'content.scripts.authorities.title',
                 'order': 110,
                 'path': '/scripts/:entityId/authorities',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
@@ -723,7 +723,7 @@ module.exports = {
               {
                 'id': 'script-references',
                 'type': 'TAB',
-                'labelKey': 'content.scripts.references',
+                'labelKey': 'content.scripts.references.title',
                 'order': 120,
                 'path': '/scripts/:entityId/references',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]

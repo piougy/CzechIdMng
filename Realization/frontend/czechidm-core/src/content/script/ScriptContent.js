@@ -21,8 +21,8 @@ class ScriptContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['scripts', 'script-detail']);
     const { entityId } = this.props.params;
+    this.selectNavigationItems(['system', 'scripts', 'script-detail']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(scriptManager.receiveEntity(entityId, { }));

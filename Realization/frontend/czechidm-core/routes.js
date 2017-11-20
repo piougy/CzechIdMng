@@ -384,6 +384,11 @@ module.exports = {
       ]
     },
     {
+      path: 'scripts/:entityId/new',
+      component: require('./src/content/script/ScriptContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_CREATE'] } ],
+    },
+    {
       path: 'forms',
       component: require('./src/content/form/FormDefinitions'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]

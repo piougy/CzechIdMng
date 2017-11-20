@@ -83,7 +83,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     // this is necessary for ScriptDetail
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/scripts/${uuidId}?new=1`);
+      this.context.router.push(`/scripts/${uuidId}/new?new=1`);
     } else {
       this.context.router.push(`/scripts/${entity.id}/detail`);
     }
@@ -143,9 +143,12 @@ export class ScriptTable extends Advanced.AbstractTableContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
-                      rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, {})}
+                rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}

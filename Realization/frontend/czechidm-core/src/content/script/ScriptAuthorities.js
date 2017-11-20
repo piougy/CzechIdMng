@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { ScriptManager } from '../../redux';
+import Helmet from 'react-helmet';
 //
 import { SecurityManager, ScriptAuthorityManager, DataManager } from '../../redux';
 import ScriptAuthorityTypeEnum from '../../enums/ScriptAuthorityTypeEnum';
@@ -13,6 +14,11 @@ const scriptManager = new ScriptManager();
 const AVAILABLE_SERVICES_UIKEY = 'availableServicesUiKey';
 const manager = new ScriptAuthorityManager();
 
+/**
+ * Authority tab for script
+ *
+ * @author Patrik Stloukal
+ */
 class ScriptAuthorities extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -33,7 +39,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'scripts.authorities';
+    return 'content.scripts.authorities';
   }
 
   getNavigationKey() {
@@ -68,7 +74,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
    * Save new or old script authority
    */
   save(values, event) {
-    const { uiKey, script } = this.props;
+    const { uiKey, _entity } = this.props;
     const entity = this.refs.form.getData();
     //
     if (event) {
@@ -88,7 +94,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
       delete entity.className;
     }
     // set script id into script authority
-    entity.script = script.id;
+    entity.script = _entity.id;
 
     //
     if (entity.id === undefined) {
@@ -101,7 +107,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
   }
 
   /**
-   * Method set _showLoading to false and if is'nt error then show success message
+   * Method set _showLoading to false and if isn't error then show success message
    */
   _afterSave(entity, error) {
     let { detail } = this.state;
@@ -226,7 +232,13 @@ render() {
 
   return (
     <div>
+
+      <Helmet title={ this.i18n('title') } />
+
       <Basic.Confirm ref="confirm-delete" level="danger"/>
+      <Basic.Panel className={ 'no-border last' }>
+      <Basic.PanelHeader text={ this.i18n('header') } />
+      <Basic.PanelBody style={ { padding: 0 } }>
       <Advanced.Table
         ref="table"
         uiKey={uiKey}
@@ -281,6 +293,7 @@ render() {
           }
           />
       </Advanced.Table>
+    </Basic.PanelBody>
 
       <Basic.Modal
         bsSize="medium"
@@ -348,6 +361,7 @@ render() {
           </Basic.Modal.Footer>
         </form>
       </Basic.Modal>
+    </Basic.Panel>
     </div>
   );
 }

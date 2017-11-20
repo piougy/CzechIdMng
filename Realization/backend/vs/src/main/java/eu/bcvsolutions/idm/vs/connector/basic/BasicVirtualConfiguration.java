@@ -35,7 +35,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	@IcConfigurationClassProperty(
 			order = 5, 
 			displayName = "Required confirmation by the implementer", 
-			helpMessage = "If is not checked, then all requests will be solved immediately. None notification will be sent to implementers.")
+			helpMessage = "If not checked, then all requests will be solved immediately. No notification will be sent to implementers.")
 	public boolean isRequiredConfirmation() {
 		return requiredConfirmation;
 	}
@@ -56,8 +56,8 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	@IcConfigurationClassProperty(
 			order = 20, 
 			face = FACE_IDENTITY_SELECT, 
-			displayName = "Implementers", 
-			helpMessage = "For this implementers will be created realization task. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
+			displayName = "Implementers",
+			helpMessage = "Requests for implementing changes on the real system will be created for these implementers. Every implementer must be an identity in CzechIdM. Values are UUIDs of identities (multivalued).")
 	public UUID[] getImplementers() {
 		return implementers;
 	}
@@ -70,7 +70,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 			order = 30, 
 			face = FACE_ROLE_SELECT, 
 			displayName = "Roles of implementers", 
-			helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles (multivalue).")
+			helpMessage = "All identities with these roles will be implementers. Every role must be a role in CzechIdM. Values are UUIDs of roles (multivalued).")
 	public UUID[] getImplementerRoles() {
 		return implementerRoles;
 	}
@@ -100,7 +100,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	@Override
 	public void validate() {
 		if (this.getAttributes() == null || this.getAttributes().length == 0) {
-			throw new IcException("BasicVirtualConfiguration validation problem: Attributes cannost be null or empty!");
+			throw new IcException("BasicVirtualConfiguration validation problem: Attributes cannot be null or empty!");
 		}
 
 		// Validation on reserved attribute names
@@ -113,7 +113,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 
 			if (reservedAttributeFound) {
 				throw new IcException(MessageFormat.format(
-						"BasicVirtualConfiguration validation problem: Attributes contains [{0}] attribute. This attribute name is reserved!",
+						"BasicVirtualConfiguration validation problem: Attributes contain [{0}] attribute. This attribute name is reserved!",
 						name));
 			}
 		}

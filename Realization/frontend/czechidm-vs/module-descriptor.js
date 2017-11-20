@@ -3,7 +3,7 @@ module.exports = {
   'npmName': 'czechidm-vs',
   'backendId': 'vs',
   'name': 'Virtual system for CzechIdM',
-  'description': 'Virtual system module for CzechIdM. Provides system connector for connect CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be realizate manually. Basicly virtual system for every active connector operation creates task for realizater (admin of real system).',
+  'description': 'Virtual system module for CzechIdM. Provides system connector for connecting CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be done (implemented) manually. Basically, the virtual system creates a task for the implementer (admin of the real system) for every active connector operation.',
   // 'mainStyleFile': 'src/css/main.less',
   'mainRouteFile': 'routes.js',
   'mainComponentDescriptorFile': 'component-descriptor.js',

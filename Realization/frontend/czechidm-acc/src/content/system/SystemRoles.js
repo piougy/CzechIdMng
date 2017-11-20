@@ -85,12 +85,21 @@ class SystemRoles extends Advanced.AbstractTableContent {
                 </Basic.Button>
               ]
             }>
-            <Advanced.ColumnLink
-              to="/role/:_target/detail"
-              target="_embedded.role.id"
+            <Advanced.Column
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.role.name"
               header={this.i18n('core:entity.IdentityRole.role')}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.RoleInfo
+                      entityIdentifier={ data[rowIndex]._embedded.role.id }
+                      entity={ data[rowIndex]._embedded.role }
+                      face="popover" />
+                  );
+                }
+              }
               sort/>
             <Advanced.Column
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}

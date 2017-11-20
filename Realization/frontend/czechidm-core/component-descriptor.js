@@ -205,7 +205,7 @@ module.exports = {
       'priority': 0,
       'localizationKey': 'entity.Identity',
       'entityType': ['identity'],
-      'searchInFields': ['username', 'firstName', 'lastName', 'email'],
+      'searchInFields': ['username', 'firstName', 'lastName', 'email', 'description'],
       'manager': require('./src/redux').IdentityManager
     },
     {

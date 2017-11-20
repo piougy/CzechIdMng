@@ -2512,7 +2512,13 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role",
+      "role" : "Název role",
+      "description": {
+        "title": "Popis"
+      },
+      "disabled": {
+        "title": "Neaktivní"
+      },
       "identityContract": {
         "label": "PPV",
         "title": "Pracovně právní vztah",

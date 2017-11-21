@@ -47,7 +47,7 @@ class SystemRoles extends Advanced.AbstractTableContent {
 
   render() {
     const { entityId } = this.props.params;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setSort('created', 'dsc');
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -70,20 +70,6 @@ class SystemRoles extends Advanced.AbstractTableContent {
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
               null
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority('ROLE_CREATE')}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              ]
             }>
             <Advanced.Column
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
@@ -100,18 +86,18 @@ class SystemRoles extends Advanced.AbstractTableContent {
                   );
                 }
               }
-              sort/>
+              />
             <Advanced.Column
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.role.description"
               header={this.i18n('core:entity.IdentityRole.description.title')}
-              sort/>
+              />
             <Advanced.Column
               face="bool"
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.role.disabled"
               header={this.i18n('core:entity.IdentityRole.disabled.title')}
-              sort/>
+              />
           </Advanced.Table>
         </Basic.Panel>
       </div>

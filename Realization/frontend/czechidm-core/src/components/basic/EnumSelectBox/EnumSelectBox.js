@@ -68,7 +68,7 @@ class EnumSelectBox extends SelectBox {
         [SelectBox.ITEM_FULL_KEY]: enumItem.value,
         disabled: this._isDisabled(enumItem.value)
       });
-    } else {
+    } else { // item is rendered already
       item = _.merge({}, enumItem);
       let niceLabel;
       if (this.props.enum) {
@@ -79,22 +79,17 @@ class EnumSelectBox extends SelectBox {
           // niceLabel dont exist, then get new by key
           niceLabel = this.props.enum.getNiceLabel(key);
         }
-        const itemFullKey = niceLabel;
-        _.merge(item, {
-          [SelectBox.NICE_LABEL]: niceLabel,
-          [SelectBox.ITEM_FULL_KEY]: itemFullKey,
-          value: key,
-          disabled: this._isDisabled(key)
-        });
-      } else {
-        // value itself as default (simple options with values only was given)
-        _.merge(item, {
-          [SelectBox.NICE_LABEL]: enumItem,
-          [SelectBox.ITEM_FULL_KEY]: enumItem,
-          value: enumItem,
-          disabled: false
-        });
+      } else if (typeof enumItem === 'string') {
+        niceLabel = enumItem;
+        key = key || enumItem;
       }
+      const itemFullKey = niceLabel;
+      _.merge(item, {
+        [SelectBox.NICE_LABEL]: niceLabel,
+        [SelectBox.ITEM_FULL_KEY]: itemFullKey,
+        value: key,
+        disabled: this._isDisabled(key)
+      });
     }
     return item;
   }

@@ -132,6 +132,12 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     // If component descriptor override also component use rathem them (has bigger priority)
     if (component.component) {
       const CustomEntitySelectBoxComponent = component.component;
+      //
+      // remove all overload attributes
+      delete others.ref;
+      delete others.pageSize;
+      delete others.helpBlock;
+      //
       return (
         <CustomEntitySelectBoxComponent
           ref="selectComponent"
@@ -143,6 +149,14 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     //
     const ManagerType = component.manager;
     const manager = new ManagerType;
+    //
+    // remove all overload attributes
+    delete others.ref;
+    delete others.manager;
+    delete others.pageSize;
+    delete others.searchInFields;
+    delete others.helpBlock;
+    //
     return (
       <Basic.SelectBox
         ref="selectComponent"

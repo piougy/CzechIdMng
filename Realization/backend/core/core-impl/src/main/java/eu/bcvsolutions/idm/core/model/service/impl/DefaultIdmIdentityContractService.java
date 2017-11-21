@@ -248,6 +248,32 @@ public class DefaultIdmIdentityContractService
 		// return contract with the highest priority
 		return toDto(contracts.get(contracts.size() - 1));
 	}
+	
+	/**
+	 * Returns given valid identity's prime contract, by contract's priority:
+	 * - 1. main
+	 * - 2. valid (validable and not disabled)
+	 * - 3. with working position with default tree type
+	 * - 4. with working position with any tree type
+	 * - 5. other with lowest valid from
+	 * 
+	 * @param identityId
+	 * @return
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public IdmIdentityContractDto getPrimeValidContract(UUID identityId) {
+		Assert.notNull(identityId);
+		//
+		// find valid all identity working position
+		List<IdmIdentityContract> contracts = repository.findAllValidContracts(identityId, LocalDate.now(), null);
+		if (contracts.isEmpty()) {
+			return null;
+		}
+		Collections.sort(contracts, new PrimeIdentityContractComparator(treeConfiguration.getDefaultType()));
+		// return contract with the highest priority
+		return toDto(contracts.get(contracts.size() - 1));
+	}
 
 	@Override
 	public List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne) {

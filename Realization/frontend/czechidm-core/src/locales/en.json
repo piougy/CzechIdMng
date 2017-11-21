@@ -2470,7 +2470,7 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role name",
+      "role" : "Role",
       "description": {
         "title": "Description"
       },

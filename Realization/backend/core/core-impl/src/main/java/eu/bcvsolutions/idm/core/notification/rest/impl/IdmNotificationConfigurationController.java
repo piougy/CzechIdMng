@@ -110,7 +110,7 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 	@ApiOperation(
 			value = "Notification configuration item detail", 
 			nickname = "getNotificationConfiguration", 
-			response = IdmNotificationConfigurationDto	.class, 
+			response = IdmNotificationConfigurationDto.class, 
 			tags = { IdmNotificationConfigurationController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 

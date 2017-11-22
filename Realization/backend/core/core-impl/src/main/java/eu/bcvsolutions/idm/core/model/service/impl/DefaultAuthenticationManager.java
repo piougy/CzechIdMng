@@ -60,7 +60,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 */
 	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
 		// TODO increase count of unsuccessful login attemps
-		
+
 		Assert.notNull(authenticators);
 		//
 		List<LoginDto> resultsList = new LinkedList<>();

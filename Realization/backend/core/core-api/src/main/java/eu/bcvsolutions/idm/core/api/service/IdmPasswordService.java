@@ -39,11 +39,19 @@ public interface IdmPasswordService
 	/**
 	 * Return password for given identity
 	 * 
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
 	IdmPasswordDto findOneByIdentity(UUID identityId);
-	
+
+	/**
+	 * Return password for given username
+	 *
+	 * @param username
+	 * @return
+	 */
+	IdmPasswordDto findOneByIdentity(String username);
+
 	/**
 	 * Check password matches a passwordToCheck
 	 * 

@@ -101,6 +101,12 @@ public class DefaultIdmPasswordService
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public IdmPasswordDto findOneByIdentity(String username) {
+		return this.getPasswordByIdentity(username);
+	}
+
+	@Override
 	public boolean checkPassword(GuardedString passwordToCheck, IdmPasswordDto password) {
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
@@ -125,5 +131,11 @@ public class DefaultIdmPasswordService
 		Assert.notNull(identityId);
 		//
 		return toDto(this.repository.findOneByIdentity_Id(identityId));
+	}
+
+	private IdmPasswordDto getPasswordByIdentity(String username) {
+		Assert.notNull(username);
+		//
+		return toDto(this.repository.findOneByIdentity_username(username));
 	}
 }

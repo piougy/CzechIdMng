@@ -10,6 +10,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
@@ -53,7 +54,15 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	@Audited
 	@Column(name = "must_change")
 	private boolean mustChange = false;
-	
+
+	@Audited
+	@Column(name = "last_success_login")
+	private DateTime lastSuccessLogin;
+
+	@Audited
+	@Column(name = "unsuccessful_attemps")
+	private int unsuccessfulAttemps;
+
 	public IdmPassword() {
 		// Auto-generated constructor
 	}

@@ -59,6 +59,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 * @param loginDto
 	 */
 	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
+		// TODO increase count of unsuccessful login attemps
+		
 		Assert.notNull(authenticators);
 		//
 		List<LoginDto> resultsList = new LinkedList<>();
@@ -86,10 +88,10 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 				if (firstFailture == null) {
 					firstFailture = e;
 				}
-			}			
+			}
 		}
 		//
-		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure		
+		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure
 		if (resultsList.isEmpty()) {
 			throw firstFailture;
 		}

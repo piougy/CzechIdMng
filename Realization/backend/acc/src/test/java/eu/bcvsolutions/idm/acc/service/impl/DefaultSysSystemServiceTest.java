@@ -231,12 +231,19 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		String systemName = "t_s_" + System.currentTimeMillis();
 		system.setName(systemName);
 		system = systemService.save(system);
+
 		// system entity
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
+		systemEntity.setUid("test");
+		systemEntity.setSystem(system.getId());
+		systemEntity.setEntityType(SystemEntityType.IDENTITY);		
+		systemEntity = systemEntityService.save(systemEntity);
+		
 		SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
 		provisioningOperation.setSystem(system.getId());
 		provisioningOperation.setEntityType(SystemEntityType.IDENTITY);
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
-		provisioningOperation.setSystemEntity(UUID.randomUUID());
+		provisioningOperation.setSystemEntity(systemEntity.getId());
 		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
 		provisioningOperation.setProvisioningContext(new ProvisioningContext());
 		provisioningOperation.setResult(new OperationResult());

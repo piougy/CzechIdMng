@@ -31,7 +31,7 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     private LocalDate validFrom;
     private boolean mustChange = false;
     private LocalDate lastSuccessfulLogin;
-    private int unsuccessfulAttemps = 0;
+    private int unsuccessfulAttemps;
 
     public LocalDate getLastSuccessfulLogin() {
         return lastSuccessfulLogin;

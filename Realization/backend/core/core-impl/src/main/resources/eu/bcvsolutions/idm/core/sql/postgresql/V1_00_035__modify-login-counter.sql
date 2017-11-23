@@ -1,0 +1,1 @@
+ALTER TABLE idm_password ALTER COLUMN unsuccessful_attemps SMALLINT NOT NULL DEFAULT 0;

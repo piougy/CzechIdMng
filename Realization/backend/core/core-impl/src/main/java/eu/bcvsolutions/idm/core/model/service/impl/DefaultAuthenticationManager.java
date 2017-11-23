@@ -35,7 +35,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		//
 		this.authenticators = authenticators;
 	}
-	
+
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		// authenticate
@@ -60,6 +60,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 */
 	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
 		// TODO increase count of unsuccessful login attemps
+
 
 		Assert.notNull(authenticators);
 		//

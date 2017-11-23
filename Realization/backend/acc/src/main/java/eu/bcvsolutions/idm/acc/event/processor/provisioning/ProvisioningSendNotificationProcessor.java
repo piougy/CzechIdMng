@@ -61,6 +61,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	@Override
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		IdmIdentityDto identity = null;
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			identity = identityService.get(provisioningOperation.getEntityIdentifier());
@@ -79,7 +80,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 							new IdmMessageDto.Builder()
 							.setLevel(NotificationLevel.SUCCESS)
 							.addParameter("systemName", system.getName())
-							.addParameter("uid", provisioningOperation.getSystemEntityUid())
+							.addParameter("uid", uid)
 							.addParameter("password", password)
 							.build(),
 							identity);

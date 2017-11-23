@@ -35,7 +35,8 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	private UUID system;
 	private SystemEntityType entityType;
 	private UUID entityIdentifier;
-	private String systemEntityUid; // account uid, etc.
+	@Embedded(dtoClass = SysSystemEntityDto.class)
+	private UUID systemEntity; // account uid, etc.
 	private int currentAttempt = 0;
 	private int maxAttempts;
 	private OperationResult result;
@@ -87,13 +88,12 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.entityType = entityType;
 	}
 
-	@Override
-	public String getSystemEntityUid() {
-		return systemEntityUid;
+	public UUID getSystemEntity() {
+		return systemEntity;
 	}
 	
-	public void setSystemEntityUid(String systemEntityUid) {
-		this.systemEntityUid = systemEntityUid;
+	public void setSystemEntity(UUID systemEntity) {
+		this.systemEntity = systemEntity;
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		private UUID entityIdentifier;
 		private UUID system;
 		private SystemEntityType entityType;
-		private String systemEntityUid;
+		private UUID systemEntity;
 		
 		public Builder setOperationType(ProvisioningEventType operationType) {
 			this.operationType = operationType;
@@ -201,7 +201,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		public Builder setSystemEntity(SysSystemEntityDto systemEntity) {
 			this.system = systemEntity.getSystem();
 			this.entityType = systemEntity.getEntityType();
-			this.systemEntityUid = systemEntity.getUid();
+			this.systemEntity = systemEntity.getId();
 			return this;
 		}
 		
@@ -215,8 +215,8 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			return this;
 		}
 		
-		public Builder setSystemEntityUid(String systemEntityUid) {
-			this.systemEntityUid = systemEntityUid;
+		public Builder setSystemEntity(UUID systemEntity) {
+			this.systemEntity = systemEntity;
 			return this;
 		}
 		
@@ -229,7 +229,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
 			provisioningOperation.setOperationType(operationType);
 			provisioningOperation.setSystem(system);
-			provisioningOperation.setSystemEntityUid(systemEntityUid);
+			provisioningOperation.setSystemEntity(systemEntity);
 			provisioningOperation.setEntityType(entityType);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
 			provisioningOperation.setProvisioningContext(provisioningContext);

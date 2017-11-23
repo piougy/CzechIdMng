@@ -161,7 +161,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		provisioningExecutor.execute(provisioningOperation);
 		// is necessary to get again operation from service
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemEntityUid(uid);
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
 		filter.setSystemId(system.getId());
 		SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
 		//
@@ -236,7 +236,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		provisioningExecutor.execute(provisioningOperation);
 		// is necessary to get again operation from service
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemEntityUid(uid);
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
 		filter.setSystemId(system.getId());
 		SysProvisioningOperationDto readOnlyoperation = provisioningOperationService.find(filter, null).getContent().get(0);
 		//
@@ -309,7 +309,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		provisioningExecutor.execute(provisioningOperation);
 		// is necessary to get again operation from service
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemEntityUid(uid);
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
 		filter.setSystemId(system.getId());
 		SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
 		assertEquals(OperationState.CREATED, operation.getResultState());
@@ -353,7 +353,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		provisioningExecutor.execute(provisioningOperation); // 1 - create
 		// is necessary to get again operation from service
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemEntityUid(uid);
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
 		filter.setSystemId(system.getId());
 		SysProvisioningOperationDto readOnlyOperation = provisioningOperationService.find(filter, null).getContent().get(0);
 		assertEquals(OperationState.NOT_EXECUTED, readOnlyOperation.getResultState());
@@ -367,7 +367,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNull(helper.findResource(uid));
 		//
 		// check batch
-		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), readOnlyOperation.getEntityIdentifier(), uid);
+		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), readOnlyOperation.getEntityIdentifier(), systemEntity.getId());
 		Assert.assertNotNull(batch);
 		//
 		// check provisioning operation requests
@@ -412,10 +412,10 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			provisioningExecutor.execute(provisioningOperation); // 1 - create
 			// is necessary to get again operation from service
 			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-			filter.setSystemEntityUid(uid);
+			filter.setSystemEntity(provisioningOperation.getSystemEntity());
 			filter.setSystemId(system.getId());
 			SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
-			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
+			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), operation.getSystemEntity());
 			Assert.assertEquals(OperationState.EXCEPTION, operation.getResultState());
 			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), operation.getResult().getModel().getStatusEnum());
 			Assert.assertEquals(1, operation.getCurrentAttempt());
@@ -433,7 +433,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			Boolean result = longRunningTaskManager.executeSync(retryProvisioningTaskExecutor);
 			Assert.assertTrue(result);
 			operation = provisioningOperationService.get(operation.getId());
-			batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), uid);
+			batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), systemEntity.getId());
 			Assert.assertEquals(2, operation.getCurrentAttempt());
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 			//

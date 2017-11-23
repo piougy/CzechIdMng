@@ -40,7 +40,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
 	private final SysSystemEntityService systemEntityService;
-	private final SysProvisioningOperationService provisioningOperationService;
+	protected final SysProvisioningOperationService provisioningOperationService;
 	
 	public AbstractProvisioningProcessor(
 			IcConnectorFacade connectorFacade,
@@ -78,9 +78,10 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
+		String uid = systemEntityService.getByProvisioningOperation(provisioningOperation).getUid();
 		LOG.debug("Start provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
-				provisioningOperation.getSystemEntityUid(),
+				uid,
 				objectClass.getType());
 		//
 		// Find connector identification persisted in system

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -106,4 +107,12 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @return
 	 */
 	SysProvisioningOperationDto getLastOperationByBatchId(UUID batchId);
+	
+	/**
+	 * Returns {@link SysSystemEntityDto} by given provisioning operation
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	SysSystemEntityDto getByProvisioningOperation(SysProvisioningOperationDto operation);
 }

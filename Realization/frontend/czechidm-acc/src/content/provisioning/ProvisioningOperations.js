@@ -85,11 +85,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
   /**
    * Shows modal detail with given entity
    */
-  showDetail(entity) {
+  showDetail(entity, isArchive) {
     this.setState({
       detail: {
         show: true,
-        entity
+        entity,
+        isArchive
       }
     });
   }
@@ -160,6 +161,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               ref="table"
               uiKey={ uiKey }
               manager={manager}
+              isArchive={false}
               showDetail={this.showDetail.bind(this)}
               showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_ADMIN'])}
               forceSearchParameters={forceSearchParameters}
@@ -177,9 +179,10 @@ class ProvisioningOperations extends Basic.AbstractContent {
               ref="archiveTable"
               uiKey={ `archive-${uiKey}` }
               manager={ archiveManager }
+              isArchive
               showDetail={ this.showDetail.bind(this) }
               forceSearchParameters={ forceSearchParameters }
-              columns={ columns }/>
+              columns={columns}/>
           </Basic.Tab>
         </Basic.Tabs>
 
@@ -240,7 +243,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                     <Basic.Col lg={ 8 }>
                       <Basic.LabelWrapper label={this.i18n('acc:entity.SystemEntity.uid')}>
                         <div style={{ margin: '7px 0' }}>
-                          {detail.entity.systemEntityUid}
+                          {detail.isArchive ? detail.entity.systemEntityUid : detail.entity._embedded.systemEntity.uid}
                         </div>
                       </Basic.LabelWrapper>
                     </Basic.Col>

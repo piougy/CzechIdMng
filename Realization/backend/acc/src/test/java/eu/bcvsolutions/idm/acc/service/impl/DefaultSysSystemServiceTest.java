@@ -236,7 +236,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		provisioningOperation.setSystem(system.getId());
 		provisioningOperation.setEntityType(SystemEntityType.IDENTITY);
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
-		provisioningOperation.setSystemEntityUid("mock");
+		provisioningOperation.setSystemEntity(UUID.randomUUID());
 		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
 		provisioningOperation.setProvisioningContext(new ProvisioningContext());
 		provisioningOperation.setResult(new OperationResult());

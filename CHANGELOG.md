@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file.
 ##### AccAccountService
 - Deprecated method 'delete(AccAccountDto account, boolean deleteTargetAccount, UUID entityId)' was removed. AccAccountService supported events now, parameters 'deleteTargetAccount' and 'entityId' were transformed to properties of delete event.
 
+##### ProvisioningOperation
+- In the task #798, we solved problem with not updated UID value in Provisioning operation. This occurred when was two and more provisioning operations in the queue and when first provisioning (traged system) changed UID of the account. Next provisionings in the queue was wrong (old) value of UID. This was fixed (provisioning operation has relation on the system entity now).
+- Beware - before update we recommand solve/cancel all active provisioning operations. We need to create new column "system_entity_id" and remove old "system_entity_uid". In the change script we will try transform data in the provisioning operation table (from string uid to the ID), but it may not be fully sucessfuly.
+
 ### Changed
 
 - Method ``saveAndFlush`` was added into ``BaseEntityRepository`` and this method is used now for saving all dtos - see ``AbstractReadWriteDtoService#saveInternal``. Auditable dto's metadata (e.g. ``modifier``, ``modified``) are available now after dto is saved by ``IdentitySevaProcessor``, for more information read [#834](https://redmine.czechidm.com/issues/834).

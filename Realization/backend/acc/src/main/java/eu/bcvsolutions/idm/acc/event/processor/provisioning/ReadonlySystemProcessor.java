@@ -70,8 +70,9 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		boolean closed = false;
 		if (system.isReadonly()) {
+			String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 
-					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
+					ImmutableMap.of("name", uid, "system", system.getName()));
 			provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);

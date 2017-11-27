@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -80,6 +82,7 @@ public class DefaultSysProvisioningOperationService
 	private final ConfidentialStorage confidentialStorage;
 	private final SysSystemService systemService;
 	private final SecurityService securityService;
+	private final SysSystemEntityService systemEntityService;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
@@ -89,7 +92,8 @@ public class DefaultSysProvisioningOperationService
 			NotificationManager notificationManager,
 			ConfidentialStorage confidentialStorage,
 			SysSystemService systemService,
-			SecurityService securityService) {
+			SecurityService securityService,
+			SysSystemEntityService systemEntityService) {
 		super(repository);
 		//
 		Assert.notNull(provisioningArchiveService);
@@ -98,6 +102,7 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(systemService);
 		Assert.notNull(securityService);
+		Assert.notNull(systemEntityService);
 		//
 		this.repository = repository;
 		this.provisioningArchiveService = provisioningArchiveService;
@@ -106,6 +111,7 @@ public class DefaultSysProvisioningOperationService
 		this.confidentialStorage = confidentialStorage;
 		this.systemService = systemService;
 		this.securityService = securityService;
+		this.systemEntityService = systemEntityService;
 	}
 	
 	@Override
@@ -321,9 +327,10 @@ public class DefaultSysProvisioningOperationService
 	@Transactional
 	public SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex) {
 		SysSystemDto system = systemService.get(operation.getSystem());
+		String uid = this.getByProvisioningOperation(operation).getUid();
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
 				ImmutableMap.of(
-						"name", operation.getSystemEntityUid(), 
+						"name", uid, 
 						"system", system.getName(),
 						"operationType", operation.getOperationType(),
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));			
@@ -357,14 +364,22 @@ public class DefaultSysProvisioningOperationService
 		return operation;
 	}
 	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SysSystemEntityDto getByProvisioningOperation(SysProvisioningOperationDto operation) {
+		return systemEntityService.getByProvisioningOperation(operation);
+	}
+
 	@Override
 	@Transactional
 	public SysProvisioningOperationDto handleSuccessful(SysProvisioningOperationDto operation) {
 		SysSystemDto system = systemService.get(operation.getSystem());
+		String uid = this.getByProvisioningOperation(operation).getUid();
 		ResultModel resultModel = new DefaultResultModel(
 				AccResultCode.PROVISIONING_SUCCEED, 
 				ImmutableMap.of(
-						"name", operation.getSystemEntityUid(), 
+						"name", uid, 
 						"system", system.getName(),
 						"operationType", operation.getOperationType(),
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));

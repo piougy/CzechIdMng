@@ -35,7 +35,7 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			+ " and"
 			+ " (o.entityIdentifier = ?#{[0].entityIdentifier} or ?#{[0].entityIdentifier} is null)"
 			+ " and"
-			+ " o.systemEntityUid = ?#{[0].systemEntityUid}")
+			+ " o.systemEntity = ?#{[0].systemEntity}")
 	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
 	
 	/**
@@ -43,7 +43,7 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * 
 	 * @param systemId
 	 * @param entityIdentifier
-	 * @param systemEntityUid
+	 * @param systemEntity
 	 * @return
 	 */
 	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
@@ -52,11 +52,11 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			+ " and"
 			+ " (o.entityIdentifier = :entityIdentifier or :entityIdentifier is null)"
 			+ " and"
-			+ " o.systemEntityUid = :systemEntityUid")
+			+ " o.systemEntity.id = :systemEntity")
 	SysProvisioningBatch findBatch(
 			@Param("systemId") UUID systemId,
 			@Param("entityIdentifier") UUID entityIdentifier, 
-			@Param("systemEntityUid") String systemEntityUid);
+			@Param("systemEntity") UUID systemEntity);
 	
 	/**
 	 * Returns batches by their request's state

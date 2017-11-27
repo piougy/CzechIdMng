@@ -407,7 +407,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 					preparedOperations.add(additionalProvisioningOperation);
 				}
 			}
-			operationAccounts.put(operation.getSystemEntityUid(), account);
+			operationAccounts.put(systemEntityService.getByProvisioningOperation(operation).getUid(), account);
 		});
 		passwordChange.setNewPassword(null);
 		passwordChange.setOldPassword(null);
@@ -418,7 +418,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto>
 			.map(operation -> {
 				SysProvisioningOperationDto result = provisioningExecutor.executeSync(operation);
 				Map<String, Object> parameters = new LinkedHashMap<String, Object>();
-				AccAccountDto account = operationAccounts.get(operation.getSystemEntityUid());
+				AccAccountDto account = operationAccounts.get(systemEntityService.getByProvisioningOperation(operation).getUid());
 				SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
 				//
 				IdmAccountDto resultAccountDto = new IdmAccountDto();

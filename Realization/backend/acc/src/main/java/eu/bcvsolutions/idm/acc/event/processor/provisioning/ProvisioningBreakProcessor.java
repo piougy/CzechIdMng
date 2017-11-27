@@ -236,8 +236,9 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	 * @return
 	 */
 	private SysProvisioningOperationDto blockOperation(SysProvisioningOperationDto provisioningOperation, SysSystemDto system) {
+		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_BLOCKED, 
-				ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
+				ImmutableMap.of("name", uid, "system", system.getName()));
 		provisioningOperation.setResult(new OperationResult.Builder(OperationState.BLOCKED).setModel(resultModel).build());
 		//
 		provisioningOperation = provisioningOperationService.save(provisioningOperation);

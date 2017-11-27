@@ -50,8 +50,8 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	 * 
 	 * @param systemId
 	 * @param entityIdentifier
-	 * @param systemEntityUid
+	 * @param systemEntity
 	 * @return
 	 */
-	SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, String systemEntityUid);
+	SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, UUID systemEntity);
 }

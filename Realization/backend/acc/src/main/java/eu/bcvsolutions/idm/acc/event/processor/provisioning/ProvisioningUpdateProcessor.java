@@ -49,7 +49,8 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 
 	@Override
 	public IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig) {
-		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
+		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
+		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		if (!connectorObject.getAttributes().isEmpty()) { 
 			SysSystemDto system = systemService.get(provisioningOperation.getSystem());

@@ -340,10 +340,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		context.getLogItem().addToLog(
 				MessageFormat.format("Default role [{1}] is defines and will be assigned to the identity [{0}].", entity.getCode(), defaultRole.getCode()));
 		Assert.notNull(defaultRole, "Default role must be found for this sync configuration!");
-		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(entity.getId());
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
 		if(primeContract == null) {
 			context.getLogItem().addToLog(
-					"Warning! - Default role is set, but could not be assigned to identity, because was not found any identity contract!");
+					"Warning! - Default role is set, but could not be assigned to identity, because was not found any valid identity contract!");
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 			return identityAccount;

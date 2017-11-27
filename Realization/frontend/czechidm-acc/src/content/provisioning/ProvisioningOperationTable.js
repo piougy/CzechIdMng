@@ -51,7 +51,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns } = this.props;
+    const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns, isArchive } = this.props;
     const { filterOpened } = this.state;
     //
     return (
@@ -144,7 +144,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={() => showDetail(data[rowIndex])}/>
+                    onClick={() => showDetail(data[rowIndex], isArchive)}/>
                 );
               }
             }/>
@@ -227,7 +227,14 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           sort
           sortProperty="systemEntityUid"
           face="text"
-          rendered={_.includes(columns, 'systemEntityUid')}/>
+          rendered={isArchive && _.includes(columns, 'systemEntityUid')}/>
+        <Advanced.Column
+          property="_embedded.systemEntity.uid"
+          header={this.i18n('acc:entity.SystemEntity.uid')}
+          sort
+          sortProperty="systemEntity"
+          face="text"
+          rendered={!isArchive && _.includes(columns, 'systemEntityUid')}/>
       </Advanced.Table>
     );
   }

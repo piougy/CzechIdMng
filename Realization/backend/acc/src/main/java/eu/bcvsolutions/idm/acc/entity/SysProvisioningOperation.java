@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_operation_type", columnList = "operation_type"),
 		@Index(name = "idx_sys_p_o_system", columnList = "system_id"),
 		@Index(name = "idx_sys_p_o_entity_type", columnList = "entity_type"),
-		@Index(name = "idx_sys_p_o_uid", columnList = "system_entity_uid"),
+		@Index(name = "idx_sys_p_o_sys_entity", columnList = "system_entity_id"),
 		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier"),
 		@Index(name = "idx_sys_pro_oper_batch_id", columnList = "provisioning_batch_id")
 		})
@@ -65,8 +65,11 @@ public class SysProvisioningOperation extends AbstractEntity {
 	private SystemEntityType entityType;
 	
 	@NotNull
-	@Column(name = "system_entity_uid")
-	private String systemEntityUid; // account uid, etc.
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private SysSystemEntity systemEntity;
 	
 	@Column(name = "entity_identifier")
 	private UUID entityIdentifier;
@@ -110,12 +113,12 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.entityType = entityType;
 	}
 	
-	public String getSystemEntityUid() {
-		return systemEntityUid;
+	public SysSystemEntity getSystemEntity() {
+		return systemEntity;
 	}
-	
-	public void setSystemEntityUid(String systemEntityUid) {
-		this.systemEntityUid = systemEntityUid;
+
+	public void setSystemEntity(SysSystemEntity systemEntity) {
+		this.systemEntity = systemEntity;
 	}
 
 	public UUID getEntityIdentifier() {

@@ -142,9 +142,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
+		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		LOG.debug("Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
-				provisioningOperation.getSystemEntityUid(),
+				uid,
 				objectClass.getType());
 		//
 		// Find connector identification persisted in system
@@ -160,7 +161,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		//
 		try {
-			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
+			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 			IcConnectorObject existsConnectorObject = connectorFacade.readObject(
 					system.getConnectorInstance(), 
 					connectorConfig, 
@@ -174,7 +175,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			//
 			LOG.debug("Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
 					provisioningOperation.getOperationType(), 
-					provisioningOperation.getSystemEntityUid(),
+					uid,
 					objectClass.getType());
 			// set back to event content
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
@@ -187,7 +188,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			} else {
 				resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED, 
 					ImmutableMap.of(
-							"name", provisioningOperation.getSystemEntityUid(), 
+							"name", uid, 
 							"system", system.getName(),
 							"operationType", provisioningOperation.getOperationType(),
 							"objectClass", objectClass.getType()));
@@ -305,7 +306,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	@SuppressWarnings("unchecked")
 	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		String systemEntityUid = provisioningOperation.getSystemEntityUid();
+		String systemEntityUid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();

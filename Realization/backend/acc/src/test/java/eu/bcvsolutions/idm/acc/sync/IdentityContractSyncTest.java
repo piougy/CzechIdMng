@@ -307,6 +307,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
 		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		((SysSyncContractConfigDto)config).setStartOfHrProcesses(false);
+		syncConfigService.save(config);
 
 		IdmIdentityDto ownerOne = helper.createIdentity(CONTRACT_OWNER_ONE);
 		IdmIdentityDto ownerTwo = helper.createIdentity(CONTRACT_OWNER_TWO);
@@ -349,8 +351,73 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, contractsThree.size());
 		Assert.assertTrue(contractsThree.get(0).isValid());
 
+		// HR processes was not started, identity have to be in "incorrect" state
 		ownerOne = identityService.getByUsername(CONTRACT_OWNER_ONE);
 		Assert.assertFalse(ownerOne.isDisabled());
+		ownerTwo = identityService.getByUsername(CONTRACT_OWNER_TWO);
+		Assert.assertFalse(ownerTwo.isDisabled());
+
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+	
+	@Test
+	/**
+	 * HR process are not executed during sync, but after sync end.
+	 */
+	public void checkContractInvalidWithStartHrProcessesTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		((SysSyncContractConfigDto)config).setStartOfHrProcesses(true);
+		syncConfigService.save(config);
+
+		IdmIdentityDto ownerOne = helper.createIdentity(CONTRACT_OWNER_ONE);
+		IdmIdentityDto ownerTwo = helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+		contractService.findAllByIdentity(ownerOne.getId()).forEach(contract -> {
+			IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.DELETE, contract);
+			event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			contractService.publish(event);
+		});
+		contractService.findAllByIdentity(ownerTwo.getId()).forEach(contract -> {
+			IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.DELETE, contract);
+			event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			contractService.publish(event);
+		});
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+		// Change resources (set to invalid) .. must be call in transaction
+		this.getBean().initContractCheckInvalidTest();
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmIdentityContractDto> contractsOne = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsOne.size());
+		Assert.assertFalse(contractsOne.get(0).isValid());
+		contractFilter.setValue("3");
+		List<IdmIdentityContractDto> contractsThree = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsThree.size());
+		Assert.assertTrue(contractsThree.get(0).isValid());
+
+		// HR processes was started, identity have to be in "correct" state
+		ownerOne = identityService.getByUsername(CONTRACT_OWNER_ONE);
+		Assert.assertTrue(ownerOne.isDisabled());
 		ownerTwo = identityService.getByUsername(CONTRACT_OWNER_TWO);
 		Assert.assertFalse(ownerTwo.isDisabled());
 

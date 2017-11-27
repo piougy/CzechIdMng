@@ -294,7 +294,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				startReconciliation(entityType, systemAccountsList, config, system, log, actionsLog);
 			}
 			//
-			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
+			syncCorrectlyEnded(log, context);
 			config = synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
@@ -311,6 +311,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			longRunningTaskExecutor.updateState();
 		}
 		return config;
+	}
+
+	protected void syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
 	}
 
 	@Override

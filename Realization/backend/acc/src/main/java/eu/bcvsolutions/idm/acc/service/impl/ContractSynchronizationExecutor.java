@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -82,6 +83,8 @@ import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -95,6 +98,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmContractGuaranteeService guaranteeService;
 	private final IdmTreeNodeService treeNodeService;
 	private final LookupService lookupService;
+	private final LongRunningTaskManager longRunningTaskManager;
+
 	public final static String CONTRACT_STATE_FIELD = "state";
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
 	public final static String CONTRACT_IDENTITY_FIELD = "identity";
@@ -113,7 +118,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
 			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
-			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService) {
+			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService,
+			LongRunningTaskManager longRunningTaskManager) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -125,12 +131,14 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.notNull(lookupService, "Lookup service is mandatory!");
 		Assert.notNull(guaranteeService, "Contract guarantee service is mandatory!");
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
+		Assert.notNull(longRunningTaskManager, "Long runing task manager is mandatory!");
 		//
 		this.contractService = contractService;
 		this.contractAccoutnService = contractAccoutnService;
 		this.lookupService = lookupService;
 		this.guaranteeService = guaranteeService;
 		this.treeNodeService = treeNodeService;
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
 
 	@Override
@@ -152,6 +160,25 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
 		}
 		return super.validate(synchronizationConfigId);
+	}
+
+	@Override
+	protected void syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		super.syncCorrectlyEnded(log, context);
+		
+		if(!getConfig(context).isStartOfHrProcesses()){
+			log.addToLog(MessageFormat.format(
+					"Start HR process for end of contracts (after sync) isn't allowed [{0}]",
+					LocalDateTime.now()));
+			return;
+		}
+		
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run HR process for end of contracts. We start him (synchronously) now [{0}]",
+				LocalDateTime.now()));
+		HrEndContractProcess taskExecutor = new HrEndContractProcess();
+		longRunningTaskManager.executeSync(taskExecutor);
+		log.addToLog(MessageFormat.format("HR process for end of contracts ended in [{0}].", LocalDateTime.now()));
 	}
 
 	/**

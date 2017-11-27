@@ -168,6 +168,10 @@
           "defaultLeader": {
             "label": "Výchozí vedoucí",
             "helpBlock": "Pokud není pro daný vztah vyplněn žádný vedoucí (ve zdrojovém systému), pak bude vztahu přiřazen tento výchozí vedoucí."
+          },
+          "startOfHrProcesses": {
+            "label": "Po dokončení spustit HR procesy",
+            "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy."
           }
         },
         "identityConfigDetail":{

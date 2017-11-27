@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,7 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -190,5 +193,36 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 	
 	public void setConfigurationService(ConfigurationService configurationService) {
 		this.configurationService = configurationService;
+	}
+	
+	/**
+	 * Return true if event properties contains given property and this property is true.
+	 * If event does not contains this property, then return false.
+	 * 
+	 * TODO: Move to utils
+	 * @param property
+	 * @param properties
+	 * @return
+	 */
+	protected boolean getBooleanProperty(String property, Map<String, Serializable> properties) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		if (properties == null) {
+			return false;
+		}
+
+		Object propertyValue = properties.get(property);
+
+		if (propertyValue == null) {
+			return false;
+		}
+
+		Assert.isInstanceOf(Boolean.class, propertyValue, MessageFormat
+				.format("Property [{0}] must be Boolean, but is [{1}]!", property, propertyValue.getClass()));
+
+		if ((Boolean) propertyValue) {
+			return true;
+		}
+
+		return false;
 	}
 }

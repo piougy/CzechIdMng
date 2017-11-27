@@ -90,7 +90,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			if (e instanceof ResultCodeException) {
 				throw e;
 			}
-			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage()), e);
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage() != null ? e.getLocalizedMessage() : e.toString()), e);
 		} finally {
 			// if this script is called from another script, remove only allowed classes from them
 			// otherwise unregister all filter.

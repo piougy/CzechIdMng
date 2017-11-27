@@ -132,7 +132,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		this.guaranteeService = guaranteeService;
 		this.treeNodeService = treeNodeService;
 	}
-	
+
 	@Override
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {
 
@@ -146,7 +146,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		SysSystemAttributeMappingDto ownerAttribute = mappedAttributes.stream().filter(attribute -> {
 			return CONTRACT_IDENTITY_FIELD.equals(attribute.getIdmPropertyName());
 		}).findFirst().orElse(null);
-		
+
 		if (ownerAttribute == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST,
 					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
@@ -190,10 +190,17 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
 			SysSyncItemLogDto logItem) {
-		addToItemLog(logItem, MessageFormat.format(
-				"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-				entity.getId(), entity.getPosition()));
-		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.UPDATE, entity)).getContent();
+		addToItemLog(logItem,
+				MessageFormat.format(
+						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
+						entity.getId(), entity.getPosition()));
+		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
+		// We do not want execute HR processes for every contract. We need start
+		// them for every identity only once.
+		// For this we skip them now. HR processes must be start after whole
+		// sync finished (by using dependent scheduled task)!
+		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+		entityEventManager.process(event).getContent();
 	}
 
 	/**
@@ -224,9 +231,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			// We will remove contract account, but without delete connected
 			// account
 			contractAccoutnService.delete(entityAccount, false);
-			addToItemLog(logItem, MessageFormat.format(
-					"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
-					entityAccount.getContract(), entityAccount.getId()));
+			addToItemLog(logItem,
+					MessageFormat.format(
+							"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
+							entityAccount.getContract(), entityAccount.getId()));
 
 		});
 		return;
@@ -313,9 +321,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					UUID defaultNode = ((SysSyncContractConfigDto) context.getConfig()).getDefaultTreeNode();
 					IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, defaultNode);
 					if (node != null) {
-						context.getLogItem().addToLog(MessageFormat.format(
-								"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
-								node.getCode()));
+						context.getLogItem()
+								.addToLog(MessageFormat.format(
+										"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
+										node.getCode()));
 						return node.getId();
 					}
 				}
@@ -416,9 +425,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 			if (node != null) {
 				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class);
-				context.getLogItem().addToLog(MessageFormat.format(
-						"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
-						value, node.getCode(), treeTypeDto.getCode()));
+				context.getLogItem()
+						.addToLog(MessageFormat.format(
+								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
+								value, node.getCode(), treeTypeDto.getCode()));
 				return node;
 			}
 			context.getLogItem().addToLog(MessageFormat
@@ -427,9 +437,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				// Find by code in default tree type
 				SysSyncContractConfigDto config = this.getConfig(context);
 				if (config.getDefaultTreeType() == null) {
-					context.getLogItem().addToLog(MessageFormat.format(
-							"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
-							value));
+					context.getLogItem()
+							.addToLog(MessageFormat.format(
+									"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
+									value));
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
@@ -460,16 +471,16 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					return null;
 
 				} else {
-					context.getLogItem()
-					.addToLog(MessageFormat.format("Work position - One node [{1}] was found for code [{0}]!", value,
-							nodes.get(0).getId()));
+					context.getLogItem().addToLog(MessageFormat.format(
+							"Work position - One node [{1}] was found for code [{0}]!", value, nodes.get(0).getId()));
 					return nodes.get(0);
 				}
 			}
 		} else {
-			context.getLogItem().addToLog(MessageFormat.format(
-					"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
-					value));
+			context.getLogItem()
+					.addToLog(MessageFormat.format(
+							"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
+							value));
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 		}
@@ -477,7 +488,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	private SysSyncContractConfigDto getConfig(SynchronizationContext context) {
-		Assert.isInstanceOf(SysSyncContractConfigDto.class, context.getConfig(), "For identity sync must be sync configuration instance of SysSyncContractConfigDto!");
+		Assert.isInstanceOf(SysSyncContractConfigDto.class, context.getConfig(),
+				"For identity sync must be sync configuration instance of SysSyncContractConfigDto!");
 		return ((SysSyncContractConfigDto) context.getConfig());
 	}
 
@@ -490,15 +502,20 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected IdmIdentityContractDto save(IdmIdentityContractDto entity, boolean skipProvisioning) {
-		
+
 		if (entity.getIdentity() == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,
 					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
 		}
-		
+
 		EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(
 				contractService.isNew(entity) ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 				entity, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		// We do not want execute HR processes for every contract. We need start
+		// them for every identity only once.
+		// For this we skip them now. HR processes must be start after whole
+		// sync finished (by using dependent scheduled task)!
+		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 
 		IdmIdentityContractDto contract = contractService.publish(event).getContent();
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {

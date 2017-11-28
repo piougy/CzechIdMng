@@ -1,7 +1,7 @@
 import { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Utils, Advanced, Managers } from 'czechidm-core';
+import { Advanced, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 const manager = new SystemManager();

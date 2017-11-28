@@ -84,6 +84,6 @@ public class ContractGuaranteeDeleteProvisioningProcessor extends CoreEventProce
 
 	@Override
 	public int getOrder() {
-		return CoreEvent.DEFAULT_ORDER - 100;
+		return CoreEvent.DEFAULT_ORDER + 100;
 	}
 }

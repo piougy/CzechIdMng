@@ -170,7 +170,7 @@
             "helpBlock": "If the none leader for a given relation is filled in the source system, then this will be used as the default."
           },
           "startOfHrProcesses": {
-            "label": "After end start of HR processes",
+            "label": "After end, start the HR processes",
             "helpBlock": "After successful synchronization, HR processes will be executed."
           }
         },

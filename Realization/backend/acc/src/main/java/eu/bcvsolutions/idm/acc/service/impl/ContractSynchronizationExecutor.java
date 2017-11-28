@@ -84,6 +84,8 @@ import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuara
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -163,22 +165,47 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	@Override
-	protected void syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
-		super.syncCorrectlyEnded(log, context);
+	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		log = super.syncCorrectlyEnded(log, context);
+		log = synchronizationLogService.save(log);
 		
 		if(!getConfig(context).isStartOfHrProcesses()){
 			log.addToLog(MessageFormat.format(
-					"Start HR process for end of contracts (after sync) isn't allowed [{0}]",
+					"Start HR processes contracts (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
-			return;
+			return log;
 		}
-		
+		// Enable contracts task
 		log.addToLog(MessageFormat.format(
-				"After success sync have to be run HR process for end of contracts. We start him (synchronously) now [{0}]",
+				"After success sync have to be run HR task for enable of contracts (HrEnableContractProcess). We start him (synchronously) now [{0}]",
 				LocalDateTime.now()));
-		HrEndContractProcess taskExecutor = new HrEndContractProcess();
-		longRunningTaskManager.executeSync(taskExecutor);
-		log.addToLog(MessageFormat.format("HR process for end of contracts ended in [{0}].", LocalDateTime.now()));
+		log = synchronizationLogService.save(log);
+	
+		HrEnableContractProcess startContractExecutor = new HrEnableContractProcess();
+		longRunningTaskManager.executeSync(startContractExecutor);
+		log.addToLog(MessageFormat.format("HR task for enable of contracts ended in [{0}].", LocalDateTime.now()));
+		
+		// End contracts task
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run HR task for end of contracts (HrEndContractProcess). We start him (synchronously) now [{0}]",
+				LocalDateTime.now()));
+		log = synchronizationLogService.save(log);
+		
+		HrEndContractProcess endContractExecutor = new HrEndContractProcess();
+		longRunningTaskManager.executeSync(endContractExecutor);
+		log.addToLog(MessageFormat.format("HR task for end of contracts ended in [{0}].", LocalDateTime.now()));
+		
+		// Exclude contracts task
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run HR task for exclude of contracts (HrContractExclusionProcess). We start him (synchronously) now [{0}]",
+				LocalDateTime.now()));
+		log = synchronizationLogService.save(log);
+		
+		HrContractExclusionProcess excludeContractExecutor = new HrContractExclusionProcess();
+		longRunningTaskManager.executeSync(excludeContractExecutor);
+		log.addToLog(MessageFormat.format("HR task for exlude of contracts ended in [{0}].", LocalDateTime.now()));
+		
+		return log;
 	}
 
 	/**

@@ -24,7 +24,7 @@ public interface IdmPasswordService
 	 * Save password to identity. This method not validate password.
 	 * 
 	 * @param identity
-	 * @param entity
+	 * @param passwordDto
 	 * @return
 	 */
 	IdmPasswordDto save(IdmIdentityDto identity, PasswordChangeDto passwordDto);
@@ -76,4 +76,16 @@ public interface IdmPasswordService
 	 * @return
 	 */
 	String getSalt(IdmIdentityDto identity);
+
+	/**
+	 * Increase count of unsuccessful attemps
+	 *
+	 * @param username
+	 */
+	void increaseUnsuccessfulAttempts(String username);
+
+	/**
+	 * Save timestamp of last successful login
+	 */
+	void setLastSuccessfulLogin(String username);
 }

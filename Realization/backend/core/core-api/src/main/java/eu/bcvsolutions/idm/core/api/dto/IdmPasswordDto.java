@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,27 +31,28 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     private LocalDate validTill;
     private LocalDate validFrom;
     private boolean mustChange = false;
-    private LocalDate lastSuccessfulLogin;
-    private int unsuccessfulAttemps;
+    private DateTime lastSuccessfulLogin;
+    private int unsuccessfulAttempts;
 
-    public LocalDate getLastSuccessfulLogin() {
+    public DateTime getLastSuccessfulLogin() {
         return lastSuccessfulLogin;
     }
 
-    public void setLastSuccessfulLogin(LocalDate lastSuccessfulLogin) {
-        this.lastSuccessfulLogin = lastSuccessfulLogin;
+    public void setLastSuccessfulLogin() {
+        this.lastSuccessfulLogin = new DateTime();
+
     }
 
-    public int getUnsuccessfulAttemps() {
-        return unsuccessfulAttemps;
+    public int getUnsuccessfulAttempts() {
+        return unsuccessfulAttempts;
     }
 
-    public void increaseUnsuccessfulAttemps() {
-        unsuccessfulAttemps++;
+    public void increaseUnsuccessfulAttempts() {
+        this.unsuccessfulAttempts++;
     }
 
-    public void resetUnsuccessfulAttemps() {
-        unsuccessfulAttemps = 0;
+    public void resetUnsuccessfulAttempts() {
+        unsuccessfulAttempts = 0;
     }
 
     public String getPassword() {

@@ -61,7 +61,7 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 
 	@Audited
 	@Column(name = "unsuccessful_attemps")
-	private int unsuccessfulAttemps;
+	private int unsuccessfulAttempts;
 
 	public DateTime getLastSuccessLogin() {
 		return lastSuccessfulLogin;
@@ -71,16 +71,16 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 		this.lastSuccessfulLogin = lastSuccessLogin;
 	}
 
-	public int getUnsuccessfulAttemps() {
-		return unsuccessfulAttemps;
+	public int getUnsuccessfulAttempts() {
+		return unsuccessfulAttempts;
 	}
 
-	public void increaseUnsuccessfulAttemps() {
-		unsuccessfulAttemps++;
+	public void increaseUnsuccessfulAttempts() {
+		unsuccessfulAttempts++;
 	}
 
-	public void resetUnsuccessfulAttemps() {
-		unsuccessfulAttemps = 0;
+	public void resetUnsuccessfulAttempts() {
+		unsuccessfulAttempts = 0;
 	}
 
 	public IdmPassword() {

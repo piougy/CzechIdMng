@@ -121,6 +121,21 @@ public class DefaultIdmPasswordService
 		return BCrypt.gensalt(12);
 	}
 
+	@Override
+	public void increaseUnsuccessfulAttempts(String username) {
+		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
+		passwordDto.increaseUnsuccessfulAttempts();
+		passwordDto = save(passwordDto);
+	}
+
+	@Override
+	public void setLastSuccessfulLogin(String username) {
+		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
+		passwordDto.setLastSuccessfulLogin();
+		passwordDto.resetUnsuccessfulAttempts();
+		passwordDto = save(passwordDto);
+	}
+
 	/**
 	 * Method get IdmIdentityPassword by identity.
 	 *

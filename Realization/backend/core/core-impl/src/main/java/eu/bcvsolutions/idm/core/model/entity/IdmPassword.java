@@ -56,23 +56,27 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	private boolean mustChange = false;
 
 	@Audited
-	@Column(name = "last_success_login")
+	@Column(name = "last_successful_login")
 	private DateTime lastSuccessfulLogin;
 
 	@Audited
-	@Column(name = "unsuccessful_attemps")
+	@Column(name = "unsuccessful_attempts")
 	private int unsuccessfulAttempts;
 
-	public DateTime getLastSuccessLogin() {
+	public DateTime getLastSuccessfulLogin() {
 		return lastSuccessfulLogin;
 	}
 
-	public void setLastSuccessLogin(DateTime lastSuccessLogin) {
-		this.lastSuccessfulLogin = lastSuccessLogin;
+	public void setLastSuccessfulLogin(DateTime lastSuccessfulLogin) {
+		this.lastSuccessfulLogin = lastSuccessfulLogin;
 	}
 
 	public int getUnsuccessfulAttempts() {
 		return unsuccessfulAttempts;
+	}
+
+	public void setUnsuccessfulAttempts(int unsuccessfulAttempts) {
+		this.unsuccessfulAttempts = unsuccessfulAttempts;
 	}
 
 	public void increaseUnsuccessfulAttempts() {

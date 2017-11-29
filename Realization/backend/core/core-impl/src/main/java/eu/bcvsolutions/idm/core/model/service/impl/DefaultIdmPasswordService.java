@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -131,7 +132,7 @@ public class DefaultIdmPasswordService
 	@Override
 	public void setLastSuccessfulLogin(String username) {
 		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
-		passwordDto.setLastSuccessfulLogin();
+		passwordDto.setLastSuccessfulLogin(new DateTime());
 		passwordDto.resetUnsuccessfulAttempts();
 		passwordDto = save(passwordDto);
 	}

@@ -16,8 +16,10 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  *
  */
 @Entity
-@Table(name = "test_role_resource")
+@Table(name = TestRoleResource.TABLE_NAME)
 public class TestRoleResource {
+	
+	public static final String TABLE_NAME = "test_role_resource";
 
 	@Id
 	@Column(name = "name", length = DefaultFieldLengths.NAME)

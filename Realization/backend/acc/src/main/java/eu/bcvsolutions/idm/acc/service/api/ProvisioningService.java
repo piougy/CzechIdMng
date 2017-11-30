@@ -133,11 +133,13 @@ public interface ProvisioningService {
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType);
 
+	@Deprecated
 	/**
 	 * Create accounts for given content (dto) on all systems with provisioning mapping and same entity type.
 	 * 
 	 * @param entity
 	 * @param entityType
+	 * @deprecated (from 7.6) This method was replaced by accountManagement(AbstractDto entity).
 	 */
 	void createAccountsForAllSystems(AbstractDto dto);
 	
@@ -150,5 +152,19 @@ public interface ProvisioningService {
 	 * @return
 	 */
 	void doInternalProvisioning(AccAccountDto account, AbstractDto dto);
+
+	
+	/**
+	 * Ensure the account management for given entity. First check if can be
+	 * AccAccount and relation for this entity created. If yes then will be accounts
+	 * and relations on the entity created on systems (SysSystem). Ensure the delete
+	 * of AccAccount too. Provisioning on the target system is not basically
+	 * executed.
+	 * 
+	 * @param dto
+	 * @return true if is provisioning required
+	 */
+
+	boolean accountManagement(AbstractDto entity);
 	
 }

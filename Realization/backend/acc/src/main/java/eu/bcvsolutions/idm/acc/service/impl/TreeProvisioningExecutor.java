@@ -66,7 +66,6 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService, 
 			SysRoleSystemService roleSystemService,
-			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, 
 			SysSystemEntityService systemEntityService,
 			AccAccountService accountService, 
@@ -80,7 +79,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			IdmTreeNodeService treeNodeService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
-				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
+				roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService,
 				schemaObjectClassService, systemAttributeMappingService,
 				roleService);

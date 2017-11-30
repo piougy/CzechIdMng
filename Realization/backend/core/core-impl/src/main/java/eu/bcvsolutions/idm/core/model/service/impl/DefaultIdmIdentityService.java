@@ -440,6 +440,20 @@ public class DefaultIdmIdentityService
 			repository.setIdmAuthorityChangeForIdentity(identitiesCopy, changeTime);
 		}
 	}
+	
+	/**
+	 * Method creates new IdentityEvent for pre validation password
+	 * 
+	 * @param passwordChangeDto
+	 * @param identity
+	 */
+	public void validate(PasswordChangeDto passwordChange, IdmIdentityDto identity) {
+		entityEventManager.process(
+				new IdentityEvent(
+						IdentityEventType.PASSWORD_PREVALIDATION,
+						identity, 
+						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChange)));
+	}
 
 	private void createAuthorityChange(Collection<IdmIdentity> withoutAuthChange, DateTime changeTime) {
 		for (IdmIdentity identity : withoutAuthChange) {

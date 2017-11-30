@@ -103,7 +103,7 @@ public class IdentityPasswordValidateProcessor
 		LOG.debug("Call validate password for systems and default password policy for identity username [{}]",
 				event.getContent().getUsername());
 		//
-		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<>();
+		List<IdmPasswordPolicyDto> passwordPolicyList = validateDefinition(identity, passwordChangeDto);
 		//
 		// Find user accounts
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
@@ -130,6 +130,28 @@ public class IdentityPasswordValidateProcessor
 				}
 			}
 		}
+		//
+		// validate TODO: validate for admin?
+		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+		// get old password for validation - til, from and password history
+		IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
+		passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
+		passwordValidationDto.setIdentity(identity);
+		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
+		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
+		// maximum password age is solved in {@link IdentityPasswordProcessor}
+		//
+		return new DefaultEventResult<>(event, this);
+	}
+	
+	// returns password policy list for accounts
+	public List<IdmPasswordPolicyDto> validateDefinition(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
+		
+		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<>();
+		// Find user accounts
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		//
 		// get default password policy
 		IdmPasswordPolicyDto defaultPasswordPolicy = this.passwordPolicyService
@@ -161,18 +183,12 @@ public class IdentityPasswordValidateProcessor
 				passwordPolicyList.add(passwordPolicy);
 			}
 		});
-		//
-		// validate TODO: validate for admin?
-		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
-		// get old password for validation - til, from and password history
-		IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
-		passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
-		passwordValidationDto.setIdentity(identity);
-		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
-		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
-		// maximum password age is solved in {@link IdentityPasswordProcessor}
-		//
-		return new DefaultEventResult<>(event, this);
+	
+		return passwordPolicyList;
+	}
+	
+	public void preValidate(List<IdmPasswordPolicyDto> passwordPolicyList) {
+		this.passwordPolicyService.preValidate(passwordPolicyList);
 	}
 
 	@Override

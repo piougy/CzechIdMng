@@ -65,6 +65,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
         this.refs.oldPassword.focus();
       });
     }
+    this._preValidate(accountOptions);
   }
 
   /**
@@ -75,6 +76,59 @@ class PasswordChangeForm extends Basic.AbstractContent {
     const { passwordChangeType } = this.props;
     //
     return identityManager.canChangePassword(passwordChangeType, permissions);
+  }
+
+  /*
+   * Method shows password rules before applying change of password
+   */
+  _preValidate(options) {
+    const { entityId } = this.props;
+    const requestData = {
+      accounts: []
+    };
+
+    options.forEach(resourceValue => {
+      if (resourceValue.value === RESOURCE_IDM) {
+        requestData.idm = true;
+      } else {
+        requestData.accounts.push(resourceValue.value);
+      }
+    });
+    identityService.preValidate(entityId, requestData)
+    .then(response => {
+      if (response.status === 204) {
+        const error = undefined;
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return json;
+    })
+    .catch(error => {
+      if (!error) {
+        return {};
+      }
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
   }
 
   save(event) {
@@ -131,7 +185,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
         const error = Utils.Response.getFirstError(json);
 
         this.setState({
-          validationError: error
+          validationError: error,
+          validationDefinition: false
         });
 
         throw error;
@@ -199,7 +254,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
       entityId,
       _permissions
     } = this.props;
-    const { preload, validationError } = this.state;
+    const { preload, validationError, validationDefinition } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== IdentityManager.idm || SecurityManager.isAdmin(userContext) }
@@ -254,7 +309,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
                         multiSelect
                         options={accountOptions}
                         required
-                        disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
+                        disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}
+                        onChange={ this._preValidate.bind(this) }/>
 
                       <div className={allOnlyWarningClassNames}>
                         <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
@@ -272,7 +328,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
               </Basic.Panel>
             </Basic.Col>
             <Basic.Col lg={ 5 }>
-              <ValidationMessage error={validationError} />
+              <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
             </Basic.Col>
           </Basic.Row>
         </form>

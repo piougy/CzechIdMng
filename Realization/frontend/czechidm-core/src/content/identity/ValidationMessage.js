@@ -37,7 +37,8 @@ const DATE = 'date';
 const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
 'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
 'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
-'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName'];
+'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName', 'specialCharactersBase',
+'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate', 'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate'];
 
 export default class ValidationMessage extends Basic.AbstractFormComponent {
 
@@ -46,15 +47,15 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
   }
 
   componentDidMount() {
-    const { error } = this.props;
-    this._prepareValidationMessage(error);
+    const { error, validationDefinition } = this.props;
+    this._prepareValidationMessage(error, validationDefinition);
   }
 
   componentWillReciveNewProps(nextProps) {
-    const { error } = this.props;
+    const { error, validationDefinition } = this.props;
 
-    if (error !== nextProps.error) {
-      this._prepareValidationMessage(nextProps.error);
+    if (error !== nextProps.error || validationDefinition !== nextProps.validationDefinition) {
+      this._prepareValidationMessage(nextProps.error, nextProps.validationDefinition);
     }
   }
 
@@ -62,11 +63,17 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
    * Method prepare error from password validation.
    * Only validation message is required, other will be skiped.
    */
-  _prepareValidationMessage(error) {
+  _prepareValidationMessage(error, validationDefinition) {
     if (!error || !error.parameters) {
       return null;
     }
-
+    // For pre validate it shows as info (blue)
+    let level1 = `warning`;
+    let level2 = `danger`;
+    if (validationDefinition) {
+      level1 = `info`;
+      level2 = `info`;
+    }
     const validationMessage = [];
     let policies = '';
 
@@ -85,7 +92,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           }
           rules += '</ul></span>';
           validationMessage.push(
-            <Basic.Alert level="warning" >
+            <Basic.Alert level={level1} >
               <span dangerouslySetInnerHTML={{
                 __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
               />
@@ -93,10 +100,10 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
         } else if (key !== PASSWORD_POLICIES_NAMES) {
           // validation message with date
           if (key === DATE) {
-            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
+            validationMessage.push(<Basic.Alert level={level1} >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
           } else {
             // other validation messages
-            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
+            validationMessage.push(<Basic.Alert level={level1} >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
           }
         }
       }
@@ -104,19 +111,19 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     // first message is password policies names, with danger class
     if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
       policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
-      validationMessage.unshift(<Basic.Alert level="danger" >{policies}</Basic.Alert>);
+      validationMessage.unshift(<Basic.Alert level={level2} >{policies}</Basic.Alert>);
     }
 
     return validationMessage;
   }
 
   render() {
-    const { rendered, error } = this.props;
+    const { rendered, error, validationDefinition } = this.props;
     if (!rendered || !error) {
       return null;
     }
 
-    const validation = this._prepareValidationMessage(error);
+    const validation = this._prepareValidationMessage(error, validationDefinition);
 
     return (
       <div>
@@ -128,7 +135,8 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
 ValidationMessage.propTypes = {
   ...Basic.AbstractFormComponent.propTypes,
-  error: React.PropTypes.object
+  error: React.PropTypes.object,
+  validationDefinition: React.PropTypes.object
 };
 
 ValidationMessage.defaultProps = {

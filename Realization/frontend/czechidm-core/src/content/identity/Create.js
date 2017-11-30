@@ -3,11 +3,14 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
+import * as Utils from '../../utils';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
 import ValidationMessage from './ValidationMessage';
+
+const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
 const identityManager = new IdentityManager();
 
@@ -40,6 +43,7 @@ class Profile extends Basic.AbstractContent {
    if (generatePassword) {
      this.generatePassword();
    }
+   this._preValidate();
  }
 
   componentDidMount() {
@@ -50,6 +54,53 @@ class Profile extends Basic.AbstractContent {
 
   componentDidUpdate() {
     // nothing
+  }
+
+  /*
+   * Method shows password rules before applying change of password
+   */
+  _preValidate() {
+    const { entityId } = this.props;
+    const requestData = {
+      accounts: []
+    };
+    requestData.idm = true;
+
+    identityManager.getService().preValidate(entityId, requestData)
+    .then(response => {
+      if (response.status === 204) {
+        const error = undefined;
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return json;
+    })
+    .catch(error => {
+      if (!error) {
+        return {};
+      }
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
   }
 
   save(editContinue = 'CLOSE', event) {
@@ -82,7 +133,8 @@ class Profile extends Basic.AbstractContent {
     .then(json => {
       this.setState({
         showLoading: false,
-        validationError: null
+        validationError: null,
+        validationDefinition: false
       }, () => {
         this.refs.form.processEnded();
         this.addMessage({
@@ -107,7 +159,8 @@ class Profile extends Basic.AbstractContent {
     }).catch(error => {
       this.setState({
         showLoading: false,
-        validationError: error
+        validationError: error,
+        validationDefinition: false
       }, () => {
         this.refs.form.processEnded();
         this.setState({
@@ -192,7 +245,7 @@ class Profile extends Basic.AbstractContent {
       generatePassword,
       generatePasswordShowLoading,
       passwordAgain, password,
-      validationError } = this.state;
+      validationError, validationDefinition} = this.state;
 
     return (
       <Basic.Row>
@@ -253,7 +306,7 @@ class Profile extends Basic.AbstractContent {
                     newPasswordAgain={passwordAgain}/>
                 </div>
                 <Basic.Panel className="col-lg-5 no-border">
-                  <ValidationMessage error={validationError} />
+                  <ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
                 </Basic.Panel>
               </Basic.AbstractForm>
 

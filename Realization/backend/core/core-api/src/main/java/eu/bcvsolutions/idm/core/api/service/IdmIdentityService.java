@@ -125,4 +125,12 @@ public interface IdmIdentityService extends
 	 */
 	@Beta
 	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
+	
+	/**
+	 * Method create new IdentityEvent for pre validate password
+	 * 
+	 * @param passwordChange
+	 * @param identity
+	 */
+	void validate(PasswordChangeDto passwordChange, IdmIdentityDto identity);
 }

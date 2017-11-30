@@ -72,6 +72,12 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_EMAIL = "passwordSimilarEmail";
 	private static final String PASSWORD_SIMILAR_FIRSTNAME = "passwordSimilarFirstName";
 	private static final String PASSWORD_SIMILAR_LASTNAME = "passwordSimilarLastName";
+	private static final String PASSWORD_SIMILAR_USERNAME_PREVALIDATE = "passwordSimilarUsernamePreValidate";
+	private static final String PASSWORD_SIMILAR_EMAIL_PREVALIDATE = "passwordSimilarEmailPreValidate";
+	private static final String PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE = "passwordSimilarFirstNamePreValidate";
+	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
+	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
+	private static final String SPECIAL_CHARACTERS_BASE = "specialCharactersBase";
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository repository;
@@ -388,6 +394,134 @@ public class DefaultIdmPasswordPolicyService
 		return passwordAge;
 	}
 	
+	public void preValidate() {
+		IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
+		if (defaultPolicy == null) {
+			defaultPolicy = new IdmPasswordPolicyDto();
+		}
+		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<IdmPasswordPolicyDto>();
+		passwordPolicyList.add(defaultPolicy);
+		preValidate(passwordPolicyList);
+	}
+	
+	@Override
+	public void preValidate(List<IdmPasswordPolicyDto> passwordPolicyList) {
+		Map<String, Object> errors = new HashMap<>();
+		List<String> policyNames = new ArrayList<String>();
+		Map<String, Object> notPassRules = new HashMap<>();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setSpecialCharBase("");
+
+		
+		for(IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
+			if (passwordPolicy.isDisabled()) {
+				continue;
+			}
+			if(passwordPolicy.getName()!=null) {
+			policyNames.add(passwordPolicy.getName());
+			}
+
+			// check to max password length
+			 if (!isNull(passwordPolicy.getMaxPasswordLength())){
+				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MAX_LENGTH, Math.max(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
+				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
+					errors.put(MAX_LENGTH, passwordPolicy.getMaxPasswordLength());
+				}
+			}
+			// check to minimal password length
+			 if (!isNull(passwordPolicy.getMinPasswordLength())){
+				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_LENGTH, Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
+				} else if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
+					errors.put(MIN_LENGTH, passwordPolicy.getMinPasswordLength());
+				}
+			}
+			// check to minimal numbers
+			 if (!isNull(passwordPolicy.getMinNumber())){
+				if (!passwordPolicy.isNumberRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_NUMBER, Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
+				} else if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
+					errors.put(MIN_NUMBER, passwordPolicy.getMinNumber());
+				}
+			}
+			// check to minimal lower characters
+			 if (!isNull(passwordPolicy.getMinLowerChar())){
+				if (!passwordPolicy.isLowerCharRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_LOWER_CHAR, Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
+				} else if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
+					errors.put(MIN_LOWER_CHAR, passwordPolicy.getMinLowerChar());
+				}
+			}
+			// check to minimal upper character
+			 if (!isNull(passwordPolicy.getMinUpperChar())){
+				if (!passwordPolicy.isUpperCharRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_UPPER_CHAR, Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
+				} else if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
+					errors.put(MIN_UPPER_CHAR, passwordPolicy.getMinUpperChar());
+				}
+			}
+			// check to minimal special character
+			if (!isNull(passwordPolicy.getMinSpecialChar())){
+				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_SPECIAL_CHAR, Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
+				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
+					errors.put(MIN_SPECIAL_CHAR, passwordPolicy.getMinSpecialChar());
+				}
+			}
+
+			//merge special char base, prohibited chars
+			policy.setProhibitedCharacters(setPolicyDefinitionSpecialCharacters(policy.getProhibitedCharacters(), passwordPolicy.getProhibitedCharacters()));
+			policy.setSpecialCharBase(setPolicyDefinitionSpecialCharacters(policy.getSpecialCharBase(), passwordPolicy.getSpecialCharBase()));
+				
+			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
+				int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill() == null ? 0 : passwordPolicy.getMinRulesToFulfill().intValue();
+				int notRequiredRules = passwordPolicy.getNotRequiredRules();
+				int missingRules = notRequiredRules - notPassRules.size();
+					
+				errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill - missingRules);
+					errors.put(MIN_RULES_TO_FULFILL, notPassRules);
+			}
+			
+			// check to similar identity attributes, enhanced control
+			if (passwordPolicy.isEnchancedControl()) {
+				String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
+				for (int index = 0; index < attributes.length; index++) {
+					if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
+							errors.put(PASSWORD_SIMILAR_EMAIL_PREVALIDATE, "");
+					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
+							errors.put(PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE, "");
+					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {					
+							errors.put(PASSWORD_SIMILAR_LASTNAME_PREVALIDATE, "");
+					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
+							errors.put(PASSWORD_SIMILAR_USERNAME_PREVALIDATE, "");
+					}
+				}
+			}
+		}
+		
+		if (!policyNames.isEmpty()) {
+			errors.put(POLICY_NAME_PREVALIDATION, String.join(", ", policyNames));
+		}	
+				
+		if (!(policy.getSpecialCharBase().isEmpty())) {
+			if(policy.getProhibitedCharacters() == null) {
+			errors.put(SPECIAL_CHARACTERS_BASE, policy.getSpecialCharBase());
+			} else {
+				String specialBase = "";
+				for (char character : policy.getSpecialCharBase().toCharArray()) {
+					if (policy.getProhibitedCharacters().indexOf(character) == -1) {
+						specialBase = specialBase + character;
+					}
+				}
+				errors.put(SPECIAL_CHARACTERS_BASE, specialBase);
+			}
+		}
+		if (!errors.isEmpty()) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY, errors);
+		}
+	}
+	
 	/**
 	 * Method compare integer in o1 with o2
 	 * 
@@ -430,5 +564,28 @@ public class DefaultIdmPasswordPolicyService
 	@Override
 	public IdmPasswordPolicyDto findOneByName(String name) {
 		return this.toDto(this.repository.findOneByName(name));
+	}
+	
+	
+	/**
+	 * merge password policy special base char + forbidden char
+	 * 
+	 * @param firstRule, secondRule
+	 */
+	private String setPolicyDefinitionSpecialCharacters(String firstRule, String secondRule) {
+		String specialCharacters = "";
+		if( (firstRule != null && secondRule != null ) ||  (secondRule != null) ){
+			if(firstRule == null) {
+				return secondRule;
+			} else {
+				for (char character : secondRule.toCharArray()) {
+					if (firstRule.indexOf(character) == -1) {
+						specialCharacters = specialCharacters + character;
+					}
+				}
+				return firstRule + specialCharacters;
+			}
+		}
+		return firstRule;
 	}
 }

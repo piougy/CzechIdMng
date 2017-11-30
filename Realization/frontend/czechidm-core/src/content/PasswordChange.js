@@ -10,6 +10,7 @@ import help from './PasswordChange_cs.md';
 import ValidationMessage from './identity/ValidationMessage';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
+const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
@@ -40,6 +41,7 @@ class PasswordChange extends Basic.AbstractContent {
     }
     this.refs.form.setData(data);
     this.refs.username.focus();
+    this._preValidate();
   }
 
   hideFooter() {
@@ -64,6 +66,53 @@ class PasswordChange extends Basic.AbstractContent {
    */
   _initPasswordFields(value) {
     this.refs.passwords.setValue(value);
+  }
+
+  /*
+   * Method shows password rules before applying change of password
+   */
+  _preValidate() {
+    const { entityId } = this.props;
+    const requestData = {
+      accounts: []
+    };
+    requestData.idm = true;
+
+    identityManager.getService().preValidate(entityId, requestData)
+    .then(response => {
+      if (response.status === 204) {
+        const error = undefined;
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return json;
+    })
+    .catch(error => {
+      if (!error) {
+        return {};
+      }
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
   }
 
   passwordChange(event) {
@@ -104,7 +153,8 @@ class PasswordChange extends Basic.AbstractContent {
         this._initPasswordFields(password);
         const error = Utils.Response.getFirstError(json);
         this.setState({
-          validationError: error
+          validationError: error,
+          validationDefinition: false
         });
         throw error;
       }
@@ -112,7 +162,8 @@ class PasswordChange extends Basic.AbstractContent {
     })
     .then((json) => {
       this.setState({
-        validationError: null
+        validationError: null,
+        validationDefinition: false
       }, () => {
         const successAccounts = [];
         const failedAccounts = [];
@@ -185,7 +236,7 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading, validationError } = this.state;
+    const { showLoading, validationError, validationDefinition } = this.state;
     const { passwordChangeType } = this.props;
     //
     return (
@@ -223,7 +274,7 @@ class PasswordChange extends Basic.AbstractContent {
                     ref="passwords"/>
                 </Basic.AbstractForm>
                 <Basic.Panel className="no-border last">
-                  <ValidationMessage error={validationError} />
+                  <ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
                 </Basic.Panel>
                 <Basic.PanelFooter>
                   <Basic.Button level="link" onClick={this.cancel.bind(this)}>

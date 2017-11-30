@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -118,4 +120,31 @@ public class PasswordChangeController {
 		//
 		return identityService.passwordChange(identity, passwordChangeDto);
 	}
+	
+	/**
+	 * Pre validation of password (shows hint  of password policy rules)
+	 * 
+	 * @param identityId
+	 * @param passwordChangeDto
+	 * @return
+	 */
+	@ResponseBody
+	@ResponseStatus(code = HttpStatus.OK)
+	@RequestMapping(value = BaseController.BASE_PATH + "/public/identities/{backendId}/validate", method = RequestMethod.PUT)
+	@ApiOperation(
+			value = "Validation of password before applying", 
+			nickname = "validationOfPasswordBeforeApplying",
+			tags = { PasswordChangeController.TAG })
+	public ResponseEntity<?> validate(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId,
+			@RequestBody PasswordChangeDto passwordChangeDto) {
+		IdmIdentityDto identity = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, backendId);
+		if (identity == null) {
+			identity = new IdmIdentityDto();
+		}
+		passwordChangeDto.setNewPassword(new GuardedString());
+		identityService.validate(passwordChangeDto, identity);
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		}
 }

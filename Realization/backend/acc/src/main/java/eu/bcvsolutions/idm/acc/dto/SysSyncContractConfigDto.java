@@ -29,6 +29,8 @@ public class SysSyncContractConfigDto extends AbstractSysSyncConfigDto {
 	
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID defaultLeader;
+	
+	private boolean startOfHrProcesses = true;
 
 	public UUID getDefaultTreeType() {
 		return defaultTreeType;
@@ -53,4 +55,13 @@ public class SysSyncContractConfigDto extends AbstractSysSyncConfigDto {
 	public void setDefaultLeader(UUID defaultLeader) {
 		this.defaultLeader = defaultLeader;
 	}
+
+	public boolean isStartOfHrProcesses() {
+		return startOfHrProcesses;
+	}
+
+	public void setStartOfHrProcesses(boolean startOfHrProcesses) {
+		this.startOfHrProcesses = startOfHrProcesses;
+	}
+
 }

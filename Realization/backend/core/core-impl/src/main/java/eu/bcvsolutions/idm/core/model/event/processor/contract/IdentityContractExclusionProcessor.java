@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProcessor;
 
@@ -21,41 +22,44 @@ import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProce
 @Component
 @Description("HR process - identity's contract exclusion. The processes is started for"
 		+ " contracts that are both valid (meaning validFrom and validTill) and excluded.")
-public class IdentityContractExclusionProcessor
-		extends AbstractWorkflowEventProcessor<IdmIdentityContractDto> 
+public class IdentityContractExclusionProcessor extends AbstractWorkflowEventProcessor<IdmIdentityContractDto>
 		implements IdentityContractProcessor {
-	
+
 	public static final String PROCESSOR_NAME = "identity-contract-exclusion-processor";
-	
+
 	public IdentityContractExclusionProcessor() {
 		super(IdentityContractEventType.UPDATE);
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-	
+
 	@Override
 	protected String getDefaultWorkflowDefinitionKey() {
 		return "hrContractExclusion";
 	}
-	
+
 	/**
-	 * Identity contracts, that was valid and not excluded - is ecluded now
+	 * Identity contracts, that was valid and not excluded - is excluded now
 	 */
 	@Override
 	protected boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
+		// Skip HR process
+		if (this.getBooleanProperty(IdmIdentityContractService.SKIP_HR_PROCESSES, event.getProperties())) {
+			return false;
+		}
+
 		IdmIdentityContractDto current = event.getContent();
 		IdmIdentityContractDto previous = event.getOriginalSource();
 		//
-		return previous.isValid() 
-				&& previous.getState() != ContractState.EXCLUDED
+		return previous.isValid() && previous.getState() != ContractState.EXCLUDED
 				&& current.getState() == ContractState.EXCLUDED;
 	}
-	
+
 	/**
-	 * after save
+	 * After save
 	 */
 	@Override
 	public int getOrder() {

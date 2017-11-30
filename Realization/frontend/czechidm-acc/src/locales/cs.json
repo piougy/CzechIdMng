@@ -168,6 +168,10 @@
           "defaultLeader": {
             "label": "Výchozí vedoucí",
             "helpBlock": "Pokud není pro daný vztah vyplněn žádný vedoucí (ve zdrojovém systému), pak bude vztahu přiřazen tento výchozí vedoucí."
+          },
+          "startOfHrProcesses": {
+            "label": "Po dokončení spustit HR procesy",
+            "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy."
           }
         },
         "identityConfigDetail":{
@@ -274,7 +278,7 @@
         }
       },
       "mappingDetail": {
-        "title" :"Mapování atributů",
+        "title" :"Detail",
         "header": "Mapování atributů <small>pro IdM entitu a typ operace</small>",
         "systemAttributesMappingHeader": "Namapované atributy",
         "edit": {
@@ -637,7 +641,12 @@
       "objectClass": "Název objektu",
       "treeType": "Typ stromu",
       "protectionEnabled": "Ochrana účtů (před smazáním)",
-      "protectionInterval": "Délka ochranného intervalu (ve dnech)"
+      "protectionInterval": "Délka ochranného intervalu (ve dnech)",
+      "account-management": "Správa účtů",
+      "canBeAccountCreatedScript": {
+        "label": "Může být pro danou entitu vytvořen účet?",
+        "help": "Správa účtů - umožňuje zakázat vytvoření účtu (pro danou entitu) na tomto systému. Vstupním parametrem tohoto Groovy skriptu, je IdM entita 'entity' a IdM system 'system'. Výstupní hodnota musí být Boolean.TRUE nebo Boolean.FALSE!"
+      }
     },
     "SchemaAttribute": {
       "name": "Název atributu",

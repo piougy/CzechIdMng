@@ -55,9 +55,8 @@ public class IdentitySaveProvisioningProcessor
 
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
-		Object skipProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		
-		if(skipProvisioning instanceof Boolean && (Boolean)skipProvisioning){
+		// Skip provisioning
+		if(this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties())){
 			return new DefaultEventResult<>(event, this);
 		}
 		doProvisioning(event.getContent());

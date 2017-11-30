@@ -256,6 +256,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
                   required/>
                 <Basic.EnumSelectBox
                   ref="entityType"
+                  useSymbol={false}
                   enum={ SystemEntityTypeEnum }
                   label={ this.i18n('acc:entity.SystemEntity.entityType') }
                   hidden={ systemEntity }/>

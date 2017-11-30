@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,6 +71,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -207,7 +210,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		// Change resources (set state on exclude) .. must be call in transaction
+		// Change resources (set state on exclude) .. must be call in
+		// transaction
 		this.getBean().initContractCheckExcludeTest();
 
 		synchornizationService.setSynchronizationConfigId(config.getId());
@@ -262,7 +266,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		// Change resources (set state on disable) .. must be call in transaction
+		// Change resources (set state on disable) .. must be call in
+		// transaction
 		this.getBean().initContractCheckDisableTest();
 
 		synchornizationService.setSynchronizationConfigId(config.getId());
@@ -291,13 +296,133 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	}
 
-	@Transactional
-	public void initContractCheckDisableTest() {
-		deleteAllResourceData();
-		entityManager
-				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, "true"));
-		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, "40", "false"));
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, "10", "true"));
+	@Test
+	/**
+	 * HR process are not executed during sync.
+	 * If contract is invalid, then HR process disable the Identity. But in the
+	 * sync we need skip this functionality.
+	 */
+	public void checkContractInvalidTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		((SysSyncContractConfigDto)config).setStartOfHrProcesses(false);
+		syncConfigService.save(config);
+
+		IdmIdentityDto ownerOne = helper.createIdentity(CONTRACT_OWNER_ONE);
+		IdmIdentityDto ownerTwo = helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+		contractService.findAllByIdentity(ownerOne.getId()).forEach(contract -> {
+			IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.DELETE, contract);
+			event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			contractService.publish(event);
+		});
+		contractService.findAllByIdentity(ownerTwo.getId()).forEach(contract -> {
+			IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.DELETE, contract);
+			event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			contractService.publish(event);
+		});
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+		// Change resources (set to invalid) .. must be call in transaction
+		this.getBean().initContractCheckInvalidTest();
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmIdentityContractDto> contractsOne = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsOne.size());
+		Assert.assertFalse(contractsOne.get(0).isValid());
+		contractFilter.setValue("3");
+		List<IdmIdentityContractDto> contractsThree = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsThree.size());
+		Assert.assertTrue(contractsThree.get(0).isValid());
+
+		// HR processes was not started, identity have to be in "incorrect" state
+		ownerOne = identityService.getByUsername(CONTRACT_OWNER_ONE);
+		Assert.assertFalse(ownerOne.isDisabled());
+		ownerTwo = identityService.getByUsername(CONTRACT_OWNER_TWO);
+		Assert.assertFalse(ownerTwo.isDisabled());
+
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+	
+	@Test
+	/**
+	 * HR process are not executed during sync, but after sync end.
+	 */
+	public void checkContractInvalidWithStartHrProcessesTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		((SysSyncContractConfigDto)config).setStartOfHrProcesses(true);
+		syncConfigService.save(config);
+
+		IdmIdentityDto ownerOne = helper.createIdentity(CONTRACT_OWNER_ONE);
+		IdmIdentityDto ownerTwo = helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+		contractService.findAllByIdentity(ownerOne.getId()).forEach(contract -> {
+			IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.DELETE, contract);
+			event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			contractService.publish(event);
+		});
+		contractService.findAllByIdentity(ownerTwo.getId()).forEach(contract -> {
+			IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.DELETE, contract);
+			event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			contractService.publish(event);
+		});
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+		// Change resources (set to invalid) .. must be call in transaction
+		this.getBean().initContractCheckInvalidTest();
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmIdentityContractDto> contractsOne = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsOne.size());
+		Assert.assertFalse(contractsOne.get(0).isValid());
+		contractFilter.setValue("3");
+		List<IdmIdentityContractDto> contractsThree = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsThree.size());
+		Assert.assertTrue(contractsThree.get(0).isValid());
+
+		// HR processes was started, identity have to be in "correct" state
+		ownerOne = identityService.getByUsername(CONTRACT_OWNER_ONE);
+		Assert.assertTrue(ownerOne.isDisabled());
+		ownerTwo = identityService.getByUsername(CONTRACT_OWNER_TWO);
+		Assert.assertFalse(ownerTwo.isDisabled());
+
+		// Delete log
+		syncLogService.delete(log);
 
 	}
 
@@ -441,7 +566,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 				IdmTreeNodeDto.class);
 		Assert.assertEquals("one", workposition.getCode());
 
-		// For contract Two must not be found workposition (WRONG node is not in default
+		// For contract Two must not be found workposition (WRONG node is not in
+		// default
 		// tree)
 		contractFilter.setValue("2");
 		contractsTwo = contractService.find(contractFilter, null).getContent();
@@ -455,16 +581,6 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
-	}
-
-	@Transactional
-	public void initContractDefaultTreeTest() {
-		deleteAllResourceData();
-		entityManager
-				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", "one", null, null));
-		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null));
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, null));
-
 	}
 
 	@Test
@@ -526,6 +642,37 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
+
+	}
+
+	@Transactional
+	public void initContractDefaultTreeTest() {
+		deleteAllResourceData();
+		entityManager
+				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", "one", null, null));
+		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, null));
+
+	}
+
+	@Transactional
+	public void initContractCheckDisableTest() {
+		deleteAllResourceData();
+		entityManager
+				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, "true"));
+		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, "40", "false"));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, "10", "true"));
+
+	}
+
+	@Transactional
+	public void initContractCheckInvalidTest() {
+		deleteAllResourceData();
+		TestContractResource one = this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null,
+				null);
+		one.setValidFrom(LocalDate.now().plusDays(1));
+		entityManager.persist(one);
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, "false"));
 
 	}
 
@@ -712,6 +859,29 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 				attributeHandlingName.setExtendedAttribute(false);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
+				schemaAttributeMappingService.save(attributeHandlingName);
+			} else if ("validfrom".equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
+				attributeHandlingName.setName(schemaAttr.getName());
+				attributeHandlingName.setIdmPropertyName("validFrom");
+				attributeHandlingName.setEntityAttribute(true);
+				attributeHandlingName.setExtendedAttribute(false);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
+				attributeHandlingName.setTransformFromResourceScript(
+						"return attributeValue == null ? null : org.joda.time.LocalDate.parse(attributeValue);");
+				schemaAttributeMappingService.save(attributeHandlingName);
+
+			} else if ("validtill".equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
+				attributeHandlingName.setName(schemaAttr.getName());
+				attributeHandlingName.setIdmPropertyName("validTill");
+				attributeHandlingName.setEntityAttribute(true);
+				attributeHandlingName.setExtendedAttribute(false);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
+				attributeHandlingName.setTransformFromResourceScript(
+						"return attributeValue == null ? null : org.joda.time.LocalDate.parse(attributeValue);");
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("description".equalsIgnoreCase(schemaAttr.getName())) {

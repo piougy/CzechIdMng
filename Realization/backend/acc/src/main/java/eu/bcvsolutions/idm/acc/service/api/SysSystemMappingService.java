@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -64,4 +65,6 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 * @return
 	 */
 	Integer getProtectionInterval(AccAccountDto account);
+
+	boolean canBeAccountCreated(AbstractDto dto, String script, SysSystemDto system);
 }

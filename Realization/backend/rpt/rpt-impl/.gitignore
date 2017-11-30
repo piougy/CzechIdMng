@@ -1,0 +1,10 @@
+/target/
+/.xml/
+/test-output/
+/.classpath
+/.project
+/.factorypath
+/.settings/
+/bin/
+/**target/
+/received-emails/

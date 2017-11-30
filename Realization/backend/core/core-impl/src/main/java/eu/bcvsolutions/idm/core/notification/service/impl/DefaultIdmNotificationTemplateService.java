@@ -218,7 +218,7 @@ public class DefaultIdmNotificationTemplateService extends
 					.Builder()
 					.setHtmlMessage(bodyHtml.toString())
 					.setTextMessage(bodyText.toString())
-					.setSubject(message.getModel().getStatusEnum())
+					.setSubject(StringUtils.isNotEmpty(subject.toString()) ? subject.toString() : message.getModel().getStatusEnum())
 					.setLevel(message.getLevel()) // level get from old message
 					.setTemplate(template)
 					.setParameters(model)

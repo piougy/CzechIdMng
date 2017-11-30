@@ -200,6 +200,14 @@ module.exports = {
       'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
     },
     {
+      'id': 'boolean-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'BOOLEAN',
+      'faceType': 'BOOLEAN-SELECT',
+      'component': require('./src/components/advanced/Form/BooleanSelectFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.BOOLEAN-SELECT'
+    },
+    {
       'id': 'identity-select-box',
       'type': 'entity-select-box',
       'priority': 0,

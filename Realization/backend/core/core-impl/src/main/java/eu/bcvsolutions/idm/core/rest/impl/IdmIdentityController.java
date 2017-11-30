@@ -573,7 +573,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityFilter filter = new IdmIdentityFilter(parameters);
-		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
+		filter.setDisabled(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_DISABLED));
 		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));

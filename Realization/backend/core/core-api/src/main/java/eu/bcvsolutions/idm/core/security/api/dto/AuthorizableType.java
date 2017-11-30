@@ -99,7 +99,7 @@ public class AuthorizableType implements BaseDto {
 	
 	@Override
 	public String toString() {
-		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
+		return getClass().getCanonicalName() + "[ " + getId() + " ]";
 	}
 
 	@Override

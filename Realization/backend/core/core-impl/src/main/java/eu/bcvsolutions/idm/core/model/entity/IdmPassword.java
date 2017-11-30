@@ -79,14 +79,6 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 		this.unsuccessfulAttempts = unsuccessfulAttempts;
 	}
 
-	public void increaseUnsuccessfulAttempts() {
-		unsuccessfulAttempts++;
-	}
-
-	public void resetUnsuccessfulAttempts() {
-		unsuccessfulAttempts = 0;
-	}
-
 	public IdmPassword() {
 		// Auto-generated constructor
 	}

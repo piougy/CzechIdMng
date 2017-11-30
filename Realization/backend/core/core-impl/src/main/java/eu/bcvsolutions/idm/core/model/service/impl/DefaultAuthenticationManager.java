@@ -65,7 +65,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 * @param loginDto
 	 */
 	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
-		// TODO increase count of unsuccessful login attempts or set successful login dateTime
 
 		Assert.notNull(authenticators);
 		//

@@ -45,7 +45,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		// authenticate
-		return autneticateOverAuthenticator(loginDto);
+		return authenticateOverAuthenticator(loginDto);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 * 
 	 * @param loginDto
 	 */
-	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
+	private LoginDto authenticateOverAuthenticator(LoginDto loginDto) {
 
 		Assert.notNull(authenticators);
 		//

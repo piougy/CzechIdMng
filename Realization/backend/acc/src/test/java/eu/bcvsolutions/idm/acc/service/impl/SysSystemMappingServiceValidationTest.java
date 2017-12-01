@@ -77,6 +77,8 @@ public class SysSystemMappingServiceValidationTest extends AbstractIntegrationTe
 		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto schema = createSchema(system.getId());
 		SysSystemMappingDto mapping = createMapping(schema.getId(), SystemOperationType.SYNCHRONIZATION);
+		mapping.setEntityType(SystemEntityType.CONTRACT);
+		mapping = mappingService.save(mapping);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(schema.getId());
 		createAttributeMapping(mapping.getId(), schemaAttribute.getId(), true, "");
 		mappingService.validate(mapping.getId());
@@ -87,6 +89,8 @@ public class SysSystemMappingServiceValidationTest extends AbstractIntegrationTe
 		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto schema = createSchema(system.getId());
 		SysSystemMappingDto mapping = createMapping(schema.getId(), SystemOperationType.SYNCHRONIZATION);
+		mapping.setEntityType(SystemEntityType.CONTRACT);
+		mapping = mappingService.save(mapping);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(schema.getId());
 		createAttributeMapping(mapping.getId(), schemaAttribute.getId(), true, "identity");
 		mappingService.validate(mapping.getId());

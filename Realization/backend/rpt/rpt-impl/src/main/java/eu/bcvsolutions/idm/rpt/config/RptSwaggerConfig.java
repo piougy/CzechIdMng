@@ -29,6 +29,6 @@ public class RptSwaggerConfig extends AbstractSwaggerConfig {
 
 	@Bean
 	public Docket accApi() {
-		return api("eu.bcvsolutions.idm.report.rest");
+		return api("eu.bcvsolutions.idm.rpt.rest");
 	}
 }

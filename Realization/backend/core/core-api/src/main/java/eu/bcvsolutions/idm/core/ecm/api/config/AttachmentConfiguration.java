@@ -15,14 +15,14 @@ public interface AttachmentConfiguration extends Configurable {
 	
 	/**
 	 * Path to attachments storage
-	 * - System.getProperty("java.io.tmpdir")/idm_data will be used if no path is given
+	 * - System.getProperty("user.home")/idm_data will be used if no path is given
 	 */
 	static final String PROPERTY_STORAGE_PATH = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.attachment.storagePath";
 	
 	/**
 	 * Path, where will be stored temporary files
-	 * - System.getProperty("java.io.tmpdir")/idm_data/temp will be used if no path is given
+	 * - PROPERTY_STORAGE_PATH/idm_data/temp will be used if no path is given
 	 */
 	static final String PROPERTY_TEMP_PATH = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.attachment.tempPath";
@@ -61,7 +61,7 @@ public interface AttachmentConfiguration extends Configurable {
 	
 	/**
 	 * Path to attachments storage or url path, etc.
-	 * - System.getProperty("java.io.tmpdir")/idm_data will be used if no path is configured
+	 * - System.getProperty("user.home")/idm_data will be used if no path is configured
 	 * 
 	 * @return
 	 */

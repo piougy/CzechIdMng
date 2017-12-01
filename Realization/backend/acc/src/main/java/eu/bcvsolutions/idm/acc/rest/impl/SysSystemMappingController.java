@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,10 +55,12 @@ import io.swagger.annotations.AuthorizationScope;;
 public class SysSystemMappingController extends AbstractReadWriteDtoController<SysSystemMappingDto, SysSystemMappingFilter> {
 
 	protected static final String TAG = "System mapping - entities";
+	private final SysSystemMappingService service;
 	
 	@Autowired
 	public SysSystemMappingController(SysSystemMappingService service) {
 		super(service);
+		this.service = service;
 	}
 
 	@Override
@@ -177,5 +182,19 @@ public class SysSystemMappingController extends AbstractReadWriteDtoController<S
 			@ApiParam(value = "System mapping's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/validate", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "System mapping validating attributes",
+			nickname = "systemMappingValidatingAttributes", 
+			tags = { SysSystemMappingController.TAG })
+	public ResponseEntity<?> validate(
+			@ApiParam(value = "System mapping's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+			service.validate(UUID.fromString(backendId));
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 }

@@ -27,4 +27,13 @@ export default class SystemMappingService extends Services.AbstractService {
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('entityType');
   }
+
+  /**
+   * Validates system mappping
+   *
+   * @param systemMappingId {String}
+   */
+   validate(systemMappingId) {
+     return Services.RestApiService.get(this.getApiPath() + `/${systemMappingId}/validate`);
+   }
 }

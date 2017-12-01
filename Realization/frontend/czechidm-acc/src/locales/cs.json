@@ -299,6 +299,16 @@
         },
         "protectionEnabled": {
           "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IdM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu. Mazání provádí naplánovaná úloha."
+        },
+        "validation":{
+          "systemMissingIdentifier":{
+            "message": "Upozornění: Žádný z atributů není identifikátorem.",
+            "info": "Když žádný atribut není identifikátorem, tak role přidělená k tomu systému nemůže být přiřazena žádnému uživateli."
+            },
+          "systemMissingOwner":{
+            "message":   "Upozornění: Kontrakt musí mít atribut mapující položku 'Vlastník'.",
+            "info": ""
+          }
         }
       },
       "attributeDetail": {
@@ -1318,6 +1328,10 @@
     "PROVISIONING_SYSTEM_BLOCKED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] byl zablokován brzdou provisioningu."
+    },
+    "SYSTEM_MAPPING_VALIDATION": {
+      "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
+      "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
     }
   }
 }

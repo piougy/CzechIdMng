@@ -9,6 +9,7 @@ import { SystemMappingManager, SystemManager, SystemAttributeMappingManager, Sch
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import uuid from 'uuid';
+import ValidationMessageSystemMapping from './ValidationMessageSystemMapping';
 
 const uiKey = 'system-mappings';
 const uiKeyAttributes = 'system-attribute-mappings';
@@ -17,6 +18,7 @@ const systemManager = new SystemManager();
 const treeTypeManager = new Managers.TreeTypeManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
+const SYSTEM_MAPPING_VALIDATION = 'SYSTEM_MAPPING_VALIDATION';
 const scriptManager = new Managers.ScriptManager();
 
 class SystemMappingDetail extends Advanced.AbstractTableContent {
@@ -36,6 +38,33 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
 
   getContentKey() {
     return 'acc:content.system.mappingDetail';
+  }
+
+  /**
+  * Override because of validation message (_showValidateSystemMessage)
+  */
+  _onDelete(bulkActionValue, selectedRows) {
+    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error) => {
+        if (entity && error) {
+          if (error.statusCode !== 202) {
+            this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+          } else {
+            this.addError(error);
+          }
+        } else {
+          this.refs.table.getWrappedInstance().reload();
+          this._showValidateSystemMessage(this.props.params.mappingId);
+        }
+      }));
+    }, () => {
+      // nothing
+    });
   }
 
   showDetail(entity, add) {
@@ -84,6 +113,9 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       this.context.store.dispatch(systemMappingManager.fetchEntity(mappingId));
     }
     this.selectNavigationItems(['sys-systems', 'system-mappings']);
+    if (!this._getIsNew(props)) {
+      this._showValidateSystemMessage(mappingId);
+    }
   }
 
   /**
@@ -120,6 +152,9 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(systemMappingManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
+    if (!this._getIsNew()) {
+      this._showValidateSystemMessage(this.props.params.mappingId);
+    }
   }
 
   afterSave(entity, error) {
@@ -150,9 +185,35 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     this.setState({_entityType: entity.value});
   }
 
+  _showValidateSystemMessage(mappingId) {
+    systemMappingManager.validate(mappingId)
+    .then(response => {
+      if (response.status === 204) {
+        return {};
+      }
+      return response.json();
+    })
+    .then( json =>{
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error
+        });
+        throw error;
+      }
+    })
+    .catch(error => {
+      if (error.statusEnum === SYSTEM_MAPPING_VALIDATION) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
+  }
+
   render() {
     const { _showLoading, _mapping } = this.props;
-    const { _entityType, activeKey} = this.state;
+    const { _entityType, activeKey, validationError} = this.state;
     const isNew = this._getIsNew();
     const mapping = isNew ? this.state.mapping : _mapping;
 
@@ -199,6 +260,9 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
           <Basic.Tab eventKey={1} title={this.i18n('title')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
+                <Basic.Col lg={ 12 } className="no-border last">
+                  <ValidationMessageSystemMapping error={validationError}/>
+                </Basic.Col>
                 <Basic.AbstractForm
                   ref="form"
                   className="panel-body"

@@ -1,0 +1,1 @@
+Identity domain object. Dto should be used instead IdmIdentity entity. Entity usage in the rest api is deprecated.

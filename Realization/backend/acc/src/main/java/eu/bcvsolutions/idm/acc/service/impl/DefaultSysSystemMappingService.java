@@ -59,8 +59,7 @@ public class DefaultSysSystemMappingService
 
 	@Autowired
 	public DefaultSysSystemMappingService(SysSystemMappingRepository repository, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService,
-			List<AbstractScriptEvaluator> evaluators) {
+			GroovyScriptService groovyScriptService, List<AbstractScriptEvaluator> evaluators) {
 		super(repository, entityEventManager);
 		//
 		Assert.notNull(entityEventManager);
@@ -159,13 +158,13 @@ public class DefaultSysSystemMappingService
 	}
 
 	@Override
-	public boolean canBeAccountCreated(AbstractDto dto, String script, SysSystemDto system) {
+	public boolean canBeAccountCreated(String uid, AbstractDto dto, String script, SysSystemDto system) {
 
 		if (StringUtils.isEmpty(script)) {
 			return true;
 		} else {
 			Map<String, Object> variables = new HashMap<>();
-			// variables.put(SysSystemAttributeMappingService.ACCOUNT_UID, uid);
+			variables.put(SysSystemAttributeMappingService.ACCOUNT_UID, uid);
 			variables.put(SysSystemAttributeMappingService.SYSTEM_KEY, system);
 			variables.put(SysSystemAttributeMappingService.ENTITY_KEY, dto);
 			// add default script evaluator, for call another scripts
@@ -185,6 +184,22 @@ public class DefaultSysSystemMappingService
 						ImmutableMap.of("system", system.getCode()));
 			}
 		}
+	}
+
+	@Override
+	public SysSystemMappingDto findProvisioningMapping(UUID systemId, SystemEntityType entityType) {
+		Assert.notNull(systemId);
+		Assert.notNull(entityType);
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
+		mappingFilter.setSystemId(systemId);
+		mappingFilter.setEntityType(entityType);
+		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
+		List<SysSystemMappingDto> mappings = this.find(mappingFilter, null).getContent();
+		if (mappings.isEmpty()) {
+			return null;
+		}
+		// Only one mapping for provisioning and entity type and system can exists
+		return mappings.get(0);
 	}
 
 	private Integer getProtectionInterval(SysSystemMappingDto systemMapping) {

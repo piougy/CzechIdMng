@@ -52,6 +52,9 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
   * ``final`` modifier only there, when is needed (its discutable, but we are using it this way)
+* Modules
+  * Spring bean names, component names, services, entities etc. should start with module identifier prefix.
+  * Use `idm-core-api` module as dependency. If some API is missing (its only in `idm-core-impl`), contact us. Only exception is entity + jpa metamodel usage. 
 
 ### IDE
 * [Eclipse](https://wiki.czechidm.com/7.3/dev/quickstart/ide/eclipse)
@@ -77,7 +80,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Do not use the optional parameters of `setTimeout` and `setInterval`
 * Use JSDoc for documentation (`@author` etc.) https://developers.google.com/closure/compiler/docs/js-for-compiler
 * Make tests (mocha, chai)
-* Use identity operator `!==`, `===`
+* Use identity operator `!==`, `===`. Look out - check boolean values always `parameter === true` or `parameter !== null`.
 * Naming convention for object is the same as in java - camelCase, "private" attributes and methods starting with `_`, e.g. `_links`, `_trimmed`
 * `constructor` method has to be at the start of class
 * `componentDidMount` and the next react lifecycle methods has to be in the lifecycle order.

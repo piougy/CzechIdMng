@@ -638,7 +638,7 @@
       "account-management": "Account management",
       "canBeAccountCreatedScript": {
         "label": "Can an account be created?",
-        "help": "Account Management - allows you to disable the account creation (for that entity) on this system. The input parameter of this Groovy script is IdM entity 'entity' and IdM system 'system'. Output value must be Boolean.TRUE or Boolean.FALSE!"
+        "help": "Account Management - allows you to disable the account creation (for that entity) on this system. The input parameter of this Groovy script is IdM entity 'entity', generated account identifier 'uid' and IdM system 'system'. Output value must be Boolean.TRUE or Boolean.FALSE!"
       }
     },
     "SchemaAttribute": {

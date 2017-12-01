@@ -66,5 +66,21 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 */
 	Integer getProtectionInterval(AccAccountDto account);
 
-	boolean canBeAccountCreated(AbstractDto dto, String script, SysSystemDto system);
+	/**
+	 * Call script "Can be account created?" on the mapping.
+	 * @param uid
+	 * @param dto
+	 * @param script
+	 * @param system
+	 * @return true or false
+	 */
+	boolean canBeAccountCreated(String uid, AbstractDto dto, String script, SysSystemDto system);
+
+	/**
+	 * Find provisioning mapping on the given system and for entity type.
+	 * @param systemId
+	 * @param entityType
+	 * @return
+	 */
+	SysSystemMappingDto findProvisioningMapping(UUID systemId, SystemEntityType entityType);
 }

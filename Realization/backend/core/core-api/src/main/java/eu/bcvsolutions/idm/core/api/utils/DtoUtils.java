@@ -4,6 +4,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
@@ -80,6 +81,15 @@ public class DtoUtils {
 		Assert.notNull(attribute);
 		//
 		return getEmbedded(dto, attribute.getName(), dtoClass, defaultValue);
+	}
+	
+	/**
+	 * Method clear auditable fields. 
+	 * 
+	 * @param entity or dto
+	 */
+	public static void clearAuditFields(Auditable auditable) {
+		EntityUtils.clearAuditFields(auditable);
 	}
 	
 }

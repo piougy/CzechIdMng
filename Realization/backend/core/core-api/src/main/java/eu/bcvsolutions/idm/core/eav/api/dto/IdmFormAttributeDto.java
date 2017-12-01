@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -50,6 +51,18 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private Short seq;
 	private String defaultValue;
 	private boolean unmodifiable = false;
+	
+	public IdmFormAttributeDto() {
+	}
+	
+	public IdmFormAttributeDto(String code, String name, PersistentType persistentType) {
+		Assert.notNull(code);
+		Assert.notNull(persistentType);
+		//
+		this.code = code;
+		this.name = name;
+		this.persistentType = persistentType;
+	}
 
 	public UUID getFormDefinition() {
 		return formDefinition;

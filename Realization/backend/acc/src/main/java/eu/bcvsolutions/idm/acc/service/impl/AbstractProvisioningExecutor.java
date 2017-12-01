@@ -50,7 +50,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -119,7 +118,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	public AbstractProvisioningExecutor(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService, SysRoleSystemService roleSystemService,
-			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, ProvisioningExecutor provisioningExecutor,
 			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
@@ -131,7 +129,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(roleSystemService);
-		Assert.notNull(accountManagementService);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemEntityService);
 		Assert.notNull(accountService);
@@ -430,6 +427,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 					.build();
 		}).collect(Collectors.toList());
 	}
+	
+	@Override
+	public boolean accountManagement(DTO dto) {
+		this.createAccountsForAllSystems(dto);
+		return true;
+	}
 
 	@Override
 	public void createAccountsForAllSystems(DTO dto) {
@@ -445,7 +448,14 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			}
 			SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
 					SysSystemDto.class);
-			if (!this.canBeAccountCreated(dto, mapping, system)) {
+			
+			List<SysSystemAttributeMappingDto> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
+			SysSystemAttributeMappingDto uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes,
+					system);
+			String uid = attributeMappingService.generateUid(dto, uidAttribute);
+
+			// Account management - can be the account created? - execute the script on the system mapping
+			if (!this.canBeAccountCreated(uid, dto, mapping, system)) {
 				String entityStr = dto.toString();
 				if(dto instanceof Codeable){
 					entityStr = ((Codeable)dto).getCode();
@@ -457,18 +467,14 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				return;
 			}
 
-			List<SysSystemAttributeMappingDto> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
-			SysSystemAttributeMappingDto uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes,
-					system);
-			String uid = attributeMappingService.generateUid(dto, uidAttribute);
 
 			// Create AccAccount and relation between account and entity
 			createEntityAccount(uid, dto.getId(), systemId);
 		});
 	}
 
-	private boolean canBeAccountCreated(DTO dto, SysSystemMappingDto mapping, SysSystemDto system) {
-		return systemMappingService.canBeAccountCreated(dto, mapping.getCanBeAccountCreatedScript(), system);
+	private boolean canBeAccountCreated(String uid, DTO dto, SysSystemMappingDto mapping, SysSystemDto system) {
+		return systemMappingService.canBeAccountCreated(uid, dto, mapping.getCanBeAccountCreatedScript(), system);
 	}
 
 	/**

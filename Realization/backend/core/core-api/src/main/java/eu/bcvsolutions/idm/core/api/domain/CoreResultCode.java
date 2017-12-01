@@ -97,6 +97,7 @@ public enum CoreResultCode implements ResultCode {
 	FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some form values already using this attribute."),
 	FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - this attribute is flaged as system attribute."),
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
+	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
@@ -186,7 +187,14 @@ public enum CoreResultCode implements ResultCode {
 	XML_JAXB_INIT_ERROR(HttpStatus.BAD_REQUEST, "Failed init JAXB instance."),
 	//
 	// Rest template
-	WRONG_PROXY_CONFIG(HttpStatus.INTERNAL_SERVER_ERROR, "Wrong configuration of http proxy. The required format is '[IP]:[PORT]'. Example: '153.25.16.8:1234'");
+	WRONG_PROXY_CONFIG(HttpStatus.INTERNAL_SERVER_ERROR, "Wrong configuration of http proxy. The required format is '[IP]:[PORT]'. Example: '153.25.16.8:1234'"),
+	//
+	//
+	ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default storage [%s] in temp directory failed"),
+	ATTACHMENT_INIT_DEFAULT_TEMP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default temp storage [%s] in temp directory failed"),
+	ATTACHMENT_CREATE_TEMP_FILE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating temporary file [%s] in temp directory [%s] failed"),
+	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed"),
+	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed");
 	
 	private final HttpStatus status;
 	private final String message;

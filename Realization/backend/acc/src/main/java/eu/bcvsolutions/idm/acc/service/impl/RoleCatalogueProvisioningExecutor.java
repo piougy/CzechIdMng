@@ -18,10 +18,9 @@ import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleCatalogueAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -57,7 +56,6 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	public RoleCatalogueProvisioningExecutor(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService, SysRoleSystemService roleSystemService,
-			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccRoleCatalogueAccountService catalogueAccountService,
 			ProvisioningExecutor provisioningExecutor, IdmRoleCatalogueService catalogueService,
@@ -67,7 +65,7 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 			IdmRoleService roleService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
-				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
+				roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
 				systemAttributeMappingService, roleService);
 		

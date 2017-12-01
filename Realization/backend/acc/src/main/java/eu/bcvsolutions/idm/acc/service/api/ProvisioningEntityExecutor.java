@@ -32,17 +32,17 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * @param dto
 	 */
 	void doProvisioning(DTO dto);
-	
+
 	/**
 	 * Do provisioning for given account on connected system
 	 * 
 	 * @param account
 	 */
 	void doProvisioning(AccAccountDto account);
-	
+
 	/**
-	 * Do provisioning for given account and dto
-	 * Emits ProvisioningEventType.START event.
+	 * Do provisioning for given account and dto Emits ProvisioningEventType.START
+	 * event.
 	 * 
 	 * @param account
 	 * @param dto
@@ -55,10 +55,12 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
-	 * @param dtoId - Id of dto connected to the account. Can be null, but provisioning archive will not have correct information.
+	 * @param dtoId
+	 *            - Id of dto connected to the account. Can be null, but
+	 *            provisioning archive will not have correct information.
 	 */
 	void doDeleteProvisioning(AccAccountDto account, UUID dtoId);
-	
+
 	/**
 	 * 
 	 * Change password for selected identity accounts.
@@ -68,9 +70,10 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * @result result for each provisioned account
 	 */
 	List<OperationResult> changePassword(DTO dto, PasswordChangeDto passwordChange);
-	
+
 	/**
-	 * Do provisioning only for single attribute. For example, it is needed to change password
+	 * Do provisioning only for single attribute. For example, it is needed to
+	 * change password
 	 * 
 	 * @param systemEntity
 	 * @param mappedAttribute
@@ -82,16 +85,18 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 */
 	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, DTO dto);
-	
+
 	/**
 	 * Do authenticate check for given username and password on target resource
+	 * 
 	 * @param username
 	 * @param password
 	 * @param system
 	 * @param entityType
 	 * @return
 	 */
-	IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system, SystemEntityType entityType);
+	IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system,
+			SystemEntityType entityType);
 
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
@@ -102,7 +107,8 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, DTO dto, SysSystemDto system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, DTO dto, SysSystemDto system,
+			SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -115,15 +121,22 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType);
 
+	
+	@Deprecated
 	/**
-	 * Create accounts for given dto on all systems with provisioning mapping and same entity type.
+	 * Create accounts for given dto on all systems with provisioning mapping and
+	 * same entity type. Is using default account management. It means 'Can be
+	 * account created?' script on the system mapping will be executed.
+	 * 
 	 * @param dto
 	 * @param entityType
+	 * @deprecated (from 7.6) This method was replaced by accountManagement(AbstractDto entity).
 	 */
 	void createAccountsForAllSystems(DTO dto);
 
 	/**
-	 * Do provisioning for given account and identity. For internal purpose without emit event.
+	 * Do provisioning for given account and identity. For internal purpose without
+	 * emit event.
 	 * 
 	 * @param account
 	 * @param identity
@@ -131,5 +144,17 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	 * @return
 	 */
 	void doInternalProvisioning(AccAccountDto account, DTO dto);
+
+	/**
+	 * Ensure the account management for given entity. First check if can be
+	 * AccAccount and relation for this entity created. If yes then will be accounts
+	 * and relations on the entity created on systems (SysSystem). Ensure the delete
+	 * of AccAccount too. Provisioning on the target system is not basically
+	 * executed.
+	 * 
+	 * @param dto
+	 * @return true if is provisioning required
+	 */
+	boolean accountManagement(DTO dto);
 
 }

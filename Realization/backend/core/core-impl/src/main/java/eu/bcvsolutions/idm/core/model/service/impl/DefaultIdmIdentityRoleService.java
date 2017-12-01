@@ -123,6 +123,12 @@ public class DefaultIdmIdentityRoleService
 					filter.getIdentityId())
 					);
 		}
+		if (filter.getRoleId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.role).get(IdmRole_.id), 
+					filter.getRoleId())
+					);
+		}
 		if (filter.getRoleCatalogueId() != null) {
 			Subquery<IdmRoleCatalogueRole> roleCatalogueRoleSubquery = query.subquery(IdmRoleCatalogueRole.class);
 			Root<IdmRoleCatalogueRole> subRootRoleCatalogueRole = roleCatalogueRoleSubquery.from(IdmRoleCatalogueRole.class);

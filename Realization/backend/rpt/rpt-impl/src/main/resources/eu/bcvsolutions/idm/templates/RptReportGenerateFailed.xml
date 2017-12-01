@@ -1,0 +1,42 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Send notification, after report is successfully generated
+
+parameters:
+	-	report
+	-	url
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>reportGenerateFailed</code>
+	<name>Send notification, after report generation failed</name>
+	<subject>CzechIdM - report</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>Dobrý den,<br />
+generování reportu <b>$report.name</b> na systému CzechIdM selhalo.<br />
+Důvod selhání je dostupný zde: <a href='$url'>$url</a>.<br />
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+Hello,<br />
+report <b>$report.name</b> generation on CzechIdM system failed.<br />
+Failure reason is available here: <a href='$url'>$url</a>.<br />
+<br />
+<br />
+Regards BCV Solutions Ltd.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>report, url</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>rpt</moduleId>
+</template>

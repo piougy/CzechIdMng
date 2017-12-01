@@ -55,8 +55,10 @@ public interface IdmFormDefinitionRepository extends AbstractEntityRepository<Id
 	 * Clears main definition for given type
 	 * 
 	 * @param updatedEntityId
+	 * @deprecated use update instead, this method is quicker but skips audit
 	 */
 	@Modifying
+	@Deprecated
 	@Query("update #{#entityName} e set e.main = false, e.modified = :modified"
 			+ " where e.type = :type and (:updatedEntityId is null or e.id != :updatedEntityId)")
 	void clearMain(@Param("type") String type, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);

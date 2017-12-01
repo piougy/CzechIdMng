@@ -1,0 +1,16 @@
+{
+  "name": "czechidm-rpt",
+  "version": "7.6.0-snapshot",
+  "description": "Report module. Contains support for reports.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "CzechIdM",
+    "report",
+    "IdM"
+  ],
+  "author": "BCV solutions s.r.o",
+  "license": "MIT"
+}

@@ -43,6 +43,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>idm-rpt-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-core-test-api</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

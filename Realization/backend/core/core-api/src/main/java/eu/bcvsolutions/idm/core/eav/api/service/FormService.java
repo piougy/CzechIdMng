@@ -51,6 +51,7 @@ public interface FormService extends ScriptEnabled {
 	 * then underlying {@link AbstractEntity} is resolved automatically => {@link AbstractEntity} has 
 	 * to implement  {@link FormableEntity}.
 	 * 
+	 * @see {@link IdmFormDefinitionService#isFormable(Class)}
 	 * @param ownerType
 	 * @return
 	 */
@@ -127,6 +128,17 @@ public interface FormService extends ScriptEnabled {
 	IdmFormAttributeDto getAttribute(Class<? extends Identifiable> ownerType, String attributeCode);
 	
 	/**
+	 * Returns attribute by given code form definition by type and code
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param ownerType
+	 * @param definitionCode [optional] - if no code is given, then returns main definition
+	 * @param attributeCode
+	 * @return
+	 */
+	IdmFormAttributeDto getAttribute(Class<? extends Identifiable> ownerType, String definitionCode, String attributeCode);
+	
+	/**
 	 * Saves given form definition
 	 * 
 	 * @param formDefinition
@@ -193,6 +205,28 @@ public interface FormService extends ScriptEnabled {
 	 * @return persisted values
 	 */
 	List<IdmFormValueDto> saveValues(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values);
+	
+	/**
+	 * Saves form values to given owner and form definition.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param owner
+	 * @param formDefinition [optional] if not specified, then main will be used.
+	 * @param values
+	 * @return
+	 */
+	List<IdmFormValueDto> saveValues(Identifiable owner, UUID formDefinition, List<IdmFormValueDto> values);
+	
+	/**
+	 * Saves form values to given owner and form definition.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param ownerId
+	 * @param ownerType
+	 * @param formDefinition [optional] if not specified, then main will be used.
+	 * @param values
+	 * @return
+	 */
 	List<IdmFormValueDto> saveValues(UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values);
 	
 	/**
@@ -283,6 +317,7 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
 	 */
+	List<IdmFormValueDto> getValues(Identifiable owner, UUID formDefinitionId);
 	List<IdmFormValueDto> getValues(Identifiable owner, IdmFormDefinitionDto formDefinition);
 	List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType, IdmFormDefinitionDto formDefinition);
 	

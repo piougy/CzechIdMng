@@ -6,6 +6,8 @@ import Icon from '../Icon/Icon';
 
 /**
  * Label box
+ *
+ * @author Radek Tomiška
  */
 class Label extends AbstractComponent {
 

@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -79,5 +81,20 @@ public class FormableConfiguration {
 			AbstractFormValueRepository<IdmIdentityContract, IdmIdentityContractFormValue> repository, 
 			ConfidentialStorage confidentialStorage) {
 		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository, confidentialStorage) {};
+	}
+	
+	/**
+	 * Eav attributes for common eav form
+	 * - persists filters, configurable properties, etc.
+	 * 
+	 * @param repository
+	 * @param confidentialStorage
+	 * @return
+	 */
+	@Bean
+	public AbstractFormValueService<IdmForm, IdmFormValue> formValueService(
+			AbstractFormValueRepository<IdmForm, IdmFormValue> repository, 
+			ConfidentialStorage confidentialStorage) {
+		return new AbstractFormValueService<IdmForm, IdmFormValue>(repository, confidentialStorage) {};
 	}
 }

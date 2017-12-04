@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -46,9 +47,13 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 	private Integer passphraseWords;
 	private String prohibitedCharacters;
 	private boolean defaultPolicy = false;
+	@NotEmpty
 	private String specialCharBase = PasswordGenerator.SPECIAL_CHARACTERS;
+	@NotEmpty
 	private String upperCharBase = PasswordGenerator.UPPER_CHARACTERS;
+	@NotEmpty
 	private String numberBase = PasswordGenerator.NUMBERS;
+	@NotEmpty
 	private String lowerCharBase = PasswordGenerator.LOWER_CHARACTERS;
 	private Integer maxHistorySimilar;
 	private String identityAttributeCheck;

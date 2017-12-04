@@ -13,26 +13,15 @@ import java.util.UUID;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "roleTreeNodes")
-public class IdmRoleTreeNodeDto extends AbstractDto {
+public class IdmRoleTreeNodeDto extends AbstractIdmAutomaticRoleDto {
 
     private static final long serialVersionUID = 6360049218360559789L;
 
-    @NotNull
-    @Embedded(dtoClass = IdmRoleDto.class)
-    private UUID role;
     @NotNull
     @Embedded(dtoClass = IdmTreeNodeDto.class)
     private UUID treeNode;
     @NotNull
     private RecursionType recursionType = RecursionType.NO;
-
-    public UUID getRole() {
-        return role;
-    }
-
-    public void setRole(UUID role) {
-        this.role = role;
-    }
 
     public UUID getTreeNode() {
         return treeNode;

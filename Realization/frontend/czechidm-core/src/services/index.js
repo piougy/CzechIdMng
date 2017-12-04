@@ -42,6 +42,8 @@ import RecaptchaService from './RecaptchaService';
 import LoggingEventService from './LoggingEventService';
 import LoggingEventExceptionService from './LoggingEventExceptionService';
 import ConfidentialStorageValueService from './ConfidentialStorageValueService';
+import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
+import AutomaticRoleAttributeRuleService from './AutomaticRoleAttributeRuleService';
 
 const ServiceRoot = {
   RestApiService,
@@ -87,7 +89,9 @@ const ServiceRoot = {
   RecaptchaService,
   LoggingEventService,
   LoggingEventExceptionService,
-  ConfidentialStorageValueService
+  ConfidentialStorageValueService,
+  AutomaticRoleAttributeService,
+  AutomaticRoleAttributeRuleService
 };
 
 ServiceRoot.version = '0.0.1';

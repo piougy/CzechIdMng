@@ -584,6 +584,15 @@
     "ContractStateEnum": {
       "EXCLUDED": "Vyňat z evidenčního počtu",
       "DISABLED": "$t(label.disabled)"
+    },
+    "AutomaticRoleAttributeRuleTypeEnum": {
+      "IDENTITY": "Atribut identity",
+      "IDENITITY_EAV": "Rozšířený atribut identity",
+      "CONTRACT": "Attribut pracovního úvazku",
+      "CONTRACT_EAV": "Rozšířený atribut pracovního úvazku"
+    },
+    "AutomaticRoleAttributeRuleComparisonEnum": {
+      "EQUALS": "Rovná se"
     }
   },
   "dashboard": {
@@ -1128,6 +1137,38 @@
       },
       "tabs": {
         "basic": "Základní informace"
+      }
+    },
+    "automaticRoles": {
+      "title": "Automatické role",
+      "header": "Automatické role",
+      "tree": {
+        "header": "Automatické role z organizační struktury",
+        "title": "Automatické role z organizační struktury"
+      },
+      "attribute": {
+        "header": "Automatické role na základě atributu",
+        "title": "Automatické role na základě atributu",
+        "create": {
+          "header": "Nová automatická role na základě atributu",
+          "title": "Nová automatická role na základě atributu"
+        },
+        "edit": {
+          "header": "Editace automatické role na základě atributu",
+          "title": "Editace automatické role na základě atributu"
+        },
+        "rules": "Pravidla",
+        "automaticRoleAttributeSaveFirst": "Pro přidání jednotlivých pravidel, je potřeba nejdřívě automatickou roli uložit.",
+        "rule": {
+          "create": {
+            "header": "Nové pravidlo",
+            "title": "Nové pravidlo"
+          },
+          "edit": {
+            "header": "Editace pravidla",
+            "title": "Editace pravidla"
+          }
+        }
       }
     },
     "formDefinitions": {
@@ -2210,6 +2251,26 @@
       "treeNode": "Prvek stromové struktury",
       "recursionType": "Typ rekurze"
     },
+    "AutomaticRole": {
+      "name": {
+          "label": "Název",
+          "help": "Název je použit pro jednoduší identifikaci automatické role."
+        },
+      "role": "Role",
+      "attribute": {
+        "type": {
+          "label": "Typ kontrolovaného atributu",
+          "help": "Pro tento typ atributu bude kontrolována hodnota pravidla"
+        },
+        "attributeName": "Název atributu",
+        "comparison": "Typ porovnání",
+        "formAttribute": "Atribut formuláře",
+        "value": {
+            "label": "Hodnota",
+            "help": "Hodnota s kterou se bude porovnávat hodnota v atributu."
+          }
+      }
+    },
     "AuthorizationPolicy": {
       "_type": "Oprávnění",
       "role": "Role",
@@ -3112,6 +3173,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Prvek stromové struktury nelze odebrat",
       "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
+    },
+    "ROLE_TREE_NODE_TYPE_EXISTS": {
+      "title": "Podobná definice automatické role již existuje",
+      "message": "Pro tuto roli, prvek stromové struktury a typ rekurze již existuje prvek."
     }
   },
   "validationError": {

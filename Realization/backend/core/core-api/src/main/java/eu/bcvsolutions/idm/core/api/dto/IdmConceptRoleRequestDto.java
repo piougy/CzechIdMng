@@ -30,8 +30,8 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     private UUID role;
     @Embedded(dtoClass = IdmIdentityRoleDto.class)
     private UUID identityRole; // For update and delete operations
-    @Embedded(dtoClass = IdmRoleTreeNodeDto.class)
-    private UUID roleTreeNode;
+    @Embedded(dtoClass = AbstractIdmAutomaticRoleDto.class)
+    private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
     private LocalDate validFrom;
     private LocalDate validTill;
     private ConceptRoleRequestOperation operation;
@@ -42,13 +42,13 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     @JsonProperty(access = Access.READ_ONLY)
     private String log;
 
-    public UUID getRoleRequest() {
+	public UUID getRoleRequest() {
         return roleRequest;
     }
 
     public void setRoleRequest(UUID roleRequest) {
         this.roleRequest = roleRequest;
-    }
+	}
 
     public UUID getIdentityContract() {
         return identityContract;
@@ -114,12 +114,31 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
         this.identityRole = identityRole;
     }
 
+    /**
+     * Automatic role
+     * @return
+     */
+    @Deprecated
     public UUID getRoleTreeNode() {
-        return roleTreeNode;
+        return this.getAutomaticRole();
     }
 
+    /**
+     * Automatic role
+     * 
+     * @param roleTreeNode
+     */
+    @Deprecated
     public void setRoleTreeNode(UUID roleTreeNode) {
-        this.roleTreeNode = roleTreeNode;
+        this.setAutomaticRole(roleTreeNode);
+    }
+    
+    public UUID getAutomaticRole() {
+    	return this.roleTreeNode;
+    }
+    
+    public void setAutomaticRole(UUID automaticRole) {
+    	this.roleTreeNode = automaticRole;
     }
 
     public String getLog() {
@@ -217,5 +236,4 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
         }
         return true;
     }
-
-}
+ }

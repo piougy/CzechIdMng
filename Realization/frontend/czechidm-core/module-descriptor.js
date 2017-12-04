@@ -541,6 +541,46 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
+            'id': 'automatic-roles',
+            'labelKey': 'content.automaticRoles.header',
+            'titleKey': 'content.automaticRoles.title',
+            'icon': 'fa:universal-access',
+            'order': 70,
+            'iconColor': '#428BCA',
+            'path': '/automatic-role/trees',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+            'items': [
+              {
+                'id': 'automatic-role-tree',
+                'labelKey': 'content.automaticRoles.tree.title',
+                'order': 10,
+                'path': '/automatic-role/trees',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['ROLETREENODE_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'automatic-role-attribute',
+                'labelKey': 'content.automaticRoles.attribute.title',
+                'order': 20,
+                'path': '/automatic-role/attributes',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
+                  }
+                ]
+              }
+            ]
+          },
+          {
             'id': 'tree',
             'labelKey': 'content.tree.header',
             'titleKey': 'content.tree.title',

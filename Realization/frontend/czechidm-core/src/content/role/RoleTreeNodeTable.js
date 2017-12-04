@@ -58,7 +58,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     });
     //
     super.showDetail(entityFormData, () => {
-      this.refs.role.focus();
+      this.refs.name.focus();
     });
   }
 
@@ -158,6 +158,12 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 ref="form"
                 showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
+                <Basic.TextField
+                  ref="name"
+                  required
+                  readOnly={!Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'name')}
+                  label={this.i18n('entity.AutomaticRole.name.label')}
+                  helpBlock={this.i18n('entity.AutomaticRole.name.help')}/>
                 <Basic.SelectBox
                   ref="role"
                   manager={roleManager}
@@ -216,7 +222,7 @@ RoleTreeNodeTable.propTypes = {
 };
 
 RoleTreeNodeTable.defaultProps = {
-  columns: ['role', 'treeNode', 'recursionType'],
+  columns: ['role', 'treeNode', 'recursionType', 'name'],
   forceSearchParameters: null,
   _showLoading: false
 };

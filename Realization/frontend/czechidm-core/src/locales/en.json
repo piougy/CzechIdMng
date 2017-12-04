@@ -1098,6 +1098,18 @@
         "basic": "Basic information"
       }
     },
+    "automaticRoles": {
+      "title": "Automatic roles",
+      "header": "Automatic roles",
+      "tree": {
+        "header": "Automatic roles from organizational structure",
+        "title": "Automatic roles from organizational structure"
+      },
+      "attribute": {
+        "header": "Automatic roles based on the attribute",
+        "title": "Automatic roles based on the attribute"
+      }
+    },
     "formDefinitions": {
       "header": "Form definitions",
       "title": "Form definitions",
@@ -2173,6 +2185,12 @@
       "treeNode": "Tree node",
       "recursionType": "Recursion type"
     },
+    "AutomaticRole": {
+      "name": {
+          "label": "Name",
+          "help": "The name is used to easily identify the automatic role."
+        }
+    },
     "AuthorizationPolicy": {
       "_type": "Permission",
       "role": "Role",
@@ -3071,6 +3089,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
       "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+    },
+    "ROLE_TREE_NODE_TYPE_EXISTS": {
+      "title": "A similar definition of an automatic role already exists",
+      "message": "For this role, the tree structure element and recursion type already exists element."
     }
   },
   "validationError": {

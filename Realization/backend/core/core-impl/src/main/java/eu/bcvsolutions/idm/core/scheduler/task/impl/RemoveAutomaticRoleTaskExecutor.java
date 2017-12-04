@@ -14,6 +14,7 @@ import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -47,6 +49,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveAutomaticRoleTaskExecutor.class);
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleService roleService;
@@ -84,24 +87,28 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	
 	@Override
 	public Boolean process() {
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
-		if (roleTreeNode == null) {
+		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
+		if (automaticRole == null) {
+			automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
+		}
+		if (automaticRole == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
 		//
 		// TODO: pageable?
-		List<IdmIdentityRoleDto> list = identityRoleService.findByAutomaticRole(roleTreeNode.getId(), null).getContent();
+		List<IdmIdentityRoleDto> list = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
 		//
 		counter = 0L;
 		count = Long.valueOf(list.size());
 		//
-		IdmRoleDto role = roleService.get(roleTreeNode.getRole());
-		LOG.debug("[RemoveAutomaticRoleTaskExecutor] Remove role [{}] by automatic role [{}]. Count: [{}]", role.getCode(), roleTreeNode.getId(), count);		
+		IdmRoleDto role = roleService.get(automaticRole.getRole());
+		LOG.debug("[RemoveAutomaticRoleTaskExecutor] Remove role [{}] by automatic role [{}]. Count: [{}]", role.getCode(), automaticRole.getId(), count);		
 		//
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityRoleDto identityRole : list) {
-			IdmRoleRequestDto roleRequest = roleTreeNodeService.prepareRemoveAutomaticRoles(identityRole, Sets.newHashSet(roleTreeNode));
+			identityRole.getRoleTreeNode();
+			IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, Sets.newHashSet(automaticRole));
 			roleRequest = roleRequestService.startRequest(roleRequest.getId(), false);
 			if (roleRequest.getState() != RoleRequestState.EXCEPTION) {
 				counter++;
@@ -116,11 +123,11 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			}
 		}
 		if (!failedIdentities.isEmpty()) {
-			LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), roleTreeNode.getId(), counter, count);
+			LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), automaticRole.getId(), counter, count);
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE, 
 					ImmutableMap.of(
 							"role", role.getCode(),
-							"roleTreeNode", roleTreeNode.getId(),
+							"roleTreeNode", automaticRole.getId(),
 							"identities", StringUtils.join(failedIdentities, ",")));
 		}
 		if (!canContinue) {
@@ -129,18 +136,18 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		}
 		// Find all concepts and remove relation on role tree
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
-		conceptRequestFilter.setRoleTreeNodeId(roleTreeNode.getId());
+		conceptRequestFilter.setRoleTreeNodeId(automaticRole.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
 			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
 						"Role tree node [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
-						roleTreeNode.getId(), concept.getId());
+						automaticRole.getId(), concept.getId());
 			} else {
 				message = MessageFormat.format(
 						"Request change in concept [{0}], was not executed, because requested RoleTreeNode [{1}] was deleted (not from this role request)!",
-						concept.getId(), roleTreeNode.getId());
+						concept.getId(), automaticRole.getId());
 				concept.setState(RoleRequestState.CANCELED);
 			}
 			roleRequestService.addToLog(request, message);
@@ -152,8 +159,8 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		});
 		//
 		// delete entity
-		roleTreeNodeService.deleteInternalById(roleTreeNode.getId());
-		LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), roleTreeNode.getId(), counter, count);
+		roleTreeNodeService.deleteInternalById(automaticRole.getId());
+		LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), automaticRole.getId(), counter, count);
 		//
 		return Boolean.TRUE;
 	}

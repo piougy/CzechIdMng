@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -66,6 +69,7 @@ public class DefaultIdmRoleTreeNodeService
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmIdentityContractService identityContractService;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
+	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	
 	@Autowired
 	public DefaultIdmRoleTreeNodeService(
@@ -74,7 +78,8 @@ public class DefaultIdmRoleTreeNodeService
 			EntityEventManager entityEventManager,
 			IdmRoleRequestService roleRequestService,
 			IdmIdentityContractService identityContractService,
-			IdmConceptRoleRequestService conceptRoleRequestService) {
+			IdmConceptRoleRequestService conceptRoleRequestService,
+			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
@@ -82,6 +87,7 @@ public class DefaultIdmRoleTreeNodeService
 		Assert.notNull(roleRequestService);
 		Assert.notNull(conceptRoleRequestService);
 		Assert.notNull(identityContractService);
+		Assert.notNull(automaticRoleAttributeService);
 		//
 		this.repository = repository;
 		this.treeNodeRepository = treeNodeRepository;
@@ -89,6 +95,7 @@ public class DefaultIdmRoleTreeNodeService
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.roleRequestService = roleRequestService;
 		this.identityContractService = identityContractService;
+		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 	
 	@Override
@@ -110,6 +117,19 @@ public class DefaultIdmRoleTreeNodeService
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
 		if (isNew(roleTreeNode)) { // create
+			// check if exists same entity for roleId, treeNodeId and recursion type
+			IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
+			filter.setRoleId(roleTreeNode.getRole());
+			filter.setTreeNodeId(roleTreeNode.getTreeNode());
+			filter.setRecursionType(roleTreeNode.getRecursionType());
+			List<IdmRoleTreeNodeDto> content = this.find(filter, null).getContent();
+			if (!content.isEmpty()) {
+				throw new ResultCodeException(CoreResultCode.ROLE_TREE_NODE_TYPE_EXISTS, ImmutableMap.of(
+						"roleId", roleTreeNode.getRole(),
+						"treeNodeId", roleTreeNode.getTreeNode(),
+						"recursionType", roleTreeNode.getRecursionType()));
+			}
+			//
 			EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.CREATE, roleTreeNode));
 			if (context.isSuspended()) {
 				throw new AcceptedException();
@@ -150,6 +170,10 @@ public class DefaultIdmRoleTreeNodeService
 		if (filter.getTreeNodeId() != null) {
 			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.treeNode).get(IdmTreeNode_.id), filter.getTreeNodeId()));
 		}
+		//
+		if (filter.getRecursionType() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.recursionType), filter.getRecursionType()));
+		}
 		return predicates;
 	}
 
@@ -181,12 +205,8 @@ public class DefaultIdmRoleTreeNodeService
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		Assert.notNull(identityRole);
-		//
-		IdmIdentityContractDto dto = identityContractService.get(identityRole.getIdentityContract());
-		return this.processAutomaticRoles(dto, identityRole.getId(), automaticRoles, ConceptRoleRequestOperation.REMOVE);
+		return automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, automaticRoles);
 	}
 	
 	private IdmRoleRequestDto processAutomaticRoles(IdmIdentityContractDto contract, UUID identityRoleId,
@@ -206,15 +226,15 @@ public class DefaultIdmRoleTreeNodeService
 		roleRequest.setExecuteImmediately(true); // TODO: by configuration
 		roleRequest = roleRequestService.save(roleRequest);
 		//
-		for(IdmRoleTreeNodeDto roleTreeNode : automaticRoles) {
+		for(IdmRoleTreeNodeDto automaticRole : automaticRoles) {
 			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 			conceptRoleRequest.setRoleRequest(roleRequest.getId());
 			conceptRoleRequest.setIdentityContract(contract.getId());
 			conceptRoleRequest.setValidFrom(contract.getValidFrom());
 			conceptRoleRequest.setIdentityRole(identityRoleId);
 			conceptRoleRequest.setValidTill(contract.getValidTill());
-			conceptRoleRequest.setRole(roleTreeNode.getRole());
-			conceptRoleRequest.setRoleTreeNode(roleTreeNode.getId());
+			conceptRoleRequest.setRole(automaticRole.getRole());
+			conceptRoleRequest.setAutomaticRole(automaticRole.getId());
 			//
 			conceptRoleRequest.setOperation(operation);
 			//

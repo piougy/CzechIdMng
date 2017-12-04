@@ -39,7 +39,8 @@ import SmsManager from './SmsManager';
 import LoggingEventManager from './LoggingEventManager';
 import LoggingEventExceptionManager from './LoggingEventExceptionManager';
 import ConfidentialStorageValueManager from './ConfidentialStorageValueManager';
-
+import AutomaticRoleAttributeManager from './AutomaticRoleAttributeManager';
+import AutomaticRoleAttributeRuleManager from './AutomaticRoleAttributeRuleManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -82,7 +83,9 @@ const ManagerRoot = {
   SmsManager,
   LoggingEventManager,
   LoggingEventExceptionManager,
-  ConfidentialStorageValueManager
+  ConfidentialStorageValueManager,
+  AutomaticRoleAttributeManager,
+  AutomaticRoleAttributeRuleManager
 };
 
 ManagerRoot.version = '0.0.1';

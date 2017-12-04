@@ -49,7 +49,7 @@ public class ModelMapperConfig {
 		modeler.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
 		// Convert BaseEntity to UIID (get ID)
-		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler);
+		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler, applicationContext);
 
 		// Convert UIID to Entity
 		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UuidToEntityConverter(applicationContext);

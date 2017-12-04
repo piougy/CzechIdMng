@@ -20,7 +20,9 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Radek Tomiška
  *
  * @param <DTO> process DTO type, 
+ * @deprecated since 7.6.0, use {@link eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor}
  */
+@Deprecated
 public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDto>
 	extends eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor<DTO> {
 	

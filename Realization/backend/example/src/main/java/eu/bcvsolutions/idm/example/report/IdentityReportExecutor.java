@@ -31,7 +31,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.exception.ReportGenerateException;
 import eu.bcvsolutions.idm.rpt.api.executor.AbstractReportExecutor;
@@ -44,6 +46,7 @@ import eu.bcvsolutions.idm.rpt.api.executor.AbstractReportExecutor;
  * @author Radek Tomiška
  *
  */
+@Enabled(ExampleModuleDescriptor.MODULE_ID)
 @Component("exampleIdentityReportExecutor")
 @Description("Identities - example")
 public class IdentityReportExecutor extends AbstractReportExecutor {
@@ -114,7 +117,7 @@ public class IdentityReportExecutor extends AbstractReportExecutor {
 						canContinue = updateState();
 					}		
 					// iterate while next page of identities is available
-					pageable = null; //identities.hasNext() && canContinue ? identities.nextPageable() : null;
+					pageable = identities.hasNext() && canContinue ? identities.nextPageable() : null;
 				} while (pageable != null);
 				//
 				// close array of identities

@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -62,6 +63,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	private final SysRoleSystemService roleSystemService;
 	private final IdmRoleService roleService;
 	private final IdmIdentityService identityService;
+	private final AccAccountManagementService accountManagementService;
 	
 	@Autowired
 	public IdentityProvisioningExecutor(
@@ -84,7 +86,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			IdmIdentityService identityService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
-				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
+				roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
 				systemAttributeMappingService, roleService);
 		//
@@ -92,11 +94,13 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		Assert.notNull(roleSystemService);
 		Assert.notNull(roleService);
 		Assert.notNull(identityService);
+		Assert.notNull(accountManagementService);
 		//
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
 		this.roleService = roleService;
 		this.identityService = identityService;
+		this.accountManagementService = accountManagementService;
 	}
 	
 	public void doProvisioning(AccAccountDto account) {
@@ -113,6 +117,15 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 				doProvisioning(account, DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identity, IdmIdentityDto.class));
 			});
 	}	
+	
+	
+	@Override
+	/**
+	 * Identities have own implementation of ACM
+	 */
+	public boolean accountManagement(IdmIdentityDto dto) {
+		return accountManagementService.resolveIdentityAccounts(dto);
+	}
 
 	/**
 	 * Return list of all overloading attributes for given identity, system and
@@ -135,7 +148,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 					&& account.getSystem().equals(system.getId())
 					&& ia.isOwnership();
 		}).forEach((identityAccountInner) -> {
-			AccIdentityAccountDto identityAccount = (AccIdentityAccountDto)identityAccountInner;
+			AbstractDto identityAccount = (AbstractDto) identityAccountInner;
 			// All identity account with same system and with filled
 			// identityRole
 			AccAccountDto account = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account, AccAccountDto.class);

@@ -31,7 +31,10 @@ public enum AccResultCode implements ResultCode {
 	SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "System mapping [%s] cannot be deleted. It is used in synchronization on this system!"),
 	SYSTEM_MAPPING_FOR_ENTITY_EXISTS(HttpStatus.CONFLICT, "Can't add two provisioning mappings for one system [%s] and same entity type [%s]!"),
 	SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED(HttpStatus.CONFLICT, "Tree type [%s] has assigned mapping on system [%s], cannot be deleted. Remove them at first."),
-	
+	//
+	// System mapping validation - mapped attributes does not meet requirements
+	SYSTEM_MAPPING_VALIDATION(HttpStatus.BAD_REQUEST, "System mapping's validation failed."),
+	//
 	// system entity
 	SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS(HttpStatus.BAD_REQUEST, "System entity [%s] on system [%s] cannot be deleted. It is used in active provisioning operations!"),
 	//
@@ -68,6 +71,7 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_BREAK_GLOBAL_CONFIG_SAVE(HttpStatus.BAD_REQUEST, "Global configuration for operation [%s] can't be saved. Use confgiguration properties!"),
 	PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE(HttpStatus.BAD_REQUEST, "Global configuration for operation [%s] can't be deleted. Use confgiguration properties!"),
 	PROVISIONING_BREAK_RECIPIENT_CONFLICT(HttpStatus.CONFLICT, "For recipient exists settings for role and identity. Allowed is only one property!"),
+	PROVISIONING_SCRIPT_CAN_BE_ACC_CREATED_MUST_RETURN_BOOLEAN(HttpStatus.BAD_REQUEST, "Script 'Can be account created' on the system [%s] must return 'boolean' value!"),
 	//
 	// Synchronization
 	SYNCHRONIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Synchronization [%s] not found!"),
@@ -102,6 +106,7 @@ public enum AccResultCode implements ResultCode {
 	ACCOUNT_CANNOT_UPDATE_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be updated. Attribute [isProtected] connot be reseted manually!"),
 	// Role system
 	ROLE_SYSTEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Duplicated role mapping. Role [%s] with mapping on same system [%s] already exists!");
+	
 	
 	
 	private final HttpStatus status;

@@ -173,6 +173,13 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.result = result;
 	}
 	
+	public String getSystemEntityUid() {
+		if(this.systemEntity != null) {
+			return this.systemEntity.getUid();
+		}
+		return null;
+	}
+	
 	public DateTime getNextAttempt() {
 		if (batch == null) {
 			return null;

@@ -1,0 +1,108 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
+	<code>IsRoleInCatalogue</code>
+	<name>Is role in the given catalogue</name>
+	<body>
+    import java.util.List;
+	import java.util.UUID;
+	import org.slf4j.Logger;
+	import org.slf4j.LoggerFactory;
+	import com.google.common.base.Strings;
+	import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+	import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
+	import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+	import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
+	import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+ 
+	/**
+	 * Is role in the catalogue?
+	 * Script return "true" if given (input parameter "role") IdmRoleDto is in
+	 * supported catalogue (given in the parameter "catalogueCode"). Search is
+	 * recursively.
+	 */
+
+	Logger log = LoggerFactory.getLogger("is-role-in-catalogue-script");
+	log.info("Start 'Is role in the catalogue' script.");
+
+	// None input catalogue code
+	if (Strings.isNullOrEmpty(catalogueCode)) {
+		log.warn("None input catalogue code -> return false");
+		return false;
+	}
+
+	// None input role
+	if (role == null) {
+		log.warn("None input role -> return false");
+		return false;
+	}
+
+	IdmRoleCatalogueFilter catalogueFilter = new IdmRoleCatalogueFilter();
+	catalogueFilter.setCode(catalogueCode);
+	List supportedCatalogs = roleCatalogueService.find(catalogueFilter, null).getContent();
+
+	// None supported catalogue found
+	if (supportedCatalogs.isEmpty()) {
+		log.warn("None supported catalogue found -> return false");
+		return false;
+	}
+
+	List roleCatalogues = role.getRoleCatalogues();
+	if (roleCatalogues == null) {
+		return false;
+	}
+
+	for (IdmRoleCatalogueRoleDto roleCatalogue : roleCatalogues) {
+		UUID catalogueId = roleCatalogue.getRoleCatalogue();
+		IdmRoleCatalogueDto mockCatalogue = new IdmRoleCatalogueDto();
+		mockCatalogue.setId(catalogueId);
+
+		if (supportedCatalogs.contains(mockCatalogue)) {
+			// Supported catalogue is directly set for this role
+			return true;
+		}
+		// Find all parents catalogues for this catalogue
+		List parents = roleCatalogueService.findAllParents(catalogueId);
+		for (IdmRoleCatalogueDto parent : parents) {
+			if (supportedCatalogs.contains(parent)) {
+				// Some from parents are supported
+				return true;
+			}
+		}
+	}
+	return false;
+	
+	</body>
+	<type>groovy</type>
+	<category>TRANSFORM_TO</category>
+	<description>Is role in the catalogue? Script return "true" if given (input parameter "role") IdmRoleDto is in supported catalogue (given in the parameter "catalogueCode"). Search is recursively.</description>
+	<services>
+		<service>
+			<name>roleCatalogueService</name>
+			<className>eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService</className>
+		</service>
+	</services>
+	<allowClasses>
+		<allowClass>
+			<className>com.google.common.base.Strings</className>
+		</allowClass>
+		<allowClass>
+			<className>eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto</className>
+		</allowClass>
+		<allowClass>
+			<className>eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto</className>
+		</allowClass>
+		<allowClass>
+			<className>eu.bcvsolutions.idm.core.api.dto.IdmRoleDto</className>
+		</allowClass>
+		<allowClass>
+			<className>eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter</className>
+		</allowClass>
+		<allowClass>
+			<className>org.springframework.data.domain.PageImpl</className>
+		</allowClass>
+		<allowClass>
+			<className>java.util.Collections$UnmodifiableRandomAccessList</className>
+		</allowClass>
+	</allowClasses>
+</script>

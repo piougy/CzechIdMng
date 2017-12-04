@@ -7,7 +7,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
 /**
- * Long running task ford automatic roles
+ * Long running task for automatic roles
  * 
  * @author Radek Tomiška
  *

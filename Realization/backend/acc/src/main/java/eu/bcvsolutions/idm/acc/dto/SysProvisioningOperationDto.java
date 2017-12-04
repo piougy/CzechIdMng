@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
@@ -42,6 +45,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	private OperationResult result;
 	@Embedded(dtoClass = SysProvisioningBatchDto.class)
 	private UUID batch;
+	private String systemEntityUid;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -140,6 +144,18 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	public void increaseAttempt() {
 		this.currentAttempt++;
 	}
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	public String getSystemEntityUid() {
+		return systemEntityUid;
+	}
+
+	public void setSystemEntityUid(String systemEntityUid) {
+		this.systemEntityUid = systemEntityUid;
+	}
+
+
+	
 	
 	/**
 	 * New {@link SysProvisioningOperationDto} builder.

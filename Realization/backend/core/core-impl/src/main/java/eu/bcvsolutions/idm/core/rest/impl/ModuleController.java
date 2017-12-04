@@ -248,8 +248,9 @@ public class ModuleController {
 	 */
 	protected ModuleDescriptorDto toResource(ModuleDescriptor moduleDescriptor) {
 		ModuleDescriptorDto dto = mapper.map(moduleDescriptor,  ModuleDescriptorDto.class);
+		//
+		dto.setId(moduleDescriptor.getId());
 		dto.setDisabled(!moduleService.isEnabled(moduleDescriptor));
-
 		return dto;
 	}
 }

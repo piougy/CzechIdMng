@@ -76,6 +76,10 @@ class SyncContractConfig extends Basic.AbstractContent {
           manager={identityManager}
           label={this.i18n('contractConfigDetail.defaultLeader.label')}
           helpBlock={this.i18n('contractConfigDetail.defaultLeader.helpBlock')}/>
+        <Basic.Checkbox
+          ref="startOfHrProcesses"
+          label={this.i18n('contractConfigDetail.startOfHrProcesses.label')}
+          helpBlock={this.i18n('contractConfigDetail.startOfHrProcesses.helpBlock')}/>
       </Basic.AbstractForm>
     );
   }

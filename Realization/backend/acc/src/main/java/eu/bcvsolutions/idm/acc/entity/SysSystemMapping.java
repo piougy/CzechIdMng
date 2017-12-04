@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -84,6 +85,11 @@ public class SysSystemMapping extends AbstractEntity {
 	@Column(name = "protection_interval", nullable = true)
 	private Integer protectionInterval;
 	
+	@Audited
+	@Type(type = "org.hibernate.type.StringClobType")
+	@Column(name = "can_be_acc_created_script")
+	private String canBeAccountCreatedScript;
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -147,4 +153,13 @@ public class SysSystemMapping extends AbstractEntity {
 	public void setProtectionInterval(Integer protectionInterval) {
 		this.protectionInterval = protectionInterval;
 	}
+
+	public String getCanBeAccountCreatedScript() {
+		return canBeAccountCreatedScript;
+	}
+
+	public void setCanBeAccountCreatedScript(String canBeAccountCreatedScript) {
+		this.canBeAccountCreatedScript = canBeAccountCreatedScript;
+	}
+	
 }

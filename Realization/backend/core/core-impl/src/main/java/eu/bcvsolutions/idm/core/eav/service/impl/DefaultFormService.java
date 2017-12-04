@@ -19,10 +19,14 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -146,50 +150,30 @@ public class DefaultFormService implements FormService {
 
 	@Override
 	public String getDefaultDefinitionType(Class<? extends Identifiable> ownerType) {
-		// dto class was given
-		Class<? extends FormableEntity> ownerEntityType = getFormableOwnerType(ownerType);
-		if (ownerEntityType == null) {
-			throw new IllegalArgumentException(String.format("Owner type [%s] has to generatize [FormableEntity]", ownerType));
-		}
-		return ownerEntityType.getCanonicalName();
+		return formDefinitionService.getOwnerType(ownerType);
 	}
 	
 	@Override
 	public boolean isFormable(Class<? extends Identifiable> ownerType) {
-		return getFormableOwnerType(ownerType) != null;
-	}
-	
-	/**
-	 * Returns {@link FormableEntity}
-	 * 
-	 * @param ownerType
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	private Class<? extends FormableEntity> getFormableOwnerType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType, "Owner type is required!");
-		// formable entity class was given
-		if (FormableEntity.class.isAssignableFrom(ownerType)) {
-			return (Class<? extends FormableEntity>) ownerType;
-		}
-		// dto class was given
-		Class<?> ownerEntityType = lookupService.getEntityClass(ownerType);
-		if (FormableEntity.class.isAssignableFrom(ownerEntityType)) {
-			return (Class<? extends FormableEntity>) ownerEntityType;
-		}
-		return null;
+		return formDefinitionService.isFormable(ownerType);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormAttributeDto getAttribute(Class<? extends Identifiable> ownerType, String attributeCode) {
+		return getAttribute(ownerType, null, attributeCode);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormAttributeDto getAttribute(Class<? extends Identifiable> ownerType, String definitionCode, String attributeCode) {
 		Assert.notNull(ownerType, "Owner type is required!");
 		Assert.hasLength(attributeCode, "Form attribute code is required!");
 		//
-		IdmFormDefinitionDto mainDefinition = getDefinition(ownerType);
-		Assert.notNull(mainDefinition, "Main definition is required!");
+		IdmFormDefinitionDto definition = getDefinition(ownerType, definitionCode);
+		Assert.notNull(definition, "Definition is required!");
 		//
-		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerType), mainDefinition.getCode(), attributeCode);
+		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerType), definition.getCode(), attributeCode);
 	}
 	
 	@Override
@@ -265,6 +249,20 @@ public class DefaultFormService implements FormService {
 	@Transactional
 	public List<IdmFormValueDto> saveValues(
 			Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
+		return saveFormInstance(owner, formDefinition, values).getValues();
+	}
+	
+	@Override
+	@Transactional
+	public List<IdmFormValueDto> saveValues(
+			Identifiable owner, UUID formDefinitionId, List<IdmFormValueDto> values) {
+		IdmFormDefinitionDto formDefinition = null;
+		if (formDefinitionId != null) {
+			formDefinition = formDefinitionService.get(formDefinitionId);
+			if (formDefinition == null) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", formDefinitionId));
+			}
+		}		 
 		return saveFormInstance(owner, formDefinition, values).getValues();
 	}
 	
@@ -451,6 +449,19 @@ public class DefaultFormService implements FormService {
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(Identifiable owner) {		
 		return getValues(owner, (IdmFormDefinitionDto) null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormValueDto> getValues(Identifiable owner, UUID formDefinitionId) {
+		IdmFormDefinitionDto formDefinition = null;
+		if (formDefinitionId != null) {
+			formDefinition = formDefinitionService.get(formDefinitionId);
+			if (formDefinition == null) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", formDefinitionId));
+			}
+		}
+		return getValues(owner, formDefinition);
 	}
 	
 	@Override
@@ -690,5 +701,5 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(owner, "Form values owner is required!");
 		//
 		return owner;
-	}	
+	}
 }

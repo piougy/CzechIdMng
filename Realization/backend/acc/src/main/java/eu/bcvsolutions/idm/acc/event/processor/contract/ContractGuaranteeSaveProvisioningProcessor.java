@@ -59,10 +59,8 @@ public class ContractGuaranteeSaveProvisioningProcessor extends CoreEventProcess
 
 	@Override
 	public EventResult<IdmContractGuaranteeDto> process(EntityEvent<IdmContractGuaranteeDto> event) {
-		Object skipProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		//
-		// skip?
-		if (skipProvisioning instanceof Boolean && (Boolean) skipProvisioning) {
+		// Skip provisioning
+		if(this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties())){
 			return new DefaultEventResult<>(event, this);
 		}
 		//

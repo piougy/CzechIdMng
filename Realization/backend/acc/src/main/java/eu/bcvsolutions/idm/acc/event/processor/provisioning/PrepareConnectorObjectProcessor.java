@@ -617,12 +617,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		} 
 		
 		// Multivalued values are equals, when value from system is null and value in IdM is empty list
-		if(schemaAttribute.isMultivalued() && idmValue != null && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
+		if(schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
 			return true;
 		}
 		
 		// Multivalued values are equals, when value in IdM is null and value from system is empty list
-		if(schemaAttribute.isMultivalued() && icValueTransformed != null && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
+		if(schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
 			return true;
 		}
 		

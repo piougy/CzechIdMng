@@ -57,7 +57,7 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 	
 	private void doProvisioning(IdmRoleCatalogueDto catalogue) {
 		LOG.debug("Call account managment (create accounts for all systems) for role catalogue [{}]", catalogue.getCode());
-		getProvisioningService().createAccountsForAllSystems(catalogue);
+		getProvisioningService().accountManagement(catalogue);
 		LOG.debug("Call provisioning for role catalogue [{}]", catalogue.getCode());
 		getProvisioningService().doProvisioning(catalogue);
 	}

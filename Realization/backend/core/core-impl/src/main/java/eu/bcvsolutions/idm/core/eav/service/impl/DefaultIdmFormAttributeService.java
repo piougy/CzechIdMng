@@ -86,6 +86,13 @@ public class DefaultIdmFormAttributeService
 				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES, ImmutableMap.of("formAttribute", dto.getCode()));
 			}
 		});
+		// delete all values
+		// TODO: add some force delete parameter => rewrite service to event usage
+		/* formValueServices.getPlugins().forEach(formValueService -> {
+			formValueService.find(filter, null).getContent().forEach(formValue -> {
+				formValueService.delete((IdmFormValueDto) formValue);
+			});
+		});*/
 		//
 		super.deleteInternal(dto);
 	}

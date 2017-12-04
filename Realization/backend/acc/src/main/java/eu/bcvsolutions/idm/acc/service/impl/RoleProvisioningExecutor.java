@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount_;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -57,7 +56,6 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService, 
 			SysRoleSystemService roleSystemService,
-			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, 
 			SysSystemEntityService systemEntityService,
 			AccAccountService accountService, 
@@ -70,7 +68,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 			IdmRoleService roleService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
-				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
+				roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
 				systemAttributeMappingService, roleService);
 		//

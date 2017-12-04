@@ -32,9 +32,26 @@ All notable changes to this project will be documented in this file.
 
 - Methods ``IdmScriptService#getScriptByName``, ``IdmScriptService#getScriptByCode`` are deprecated and will be removed - use ``IdmScriptService#getByCode`` method instead.
 
+##### Long running task
+- Abstract tasks in package `eu.bcvsolutions.idm.core.scheduler.service.impl` are deprecated and will be removed, use new tasks in api:
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor`
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor`
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor`
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.StatelessAsynchronousTask`
+
 ### Added
 
 - [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
+
+##### Report module
+- Reports are available now, read more in documentation.
+
+##### Attachment manager
+- Saving binary files to filesystem is supported now, read more in documentation.
+
+##### Common forms
+- `CommonFormService` is used for saving report filter and configuration for long running taskc
+- `IdmFormDefinitionService#updateDefinition` is used for updating form definitions for common forms automatically (see compatible vs incompatible changes).
 
 
 ## [7.5.2]

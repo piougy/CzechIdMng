@@ -122,9 +122,16 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(entity);
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).createAccountsForAllSystems(entity);
 	}
+	
+	@Override
+	public boolean accountManagement(AbstractDto entity) {
+		Assert.notNull(entity);
+		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).accountManagement(entity);
+	}
+
 
 	/**
-	 * Find executor for synchronization given entity type
+	 * Find executor for given entity type
 	 * @param entityType
 	 * @return
 	 */

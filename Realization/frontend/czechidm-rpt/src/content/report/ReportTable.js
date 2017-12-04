@@ -326,6 +326,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
             width={75}
             header={this.i18n('entity.LongRunningTask.result.state')}
             sort
+            sortProperty="longRunningTask.result.state"
             rendered={ _.includes(columns, 'state') }
             cell={
               ({ data, rowIndex }) => {

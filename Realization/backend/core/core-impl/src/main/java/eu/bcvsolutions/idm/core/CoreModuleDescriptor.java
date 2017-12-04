@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
  * Core module descriptor - required module
  * 
  * TODO: refactor to configuration
+ * TODO: Split api / impl (see RptModuleDescriptor) - Core module descriptor should be in api
  * 
  * @author Radek Tomiška
  *

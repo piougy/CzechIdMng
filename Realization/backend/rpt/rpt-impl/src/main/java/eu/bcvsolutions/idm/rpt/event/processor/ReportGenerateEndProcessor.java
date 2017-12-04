@@ -14,13 +14,13 @@ import eu.bcvsolutions.idm.rpt.api.event.processor.ReportProcessor;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 
 /**
- * Ends long running task and persists him.
+ * Save generated report metadata by long running task
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Save generated report by long running task.")
+@Description("Save generated report metadata by long running task.")
 public class ReportGenerateEndProcessor 
 		extends CoreEventProcessor<RptReportDto> 
 		implements ReportProcessor {

@@ -112,16 +112,16 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 			return;
 		}
 		// check if attribute operation disable change from false to true - then clear cache
-		if (newSystem.getBlockedOperation().getCreateOperation() == Boolean.FALSE
-				&& oldSystem.getBlockedOperation().getCreateOperation() == Boolean.TRUE) {
+		if (!newSystem.getBlockedOperation().getCreateOperation()
+				&& oldSystem.getBlockedOperation().getCreateOperation()) {
 			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.CREATE);
 		}
-		if (newSystem.getBlockedOperation().getUpdateOperation() == Boolean.FALSE
-				&& oldSystem.getBlockedOperation().getUpdateOperation() == Boolean.TRUE) {
+		if (!newSystem.getBlockedOperation().getUpdateOperation()
+				&& oldSystem.getBlockedOperation().getUpdateOperation()) {
 			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.UPDATE);
 		}
-		if (newSystem.getBlockedOperation().getDeleteOperation() == Boolean.FALSE
-				&& oldSystem.getBlockedOperation().getDeleteOperation() == Boolean.TRUE) {
+		if (!newSystem.getBlockedOperation().getDeleteOperation()
+				&& oldSystem.getBlockedOperation().getDeleteOperation()) {
 			provisioningBreakConfigService.clearCache(newSystem.getId(), ProvisioningEventType.DELETE);
 		}
 	}

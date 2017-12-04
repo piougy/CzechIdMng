@@ -47,14 +47,14 @@ public class SysBlockedOperationDto implements Serializable {
 	}
 
 	public void blockCreate() {
-		this.setCreateOperation(Boolean.TRUE);
+		this.setCreateOperation(true);
 	}
 	
 	public void blockUpdate() {
-		this.setUpdateOperation(Boolean.TRUE);	
+		this.setUpdateOperation(true);	
 	}
 	
 	public void blockDelete() {
-		this.setDeleteOperation(Boolean.TRUE);
+		this.setDeleteOperation(true);
 	}
 }

@@ -2,6 +2,9 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +18,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 
@@ -44,7 +46,7 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdm(true);
 		
-		passwordPolicyService.save(policy);
+		policy = passwordPolicyService.save(policy);
 		try {
 		idmIdentityService.validate(passwordChange, identity);
 		} catch (ResultCodeException ex) {
@@ -53,7 +55,8 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 			assertEquals(policy.getName(), ex.getError().getError().getParameters().get("policiesNamesPreValidation"));
 			// special char base -> 4
 			assertEquals(4, ex.getError().getError().getParameters().size());
-			
+			policy.setDefaultPolicy(false);
+			passwordPolicyService.save(policy);
 		}
 	}
 	
@@ -68,7 +71,7 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdm(true);
 		
-		passwordPolicyService.save(policy);
+		policy = passwordPolicyService.save(policy);
 		try {
 		idmIdentityService.validate(passwordChange, identity);
 		} catch (ResultCodeException ex) {
@@ -77,7 +80,8 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 			assertEquals(policy.getName(), ex.getError().getError().getParameters().get("policiesNamesPreValidation"));
 			// special char base -> 4
 			assertEquals(4, ex.getError().getError().getParameters().size());
-			
+			policy.setDefaultPolicy(false);
+			passwordPolicyService.save(policy);
 		}
 	}
 	
@@ -92,7 +96,7 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdm(true);
 		
-		passwordPolicyService.save(policy);
+		policy = passwordPolicyService.save(policy);
 		try {
 		idmIdentityService.validate(passwordChange, identity);
 		} catch (ResultCodeException ex) {
@@ -101,7 +105,8 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 			assertEquals(policy.getName(), ex.getError().getError().getParameters().get("policiesNamesPreValidation"));
 			// special char base -> 4
 			assertEquals(4, ex.getError().getError().getParameters().size());
-			
+			policy.setDefaultPolicy(false);
+			passwordPolicyService.save(policy);
 		}
 	}
 	
@@ -120,26 +125,31 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest{
 		policy.setEnchancedControl(true);
 		policy.setMinRulesToFulfill(1);
 		policy.setMinNumber(3);
+		policy.setNumberRequired(false);
 		policy.setMinSpecialChar(2);
+		policy.setSpecialCharRequired(false);
+		policy.setIdentityAttributeCheck("EMAIL, USERNAME");
 		IdmIdentityDto identity = new IdmIdentityDto();
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdm(true);
 		
-		passwordPolicyService.save(policy);
+		policy = passwordPolicyService.save(policy);
 		try {
 		idmIdentityService.validate(passwordChange, identity);
 		} catch (ResultCodeException ex) {
+			Map<String, Object> parametrs = new HashMap<String, Object>();
+			parametrs.put("minNumber", 3);
+			parametrs.put("minSpecialChar", 2);
 			assertEquals(10, ex.getError().getError().getParameters().get("minLength"));
 			assertEquals(20, ex.getError().getError().getParameters().get("maxLength"));
 			assertEquals(5, ex.getError().getError().getParameters().get("minUpperChar"));
 			assertEquals(4, ex.getError().getError().getParameters().get("minLowerChar"));
-			assertEquals(3, ex.getError().getError().getParameters().get("minNumber"));
-			assertEquals(2, ex.getError().getError().getParameters().get("minSpecialChar"));
-			assertEquals(1, ex.getError().getError().getParameters().get("minRulesToFulfillCount"));
+			assertEquals(parametrs.toString(), ex.getError().getError().getParameters().get("minRulesToFulfill").toString());
 			assertEquals(policy.getName(), ex.getError().getError().getParameters().get("policiesNamesPreValidation"));
-			// special char base -> 4
-			assertEquals(7, ex.getError().getError().getParameters().size());
-			
+			// special char base, passwordSimilarUsername, passwordSimilarEmail -> 
+			assertEquals(10, ex.getError().getError().getParameters().size());
+			policy.setDefaultPolicy(false);
+			passwordPolicyService.save(policy);
 		}
 	}
 }

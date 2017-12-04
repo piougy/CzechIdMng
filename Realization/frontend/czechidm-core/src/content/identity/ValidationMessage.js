@@ -10,6 +10,8 @@ import * as Advanced from '../../components/advanced';
  */
 const PASSWORD_POLICIES_NAMES = 'policiesNames';
 
+const POLICY_NAME_PREVALIDATION = 'policiesNamesPreValidation';
+
 /**
  * Enchanced control, minimal rules to fulfill.
  * Value of parameter MIN_RULES_TO_FULFILL is map with rules
@@ -109,8 +111,8 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       }
     }
     // first message is password policies names, with danger class
-    if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
-      policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
+    if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) || error.parameters.hasOwnProperty(POLICY_NAME_PREVALIDATION)) {
+      policies = error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) ? this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES] : this.i18n('content.passwordPolicies.validation.' + POLICY_NAME_PREVALIDATION) + error.parameters[POLICY_NAME_PREVALIDATION];
       validationMessage.unshift(<Basic.Alert level={level2} >{policies}</Basic.Alert>);
     }
 

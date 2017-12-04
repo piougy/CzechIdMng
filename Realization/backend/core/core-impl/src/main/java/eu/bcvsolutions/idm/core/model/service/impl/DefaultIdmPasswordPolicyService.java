@@ -425,7 +425,7 @@ public class DefaultIdmPasswordPolicyService
 			 if (!isNull(passwordPolicy.getMaxPasswordLength())){
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH, Math.max(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
-				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
+				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(passwordPolicy.getMaxPasswordLength(), errors.get(MAX_LENGTH)))) {
 					errors.put(MAX_LENGTH, passwordPolicy.getMaxPasswordLength());
 				}
 			}

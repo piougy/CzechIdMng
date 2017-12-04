@@ -166,17 +166,24 @@ public class DefaultReportManager implements ReportManager {
 	@Override
 	public List<RptReportRendererDto> getRenderers(String reportName) {
 		List<RptReportRendererDto> renderers = new ArrayList<>();
-		context.getBeansOfType(RendererRegistrar.class).entrySet().forEach(registrarBean -> {
-			String[] rendererNames = registrarBean.getValue().register(reportName);
-			if (rendererNames != null) {
-				for (String rendererName : rendererNames) {
-					ReportRenderer renderer = reportRendererRegistry.getPluginFor(rendererName);
-					if (enabledEvaluator.isEnabled(renderer)) {
-						renderers.add(toDto(renderer));
+		context
+			.getBeansOfType(RendererRegistrar.class)
+			.entrySet()
+			.stream()
+			.filter(renderer -> {
+				return enabledEvaluator.isEnabled(renderer.getValue());
+			})
+			.forEach(registrarBean -> {
+				String[] rendererNames = registrarBean.getValue().register(reportName);
+				if (rendererNames != null) {
+					for (String rendererName : rendererNames) {
+						ReportRenderer renderer = reportRendererRegistry.getPluginFor(rendererName);
+						if (enabledEvaluator.isEnabled(renderer)) {
+							renderers.add(toDto(renderer));
+						}
 					}
 				}
-			}
-		});
+			});
 		return renderers;
 	}
 	

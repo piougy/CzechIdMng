@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * 
  * @author Radek Tomiška
  * @author Jan Helbich
- * @depreceted use {@link eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor}
+ * @depreceted since 7.6.0, use {@link eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor}
  */
 @Deprecated
 public abstract class AbstractSchedulableTaskExecutor<V> 

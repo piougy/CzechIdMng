@@ -178,14 +178,20 @@ class SelectBox extends AbstractFormComponent {
    */
   _loadMoreContent() {
     const { actualPage } = this.state;
-    const { pageSize, manager, useFirst, loadMoreContent } = this.props;
+    const { pageSize, manager, useFirst, loadMoreContent, forceSearchParameters } = this.props;
     if (!loadMoreContent) {
       return;
     }
     const finalPageSize = pageSize || SearchParameters.getDefaultSize();
     // increment actualPage
     const newActualPage = actualPage + 1;
-    this.getOptions('', manager.getDefaultSearchParameters().setSize(finalPageSize).setPage(newActualPage), useFirst, true);
+    // if exists force search parameters merge it
+    let finalSearchParameters = manager.getDefaultSearchParameters().setSize(finalPageSize).setPage(newActualPage);
+    if (forceSearchParameters) {
+      finalSearchParameters = manager.mergeSearchParameters(forceSearchParameters, finalSearchParameters);
+    }
+    //
+    this.getOptions('', finalSearchParameters, useFirst, true);
     this.setState({
       actualPage: newActualPage
     });

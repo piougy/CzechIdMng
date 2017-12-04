@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
@@ -53,20 +56,28 @@ public class DefaultSysSystemMappingService
 		extends AbstractEventableDtoService<SysSystemMappingDto, SysSystemMapping, SysSystemMappingFilter>
 		implements SysSystemMappingService {
 
+	private static final String SYSTEM_MISSING_IDENTIFIER = "systemMissingIdentifier";
+	private static final String SYSTEM_MISSING_OWNER = "systemMissingOwner";
+	//
 	private final SysSystemMappingRepository repository;
 	private final GroovyScriptService groovyScriptService;
 	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors;
+	private final ApplicationContext applicationContext;
+	private SysSystemAttributeMappingService attributeMappingService;
 
 	@Autowired
 	public DefaultSysSystemMappingService(SysSystemMappingRepository repository, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, List<AbstractScriptEvaluator> evaluators) {
+			GroovyScriptService groovyScriptService, List<AbstractScriptEvaluator> evaluators,
+			ApplicationContext applicationContext) {
 		super(repository, entityEventManager);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(evaluators);
+		Assert.notNull(applicationContext);
 		//
 		this.repository = repository;
+		this.applicationContext = applicationContext;
 		this.groovyScriptService = groovyScriptService;
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
@@ -157,6 +168,80 @@ public class DefaultSysSystemMappingService
 		return original;
 	}
 
+	/**
+	 * Validate system mapping
+	 * 
+	 * @param id(UUID
+	 *            system mapping)
+	 */
+	@Override
+	public void validate(UUID id) {
+		Assert.notNull(id);
+		//
+		Map<String, Object> errors = new HashMap<>();
+		SysSystemMappingDto systemMapping = this.get(id);
+		List<SysSystemAttributeMappingDto> attributesList = getAttributeMappingService()
+				.findBySystemMapping(systemMapping);
+		//
+		errors = validateIdentifier(errors, systemMapping, attributesList);
+		errors = validateSynchronizationContracts(errors, systemMapping, attributesList);
+
+		if (!errors.isEmpty()) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_VALIDATION, errors);
+		}
+	}
+
+	/**
+	 * Validation: Missing Identifier
+	 * 
+	 * @param errors
+	 * @param systemMapping
+	 * @param attributesList
+	 * @return
+	 */
+	private Map<String, Object> validateIdentifier(Map<String, Object> errors, SysSystemMappingDto systemMapping,
+			List<SysSystemAttributeMappingDto> attributesList) {
+		boolean isError = true;
+		for (SysSystemAttributeMappingDto attribute : attributesList) {
+			if (attribute.isUid()) {
+				isError = false;
+				break;
+			}
+		}
+		if (isError) {
+			errors.put(SYSTEM_MISSING_IDENTIFIER, "Identifier not found");
+		}
+		return errors;
+	}
+
+	/**
+	 * Validation: synchronization - entityAttribute=true and
+	 * idmPropertyName=identity
+	 * 
+	 * @param errors
+	 * @param systemMapping
+	 * @param attributesList
+	 * @return
+	 */
+	private Map<String, Object> validateSynchronizationContracts(Map<String, Object> errors,
+			SysSystemMappingDto systemMapping, List<SysSystemAttributeMappingDto> attributesList) {
+		final String idmProperty = "identity";
+		boolean isError = true;
+		if (systemMapping.getOperationType() == SystemOperationType.SYNCHRONIZATION
+				&& systemMapping.getEntityType() == SystemEntityType.CONTRACT) {
+			for (SysSystemAttributeMappingDto attribute : attributesList) {
+				if (attribute.isEntityAttribute() && attribute.getIdmPropertyName().equals(idmProperty)) {
+					isError = false;
+					break;
+				}
+			}
+			if (isError) {
+				errors.put(SYSTEM_MISSING_OWNER, "Synchronization does not have Idm Key: identity");
+			}
+		}
+		return errors;
+	}
+
 	@Override
 	public boolean canBeAccountCreated(String uid, AbstractDto dto, String script, SysSystemDto system) {
 
@@ -203,6 +288,7 @@ public class DefaultSysSystemMappingService
 	}
 
 	private Integer getProtectionInterval(SysSystemMappingDto systemMapping) {
+
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.getProtectionInterval();
 	}
@@ -210,5 +296,11 @@ public class DefaultSysSystemMappingService
 	private boolean isEnabledProtection(SysSystemMappingDto systemMapping) {
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.isProtectionEnabled();
+	}
+
+	private SysSystemAttributeMappingService getAttributeMappingService() {
+		if (attributeMappingService == null)
+			attributeMappingService = applicationContext.getBean(SysSystemAttributeMappingService.class);
+		return attributeMappingService;
 	}
 }

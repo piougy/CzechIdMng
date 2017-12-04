@@ -144,13 +144,18 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
                 uiKey={uiKey}
                 readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
                 showLoading={entity === null}>
-                <Basic.TextField ref="prohibitedCharacters"
+                <Basic.TextField
+                  ref="prohibitedCharacters"
                   helpBlock={this.i18n('entity.PasswordPolicy.help.prohibitedCharacters')}
                   label={this.i18n('entity.PasswordPolicy.prohibitedCharacters')} />
 
-                <Basic.Checkbox ref="weakPassRequired" hidden
+                <Basic.Checkbox
+                  ref="weakPassRequired"
+                  hidden
                   label={this.i18n('entity.PasswordPolicy.weakPassRequired')}/>
-                <Basic.TextField ref="weakPass" hidden
+                <Basic.TextField
+                  ref="weakPass"
+                  hidden
                   label={this.i18n('entity.PasswordPolicy.weakPass')} />
 
                 <Basic.LabelWrapper label=" ">
@@ -161,14 +166,22 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
                     text={this.i18n('entity.PasswordPolicy.help.bases')} />
                 </Basic.LabelWrapper>
 
-                <Basic.TextField ref="lowerCharBase"
-                  label={this.i18n('entity.PasswordPolicy.lowerCharBase')} />
-                <Basic.TextField ref="upperCharBase"
-                  label={this.i18n('entity.PasswordPolicy.upperCharBase')} />
-                <Basic.TextField ref="numberBase"
-                  label={this.i18n('entity.PasswordPolicy.numberBase')} />
-                <Basic.TextField ref="specialCharBase"
-                  label={this.i18n('entity.PasswordPolicy.specialCharBase')} />
+                <Basic.TextField
+                  ref="lowerCharBase"
+                  label={this.i18n('entity.PasswordPolicy.lowerCharBase')}
+                  required/>
+                <Basic.TextField
+                  ref="upperCharBase"
+                  label={this.i18n('entity.PasswordPolicy.upperCharBase')}
+                  required/>
+                <Basic.TextField
+                  ref="numberBase"
+                  label={this.i18n('entity.PasswordPolicy.numberBase')}
+                  required/>
+                <Basic.TextField
+                  ref="specialCharBase"
+                  label={this.i18n('entity.PasswordPolicy.specialCharBase')}
+                  required/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter showLoading={showLoading} >

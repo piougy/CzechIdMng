@@ -210,7 +210,6 @@ gulp.task('createComponentAssembler', () => {
   .pipe(gulp.dest(paths.distModule));
 });
 
-
 gulp.task('clean', cb => {
   return rimraf('dist', cb);
 });
@@ -387,6 +386,11 @@ gulp.task('loadModuleLocales', () => {
   })).pipe(reload({stream: true}));
 });
 
+// validate JSON files using localization-validator
+gulp.task('localization-validator', shell.task([
+  'java -jar localization-validator.jar ' + paths.distLocale
+]));
+
 gulp.task('lint', shell.task([
   'npm run lint'
 ]));
@@ -437,18 +441,18 @@ gulp.task('watchTask', () => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'localization-validator', 'browserSync', 'watchTask', 'watchify', cb);
 });
 
 gulp.task('watch-nosync', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'localization-validator', 'browserNoSync', 'watchTask', 'watchify', cb);
 });
 
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'localization-validator', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

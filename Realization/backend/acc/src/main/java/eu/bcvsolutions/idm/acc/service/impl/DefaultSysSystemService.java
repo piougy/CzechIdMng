@@ -169,7 +169,7 @@ public class DefaultSysSystemService
 				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
 						SysSystemService.REMOTE_SERVER_PASSWORD);
 				if (password != null && entity.getConnectorServer() != null) {
-					entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+					entity.getConnectorServer().setPassword(new GuardedString(password.toString()));
 				}
 			} catch (ResultCodeException ex) {
 				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....

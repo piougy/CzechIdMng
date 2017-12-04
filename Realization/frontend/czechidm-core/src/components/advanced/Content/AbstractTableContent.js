@@ -138,6 +138,10 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     }, () => {
       // nothing
     });
+    if ((this.props._searchParameters.page + 1) * this.props._searchParameters.size >= (this.refs.table.stateProps._total - selectedRows.length) ) {
+      this.props._searchParameters.page = ((this.refs.table.stateProps._total - selectedRows.length) - 1) === - 1 ? 0 : ((this.refs.table.stateProps._total - selectedRows.length) - 1) / this.props._searchParameters.size;
+      this.props._searchParameters.page = Math.trunc(this.props._searchParameters.page);
+    }
   }
 
   /**

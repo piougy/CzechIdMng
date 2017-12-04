@@ -169,7 +169,7 @@ public class DefaultSysSystemService
 				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
 						SysSystemService.REMOTE_SERVER_PASSWORD);
 				if (password != null && entity.getConnectorServer() != null) {
-					entity.getConnectorServer().setPassword(new GuardedString(password.toString()));
+					entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
 				}
 			} catch (ResultCodeException ex) {
 				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....
@@ -788,5 +788,17 @@ public class DefaultSysSystemService
 		key.setBundleName("net.tirasa.connid.bundles.db.table");
 		key.setBundleVersion("2.2.4");
 		return key;
+	}
+
+	@Override
+	public IcConnectorInstance getConnectorInstance(SysSystemDto system) {
+		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+		//
+		if (system.isRemote() && connectorInstance.getConnectorServer() != null) {
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
+					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
+		}
+		//
+		return connectorInstance;
 	}
 }

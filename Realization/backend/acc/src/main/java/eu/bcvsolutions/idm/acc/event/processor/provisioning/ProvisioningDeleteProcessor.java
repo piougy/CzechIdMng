@@ -54,7 +54,7 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 	@Override
 	public IcUidAttribute processInternal(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
 		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();

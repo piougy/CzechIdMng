@@ -168,6 +168,10 @@
           "defaultLeader": {
             "label": "Default leader",
             "helpBlock": "If the none leader for a given relation is filled in the source system, then this will be used as the default."
+          },
+          "startOfHrProcesses": {
+            "label": "After end, start the HR processes",
+            "helpBlock": "After successful synchronization, HR processes will be executed."
           }
         },
         "identityConfigDetail":{
@@ -274,7 +278,7 @@
         }
       },
       "mappingDetail": {
-        "title" :"Mapping of attributes",
+        "title" :"Detail",
         "header": "Mapping of attributes <small>for IdM entity and operation type</small>",
         "systemAttributesMappingHeader": "Mapped attributes",
         "edit": {
@@ -630,7 +634,12 @@
       "objectClass": "Object name",
       "treeType": "Tree type",
       "protectionEnabled": "Account protection (before delete)",
-      "protectionInterval": "Length of protection interval (in days)"
+      "protectionInterval": "Length of protection interval (in days)",
+      "account-management": "Account management",
+      "canBeAccountCreatedScript": {
+        "label": "Can an account be created?",
+        "help": "Account Management - allows you to disable the account creation (for that entity) on this system. The input parameter of this Groovy script is IdM entity 'entity', generated account identifier 'uid' and IdM system 'system'. Output value must be Boolean.TRUE or Boolean.FALSE!"
+      }
     },
     "SchemaAttribute": {
       "name": "Name",
@@ -655,11 +664,11 @@
         "help": "Name of entity attr., name of extended attr., or key to confidential storage."
       },
       "transformToResourceScriptSelectBox": {
-        "label": "Available scripts for transformation from resource",
+        "label": "Available scripts for transformation to resource",
         "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
       "transformFromResourceScriptSelectBox": {
-        "label": "Available scripts to transformation to resource",
+        "label": "Available scripts for transformation from resource",
         "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
       "idmPropertyEnum": "Entity field",

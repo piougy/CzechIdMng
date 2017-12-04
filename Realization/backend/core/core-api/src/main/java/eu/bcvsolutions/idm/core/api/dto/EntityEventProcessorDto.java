@@ -9,43 +9,16 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
  * 
  * @author Radek Tomiška
  */
-public class EntityEventProcessorDto {
+public class EntityEventProcessorDto extends AbstractComponentDto {
 
-	private String id;
-	private String name;
-	private String module;
-	private String description;
+	private static final long serialVersionUID = 1L;
+	//
 	private String entityType;
 	private List<String> eventTypes;
 	private int order;
-	private boolean disabled;
 	private boolean disableable;
 	private boolean closable;
 	private ConfigurationMap configurationProperties;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getModule() {
-		return module;
-	}
-
-	public void setModule(String module) {
-		this.module = module;
-	}
 
 	public void setEntityType(String entityType) {
 		this.entityType = entityType;
@@ -71,14 +44,6 @@ public class EntityEventProcessorDto {
 		this.order = order;
 	}
 
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
-	}
-
 	public boolean isDisableable() {
 		return disableable;
 	}
@@ -93,14 +58,6 @@ public class EntityEventProcessorDto {
 
 	public void setClosable(boolean closable) {
 		this.closable = closable;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 	
 	public ConfigurationMap getConfigurationProperties() {

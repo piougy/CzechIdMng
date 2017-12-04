@@ -53,6 +53,7 @@
 				<module>../ic</module>
 				<module>../acc</module>
 				<module>../vs</module>
+				<module>../rpt</module>
 			</modules>
 			<build>
 				<plugins>

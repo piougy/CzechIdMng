@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.service.impl;
+package eu.bcvsolutions.idm.acc.provisioning;
 
 import java.util.List;
 
@@ -59,7 +59,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 @Service
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationTest {
+public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 
 	private static final String IDENTITY_USERNAME = "accTestUser";
 	private static final String IDENTITY_EMAIL = "svanda.vit@xyz.cz";
@@ -72,7 +72,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	private static final String ROLE_OVERLOADING_Y_ACCOUNT = "role_overloading_y_account";
 	private static final String IDENTITY_PASSWORD_TWO = "password_two";
 	private static final String IDENTITY_PASSWORD_THREE = "password_three";
-	private static final String SYSTEM_NAME = "DefaultSysAccountManagementServiceTest";
+	private static final String SYSTEM_NAME = "IdentityAccountManagementTest";
 	
 	@Autowired
 	private TestHelper helper;

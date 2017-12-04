@@ -159,6 +159,7 @@
   "czechidmModules": {
     "czechidm-core": "7.6.0-snapshot",
     "czechidm-acc": "7.6.0-snapshot",
-    "czechidm-vs": "7.6.0-snapshot"
+    "czechidm-vs": "7.6.0-snapshot",
+    "czechidm-rpt": "7.6.0-snapshot"
   }
 }

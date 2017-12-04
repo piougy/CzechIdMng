@@ -3,7 +3,6 @@ import _ from 'lodash';
 //
 import { Domain, Advanced, Basic } from 'czechidm-core';
 import AccountTableComponent, { AccountTable } from '../account/AccountTable';
-import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 /**
  * Linked accounts on target system
@@ -33,7 +32,7 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     const { _showLoading } = this.props;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
-    const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
+    const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
 
     return (
       <div>

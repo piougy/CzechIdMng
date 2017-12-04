@@ -42,6 +42,7 @@
     "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
     "default": "Výchozí",
+    "download": "Stáhnout",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
@@ -65,6 +66,7 @@
     "deactivatePrepare": "Připravuji deaktivaci ...",
     "delete": "Odebrat",
     "detail": "Detail",
+    "download": "$t(label.download)",
     "edit": "Upravit",
     "filter": {
       "toogle": "Filtr ",
@@ -400,7 +402,8 @@
           "TEXTAREA": "Textové pole (TextArea)",
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
-          "ROLE-SELECT": "Výběr rolí (SelectBox)"
+          "ROLE-SELECT": "Výběr rolí (SelectBox)",
+          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."

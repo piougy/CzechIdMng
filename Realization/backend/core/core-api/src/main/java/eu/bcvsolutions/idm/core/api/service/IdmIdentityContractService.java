@@ -27,6 +27,12 @@ public interface IdmIdentityContractService extends
 	
 	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
 	
+	
+	/**
+	 * Property in event - when is true, then all dependent HR processes (hrEnableContract, hrEndContract, hrExclusionContract) will be not executed.
+	 */
+	static final String SKIP_HR_PROCESSES = "skip_hr_processes";
+	
 	/**
 	 * Returns working positions for given identity
 	 * 

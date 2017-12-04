@@ -32,6 +32,7 @@ public class SysSystemMappingDto extends AbstractDto {
 	private UUID treeType;
 	private boolean protectionEnabled = false;
 	private Integer protectionInterval;
+	private String canBeAccountCreatedScript;
 
 	public String getName() {
 		return name;
@@ -87,6 +88,14 @@ public class SysSystemMappingDto extends AbstractDto {
 
 	public void setProtectionInterval(Integer protectionInterval) {
 		this.protectionInterval = protectionInterval;
+	}
+
+	public String getCanBeAccountCreatedScript() {
+		return canBeAccountCreatedScript;
+	}
+
+	public void setCanBeAccountCreatedScript(String canBeAccountCreatedScript) {
+		this.canBeAccountCreatedScript = canBeAccountCreatedScript;
 	}
 
 }

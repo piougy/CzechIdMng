@@ -1,51 +1,28 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import org.springframework.hateoas.Identifiable;
-
 /**
  * Module descriptor:
  * - adds disabled info
  * 
  * @author Radek Tomiška
  */
-public class ModuleDescriptorDto implements Identifiable<String> {
+public class ModuleDescriptorDto extends AbstractComponentDto {
 
-	private String id;
-	private String name;
+	private static final long serialVersionUID = 1L;
+	//
 	private String vendor;
 	private String version;
-	private String description;
 	private String vendorUrl;
 	private String vendorEmail;
 	private String buildNumber;
 	private String buildTimestamp;
 	private boolean disableable;
-	private boolean disabled;
 	private boolean documentationAvailable;
-
+	
 	@Override
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
+	public String getModule() {
+		// id = module
+		return getId();
 	}
 
 	public boolean isDisableable() {
@@ -54,14 +31,6 @@ public class ModuleDescriptorDto implements Identifiable<String> {
 
 	public void setDisableable(boolean disableable) {
 		this.disableable = disableable;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 
 	public String getVendor() {

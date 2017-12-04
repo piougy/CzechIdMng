@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -82,6 +83,10 @@ import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -95,6 +100,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmContractGuaranteeService guaranteeService;
 	private final IdmTreeNodeService treeNodeService;
 	private final LookupService lookupService;
+	private final LongRunningTaskManager longRunningTaskManager;
+
 	public final static String CONTRACT_STATE_FIELD = "state";
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
 	public final static String CONTRACT_IDENTITY_FIELD = "identity";
@@ -113,7 +120,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
 			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
-			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService) {
+			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService,
+			LongRunningTaskManager longRunningTaskManager) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -125,14 +133,16 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.notNull(lookupService, "Lookup service is mandatory!");
 		Assert.notNull(guaranteeService, "Contract guarantee service is mandatory!");
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
+		Assert.notNull(longRunningTaskManager, "Long runing task manager is mandatory!");
 		//
 		this.contractService = contractService;
 		this.contractAccoutnService = contractAccoutnService;
 		this.lookupService = lookupService;
 		this.guaranteeService = guaranteeService;
 		this.treeNodeService = treeNodeService;
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
-	
+
 	@Override
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {
 
@@ -146,12 +156,56 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		SysSystemAttributeMappingDto ownerAttribute = mappedAttributes.stream().filter(attribute -> {
 			return CONTRACT_IDENTITY_FIELD.equals(attribute.getIdmPropertyName());
 		}).findFirst().orElse(null);
-		
+
 		if (ownerAttribute == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST,
 					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
 		}
 		return super.validate(synchronizationConfigId);
+	}
+
+	@Override
+	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		log = super.syncCorrectlyEnded(log, context);
+		log = synchronizationLogService.save(log);
+		
+		if(!getConfig(context).isStartOfHrProcesses()){
+			log.addToLog(MessageFormat.format(
+					"Start HR processes contracts (after sync) isn't allowed [{0}]",
+					LocalDateTime.now()));
+			return log;
+		}
+		// Enable contracts task
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run HR task for enable of contracts (HrEnableContractProcess). We start him (synchronously) now [{0}]",
+				LocalDateTime.now()));
+		log = synchronizationLogService.save(log);
+	
+		HrEnableContractProcess startContractExecutor = new HrEnableContractProcess();
+		longRunningTaskManager.executeSync(startContractExecutor);
+		log.addToLog(MessageFormat.format("HR task for enable of contracts ended in [{0}].", LocalDateTime.now()));
+		
+		// End contracts task
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run HR task for end of contracts (HrEndContractProcess). We start him (synchronously) now [{0}]",
+				LocalDateTime.now()));
+		log = synchronizationLogService.save(log);
+		
+		HrEndContractProcess endContractExecutor = new HrEndContractProcess();
+		longRunningTaskManager.executeSync(endContractExecutor);
+		log.addToLog(MessageFormat.format("HR task for end of contracts ended in [{0}].", LocalDateTime.now()));
+		
+		// Exclude contracts task
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run HR task for exclude of contracts (HrContractExclusionProcess). We start him (synchronously) now [{0}]",
+				LocalDateTime.now()));
+		log = synchronizationLogService.save(log);
+		
+		HrContractExclusionProcess excludeContractExecutor = new HrContractExclusionProcess();
+		longRunningTaskManager.executeSync(excludeContractExecutor);
+		log.addToLog(MessageFormat.format("HR task for exlude of contracts ended in [{0}].", LocalDateTime.now()));
+		
+		return log;
 	}
 
 	/**
@@ -190,10 +244,17 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
 			SysSyncItemLogDto logItem) {
-		addToItemLog(logItem, MessageFormat.format(
-				"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-				entity.getId(), entity.getPosition()));
-		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.UPDATE, entity)).getContent();
+		addToItemLog(logItem,
+				MessageFormat.format(
+						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
+						entity.getId(), entity.getPosition()));
+		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
+		// We do not want execute HR processes for every contract. We need start
+		// them for every identity only once.
+		// For this we skip them now. HR processes must be start after whole
+		// sync finished (by using dependent scheduled task)!
+		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+		entityEventManager.process(event).getContent();
 	}
 
 	/**
@@ -224,9 +285,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			// We will remove contract account, but without delete connected
 			// account
 			contractAccoutnService.delete(entityAccount, false);
-			addToItemLog(logItem, MessageFormat.format(
-					"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
-					entityAccount.getContract(), entityAccount.getId()));
+			addToItemLog(logItem,
+					MessageFormat.format(
+							"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
+							entityAccount.getContract(), entityAccount.getId()));
 
 		});
 		return;
@@ -313,9 +375,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					UUID defaultNode = ((SysSyncContractConfigDto) context.getConfig()).getDefaultTreeNode();
 					IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, defaultNode);
 					if (node != null) {
-						context.getLogItem().addToLog(MessageFormat.format(
-								"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
-								node.getCode()));
+						context.getLogItem()
+								.addToLog(MessageFormat.format(
+										"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
+										node.getCode()));
 						return node.getId();
 					}
 				}
@@ -416,9 +479,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 			if (node != null) {
 				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class);
-				context.getLogItem().addToLog(MessageFormat.format(
-						"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
-						value, node.getCode(), treeTypeDto.getCode()));
+				context.getLogItem()
+						.addToLog(MessageFormat.format(
+								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
+								value, node.getCode(), treeTypeDto.getCode()));
 				return node;
 			}
 			context.getLogItem().addToLog(MessageFormat
@@ -427,9 +491,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				// Find by code in default tree type
 				SysSyncContractConfigDto config = this.getConfig(context);
 				if (config.getDefaultTreeType() == null) {
-					context.getLogItem().addToLog(MessageFormat.format(
-							"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
-							value));
+					context.getLogItem()
+							.addToLog(MessageFormat.format(
+									"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
+									value));
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
@@ -460,16 +525,16 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					return null;
 
 				} else {
-					context.getLogItem()
-					.addToLog(MessageFormat.format("Work position - One node [{1}] was found for code [{0}]!", value,
-							nodes.get(0).getId()));
+					context.getLogItem().addToLog(MessageFormat.format(
+							"Work position - One node [{1}] was found for code [{0}]!", value, nodes.get(0).getId()));
 					return nodes.get(0);
 				}
 			}
 		} else {
-			context.getLogItem().addToLog(MessageFormat.format(
-					"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
-					value));
+			context.getLogItem()
+					.addToLog(MessageFormat.format(
+							"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
+							value));
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 		}
@@ -477,7 +542,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	private SysSyncContractConfigDto getConfig(SynchronizationContext context) {
-		Assert.isInstanceOf(SysSyncContractConfigDto.class, context.getConfig(), "For identity sync must be sync configuration instance of SysSyncContractConfigDto!");
+		Assert.isInstanceOf(SysSyncContractConfigDto.class, context.getConfig(),
+				"For identity sync must be sync configuration instance of SysSyncContractConfigDto!");
 		return ((SysSyncContractConfigDto) context.getConfig());
 	}
 
@@ -490,15 +556,20 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected IdmIdentityContractDto save(IdmIdentityContractDto entity, boolean skipProvisioning) {
-		
+
 		if (entity.getIdentity() == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,
 					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
 		}
-		
+
 		EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(
 				contractService.isNew(entity) ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 				entity, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		// We do not want execute HR processes for every contract. We need start
+		// them for every identity only once.
+		// For this we skip them now. HR processes must be start after whole
+		// sync finished (by using dependent scheduled task)!
+		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 
 		IdmIdentityContractDto contract = contractService.publish(event).getContent();
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {

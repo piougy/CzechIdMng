@@ -2,11 +2,14 @@ package eu.bcvsolutions.idm.core.eav.service;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,7 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -23,6 +30,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * EAV definition tests
@@ -34,6 +42,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormDefinitionIntegrationTest.class);
 
+	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmFormAttributeRepository formAttributeRepository;
 	@Autowired private IdmFormAttributeService formAttributeService;
@@ -151,6 +160,129 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
         while (!executor.isTerminated()) {
         }
         LOG.info("Form definition generator - finished all threads");
+	}
+	
+	@Test
+	@Transactional
+	public void testSwitchMainDefinition() {
+		String type = helper.createName();
+		IdmFormDefinitionDto formDefinitionOne = new IdmFormDefinitionDto();
+		formDefinitionOne.setType(type);
+		formDefinitionOne.setCode(helper.createName());
+		formDefinitionOne.setMain(true);
+		formDefinitionOne = formDefinitionService.save(formDefinitionOne);
+		Assert.assertTrue(formDefinitionOne.isMain());
+		formDefinitionOne = formDefinitionService.save(formDefinitionOne);
+		Assert.assertTrue(formDefinitionOne.isMain());
+		//
+		IdmFormDefinitionDto formDefinitionTwo = new IdmFormDefinitionDto();
+		formDefinitionTwo.setType(type);
+		formDefinitionTwo.setCode(helper.createName());
+		formDefinitionTwo.setMain(true);
+		formDefinitionTwo = formDefinitionService.save(formDefinitionTwo);
+		formDefinitionOne = formDefinitionService.get(formDefinitionOne);
+		//
+		Assert.assertFalse(formDefinitionOne.isMain());
+		Assert.assertTrue(formDefinitionTwo.isMain());
+	}
+	
+	@Test
+	@Transactional
+	public void testUpdateDefinition() {
+		List<IdmFormAttributeDto> attributes = new ArrayList<>();
+		attributes.add(new IdmFormAttributeDto("code", "Code", PersistentType.TEXT));
+		attributes.add(new IdmFormAttributeDto("name", "Name", PersistentType.TEXT));		
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, helper.createName(), attributes);
+		// after create
+		Assert.assertEquals(2, formDefinition.getFormAttributes().size());
+		IdmFormAttributeDto code = formDefinition.getFormAttributes().get(0);
+		IdmFormAttributeDto name = formDefinition.getFormAttributes().get(1);
+		Assert.assertEquals("code", code.getCode());
+		Assert.assertEquals("Code", code.getName());
+		Assert.assertNull(code.getDescription());
+		Assert.assertFalse(code.isReadonly());
+		Assert.assertFalse(code.isRequired());
+		Assert.assertFalse(code.isMultiple());
+		Assert.assertFalse(code.isUnmodifiable());
+		Assert.assertNull(code.getFaceType());
+		Assert.assertNull(code.getPlaceholder());
+		Assert.assertEquals(0, code.getSeq().shortValue());
+		Assert.assertEquals("name", name.getCode());
+		Assert.assertEquals("Name", name.getName());
+		Assert.assertEquals(1, name.getSeq().shortValue());
+		// update
+		code.setSeq((short) 2);
+		code.setName("Code update");
+		code.setDefaultValue("default");
+		code.setReadonly(true);
+		code.setRequired(true);
+		code.setMultiple(true);
+		code.setUnmodifiable(true);
+		code.setPlaceholder("placeholder");
+		code.setDescription("description");
+		code.setFaceType("face");
+		IdmFormAttributeDto date = new IdmFormAttributeDto("date", "Date", PersistentType.DATE);
+		date.setSeq((short) 0);
+		formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, formDefinition.getCode(), Lists.newArrayList(code, name, date));
+		// after update
+		Assert.assertEquals(3, formDefinition.getFormAttributes().size());
+		code = formDefinition.getMappedAttributeByCode("code");
+		name = formDefinition.getMappedAttributeByCode("name");
+		date = formDefinition.getMappedAttributeByCode("date");
+		//
+		Assert.assertEquals(0, date.getSeq().shortValue());
+		Assert.assertEquals(1, name.getSeq().shortValue());
+		Assert.assertEquals(2, code.getSeq().shortValue());
+		//
+		Assert.assertEquals("code", code.getCode());
+		Assert.assertEquals("Code update", code.getName());
+		Assert.assertEquals("description", code.getDescription());
+		Assert.assertTrue(code.isReadonly());
+		Assert.assertTrue(code.isRequired());
+		Assert.assertTrue(code.isMultiple());
+		Assert.assertTrue(code.isUnmodifiable());
+		Assert.assertEquals("face", code.getFaceType());
+		Assert.assertEquals("placeholder", code.getPlaceholder());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	@Transactional
+	public void testUpdateDefinitionPersistentType() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto("code", "Code", PersistentType.TEXT);	
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, helper.createName(), Lists.newArrayList(attribute));
+		Assert.assertEquals(1, formDefinition.getFormAttributes().size());
+		//
+		// update
+		attribute.setPersistentType(PersistentType.DATE);
+		formDefinitionService.updateDefinition(IdmIdentityDto.class, formDefinition.getCode(), Lists.newArrayList(attribute));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	@Transactional
+	public void testUpdateDefinitionConfidential() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto("code", "Code", PersistentType.TEXT);	
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, helper.createName(), Lists.newArrayList(attribute));
+		Assert.assertEquals(1, formDefinition.getFormAttributes().size());
+		//
+		// update
+		attribute.setConfidential(true);
+		formDefinitionService.updateDefinition(IdmIdentityDto.class, formDefinition.getCode(), Lists.newArrayList(attribute));
+	}
+	
+	@Test
+	@Transactional
+	public void testUpdateDefinitionRemoveAttribute() {
+		// nothing happens, it's not supported operation (filled data are lost)
+		IdmFormAttributeDto attributeOne = new IdmFormAttributeDto("code", "Code", PersistentType.TEXT);
+		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto("two", "Code", PersistentType.TEXT);	
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(
+				IdmIdentityDto.class, 
+				helper.createName(), 
+				Lists.newArrayList(attributeOne, attributeTwo));
+		Assert.assertEquals(2, formDefinition.getFormAttributes().size());
+		//
+		formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, formDefinition.getCode(), Lists.newArrayList(attributeTwo));
+		Assert.assertEquals(2, formDefinition.getFormAttributes().size());
 	}
 	
 	private class FormDefinitionCreator implements Runnable {

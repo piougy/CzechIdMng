@@ -384,7 +384,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * Generate cell with actions (buttons)
    */
   _conceptActionsCell({rowIndex, data}) {
-    const {readOnly} = this.props;
+    const {readOnly, showLoadingButtonRemove} = this.props;
     const actions = [];
     const value = data[rowIndex];
     const notModificated = !(value._added || value._removed || value._changed);
@@ -396,6 +396,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         onClick={this._deleteConcept.bind(this, data[rowIndex])}
         className="btn-xs"
         disabled={readOnly || isAutomaticRole}
+        showLoading={showLoadingButtonRemove}
         role="group"
         title={this.i18n('button.delete')}
         titlePlacement="bottom">
@@ -635,7 +636,8 @@ RoleConceptTable.propTypes = {
 
 RoleConceptTable.defaultProps = {
   filterOpened: false,
-  showLoading: false
+  showLoading: false,
+  showLoadingButtonRemove: false
 };
 
 

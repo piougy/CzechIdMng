@@ -254,7 +254,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// For this we skip them now. HR processes must be start after whole
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-		entityEventManager.process(event).getContent();
+		entityEventManager.process(event);
 	}
 
 	/**

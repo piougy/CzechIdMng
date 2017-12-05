@@ -744,7 +744,7 @@
         "minSpecialChar": "Minimum number of special characters: {{0}}",
         "policiesNames": "Password does not meet these password policies: ",
         "policiesNamesPreValidation": "Password have to meet these password policies: ",
-        "minRulesToFulfillCount": "Unfulfilled minimum mandatory rules: ",
+        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: ",
         "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
         "passwordSimilarUsername": "Password cannot be similar to login: ",
         "passwordSimilarEmail": "Password cannot be similar to email: ",

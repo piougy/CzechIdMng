@@ -37,7 +37,6 @@ class SyncIdentityConfig extends Basic.AbstractContent {
       <Basic.AbstractForm ref="formSpecific" data={synchronizationConfig} showLoading={showLoading} className="panel-body">
         <Basic.SelectBox
           ref="defaultRole"
-          required
           manager={roleManager}
           label={this.i18n('identityConfigDetail.defaultRole.label')}
           helpBlock={this.i18n('identityConfigDetail.defaultRole.helpBlock')}/>

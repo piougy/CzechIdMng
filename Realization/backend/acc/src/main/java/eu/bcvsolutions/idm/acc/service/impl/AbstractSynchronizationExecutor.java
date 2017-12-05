@@ -1258,11 +1258,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected EntityAccountDto createEntityAccount(AccAccountDto account, DTO entity, SynchronizationContext context) {
 		// Create new entity account relation
-		EntityAccountDto roleAccount = this.createEntityAccountDto();
-		roleAccount.setAccount(account.getId());
-		roleAccount.setEntity(entity.getId());
-		roleAccount.setOwnership(true);
-		return roleAccount;
+		EntityAccountDto entityAccount = this.createEntityAccountDto();
+		entityAccount.setAccount(account.getId());
+		entityAccount.setEntity(entity.getId());
+		entityAccount.setOwnership(true);
+		return entityAccount;
 	}
 
 	/**

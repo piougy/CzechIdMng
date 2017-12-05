@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -89,36 +90,24 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmIdentityContractService identityContractService;
 
 	@Autowired
-	public IdentitySynchronizationExecutor(
-			IcConnectorFacade connectorFacade, 
-			SysSystemService systemService,
+	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, 
-			SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService,
-			AccAccountService accountService,
-			SysSystemEntityService systemEntityService, 
-			ConfidentialStorage confidentialStorage,
-			FormService formService, 
-			IdmIdentityService identityService,
-			AccIdentityAccountService identityAccoutnService, 
-			SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService identityRoleService, 
-			EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, 
-			WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, 
-			SysSystemMappingService systemMappingService,
-			SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService,
-			IdmRoleRequestService roleRequestService,
-			IdmIdentityContractService identityContractService,
+			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
+			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
+			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
+			FormService formService, IdmIdentityService identityService,
+			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
+			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
+			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityManager entityManager, SysSystemMappingService systemMappingService,
+			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService,
+			IdmRoleRequestService roleRequestService, IdmIdentityContractService identityContractService,
 			IdmConceptRoleRequestService conceptRoleRequestService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService,
-				schemaObjectClassService, schemaAttributeService);
+				workflowProcessInstanceService, entityManager, systemMappingService, schemaObjectClassService,
+				schemaAttributeService);
 		//
 		Assert.notNull(identityService, "Identity service is mandatory!");
 		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
@@ -323,45 +312,65 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	@Override
-	protected EntityAccountDto createEntityAccount(AccAccountDto account, IdmIdentityDto entity, SynchronizationContext context) {
+	protected EntityAccountDto createEntityAccount(AccAccountDto account, IdmIdentityDto entity,
+			SynchronizationContext context) {
 		Assert.notNull(account);
 		Assert.notNull(entity);
-		
-		EntityAccountDto entityAccount =  super.createEntityAccount(account, entity, context);
-		Assert.isInstanceOf(AccIdentityAccountDto.class, entityAccount, "For identity sync must be entity-account relation instance of AccIdentityAccountDto!");
+
+		EntityAccountDto entityAccount = super.createEntityAccount(account, entity, context);
+		Assert.isInstanceOf(AccIdentityAccountDto.class, entityAccount,
+				"For identity sync must be entity-account relation instance of AccIdentityAccountDto!");
 		AccIdentityAccountDto identityAccount = (AccIdentityAccountDto) entityAccount;
 		SysSyncIdentityConfigDto config = this.getConfig(context);
 		UUID defaultRoleId = config.getDefaultRole();
-		if(defaultRoleId == null) {
+		if (defaultRoleId == null) {
 			return identityAccount;
 		}
 		// Default role is defines
 		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole, IdmRoleDto.class);
-		context.getLogItem().addToLog(
-				MessageFormat.format("Default role [{1}] is defines and will be assigned to the identity [{0}].", entity.getCode(), defaultRole.getCode()));
+		context.getLogItem()
+				.addToLog(MessageFormat.format(
+						"Default role [{1}] is defines and will be assigned to the identity [{0}].", entity.getCode(),
+						defaultRole.getCode()));
 		Assert.notNull(defaultRole, "Default role must be found for this sync configuration!");
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
-		if(primeContract == null) {
+		if (primeContract == null) {
 			context.getLogItem().addToLog(
 					"Warning! - Default role is set, but could not be assigned to identity, because was not found any valid identity contract!");
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 			return identityAccount;
 		}
-		
+
 		// Create role request for default role and primary contract
 		IdmRoleRequestDto roleRequest = roleRequestService.createRequest(primeContract, defaultRole);
 		roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), false);
-		
+
 		// Load concept (can be only one)
 		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
 		conceptFilter.setRoleRequestId(roleRequest.getId());
 		UUID identityRoleId = conceptRoleRequestService.find(conceptFilter, null).getContent().get(0).getIdentityRole();
 		Assert.notNull(identityRoleId, "Identity role relation had to been created!");
+
 		identityAccount.setIdentityRole(identityRoleId);
-		
+		AccIdentityAccountDto duplicate = this.findDuplicate(identityAccount);
+		if (duplicate != null) {
+			// This IdentityAccount is new and duplicated, we do not want create duplicated
+			// relation.
+			// Same IdentityAccount had to be created by assigned default role!
+			context.getLogItem().addToLog(MessageFormat.format(
+					"This identity-account (identity-role id: {2}) is new and duplicated, "
+					+ "we do not want create duplicated relation! "
+					+ "We will reusing already persisted identity-account [{3}]. "
+					+ "Probable reason: Same  identity-account had to be created by assigned default role!",
+					identityAccount.getAccount(), identityAccount.getIdentity(), identityAccount.getIdentityRole(),
+					duplicate.getId()));
+			// Reusing duplicate
+			return duplicate;
+		}
+
 		return identityAccount;
-		
+
 	}
 
 	@Override
@@ -424,5 +433,30 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.isInstanceOf(SysSyncIdentityConfigDto.class, context.getConfig(),
 				"For identity sync must be sync configuration instance of SysSyncIdentityConfigDto!");
 		return ((SysSyncIdentityConfigDto) context.getConfig());
+	}
+
+	/**
+	 * Search duplicate for given identity-account relation.
+	 * If some duplicate is found, then is returned first.
+	 * @param identityAccount
+	 * @return
+	 */
+	private AccIdentityAccountDto findDuplicate(AccIdentityAccountDto identityAccount) {
+		Assert.notNull(identityAccount);
+		Assert.notNull(identityAccount.getAccount());
+		Assert.notNull(identityAccount.getIdentity());
+
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setAccountId(identityAccount.getAccount());
+		filter.setOwnership(identityAccount.isOwnership());
+		filter.setIdentityId(identityAccount.getIdentity());
+		filter.setIdentityRoleId(identityAccount.getIdentityRole());
+		filter.setRoleSystemId(identityAccount.getRoleSystem());
+
+		List<AccIdentityAccountDto> entityAccounts = identityAccoutnService.find(filter, null).getContent();
+		if (entityAccounts.isEmpty()) {
+			return null;
+		}
+		return entityAccounts.get(0);
 	}
 }

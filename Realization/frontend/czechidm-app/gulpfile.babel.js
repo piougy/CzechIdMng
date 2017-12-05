@@ -386,11 +386,6 @@ gulp.task('loadModuleLocales', () => {
   })).pipe(reload({stream: true}));
 });
 
-// validate JSON files using localization-validator
-gulp.task('localization-validator', shell.task([
-  'java -jar localization-validator.jar ' + paths.distLocale
-]));
-
 gulp.task('lint', shell.task([
   'npm run lint'
 ]));

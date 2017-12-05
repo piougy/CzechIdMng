@@ -44,59 +44,57 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     }
   }
 
-  _startSynchronization(bulkActionValue, ids, event) {
+  _startSynchronization(bulkActionValue, sync, event) {
     if (event) {
       event.preventDefault();
     }
     this.refs[`confirm-delete`].show(
-      this.i18n(`action.startSynchronization.message`),
+      this.i18n(`action.startSynchronization.message`, { name: sync.name }),
       this.i18n(`action.startSynchronization.header`)
     ).then(() => {
-      for (const id of ids) {
+      this.setState({
+        showLoading: true
+      });
+      this.addMessage({ level: 'info', message: this.i18n('action.startSynchronization.started', { name: sync.name })});
+      const promise = this.getManager().getService().startSynchronization(sync.id);
+      if (this.refs.table) {
+        this.refs.table.getWrappedInstance().reload();
+      }
+      promise.then(() => {
         this.setState({
-          showLoading: true
+          showLoading: false
         });
-        this.addMessage({ level: 'info', message: this.i18n('action.startSynchronization.started')});
-        const promise = this.getManager().getService().startSynchronization(id);
         if (this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
-        promise.then(() => {
-          this.setState({
-            showLoading: false
-          });
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
-          }
-          // this.addMessage({ message: this.i18n('action.startSynchronization.success', { name: json.name }) });
-        }).catch(ex => {
-          this.setState({
-            showLoading: false
-          });
-          this.addError(ex);
-          if (this.refs.table) {
-            this.refs.table.getWrappedInstance().reload();
-          }
+        // this.addMessage({ message: this.i18n('action.startSynchronization.success', { name: json.name }) });
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
         });
-      }
+        this.addError(ex);
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      });
     }, () => {
       // Rejected
     });
     return;
   }
 
-  _cancelSynchronization(id, event) {
+  _cancelSynchronization(sync, event) {
     if (event) {
       event.preventDefault();
     }
     this.refs[`confirm-delete`].show(
-      this.i18n(`action.cancelSynchronization.message`),
+      this.i18n(`action.cancelSynchronization.message`, {name: sync.name}),
       this.i18n(`action.cancelSynchronization.header`)
     ).then(() => {
       this.setState({
         showLoading: true
       });
-      const promise = this.getManager().getService().cancelSynchronization(id);
+      const promise = this.getManager().getService().cancelSynchronization(sync.id);
       promise.then((json) => {
         this.setState({
           showLoading: false
@@ -250,7 +248,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                         style={{marginRight: '2px'}}
                         title={this.i18n('button.start')}
                         titlePlacement="bottom"
-                        onClick={this._startSynchronization.bind(this, null, [data[rowIndex].id])}
+                        onClick={this._startSynchronization.bind(this, null, data[rowIndex])}
                         disabled={ !data[rowIndex].enabled }
                         className="btn-xs">
                         <Basic.Icon type="fa" icon="play"/>
@@ -263,7 +261,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                         style={{marginRight: '2px'}}
                         title={this.i18n('button.cancel')}
                         titlePlacement="bottom"
-                        onClick={this._cancelSynchronization.bind(this, data[rowIndex].id)}
+                        onClick={this._cancelSynchronization.bind(this, data[rowIndex])}
                         className="btn-xs">
                         <Basic.Icon type="fa" icon="remove"/>
                       </Basic.Button>

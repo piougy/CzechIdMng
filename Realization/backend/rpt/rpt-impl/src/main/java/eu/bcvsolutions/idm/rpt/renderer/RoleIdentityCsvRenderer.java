@@ -37,7 +37,7 @@ public class RoleIdentityCsvRenderer
 		extends AbstractCsvRenderer
 		implements RendererRegistrar {
 
-	public static final String RENDERER_NAME = "identity-role-csv-renderer";
+	public static final String RENDERER_NAME = "role-identity-csv-renderer";
 	
 	@Override
 	public String getName() {

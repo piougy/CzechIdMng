@@ -410,7 +410,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- Excel -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -425,7 +425,7 @@
 			<artifactId>ooxml-schemas</artifactId>
 			<version>1.1</version>
 		</dependency>
-		
+
 		<!-- CSV -->
 		<dependency>
 		    <groupId>com.opencsv</groupId>

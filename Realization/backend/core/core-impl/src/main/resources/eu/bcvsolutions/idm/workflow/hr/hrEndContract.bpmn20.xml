@@ -32,51 +32,43 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
-Logger LOG = LoggerFactory.getLogger("hrEndContract")
+org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrEndContract");
 
-LOG.info("End contract dto: [{}]", dto)
+LOG.info("End contract dto: [{}]", dto);
 
 if (dto == null) {
-	throw new IllegalArgumentException("Missing input parameters!")
+	throw new IllegalArgumentException("Missing input parameters!");
 }
 
-def result = null
+def result = null;
 try {
-	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
-	def hasValidContracts = false
-	for (c in contracts) {
-		if (c.getState() != ContractState.EXCLUDED &amp;&amp; c.isValid()) {
-			hasValidContracts = true
-			break
+	// update identity state
+	def identity = identityService.get(dto.getIdentity());
+	def newState = identityService.evaluateState(identity.getId());
+	if (identity.getState() != newState) {
+		identity.setState(newState);
+		identityService.save(identity);
+	}
+	//
+	// remove all contract roles
+	if(!dto.isValidNowOrInFuture()) {
+		def contractRoles = identityRoleService.findAllByContract(dto.getId());
+		for (role in contractRoles) {
+			identityRoleService.delete(role, null);
 		}
 	}
 	//
-	if (!hasValidContracts) {
-		// disable identity
-		def identity = identityService.get(dto.getIdentity())
-		if (!identity.isDisabled()) {
-			identity.setDisabled(true)
-			identityService.save(identity)
-		}
-	}
-	//
-	// remove manually added roles
-	def contractRoles = identityRoleService.findAllByContract(dto.getId())
-	for (role in contractRoles) {
-		identityRoleService.delete(role, null)
-	}
-	//
-	result = new OperationResult.Builder(OperationState.EXECUTED).build()
+	result = new OperationResult.Builder(OperationState.EXECUTED).build();
 } catch (Exception e) {
-	LOG.error("An error occurred.", e)
-	result = new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build()
+	LOG.error("An error occurred.", e);
+	result = new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build();
 }
 
-LOG.info("result state: [{}]", result.getState())
+LOG.info("result state: [{}]", result.getState());
 
 // set operation result for next activities
-execution.setVariable("success", OperationState.isSuccessful(result.getState()))
-execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
+execution.setVariable("success", OperationState.isSuccessful(result.getState()));
+execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result);
 //
 // process end
 </script>
@@ -87,7 +79,10 @@ execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${success == false}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask2" name="handle failure script" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>println "FAILURE!"</script>
+      <script>
+      	org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrEndContract");
+		LOG.warn("FAILURE!");
+      </script>
     </scriptTask>
     <sequenceFlow id="flow5" name="[SUCCESS]" sourceRef="exclusivegateway1" targetRef="scripttask3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${success == true}]]></conditionExpression>
@@ -95,7 +90,10 @@ execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
     <sequenceFlow id="flow6" sourceRef="scripttask2" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow7" sourceRef="scripttask3" targetRef="endevent"></sequenceFlow>
     <scriptTask id="scripttask3" name="handle success script" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>println "SUCCESS!"</script>
+      <script>
+      	org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrEndContract");
+		LOG.warn("SUCCESS!");
+      </script>
     </scriptTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_hrEndContract">

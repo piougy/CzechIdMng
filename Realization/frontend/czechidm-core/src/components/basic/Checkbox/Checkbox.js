@@ -33,6 +33,23 @@ class Checkbox extends AbstractFormComponent {
     return Joi.boolean().valid(true);
   }
 
+  _isChecked(value) {
+    if (value === null) {
+      return false;
+    }
+    if (value === undefined) {
+      return false;
+    }
+    if (value === true) {
+      return true;
+    }
+    if ((typeof value === 'string') && value.toLowerCase() === 'true') {
+      return true;
+    }
+    //
+    return false;
+  }
+
   getBody() {
     const { labelSpan, label, componentSpan } = this.props;
     const { value, readOnly, disabled } = this.state;
@@ -50,10 +67,10 @@ class Checkbox extends AbstractFormComponent {
               <input
                 type="checkbox"
                 ref="checkbox"
-                disabled={readOnly || disabled}
-                onChange={this.onChange}
-                checked={value}
-                readOnly={readOnly}/>
+                disabled={ readOnly || disabled }
+                onChange={ this.onChange }
+                checked={ this._isChecked(value) }
+                readOnly={ readOnly }/>
               <span>
                 {label}
               </span>

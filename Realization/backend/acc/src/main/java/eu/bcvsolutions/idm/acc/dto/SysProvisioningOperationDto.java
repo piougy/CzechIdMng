@@ -170,6 +170,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		private UUID system;
 		private SystemEntityType entityType;
 		private UUID systemEntity;
+		private String systemEntityUid;
 		
 		public Builder setOperationType(ProvisioningEventType operationType) {
 			this.operationType = operationType;
@@ -218,6 +219,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			this.system = systemEntity.getSystem();
 			this.entityType = systemEntity.getEntityType();
 			this.systemEntity = systemEntity.getId();
+			this.systemEntityUid = systemEntity.getUid();
 			return this;
 		}
 		
@@ -246,6 +248,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			provisioningOperation.setOperationType(operationType);
 			provisioningOperation.setSystem(system);
 			provisioningOperation.setSystemEntity(systemEntity);
+			provisioningOperation.setSystemEntityUid(systemEntityUid);
 			provisioningOperation.setEntityType(entityType);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
 			provisioningOperation.setProvisioningContext(provisioningContext);

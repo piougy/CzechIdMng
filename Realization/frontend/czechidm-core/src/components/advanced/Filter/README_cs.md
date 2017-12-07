@@ -8,4 +8,4 @@ Hodnoty filtru se vyhodnocují operátorem **like**:
 
 
 
-Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko **\\%,\\_.**
+Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko **\\%,\\.**

@@ -129,6 +129,9 @@ public class DefaultSysProvisioningOperationService
 		if (dto != null) {
 			// copy => detach
 			dto.setProvisioningContext(new ProvisioningContext(dto.getProvisioningContext()));
+			if (entity != null && entity.getSystemEntity() != null) {
+				dto.setSystemEntityUid(entity.getSystemEntity().getUid());
+			}
 		}
 		return dto;
 	}

@@ -31,6 +31,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String MODULE_ID = "acc";
 	public static final String TOPIC_PROVISIONING = String.format("%s:provisioning", MODULE_ID);
 	public static final String TOPIC_NEW_PASSWORD = String.format("%s:newPassword", MODULE_ID);
+	public static final String TOPIC_NEW_PASSWORD_ALL_SYSTEMS = String.format("%s:newPasswordAllSystems", MODULE_ID);
 	public static final String TOPIC_PROVISIONING_BREAK_WARNING = String.format("%s:provisioningBreakWarning", MODULE_ID);
 	public static final String TOPIC_PROVISIONING_BREAK_DISABLE = String.format("%s:provisioningBreakDisable", MODULE_ID);
 
@@ -76,6 +77,14 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains new password and information about new account.", 
 				getNotificationTemplateId("newPassword"))
+				);
+		//
+		configs.add(new IdmNotificationConfigurationDto(
+				TOPIC_NEW_PASSWORD_ALL_SYSTEMS, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains new password and information about acconunts.", 
+				getNotificationTemplateId("newPasswordAllSystems"))
 				);
 		return configs;
 	}

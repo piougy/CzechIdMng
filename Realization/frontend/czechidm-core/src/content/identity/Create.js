@@ -233,7 +233,8 @@ class Profile extends Basic.AbstractContent {
                         max={30} />
                     </div>
                   </Basic.Row>
-                  <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
+                  {/* TODO: support creating disabled identities? */}
+                  <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')} rendered={ false }/>
                   <Basic.TextArea ref="description"
                     label={this.i18n('content.identity.profile.description.label')}
                     placeholder={this.i18n('content.identity.profile.description.placeholder')}

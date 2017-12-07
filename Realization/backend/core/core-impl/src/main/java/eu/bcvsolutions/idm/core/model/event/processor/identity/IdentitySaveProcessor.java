@@ -76,7 +76,10 @@ public class IdentitySaveProcessor
 		}
 		//
 		// create default identity contract
-		if (IdentityEventType.CREATE.name() == event.getType().name() 
+		boolean skipCreationDefaultContract = getBooleanProperty(
+				IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, event.getProperties());
+		
+		if (!skipCreationDefaultContract && IdentityEventType.CREATE.name() == event.getType().name()
 				&& identityConfiguration.isCreateDefaultContractEnabled()) {
 			identityContractService.save(identityContractService.prepareMainContract(identity.getId()));
 		}

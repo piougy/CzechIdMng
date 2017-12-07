@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file.
 
 - Method ``saveAndFlush`` was added into ``BaseEntityRepository`` and this method is used now for saving all dtos - see ``AbstractReadWriteDtoService#saveInternal``. Auditable dto's metadata (e.g. ``modifier``, ``modified``) are available now after dto is saved by ``IdentitySevaProcessor``, for more information read [#834](https://redmine.czechidm.com/issues/834).
 
+##### Sync
+- Since version **7.6 (in identity synchronization)**, the default contractual relationship (when creating a new identity) is not created, for more information read [#867](https://redmine.czechidm.com/issues/867)!
+
 ##### Identity
 - Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
 

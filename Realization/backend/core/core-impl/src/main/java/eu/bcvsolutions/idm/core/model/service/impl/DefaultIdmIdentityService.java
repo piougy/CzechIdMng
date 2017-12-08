@@ -134,11 +134,21 @@ public class DefaultIdmIdentityService
 		IdmIdentity identity = super.toEntity(dto, entity);
 		if (identity != null) {
 			if (identity.getState() == null) {
-				identity.setState(IdentityState.CREATED); // default state
+				identity.setState(evaluateState(dto));
 			}
 			identity.setDisabled(identity.getState().isDisabled()); // redundant attribute for queries
 		}
 		return identity;
+	}
+	
+	@Override
+	protected IdmIdentityDto toDto(IdmIdentity entity) {
+		IdmIdentityDto dto = super.toDto(entity);
+		if (dto != null && entity != null) {
+			// set state - prevent to use disabled setter
+			dto.setState(entity.getState());
+		}
+		return dto;
 	}
 	
 	@Override
@@ -523,7 +533,7 @@ public class DefaultIdmIdentityService
 	 * @return
 	 */
 	private IdentityState evaluateState(IdmIdentityDto identity) {
-		if (identity.getId() == null) {
+		if (identity == null || identity.getId() == null) {
 			return IdentityState.CREATED;
 		}
 		// read identity contract

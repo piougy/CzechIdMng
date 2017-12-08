@@ -161,8 +161,7 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	}
 
 	public boolean isDisabled() {
-		// state cannot be null
-		return state.isDisabled();
+		return state == null ? disabled : state.isDisabled();
 	}
 
 	/**
@@ -177,7 +176,8 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 		if (disabled) {
 			state = IdentityState.DISABLED;
 		}  else {
-			state = IdentityState.VALID;
+			// state will be evaluated, when identity is saved again
+			state = null;
 		}
 	}
 	

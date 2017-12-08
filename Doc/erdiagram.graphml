@@ -21,7 +21,7 @@
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="49.990234375" x="41.975811543540686" y="4.0">Identity</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="129.71875" modelName="custom" textColor="#000000" visible="true" width="100.234375" x="2.0" y="29.96875">- username (ux)
+          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="143.6875" modelName="custom" textColor="#000000" visible="true" width="100.234375" x="2.0" y="29.96875">- username (ux)
 + lastName
 - disabled
 + firstName
@@ -29,7 +29,8 @@
 + email
 + titleBefore
 + titleAfter
-+ description<y:LabelModel>
++ description
+- state<y:LabelModel>
               <y:ErdAttributesNodeLabelModel/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -2118,7 +2119,6 @@ ContractState</y:NodeLabel>
       </data>
     </node>
     <node id="n87">
-      <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
           <y:Geometry height="30.0" width="30.0" x="-2167.040860215054" y="-1277.2301075268817"/>
@@ -3868,7 +3868,6 @@ obsah<y:LabelModel>
       </data>
     </edge>
     <edge id="e111" source="n40" target="n18">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -3881,7 +3880,6 @@ obsah<y:LabelModel>
       </data>
     </edge>
     <edge id="e112" source="n33" target="n88">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -3892,7 +3890,6 @@ obsah<y:LabelModel>
       </data>
     </edge>
     <edge id="e113" source="n89" target="n33">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>

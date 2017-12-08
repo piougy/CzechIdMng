@@ -197,6 +197,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 	/**
 	 * Save entity
+	 * In the identity sync are creation of the default contract skipped.
 	 * 
 	 * @param entity
 	 * @param skipProvisioning
@@ -206,7 +207,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected IdmIdentityDto save(IdmIdentityDto entity, boolean skipProvisioning) {
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
 				identityService.isNew(entity) ? IdentityEventType.CREATE : IdentityEventType.UPDATE, entity,
-				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				ImmutableMap.of( //
+						ProvisioningService.SKIP_PROVISIONING, skipProvisioning,//
+						// In the identity sync are creation of the default contract skipped.
+						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE));
 
 		return identityService.publish(event).getContent();
 	}

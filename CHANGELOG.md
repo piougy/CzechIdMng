@@ -46,6 +46,10 @@ All notable changes to this project will be documented in this file.
 
 - [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
 
+##### Identity
+
+- [#815](https://redmine.czechidm.com/issues/815) - Identity state was added. When identity starts to be valid, then new password is generated for all their accounts - one password is set on all identity's accounts and in CzechIdM. Identity can be disabled (and enabled) manually through rest endpoint. Other states are controlled by system and by identity contract states.
+
 ##### Report module
 - Reports are available now, read more in documentation.
 

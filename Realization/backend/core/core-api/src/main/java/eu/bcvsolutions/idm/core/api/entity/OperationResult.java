@@ -41,6 +41,8 @@ public class OperationResult implements Serializable {
 	@Type(type = "org.hibernate.type.StringClobType")
 	private String cause;
 	
+	private transient Throwable exception;
+	
 	public OperationResult() {
 	}
 	
@@ -52,6 +54,7 @@ public class OperationResult implements Serializable {
 		state = builder.state;
 		code = builder.code;
 		if (builder.cause != null) {
+			exception = builder.cause;
 			cause = Throwables.getStackTraceAsString(builder.cause);
 		}
 		model = builder.model;
@@ -91,6 +94,10 @@ public class OperationResult implements Serializable {
 	
 	public ResultModel getModel() {
 		return model;
+	}
+	
+	public Throwable getException() {
+		return exception;
 	}
 	
 	/**

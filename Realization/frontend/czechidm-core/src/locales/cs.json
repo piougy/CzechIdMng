@@ -587,6 +587,16 @@
     "ContractStateEnum": {
       "EXCLUDED": "Vyňat z evidenčního počtu",
       "DISABLED": "$t(label.disabled)"
+    },
+    "IdentityStateEnum": {
+      "CREATED": "Vytvořen(a)",
+      "NO_CONTRACT": "Bez úvazku",
+      "FUTURE_CONTRACT": "Nastoupí",
+      "VALID": "Validní",
+      "PASSWORD_EXPIRED": "Heslo vypršelo",
+      "LEFT": "Odešel(a)",
+      "DISABLED": "$t(label.disabled)",
+      "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
     }
   },
   "dashboard": {
@@ -981,25 +991,25 @@
       },
       "action": {
         "deactivate": {
-          "action": "Deaktivovat",
-          "header_1": "Deaktivace uživatele",
-          "header_2": "Deaktivace uživatelů",
+          "action": "Deaktivovat - manuálně",
+          "header_1": "Manuální deaktivace uživatele",
+          "header_2": "Manuální deaktivace uživatelů",
           "header_5": "$t(content.identities.action.deactivate.header_2)",
-          "message_1": "Opravdu chcete deaktivovat vybraného uživatele <strong>{{username}}</strong>?",
-          "message_2": "Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané uživatele?",
+          "message_1": "Opravdu chcete manuálně deaktivovat vybraného uživatele <strong>{{username}}</strong>? Manuálně deaktivovaný uživatel může být opět aktiovován pouze manuálně.",
+          "message_2": "Opravdu chcete manuálně deaktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně deaktivovaní uživatelé můžou být opět aktiovováni pouze manuálně.",
           "message_5": "$t(content.identities.action.deactivate.message_2)",
           "error": "Při deaktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
         },
         "activate": {
-          "action": "Aktivovat",
+          "action": "Aktivovat - manuálně",
           "header_0": "N/A",
-          "header_1": "Aktivace uživatele",
-          "header_2": "Aktivace uživatelů",
+          "header_1": "Manuální aktivace uživatele",
+          "header_2": "Manuální aktivace uživatelů",
           "header_5": "$t(content.identities.action.activate.header_2)",
-          "message_1": "Opravdu chcete aktivovat vybraného uživatele <strong>{{username}}</strong>?",
-          "message_2": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybrané uživatele?",
-          "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
+          "message_1": "Opravdu chcete manuálně aktivovat vybraného uživatele <strong>{{username}}</strong>? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
+          "message_2": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
+          "message_5": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybraných uživatelů? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
         },
@@ -2085,11 +2095,19 @@
       "password": "Heslo",
       "passwordAgain": "Heslo znovu",
       "homeOrganisation": "Domovská organizace",
-      "disabled": "Neaktivní",
+      "disabled": "$t(label.disabled)",
       "internist": "Internista",
       "externe": "Externista",
       "titleBefore": "Titul před",
-      "titleAfter": "Titul za"
+      "titleAfter": "Titul za",
+      "state": {
+        "label": "Stav",
+        "help": "Stav uživatele."
+      },
+      "disabledReadonly": {
+        "label": "$t(label.disabled)",
+        "help": "Neaktivní identitě není povoleno přihlášení."
+      }
     },
     "RoleCatalogue": {
       "_type": "Složka katalogu",
@@ -3115,6 +3133,14 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Prvek stromové struktury nelze odebrat",
       "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
+    },
+    "IDENTITY_ALREADY_DISABLED_MANUALLY": {
+      "title": "Uživatel je již deaktivován",
+      "message": "Uživatel [{{username}}] je již manuálně deaktivován. Nelze jej deaktivovat znovu."
+    },
+    "IDENTITY_NOT_DISABLED_MANUALLY": {
+      "title": "Uživatel není deaktivován manuálně",
+      "message": "Uživatel [{{username}}] nemůže být manuálně aktivován. Manuálně aktivovat lze pouze manuálně deaktivované uživatele."
     }
   },
   "validationError": {

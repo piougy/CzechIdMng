@@ -45,7 +45,7 @@
     "download": "Download",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
-    "disabled": "Disabled",
+    "disabled": "Inactive",
     "property": "Attribute",
     "value": "Value",
     "yes": "Yes",
@@ -564,6 +564,16 @@
     "ContractStateEnum": {
       "EXCLUDED": "Excluded",
       "DISABLED": "$t(label.disabled)"
+    },
+    "IdentityStateEnum": {
+      "CREATED": "Created",
+      "NO_CONTRACT": "No contract",
+      "FUTURE_CONTRACT": "Future contract",
+      "VALID": "Valid",
+      "PASSWORD_EXPIRED": "Password expired",
+      "LEFT": "Left",
+      "DISABLED": "$t(label.disabled)",
+      "DISABLED_MANUALLY": "$t(label.disabled) - manually"
     }
   },
   "dashboard": {
@@ -953,21 +963,21 @@
       },
       "action": {
         "deactivate": {
-          "action": "Deactivate",
-          "header": "Deactivate user",
-          "header_plural": "Deactivate users",
-          "message": "Do you really want to deactivate the selected user <strong>{{username}}</strong>?",
-          "message_plural": "Do you really want to deactivate <strong>{{count}}</strong> selected users?",
+          "action": "Deactivate manually",
+          "header": "Deactivate user manually",
+          "header_plural": "Deactivate users manually",
+          "message": "Do you really want to deactivate the selected user <strong>{{username}}</strong> manually? Manually deactivated user can be activated manually only.",
+          "message_plural": "Do you really want to deactivate <strong>{{count}}</strong> selected users manually? Manually deactivated users can be activated manually only.",
           "error": "When you deactivate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are deactivated"
         },
         "activate": {
-          "action": "Activate",
+          "action": "Activate manually",
           "header_0": "N/A",
-          "header": "Activate user",
-          "header_plural": "Activate users",
-          "message": "Do you really want to activate the selected user <strong>{{username}}</strong>?",
-          "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users?",
+          "header": "Activate user manually",
+          "header_plural": "Activate users manually",
+          "message": "Do you really want to activate the selected user <strong>{{username}}</strong> manually? Only manually deactivated user can be activated.",
+          "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users? Only manually deactivated users can be activated.",
           "error": "When you activate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are activated"
         },
@@ -2052,7 +2062,15 @@
       "internist": "Employee",
       "externe": "External contractor",
       "titleBefore": "Titles before",
-      "titleAfter": "Titles after"
+      "titleAfter": "Titles after",
+      "state": {
+        "label": "State",
+        "help": "Identity state"
+      },
+      "disabledReadonly": {
+        "label": "$t(label.disabled)",
+        "help": "$t(label.disabled) identity cannot log in."
+      }
     },
     "RoleCatalogue": {
       "_type": "Catalog folder",
@@ -2274,7 +2292,7 @@
         "help": "Main / prime work position. It's created automatically when the user is created."
       },
       "state": {
-        "label": "Stav",
+        "label": "State",
         "help": "Contract's state"
       }
     },
@@ -3074,6 +3092,14 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
       "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+    },
+    "IDENTITY_ALREADY_DISABLED_MANUALLY": {
+      "title": "User is already deactivated",
+      "message": "User [{{username}}] is already deactivated manually. Cannot be deactivated twice."
+    },
+    "IDENTITY_NOT_DISABLED_MANUALLY": {
+      "title": "User is not deactivated manually",
+      "message": "User [{{username}}] cannot be activated manually. Only manually deactivated user can be activated."
     }
   },
   "validationError": {

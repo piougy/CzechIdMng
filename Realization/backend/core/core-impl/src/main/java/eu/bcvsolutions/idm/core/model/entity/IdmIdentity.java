@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -26,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -105,6 +108,12 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
+	
+	@Audited
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "state", nullable = true, length = 45)
+	private IdentityState state = IdentityState.CREATED; // @since 7.6.0
 	
 	public IdmIdentity() {
 	}
@@ -229,5 +238,25 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	@Override
 	public String getSubOwnerType() {
 		return null;
+	}
+	
+	/**
+	 * Returns identity state
+	 * 
+	 * @since 7.6.0
+	 * @return
+	 */
+	public IdentityState getState() {
+		return state;
+	}
+	
+	/**
+	 * Set identity state
+	 * 
+	 * @since 7.6.0
+	 * @param state
+	 */
+	public void setState(IdentityState state) {
+		this.state = state;
 	}
 }

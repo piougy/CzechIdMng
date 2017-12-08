@@ -46,7 +46,8 @@
           "longRunningTask": {
             "title": "Show long running task"
           }
-        }
+        },
+        "add": "New report"
       },
       "message": {
         "renderer": {

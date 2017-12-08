@@ -51,18 +51,16 @@ public class IdentityRoleXlsxRenderer extends AbstractXlsxRenderer {
 	        // header
 	        Row row = sheet.createRow(0);
 	        Cell cell = row.createCell(0);
-	        cell.setCellValue("Id");
-	        cell = row.createCell(1);
 	        cell.setCellValue("Username");
-	        cell = row.createCell(2);
+	        cell = row.createCell(1);
 	        cell.setCellValue("First name");
-	        cell = row.createCell(3);
+	        cell = row.createCell(2);
 	        cell.setCellValue("Last name");
-	        cell = row.createCell(4);
+	        cell = row.createCell(3);
 	        cell.setCellValue("Role");
-	        cell = row.createCell(5);
+	        cell = row.createCell(4);
 	        cell.setCellValue("Valid from");
-	        cell = row.createCell(6);
+	        cell = row.createCell(5);
 	        cell.setCellValue("Valid till");
 	        // data
 	        int rowNum = 1;
@@ -72,24 +70,22 @@ public class IdentityRoleXlsxRenderer extends AbstractXlsxRenderer {
 	        		RptIdentityRoleDto identityRole = getMapper().readValue(jParser, RptIdentityRoleDto.class);
 		          	IdmIdentityDto identity = identityRole.getIdentity();
 		            row = sheet.createRow(rowNum++);
-		            cell = row.createCell(0);
-			        cell.setCellValue(identity.getId().toString());
-			        cell = row.createCell(1);
+			        cell = row.createCell(0);
 			        cell.setCellValue(identity.getUsername());
-			        cell = row.createCell(2);
+			        cell = row.createCell(1);
 			        cell.setCellValue(identity.getFirstName());
-			        cell = row.createCell(3);
+			        cell = row.createCell(2);
 			        cell.setCellValue(identity.getLastName());
 			        //
 			        if (identityRole.getRole() != null) {
 			        	// role info
-			        	cell = row.createCell(4);
+			        	cell = row.createCell(3);
 				        cell.setCellValue(identityRole.getRole().getName());
-				        cell = row.createCell(5);
+				        cell = row.createCell(4);
 				        if (identityRole.getValidTill() != null) {
 				        	cell.setCellValue(identityRole.getValidFrom().toString(getConfigurationService().getDateFormat()));
 				        }
-				        cell = row.createCell(6);
+				        cell = row.createCell(5);
 				        if (identityRole.getValidTill() != null) {
 				        	cell.setCellValue(identityRole.getValidTill().toString(getConfigurationService().getDateFormat()));  
 				        }

@@ -87,6 +87,16 @@
     "yes": "Ano",
     "set": "Nastavit"
   },
+  "filter": {
+    "dateFrom": {
+      "label": "Od",
+      "placeholder": "Datum od"
+    },
+    "dateTill": {
+      "label": "Do",
+      "placeholder": "Datum do"
+    }
+  },
   "action": {
     "delete": {
       "action": "Odebrat",
@@ -1812,14 +1822,6 @@
         "header": "Všechny úlohy",
         "title": "Všechny úlohy",
         "filter": {
-          "dateFrom": {
-            "label": "Od",
-            "placeholder": "Datum od"
-          },
-          "dateTill": {
-            "label": "Do",
-            "placeholder": "Datum do"
-          },
           "text": {
             "label": "Klíč / Typ",
             "placeholder": "Klíč nebo typ úlohy"

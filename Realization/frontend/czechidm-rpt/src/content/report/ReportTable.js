@@ -191,8 +191,18 @@ export class ReportTable extends Advanced.AbstractTableContent {
     if (Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.EXECUTED) {
       return null;
     }
-    // no renderers found
-    if (supportedReports.get(entity.executorName).renderers.length === 0) {
+    //
+    const enabledRenderers = supportedReports.get(entity.executorName).renderers
+      .filter(renderer => {
+        return renderer.disabled !== true;
+      })
+      .sort((one, two) => {
+        // sort by description - description will be in button label
+        return one.description > two.description;
+      });
+    //
+    // no enabled renderers found
+    if (enabledRenderers.length === 0) {
       return (
         <Basic.Label
           level="default"
@@ -204,10 +214,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
     return (
       <span>
         {
-          supportedReports.get(entity.executorName).renderers.map(renderer => {
-            if (renderer.disabled === true) {
-              return null;
-            }
+          enabledRenderers.map(renderer => {
             return (
               <a href={ this.getManager().getService().getDownloadUrl(entity.id, renderer.name) }
                 title={ this.i18n('action.download.title', { report: entity.name, renderer: renderer.description } )}
@@ -273,16 +280,30 @@ export class ReportTable extends Advanced.AbstractTableContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
-                <Basic.Row className="last">
+                <Basic.Row>
                   <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="from"
+                      placeholder={this.i18n('filter.dateFrom.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="till"
+                      placeholder={this.i18n('filter.dateTill.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text.placeholder')}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  <Basic.Col lg={ 6 }>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -336,7 +357,6 @@ export class ReportTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Advanced.Column property="created" sort face="datetime" rendered={ _.includes(columns, 'created') }/>
           <Advanced.Column property="name" sort face="text" rendered={ _.includes(columns, 'name') }/>
           <Advanced.Column
             property="executorName"
@@ -361,6 +381,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
               }
             }
             />
+          <Advanced.Column property="created" sort face="datetime" rendered={ _.includes(columns, 'created') }/>
           <Advanced.Column
             property="creator"
             rendered={_.includes(columns, 'creator')}
@@ -528,7 +549,7 @@ ReportTable.propTypes = {
 };
 
 ReportTable.defaultProps = {
-  columns: ['state', 'created', 'name', 'executorName', 'creator'],
+  columns: ['state', 'executorName', 'created', 'creator'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

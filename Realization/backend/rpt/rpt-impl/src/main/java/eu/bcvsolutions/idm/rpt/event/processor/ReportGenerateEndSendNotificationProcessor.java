@@ -55,7 +55,7 @@ public class ReportGenerateEndSendNotificationProcessor
 		RptReportDto report = event.getContent();
 		//
 		// TODO: can be improved by some configuration (specially for LRT)
-		if (report.getCreatorId() != null) {
+		if (report.getCreatorId() != null && report.getResult() != null) {
 			boolean success = report.getResult().getState() == OperationState.EXECUTED;
 			notificationManager.send(
 					success ? RptModuleDescriptor.TOPIC_REPORT_GENERATE_SUCCESS : RptModuleDescriptor.TOPIC_REPORT_GENERATE_FAILED,

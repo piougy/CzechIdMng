@@ -89,5 +89,15 @@
 			</trigger>
 		</triggers>		
 	</task>
+	<task>
+		<description>Default</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess</taskType>
+	</task>
+	<task>
+		<description>Default</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess</taskType>
+	</task>
 
 </tasks>

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
@@ -45,17 +45,17 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 		return Arrays.asList(AccGroupPermission.values());
 	}
 	
-	public List<IdmNotificationConfigurationDto> getDefaultNotificationConfigurations() {
-		List<IdmNotificationConfigurationDto> configs = new ArrayList<>();
+	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_PROVISIONING,
 				null, IdmWebsocketLog.NOTIFICATION_TYPE, 
 				"Notification with new provisioning", 
 				getNotificationTemplateId("provisioningSuccess"))
 				);
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_PROVISIONING_BREAK_WARNING,
 				null,
 				IdmEmailLog.NOTIFICATION_TYPE,
@@ -63,7 +63,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				getNotificationTemplateId("provisioningWarning"))
 				);
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_PROVISIONING_BREAK_DISABLE,
 				null,
 				IdmEmailLog.NOTIFICATION_TYPE,
@@ -71,7 +71,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				getNotificationTemplateId("provisioningDisable"))
 				);
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_NEW_PASSWORD, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
@@ -79,7 +79,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				getNotificationTemplateId("newPassword"))
 				);
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_NEW_PASSWORD_ALL_SYSTEMS, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,

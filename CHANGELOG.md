@@ -28,9 +28,6 @@ All notable changes to this project will be documented in this file.
 ##### Identity
 - Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
 
-##### Notification
-- ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
-
 ##### Script
 
 - Methods ``IdmScriptService#getScriptByName``, ``IdmScriptService#getScriptByCode`` are deprecated and will be removed - use ``IdmScriptService#getByCode`` method instead.

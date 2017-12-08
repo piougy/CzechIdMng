@@ -18,7 +18,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 
 /**
  * Configuration for notification routing
@@ -75,7 +75,7 @@ public class IdmNotificationConfiguration extends AbstractEntity {
 		this.notificationType = notificationType;
 	}
 	
-	public IdmNotificationConfiguration(IdmNotificationConfigurationDto dto) {
+	public IdmNotificationConfiguration(NotificationConfigurationDto dto) {
 		this.topic = dto.getTopic();
 		this.level = dto.getLevel();
 		this.notificationType = dto.getNotificationType();

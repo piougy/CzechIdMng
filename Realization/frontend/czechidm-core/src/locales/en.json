@@ -87,6 +87,16 @@
     "yes": "Yes",
     "set": "Set"
   },
+  "filter": {
+    "dateFrom": {
+      "label": "from",
+      "placeholder": "Date from"
+    },
+    "dateTill": {
+      "label": "To",
+      "placeholder": "Date to"
+    }
+  },
   "action": {
     "delete": {
       "action": "Remove",
@@ -1775,14 +1785,6 @@
         "header": "All tasks",
         "title": "All tasks",
         "filter": {
-          "dateFrom": {
-            "label": "from",
-            "placeholder": "Date from"
-          },
-          "dateTill": {
-            "label": "To",
-            "placeholder": "Date to"
-          },
           "text": {
             "label": "Key / Type",
             "placeholder": "Key or task type"

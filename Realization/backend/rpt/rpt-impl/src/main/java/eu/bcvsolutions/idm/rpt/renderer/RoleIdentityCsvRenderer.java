@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.rpt.renderer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -54,11 +53,10 @@ public class RoleIdentityCsvRenderer
 		try {
 			JsonParser jParser = getMapper().getFactory().createParser(getReportData(report));
 			File temp = getAttachmentManager().createTempFile();
-			CSVWriter writer = new CSVWriter(new FileWriter(temp));
+			CSVWriter writer = createCSVWriter(temp);
 			//
 			// header
 			String[] header = new String[]{
-					"Id",
 			        "Role",			        
 			        "Username",
 			        "First name",
@@ -76,8 +74,7 @@ public class RoleIdentityCsvRenderer
 		          	//
 		          	// row is elementary data
 		          	List<String> row = Lists.newArrayList(
-		          			role.getId().toString(), 
-		          			role.getName());		          			
+		          			role.getName());	          			
 		          	if (identity != null) {			        		
 		          		row.add(identity.getUsername());
 		          		row.add(identity.getFirstName());

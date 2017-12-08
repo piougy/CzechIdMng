@@ -25,8 +25,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -61,7 +63,6 @@ import eu.bcvsolutions.idm.rpt.dto.RptIdentityRoleDto;
 public class RoleIdentityReportExecutor extends AbstractReportExecutor {
 
 	public static final String REPORT_NAME = "role-identity-report";
-	private static final String PARAMETER_VALID_ROLES = "validRoles";
 	private static final String PARAMETER_ROLES = "roles";
 	//	
 	@Autowired private IdmRoleService roleService;
@@ -81,12 +82,13 @@ public class RoleIdentityReportExecutor extends AbstractReportExecutor {
 	@Override
 	protected List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> attributes = super.getFormAttributes();
-		attributes.add(new IdmFormAttributeDto(PARAMETER_VALID_ROLES, "Valid roles only", PersistentType.BOOLEAN));
 		IdmFormAttributeDto roles = new IdmFormAttributeDto(PARAMETER_ROLES, "Roles", PersistentType.UUID);
 		roles.setMultiple(true);
 		roles.setFaceType(BaseFaceType.ROLE_SELECT);
 		roles.setPlaceholder("All roles or select ...");
 		attributes.add(roles);
+		attributes.add(IdentityReportExecutor.getDisabledAttribute());
+		attributes.add(IdentityRoleReportExecutor.getInvalidRolesAttribute());
 		return attributes;
 	}
 	
@@ -103,13 +105,15 @@ public class RoleIdentityReportExecutor extends AbstractReportExecutor {
 				IdmFormInstanceDto formInstance = new IdmFormInstanceDto(report, getFormDefinition(), report.getFilter());
 				MultiValueMap<String, Object> filterParameters = formInstance.toMultiValueMap();
 				List<Object> roleIds = filterParameters.get(PARAMETER_ROLES);
+				Boolean invalidRoles = (Boolean) filterParameters.getFirst(IdentityRoleReportExecutor.PARAMETER_INVALID_ROLES);
+				Boolean disabledIdentities = (Boolean) filterParameters.getFirst(IdmIdentityFilter.PARAMETER_DISABLED);
 				//
 				counter = 0L;
 				if (roleIds != null && !roleIds.isEmpty()) {
 					count = Long.valueOf(roleIds.size());
 					for (Object roleId : roleIds) {
 						IdmRoleDto role = roleService.get(EntityUtils.toUuid(roleId), IdmBasePermission.READ); // TODO: catch or skip forbidden exception?
-						writeIdentityRoles(jGenerator, role, (Boolean) filterParameters.getFirst(PARAMETER_VALID_ROLES));
+						writeIdentityRoles(jGenerator, role, invalidRoles, disabledIdentities);
 						//
 						++counter;
 						if(!updateState()) {
@@ -125,7 +129,7 @@ public class RoleIdentityReportExecutor extends AbstractReportExecutor {
 						}
 						boolean canContinue = true;
 						for (Iterator<IdmRoleDto> i = roles.iterator(); i.hasNext() && canContinue;) {
-							writeIdentityRoles(jGenerator, i.next(), (Boolean) filterParameters.getFirst(PARAMETER_VALID_ROLES));
+							writeIdentityRoles(jGenerator, i.next(), invalidRoles, disabledIdentities);
 							//
 							++counter;
 							canContinue = updateState();
@@ -148,11 +152,11 @@ public class RoleIdentityReportExecutor extends AbstractReportExecutor {
 		}
 	}
 	
-	private void writeIdentityRoles(JsonGenerator jGenerator, IdmRoleDto role, Boolean validRoles)
+	private void writeIdentityRoles(JsonGenerator jGenerator, IdmRoleDto role, Boolean invalidRoles, Boolean disabledIdentities)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setRoleId(role.getId());
-		filter.setValid(validRoles);
+		filter.setValid(invalidRoles == null || !invalidRoles ? Boolean.TRUE : null);
 		
 		boolean hasIdentity = false;
 		Pageable pageable = new PageRequest(0, 100, new Sort(
@@ -162,8 +166,11 @@ public class RoleIdentityReportExecutor extends AbstractReportExecutor {
 			Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, pageable, IdmBasePermission.READ);
 			for (IdmIdentityRoleDto identityRole: identityRoles) {
 				IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract.getName(), IdmIdentityContractDto.class);
-				getMapper().writeValue(jGenerator, new RptIdentityRoleDto(identityService.get(contract.getIdentity()), identityRole));
-				hasIdentity = true;
+				IdmIdentityDto identity = identityService.get(contract.getIdentity());
+				if (disabledIdentities == null || identity.isDisabled() == disabledIdentities) {
+					getMapper().writeValue(jGenerator, new RptIdentityRoleDto(identity, identityRole));				
+					hasIdentity = true;
+				}
 			}
 			pageable = identityRoles.hasNext() ? identityRoles.nextPageable() : null;
 		} while (pageable != null);

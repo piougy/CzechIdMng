@@ -107,6 +107,12 @@ public class DefaultRptReportService
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.like(builder.lower(root.get(RptReport_.name)), "%" + filter.getText().toLowerCase() + "%"));
 		}
+		if (filter.getFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(RptReport_.created), filter.getFrom()));
+		}
+		if (filter.getTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(RptReport_.created), filter.getTill().plusDays(1)));
+		}
 		//
 		return predicates;
 	}

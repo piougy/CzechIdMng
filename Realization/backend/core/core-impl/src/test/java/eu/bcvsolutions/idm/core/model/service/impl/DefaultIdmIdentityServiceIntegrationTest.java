@@ -252,4 +252,20 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertEquals(IdentityState.VALID, identity.getState());
 	}
 	
+	@Test
+	@Transactional
+	public void testIdentityFutureContract() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		identityContractService.delete(contract);
+		identity = identityService.get(identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		Assert.assertEquals(IdentityState.NO_CONTRACT, identity.getState());
+		//
+		contract = helper.createIdentityContact(identity, null, new LocalDate().plusDays(1), null);
+		//
+		identity = identityService.get(identity.getId());
+		Assert.assertTrue(identity.isDisabled());
+		Assert.assertEquals(IdentityState.FUTURE_CONTRACT, identity.getState());
+	}
 }

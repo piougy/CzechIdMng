@@ -63,7 +63,7 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	@Deprecated // since 7.6.0. - use state property
 	private boolean disabled;
 	@JsonProperty(access = Access.READ_ONLY)
-	private IdentityState state = IdentityState.CREATED;
+	private IdentityState state;
 	
 	public IdmIdentityDto() {
 	}
@@ -165,7 +165,7 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	}
 
 	/**
-	 * Sets state to {@link IdentityState#DISABLED} (true given) or {@link IdentityState#VALID} (true given)
+	 * Sets state to {@link IdentityState#DISABLED} (true given) or {@code null} (true given)
 	 * 
 	 * @deprecated since 7.6.0  - use {@link #setState(IdentityState)} directly
 	 */

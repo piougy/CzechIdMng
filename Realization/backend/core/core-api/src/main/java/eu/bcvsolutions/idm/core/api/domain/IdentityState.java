@@ -14,7 +14,7 @@ public enum IdentityState {
 	VALID(false), 				// the only valid state - valid contracts
 	// PASSWORD_EXPIRED(true), 	// TODO: password is expired
 	LEFT(true), 				// all contract are invalid
-	DISABLED(true), 			// automatically disabled
+	DISABLED(true), 			// automatically disabled ~ all contracts are excluded
 	DISABLED_MANUALLY(true); 	// manually disabled - can be activated manually again
 
 	private boolean disabled;

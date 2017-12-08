@@ -28,7 +28,7 @@ public class IdentityContractExclusionProcessor extends AbstractWorkflowEventPro
 	public static final String PROCESSOR_NAME = "identity-contract-exclusion-processor";
 
 	public IdentityContractExclusionProcessor() {
-		super(IdentityContractEventType.UPDATE);
+		super(IdentityContractEventType.CREATE, IdentityContractEventType.UPDATE);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class IdentityContractExclusionProcessor extends AbstractWorkflowEventPro
 		IdmIdentityContractDto current = event.getContent();
 		IdmIdentityContractDto previous = event.getOriginalSource();
 		//
-		return previous.isValid() && previous.getState() != ContractState.EXCLUDED
+		return (previous == null || (previous.isValid() && previous.getState() != ContractState.EXCLUDED))
 				&& current.getState() == ContractState.EXCLUDED;
 	}
 

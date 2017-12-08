@@ -44,7 +44,7 @@ public class IdentitySetPasswordProcessor
 		extends CoreEventProcessor<IdmIdentityDto> 
 		implements IdentityProcessor {
 	
-	public static final String PROCESSOR_NAME = "identity-role-add-authorities-processor";
+	public static final String PROCESSOR_NAME = "identity-set-password-processor";
 	
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private NotificationManager notificationManager;
@@ -120,6 +120,9 @@ public class IdentitySetPasswordProcessor
 	 * @return
 	 */
 	private boolean hasAccount(IdmIdentityDto identity) {
+		if(identity.getId() == null) {
+			return false;
+		}
 		AccAccountFilter filter = new AccAccountFilter();
 		filter.setIdentityId(identity.getId());
 		filter.setSupportChangePassword(Boolean.TRUE);

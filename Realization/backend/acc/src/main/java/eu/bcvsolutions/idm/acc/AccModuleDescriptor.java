@@ -83,7 +83,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 				TOPIC_NEW_PASSWORD_ALL_SYSTEMS, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
-				"This message contains new password and information about acconunts.", 
+				"This message contains new password and information about accounts.", 
 				getNotificationTemplateId("newPasswordAllSystems"))
 				);
 		return configs;

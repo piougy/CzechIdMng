@@ -100,9 +100,8 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, identity, entityId, readOnly, _permissions } = this.props;
+    const { identity, readOnly, _permissions } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
-    const deactiveDisabled = !userContext || entityId === userContext.username || !identityManager.canSave(identity, _permissions);
     //
     return (
       <div>

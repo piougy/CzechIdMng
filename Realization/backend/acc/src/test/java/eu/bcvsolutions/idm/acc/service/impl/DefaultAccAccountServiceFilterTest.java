@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -181,6 +183,36 @@ public class DefaultAccAccountServiceFilterTest extends AbstractIntegrationTest 
 		testFilter.setSupportChangePassword(true);
 		pages = accAccountService.find(testFilter, null);
 		assertEquals(0, pages.getTotalElements());
+	}
+	
+	@Test
+	public void testEventType() {
+		SysSystemDto system = helper.createTestResourceSystem(true);		
+		AccAccountDto accountOne = new AccAccountDto();
+		accountOne.setSystem(system.getId());
+		accountOne.setUid(UUID.randomUUID().toString());
+		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
+		accountOne = accAccountService.save(accountOne);
+		
+		AccAccountDto accountTwo = new AccAccountDto();
+		accountTwo.setSystem(system.getId());
+		accountTwo.setUid(UUID.randomUUID().toString());
+		accountTwo.setAccountType(AccountType.PERSONAL);
+		accountTwo.setEntityType(SystemEntityType.ROLE);
+		accountTwo = accAccountService.save(accountTwo);
+		//
+		AccAccountFilter testFilter = new AccAccountFilter();
+		testFilter.setId(accountOne.getId());
+		testFilter.setEntityType(SystemEntityType.IDENTITY);
+		List<AccAccountDto> accounts = accAccountService.find(testFilter, null).getContent();
+		//
+		Assert.assertEquals(1, accounts.size());
+		Assert.assertEquals(accountOne.getUid(), accounts.get(0).getUid());
+		//
+		testFilter.setId(accountTwo.getId());
+		accounts = accAccountService.find(testFilter, null).getContent();
+		Assert.assertTrue(accounts.isEmpty());
 	}
 
 	private AccAccountDto createAccount(UUID systemId, UUID identityId, String uid, AccountType accountType,

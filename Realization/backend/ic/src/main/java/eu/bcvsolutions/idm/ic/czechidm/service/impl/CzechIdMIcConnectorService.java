@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
@@ -28,6 +29,7 @@ import eu.bcvsolutions.idm.ic.api.operation.IcCanUpdate;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 
@@ -80,6 +82,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		String key = connectorInstance.getConnectorKey().toString();
 
 		LOG.debug("Create object - CzechIdM ({} {})", key, attributes.toString());
+		
+		if (objectClass == null) {
+			objectClass = new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT);
+		}
 
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
 		if (!(connector instanceof IcCanCreate)) {
@@ -105,6 +111,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Update object - CzechIdM (Uid= {} {} {})", uid, key, replaceAttributes.toString());
 
+		if (objectClass == null) {
+			objectClass = new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT);
+		}
+
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
 		if (!(connector instanceof IcCanUpdate)) {
 			throw new IcException(MessageFormat.format("Connector [{0}] not supports update operation!", key));
@@ -126,6 +136,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Delete object - CzechIdM (Uid= {} {})", uid, key);
 
+		if (objectClass == null) {
+			objectClass = new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT);
+		}
+		
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
 		if (!(connector instanceof IcCanDelete)) {
 			throw new IcException(MessageFormat.format("Connector [{0}] not supports delete operation!", key));
@@ -145,6 +159,9 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Read object - CzechIdM (Uid= {} {})", uid, key);
+		if (objectClass == null) {
+			objectClass = new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT);
+		}
 
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
 		if (!(connector instanceof IcCanRead)) {

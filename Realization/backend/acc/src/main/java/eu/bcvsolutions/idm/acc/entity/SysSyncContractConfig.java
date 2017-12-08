@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -7,6 +8,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
@@ -52,6 +54,11 @@ public class SysSyncContractConfig extends SysSyncConfig{
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity defaultLeader;
+	
+	@Audited
+	@NotNull
+	@Column(name = "start_hr_processes", nullable = false)
+	private boolean startOfHrProcesses = true;
 
 	public IdmTreeType getDefaultTreeType() {
 		return defaultTreeType;
@@ -75,5 +82,13 @@ public class SysSyncContractConfig extends SysSyncConfig{
 
 	public void setDefaultLeader(IdmIdentity defaultLeader) {
 		this.defaultLeader = defaultLeader;
+	}
+
+	public boolean isStartOfHrProcesses() {
+		return startOfHrProcesses;
+	}
+
+	public void setStartOfHrProcesses(boolean startOfHrProcesses) {
+		this.startOfHrProcesses = startOfHrProcesses;
 	}
 }

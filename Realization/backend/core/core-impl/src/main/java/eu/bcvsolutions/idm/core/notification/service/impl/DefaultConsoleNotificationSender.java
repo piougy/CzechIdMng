@@ -55,6 +55,7 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 		final String message = MessageFormat.format("Sending notification [{0}]",
 			createLogForSend(notification, true));
 		LOG.info(message);
+		notification.setType(IdmConsoleLog.NOTIFICATION_TYPE);
 		return log;
 	}
 

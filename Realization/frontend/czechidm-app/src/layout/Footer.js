@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 //
 import {Basic} from 'czechidm-core';
 import packageInfo from '../../package.json';
 
 /**
- * Idm footer
+ * IdM footer with links
+ *
+ * @author Radek Tomiška
  */
 class Footer extends Basic.AbstractContent {
 
@@ -36,15 +37,15 @@ class Footer extends Basic.AbstractContent {
     return (
       <footer>
         <div className="pull-left">
-          {/* TODO: about page - #74 */}
           <span title={this.i18n('app.version.backend') + ': ' + backendVersion} className="hidden">
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>
           <span style={{margin: '0 10px'}} className="hidden">|</span>
-          &copy; { moment(new Date()).format('YYYY') } &nbsp;&nbsp;
           <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.helpdesk')}</a>
+          <a href="https://wiki.czechidm.com/start" target="_blank">{this.i18n('app.helpDesk')}</a>
+          <span style={{margin: '0 10px'}}>|</span>
+          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.serviceDesk')}</a>
           <span style={{margin: '0 10px'}}>|</span>
           <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('content.about.link')}>{this.i18n('content.about.link')}</a>
         </div>

@@ -53,7 +53,7 @@ public class DefaultSysProvisioningBreakConfigService extends
 		implements SysProvisioningBreakConfigService {
 
 	private final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
-	private final String CACHE_NAME = "idm-provisioning-cache";
+	private final static String CACHE_NAME = "idm-provisioning-cache";
 	
 	private final SysProvisioningBreakRecipientService breakRecipientService;
 	private final CacheManager cacheManager;

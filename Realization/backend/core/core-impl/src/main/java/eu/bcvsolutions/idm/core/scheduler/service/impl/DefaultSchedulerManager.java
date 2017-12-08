@@ -122,6 +122,18 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 	
 	@Override
+	public List<Task> getAllTasksByType(Class<?> taskType){
+		List<Task> tasks = this.getAllTasks();
+		if(tasks == null) {
+			return new ArrayList<>();
+		}
+		return tasks.stream().filter(task -> {
+			Class<? extends SchedulableTaskExecutor<?>> type = task.getTaskType();
+			return type.equals(taskType);
+		}).collect(Collectors.toList());
+	}
+	
+	@Override
 	public Task getTask(String taskId) {
 		return getTask(getKey(taskId));
 	}
@@ -173,10 +185,14 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		} catch (org.quartz.SchedulerException ex) {
 			if (ex.getCause() instanceof ClassNotFoundException) {
 				deleteTask(jobKey.getName());
-				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task was removed too.", jobKey, ex);
+				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task is removed.", jobKey, ex);
 				return null;
 			}
 			throw new CoreException(ex);	
+		} catch (IllegalArgumentException ex) {
+			deleteTask(jobKey.getName());
+			LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);
+			return null;
 		}
 	}
 	

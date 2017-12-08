@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
@@ -35,12 +38,14 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	private UUID system;
 	private SystemEntityType entityType;
 	private UUID entityIdentifier;
-	private String systemEntityUid; // account uid, etc.
+	@Embedded(dtoClass = SysSystemEntityDto.class)
+	private UUID systemEntity; // account uid, etc.
 	private int currentAttempt = 0;
 	private int maxAttempts;
 	private OperationResult result;
 	@Embedded(dtoClass = SysProvisioningBatchDto.class)
 	private UUID batch;
+	private String systemEntityUid;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -87,13 +92,12 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.entityType = entityType;
 	}
 
-	@Override
-	public String getSystemEntityUid() {
-		return systemEntityUid;
+	public UUID getSystemEntity() {
+		return systemEntity;
 	}
 	
-	public void setSystemEntityUid(String systemEntityUid) {
-		this.systemEntityUid = systemEntityUid;
+	public void setSystemEntity(UUID systemEntity) {
+		this.systemEntity = systemEntity;
 	}
 
 	@Override
@@ -141,6 +145,18 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.currentAttempt++;
 	}
 	
+	@JsonProperty(access = Access.READ_ONLY)
+	public String getSystemEntityUid() {
+		return systemEntityUid;
+	}
+
+	public void setSystemEntityUid(String systemEntityUid) {
+		this.systemEntityUid = systemEntityUid;
+	}
+
+
+	
+	
 	/**
 	 * New {@link SysProvisioningOperationDto} builder.
 	 * 
@@ -153,6 +169,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		private UUID entityIdentifier;
 		private UUID system;
 		private SystemEntityType entityType;
+		private UUID systemEntity;
 		private String systemEntityUid;
 		
 		public Builder setOperationType(ProvisioningEventType operationType) {
@@ -201,6 +218,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		public Builder setSystemEntity(SysSystemEntityDto systemEntity) {
 			this.system = systemEntity.getSystem();
 			this.entityType = systemEntity.getEntityType();
+			this.systemEntity = systemEntity.getId();
 			this.systemEntityUid = systemEntity.getUid();
 			return this;
 		}
@@ -215,8 +233,8 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			return this;
 		}
 		
-		public Builder setSystemEntityUid(String systemEntityUid) {
-			this.systemEntityUid = systemEntityUid;
+		public Builder setSystemEntity(UUID systemEntity) {
+			this.systemEntity = systemEntity;
 			return this;
 		}
 		
@@ -229,6 +247,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
 			provisioningOperation.setOperationType(operationType);
 			provisioningOperation.setSystem(system);
+			provisioningOperation.setSystemEntity(systemEntity);
 			provisioningOperation.setSystemEntityUid(systemEntityUid);
 			provisioningOperation.setEntityType(entityType);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);

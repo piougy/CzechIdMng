@@ -24,6 +24,7 @@ public class SysProvisioningOperationFilter implements BaseFilter {
 	private SystemEntityType entityType;
 	private OperationState resultState;
 	private UUID entityIdentifier;
+	private UUID systemEntity;
 	private String systemEntityUid;
 	private UUID batchId;
 
@@ -82,6 +83,22 @@ public class SysProvisioningOperationFilter implements BaseFilter {
 	public void setEntityIdentifier(UUID entityIdentifier) {
 		this.entityIdentifier = entityIdentifier;
 	}
+	
+	public UUID getSystemEntity() {
+		return systemEntity;
+	}
+
+	public void setSystemEntity(UUID systemEntity) {
+		this.systemEntity = systemEntity;
+	}
+
+	public void setBatchId(UUID batchId) {
+		this.batchId = batchId;
+	}
+	
+	public UUID getBatchId() {
+		return batchId;
+	}
 
 	public String getSystemEntityUid() {
 		return systemEntityUid;
@@ -89,13 +106,5 @@ public class SysProvisioningOperationFilter implements BaseFilter {
 
 	public void setSystemEntityUid(String systemEntityUid) {
 		this.systemEntityUid = systemEntityUid;
-	}
-	
-	public void setBatchId(UUID batchId) {
-		this.batchId = batchId;
-	}
-	
-	public UUID getBatchId() {
-		return batchId;
 	}
 }

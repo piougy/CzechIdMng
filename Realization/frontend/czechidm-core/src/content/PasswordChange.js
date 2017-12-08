@@ -14,6 +14,11 @@ const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
 
+/**
+ * Public password change
+ *
+ * @author Radek Tomiška
+ */
 class PasswordChange extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -24,6 +29,8 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this.selectNavigationItem('password-change');
     const data = {};
     const { query } = this.props.location;
@@ -33,6 +40,10 @@ class PasswordChange extends Basic.AbstractContent {
     }
     this.refs.form.setData(data);
     this.refs.username.focus();
+  }
+
+  hideFooter() {
+    return true;
   }
 
   getContentKey() {
@@ -180,8 +191,8 @@ class PasswordChange extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <div className="row">
-          <div className="col-sm-offset-4 col-sm-4">
+        <Basic.Row>
+          <Basic.Col className="col-sm-offset-4" sm={ 4 }>
             <Basic.Alert
               level="warning"
               icon="exclamation-sign"
@@ -224,8 +235,8 @@ class PasswordChange extends Basic.AbstractContent {
                 </Basic.PanelFooter>
               </Basic.Panel>
             </form>
-          </div>
-        </div>
+          </Basic.Col>
+        </Basic.Row>
       </div>
     );
   }

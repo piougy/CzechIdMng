@@ -116,7 +116,6 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 			this.provisioningContext = provisioningOperation.getProvisioningContext();
 			this.entityType = provisioningOperation.getEntityType();
 			this.entityIdentifier = provisioningOperation.getEntityIdentifier();
-			this.systemEntityUid = provisioningOperation.getSystemEntityUid();
 			this.result = provisioningOperation.getResult();
 		}
 		

@@ -191,6 +191,13 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   }
 
   /**
+   * Allows define columns for table in children Info component.
+   */
+  getTableChildren() {
+    return null;
+  }
+
+  /**
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel() {
@@ -198,6 +205,31 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     return (
       <span className={className} style={style}>{ this.getNiceLabel() }</span>
+    );
+  }
+
+  /**
+   * Renders text face
+   */
+  _renderText() {
+    return this._renderNiceLabel();
+  }
+
+  /**
+   * Renders link face
+   */
+  _renderLink() {
+    const _entity = this.getEntity();
+    //
+    if (!this.showLink()) {
+      return this._renderNiceLabel();
+    }
+    return (
+      <Link
+        to={ this.getLink() }
+        title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }>
+        { this.getManager().getNiceLabel(_entity) }
+      </Link>
     );
   }
 
@@ -226,13 +258,6 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         }
       </Basic.Popover>
     );
-  }
-
-  /**
-   * Allows define columns for table in children Info component.
-   */
-  getTableChildren() {
-    return null;
   }
 
   /**
@@ -319,14 +344,11 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     }
     //
     switch (face) {
-      case 'text':
+      case 'text': {
+        return this._renderText();
+      }
       case 'link': {
-        if (!this.showLink() || face === 'text') {
-          return this._renderNiceLabel();
-        }
-        return (
-          <Link to={ this.getLink() }>{ this.getManager().getNiceLabel(_entity) }</Link>
-        );
+        return this._renderLink();
       }
       case 'popover': {
         return this._renderPopover();

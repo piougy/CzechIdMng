@@ -50,7 +50,6 @@ public class HrEndContractProcessIntegrationTest extends AbstractHrProcessIntegr
 	@Test
 	public void testExclusion1() {
 		IdmIdentityContractDto dto = prepareTestData1();
-		assertEquals(false, identityService.get(dto.getIdentity()).isDisabled());
 		assertNotEquals(0, identityRoleService.findAllByContract(dto.getId()).size());
 		//
 		process(lrt, dto);

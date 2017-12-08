@@ -13,9 +13,12 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.event.AccountEvent;
+import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent.ProvisioningEventType;
@@ -28,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
@@ -76,7 +80,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		AccIdentityAccountDto entity = event.getContent();
 		UUID account = entity.getAccount();
 		AccAccountDto accountDto = accountService.get(account);
-		Assert.notNull(account, "Account cannot be null!");
+		Assert.notNull(accountDto, "Account cannot be null!");
 
 		// We check if exists another (ownership) identity-accounts, if not
 		// then we will delete account
@@ -88,9 +92,27 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		boolean deleteTargetAccount = (boolean) event.getProperties()
 				.get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
 
-		// Is account protection activated on system mapping?
-		if (systemMappingService.isEnabledProtection(accountDto)) {
-			if (!moreIdentityAccounts && entity.isOwnership()) {
+		// If is account in protection, then we will not delete
+		// identity-account
+		// But is here exception from this. When is presented
+		// attribute FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, then
+		// we will do delete of identity-account (it is important
+		// for integrity ... for example during delete of whole
+		// identity).
+		boolean forceDeleteIdentityAccount = isForceDeleteAttributePresent(event.getProperties());
+
+		if (!moreIdentityAccounts && entity.isOwnership()) {
+			if (accountDto.isAccountProtectedAndValid()) {
+				if (forceDeleteIdentityAccount) {
+					// Target account and AccAccount will deleted!
+					deleteTargetAccount = true;
+				} else {
+					throw new ResultCodeException(AccResultCode.ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED,
+							ImmutableMap.of("uid", accountDto.getUid()));
+				}
+				// Is account protection activated on system mapping?
+				// Set account as protected we can only on account without protection (event has already invalid protection)!
+			} else if (!accountDto.isInProtection() && systemMappingService.isEnabledProtection(accountDto)) {
 				// This identity account is last ... protection will be
 				// activated
 				activateProtection(accountDto);
@@ -102,15 +124,9 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 
 				// If is account in protection, then we will not delete
 				// identity-account
-				if (isForceDeleteAttributePresent(event.getProperties())) {
-					// But is here exception from this. When is presented
-					// attribute FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, then
-					// we will do delete of identity-account (it is important
-					// for integrity ... for example during delete of whole
-					// identity).
-
-					// Target AccAccount will be not deleted!
-					deleteTargetAccount = false;
+				if (forceDeleteIdentityAccount) {
+					// Target account and AccAccount will be deleted!
+					deleteTargetAccount = true;
 				} else {
 					return new DefaultEventResult<>(event, this);
 				}
@@ -126,7 +142,10 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 						service.delete(identityAccount);
 					});
 			// Finally we can delete account
-			accountService.delete(accountDto, deleteTargetAccount, entity.getEntity());
+		    accountService.publish(new AccountEvent(AccountEventType.DELETE, accountDto,
+					ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount,
+							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
+
 		}
 
 		return new DefaultEventResult<>(event, this);

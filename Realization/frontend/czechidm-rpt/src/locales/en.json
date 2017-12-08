@@ -1,0 +1,84 @@
+{
+  "module": {
+    "name": "Report module",
+    "author": "BCV solutions s.r.o."
+  },
+  "entity": {
+    "Report": {
+      "_type": "Report",
+      "name": {
+        "label": "Name"
+      },
+      "executorName": {
+        "label": "Report type"
+      },
+      "creator": {
+        "label": "$t(core:entity.creator)"
+      },
+      "created": {
+        "label": "$t(core:entity.created)"
+      },
+      "result": {
+        "state": "State"
+      }
+    }
+  },
+  "permission": {
+    "group": {
+      "REPORT": "Reports"
+    }
+  },
+  "content": {
+    "reports": {
+      "header": "Reports",
+      "label": "Reports",
+      "title": "Reports",
+      "filter": {
+        "text": {
+          "placeholder": "Report name"
+        }
+      },
+      "button": {
+        "generate": {
+          "label": "Generate report"
+        },
+        "link": {
+          "longRunningTask": {
+            "title": "Show long running task"
+          }
+        },
+        "add": "New report"
+      },
+      "message": {
+        "renderer": {
+          "notFound": {
+            "label": "No renderer",
+            "title": "No renderer is available for given report"
+          }
+        }
+      },
+      "action": {
+        "report-create": {
+          "header": "Create new report",
+          "success": "Report [{{record}}] will be created asynchronously. Report can be downloaded from reports agenda."
+        },
+        "report-detail": {
+          "header": "Report detail"
+        },
+        "download": {
+          "title": "Download report as [{{renderer}}]"
+        }
+      }
+    }
+  },
+  "error": {
+    "REPORT_GENERATE_SUCCESS": {
+      "title": "Report is completed",
+      "message": "Report [{{reportName}}] was successfully completed. Report is available in report agenda."
+    },
+    "REPORT_GENERATE_FAILED": {
+      "title": "Report failed",
+      "message": "Report [{{reportName}}] generation failed. Failure reason is available in report agenda."
+    }
+  }
+}

@@ -96,6 +96,12 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Override
 	@Transactional
 	public List<N> send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients) {
+		return send(topic, message, null, recipients);
+	}
+	
+	@Override
+	@Transactional
+	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients) {
 		Assert.notNull(message, "Message is required");
 		List<N> sendMessages = new ArrayList<>();
 		//
@@ -123,6 +129,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 				continue;
 			}
 			notification.setRecipients(notificationRecipients);
+			notification.setIdentitySender(identitySender == null ? null : identitySender.getId());
 			//
 			sendMessages.add(send(notification));
 		}

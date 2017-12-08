@@ -24,9 +24,9 @@ export default class Column extends AbstractComponent {
 
     const classNames = classnames(
       { [`col-lg-${lg}`]: (lg > 0) },
-      { [`col-sm-${lg}`]: (sm > 0) },
-      { [`col-md-${lg}`]: (md > 0) },
-      { [`col-xs-${lg}`]: (xs > 0) },
+      { [`col-sm-${sm}`]: (sm > 0) },
+      { [`col-md-${md}`]: (md > 0) },
+      { [`col-xs-${xs}`]: (xs > 0) },
       className
     );
     return (

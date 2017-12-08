@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import Select from 'react-select';
 import Joi from 'joi';
 import _ from 'lodash';
+import Waypoint from 'react-waypoint';
 //
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
@@ -29,7 +30,8 @@ class SelectBox extends AbstractFormComponent {
     this.state = {
       ...this.state,
       options: [],
-      error: null
+      error: null,
+      actualPage: 0
     };
   }
 
@@ -75,7 +77,7 @@ class SelectBox extends AbstractFormComponent {
    * Merge hard and user deffined search parameters
    */
   _createSearchParameters(inputText, forceSearchParameters) {
-    const { manager, pageSize } = this.props;
+    const { manager, pageSize, loadMoreContent } = this.props;
     // user input
     let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText).setSize(pageSize || SearchParameters.getDefaultSize());
     if (manager.supportsAuthorization()) {
@@ -87,11 +89,16 @@ class SelectBox extends AbstractFormComponent {
       // we dont want override setted pagination
       _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null);
     }
+    // if set loadMoreContent it is neccessary override page
+    if (loadMoreContent && forceSearchParameters && forceSearchParameters.getPage()) {
+      _forceSearchParameters = _forceSearchParameters.setPage(forceSearchParameters.getPage());
+    }
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, forceSearchParameters, useFirst = false) {
+  getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false) {
     const { manager } = this.props;
+    const { options } = this.state;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
     // We create unique key for this call and save it to component state
@@ -126,13 +133,27 @@ class SelectBox extends AbstractFormComponent {
                 this.onChange(results[item]);
               }
             }
+            let finalOptions = result._embedded[manager.getCollectionType()];
+            // if we want add options to end, create sum of options
+            if (addToEnd) {
+              // remove last options (info about size)
+              const optionsWithoutInfoItem = _.dropRight(options);
+              // final options is sum before options and current options
+              finalOptions = _.concat(optionsWithoutInfoItem, result._embedded[manager.getCollectionType()]);
+            }
             data = {
-              options: result._embedded[manager.getCollectionType()],
-              complete: results.length >= result.page.totalElements,
+              options: finalOptions,
+              complete: finalOptions.length >= result.page.totalElements,
             };
             if (!data.complete) {
               data.options.push({
-                [NICE_LABEL]: this.i18n('results', { escape: false, count: searchParameters.getSize(), total: result.page.totalElements}),
+                [NICE_LABEL]: <Waypoint onEnter={this._loadMoreContent.bind(this)}>{this.i18n('results', { escape: false, count: data.options.length, total: result.page.totalElements})}</Waypoint>,
+                [ITEM_FULL_KEY]: input,
+                disabled: true // info only
+              });
+            } else {
+              data.options.push({
+                [NICE_LABEL]: this.i18n('results', { escape: false, count: data.options.length, total: result.page.totalElements}),
                 [ITEM_FULL_KEY]: input,
                 disabled: true // info only
               });
@@ -149,6 +170,30 @@ class SelectBox extends AbstractFormComponent {
           });
         }
       }));
+    });
+  }
+
+  /**
+   * Method load more content to options state and increment actualPage
+   */
+  _loadMoreContent() {
+    const { actualPage } = this.state;
+    const { pageSize, manager, useFirst, loadMoreContent, forceSearchParameters } = this.props;
+    if (!loadMoreContent) {
+      return;
+    }
+    const finalPageSize = pageSize || SearchParameters.getDefaultSize();
+    // increment actualPage
+    const newActualPage = actualPage + 1;
+    // if exists force search parameters merge it
+    let finalSearchParameters = manager.getDefaultSearchParameters().setSize(finalPageSize).setPage(newActualPage);
+    if (forceSearchParameters) {
+      finalSearchParameters = manager.mergeSearchParameters(forceSearchParameters, finalSearchParameters);
+    }
+    //
+    this.getOptions('', finalSearchParameters, useFirst, true);
+    this.setState({
+      actualPage: newActualPage
     });
   }
 
@@ -339,11 +384,11 @@ class SelectBox extends AbstractFormComponent {
 
     let itemFullKey = _niceLabel;
     if (inputLower) {
-      if (!_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+      if (_niceLabel !== null && !_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
         for (const field of this.props.searchInFields) {
-          if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
+          if (item[field] !== null && item[field].toLowerCase().indexOf(inputLower) >= 0) {
             itemFullKey = itemFullKey + ' (' + item[field] + ')';
-            break;
+            continue;
           }
         }
       }
@@ -353,6 +398,10 @@ class SelectBox extends AbstractFormComponent {
   }
 
   onInputChange(value) {
+    // after change input set actualPage to zero, we want start from begin
+    this.setState({
+      actualPage: 0
+    });
     this.getOptions(value, this.props.forceSearchParameters);
   }
 
@@ -433,6 +482,11 @@ class SelectBox extends AbstractFormComponent {
    * Load first page on input is opened
    */
   onOpen() {
+    // it is neccessary set actualPage to zero and remove all options, after open
+    this.setState({
+      actualPage: 0,
+      options: []
+    });
     // loads default first page.
     this.getOptions('', this.props.forceSearchParameters);
   }
@@ -444,7 +498,6 @@ class SelectBox extends AbstractFormComponent {
     return (
         <Select
           ref="selectComponent"
-          filterOptions={false}
           isLoading={isLoading}
           value={value}
           onChange={this.onChange}
@@ -471,7 +524,6 @@ SelectBox.propTypes = {
   ...AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
   manager: PropTypes.instanceOf(EntityManager).isRequired,
-  // TODO: searchInFields is not implemented now
   searchInFields: PropTypes.arrayOf(PropTypes.string).isRequired,
   fieldLabel: PropTypes.string,
   value: PropTypes.oneOfType([
@@ -509,7 +561,12 @@ SelectBox.propTypes = {
    * @see SearchParameters.getDefaultSize()
    * @see SearchParameters.MAX_SIZE
    */
-  pageSize: PropTypes.number
+  pageSize: PropTypes.number,
+  /**
+   * Boolean flag that call load automaticaly more content after reach last item in options
+   * @type {[type]}
+   */
+  loadMoreContent: PropTypes.bool
 };
 
 SelectBox.defaultProps = {
@@ -520,7 +577,8 @@ SelectBox.defaultProps = {
   searchInFields: [],
   clearable: true,
   useFirst: false,
-  pageSize: SearchParameters.getDefaultSize()
+  pageSize: SearchParameters.getDefaultSize(),
+  loadMoreContent: true
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

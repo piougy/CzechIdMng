@@ -17,6 +17,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -38,7 +39,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -72,8 +72,10 @@ public class DefaultIdmNotificationTemplateService extends
 		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, IdmNotificationTemplateFilter>
 		implements IdmNotificationTemplateService {
 
+	// TODO: script + common template configuration
 	private static final String TEMPLATE_FILE_SUFIX = "idm.sec.core.notification.template.fileSuffix";
 	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
+	private static final String DEFAULT_TEMPLATE_FILE_SUFIX = "**/**.xml";
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationTemplateService.class);
 	//
@@ -212,15 +214,26 @@ public class DefaultIdmNotificationTemplateService extends
 		IdmMessageDto newMessage;
 		// if is set model from message build with them
 		if (message.getModel() != null) {
-			newMessage = new IdmMessageDto.Builder().setHtmlMessage(bodyHtml.toString())
-					.setTextMessage(bodyText.toString()).setSubject(message.getModel().getStatusEnum())
+			newMessage = new IdmMessageDto
+					.Builder()
+					.setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString())
+					.setSubject(StringUtils.isNotEmpty(subject.toString()) ? subject.toString() : message.getModel().getStatusEnum())
 					.setLevel(message.getLevel()) // level get from old message
-					.setTemplate(template).setParameters(model).setModel(message.getModel()).build();
+					.setTemplate(template)
+					.setParameters(model)
+					.setModel(message.getModel()).build();
 		} else {
 			// Build IdmMessage
-			newMessage = new IdmMessageDto.Builder().setHtmlMessage(bodyHtml.toString())
-					.setTextMessage(bodyText.toString()).setSubject(subject.toString()).setLevel(message.getLevel()) // level
-					.setTemplate(template).setParameters(model).build();
+			newMessage = new IdmMessageDto
+					.Builder()
+					.setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString())
+					.setSubject(subject.toString())
+					.setLevel(message.getLevel()) // level
+					.setTemplate(template)
+					.setParameters(model)
+					.build();
 		}
 		//
 		return newMessage;
@@ -237,44 +250,18 @@ public class DefaultIdmNotificationTemplateService extends
 	@Override
 	@Transactional
 	public void init() {
-		//
-		Resource[] resources = getNotificationTemplateResource();
-		Unmarshaller jaxbUnmarshaller = null;
-		//
-		try {
-			//
-			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
-		}
-		//
-		List<IdmNotificationTemplateDto> entities = new ArrayList<>();
-		for (Resource resource : resources) {
-			try {
-				IdmNotificationTemplateType templateType = (IdmNotificationTemplateType) jaxbUnmarshaller
-						.unmarshal(resource.getInputStream());
-				//
-				// if template exist dont save again
-				IdmNotificationTemplateDto template = this.getTemplateByCode(templateType.getCode());
-				LOG.info(
-						"[DefaultIdmNotificationTemplateService] Load template with code {}, Exists template in system: {}",
-						templateType.getCode(), template != null);
-				//
-				if (template == null) {
-					template = typeToDto(templateType, null);
-					entities.add(template);
-				}
-			} catch (JAXBException e1) {
-				LOG.error(
-						"[DefaultIdmNotificationTemplateService] Template validation failed, file name: {}, error message: {}",
-						resource.getFilename(), e1.getLocalizedMessage());
-			} catch (IOException e) {
-				LOG.error(
-						"[DefaultIdmNotificationTemplateService] Failed get input stream from, file name: {}, error message: {}",
-						resource.getFilename(), e.getLocalizedMessage());
+		for (IdmNotificationTemplateType templateType : findTemplates().values()) {
+			IdmNotificationTemplateDto template = this.getByCode(templateType.getCode());
+			// if template exist don't save it again => init only
+			if (template != null) {
+				LOG.info("Load template with code [{}], template is already initialized, skipping.", templateType.getCode());
+				continue;
 			}
+			//
+			LOG.info("Load template with code [{}], template will be initialized.", templateType.getCode());
+			// save
+			this.save(typeToDto(templateType, null));
 		}
-		this.saveAll(entities);
 	}
 
 	@Override
@@ -304,7 +291,14 @@ public class DefaultIdmNotificationTemplateService extends
 		//
 		File backupFolder = new File(directory);
 		if (!backupFolder.exists()) {
-			backupFolder.mkdirs();
+			boolean success = backupFolder.mkdirs();
+			// if make dir after check if exist, throw error.
+			if (!success) {
+				LOG.error("Backup for template: {} failed, backup folder path: [{}] can't be created.", dto.getCode(),
+						backupFolder.getAbsolutePath());
+				throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
+						ImmutableMap.of("code", dto.getCode()));
+			}
 		}
 		//
 		IdmNotificationTemplateType type = dtoToType(dto);
@@ -322,46 +316,14 @@ public class DefaultIdmNotificationTemplateService extends
 
 	@Override
 	public IdmNotificationTemplateDto redeploy(IdmNotificationTemplateDto dto) {
-		Unmarshaller jaxbUnmarshaller = null;
+		IdmNotificationTemplateType foundType = findTemplates().get(dto.getCode());
 		//
-		try {
-			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
-		}
-		//
-		Resource[] resources = getNotificationTemplateResource();
-		List<IdmNotificationTemplateType> types = new ArrayList<>();
-		for (Resource resource : resources) {
-			try {
-				IdmNotificationTemplateType templateType = (IdmNotificationTemplateType) jaxbUnmarshaller
-						.unmarshal(resource.getInputStream());
-				//
-				types.add(templateType);
-			} catch (JAXBException e1) {
-				LOG.error(
-						"[DefaultIdmNotificationTemplateService] Template validation failed, file name: {}, error message: {}",
-						resource.getFilename(), e1.getLocalizedMessage());
-			} catch (IOException e) {
-				LOG.error(
-						"[DefaultIdmNotificationTemplateService] Failed get input stream from, file name: {}, error message: {}",
-						resource.getFilename(), e.getLocalizedMessage());
-			}
-		}
-		//
-		List<IdmNotificationTemplateType> foundType = types.stream()
-				.filter(type -> type.getCode().equals(dto.getCode())).collect(Collectors.toList());
-		//
-		if (foundType.isEmpty()) {
+		if (foundType == null) {
 			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND,
 					ImmutableMap.of("code", dto.getCode()));
-		} else if (foundType.size() > 1) {
-			// more than one code found throw error
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_MORE_CODE_FOUND,
-					ImmutableMap.of("code", dto.getCode()));
 		}
 		//
-		return deployNewAndBackupOld(dto, foundType.get(0));
+		return deployNewAndBackupOld(dto, foundType);
 	}
 
 	@Override
@@ -382,8 +344,7 @@ public class DefaultIdmNotificationTemplateService extends
 			// this state is possible send message to topic that hasn't set any configurations
 			IdmNotificationLogDto notification = new IdmNotificationLogDto();
 			notification.setTopic(topic);
-			IdmMessageDto newMessage = creteMessage(message.getTemplate(), message.getLevel(), message.getModel(), message.getParameters());
-			notification.setMessage(this.buildMessage(newMessage, false));
+			notification.setMessage(this.buildMessage(message, false));
 			notifications.add(notification);
 			return notifications;
 		}
@@ -399,14 +360,10 @@ public class DefaultIdmNotificationTemplateService extends
 			if (message.getTemplate() != null) {
 				// exist template in message
 				finalMessage = this.buildMessage(message, false);
-			} else if (configuration.getTemplate() != null) {			
-				finalMessage = this.buildMessage(
-						creteMessage(
-							this.get(configuration.getTemplate()), 
-							message.getLevel(), 
-							message.getModel(), 
-							message.getParameters())
-						, false);
+			} else if (configuration.getTemplate() != null) {	
+				finalMessage = new IdmMessageDto(message);
+				finalMessage.setTemplate(this.get(configuration.getTemplate()));
+				finalMessage = this.buildMessage(finalMessage, false);
 			} else {
 				finalMessage = message;
 			}
@@ -429,25 +386,6 @@ public class DefaultIdmNotificationTemplateService extends
 		}
 		//
 		return notifications;
-	}
-	
-	/**
-	 * Create {@link IdmMessageDto} for notifications
-	 * 
-	 * @param template
-	 * @param level
-	 * @param model
-	 * @param parameters
-	 * @return
-	 */
-	private IdmMessageDto creteMessage(IdmNotificationTemplateDto template, NotificationLevel level, ResultModel model, Map<String, Object> parameters) {
-		// create and build new message
-		IdmMessageDto newMessage = new IdmMessageDto();
-		newMessage.setLevel(level);
-		newMessage.setTemplate(template);
-		newMessage.setParameters(parameters);
-		newMessage.setModel(model);
-		return newMessage;
 	}
 
 	/**
@@ -549,9 +487,8 @@ public class DefaultIdmNotificationTemplateService extends
 		// add date folder
 		DateTime date = new DateTime();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
-		String completePath = backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+		return backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
 				+ decimalFormat.format(date.getDayOfMonth()) + "/";
-		return completePath;
 	}
 
 	/**
@@ -565,24 +502,58 @@ public class DefaultIdmNotificationTemplateService extends
 		return directory + template.getCode() + "_" + securityService.getCurrentUsername() + "_"
 				+ System.currentTimeMillis() + EXPORT_FILE_SUFIX;
 	}
-
+	
 	/**
-	 * Return array of {@link Resource} with all resource with notification
-	 * templates.
+	 * Return list of {@link IdmNotificationTemplateType} from resources.
+	 * {@link IdmNotificationTemplateType} are found by configured locations and by priority - last one wins.
+	 * So default location should be configured first, then external, etc. 
 	 * 
-	 * @return
+	 * @return <code, script>
 	 */
-	private Resource[] getNotificationTemplateResource() {
-		Resource[] resources = null;
+	private Map<String, IdmNotificationTemplateType> findTemplates() {
+		Unmarshaller jaxbUnmarshaller = null;
+		//
 		try {
-			resources = applicationContext.getResources(configurationService.getValue(TEMPLATE_FOLDER)
-					+ configurationService.getValue(TEMPLATE_FILE_SUFIX));
-		} catch (IOException e) {
-			throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR,
-					ImmutableMap.of("path", configurationService.getValue(TEMPLATE_FOLDER)
-							+ configurationService.getValue(TEMPLATE_FILE_SUFIX)), e);
+			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		} catch (JAXBException e) {
+			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
-		return resources;
+		// last script with the same is used
+		// => last location has the highest priority
+		Map<String, IdmNotificationTemplateType> templates = new HashMap<>();
+		//
+		for(String location : configurationService.getValues(TEMPLATE_FOLDER)) {
+			location = location + configurationService.getValue(TEMPLATE_FILE_SUFIX, DEFAULT_TEMPLATE_FILE_SUFIX);
+			Map<String, IdmNotificationTemplateType> locationTemplates = new HashMap<>();
+			try {
+				Resource[] resources = applicationContext.getResources(location);
+				LOG.debug("Found [{}] resources on location [{}]", resources == null ? 0 : resources.length, location);
+				//
+				if (ArrayUtils.isNotEmpty(resources)) {
+					for (Resource resource : resources) {
+						try {
+							IdmNotificationTemplateType templateType = (IdmNotificationTemplateType) jaxbUnmarshaller.unmarshal(resource.getInputStream());
+							//
+							// log error, if script with the same code was found twice in one resource
+							if (locationTemplates.containsKey(templateType.getCode())) {
+								LOG.error("More templates with code [{}] found on the same location [{}].",
+										templateType.getCode());
+							}
+							// last one wins
+							locationTemplates.put(templateType.getCode(), templateType);
+						} catch (JAXBException ex) {
+							LOG.error("Template validation failed, file name [{}].", resource.getFilename(), ex);
+						} catch (IOException ex) {
+							LOG.error("Failed get input stream from, file name [{}].", resource.getFilename(), ex);
+						}							
+					}
+					templates.putAll(locationTemplates);
+				}
+			} catch (IOException ex) {
+				throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR, ImmutableMap.of("path", location), ex);
+			}
+		}
+		return templates;
 	}
 
 	/**

@@ -20,8 +20,7 @@ import org.apache.http.util.Asserts;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
@@ -249,40 +248,21 @@ public class EntityUtils {
 	/**
 	 * Method clear audit fields in entity. Entity must not be null.
 	 * 
-	 * @param entity
+	 * @param entity or dto
 	 */
-	public static void clearAuditFields(AbstractEntity entity) {
-		Asserts.notNull(entity, "Entity must be not null!");
-		
-		entity.setCreated(null);
-		entity.setCreator(null);
-		entity.setCreatorId(null);
-		entity.setModified(null);
-		entity.setModifier(null);
-		entity.setModifierId(null);
-		entity.setOriginalCreator(null);
-		entity.setOriginalCreatorId(null);
-		entity.setOriginalModifier(null);
-		entity.setOriginalModifierId(null);
-	}
-	
-	/**
-	 * Method clear audit fields in dto. Dto must not be null.
-	 * 
-	 * @param dto
-	 */
-	public static void clearAuditFields(AbstractDto dto) {
-		Asserts.notNull(dto, "DTO must be not null!");
-		
-		dto.setCreated(null);
-		dto.setCreator(null);
-		dto.setCreatorId(null);
-		dto.setModified(null);
-		dto.setModifier(null);
-		dto.setModifierId(null);
-		dto.setOriginalCreator(null);
-		dto.setOriginalCreatorId(null);
-		dto.setOriginalModifier(null);
-		dto.setOriginalModifierId(null);
+	public static void clearAuditFields(Auditable auditable) {
+		Asserts.notNull(auditable, "Entity must be not null!");
+		//
+		auditable.setCreated(null);
+		auditable.setCreator(null);
+		auditable.setCreatorId(null);
+		auditable.setModified(null);
+		auditable.setModifier(null);
+		auditable.setModifierId(null);
+		auditable.setOriginalCreator(null);
+		auditable.setOriginalCreatorId(null);
+		auditable.setOriginalModifier(null);
+		auditable.setOriginalModifierId(null);
+		auditable.setTransactionId(null);
 	}
 }

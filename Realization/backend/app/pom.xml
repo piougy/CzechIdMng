@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>7.5.4</version>
+		<version>7.6.0</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -101,6 +101,11 @@
 					<artifactId>idm-vs</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-rpt-impl</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
 
 			<build>
@@ -185,6 +190,17 @@
 								</configuration>
 							</execution>
 							<execution>
+								<id>install czechidm-rpt dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>install</arguments>
+									<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-rpt</workingDirectory>
+									<installDirectory>target</installDirectory>
+								</configuration>
+							</execution>
+							<execution>
 								<id>make all modules together</id>
 								<goals>
 									<goal>gulp</goal>
@@ -253,6 +269,11 @@
 				<dependency>
 					<groupId>${project.groupId}</groupId>
 					<artifactId>idm-vs</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-rpt-impl</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 			</dependencies>

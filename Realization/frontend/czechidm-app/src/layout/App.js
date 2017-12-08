@@ -12,6 +12,8 @@ import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 
 /**
  * Application entry point
+ *
+ * @author Radek Tomiška
  */
 export class App extends Basic.AbstractContent {
 
@@ -23,12 +25,6 @@ export class App extends Basic.AbstractContent {
   getChildContext() {
     return {
     };
-  }
-
-  /**
-  * Look out: This method is aplication entry point
-  */
-  componentDidMount() {
   }
 
   /**
@@ -104,12 +100,8 @@ export class App extends Basic.AbstractContent {
     }
   }
 
-  _getPublicPaths() {
-    return ['/login', '/password/reset', '/password/change'];
-  }
-
   render() {
-    const { location, userContext, bulk, appReady, navigationCollapsed } = this.props;
+    const { userContext, bulk, appReady, navigationCollapsed, hideFooter } = this.props;
     const titleTemplate = '%s | ' + this.i18n('app.name');
     const classnames = classNames(
       { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
@@ -134,7 +126,7 @@ export class App extends Basic.AbstractContent {
               </div>
               {
                 /* TODO: move to redux and hide it, when is needed */
-                !userContext.isExpired && this._getPublicPaths().indexOf(location.pathname) < 0
+                !userContext.isExpired && !hideFooter
                 ?
                 <Footer />
                 :
@@ -208,7 +200,11 @@ App.propTypes = {
   bulk: PropTypes.object,
   appReady: PropTypes.bool,
   i18nReady: PropTypes.string,
-  navigationCollapsed: PropTypes.bool
+  navigationCollapsed: PropTypes.bool,
+  /**
+   * Footer will be hidden
+   */
+  hideFooter: PropTypes.bool
 };
 
 App.defaultProps = {
@@ -216,7 +212,8 @@ App.defaultProps = {
   bulk: { action: {} },
   appReady: false,
   i18nReady: null,
-  navigationCollapsed: false
+  navigationCollapsed: false,
+  hideFooter: false
 };
 
 App.childContextTypes = {
@@ -230,7 +227,8 @@ function select(state) {
     bulk: state.data.bulk,
     appReady: state.config.get('appReady'),
     i18nReady: state.config.get('i18nReady'),
-    navigationCollapsed: state.config.get('navigationCollapsed')
+    navigationCollapsed: state.config.get('navigationCollapsed'),
+    hideFooter: state.config.get('hideFooter')
   };
 }
 

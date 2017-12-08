@@ -30,12 +30,14 @@ describe('Basic Table', function basicTableTestSuite() {
     const noData = 'noData text';
     const shallowRenderer = TestUtils.createRenderer();
     shallowRenderer.render(<Basic.Table noData={noData}/>);
-    const table = shallowRenderer.getRenderOutput();
+    const tableWrapper = shallowRenderer.getRenderOutput();
     it('- table without data should return Alert with no data', function test() {
-      expect(table.type).to.equal('div');
-      expect(table.props.children.type).to.equal(Basic.Alert);
-      expect(table.props.children.props.level).to.equal('info');
-      expect(table.props.children.props.text).to.equal(noData);
+      const body = tableWrapper.props.children.props.children.props.children[1][0];
+      const noDataAlert = body.props.children.props.children;
+      expect(noDataAlert).to.not.be.null();
+      expect(noDataAlert.type).to.equal(Basic.Alert);
+      expect(noDataAlert.props.level).to.equal('info');
+      expect(noDataAlert.props.text).to.equal(noData);
     });
   });
 
@@ -74,12 +76,11 @@ describe('Basic Table', function basicTableTestSuite() {
     });
 
     const table = tableWrapper.props.children.props.children;
-    let header;
-    let body;
+    const header = table.props.children[1][0];
+    const body = table.props.children[1][1];
+    //
     it('- loading wrapper should return table with header and body with rows and columns by input data', () => {
       expect(table.type).to.equal('table');
-      header = table.props.children.find(c => c && c.type === 'thead');
-      body = table.props.children.find(c => c && c.type === 'tbody');
       const footer = table.props.children.find(c => c && c.type === 'tfoot');
       expect(header).to.not.be.null();
       expect(body).to.not.be.null();

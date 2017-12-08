@@ -55,7 +55,7 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   _resolveValue(props) {
-    const value = props.value ? this.normalizeValue(props.value) : null;
+    const value = props.value != null ? this.normalizeValue(props.value) : null;
     this.setState({ value });
   }
 

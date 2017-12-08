@@ -95,7 +95,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final ProvisioningConfiguration provisioningConfiguration;
-	private final SysSystemEntityService systemEntityService;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -134,7 +133,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.provisioningConfiguration = provisioningConfiguration;
-		this.systemEntityService = systemEntityService;
 	}
 	
 	@Override
@@ -150,12 +148,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
-		String uid = provisioningOperation.getSystemEntityUid();
-		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, provisioningOperation.getEntityType() , uid);
+		SysSystemEntityDto systemEntity = provisioningOperationService.getByProvisioningOperation(provisioningOperation);
+		String uid = systemEntity.getUid();
 		boolean isWish = systemEntity.isWish();
 		LOG.debug("Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
-				provisioningOperation.getSystemEntityUid(),
+				uid,
 				objectClass.getType());
 		//
 		// Find connector identification persisted in system
@@ -187,7 +185,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			//
 			LOG.debug("Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
 					provisioningOperation.getOperationType(), 
-					provisioningOperation.getSystemEntityUid(),
+					uid,
 					objectClass.getType());
 			// set back to event content
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
@@ -200,7 +198,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			} else {
 				resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED, 
 					ImmutableMap.of(
-							"name", provisioningOperation.getSystemEntityUid(), 
+							"name", uid, 
 							"system", system.getName(),
 							"operationType", provisioningOperation.getOperationType(),
 							"objectClass", objectClass.getType()));
@@ -318,7 +316,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	@SuppressWarnings("unchecked")
 	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		String systemEntityUid = provisioningOperation.getSystemEntityUid();
+		String systemEntityUid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
@@ -629,12 +627,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		} 
 		
 		// Multivalued values are equals, when value from system is null and value in IdM is empty list
-		if(schemaAttribute.isMultivalued() && idmValue != null && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
+		if(schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
 			return true;
 		}
 		
 		// Multivalued values are equals, when value in IdM is null and value from system is empty list
-		if(schemaAttribute.isMultivalued() && icValueTransformed != null && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
+		if(schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
 			return true;
 		}
 		

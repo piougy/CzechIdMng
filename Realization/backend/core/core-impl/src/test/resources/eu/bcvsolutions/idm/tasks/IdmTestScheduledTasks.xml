@@ -43,4 +43,33 @@
 			</parameter>
 		</parameters>
 	</task>
+	<task>
+		<description>Start of contract's validity.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 45 1 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
+	<task>
+		<description>Default</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess</taskType>
+	</task>
+	<task>
+		<description>Default</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess</taskType>
+	</task>
 </tasks>

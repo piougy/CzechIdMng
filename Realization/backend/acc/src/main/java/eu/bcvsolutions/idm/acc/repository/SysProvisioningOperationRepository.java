@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 public interface SysProvisioningOperationRepository extends AbstractEntityRepository<SysProvisioningOperation> {
 
-	@Query(value = "select e from #{#entityName} e"
+	@Query(value = "select e from #{#entityName} e "
 			+ " where"
 			+ " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId}) "
 	    	+ " and "
@@ -30,7 +30,9 @@ public interface SysProvisioningOperationRepository extends AbstractEntityReposi
         	+ " and "
         	+ " (?#{[0].entityIdentifier} is null or e.entityIdentifier = ?#{[0].entityIdentifier})"
         	+ " and "
-        	+ " (?#{[0].systemEntityUid} is null or e.systemEntityUid = ?#{[0].systemEntityUid})"
+        	+ " (?#{[0].systemEntity} is null or e.systemEntity.id = ?#{[0].systemEntity})"
+        	+ " and "
+        	+ " (?#{[0].systemEntityUid} is null or e.systemEntity.uid = ?#{[0].systemEntityUid})"
         	+ " and "
         	+ " (?#{[0].resultState} is null or e.result.state = ?#{[0].resultState})"
         	+ " and "

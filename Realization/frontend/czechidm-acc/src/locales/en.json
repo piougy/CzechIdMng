@@ -168,6 +168,16 @@
           "defaultLeader": {
             "label": "Default leader",
             "helpBlock": "If the none leader for a given relation is filled in the source system, then this will be used as the default."
+          },
+          "startOfHrProcesses": {
+            "label": "After end, start the HR processes",
+            "helpBlock": "After successful synchronization, HR processes will be executed."
+          }
+        },
+        "identityConfigDetail":{
+          "defaultRole": {
+            "label": "Default role",
+            "helpBlock": "If the synchronization creates a link between an identity and an account, this role will be assigned to the identity. This assignment will be linked to the main contractual relationship of the identity."
           }
         }
       },
@@ -268,7 +278,7 @@
         }
       },
       "mappingDetail": {
-        "title" :"Mapping of attributes",
+        "title" :"Detail",
         "header": "Mapping of attributes <small>for IdM entity and operation type</small>",
         "systemAttributesMappingHeader": "Mapped attributes",
         "edit": {
@@ -289,6 +299,16 @@
         },
         "protectionEnabled": {
           "help": "Enables account protection before deletion. When trying to remove an IdM account (last relation assigning this account), it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IdM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
+        },
+        "validation":{
+          "systemMissingIdentifier":{
+            "message": "Beware: None of mapped attributes are marked as identifier.",
+            "info": "When there is not any identifier, then a role assigned to this system cannot be assigned to any identity."
+            },
+          "systemMissingOwner":{
+            "message":  "Beware: The contractual relationship should have the attribute mapping the 'Owner' field.",
+            "info": ""
+          }
         }
       },
       "attributeDetail": {
@@ -356,7 +376,7 @@
         }
       },
       "accounts": {
-        "header": "Accounts in system",
+        "header": "Accounts in systems",
         "title": "Accounts",
         "edit": {
           "header": "Account details in system"
@@ -398,7 +418,8 @@
     },
     "identity": {
       "accounts": {
-        "header": "Accounts in system",
+        "header": "Accounts in systems",
+        "identity-accounts":"Links to accounts",
         "title": "Accounts",
         "edit": {
           "header": "Account details in system"
@@ -605,7 +626,8 @@
       "_type": "Entity in system",
       "entityType": "Entity type",
       "uid": "Identifier in system",
-      "system": "Connected system"
+      "system": "Connected system",
+      "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {
       "auxiliary": "Auxiliary",
@@ -622,7 +644,12 @@
       "objectClass": "Object name",
       "treeType": "Tree type",
       "protectionEnabled": "Account protection (before delete)",
-      "protectionInterval": "Length of protection interval (in days)"
+      "protectionInterval": "Length of protection interval (in days)",
+      "account-management": "Account management",
+      "canBeAccountCreatedScript": {
+        "label": "Can an account be created?",
+        "help": "Account Management - allows you to disable the account creation (for that entity) on this system. The input parameter of this Groovy script is IdM entity 'entity', generated account identifier 'uid' and IdM system 'system'. Output value must be Boolean.TRUE or Boolean.FALSE!"
+      }
     },
     "SchemaAttribute": {
       "name": "Name",
@@ -647,11 +674,11 @@
         "help": "Name of entity attr., name of extended attr., or key to confidential storage."
       },
       "transformToResourceScriptSelectBox": {
-        "label": "Available scripts for transformation from resource",
+        "label": "Available scripts for transformation to resource",
         "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
       "transformFromResourceScriptSelectBox": {
-        "label": "Available scripts to transformation to resource",
+        "label": "Available scripts for transformation from resource",
         "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
       "idmPropertyEnum": "Entity field",
@@ -762,7 +789,7 @@
         "label": "Reconciliation",
         "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entities in CzechIdM."
       },
-      "correlationAttribute": "Collation attribute",
+      "correlationAttribute": "Correlation attribute",
       "systemMapping": "Set of mapped attributes",
       "linkedAction": "Linked",
       "unlinkedAction": "Not linked",
@@ -1267,6 +1294,10 @@
       "title": "Account [{{uid}}] cannot be deleted!",
       "message": "Account [{{uid}}] cannot be deleted! Is protected!"
     },
+    "ACCOUNT_CANNOT_UPDATE_IS_PROTECTED": {
+      "title": "Account [{{uid}}] cannot be updated!",
+      "message": "Account [{{uid}}] cannot removed from protected state manually!"
+    },
     "SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED": {
       "title": "Tree type cannot be deleted",
       "message": "Tree type [{{treeType}}] is already use in mapping for system [{{system}}]. Remove mapping from the system before deleting."
@@ -1290,6 +1321,10 @@
     "PROVISIONING_SYSTEM_BLOCKED": {
       "title": "Provisioning of account [{{name}}] wasn't executed",
       "message": "Provisioning of account [{{name}}] in system [{{system}}] was blocked by provisioning brake."
+    },
+    "SYSTEM_MAPPING_VALIDATION": {
+      "title": "Validation of system mapping {{name}} was not successful",
+      "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
     }
   }
 }

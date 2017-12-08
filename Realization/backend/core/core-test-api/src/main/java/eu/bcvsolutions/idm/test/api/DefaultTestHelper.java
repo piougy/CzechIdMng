@@ -66,6 +66,16 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	
+	/**
+	 * Creates random unique name
+	 * 
+	 * @return
+	 */
+	@Override
+	public String createName() {
+		return "test" + "-" + UUID.randomUUID();
+	}
+	
 	@Override
 	public IdmIdentityDto createIdentity() {
 		return createIdentity(null);
@@ -336,14 +346,5 @@ public class DefaultTestHelper implements TestHelper {
 		Assert.notNull(processor);
 		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
 		configurationService.setBooleanValue(enabledPropertyName, enabled);
-	}
-	
-	/**
-	 * Creates random unique name
-	 * 
-	 * @return
-	 */
-	protected String createName() {
-		return "test" + "-" + UUID.randomUUID();
 	}
 }

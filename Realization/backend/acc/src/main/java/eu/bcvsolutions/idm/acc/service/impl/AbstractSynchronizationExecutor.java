@@ -149,7 +149,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected final EntityEventManager entityEventManager;
 	private final EntityManager entityManager;
 	protected AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor;
-	private final SysSystemMappingService systemMappingService;
+	protected final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
 
@@ -294,7 +294,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				startReconciliation(entityType, systemAccountsList, config, system, log, actionsLog);
 			}
 			//
-			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
+			log = syncCorrectlyEnded(log, context);
 			config = synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
@@ -313,10 +313,20 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		return config;
 	}
 
+	/**
+	 * Method called after sync correctly ended.
+	 * @param log
+	 * @param context
+	 */
+	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
+		return log;
+	}
+
 	@Override
 	public boolean doItemSynchronization(SynchronizationContext context) {
 		Assert.notNull(context);
-
+ 
 		String uid = context.getUid();
 		IcConnectorObject icObject = context.getIcObject();
 		IcSyncDeltaTypeEnum type = context.getType();
@@ -613,8 +623,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param log
 	 * @param actionsLog
 	 */
-	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet, AbstractSysSyncConfigDto config,
-			SysSystemDto system, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
+	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet,
+			AbstractSysSyncConfigDto config, SysSystemDto system, SysSyncLogDto log,
+			List<SysSyncActionLogDto> actionsLog) {
 		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setSystemId(system.getId());
 
@@ -1212,10 +1223,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// We will create new entity
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
 		DTO entity = this.createEntityDto();
-		// Fill Role by mapped attribute
+		// Fill entity by mapped attribute
 		entity = fillEntity(mappedAttributes, uid, icAttributes, entity, true, context);
 
-		// Create new Role
+		// Create new entity
 		entity = this.save(entity, true);
 
 		// Update extended attribute (entity must be persisted first)
@@ -1223,11 +1234,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Update confidential attribute (entity must be persisted first)
 		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity, true, context);
 
-		// Create new entity account relation
-		EntityAccountDto roleAccount = this.createEntityAccountDto();
-		roleAccount.setAccount(account.getId());
-		roleAccount.setEntity(entity.getId());
-		roleAccount.setOwnership(true);
+		EntityAccountDto roleAccount = createEntityAccount(account, entity, context);
 		this.getEntityAccountService().save(roleAccount);
 
 		// Entity created
@@ -1238,6 +1245,24 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		// Call provisioning for entity
 		this.callProvisioningForEntity(entity, entityType, logItem);
+	}
+
+	/**
+	 * Create instance of relation between account and sync entity. Create and fill
+	 * relation instance. Do not persist she.
+	 * 
+	 * @param account
+	 * @param entity
+	 * @param context 
+	 * @return
+	 */
+	protected EntityAccountDto createEntityAccount(AccAccountDto account, DTO entity, SynchronizationContext context) {
+		// Create new entity account relation
+		EntityAccountDto entityAccount = this.createEntityAccountDto();
+		entityAccount.setAccount(account.getId());
+		entityAccount.setEntity(entity.getId());
+		entityAccount.setOwnership(true);
+		return entityAccount;
 	}
 
 	/**
@@ -1669,6 +1694,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		systemEntityNew.setUid(uid);
 		systemEntityNew.setEntityType(entityType);
 		systemEntityNew.setSystem(system.getId());
+		systemEntityNew.setWish(false);
 		return systemEntityService.save(systemEntityNew);
 	}
 
@@ -1919,10 +1945,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				MessageFormat.format("Account with uid {0} and id {1} was created", uid, account.getId()));
 
 		// Create new entity account relation
-		EntityAccountDto entityAccount = this.createEntityAccountDto();
-		entityAccount.setAccount(account.getId());
-		entityAccount.setEntity(dto.getId());
-		entityAccount.setOwnership(true);
+		EntityAccountDto entityAccount = this.createEntityAccount(account, dto, context);
 		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
 
 		String entityIdentification = dto.getId().toString();
@@ -1984,7 +2007,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	public void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor) {
+	public void setLongRunningTaskExecutor(
+			AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor) {
 		this.longRunningTaskExecutor = longRunningTaskExecutor;
 	}
 
@@ -2174,9 +2198,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Save action logs
+	 * 
 	 * @param actionsLog
 	 * @return
 	 */

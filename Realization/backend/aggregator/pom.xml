@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-aggregator</artifactId>
-	<version>7.5.4</version>
+	<version>7.6.0</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM aggregator</name>
@@ -53,6 +53,7 @@
 				<module>../ic</module>
 				<module>../acc</module>
 				<module>../vs</module>
+				<module>../rpt</module>
 			</modules>
 			<build>
 				<plugins>

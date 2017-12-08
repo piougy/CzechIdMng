@@ -32,6 +32,12 @@ public class DefaultExampleProductServiceIntegrationTest extends AbstractIntegra
 		service = context.getAutowireCapableBeanFactory().createBean(DefaultExampleProductService.class);
 	}
 	
+//	@BeforeClass
+//	public static void disableTestsOnCiServer() {
+//	    //String profilesFromConsole = System.getProperty("spring.profiles.active", "");
+//	    Assume.assumeFalse(true);
+//	}
+	
 	@Test
 	public void testQuickFilter(){
 		String productPrefix = "test";

@@ -32,6 +32,9 @@ class IdentityService extends FormableEntityService {
   getNiceLabel(entity) {
     let toString = '';
     if (entity) {
+      if (!entity.lastName) {
+        return entity.username;
+      }
       toString += this.getFullName(entity);
       toString += (entity.username ? ` (${entity.username})` : '');
     }
@@ -123,7 +126,17 @@ class IdentityService extends FormableEntityService {
    * @return {Promise}
    */
   deactivate(username) {
-    return this.patchById(username, { disabled: true });
+    return RestApiService
+      .patch(this.getApiPath() + `/${encodeURIComponent(username)}/disable`, {})
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        return jsonResponse;
+      });
   }
 
   /**
@@ -133,7 +146,17 @@ class IdentityService extends FormableEntityService {
    * @return {Promise}
    */
   activate(username) {
-    return this.patchById(username, { disabled: false });
+    return RestApiService
+      .patch(this.getApiPath() + `/${encodeURIComponent(username)}/enable`, {})
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        return jsonResponse;
+      });
   }
 
   /**

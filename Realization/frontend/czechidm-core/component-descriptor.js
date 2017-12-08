@@ -198,6 +198,41 @@ module.exports = {
       'faceType': 'ROLE-SELECT',
       'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
       'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
+    },
+    {
+      'id': 'boolean-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'BOOLEAN',
+      'faceType': 'BOOLEAN-SELECT',
+      'component': require('./src/components/advanced/Form/BooleanSelectFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.BOOLEAN-SELECT'
+    },
+    {
+      'id': 'identity-select-box',
+      'type': 'entity-select-box',
+      'priority': 0,
+      'localizationKey': 'entity.Identity',
+      'entityType': ['identity'],
+      'searchInFields': ['username', 'firstName', 'lastName', 'email', 'description'],
+      'manager': require('./src/redux').IdentityManager
+    },
+    {
+      'id': 'role-select-box',
+      'type': 'entity-select-box',
+      'priority': 0,
+      'localizationKey': 'entity.Role',
+      'entityType': ['role'],
+      'searchInFields': ['name', 'description'],
+      'manager': require('./src/redux').RoleManager
+    },
+    {
+      'id': 'tree-node-select-box',
+      'type': 'entity-select-box',
+      'priority': 0,
+      'localizationKey': 'entity.TreeNode',
+      'entityType': ['treeNode'],
+      'searchInFields': ['code', 'name'],
+      'manager': require('./src/redux').TreeNodeManager
     }
   ]
 };

@@ -25,7 +25,7 @@ export default class BasicTabs extends AbstractComponent {
   }
 
   render() {
-    const { id, rendered, position, activeKey, onSelect, className, ...others } = this.props;
+    const { id, rendered, position, activeKey, onSelect, className, style } = this.props;
     if (!rendered) {
       return null;
     }
@@ -42,7 +42,12 @@ export default class BasicTabs extends AbstractComponent {
     }
     //
     return (
-      <Tabs id={_id} onSelect={onSelect} activeKey={activeKey} className={classNames}>
+      <Tabs
+        id={ _id }
+        onSelect={ onSelect }
+        activeKey={ activeKey }
+        className={ classNames }
+        style={ style }>
         { this._getRenderedChildren(this.props.children) }
       </Tabs>
     );

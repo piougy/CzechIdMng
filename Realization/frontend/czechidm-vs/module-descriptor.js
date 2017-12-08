@@ -28,7 +28,7 @@ module.exports = {
             'icon': 'link',
             'iconColor': '#008AFF',
             'path': '/vs/systems',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ'] } ]},
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]},
           {
             'id': 'vs-requests',
             'type': 'DYNAMIC',

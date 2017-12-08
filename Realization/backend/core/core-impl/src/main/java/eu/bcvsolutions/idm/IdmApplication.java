@@ -11,12 +11,20 @@ import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/**
+ * Application entry point
+ * 
+ * TODO: support other packages than 'eu.bcv ...' for component scanning 
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @SpringBootApplication
-@EnableAutoConfiguration(exclude = { FlywayAutoConfiguration.class })
+@EnableAutoConfiguration(exclude = { 
+		FlywayAutoConfiguration.class // see {@link IdmFlywayAutoConfiguration} class 
+		})
 @EnableCaching
-@EnableSwagger2
 @EnablePluginRegistries({ ModuleDescriptor.class })
 public class IdmApplication extends SpringBootServletInitializer {
 	

@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -42,15 +44,23 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
+import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
+import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.ecm.config.DefaultAttachmentConfiguration;
+import eu.bcvsolutions.idm.core.ecm.repository.IdmAttachmentRepository;
+import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
@@ -72,6 +82,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
@@ -111,6 +122,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
  * @author Radek Tomiška
  *
  */
+@Order(0)
 @Configuration
 public class IdmServiceConfiguration {
 	
@@ -144,6 +156,8 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	@Autowired private IdmPasswordRepository passwordRepository;
 	@Autowired private IdmPasswordPolicyRepository passwordPolicyRepository;
+	@Autowired private IdmFormRepository formRepository;
+	@Autowired private IdmAttachmentRepository attachmentRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -292,7 +306,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmFormDefinitionService.class)
 	public IdmFormDefinitionService formDefinitionService() {
-		return new DefaultIdmFormDefinitionService(formDefinitionRepository, formAttributeService());
+		return new DefaultIdmFormDefinitionService(formDefinitionRepository, formAttributeService(), lookupService());
 	}
 	
 	/**
@@ -387,7 +401,8 @@ public class IdmServiceConfiguration {
 				roleService(), 
 				entityEventManager(),
 				authChangeRepository,
-				roleConfiguration());
+				roleConfiguration(),
+				identityContractService());
 	}
 	
 	/**
@@ -512,4 +527,49 @@ public class IdmServiceConfiguration {
 	public IdmRoleGuaranteeService roleGuaranteeService() {
 		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository);
 	}
+	
+	/**
+	 * Confidential storage value
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmConfidentialStorageValueService.class)
+	public IdmConfidentialStorageValueService confidentialStorageValueService() {
+		return new DefaultIdmConfidentialStorageValueService(confidentialStorageValueRepository, cryptService());
+	}
+	
+	/**
+	 * Common eav forms
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(CommonFormService.class)
+	public CommonFormService commonFormService() {
+		return new DefaultCommonFormService(formRepository, formService(), formDefinitionService());
+	}
+	
+	/**
+	 * Configuration for attachments
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(AttachmentConfiguration.class)
+	public AttachmentConfiguration attachmentConfiguration() {
+		return new DefaultAttachmentConfiguration();
+	}
+	
+	/**
+	 * Attachment manager
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(AttachmentManager.class)
+	public AttachmentManager attachmentManager() {
+		return new DefaultAttachmentManager(attachmentRepository, attachmentConfiguration(), lookupService());
+	}
+	
 }

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 
 import org.joda.time.DateTime;
@@ -15,10 +17,13 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -39,7 +44,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 	private static String ROLE_ONE;
 
-	@Autowired 
+	@Autowired
 	private TestHelper helper;
 	@Autowired
 	private IdmIdentityService idmIdentityService;
@@ -53,6 +58,8 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private AccIdentityAccountService identityAccountService;
 
 	@Before
 	public void init() {
@@ -122,6 +129,53 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+	}
+	
+	@Test
+	public void deleteAccountOnProtectionSystemTest() {
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystemDto system = initSystem();
+		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
+
+		// Set system to protected mode
+		SysSystemMappingDto mapping = systemMappingService
+				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
+		mapping.setProtectionEnabled(Boolean.TRUE);
+		mapping.setProtectionInterval(null);
+		systemMappingService.save(mapping);
+		// Assign the role
+		helper.createIdentityRole(identity, roleOne);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setAccountId(account.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
+		// Identity account have relation on the role
+		Assert.assertEquals(1, identityAccounts.size());
+		Assert.assertNotNull(identityAccounts.get(0).getIdentityRole());
+
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+		TestResource createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+
+		// Remove account directly. Account must be transformed to the protection state.
+		accountService.delete(account);
+
+		account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		Assert.assertTrue(account.isInProtection());
+		Assert.assertNull(account.getEndOfProtection());
+		createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+		
+		// Identity account have not relation on the role now.
+		identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
+		Assert.assertEquals(1, identityAccounts.size());
+		Assert.assertNull(identityAccounts.get(0).getIdentityRole());
 	}
 
 	@Test
@@ -221,7 +275,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(intervalInDays);
 		systemMappingService.save(mapping);
-		
+
 		String changedValue = "changed";
 		identity.setFirstName(changedValue);
 		idmIdentityService.save(identity);
@@ -255,11 +309,11 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
-	
+
 	/**
 	 * When is account in protection mode, then cannot be deleted.
 	 */
-	@Test(expected=ResultCodeException.class)
+	@Test(expected = ResultCodeException.class)
 	public void protectedAccountDeleteTest() {
 
 		IdmIdentityDto identity = helper.createIdentity();
@@ -272,12 +326,10 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(null);
 		systemMappingService.save(mapping);
-		
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
 		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
-
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
 		TestResource createdAccount = helper.findResource(account.getUid());
@@ -293,11 +345,49 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
-		
+
 		// Delete AccAccount directly
 		accountService.delete(account);
 	}
-	
+
+	/**
+	 * When is account in protection mode, then cannot be identity account deleted.
+	 */
+	@Test(expected = ResultCodeException.class)
+	public void protectedIdentityAccountDeleteTest() {
+
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystemDto system = initSystem();
+		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
+
+		// Set system to protected mode
+		SysSystemMappingDto mapping = systemMappingService
+				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
+		mapping.setProtectionEnabled(Boolean.TRUE);
+		mapping.setProtectionInterval(null);
+		systemMappingService.save(mapping);
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+		TestResource createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+
+		// Remove role from identity
+		identityRoleService.deleteById(identityRole.getId());
+
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setAccountId(account.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
+		Assert.assertEquals(1, identityAccounts.size());
+		// Remove identity account again. Now must end on the exception (account is
+		// already in protection)
+		identityAccountService.delete(identityAccounts.get(0));
+	}
+
 	/**
 	 * When is account in protection mode (but expired), then can be deleted.
 	 */
@@ -314,7 +404,6 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(null);
 		systemMappingService.save(mapping);
-		
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
@@ -335,11 +424,11 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
-		
+
 		// Set account as expired
 		account.setEndOfProtection(DateTime.now().minusMonths(1));
 		account = accountService.save(account);
-		
+
 		// Delete AccAccount directly
 		accountService.delete(account);
 		account = accountService.getAccount(identity.getUsername(), system.getId());

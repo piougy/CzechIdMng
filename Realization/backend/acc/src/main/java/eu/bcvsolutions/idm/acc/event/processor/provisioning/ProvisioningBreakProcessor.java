@@ -130,10 +130,10 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			// remove older records
 			cache.removeOlderRecordsThan(operationType, timestampWithoutPeriod);
 			// get actual count - processed items from timestampWithoutPeriod
-			Integer actualCount = cache.getSizeRecordsNewerThan(operationType, timestampWithoutPeriod);
+			int actualCount = cache.getSizeRecordsNewerThan(operationType, timestampWithoutPeriod);
 			//
 			// operation count is sum all previous operation except this operation
-			if (breakConfig.getWarningLimit() != null && actualCount == breakConfig.getWarningLimit()) {
+			if (breakConfig.getWarningLimit() != null && breakConfig.getWarningLimit().equals(actualCount)) {
 				// if count is equals to warning limit send notification, only when notification is equals
 				// disabled may be null
 				if (breakConfig.getDisableLimit() == null) {
@@ -236,8 +236,9 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 	 * @return
 	 */
 	private SysProvisioningOperationDto blockOperation(SysProvisioningOperationDto provisioningOperation, SysSystemDto system) {
+		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_BLOCKED, 
-				ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
+				ImmutableMap.of("name", uid, "system", system.getName()));
 		provisioningOperation.setResult(new OperationResult.Builder(OperationState.BLOCKED).setModel(resultModel).build());
 		//
 		provisioningOperation = provisioningOperationService.save(provisioningOperation);
@@ -290,7 +291,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 		}
 		//
 		List<IdmIdentityDto> recipients = null;
-		if (breakConfig.getGlobalConfiguration() == null || breakConfig.getGlobalConfiguration() == Boolean.FALSE) {
+		if (breakConfig.getGlobalConfiguration() == null || breakConfig.getGlobalConfiguration().equals(Boolean.FALSE)) {
 			recipients = breakRecipientService.getAllRecipients(breakConfig.getId());
 		} else {
 			recipients = breakRecipientService.getAllRecipientsForGlobalConfiguration(operationType);

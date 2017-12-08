@@ -137,6 +137,9 @@ export default class SystemManager extends Managers.EntityManager {
               continue;
             }
             let availableConnectors = new Immutable.Map();
+            if (json[framework] == null) {
+              continue;
+            }
             json[framework].forEach(connector => {
               availableConnectors = availableConnectors.set(connector.connectorKey.fullName, connector);
             });

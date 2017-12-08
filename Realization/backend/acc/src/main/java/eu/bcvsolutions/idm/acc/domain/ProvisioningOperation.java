@@ -43,12 +43,6 @@ public interface ProvisioningOperation extends BaseEntity, Auditable {
 	 */
 	UUID getEntityIdentifier();
 
-	/**
-	 * Target system entity identifier
-	 * 
-	 * @return
-	 */
-	String getSystemEntityUid();
 
 	/**
 	 * Result state

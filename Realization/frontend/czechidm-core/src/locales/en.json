@@ -5,7 +5,8 @@
       "name": "BCV solutions s.r.o.",
       "homePage": "http://www.bcvsolutions.eu"
     },
-    "helpdesk": "HelpDesk",
+    "serviceDesk": "ServiceDesk",
+    "helpDesk": "Help",
     "version": {
       "frontend": "Version",
       "backend": "Backend version",
@@ -41,9 +42,10 @@
     "validTill": "$t(entity.validTill)",
     "select": "Select ...",
     "default": "Default",
+    "download": "Download",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
-    "disabled": "Disabled",
+    "disabled": "Inactive",
     "property": "Attribute",
     "value": "Value",
     "yes": "Yes",
@@ -64,6 +66,7 @@
     "deactivatePrepare": "Preparing deactivation ...",
     "delete": "Delete",
     "detail": "Detail",
+    "download": "$t(label.download)",
     "edit": "Edit",
     "filter": {
       "toogle": "Filter",
@@ -83,6 +86,16 @@
     "saving": "Saving",
     "yes": "Yes",
     "set": "Set"
+  },
+  "filter": {
+    "dateFrom": {
+      "label": "from",
+      "placeholder": "Date from"
+    },
+    "dateTill": {
+      "label": "To",
+      "placeholder": "Date to"
+    }
   },
   "action": {
     "delete": {
@@ -258,7 +271,7 @@
         "noResultsText": "No result",
         "searchPromptText": "Start typing ...",
         "searchingText": "Searching ...",
-        "result": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
+        "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
       },
       "Table" : {
         "Pagination" : {
@@ -296,6 +309,10 @@
             "title": "Show info card"
           }
         }
+      },
+      "EntitySelectBox": {
+        "componentNotFound": "Select box component for type [{{entityType}}] is not registered. Fix component descriptor.",
+        "defaultHelpBlock": "Searching is done in the following attributes: {{searchInFields}}."
       },
       "Filter": {
         "option": {
@@ -372,7 +389,8 @@
           "TEXTAREA": "TextArea",
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Select identity (SelectBox)",
-          "ROLE-SELECT": "Select role (SelectBox)"
+          "ROLE-SELECT": "Select role (SelectBox)",
+          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain attributes."
@@ -556,6 +574,16 @@
     "ContractStateEnum": {
       "EXCLUDED": "Excluded",
       "DISABLED": "$t(label.disabled)"
+    },
+    "IdentityStateEnum": {
+      "CREATED": "Created",
+      "NO_CONTRACT": "No contract",
+      "FUTURE_CONTRACT": "Future contract",
+      "VALID": "Valid",
+      "PASSWORD_EXPIRED": "Password expired",
+      "LEFT": "Left",
+      "DISABLED": "$t(label.disabled)",
+      "DISABLED_MANUALLY": "$t(label.disabled) - manually"
     }
   },
   "dashboard": {
@@ -600,7 +628,9 @@
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
-      "WORKFLOWDEFINITION": "Workflow - definitions"
+      "WORKFLOWDEFINITION": "Workflow - definitions",
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+
     }
   },
   "content": {
@@ -769,7 +799,8 @@
       "secured": {
         "notAllowed": "You do not have permission to edit the system configuration",
         "help": "Public items are accessible without logging. Confidential items can be public."
-      }
+      },
+      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='https://wiki.czechidm.com/devel/dev/configuration/backend' target='_blank'> app configuration </a>."
     },
     "tasks-summary": {
       "summary": "Tasks list",
@@ -942,21 +973,21 @@
       },
       "action": {
         "deactivate": {
-          "action": "Deactivate",
-          "header": "Deactivate user",
-          "header_plural": "Deactivate users",
-          "message": "Do you really want to deactivate the selected user <strong>{{username}}</strong>?",
-          "message_plural": "Do you really want to deactivate <strong>{{count}}</strong> selected users?",
+          "action": "Deactivate manually",
+          "header": "Deactivate user manually",
+          "header_plural": "Deactivate users manually",
+          "message": "Do you really want to deactivate the selected user <strong>{{username}}</strong> manually? Manually deactivated user can be activated manually only.",
+          "message_plural": "Do you really want to deactivate <strong>{{count}}</strong> selected users manually? Manually deactivated users can be activated manually only.",
           "error": "When you deactivate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are deactivated"
         },
         "activate": {
-          "action": "Activate",
+          "action": "Activate manually",
           "header_0": "N/A",
-          "header": "Activate user",
-          "header_plural": "Activate users",
-          "message": "Do you really want to activate the selected user <strong>{{username}}</strong>?",
-          "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users?",
+          "header": "Activate user manually",
+          "header_plural": "Activate users manually",
+          "message": "Do you really want to activate the selected user <strong>{{username}}</strong> manually? Only manually deactivated user can be activated.",
+          "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users? Only manually deactivated users can be activated.",
           "error": "When you activate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are activated"
         },
@@ -1133,6 +1164,21 @@
           "label": "Text",
           "placeholder": "Code / Name / Description"
         }
+      }
+    },
+    "confidentialStorage": {
+      "header": "Confidential storage",
+      "title": "Confidential storage",
+      "label": "Confidential storage",
+      "filter": {
+        "text": "Key / Owner type",
+        "ownerId": "Owner Id",
+        "key": "Key",
+        "ownerType": "Owner type"
+      },
+      "edit": {
+        "title": "Detail of storage",
+        "header": "Detail encrypted value"
       }
     },
     "scripts": {
@@ -1739,14 +1785,6 @@
         "header": "All tasks",
         "title": "All tasks",
         "filter": {
-          "dateFrom": {
-            "label": "from",
-            "placeholder": "Date from"
-          },
-          "dateTill": {
-            "label": "To",
-            "placeholder": "Date to"
-          },
           "text": {
             "label": "Key / Type",
             "placeholder": "Key or task type"
@@ -2007,6 +2045,7 @@
     },
     "name": "Name",
     "created": "Created",
+    "creator": "Creator",
     "validFrom": "Valid from",
     "validTill": "Valid till",
 
@@ -2025,7 +2064,15 @@
       "internist": "Employee",
       "externe": "External contractor",
       "titleBefore": "Titles before",
-      "titleAfter": "Titles after"
+      "titleAfter": "Titles after",
+      "state": {
+        "label": "State",
+        "help": "Identity state"
+      },
+      "disabledReadonly": {
+        "label": "$t(label.disabled)",
+        "help": "$t(label.disabled) identity cannot log in."
+      }
     },
     "RoleCatalogue": {
       "_type": "Catalog folder",
@@ -2043,6 +2090,14 @@
       "parent": {
         "name": "Parent folder in catalog"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Owner Id",
+      "key": "Key",
+      "ownerType": "Owner type",
+      "serializableValue": "Value",
+      "created": "$t(entity.created)",
+      "creator": "$t(entity.creator)"
     },
     "Script": {
       "name": "Script name",
@@ -2239,7 +2294,7 @@
         "help": "Main / prime work position. It's created automatically when the user is created."
       },
       "state": {
-        "label": "Stav",
+        "label": "State",
         "help": "Contract's state"
       }
     },
@@ -2888,6 +2943,10 @@
       "title": "Groovy script contains compile errors",
       "message": "Groovy script contains compile errors"
     },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy script contains syntax errors",
+      "message": "Error message: {{message}} at line {{line}}."
+    },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy script did not past safety check!",
       "message": "Reason: {{message}}"
@@ -3035,6 +3094,14 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
       "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+    },
+    "IDENTITY_ALREADY_DISABLED_MANUALLY": {
+      "title": "User is already deactivated",
+      "message": "User [{{username}}] is already deactivated manually. Cannot be deactivated twice."
+    },
+    "IDENTITY_NOT_DISABLED_MANUALLY": {
+      "title": "User is not deactivated manually",
+      "message": "User [{{username}}] cannot be activated manually. Only manually deactivated user can be activated."
     }
   },
   "validationError": {

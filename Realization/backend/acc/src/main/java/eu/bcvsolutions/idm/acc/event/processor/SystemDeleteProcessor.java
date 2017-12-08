@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
@@ -30,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
@@ -51,6 +53,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	private final AccAccountRepository accountRepository;
 	private final SysSystemEntityService systemEntityService;
 	private final SysProvisioningBreakConfigService provisioningBreakConfigService;
+	private final ConfidentialStorage confidentialStorage;
 
 	@Autowired
 	public SystemDeleteProcessor(SysSystemService service,
@@ -58,7 +61,8 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 			SysProvisioningArchiveRepository provisioningArchiveRepository,
 			SysSchemaObjectClassService objectClassService, SysSyncConfigService synchronizationConfigService,
 			AccAccountRepository accountRepository, SysSystemEntityService systemEntityService,
-			SysProvisioningBreakConfigService provisioningBreakConfigService) {
+			SysProvisioningBreakConfigService provisioningBreakConfigService,
+			ConfidentialStorage confidentialStorage) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -69,6 +73,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		Assert.notNull(accountRepository);
 		Assert.notNull(systemEntityService);
 		Assert.notNull(provisioningBreakConfigService);
+		Assert.notNull(confidentialStorage);
 		//
 		this.service = service;
 		this.objectClassService = objectClassService;
@@ -78,6 +83,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.systemEntityService = systemEntityService;
 		this.provisioningBreakConfigService = provisioningBreakConfigService;
+		this.confidentialStorage = confidentialStorage;
 	}
 
 	@Override
@@ -126,6 +132,9 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		//
 		// clear provisioning break cache
 		clearProvisioningBreakAndCache(system.getId());
+		//
+		// deletes all confidential values
+		confidentialStorage.deleteAll(system.getId(), SysSystem.class);
 		//
 		// deletes identity
 		service.deleteInternal(system);

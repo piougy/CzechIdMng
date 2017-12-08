@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "7.5.4",
+  "version": "7.6.0",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {
@@ -94,6 +94,7 @@
     "react-router-redux": "3.0.0",
     "react-select": "1.0.0-rc.3",
     "react-treebeard": "1.1.2",
+    "react-waypoint": "7.3.1",
     "redux": "3.5.1",
     "redux-immutable": "1.3.10",
     "redux-localstorage": "1.0.0-rc4",
@@ -156,8 +157,9 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "7.5.4",
-    "czechidm-acc": "7.5.4",
-    "czechidm-vs": "7.5.4"
+    "czechidm-core": "7.6.0",
+    "czechidm-acc": "7.6.0",
+    "czechidm-vs": "7.6.0",
+    "czechidm-rpt": "7.6.0"
   }
 }

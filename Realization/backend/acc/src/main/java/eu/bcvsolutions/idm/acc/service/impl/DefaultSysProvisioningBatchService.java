@@ -84,7 +84,7 @@ public class DefaultSysProvisioningBatchService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, String systemEntityUid) {
-		return toDto(repository.findBatch(systemId, entityIdentifier, systemEntityUid));
+	public SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, UUID systemEntity) {
+		return toDto(repository.findBatch(systemId, entityIdentifier, systemEntity));
 	}
 }

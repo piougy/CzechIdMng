@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.identityconnectors.common.StringUtil;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
@@ -105,7 +106,7 @@ public class PasswordGenerator {
 		}
 		if (policy.getMinUpperChar() != null && policy.getMinUpperChar() != 0) {
 			String upper = removeProhibited(upperBase, prohibited);
-			password.append(getRandomChars(upper, policy.getMinUpperChar(), null));
+			password.append(getRandomChars(upperBase, policy.getMinUpperChar(), null));
 			base.append(upper);
 		}
 		if (policy.getMinSpecialChar() != null && policy.getMinSpecialChar() != 0) {
@@ -360,12 +361,16 @@ public class PasswordGenerator {
 		return string.charAt(getRandomNumber(0, string.length() - 1));
 	}
 	
-	private StringBuilder getRandomChars(String string, int length, String prohibited) {
+	private StringBuilder getRandomChars(String base, int length, String prohibited) {
 		StringBuilder result = new StringBuilder();
-		string = removeProhibited(string, prohibited);
+		// if base is empty return empty result 
+		if (StringUtil.isEmpty(base)) {
+			return result;
+		}
+		base = removeProhibited(base, prohibited);
 		
 		for (int index = 0; index < length; index++) {
-			result.append(getRandomChar(string));
+			result.append(getRandomChar(base));
 		}
 		return result;
 	}
@@ -409,7 +414,7 @@ public class PasswordGenerator {
 			
 			randFile.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
+			throw new IllegalArgumentException("Diceware IO exception, see log.", e);
 		}
 	}
 	
@@ -426,7 +431,7 @@ public class PasswordGenerator {
             }
 			outputStream.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
+			throw new IllegalArgumentException("Diceware IO exception, see log.", e);
 		}
         return newFile;
 	}
@@ -450,7 +455,7 @@ public class PasswordGenerator {
 			
 			randFile.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
+			throw new IllegalArgumentException("Diceware IO exception, see log.", e);
 		}
 
 		return word;

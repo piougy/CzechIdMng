@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.audit.rest.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -180,7 +179,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		IdmAuditDto audit = auditService.get(backendId);
 		
 		// Map with all values
-		Map<String, Object> revisionValues = new HashMap<>();
+		Map<String, Object> revisionValues = null;
 		
 		Object revision = null;
 		try {
@@ -196,9 +195,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		mapper.map(audit, auditDto);
 		auditDto.setRevisionValues(revisionValues);
 		
-		ResponseEntity<IdmAuditDto> resource = new ResponseEntity<IdmAuditDto>(auditDto, HttpStatus.OK);
-		
-		return resource;
+		return new ResponseEntity<IdmAuditDto>(auditDto, HttpStatus.OK);
 	}
 	
 	@ResponseBody
@@ -274,7 +271,6 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		dto.setIdFirstRevision(Long.valueOf(firstRevId));
 		dto.setIdSecondRevision(Long.valueOf(secondRevId));
 		
-		ResponseEntity<IdmAuditDiffDto> resource = new ResponseEntity<IdmAuditDiffDto>(dto, HttpStatus.OK);
-		return resource;
+		return new ResponseEntity<IdmAuditDiffDto>(dto, HttpStatus.OK);
 	}
 }

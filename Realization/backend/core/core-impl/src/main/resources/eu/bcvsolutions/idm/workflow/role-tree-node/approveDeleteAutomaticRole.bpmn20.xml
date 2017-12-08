@@ -42,9 +42,9 @@ def skipApproving = false;
 //
 if (role.isApproveRemove()) {
   for (guarantee in role.guarantees) {
-    guarantees.add(guarantee.guarantee)
+    guarantees.add(guarantee.guarantee.toString())
   }
-  if(guarantees.empty || guarantees.contains(applicantIdentifier)) {
+  if(guarantees.empty || guarantees.contains(applicantIdentifier.toString())) {
     skipApproving = true;
   }
 } else {

@@ -13,8 +13,7 @@ import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.task.IdentityLink;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -27,31 +26,22 @@ import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 
 /**
  * Send notification for events {@link ActivitiEventType.TASK_CREATED} and {@link ActivitiEventType.TASK_ASSIGNED}
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-@Component
 public class TaskSendNotificationEventListener implements ActivitiEventListener{
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TaskSendNotificationEventListener.class);
 	
-	@Autowired
-	private IdmIdentityService identityService;
-	
-	@Autowired
-	private NotificationManager notificationManager;
-	
-	@Autowired
-	private AutowireCapableBeanFactory beanFactory;
-
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private NotificationManager notificationManager;
+	@Autowired private ApplicationContext context;
+	@Autowired private ConfigurationService configurationService;
 	/*
-	 * FormService couldn't be autowired, get from bean factory
+	 * FormService couldn't be autowired, get from context
 	 */
 	private FormService formService;
-	
-	@Autowired
-	private ConfigurationService configurationService;
 	
 	@Override
 	public void onEvent(ActivitiEvent event) {
@@ -214,7 +204,7 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 		//
 		// initial form service
 		if (formService == null) {
-			formService = beanFactory.getBean(FormService.class);
+			formService = context.getBean(FormService.class);
 		}
 		//
 		TaskFormData formData = formService.getTaskFormData(taskId);

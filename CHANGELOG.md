@@ -1,6 +1,63 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [7.6.0] unreleased
+
+### Removed
+
+##### Role request
+- Method ``startRequestNewTransactional(UUID requestId, boolean checkRight)`` was removed from interface IdmRoleRequestService (now is using only in implementation).
+
+##### Evaluator 'IdentityAccountByIdentityEvaluator'
+- Evaluator 'IdentityAccountByIdentityEvaluator' was removed and replaced by 'IdentityAccountByAccountEvaluator'.
+
+##### AccAccountService
+- Deprecated method 'delete(AccAccountDto account, boolean deleteTargetAccount, UUID entityId)' was removed. AccAccountService supported events now, parameters 'deleteTargetAccount' and 'entityId' were transformed to properties of delete event.
+
+##### ProvisioningOperation
+- In the task #798, we solved problem with not updated UID value in Provisioning operation. This occurred when was two and more provisioning operations in the queue and when first provisioning (traged system) changed UID of the account. Next provisionings in the queue was wrong (old) value of UID. This was fixed (provisioning operation has relation on the system entity now).
+- Beware - before update we recommand solve/cancel all active provisioning operations. We need to create new column "system_entity_id" and remove old "system_entity_uid". In the change script we will try transform data in the provisioning operation table (from string uid to the ID), but it may not be fully sucessfuly.
+
+### Changed
+
+- Method ``saveAndFlush`` was added into ``BaseEntityRepository`` and this method is used now for saving all dtos - see ``AbstractReadWriteDtoService#saveInternal``. Auditable dto's metadata (e.g. ``modifier``, ``modified``) are available now after dto is saved by ``IdentitySevaProcessor``, for more information read [#834](https://redmine.czechidm.com/issues/834).
+
+##### Sync
+- Since version **7.6 (in identity synchronization)**, the default contractual relationship (when creating a new identity) is not created, for more information read [#867](https://redmine.czechidm.com/issues/867)!
+
+##### Identity
+- Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
+
+##### Script
+
+- Methods ``IdmScriptService#getScriptByName``, ``IdmScriptService#getScriptByCode`` are deprecated and will be removed - use ``IdmScriptService#getByCode`` method instead.
+
+##### Long running task
+- Abstract tasks in package `eu.bcvsolutions.idm.core.scheduler.service.impl` are deprecated and will be removed, use new tasks in api:
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor`
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor`
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor`
+  - `eu.bcvsolutions.idm.core.scheduler.api.service.StatelessAsynchronousTask`
+
+### Added
+
+- [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
+
+##### Identity
+
+- [#815](https://redmine.czechidm.com/issues/815) - Identity state was added. When identity starts to be valid, then new password is generated for all their accounts - one password is set on all identity's accounts and in CzechIdM. Identity can be disabled (and enabled) manually through rest endpoint. Other states are controlled by system and by identity contract states.
+
+##### Report module
+- Reports are available now, read more in documentation.
+
+##### Attachment manager
+- Saving binary files to filesystem is supported now, read more in documentation.
+
+##### Common forms
+- `CommonFormService` is used for saving report filter and configuration for long running taskc
+- `IdmFormDefinitionService#updateDefinition` is used for updating form definitions for common forms automatically (see compatible vs incompatible changes).
+
+
 ## [7.5.2]
 
 #### Acc module
@@ -9,12 +66,9 @@ All notable changes to this project will be documented in this file.
 
 ## [7.5.1]
 
-#### Core module
-
 ##### Contractual relation
 
 - Long running tasks (LRT) for HR processes were restored - they are useful for pre-production checks (disable processors + show what LRT wants to process).
-
 
 ## [7.5.0]
 

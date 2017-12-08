@@ -4,7 +4,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 
 /**
- * Converter for resolve problem with 0x00 character in Postgress. Column with text type cannot contains (in Postgress DB) null as "/0x00"
+ * Converter for resolve problem with 0x00 character in Postgres. Column with text type cannot contains (in Postgres DB) null as "/0x00"
  * This converter solve this problem with replace 0x00 with "".
  * 
  * @author svandav

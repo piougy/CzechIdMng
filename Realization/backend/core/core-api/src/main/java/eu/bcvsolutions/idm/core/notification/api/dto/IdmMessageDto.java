@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.notification.api.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,20 +12,20 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
- * Generic log message dto
+ * Notification message dto
  *
  * @author Peter Sourek
+ * @author Radek Tomiška
  */
 @Relation(collectionRelation = "messages")
 public class IdmMessageDto extends AbstractDto {
 
     private static final long serialVersionUID = 1L;
 
-    //TODO: store in better place
     public static final NotificationLevel DEFAULT_LEVEL = NotificationLevel.INFO;
 
     @JsonProperty("level")
-    private NotificationLevel level;
+    private NotificationLevel level = DEFAULT_LEVEL;
 
     @JsonProperty("model")
     private ResultModel model;
@@ -41,74 +40,61 @@ public class IdmMessageDto extends AbstractDto {
 
     public IdmMessageDto(IdmMessageDto other) {
         super(other);
+        //
         level = other.getLevel();
         subject = other.getSubject();
         textMessage = other.getTextMessage();
         htmlMessage = other.getHtmlMessage();
-        //TODO: deep copy
         model = other.getModel();
         template = other.getTemplate();
         parameters = other.getParameters() == null ? new HashMap<>() : new HashMap<>(other.getParameters());
     }
 
-    private IdmMessageDto(Builder builder) {
-    	// TODO: bug: make model as default - overridable by normal builder props, if they are set. e.g. i am not able to set different level than in model
+    private IdmMessageDto(Builder builder) {  
+    	this.parameters = new HashMap<>();
+    	//
         if (builder.model != null) {
-            initWithModel(builder);
-        } else {
-            initWithoutModel(builder);
+        	// model - the lowest priority - template and manually given messages has the higher priority 
+        	this.model = builder.model;        	
+        	this.textMessage = builder.model.getMessage();
+        	this.htmlMessage = builder.model.getMessage();
+        	this.subject = builder.model.getStatusEnum();    
+        	if (builder.model.getParameters() != null) {
+        		this.parameters.putAll(builder.model.getParameters());
+        	}
+        	if (model.getStatus() != null) {
+        		this.level = NotificationLevel.getLevel(model.getStatus());
+        	}
         }
-    }
-
-    private void initWithoutModel(Builder builder) {
+        if (builder.template != null) {
+        	template = builder.template;
+        	this.textMessage = builder.template.getBodyText();
+        	this.htmlMessage = builder.template.getBodyHtml();
+        	this.subject = builder.template.getSubject();
+        }
         if (builder.subject != null) {
-            subject = builder.subject;
-        } else if (builder.template != null && builder.template.getSubject() != null) {
-            subject = builder.template.getSubject();
+        	this.subject = builder.subject;
         }
-        //
-        if (builder.textMessage != null) {
-            textMessage = builder.textMessage;
-        } else if (builder.template != null && builder.template.getBodyText() != null) {
-            textMessage = builder.template.getBodyText();
+    	if (builder.textMessage != null) {
+        	this.textMessage = builder.textMessage;
         }
-        //
-        if (builder.htmlMessage != null) {
-            htmlMessage = builder.htmlMessage;
-        } else if (builder.template != null && builder.template.getBodyHtml() != null) {
-            htmlMessage = builder.template.getBodyHtml();
-        }
-        //
-        template = builder.template;
-        parameters = builder.parameters;
-        model = builder.model;
-        level = builder.level == null ? IdmMessageDto.DEFAULT_LEVEL : builder.level;
+    	if (builder.htmlMessage != null) {
+    		this.htmlMessage = builder.htmlMessage;
+    	}
+    	if (builder.level != null) {
+    		this.level = builder.level;
+    	}
+    	if (builder.parameters != null) {
+    		// higher priority than model parameters
+    		this.getParameters().putAll(builder.parameters);
+    	}
+    	// make sure html is filled, if text is filled
+    	if (this.htmlMessage == null) {
+    		this.htmlMessage = this.textMessage;
+    	}
     }
-
-    private void initWithModel(Builder builder) {
-        model = builder.model;
-        htmlMessage = builder.model.getMessage();
-        textMessage = builder.model.getMessage();
-        subject = builder.model.getStatusEnum();
-        parameters = builder.model.getParameters();
-        //
-        // set level from model, override level
-        // TODO: this is duplicate wit builder method ...
-        level = builder.level; // higher priority
-        if (level == null) { 
-	        if (model.getStatus().is5xxServerError()) {
-	            level = NotificationLevel.ERROR;
-	        } else if (model.getStatus().is2xxSuccessful()) {
-	            level = NotificationLevel.SUCCESS;
-	        } else {
-	            level = NotificationLevel.WARNING;
-	        }
-        }
-    }
-
 
     public IdmMessageDto() {
-        // Empty constructor needed because of ModelMapper
     }
 
     public NotificationLevel getLevel() {
@@ -160,6 +146,9 @@ public class IdmMessageDto extends AbstractDto {
     }
 
     public Map<String, Object> getParameters() {
+    	if (parameters == null) {
+    		parameters = new HashMap<>();
+    	}
         return parameters;
     }
 
@@ -167,9 +156,8 @@ public class IdmMessageDto extends AbstractDto {
         this.parameters = parameters;
     }
 
-
     /**
-     * {@link IdmMessageDto} builder
+     * Simple {@link IdmMessageDto} builder.
      *
      * @author Radek Tomiška
      */
@@ -243,24 +231,6 @@ public class IdmMessageDto extends AbstractDto {
 
         public Builder setModel(ResultModel model) {
             this.model = model;
-            if (model != null) {
-                // set default subject and message
-                if (StringUtils.isEmpty(subject)) {
-                    subject = model.getStatusEnum();
-                }
-                if (StringUtils.isEmpty(textMessage)) {
-                    textMessage = model.getMessage();
-                }
-                if (level == null) {
-                    if (model.getStatus().is5xxServerError()) {
-                        level = NotificationLevel.ERROR;
-                    } else if (model.getStatus().is2xxSuccessful()) {
-                        level = NotificationLevel.SUCCESS;
-                    } else {
-                        level = NotificationLevel.WARNING;
-                    }
-                }
-            }
             return this;
         }
 

@@ -326,7 +326,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	@Override
 	public boolean doItemSynchronization(SynchronizationContext context) {
 		Assert.notNull(context);
-
+ 
 		String uid = context.getUid();
 		IcConnectorObject icObject = context.getIcObject();
 		IcSyncDeltaTypeEnum type = context.getType();
@@ -1223,10 +1223,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// We will create new entity
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
 		DTO entity = this.createEntityDto();
-		// Fill Role by mapped attribute
+		// Fill entity by mapped attribute
 		entity = fillEntity(mappedAttributes, uid, icAttributes, entity, true, context);
 
-		// Create new Role
+		// Create new entity
 		entity = this.save(entity, true);
 
 		// Update extended attribute (entity must be persisted first)
@@ -1694,6 +1694,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		systemEntityNew.setUid(uid);
 		systemEntityNew.setEntityType(entityType);
 		systemEntityNew.setSystem(system.getId());
+		systemEntityNew.setWish(false);
 		return systemEntityService.save(systemEntityNew);
 	}
 

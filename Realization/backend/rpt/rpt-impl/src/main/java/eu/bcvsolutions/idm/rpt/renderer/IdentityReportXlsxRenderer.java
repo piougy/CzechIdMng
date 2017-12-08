@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.context.annotation.Description;
@@ -38,6 +41,7 @@ public class IdentityReportXlsxRenderer
 			// read json stream
 			JsonParser jParser = getMapper().getFactory().createParser(getReportData(report));
 			XSSFWorkbook workbook = new XSSFWorkbook();
+			CreationHelper createHelper = workbook.getCreationHelper();
 			XSSFSheet sheet = workbook.createSheet("Report");
 			// header
 			Row row = sheet.createRow(0);
@@ -69,6 +73,19 @@ public class IdentityReportXlsxRenderer
 			}
 			// close json stream
 			jParser.close();
+			//
+			// footer info about more available reports
+			rowNum++;
+			rowNum++;
+			row = sheet.createRow(rowNum++);
+			cell = row.createCell(0);
+			cell.setCellValue("More reports are available in reports module:");
+			row = sheet.createRow(rowNum++);
+			cell = row.createCell(0);
+			cell.setCellValue("https://wiki.czechidm.com/devel/documentation/modules_reports");
+			Hyperlink link = createHelper.createHyperlink(XSSFHyperlink.LINK_URL);
+            link.setAddress("https://wiki.czechidm.com/devel/documentation/modules_reports");
+            cell.setHyperlink(link);
 			//
 			// close and return input stream
 			return getInputStream(workbook);

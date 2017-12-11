@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.6.0] unreleased
+## [7.6.0]
 
 ### Removed
 

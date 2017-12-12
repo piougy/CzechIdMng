@@ -177,7 +177,7 @@
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Default role",
-            "helpBlock": "When sync creating a relation between identity and account, this role will be assigned to the identity. This role will be linked to the main contractual relationship of identity."
+            "helpBlock": "If the synchronization creates a link between an identity and an account, this role will be assigned to the identity. This assignment will be linked to the main contractual relationship of the identity."
           }
         }
       },
@@ -789,7 +789,7 @@
         "label": "Reconciliation",
         "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entities in CzechIdM."
       },
-      "correlationAttribute": "Collation attribute",
+      "correlationAttribute": "Correlation attribute",
       "systemMapping": "Set of mapped attributes",
       "linkedAction": "Linked",
       "unlinkedAction": "Not linked",

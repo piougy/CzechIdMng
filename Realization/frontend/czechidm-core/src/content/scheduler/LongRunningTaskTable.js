@@ -27,7 +27,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
         show: false,
         entity: null
       },
-      filterOpened: false
+      filterOpened: true
     };
   }
 

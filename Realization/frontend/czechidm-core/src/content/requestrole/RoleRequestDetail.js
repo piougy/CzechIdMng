@@ -165,7 +165,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   _removeConcept(data, type) {
     const {_request} = this.props;
-    // this.setState({showLoading: true});
+    this.setState({showLoadingButtonRemove: true});
 
     let concept = data;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
@@ -185,11 +185,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         }
       }
       this.refs.table.getWrappedInstance().reload();
-      // this.setState({showLoading: false});
+      this.setState({showLoadingButtonRemove: false});
     })
     .catch(error => {
       this.addError(error);
-      // this.setState({showLoading: false});
+      this.setState({showLoadingButtonRemove: false});
     });
 
     // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-deleteConcept-${_request.applicant}`, (deletedEntity, error) => {
@@ -416,7 +416,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _renderRoleConceptTable(request, rendered, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles) {
+  _renderRoleConceptTable(request, rendered, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove) {
     if (!rendered) {
       return null;
     }
@@ -434,6 +434,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             ref="identityRoleConceptTable"
             uiKey="identity-role-concept-table"
             showLoading={showLoading}
+            showLoadingButtonRemove={showLoadingButtonRemove}
             className="vertical-scroll"
             readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions)}
             identityUsername={request && request.applicant}
@@ -467,6 +468,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN') && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
     const showLoading = !request || _showLoading || this.state.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
+    const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
 
     if (this.state.showLoading || !request) {
       return (<div>
@@ -563,7 +565,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <div style={{ padding: '15px 15px 0 15px' }}>
               {this._renderRoleConceptTable(request, true,
                 isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
-                changedIdentityRoles, removedIdentityRoles)}
+                changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)}
                 {this._renderRoleConceptChangesTable(request, forceSearchParameters, true)}
             </div>
             <Basic.PanelFooter>

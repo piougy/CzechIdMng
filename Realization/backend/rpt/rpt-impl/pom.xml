@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-rpt</artifactId>
-		<version>7.6.0-SNAPSHOT</version>
+		<version>7.7.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -13,7 +13,7 @@
 	<packaging>jar</packaging>
 
 	<name>CzechIdM Report Impl</name>
-	<description>Basic reports implementation</description>
+	<description>Provide abstract implementations for creating reports. Expose endpoints for generating and managing reports.</description>
 
 	<dependencies>
 		<dependency>

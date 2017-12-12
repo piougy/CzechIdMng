@@ -122,6 +122,18 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 	
 	@Override
+	public List<Task> getAllTasksByType(Class<?> taskType){
+		List<Task> tasks = this.getAllTasks();
+		if(tasks == null) {
+			return new ArrayList<>();
+		}
+		return tasks.stream().filter(task -> {
+			Class<? extends SchedulableTaskExecutor<?>> type = task.getTaskType();
+			return type.equals(taskType);
+		}).collect(Collectors.toList());
+	}
+	
+	@Override
 	public Task getTask(String taskId) {
 		return getTask(getKey(taskId));
 	}

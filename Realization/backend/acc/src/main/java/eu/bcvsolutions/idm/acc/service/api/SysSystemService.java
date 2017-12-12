@@ -23,19 +23,16 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemService extends 
-		EventableDtoService<SysSystemDto, SysSystemFilter>,
-		CodeableService<SysSystemDto>, 
-		CloneableService<SysSystemDto>,
-		AuthorizableService<SysSystemDto> {
+public interface SysSystemService extends EventableDtoService<SysSystemDto, SysSystemFilter>,
+		CodeableService<SysSystemDto>, CloneableService<SysSystemDto>, AuthorizableService<SysSystemDto> {
 
 	static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	static final String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 
 	/**
 	 * Generate and persist schema to system. Use connector info and connector
-	 * configuration stored in system. If system contains any schema, then will
-	 * be every object compare and only same will be regenerated
+	 * configuration stored in system. If system contains any schema, then will be
+	 * every object compare and only same will be regenerated
 	 * 
 	 * @param system
 	 * @return all schemas on system
@@ -94,4 +91,12 @@ public interface SysSystemService extends
 	 */
 	SysSystemDto duplicate(UUID id);
 
+	/**
+	 * Return {@link IcConnectorInstance} for given system.
+	 * {@link IcConnectorInstance} has filled password for remote connector server
+	 * 
+	 * @param system
+	 * @return
+	 */
+	IcConnectorInstance getConnectorInstance(SysSystemDto system);
 }

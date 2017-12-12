@@ -95,4 +95,11 @@ public interface SchedulerManager {
 	 * @param triggerId trigger identifier
 	 */
 	void deleteTrigger(String taskId, String triggerId);
+
+	/**
+	 * Find all task with given task type
+	 * @param taskType
+	 * @return
+	 */
+	List<Task> getAllTasksByType(Class<?> taskType);
 }

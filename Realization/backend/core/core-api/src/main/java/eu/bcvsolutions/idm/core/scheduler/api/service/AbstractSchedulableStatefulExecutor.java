@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
 
@@ -167,6 +169,11 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	}
 	
 	private Page<IdmProcessedTaskItemDto> getItemFromQueue(UUID entityRef) {
+		// if scheduled task is null process all item including already processed items 
+		// TODO: this is probably not good idea, but for now it is only choice
+		if (this.getScheduledTaskId() == null) {
+			return new PageImpl<>(Collections.emptyList());
+		}
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setReferencedEntityId(entityRef);
 		filter.setScheduledTaskId(this.getScheduledTaskId());

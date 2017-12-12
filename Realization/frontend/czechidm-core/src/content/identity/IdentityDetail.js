@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
 import ApiOperationTypeEnum from '../../enums/ApiOperationTypeEnum';
+import IdentityStateEnum from '../../enums/IdentityStateEnum';
 
 const identityManager = new IdentityManager();
 
@@ -99,9 +100,8 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, identity, entityId, readOnly, _permissions } = this.props;
+    const { identity, readOnly, _permissions } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
-    const deactiveDisabled = !userContext || entityId === userContext.username || !identityManager.canSave(identity, _permissions);
     //
     return (
       <div>
@@ -145,12 +145,21 @@ class IdentityDetail extends Basic.AbstractContent {
                 placeholder={this.i18n('description.placeholder')}
                 rows={4}
                 max={1000}/>
+
+              <Basic.EnumSelectBox
+                ref="state"
+                enum={ IdentityStateEnum }
+                useSymbol={ false }
+                label={ this.i18n('entity.Identity.state.label') }
+                helpBlock={ <span>{ this.i18n('entity.Identity.state.help') }</span> }
+                readOnly/>
+
               <Basic.Checkbox
                 ref="disabled"
-                label={this.i18n('entity.Identity.disabled')}
-                readOnly={deactiveDisabled || !identity}
-                title={deactiveDisabled ? this.i18n('messages.deactiveDisabled') : ''}>
-              </Basic.Checkbox>
+                label={this.i18n('entity.Identity.disabledReadonly.label')}
+                helpBlock={this.i18n('entity.Identity.disabledReadonly.help')}
+                readOnly />
+
             </Basic.AbstractForm>
 
             <Basic.PanelFooter>

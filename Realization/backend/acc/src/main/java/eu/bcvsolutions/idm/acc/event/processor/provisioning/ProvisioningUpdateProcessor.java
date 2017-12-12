@@ -54,7 +54,7 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		if (!connectorObject.getAttributes().isEmpty()) { 
 			SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-			return connectorFacade.updateObject(system.getConnectorInstance(), connectorConfig,
+			return connectorFacade.updateObject(systemService.getConnectorInstance(system), connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
 		} else {
 			// TODO: appropriate message - provisioning is not executed - attributes don't change

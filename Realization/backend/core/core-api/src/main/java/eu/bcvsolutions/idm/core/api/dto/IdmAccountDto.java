@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  */
 public class IdmAccountDto implements BaseDto {
 
+	public static final String PARAMETER_NAME = "account"; // account in parameters (eg. operation result, event paramaeters)
+	//
 	private static final long serialVersionUID = 1L;
 	//
 	private UUID id;

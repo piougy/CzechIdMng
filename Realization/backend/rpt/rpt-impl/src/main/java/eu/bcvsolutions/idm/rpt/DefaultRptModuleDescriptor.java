@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.rpt.RptModuleDescriptor;
@@ -37,17 +37,17 @@ public class DefaultRptModuleDescriptor extends PropertyModuleDescriptor impleme
 	}
 	
 	@Override
-	public List<IdmNotificationConfigurationDto> getDefaultNotificationConfigurations() {
-		List<IdmNotificationConfigurationDto> configs = new ArrayList<>();
+	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_REPORT_GENERATE_SUCCESS, 
 				null, 
 				IdmWebsocketLog.NOTIFICATION_TYPE,
 				"Send notification, after report is successfully generated.", 
 				getNotificationTemplateId("reportGenerateSuccess")));
 		//
-		configs.add(new IdmNotificationConfigurationDto(
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_REPORT_GENERATE_FAILED	, 
 				null, 
 				IdmWebsocketLog.NOTIFICATION_TYPE,

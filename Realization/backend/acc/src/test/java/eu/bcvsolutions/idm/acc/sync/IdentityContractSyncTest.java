@@ -73,6 +73,14 @@ import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -124,6 +132,10 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private IdmTreeNodeService treeNodeService;
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
+	@Autowired
+	private SchedulerManager schedulerService;
+	@Autowired
+	private IdmScheduledTaskService scheduledService;
 
 	private SynchronizationService synchornizationService;
 
@@ -298,16 +310,16 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	@Test
 	/**
-	 * HR process are not executed during sync.
-	 * If contract is invalid, then HR process disable the Identity. But in the
-	 * sync we need skip this functionality.
+	 * HR process are not executed during sync. If contract is invalid, then HR
+	 * process disable the Identity. But in the sync we need skip this
+	 * functionality.
 	 */
 	public void checkContractInvalidTest() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
 		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
-		((SysSyncContractConfigDto)config).setStartOfHrProcesses(false);
+		((SysSyncContractConfigDto) config).setStartOfHrProcesses(false);
 		syncConfigService.save(config);
 
 		IdmIdentityDto ownerOne = helper.createIdentity(CONTRACT_OWNER_ONE);
@@ -361,7 +373,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
-	
+
 	@Test
 	/**
 	 * HR process are not executed during sync, but after sync end.
@@ -371,8 +383,30 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
 		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
-		((SysSyncContractConfigDto)config).setStartOfHrProcesses(true);
+		((SysSyncContractConfigDto) config).setStartOfHrProcesses(true);
 		syncConfigService.save(config);
+
+		Task task = findTask(HrEnableContractProcess.class);
+		IdmScheduledTaskDto scheduledTask = null;
+		if (scheduledService.findByQuartzTaskName(task.getId()) == null) {
+			scheduledTask = new IdmScheduledTaskDto();
+			scheduledTask.setQuartzTaskName(task.getId());
+			scheduledService.save(scheduledTask);
+		}
+
+		task = findTask(HrEndContractProcess.class);
+		if (scheduledService.findByQuartzTaskName(task.getId()) == null) {
+			scheduledTask = new IdmScheduledTaskDto();
+			scheduledTask.setQuartzTaskName(task.getId());
+			scheduledService.save(scheduledTask);
+		}
+
+		task = findTask(HrContractExclusionProcess.class);
+		if (scheduledService.findByQuartzTaskName(task.getId()) == null) {
+			scheduledTask = new IdmScheduledTaskDto();
+			scheduledTask.setQuartzTaskName(task.getId());
+			scheduledService.save(scheduledTask);
+		}
 
 		IdmIdentityDto ownerOne = helper.createIdentity(CONTRACT_OWNER_ONE);
 		IdmIdentityDto ownerTwo = helper.createIdentity(CONTRACT_OWNER_TWO);
@@ -905,5 +939,23 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	private IdentityContractSyncTest getBean() {
 		return applicationContext.getBean(this.getClass());
+	}
+
+	private Task findTask(Class<? extends SchedulableTaskExecutor<?>> taskType) {
+		List<Task> tasks = schedulerService.getAllTasksByType(taskType);
+		if (tasks.size() == 1) {
+			return tasks.get(0);
+		}
+		if (tasks.isEmpty()) {
+			return null;
+		}
+
+		Task defaultTask = tasks.stream().filter(task -> {
+			return task.getDescription().equals("Default");
+		}).findFirst().orElse(null);
+		if (defaultTask != null) {
+			return defaultTask;
+		}
+		return tasks.get(0);
 	}
 }

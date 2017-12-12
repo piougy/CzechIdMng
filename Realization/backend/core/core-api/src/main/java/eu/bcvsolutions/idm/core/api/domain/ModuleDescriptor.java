@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
@@ -96,7 +96,7 @@ public interface ModuleDescriptor extends Plugin<String> {
 	 * 
 	 * @return
 	 */
-	List<IdmNotificationConfigurationDto> getDefaultNotificationConfigurations();
+	List<NotificationConfigurationDto> getDefaultNotificationConfigurations();
 	
 	/**
 	 * Returns true, when html documentation is available as webjar directly in module .jar package

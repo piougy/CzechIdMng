@@ -270,7 +270,10 @@ public class RptReportController extends AbstractReadWriteDtoController<RptRepor
 	
 	@Override
 	protected RptReportFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new RptReportFilter(parameters);
+		RptReportFilter filter = new RptReportFilter(parameters);
+		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
+		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
+		return filter;
 	}
 
 }

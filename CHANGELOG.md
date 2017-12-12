@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.6.0] unreleased
+## [7.6.0]
 
 ### Removed
 
@@ -22,11 +22,11 @@ All notable changes to this project will be documented in this file.
 
 - Method ``saveAndFlush`` was added into ``BaseEntityRepository`` and this method is used now for saving all dtos - see ``AbstractReadWriteDtoService#saveInternal``. Auditable dto's metadata (e.g. ``modifier``, ``modified``) are available now after dto is saved by ``IdentitySevaProcessor``, for more information read [#834](https://redmine.czechidm.com/issues/834).
 
+##### Sync
+- Since version **7.6 (in identity synchronization)**, the default contractual relationship (when creating a new identity) is not created, for more information read [#867](https://redmine.czechidm.com/issues/867)!
+
 ##### Identity
 - Identity's last name attribute is optional, change script was provided. Make sure you check identity's last name for ``null`` values, in your project.
-
-##### Notification
-- ``NotificationConfigurationDto`` was renamed to ``IdmNotificationConfigurationDto``  (convention).
 
 ##### Script
 
@@ -42,6 +42,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - [#780](https://redmine.czechidm.com/issues/780) - Path with resources - support multiple locations for scripts, notification templates and workflow definitions.
+
+##### Identity
+
+- [#815](https://redmine.czechidm.com/issues/815) - Identity state was added. When identity starts to be valid, then new password is generated for all their accounts - one password is set on all identity's accounts and in CzechIdM. Identity can be disabled (and enabled) manually through rest endpoint. Other states are controlled by system and by identity contract states.
 
 ##### Report module
 - Reports are available now, read more in documentation.

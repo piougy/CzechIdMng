@@ -48,7 +48,7 @@ public class IdmLongRunningTaskItemControllerRestTest extends AbstractRestTest {
 	@Autowired
 	private TestHelper helper;
 
-	private String PATH = "/long-running-task-item";
+	private String PATH = "/long-running-task-items";
 
 	private Authentication getAuthentication() {
 		return new IdmJwtAuthentication(identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");

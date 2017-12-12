@@ -196,7 +196,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 return (
                   <Advanced.EntityInfo
                     entityType="system"
-                    entityIdentifier={ data[rowIndex]._embedded.systemEntity.system }
+                    entityIdentifier={ data[rowIndex]._embedded.system.id }
                     face="popover" />
                 );
               }

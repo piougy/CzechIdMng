@@ -50,7 +50,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 @Service
 public class ConnIdIcConnectorService implements IcConnectorService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConnIdIcConnectorService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ConnIdIcConnectorService.class);
 
 	private ConnIdIcConfigurationService configurationServiceConnId;
 
@@ -82,7 +82,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(attributes);
-		log.debug("Create object - ConnId ({} {})", connectorInstance.getConnectorKey().toString(), attributes.toString());
+		LOG.debug("Create object - ConnId ({} {})", connectorInstance.getConnectorKey().toString(), attributes.toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>();
@@ -95,7 +95,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 		Uid uid = conn.create(objectClassConnId, connIdAttributes, null);
-		log.debug("Created object - ConnId ({} {}) Uid= {}", connectorInstance.getConnectorKey().toString(), attributes.toString(), uid);
+		LOG.debug("Created object - ConnId ({} {}) Uid= {}", connectorInstance.getConnectorKey().toString(), attributes.toString(), uid);
 		return ConnIdIcConvertUtil.convertConnIdUid(uid);
 	}
 
@@ -108,7 +108,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(replaceAttributes);
 		Assert.notNull(uid);
 
-		log.debug("Update object - ConnId (Uid= {} {} {})", uid, connectorInstance.getConnectorKey().toString(), replaceAttributes.toString());
+		LOG.debug("Update object - ConnId (Uid= {} {} {})", uid, connectorInstance.getConnectorKey().toString(), replaceAttributes.toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>();
@@ -122,7 +122,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 
 		Uid updatedUid = conn.update(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), connIdAttributes,
 				null);
-		log.debug("Updated object - ConnId ({} {}) Uid= {})", connectorInstance.getConnectorKey().toString(), replaceAttributes.toString(), updatedUid);
+		LOG.debug("Updated object - ConnId ({} {}) Uid= {})", connectorInstance.getConnectorKey().toString(), replaceAttributes.toString(), updatedUid);
 		return ConnIdIcConvertUtil.convertConnIdUid(updatedUid);
 	}
 
@@ -133,7 +133,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(uid);
-		log.debug("Delete object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
+		LOG.debug("Delete object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
@@ -143,7 +143,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 		conn.delete(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), null);
-		log.debug("Deleted object - ConnId ({}) Uid= {}", connectorInstance.getConnectorKey().toString(), uid);
+		LOG.debug("Deleted object - ConnId ({}) Uid= {}", connectorInstance.getConnectorKey().toString(), uid);
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(uid);
-		log.debug("Read object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
+		LOG.debug("Read object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
@@ -163,7 +163,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 		ConnectorObject connObject = conn.getObject(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), null);
-		log.debug("Readed object - ConnId ({}) Uid= {}", connObject, uid);
+		LOG.debug("Readed object - ConnId ({}) Uid= {}", connObject, uid);
 		return ConnIdIcConvertUtil.convertConnIdConnectorObject(connObject);
 	}
 
@@ -174,7 +174,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(username);
-		log.debug("Authenticate object - ConnId (username= {} {})", username, connectorInstance.getConnectorKey().toString());
+		LOG.debug("Authenticate object - ConnId (username= {} {})", username, connectorInstance.getConnectorKey().toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
@@ -185,7 +185,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		try {
 			IcUidAttribute uid = ConnIdIcConvertUtil.convertConnIdUid(conn.authenticate(objectClassConnId, username,
 					new org.identityconnectors.common.security.GuardedString(password.asString().toCharArray()), null));
-			log.debug("Authenticated object - ConnId (Uid= {})", uid);
+			LOG.debug("Authenticated object - ConnId (Uid= {})", uid);
 			return uid;
 		} catch (InvalidCredentialException ex) {
 			throw new ResultCodeException(IcResultCode.AUTH_FAILED, ex);
@@ -201,7 +201,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
-		log.debug("Start synchronization for connector {} and objectClass {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName());
+		LOG.debug("Start synchronization for connector {} and objectClass {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName());
 		
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
@@ -234,7 +234,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
 		
-		log.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
+		LOG.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
@@ -253,7 +253,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			@Override
 			public void handleResult(SearchResult result) {
 				// VS TODO: For all my tests was search result Null and this method (handle result) was not called!
-				log.debug("SearchResul was returned (pagination): cookie: {}  --- remaining paged results: {}", result.getPagedResultsCookie(), result.getRemainingPagedResults());
+				LOG.debug("SearchResul was returned (pagination): cookie: {}  --- remaining paged results: {}", result.getPagedResultsCookie(), result.getRemainingPagedResults());
 			}
 		};
 		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
@@ -272,7 +272,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		SearchResult searchResutl = conn.search(objectClass, filter, handler, options);
 		// For all my tests was search result Null.
 		if(searchResutl != null){
-			log.debug("SearchResul was returned (pagination): cookie: {}  --- offset: {}", options.getPagedResultsCookie(), options.getPagedResultsOffset());
+			LOG.debug("SearchResul was returned (pagination): cookie: {}  --- offset: {}", options.getPagedResultsCookie(), options.getPagedResultsOffset());
 			String cookie = searchResutl.getPagedResultsCookie();
 			int remainingResult = searchResutl.getRemainingPagedResults();
 			if(remainingResult > 0 && cookie != null){

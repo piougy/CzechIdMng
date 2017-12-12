@@ -31,7 +31,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
   }
 
   getContentKey() {
-    return 'content.automaticRoles';
+    return 'content.automaticRoles.attribute.rule';
   }
 
   useFilter(event) {
@@ -65,11 +65,16 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
   }
 
   render() {
-    const { uiKey, manager, rendered } = this.props;
+    const { uiKey, manager, rendered, attributeId } = this.props;
     const { filterOpened } = this.state;
     //
     if (!rendered) {
       return null;
+    }
+    //
+    let forceSearchParameters = manager.getDefaultSearchParameters();
+    if (attributeId) {
+      forceSearchParameters = forceSearchParameters.setFilter('automaticRoleAttributeId', attributeId);
     }
     //
     return (
@@ -79,7 +84,9 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
           ref="table"
           uiKey={uiKey}
           manager={manager}
+          forceSearchParameters={forceSearchParameters}
           showRowSelection={SecurityManager.hasAuthority('AUTOMATICROLERULE_DELETE')}
+          noData={this.i18n('content.automaticRoles.emptyRules')}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -132,18 +139,15 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
             property="type"
             face="enum"
             enumClass={AutomaticRoleAttributeRuleTypeEnum}
-            header={this.i18n('entity.AutomaticRole.attribute.type.label')}
-            sort/>
+            header={this.i18n('entity.AutomaticRole.attribute.type.label')}/>
           <Advanced.Column
             property="comparison"
             face="enum"
             enumClass={AutomaticRoleAttributeRuleComparisonEnum}
-            header={this.i18n('entity.AutomaticRole.attribute.comparison')}
-            sort/>
+            header={this.i18n('entity.AutomaticRole.attribute.comparison')}/>
           <Advanced.Column
             property="value"
-            header={this.i18n('entity.AutomaticRole.attribute.value.label')}
-            sort/>
+            header={this.i18n('entity.AutomaticRole.attribute.value.label')}/>
         </Advanced.Table>
       </div>
     );

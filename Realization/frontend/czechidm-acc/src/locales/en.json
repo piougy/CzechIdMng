@@ -1040,17 +1040,6 @@
       "UPDATE": "Update",
       "DELETE": "Delete"
     },
-    "IdentityAttributeEnum": {
-      "USERNAME": "User name (String)",
-      "DISABLED": "Disabled (boolean)",
-      "FIRSTNAME": "First name (String)",
-      "LASTNAME": "Surname (String)",
-      "TITLE_BEFORE": "Title before (String)",
-      "TITLE_AFTER": "Title after (String)",
-      "DESCRIPTION": "Description (String)",
-      "PHONE": "Phone (String)",
-      "EMAIL": "Email (String)"
-    },
     "TreeAttributeEnum": {
       "CODE": "Code (String)",
       "NAME": "Name (String)",
@@ -1073,19 +1062,6 @@
       "PRIORITY": "Priority (Integer)",
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)"
-    },
-    "ContractAttributeEnum": {
-      "IDENTITY": "Owner (IdmIdentity - Id or username)",
-      "VALID_FROM": "Valid from (LocalDate)",
-      "VALID_TILL": "Valid till (LocalDate)",
-      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
-      "POSITION": "Name of position (String)",
-      "EXTERNE": "Externe (boolean)",
-      "MAIN": "Main relation (boolean)",
-      "DESCRIPTION": "Description (String)",
-      "DISABLED": "Disabled (boolean)",
-      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
-      "STATE": "State (ContractState - String)"
     }
   },
   "permission": {

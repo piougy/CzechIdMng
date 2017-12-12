@@ -1,0 +1,34 @@
+{
+  "title": "Zapomenuté heslo",
+  "header": "Zadejte nové heslo",
+  "password" : "Nové heslo",
+  "passwordAgain" : "Heslo pro kontrolu",
+  "passwordResetCreated": "Žádost o reset hesla vytvořena",
+  "passwordChanged": "Nové heslo nastaveno",
+  "token": "Ověřovací token",
+  "module": {
+    "name": "Reset hesla",
+    "author": "BCV solutions s.r.o."
+  },
+  "navigation": {
+    "pwdreset": "Zapomenuté heslo"
+  },
+  "error": {
+    "INVALID_TOKEN": {
+      "title": "Neplatný token",
+      "message": "Token není platný."
+    },
+    "EXPIRED_TOKEN": {
+      "title": "Neplatný token",
+      "message": "Token není platný."
+    },
+    "CANNOT_REQUEST_RESET": {
+      "title": "Nelze resetovat heslo",
+      "message": "Nepodařilo se resetovat heslo."
+    }
+  },
+  "button" : {
+    "password-set": "Nastavit heslo",
+    "reset-password": "Resetovat heslo"
+  }
+}

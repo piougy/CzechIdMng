@@ -23,14 +23,14 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { ruleId } = this.props.params;
     this.selectNavigationItems(['system', 'automatic-roles']);
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(manager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(manager.receiveEntity(ruleId, { }));
     } else {
-      this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(manager.fetchEntity(entityId));
+      this.getLogger().debug(`[TypeContent] loading entity detail [id:${ruleId}]`);
+      this.context.store.dispatch(manager.fetchEntity(ruleId));
     }
   }
 
@@ -59,14 +59,14 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
           !entity
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:clone"/>
+            <Basic.Icon value="fa:universal-access"/>
             {' '}
             {
               this._getIsNew()
               ?
               this.i18n('create.header')
               :
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
+              <span>{this.i18n('edit.header')}</span>
             }
           </Basic.PageHeader>
         }
@@ -92,11 +92,11 @@ AutomaticRoleAttributeRuleContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { ruleId } = component.params;
   //
   return {
-    entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    entity: manager.getEntity(state, ruleId),
+    showLoading: manager.isShowLoading(state, null, ruleId)
   };
 }
 

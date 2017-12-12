@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.Set;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -10,6 +12,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,10 +55,16 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 
 	protected static final String TAG = "Rules for automatic role attribute";
 
+	private final IdmAutomaticRoleAttributeRuleService service;
+	
 	@Autowired
 	public IdmAutomaticRoleAttributeRuleController(
 			IdmAutomaticRoleAttributeRuleService entityService) {
 		super(entityService);
+		//
+		Assert.notNull(entityService);
+		//
+		this.service = entityService;
 	}
 
 	@Override
@@ -140,6 +149,78 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 		return super.post(dto);
 	}
 	
+	@ResponseBody
+	@RequestMapping(value = "/recalculate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE + "')")
+	@ApiOperation(
+			value = "Create / update rule and recalculate automatic roles", 
+			nickname = "postAutomaticRoleAttributeRule", 
+			response = IdmAutomaticRoleAttributeRuleDto.class, 
+			tags = { IdmAutomaticRoleAttributeRuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "")})
+				})
+	public ResponseEntity<?> postAndRecalculate(@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
+		ResponseEntity<?> responseEntity = super.post(dto);
+		//
+		service.recalculate();
+		//
+		return responseEntity;
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE + "')")
+	@ApiOperation(
+			value = "Update rule", 
+			nickname = "putAutomaticRoleRule", 
+			response = IdmAutomaticRoleAttributeRuleDto.class, 
+			tags = { IdmAutomaticRoleAttributeRuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Rule's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
+		return super.put(backendId, dto);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/recalculate", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE + "')")
+	@ApiOperation(
+			value = "Update rule and recalculate all automatic roles", 
+			nickname = "putAutomaticRoleRuleAndRecalculate", 
+			response = IdmAutomaticRoleAttributeRuleDto.class, 
+			tags = { IdmAutomaticRoleAttributeRuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> putAndRecalculate(
+			@ApiParam(value = "Rule's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
+		ResponseEntity<?> responseEntity = super.put(backendId, dto);
+		//
+		service.recalculate();
+		//
+		return responseEntity;
+	}
+	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
@@ -158,5 +239,25 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 			@ApiParam(value = "Rule's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnAutomaticRoleRules", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ, description = "")})
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Rule's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 }

@@ -23,4 +23,13 @@ public interface IdmAutomaticRoleAttributeRuleService
 	 * @param attributeId
 	 */
 	void deleteAllByAttribute(UUID attributeId);
+	
+	/**
+	 * Method recalculate all automatic role by attribute in LRT.
+	 * 
+	 * @param dto
+	 * @param permission
+	 * @return
+	 */
+	void recalculate();
 }

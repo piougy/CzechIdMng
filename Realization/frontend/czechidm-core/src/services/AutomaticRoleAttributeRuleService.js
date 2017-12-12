@@ -1,5 +1,7 @@
-import AbstractService from './AbstractService';
+import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
+import * as Utils from '../utils';
+import AbstractService from './AbstractService';
 import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
 
 /**
@@ -7,6 +9,9 @@ import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
  *
  * @author Ondrej Kopr
  */
+
+const REACALCULATE_PATH = '/recalculate';
+
 export default class AutomaticRoleAttributeRuleService extends AbstractService {
 
   constructor() {
@@ -44,5 +49,44 @@ export default class AutomaticRoleAttributeRuleService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'asc');
+  }
+
+  /**
+   * Create method with recalculate is same as basic create,
+   * but after save is recalculate all identities and
+   * ther automatic roles by attribute.
+   */
+  createAndRecalculate(json) {
+    return RestApiService
+      .post(this.getApiPath() + REACALCULATE_PATH, json)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
+
+  updateByIdAndRecalculate(id, json) {
+    return RestApiService
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}${REACALCULATE_PATH}`, json)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
   }
 }

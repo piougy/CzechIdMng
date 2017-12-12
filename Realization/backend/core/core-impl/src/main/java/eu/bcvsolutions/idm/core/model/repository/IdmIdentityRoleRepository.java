@@ -47,7 +47,7 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	 * @param pageable
 	 * @return
 	 */
-	Page<IdmIdentityRole> findByRoleTreeNode_Id(@Param("roleTreeNodeId") UUID roleTreeNodeId, Pageable pageable);
+	Page<IdmIdentityRole> findByAutomaticRole_Id(@Param("automaticRoleId") UUID automaticRoleId, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 

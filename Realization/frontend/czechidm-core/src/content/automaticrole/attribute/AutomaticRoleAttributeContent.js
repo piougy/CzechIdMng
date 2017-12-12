@@ -43,7 +43,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity } = this.props;
     return (
       <div>
         {
@@ -58,7 +58,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
           !entity
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:clone"/>
+            <Basic.Icon value="fa:universal-access"/>
             {' '}
             {
               this._getIsNew()
@@ -71,12 +71,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
         }
 
         <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
-          {
-            !entity
-            ||
-            <AutomaticRoleAttributeDetail entity={entity} manager={manager} />
-          }
+          <AutomaticRoleAttributeDetail entity={entity} manager={manager} />
         </Basic.Panel>
 
       </div>

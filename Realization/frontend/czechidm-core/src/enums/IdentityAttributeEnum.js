@@ -1,12 +1,12 @@
-import { Enums } from 'czechidm-core';
+import AbstractEnum from '../enums/AbstractEnum';
 
 /**
  * Keys of Identity fields
  */
-export default class IdentityAttributeEnum extends Enums.AbstractEnum {
+export default class IdentityAttributeEnum extends AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`acc:enums.IdentityAttributeEnum.${key}`);
+    return super.getNiceLabel(`core:enums.IdentityAttributeEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {

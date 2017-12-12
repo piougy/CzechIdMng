@@ -169,6 +169,18 @@ public class DefaultIdmIdentityService
 		if (StringUtils.equals(IdmIdentity_.email.getName(), filter.getProperty())) {
 			predicates.add(builder.equal(root.get(IdmIdentity_.email), filter.getValue()));
 		}
+		if (StringUtils.equals(IdmIdentity_.description.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.description), filter.getValue()));
+		}
+		if (StringUtils.equals(IdmIdentity_.titleAfter.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.titleAfter), filter.getValue()));
+		}
+		if (StringUtils.equals(IdmIdentity_.titleBefore.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.titleBefore), filter.getValue()));
+		}
+		if (StringUtils.equals(IdmIdentity_.phone.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.phone), filter.getValue()));
+		}
 		//
 		// disabled
 		if (filter.getDisabled() != null) {

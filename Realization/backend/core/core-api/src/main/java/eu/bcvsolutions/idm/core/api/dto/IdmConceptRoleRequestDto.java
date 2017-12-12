@@ -30,7 +30,6 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     private UUID role;
     @Embedded(dtoClass = IdmIdentityRoleDto.class)
     private UUID identityRole; // For update and delete operations
-    @Embedded(dtoClass = AbstractIdmAutomaticRoleDto.class)
     private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
     private LocalDate validFrom;
     private LocalDate validTill;

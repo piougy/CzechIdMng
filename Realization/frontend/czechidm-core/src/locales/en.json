@@ -564,6 +564,39 @@
     "ContractStateEnum": {
       "EXCLUDED": "Excluded",
       "DISABLED": "$t(label.disabled)"
+    },
+    "AutomaticRoleAttributeRuleTypeEnum": {
+      "IDENTITY": "Identity attribute",
+      "IDENITITY_EAV": "Extended attribute of identity",
+      "CONTRACT": "Contract attribute",
+      "CONTRACT_EAV": "Extended attribute of contract"
+    },
+    "AutomaticRoleAttributeRuleComparisonEnum": {
+      "EQUALS": "Equals"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "User name (String)",
+      "DISABLED": "Disabled (boolean)",
+      "FIRSTNAME": "First name (String)",
+      "LASTNAME": "Surname (String)",
+      "TITLE_BEFORE": "Title before (String)",
+      "TITLE_AFTER": "Title after (String)",
+      "DESCRIPTION": "Description (String)",
+      "PHONE": "Phone (String)",
+      "EMAIL": "Email (String)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Owner (IdmIdentity - Id or username)",
+      "VALID_FROM": "Valid from (LocalDate)",
+      "VALID_TILL": "Valid till (LocalDate)",
+      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
+      "POSITION": "Name of position (String)",
+      "EXTERNE": "Externe (boolean)",
+      "MAIN": "Main relation (boolean)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)",
+      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "STATE": "State (ContractState - String)"
     }
   },
   "dashboard": {
@@ -1106,11 +1139,42 @@
       "header": "Automatic roles",
       "tree": {
         "header": "Automatic roles from organizational structure",
-        "title": "Automatic roles from organizational structure"
+        "title": "Automatic roles from organizational structure",
       },
+      "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
       "attribute": {
         "header": "Automatic roles based on the attribute",
-        "title": "Automatic roles based on the attribute"
+        "title": "Automatic roles based on the attribute",
+        "create": {
+          "header": "New automatic roles based on the attribute",
+          "title": "New automatic roles based on the attribute"
+        },
+        "edit": {
+          "header": "Edit automatic roles based on the attribute",
+          "title": "Edit automatic roles based on the attribute"
+        },
+        "rules": "Rules",
+        "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
+        "rule": {
+          "create": {
+            "header": "New rule",
+            "title": "New rule"
+          },
+          "edit": {
+            "header": "Rule edit",
+            "title": "Rule edit"
+          },
+          "filter": {
+            "text": "Name of attribute or value"
+          }
+        },
+        "filter": {
+          "text": "Name of automatic role or role name"
+        }
+      },
+      "recalculate": {
+        "header": "Perform recalculate automatic roles based on attributes?",
+        "message": "All the automatic roles will be recalculated based on attributes for all identities.<br/ ><b>Recalculating will started as new long runnign task.</b><br / ><i>(This operation can be very demanding).</i>"
       }
     },
     "formDefinitions": {
@@ -2192,7 +2256,21 @@
       "name": {
           "label": "Name",
           "help": "The name is used to easily identify the automatic role."
-        }
+      },
+      "role": "Role",
+      "attribute": {
+        "type": {
+          "label": "Type of checked attribute",
+          "help": "For this attribute type, the value of the rule will be checked"
+        },
+        "attributeName": "Attribute name",
+        "comparison": "Comparison type",
+        "formAttribute": "Form attribute",
+        "value": {
+            "label": "Value",
+            "help": "The value with which the value in the attribute will be compared."
+          }
+      }
     },
     "AuthorizationPolicy": {
       "_type": "Permission",

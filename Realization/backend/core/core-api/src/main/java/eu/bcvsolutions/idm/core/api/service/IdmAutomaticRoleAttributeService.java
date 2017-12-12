@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.Set;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -29,4 +30,12 @@ public interface IdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	
+	/**
+	 * Method resolve all automatic roles by attribute for given identity id
+	 * 
+	 * @param identityId
+	 */
+	void resolveAutomaticRolesByAttribute(UUID identityId);
+	
 }

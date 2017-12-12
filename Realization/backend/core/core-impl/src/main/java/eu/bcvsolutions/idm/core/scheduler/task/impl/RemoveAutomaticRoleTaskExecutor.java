@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -107,7 +108,6 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityRoleDto identityRole : list) {
-			identityRole.getRoleTreeNode();
 			IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, Sets.newHashSet(automaticRole));
 			roleRequest = roleRequestService.startRequest(roleRequest.getId(), false);
 			if (roleRequest.getState() != RoleRequestState.EXCEPTION) {
@@ -136,8 +136,10 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		}
 		// Find all concepts and remove relation on role tree
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
-		conceptRequestFilter.setRoleTreeNodeId(automaticRole.getId());
-		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
+		conceptRequestFilter.setAutomaticRole(automaticRole.getId());
+		//
+		List<IdmConceptRoleRequestDto> concepts = conceptRequestService.find(conceptRequestFilter, null).getContent();
+		for (IdmConceptRoleRequestDto concept : concepts) {
 			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
@@ -153,10 +155,10 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
 			concept.setRoleTreeNode(null);
-
+			
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
-		});
+		}
 		//
 		// delete entity
 		roleTreeNodeService.deleteInternalById(automaticRole.getId());

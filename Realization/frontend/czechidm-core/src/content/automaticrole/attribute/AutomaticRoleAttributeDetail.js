@@ -34,8 +34,12 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
    * Method check if props in this component is'nt different from new props.
    */
   componentWillReceiveProps(nextProps) {
+    const { entity } = this.props;
+    if (!nextProps.entity) {
+      return;
+    }
     // check id of old and new entity
-    if (nextProps.entity.id !== this.props.entity.id) {
+    if (!entity || (nextProps.entity.id !== entity.id)) {
       this._initForm(nextProps.entity);
     }
   }
@@ -62,12 +66,16 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     if (!this.refs.form.isFormValid()) {
       return;
     }
-
+    const entity = this.refs.form.getData();
+    //
+    if (entity.id) {
+      return;
+    }
+    //
     this.setState({
       showLoading: true
     }, this.refs.form.processStarted());
 
-    const entity = this.refs.form.getData();
     // edit isn't allowed
     if (entity.id === undefined) {
       this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -109,7 +117,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
             ref="form"
             uiKey={uiKey}
             showLoading={entity === null}
-            readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE') && Utils.Entity.isNew(entity))}
+            readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') && Utils.Entity.isNew(entity))}
             style={{ padding: '15px 15px 0 15px' }}>
             <Basic.TextField
               ref="name"
@@ -118,7 +126,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               required/>
             <Advanced.EntitySelectBox
               ref="role"
-              readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE') && Utils.Entity.isNew(entity))}
+              readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') && Utils.Entity.isNew(entity))}
               label={this.i18n('entity.AutomaticRole.role')}
               entityType="role"
               required/>
@@ -127,7 +135,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
           <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
             <Basic.PanelHeader text={this.i18n('rules')}/>
               <Basic.Alert level="info" text={this.i18n('automaticRoleAttributeSaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
-              <AutomaticRoleAttributeRuleTable manager={this.automaticRoleAttributeRuleManager} uiKey={entity.id} rendered={!Utils.Entity.isNew(entity)} attributeId={entity.id} />
+              <AutomaticRoleAttributeRuleTable manager={this.automaticRoleAttributeRuleManager} uiKey={entity ? entity.id : null} rendered={!Utils.Entity.isNew(entity)} attributeId={entity ? entity.id : null} />
           </Basic.Panel>
 
           <Basic.PanelFooter showLoading={showLoading} >
@@ -139,7 +147,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'AUTOMATICROLERULE_CREATE' : 'AUTOMATICROLERULE_UPDATE')}
+              rendered={Utils.Entity.isNew(entity) && SecurityManager.hasAuthority('AUTOMATICROLE_CREATE')}
               dropup>
               <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
             </Basic.SplitButton>
@@ -154,7 +162,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
 
 AutomaticRoleAttributeDetail.propTypes = {
   entity: PropTypes.object,
-  uiKey: PropTypes.string.isRequired,
+  uiKey: PropTypes.string.isRequired
 };
 AutomaticRoleAttributeDetail.defaultProps = {
 };

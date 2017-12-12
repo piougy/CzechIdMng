@@ -596,6 +596,30 @@
     },
     "AutomaticRoleAttributeRuleComparisonEnum": {
       "EQUALS": "Rovná se"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "FIRSTNAME": "Jméno (String)",
+      "LASTNAME": "Příjmení (String)",
+      "TITLE_BEFORE": "Titul před (String)",
+      "TITLE_AFTER": "Titul za (String)",
+      "DESCRIPTION": "Poznámka (String)",
+      "PHONE": "Telefon (String)",
+      "EMAIL": "Email (String)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
+      "VALID_FROM": "Platnost od (LocalDate)",
+      "VALID_TILL": "Platnost do (LocalDate)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
+      "POSITION": "Název pozice (String)",
+      "EXTERNE": "Externista (boolean)",
+      "MAIN": "Hlavní vztah (boolean)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "STATE": "Stav (ContractState - String)"
     }
   },
   "dashboard": {
@@ -1149,6 +1173,7 @@
         "header": "Automatické role z organizační struktury",
         "title": "Automatické role z organizační struktury"
       },
+      "emptyRules": "Nenalezeny žádné pravidla. Automatická role nebude přidělena žádným uživatelům.",
       "attribute": {
         "header": "Automatické role na základě atributu",
         "title": "Automatické role na základě atributu",
@@ -1170,8 +1195,21 @@
           "edit": {
             "header": "Editace pravidla",
             "title": "Editace pravidla"
+          },
+          "filter": {
+            "text": "Název atributu, nebo hodnota"
           }
+        },
+        "save": {
+          "success": "Uložení nové automatické role na základě atributu proběhlo úspešně."
+        },
+        "filter": {
+          "text": "Název automatické role, nebo role"
         }
+      },
+      "recalculate": {
+        "header": "Provést přepočet automatických rolí na základě attributu?",
+        "message": "Bude proveden přepočet všech automatických rolí na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br / ><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i>"
       }
     },
     "formDefinitions": {
@@ -2258,7 +2296,7 @@
       "name": {
           "label": "Název",
           "help": "Název je použit pro jednoduší identifikaci automatické role."
-        },
+      },
       "role": "Role",
       "attribute": {
         "type": {

@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -206,7 +207,9 @@ public class DefaultIdmRoleTreeNodeService
 
 	@Override
 	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		return automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, automaticRoles);
+		Assert.notNull(automaticRoles);
+		Set<AbstractIdmAutomaticRoleDto> abstracAutomaticRoles = new HashSet<>(automaticRoles);
+		return automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, abstracAutomaticRoles);
 	}
 	
 	private IdmRoleRequestDto processAutomaticRoles(IdmIdentityContractDto contract, UUID identityRoleId,

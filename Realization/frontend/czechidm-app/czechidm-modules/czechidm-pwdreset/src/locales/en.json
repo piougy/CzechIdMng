@@ -1,0 +1,34 @@
+{
+  "title": "Forgotten password",
+  "header": "Enter new password",
+  "password" : "Enter new password",
+  "passwordAgain" : "Re-enter new password",
+  "token": "Request token",
+  "passwordResetCreated": "Password reset request created",
+  "passwordChanged": "Password successfully changed",
+  "module": {
+    "name": "Password reset",
+    "author": "BCV solutions s.r.o."
+  },
+  "navigation": {
+    "pwdreset": "Forgotten password"
+  },
+  "error": {
+    "INVALID_TOKEN": {
+      "title": "Invalid token",
+      "message": "Verification token is invalid."
+    },
+    "EXPIRED_TOKEN": {
+      "title": "Expired token",
+      "message": "Token is expired"
+    },
+    "CANNOT_REQUEST_RESET": {
+      "title": "Cannot request reset",
+      "message": "Password reset cannot be performed."
+    }
+  },
+  "button" : {
+    "password-set": "Set password",
+    "reset-password": "Reset password"
+  }
+}

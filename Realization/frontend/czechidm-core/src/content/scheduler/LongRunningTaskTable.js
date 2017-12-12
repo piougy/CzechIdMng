@@ -1,13 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { LocalizationService } from '../../services';
 import { SecurityManager } from '../../redux';
 
 /**
@@ -54,16 +52,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
   }
 
   /**
-   * Shows modal detail with given entity
+   * Shows LRT detail with given entity
    */
-  showDetail(entity) {
-    this.setState({
-      detail: {
-        show: true,
-        entity
-      }
-    });
-  }
+   showDetail(entity) {
+     this.context.router.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+   }
 
   /**
    * Bulk action - process selected created tasks
@@ -133,7 +126,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
 
   render() {
     const { uiKey, manager, showRowSelection } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { filterOpened } = this.state;
     return (
       <div>
         <Basic.Confirm ref="confirm-cancel" level="danger"/>
@@ -240,10 +233,9 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data, property }) => {
                 const entity = data[rowIndex];
                 const propertyValue = entity[property];
-
                 return _.keys(propertyValue).map(propertyName => {
                   return (
-                    <div>{ propertyName }: { propertyValue[propertyName] }</div>
+                    <div>{ propertyName }: { '' + propertyValue[propertyName] }</div>
                   );
                 });
               }
@@ -263,124 +255,6 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
               }
             }/>
         </Advanced.Table>
-
-        <Basic.Modal
-          bsSize="large"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
-          backdrop="static">
-          <Basic.Modal.Header closeButton text={this.i18n('detail.header')}/>
-          <Basic.Modal.Body>
-            {
-              !detail.entity
-              ||
-              <div>
-                <Basic.AbstractForm data={detail.entity} readOnly>
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper label={this.i18n('entity.created')}>
-                        <div style={{ margin: '7px 0' }}>
-                          <Advanced.DateValue value={detail.entity.created} showTime/>
-                        </div>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.instanceId.label')}>
-                        <div style={{ margin: '7px 0' }}>
-                          {detail.entity.instanceId}
-                          <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
-                        </div>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                  </Basic.Row>
-
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskType')}>
-                        <div style={{ margin: '7px 0' }}>
-                          { Utils.Ui.getSimpleJavaType(detail.entity.taskType) }
-                        </div>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskProperties.label')}>
-                        <div style={{ margin: '7px 0' }}>
-                          {
-                            _.keys(detail.entity.taskProperties).map(propertyName => {
-                              return (
-                                <div>{ propertyName }: { detail.entity.taskProperties[propertyName] }</div>
-                              );
-                            })
-                          }
-                        </div>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                  </Basic.Row>
-
-                  <Basic.TextArea
-                    label={this.i18n('entity.LongRunningTask.taskDescription')}
-                    disabled
-                    value={detail.entity.taskDescription}/>
-
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                        <div style={{ margin: '7px 0' }}>
-                          { manager.getProcessedCount(detail.entity) }
-                        </div>
-                      </Basic.LabelWrapper>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 }>
-                      {
-                        !detail.entity.modified
-                        ||
-                        <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                          <div style={{ margin: '7px 0' }}>
-                            { moment.duration(moment(detail.entity.created).diff(moment(detail.entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
-                          </div>
-                        </Basic.LabelWrapper>
-                      }
-                    </Basic.Col>
-                  </Basic.Row>
-
-                </Basic.AbstractForm>
-                <br />
-
-                <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('detail.result') }</h3>
-                <div style={{ marginBottom: 15 }}>
-                  <Basic.EnumValue value={detail.entity.resultState} enum={OperationStateEnum}/>
-                  {
-                    (!detail.entity.result || !detail.entity.result.code)
-                    ||
-                    <span style={{ marginLeft: 15 }}>
-                      {this.i18n('detail.resultCode')}: {detail.entity.result.code}
-                    </span>
-                  }
-                  <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
-                </div>
-                {
-                  (!detail.entity.result || !detail.entity.result.stackTrace)
-                  ||
-                  <div>
-                    <textArea
-                      rows="10"
-                      value={detail.entity.result.stackTrace}
-                      readOnly
-                      style={{ width: '100%', marginBottom: 15 }}/>
-                  </div>
-                }
-              </div>
-            }
-          </Basic.Modal.Body>
-
-          <Basic.Modal.Footer>
-            <Basic.Button
-              level="link"
-              onClick={this.closeDetail.bind(this)}>
-              {this.i18n('button.close')}
-            </Basic.Button>
-          </Basic.Modal.Footer>
-        </Basic.Modal>
       </div>
     );
   }

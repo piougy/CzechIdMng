@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -113,6 +114,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		setStateProperties(task);
 		//
 		task.setRunning(true);
+		task.setTaskStarted(DateTime.now());
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		task.setStateful(isStateful());
 		Map<String, Object> taskProperties = task.getTaskProperties();

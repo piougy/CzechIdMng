@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [7.7.0] unreleased
+
+### Added
+
+##### Long running task
+
+- [#644](https://redmine.czechidm.com/issues/644) - add dry run mode and long running task detail with processed items.
+
+
 ## [7.6.0]
 
 ### Removed

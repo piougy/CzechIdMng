@@ -447,12 +447,19 @@ export class ReportTable extends Advanced.AbstractTableContent {
                       </Basic.Col>
                       <Basic.Col lg={ 6 }>
                         {
-                          !longRunningTask.modified
+                          !longRunningTask.taskStarted
                           ||
                           <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                            <div style={{ margin: '7px 0' }}>
-                              { moment.duration(moment(longRunningTask.created).diff(moment(longRunningTask.modified))).locale(Services.LocalizationService.getCurrentLanguage()).humanize() }
-                            </div>
+                              <div style={{ margin: '7px 0' }}>
+                                <Basic.Tooltip
+                                  ref="popover"
+                                  placement="bottom"
+                                  value={ moment.utc(moment.duration(moment(longRunningTask.modified).diff(moment(longRunningTask.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
+                                  <span>
+                                    { moment.duration(moment(longRunningTask.taskStarted).diff(moment(longRunningTask.modified))).locale(Services.LocalizationService.getCurrentLanguage()).humanize() }
+                                  </span>
+                                </Basic.Tooltip>
+                              </div>
                           </Basic.LabelWrapper>
                         }
                       </Basic.Col>

@@ -555,7 +555,8 @@
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
     	"CANCELED": "Zrušeno",
-      "BLOCKED": "Blokováno"
+      "BLOCKED": "Blokováno",
+      "DRY_RUN" : "Zkušební běh"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
@@ -1784,7 +1785,8 @@
         "header": "Naplánované úlohy",
         "title": "Naplánované úlohy",
         "button": {
-          "run": "Spustit ručně"
+          "run": "Spustit ručně",
+          "dryRun": "Spustit zkušební běh"
         },
         "action": {
           "trigger-delete": {
@@ -1807,6 +1809,9 @@
           },
           "task-run": {
             "success": "Úloha [{{record}}] byla úspěšně spuštěna."
+          },
+          "task-dry-run": {
+            "success": "Úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu."
           },
           "task-delete": {
             "header": "Odebrat úlohu",
@@ -1846,6 +1851,11 @@
             "success": "Vytvořené úlohy budou spuštěny.",
             "selectedButton": "Spustit vybrané úlohy"
           }
+        },
+        "tabs": {
+          "basic": "Základní informace",
+          "items": "Zpracované položky",
+          "queue": "Fronta"
         }
       }
     },
@@ -2624,6 +2634,8 @@
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
+      "started": "Spuštěno",
+      "notstarted": "Úloha nebyla spuštěna!",
       "result": {
         "state": "Stav"
       },
@@ -2636,6 +2648,16 @@
         "label": "Parametry úlohy"
       }
     },
+    "LongRunningTaskItem": {
+      "referencedEntityId": {
+        "label": "Entita",
+        "placeholder": "Identifikátor entity"
+      },
+      "result": {
+        "state": "Stav"
+      },
+      "referencedDtoType": "Typ entity"
+    },
     "SchedulerTask": {
       "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
@@ -2645,6 +2667,7 @@
         "help": "Spustit na serveru (identifikátor instance)"
       },
       "description": "Popis",
+      "dryRun" : "Zkušební běh",
       "triggers": "Plánovaná spuštění",
       "trigger": {
         "_type": {

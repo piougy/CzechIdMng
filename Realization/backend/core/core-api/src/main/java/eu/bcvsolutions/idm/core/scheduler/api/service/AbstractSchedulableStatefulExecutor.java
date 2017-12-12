@@ -132,8 +132,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				Assert.notNull(candidate.getId());
 				//
 				retrievedRefs.add(candidate.getId());
-				processCandidate(candidate);
-				canContinue &= this.updateState();
+				processCandidate(candidate, longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun());
+ 				canContinue &= this.updateState();
 			}
 			canContinue &= candidates.hasNext();			
 			++page;
@@ -145,14 +145,14 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
 	}
 
-	private void processCandidate(DTO candidate) {
+	private void processCandidate(DTO candidate, boolean dryRun) {
 		if (isInProcessedQueue(candidate)) {
 			// item was processed earlier - just drop the count by one
 			--count;
 			return;
 		}
-		Optional<OperationResult> result = this.processItem(candidate);
-		++counter;
+		Optional<OperationResult> result = dryRun ? Optional.of(new OperationResult(OperationState.DRY_RUN)) : this.processItem(candidate);
+ 		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);

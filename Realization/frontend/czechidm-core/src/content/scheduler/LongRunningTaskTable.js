@@ -140,34 +140,34 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.DateTimePicker
                       mode="date"
                       ref="from"
                       placeholder={this.i18n('filter.dateFrom.placeholder')}/>
-                  </div>
-                  <div className="col-lg-4">
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.DateTimePicker
                       mode="date"
                       ref="till"
                       placeholder={this.i18n('filter.dateTill.placeholder')}/>
-                  </div>
-                  <div className="col-lg-4 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last">
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="operationState"
                       placeholder={this.i18n('filter.operationState.placeholder')}
                       enum={OperationStateEnum}/>
-                  </div>
-                  <div className="col-lg-4">
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text.placeholder')}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
@@ -209,7 +209,32 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Advanced.Column property="result.state" width={75} header={this.i18n('entity.LongRunningTask.result.state')} sort face="enum" enumClass={OperationStateEnum}/>
+          <Advanced.Column
+            property="result.state"
+            width={75}
+            header={this.i18n('entity.LongRunningTask.result.state')}
+            sort
+            cell={
+              ({ data, rowIndex }) => {
+                const entity = data[rowIndex];
+                if (!entity.result || !entity.result.state) {
+                  return null;
+                }
+                //
+                return (
+                  <Basic.EnumValue
+                    value={ entity.result.state }
+                    enum={ OperationStateEnum }
+                    label={
+                      OperationStateEnum.findSymbolByKey(entity.result.state) !== OperationStateEnum.RUNNING
+                      ?
+                      null
+                      :
+                      this.getManager().getProcessedCount(entity)
+                    } />
+                );
+              }
+            }/>
           <Advanced.Column property="created" width={150} header={this.i18n('entity.created')} sort face="datetime"/>
           <Advanced.Column
             property="taskType"

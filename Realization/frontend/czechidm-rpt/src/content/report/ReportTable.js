@@ -7,7 +7,7 @@ import { Basic, Advanced, Utils, Managers, Services, Domain, Enums } from 'czech
 import { ReportManager } from '../../redux';
 
 const manager = new ReportManager();
-const lrtManager = new Managers.LongRunningTaskManager();
+const longRunningTaskManager = new Managers.LongRunningTaskManager();
 
 /**
 * Table of reports
@@ -352,8 +352,22 @@ export class ReportTable extends Advanced.AbstractTableContent {
             cell={
               ({ data, rowIndex }) => {
                 const entity = data[rowIndex];
+                if (!entity.result || !entity.result.state) {
+                  return null;
+                }
+                const lrt = entity._embedded && entity._embedded.longRunningTask ? entity._embedded.longRunningTask : null;
+                //
                 return (
-                  <Basic.EnumValue value={ entity.result.state } enum={ Enums.OperationStateEnum } />
+                  <Basic.EnumValue
+                    value={ entity.result.state }
+                    enum={ Enums.OperationStateEnum }
+                    label={
+                      !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING
+                      ?
+                      null
+                      :
+                      longRunningTaskManager.getProcessedCount(lrt)
+                    } />
                 );
               }
             }/>
@@ -440,7 +454,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                     <Basic.Row>
                       <Basic.Col lg={ 6 }>
                         <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                          { lrtManager.getProcessedCount(longRunningTask) }
+                          { longRunningTaskManager.getProcessedCount(longRunningTask) }
                         </Basic.LabelWrapper>
                       </Basic.Col>
                       <Basic.Col lg={ 6 }>

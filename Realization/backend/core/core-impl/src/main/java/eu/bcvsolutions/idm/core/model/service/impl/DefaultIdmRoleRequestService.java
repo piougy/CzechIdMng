@@ -64,7 +64,6 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;

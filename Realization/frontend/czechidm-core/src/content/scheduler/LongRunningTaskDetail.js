@@ -42,17 +42,20 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={this.i18n('entity.created')}>
-                    <div style={{ margin: '7px 0' }}>
-                      <Advanced.DateValue value={entity.created} showTime/>
-                    </div>
+                    <Advanced.DateValue value={entity.created} showTime/>
                   </Basic.LabelWrapper>
+                  {
+                    !entity.taskStarted
+                    ||
+                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.started')}>
+                      <Advanced.DateValue value={entity.taskStarted} showTime/>
+                    </Basic.LabelWrapper>
+                  }
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.instanceId.label')}>
-                    <div style={{ margin: '7px 0' }}>
-                      {entity.instanceId}
-                      <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
-                    </div>
+                    {entity.instanceId}
+                    <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
                   </Basic.LabelWrapper>
                 </Basic.Col>
               </Basic.Row>
@@ -60,22 +63,18 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskType')}>
-                    <div style={{ margin: '7px 0' }}>
-                      { Utils.Ui.getSimpleJavaType(entity.taskType) }
-                    </div>
+                    { Utils.Ui.getSimpleJavaType(entity.taskType) }
                   </Basic.LabelWrapper>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskProperties.label')}>
-                    <div style={{ margin: '7px 0' }}>
-                      {
-                        _.keys(entity.taskProperties).map(propertyName => {
-                          return (
-                            <div>{ propertyName }: { '' + entity.taskProperties[propertyName] }</div>
-                          );
-                        })
-                      }
-                    </div>
+                    {
+                      _.keys(entity.taskProperties).map(propertyName => {
+                        return (
+                          <div>{ propertyName }: { '' + entity.taskProperties[propertyName] }</div>
+                        );
+                      })
+                    }
                   </Basic.LabelWrapper>
                 </Basic.Col>
               </Basic.Row>
@@ -93,9 +92,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                     <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.notstarted')}/>
                     ||
                     <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                      <div style={{ margin: '7px 0' }}>
-                        { longRunningTaskManager.getProcessedCount(entity) }
-                      </div>
+                      { longRunningTaskManager.getProcessedCount(entity) }
                     </Basic.LabelWrapper>
                   }
                 </Basic.Col>
@@ -104,30 +101,18 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                     !entity.taskStarted
                     ||
                     <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                        <div style={{ margin: '7px 0' }}>
-                          <Basic.Tooltip
-                            ref="popover"
-                            placement="bottom"
-                            value={ moment.utc(moment.duration(moment(entity.modified).diff(moment(entity.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
-                            <span>
-                              { moment.duration(moment(entity.taskStarted).diff(moment(entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
-                            </span>
-                          </Basic.Tooltip>
-                        </div>
+                      <Basic.Tooltip
+                        ref="popover"
+                        placement="bottom"
+                        value={ moment.utc(moment.duration(moment(entity.modified).diff(moment(entity.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
+                        <span>
+                          { moment.duration(moment(entity.taskStarted).diff(moment(entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
+                        </span>
+                      </Basic.Tooltip>
                     </Basic.LabelWrapper>
                   }
                 </Basic.Col>
               </Basic.Row>
-
-              {
-                !entity.taskStarted
-                ||
-                <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.started')}>
-                  <div style={{ margin: '7px 0' }}>
-                    <Advanced.DateValue value={entity.taskStarted} showTime/>
-                  </div>
-                </Basic.LabelWrapper>
-              }
 
               <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
               <div style={{ marginBottom: 15 }}>

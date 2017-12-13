@@ -440,9 +440,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                     <Basic.Row>
                       <Basic.Col lg={ 6 }>
                         <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                          <div style={{ margin: '7px 0' }}>
-                            { lrtManager.getProcessedCount(longRunningTask) }
-                          </div>
+                          { lrtManager.getProcessedCount(longRunningTask) }
                         </Basic.LabelWrapper>
                       </Basic.Col>
                       <Basic.Col lg={ 6 }>
@@ -450,16 +448,14 @@ export class ReportTable extends Advanced.AbstractTableContent {
                           !longRunningTask.taskStarted
                           ||
                           <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                              <div style={{ margin: '7px 0' }}>
-                                <Basic.Tooltip
-                                  ref="popover"
-                                  placement="bottom"
-                                  value={ moment.utc(moment.duration(moment(longRunningTask.modified).diff(moment(longRunningTask.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
-                                  <span>
-                                    { moment.duration(moment(longRunningTask.taskStarted).diff(moment(longRunningTask.modified))).locale(Services.LocalizationService.getCurrentLanguage()).humanize() }
-                                  </span>
-                                </Basic.Tooltip>
-                              </div>
+                            <Basic.Tooltip
+                              ref="popover"
+                              placement="bottom"
+                              value={ moment.utc(moment.duration(moment(longRunningTask.modified).diff(moment(longRunningTask.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
+                              <span>
+                                { moment.duration(moment(longRunningTask.taskStarted).diff(moment(longRunningTask.modified))).locale(Services.LocalizationService.getCurrentLanguage()).humanize() }
+                              </span>
+                            </Basic.Tooltip>
                           </Basic.LabelWrapper>
                         }
                       </Basic.Col>

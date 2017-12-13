@@ -1,6 +1,7 @@
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import fs from 'fs';
+import jPath from 'JSONPath';
 
 chai.use(dirtyChai);
 
@@ -15,15 +16,18 @@ console.log(files);
 let contentCs = fs.readFileSync(accLocales + 'cs.json', 'utf8', (err, data) => {
   console.log(err);
 });
-// console.log(content);
-console.log('Délka! ' + contentCs.length);
+
 let jsonCs = JSON.parse(contentCs);
-let arrCs = [];
-for (let i in Object.keys(jsonCs)) {
-  arrCs.push(Object.keys(jsonCs)[i]);
-  // console.log(arrCs[i]);
-}
-console.log(arrCs);
+let pathsCs = jPath({json: jsonCs, path: '$..*', resultType: 'path'});
+// console.log(pathsCs);
+
+let contentEn = fs.readFileSync(accLocales + 'en.json', 'utf8', (err, data) => {
+  console.log(err);
+});
+
+let jsonEn = JSON.parse(contentEn);
+let pathsEn = jPath({json: jsonCs, path: '$..name', resultType: 'path'});
+console.log(pathsEn);
 
 // Functionality check
 // describe('Testing tests: ', function() {

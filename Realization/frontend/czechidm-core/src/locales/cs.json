@@ -554,9 +554,7 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno",
-      "BLOCKED": "Blokováno",
-      "DRY_RUN" : "Zkušební běh"
+    	"CANCELED": "Zrušeno"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
@@ -1843,7 +1841,10 @@
         "detail": {
           "header": "Detail úlohy",
           "result": "Výsledek",
-          "resultCode": "Kód"
+          "resultCode": "Kód",
+          "scheduledTask": {
+            "empty": "Vybraná dlouhotrvající úloha byla spuštěna bez plánovače. Fronta zpracovaných úloh není dostupná."
+          }
         },
         "action": {
           "processCreated": {
@@ -2637,7 +2638,8 @@
       "started": "Spuštěno",
       "notstarted": "Úloha nebyla spuštěna!",
       "result": {
-        "state": "Stav"
+        "state": "Stav",
+        "code": "Kód"
       },
       "instanceId": {
         "label": "Instance",
@@ -3166,6 +3168,10 @@
     "IDENTITY_NOT_DISABLED_MANUALLY": {
       "title": "Uživatel není deaktivován manuálně",
       "message": "Uživatel [{{username}}] nemůže být manuálně aktivován. Manuálně aktivovat lze pouze manuálně deaktivované uživatele."
+    },
+    "DRY_RUN": {
+      "title": "Zkušení běh",
+      "message": "Zkušení běh (dry run)."
     }
   },
   "validationError": {

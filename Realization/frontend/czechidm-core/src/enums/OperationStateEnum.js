@@ -35,18 +35,12 @@ export default class OperationStateEnum extends AbstractEnum {
         return 'success';
       }
       case this.NOT_EXECUTED: {
-        return 'warning';
+        return 'default';
       }
       case this.EXCEPTION: {
         return 'danger';
       }
       case this.CANCELED: {
-        return 'default';
-      }
-      case this.BLOCKED: {
-        return 'default';
-      }
-      case this.DRY_RUN: {
         return 'default';
       }
       default: {
@@ -79,12 +73,6 @@ export default class OperationStateEnum extends AbstractEnum {
       case this.CANCELED: {
         return 'fa:ban';
       }
-      case this.BLOCKED: {
-        return 'fa:stop-circle';
-      }
-      case this.DRY_RUN: {
-        return 'fa:eye';
-      }
       default: {
         return 'default';
       }
@@ -98,5 +86,3 @@ OperationStateEnum.EXECUTED = Symbol('EXECUTED');
 OperationStateEnum.EXCEPTION = Symbol('EXCEPTION');
 OperationStateEnum.NOT_EXECUTED = Symbol('NOT_EXECUTED');
 OperationStateEnum.CANCELED = Symbol('CANCELED');
-OperationStateEnum.CANCELED = Symbol('BLOCKED');
-OperationStateEnum.DRY_RUN = Symbol('DRY_RUN');

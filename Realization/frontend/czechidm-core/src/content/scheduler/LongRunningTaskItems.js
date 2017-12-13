@@ -35,6 +35,10 @@ export default class LongRunningTaskItems extends Advanced.AbstractTableContent 
     return 'long-running-task-items';
   }
 
+  getContentKey() {
+    return 'content.scheduler.all-tasks';
+  }
+
   useFilter(event) {
     if (event) {
       event.preventDefault();
@@ -91,8 +95,26 @@ export default class LongRunningTaskItems extends Advanced.AbstractTableContent 
             header={this.i18n('entity.LongRunningTaskItem.result.state')}
             width={75}
             sort
-            face="enum"
-            enumClass={OperationStateEnum}
+            cell={
+              ({ data, rowIndex }) => {
+                const entity = data[rowIndex];
+                if (!entity.operationResult || !entity.operationResult.state) {
+                  return null;
+                }
+                //
+                const content = (
+                  <Basic.EnumValue value={ entity.operationResult.state } enum={ OperationStateEnum }/>
+                );
+                if (!entity.operationResult.code) {
+                  return content;
+                }
+                return (
+                  <Basic.Tooltip placement="bottom" value={`${this.i18n('entity.LongRunningTask.result.code')}: ${entity.operationResult.code}`}>
+                    { <span>{content}</span> }
+                  </Basic.Tooltip>
+                );
+              }
+            }
           />
           <Advanced.Column
             property="referencedEntityId"

@@ -20,13 +20,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
 /**
  * Abstract base class for statefull tasks, which handles common
@@ -151,7 +151,17 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			--count;
 			return;
 		}
-		Optional<OperationResult> result = dryRun ? Optional.of(new OperationResult(OperationState.DRY_RUN)) : this.processItem(candidate);
+		Optional<OperationResult> result;
+		if (dryRun) {
+			// dry run mode - operation is not executed with dry run code (no content)
+			result = Optional.of(new OperationResult
+					.Builder(OperationState.NOT_EXECUTED)
+					.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
+					.build());
+		} else {
+			result = this.processItem(candidate);
+		}
+		//
  		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();

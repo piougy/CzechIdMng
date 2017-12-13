@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Processed tasks service test.
+ * 
  * @author Jan Helbich
  *
  */
@@ -146,7 +147,7 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 		//
 		filter.setText(item.getReferencedDtoType());
 		result = service.find(filter,null);
-		assertEquals("Wrong number of items!",2+count,result.getTotalElements());
+		assertEquals("Wrong number of items!", 2 + count, result.getTotalElements());
 		assertTrue(result.getContent().contains(item));
 		assertTrue(result.getContent().contains(item2));
 	}

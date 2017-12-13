@@ -531,9 +531,7 @@
       "EXECUTED": "Executed",
       "EXCEPTION": "Failed",
       "NOT_EXECUTED": "Not executed",
-      "CANCELED": "Canceled",
-      "BLOCKED": "Blocked",
-      "DRY_RUN" : "Dry run"
+      "CANCELED": "Canceled"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
@@ -1806,7 +1804,10 @@
         "detail": {
           "header": "Task details",
           "result": "Result",
-          "resultCode": "Code"
+          "resultCode": "Code",
+          "scheduledTask": {
+            "empty": "Selected long running task was executed without scheduler, queue is not available."
+          }
         },
         "action": {
           "processCreated": {
@@ -2601,7 +2602,8 @@
       "notstarted": "Not started yet!",
       "history": "List of all processed items",
       "result": {
-        "state": "State"
+        "state": "State",
+        "code": "Code"
       },
       "instanceId": {
         "label": "Instance",
@@ -3126,6 +3128,10 @@
     "IDENTITY_NOT_DISABLED_MANUALLY": {
       "title": "User is not deactivated manually",
       "message": "User [{{username}}] cannot be activated manually. Only manually deactivated user can be activated."
+    },
+    "DRY_RUN": {
+      "title": "Dry run",
+      "message": "Demo process."
     }
   },
   "validationError": {

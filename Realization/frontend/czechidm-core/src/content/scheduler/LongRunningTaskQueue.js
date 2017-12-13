@@ -37,6 +37,10 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
     return 'long-running-task-queue';
   }
 
+  getContentKey() {
+    return 'content.scheduler.all-tasks';
+  }
+
   componentDidMount() {
     super.componentDidMount();
     //
@@ -76,85 +80,93 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
       <Basic.Panel className="no-border last">
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Advanced.Table
-          ref="table"
-          showRowSelection={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
-          uiKey={ UIKEY }
-          manager={ manager }
-          forceSearchParameters={ new SearchParameters().setFilter('scheduledTaskId', entity.scheduledTask) }
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
-          filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm">
-                <Basic.Row className="last">
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.EnumSelectBox
-                      ref="operationState"
-                      placeholder={this.i18n('entity.LongRunningTaskItem.result.state')}
-                      enum={OperationStateEnum}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
-                      ref="referencedEntityId"
-                      placeholder={this.i18n('entity.LongRunningTaskItem.referencedEntityId.placeholder')}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </Basic.Col>
-                </Basic.Row>
-              </Basic.AbstractForm>
-            </Advanced.Filter>
-          }
-          filterOpened={ filterOpened }
-          actions={
-            SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE'])
-            ?
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-            :
-            null
-          }
-          _searchParameters={ this.getSearchParameters() }>
-          <Advanced.Column
-            property="operationResult.state"
-            header={this.i18n('entity.LongRunningTaskItem.result.state')}
-            width={75}
-            sort
-            face="enum"
-            enumClass={OperationStateEnum}
-          />
-          <Advanced.Column
-            property="referencedEntityId"
-            header={this.i18n('entity.LongRunningTaskItem.referencedEntityId')}
-            cell={
-              ({ rowIndex, data, property }) => {
-                return (
-                  <Advanced.EntityInfo
-                    entityType={ Utils.Ui.getSimpleJavaType(data[rowIndex].referencedDtoType) }
-                    entityIdentifier={ data[rowIndex][property] }
-                    face="popover"
-                    showEntityType={ false }/>
-                );
-              }
+        {
+          !entity.scheduledTask
+          ?
+          <Basic.PanelBody style={{ padding: '15px 0' }}>
+            <Basic.Alert level="info" text={ this.i18n('detail.scheduledTask.empty') } className="no-margin" />
+          </Basic.PanelBody>
+          :
+          <Advanced.Table
+            ref="table"
+            showRowSelection={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+            uiKey={ UIKEY }
+            manager={ manager }
+            forceSearchParameters={ new SearchParameters().setFilter('scheduledTaskId', entity.scheduledTask) }
+            rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm">
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="operationState"
+                        placeholder={this.i18n('entity.LongRunningTaskItem.result.state')}
+                        enum={OperationStateEnum}/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.TextField
+                        ref="referencedEntityId"
+                        placeholder={this.i18n('entity.LongRunningTaskItem.referencedEntityId.placeholder')}/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </Basic.Col>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
             }
-            width={250}
-            sort
-            face="text"
-          />
-          <Advanced.Column
-            property="referencedDtoType"
-            header={this.i18n('entity.LongRunningTaskItem.referencedDtoType')}
-            width={75}
-            sort
-            face="text"
-          />
-          <Advanced.Column
-            property="created"
-            header={this.i18n('entity.created')}
-            width={75}
-            sort
-            face="datetime"
-          />
-        </Advanced.Table>
+            filterOpened={ filterOpened }
+            actions={
+              SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE'])
+              ?
+              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+              :
+              null
+            }
+            _searchParameters={ this.getSearchParameters() }>
+            <Advanced.Column
+              property="operationResult.state"
+              header={this.i18n('entity.LongRunningTaskItem.result.state')}
+              width={75}
+              sort
+              face="enum"
+              enumClass={OperationStateEnum}
+            />
+            <Advanced.Column
+              property="referencedEntityId"
+              header={this.i18n('entity.LongRunningTaskItem.referencedEntityId')}
+              cell={
+                ({ rowIndex, data, property }) => {
+                  return (
+                    <Advanced.EntityInfo
+                      entityType={ Utils.Ui.getSimpleJavaType(data[rowIndex].referencedDtoType) }
+                      entityIdentifier={ data[rowIndex][property] }
+                      face="popover"
+                      showEntityType={ false }/>
+                  );
+                }
+              }
+              width={250}
+              sort
+              face="text"
+            />
+            <Advanced.Column
+              property="referencedDtoType"
+              header={this.i18n('entity.LongRunningTaskItem.referencedDtoType')}
+              width={75}
+              sort
+              face="text"
+            />
+            <Advanced.Column
+              property="created"
+              header={this.i18n('entity.created')}
+              width={75}
+              sort
+              face="datetime"
+            />
+          </Advanced.Table>
+        }
       </Basic.Panel>
     );
   }

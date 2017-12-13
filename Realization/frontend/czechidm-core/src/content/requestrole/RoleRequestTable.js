@@ -4,7 +4,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import {SecurityManager} from '../../redux';
+import {SecurityManager, IdentityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
 /**
@@ -14,6 +14,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.identityManager = new IdentityManager();
   }
 
   getUiKey() {
@@ -26,6 +27,13 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
 
   getContentKey() {
     return 'content.roleRequests';
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
 
@@ -89,19 +97,49 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
             [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
                action: this.onDelete.bind(this), disabled: false }]
           }
+          filterOpened
           filter={showFilter ?
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
-                <Basic.Row className="last">
+                <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.TextField
                       ref="applicant"
                       placeholder={this.i18n('filter.applicant.placeholder')}/>
                   </div>
-                  <div className="col-lg-2"/>
-                  <div className="col-lg-4 text-right">
+                  <div className="col-lg-3">
+                    <Advanced.Filter.EnumSelectBox
+                        ref="states"
+                        placeholder={ this.i18n('filter.states.placeholder') }
+                        enum={ RoleRequestStateEnum }
+                        multiSelect/>
+                  </div>
+                  <div className="col-lg-3 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </div>
+                </Basic.Row>
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.SelectBox
+                      ref="applicants"
+                      placeholder={this.i18n('filter.applicants.placeholder')}
+                      multiSelect
+                      manager={this.identityManager}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 2 }>
+                  </Basic.Col>
+                  <Basic.Col lg={ 2 }>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="createdFrom"
+                      placeholder={this.i18n('filter.dateCreatedFrom.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 2 }>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="createdTill"
+                      placeholder={this.i18n('filter.dateCreatedTill.placeholder')}/>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>

@@ -148,19 +148,32 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         continue;
       }
       const field = filterComponent.props.field || property;
-      // TODO: implement multi value filters
-      /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
-        let filledValues = filterValues[property];
-        if (filterComponent.props.enum) { // enumeration
-          filledValues = filledValues.map(value => { return filterComponent.props.enum.findKeyBySymbol(value); })
+      //
+      // if filterComponent uses multiSelect
+      if (filterComponent.props.multiSelect === true) {
+        // if filterEnumSelectBox uses Symbol
+        if (filterComponent.props.useSymbol && filterValues[property] !== null) {
+          const filledValues = [];
+
+          filterValues.states.forEach(item => {
+            filledValues.push(filterComponent.props.enum.findKeyBySymbol(item));
+          } );
+          filters[field] = filledValues;
+        } else {
+          // if filterComponent does not useSymbol
+          let filledValues;
+          filledValues = filterValues[property];
+          filters[field] = filledValues;
         }
-        filter.values = filledValues;
-      } else {*/
-      let filledValue = filterValues[property];
-      if (filterComponent.props.enum) { // enumeration
-        filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
+      } else {
+      // filterComponent does not use multiSelect
+      // requestData.accounts.push(resourceValue);
+        let filledValue = filterValues[property];
+        if (filterComponent.props.enum) { // enumeration
+          filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
+        }
+        filters[field] = filledValue;
       }
-      filters[field] = filledValue;
     }
     this.useFilterData(filters);
   }

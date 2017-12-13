@@ -64,6 +64,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
+import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -153,6 +154,19 @@ public class DefaultIdmRoleRequestService
 		List<RoleRequestState> states = filter.getStates();
 		if (!states.isEmpty()) {
 			predicates.add(root.get(IdmRoleRequest_.state).in(states));
+		}
+		//
+		List<UUID> applicants = filter.getApplicants();
+		if (applicants != null) {
+			predicates.add(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id).in(applicants));
+		}
+		//
+		if (filter.getCreatedFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedFrom()));
+		}
+		//
+		if (filter.getCreatedTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedTill().plusDays(1)));
 		}
 		return predicates;
 	}

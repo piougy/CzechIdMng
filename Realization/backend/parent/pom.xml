@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.6.1-SNAPSHOT</version>
+	<version>7.6.1</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>

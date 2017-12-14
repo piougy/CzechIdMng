@@ -7,7 +7,7 @@ import { Basic, Advanced, Utils, Managers, Services, Domain, Enums } from 'czech
 import { ReportManager } from '../../redux';
 
 const manager = new ReportManager();
-const lrtManager = new Managers.LongRunningTaskManager();
+const longRunningTaskManager = new Managers.LongRunningTaskManager();
 
 /**
 * Table of reports
@@ -352,8 +352,22 @@ export class ReportTable extends Advanced.AbstractTableContent {
             cell={
               ({ data, rowIndex }) => {
                 const entity = data[rowIndex];
+                if (!entity.result || !entity.result.state) {
+                  return null;
+                }
+                const lrt = entity._embedded && entity._embedded.longRunningTask ? entity._embedded.longRunningTask : null;
+                //
                 return (
-                  <Basic.EnumValue value={ entity.result.state } enum={ Enums.OperationStateEnum } />
+                  <Basic.EnumValue
+                    value={ entity.result.state }
+                    enum={ Enums.OperationStateEnum }
+                    label={
+                      !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING
+                      ?
+                      null
+                      :
+                      longRunningTaskManager.getProcessedCount(lrt)
+                    } />
                 );
               }
             }/>
@@ -440,19 +454,22 @@ export class ReportTable extends Advanced.AbstractTableContent {
                     <Basic.Row>
                       <Basic.Col lg={ 6 }>
                         <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                          <div style={{ margin: '7px 0' }}>
-                            { lrtManager.getProcessedCount(longRunningTask) }
-                          </div>
+                          { longRunningTaskManager.getProcessedCount(longRunningTask) }
                         </Basic.LabelWrapper>
                       </Basic.Col>
                       <Basic.Col lg={ 6 }>
                         {
-                          !longRunningTask.modified
+                          !longRunningTask.taskStarted
                           ||
                           <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                            <div style={{ margin: '7px 0' }}>
-                              { moment.duration(moment(longRunningTask.created).diff(moment(longRunningTask.modified))).locale(Services.LocalizationService.getCurrentLanguage()).humanize() }
-                            </div>
+                            <Basic.Tooltip
+                              ref="popover"
+                              placement="bottom"
+                              value={ moment.utc(moment.duration(moment(longRunningTask.modified).diff(moment(longRunningTask.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
+                              <span>
+                                { moment.duration(moment(longRunningTask.taskStarted).diff(moment(longRunningTask.modified))).locale(Services.LocalizationService.getCurrentLanguage()).humanize() }
+                              </span>
+                            </Basic.Tooltip>
                           </Basic.LabelWrapper>
                         }
                       </Basic.Col>

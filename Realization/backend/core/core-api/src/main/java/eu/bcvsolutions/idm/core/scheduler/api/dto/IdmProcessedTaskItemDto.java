@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * @author Jan Helbich
  *
  */
-@Relation(collectionRelation = "processedTaskItems")
+@Relation(collectionRelation = "longRunningTaskItems")
 public class IdmProcessedTaskItemDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;

@@ -33,49 +33,49 @@ module.exports = {
     {
       'id': 'identity-info',
       'type': 'entity-info',
-      'entityType': ['identity', 'IdmIdentity'],
+      'entityType': ['identity', 'IdmIdentity', 'IdmIdentityDto'],
       'component': require('./src/components/advanced/IdentityInfo/IdentityInfo').default,
       'manager': require('./src/redux').IdentityManager
     },
     {
       'id': 'role-info',
       'type': 'entity-info',
-      'entityType': ['role', 'IdmRole'],
+      'entityType': ['role', 'IdmRole', 'IdmRoleDto'],
       'component': require('./src/components/advanced/RoleInfo/RoleInfo').default,
       'manager': require('./src/redux').RoleManager
     },
     {
       'id': 'role-catalogue-info',
       'type': 'entity-info',
-      'entityType': ['roleCatalogue', 'IdmRoleCatalogue', 'ROLE_CATALOGUE'],
+      'entityType': ['roleCatalogue', 'IdmRoleCatalogue', 'IdmRoleCatalogueDto', 'ROLE_CATALOGUE'],
       'component': require('./src/components/advanced/RoleCatalogueInfo/RoleCatalogueInfo').default,
       'manager': require('./src/redux').RoleManager
     },
     {
       'id': 'tree-node-info',
       'type': 'entity-info',
-      'entityType': ['treeNode', 'IdmTreeNode'],
+      'entityType': ['treeNode', 'IdmTreeNode', 'IdmTreeNodeDto'],
       'component': require('./src/components/advanced/TreeNodeInfo/TreeNodeInfo').default,
       'manager': require('./src/redux').TreeNodeManager
     },
     {
       'id': 'notification-template-info',
       'type': 'entity-info',
-      'entityType': ['notificationTemplate', 'IdmNotificationtemplate'],
+      'entityType': ['notificationTemplate', 'IdmNotificationtemplate', 'IdmNotificationtemplateDto'],
       'component': require('./src/components/advanced/NotificationTemplateInfo/NotificationTemplateInfo').default,
       'manager': require('./src/redux').NotificationTemplateManager
     },
     {
       'id': 'tree-type-info',
       'type': 'entity-info',
-      'entityType': ['treeType', 'IdmTreeType'],
+      'entityType': ['treeType', 'IdmTreeType', 'IdmTreeTypeDto'],
       'component': require('./src/components/advanced/TreeTypeInfo/TreeTypeInfo').default,
       'manager': require('./src/redux').TreeTypeManager
     },
     {
       'id': 'identity-contract-info',
       'type': 'entity-info',
-      'entityType': ['contract', 'identityContract', 'IdmIdentityContract'],
+      'entityType': ['contract', 'identityContract', 'IdmIdentityContract', 'IdmIdentityContractDto'],
       'component': require('./src/components/advanced/IdentityContractInfo/IdentityContractInfo').default,
       'manager': require('./src/redux').IdentityContractManager
     },

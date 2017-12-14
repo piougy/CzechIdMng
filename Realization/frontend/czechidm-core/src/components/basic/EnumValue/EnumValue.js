@@ -16,7 +16,7 @@ class EnumValue extends AbstractComponent {
   }
 
   render() {
-    const { rendered, value, style, ...others } = this.props;
+    const { rendered, value, style, label } = this.props;
     const enumClass = this.props.enum;
     //
     if (!rendered || !value) {
@@ -24,11 +24,11 @@ class EnumValue extends AbstractComponent {
     }
 
     let content = (
-      <span>{ value }</span>
+      <span>{ label || value }</span>
     );
     if (value && enumClass) {
       content = (
-        <span>{ enumClass.getNiceLabel(value) }</span>
+        <span>{ label || enumClass.getNiceLabel(value) }</span>
       );
       //
       const icon = enumClass.getIcon(value);
@@ -57,14 +57,23 @@ EnumValue.propTypes = {
    */
   rendered: PropTypes.bool,
   /**
+   * enumarition - see domain or enums package
+   */
+  enum: PropTypes.func.isRequired,
+  /**
    * enum value
    */
   value: PropTypes.string,
-  enum: PropTypes.func.isRequired
+  /**
+   * Custom label - level will be used by enum value, but label will be this one.
+   * If no label is given, then localized label by enum value will be used.
+   */
+  label: PropTypes.string
 };
 
 EnumValue.defaultProps = {
-  rendered: true
+  rendered: true,
+  label: null
 };
 
 

@@ -21,6 +21,7 @@ public enum CoreResultCode implements ResultCode {
 	// 2xx
 	OK(HttpStatus.OK, "ok"),
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
+	DRY_RUN(HttpStatus.NO_CONTENT, "Dry run mode"),
 	//
 	// Commons 4xx
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),

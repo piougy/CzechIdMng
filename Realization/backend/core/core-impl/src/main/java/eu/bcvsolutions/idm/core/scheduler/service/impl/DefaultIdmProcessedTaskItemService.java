@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -76,8 +77,17 @@ public class DefaultIdmProcessedTaskItemService
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// items queue filter
-		if (!StringUtils.isEmpty(filter.getReferencedEntityType())) {
-			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.referencedDtoType), filter.getReferencedEntityType()));
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.like(builder.lower(root.get(IdmProcessedTaskItem_.referencedDtoType)), "%" + filter.getText().toLowerCase() + "%"));
+		}
+		if (filter.getScheduledTaskId() != null) {
+			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.scheduledTaskQueueOwner).get(IdmScheduledTask_.id), filter.getScheduledTaskId()));
+		}
+		if (filter.getFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmProcessedTaskItem_.created), filter.getFrom()));
+		}
+		if (filter.getTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmProcessedTaskItem_.created), filter.getTill().plusDays(1)));
 		}
 		if (filter.getReferencedEntityId() != null) {
 			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.referencedEntityId), filter.getReferencedEntityId()));
@@ -88,11 +98,8 @@ public class DefaultIdmProcessedTaskItemService
 					.get(IdmLongRunningTask_.id),
 					filter.getLongRunningTaskId()));
 		}
-		if (filter.getScheduledTaskId() != null) {
-			predicates.add(builder.equal(root.get(
-					IdmProcessedTaskItem_.scheduledTaskQueueOwner)
-					.get(IdmScheduledTask_.id),
-					filter.getScheduledTaskId()));
+		if (filter.getOperationState() != null) {
+			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.operationResult).get(OperationResult_.state), filter.getOperationState()));
 		}
 		return predicates;
 	}

@@ -2395,6 +2395,7 @@
       "template": "Template"
     },
     "NotificationTemplate": {
+      "_type": "Notification Template",
       "name": "Name",
       "code": "Code",
       "subject": "Subject",

@@ -168,17 +168,17 @@ export default class UiUtils {
     return javaType.split('.').pop(-1);
   }
 
-/**
- * Do substring on given data by max length. Substring is not on char byt on word.
- * Last word will be whole. Get begining part.
- * Example:
- * UiUtils.substringBegin('This is too long text', 5, '');
- *
- * @param  {String} data
- * @param  {Number} maxLength
- * @param  {String} cutChar Character cutting words
- * @return {String}
- */
+  /**
+   * Do substring on given data by max length. Substring is not on char byt on word.
+   * Last word will be whole. Get begining part.
+   * Example:
+   * UiUtils.substringBegin('This is too long text', 5, '');
+   *
+   * @param  {String} data
+   * @param  {Number} maxLength
+   * @param  {String} cutChar Character cutting words
+   * @return {String}
+   */
   static substringBegin(data, maxLength, cutChar) {
     if (data != null) {
       if (data.charAt(maxLength) === cutChar) {
@@ -212,6 +212,7 @@ export default class UiUtils {
     }
     return null;
   }
+
   /**
   * Do substring on given data by max length. Substring is not on char byt on word.
   * Last word will be whole.

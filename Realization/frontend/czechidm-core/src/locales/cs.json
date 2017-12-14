@@ -2432,6 +2432,7 @@
       "template": "Šablona"
     },
     "NotificationTemplate": {
+      "_type": "Notifikační šablona",
       "name": "Název",
       "code": "Kód",
       "subject": "Předmět",

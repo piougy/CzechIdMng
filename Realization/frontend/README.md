@@ -1,5 +1,4 @@
 # CzechIdM frontend
-## CzechIdM test tag
 
 ## Usage
 
@@ -92,6 +91,26 @@ Install NPM dependencies.
 Go to app module.
 
 `cd ../../`
+
+## (Optional) Install the dependencies for **external** module
+If you are developing a custom module (for example named as "czechidm-ext") that is not part of our product, you need to do the following:
+
+* We have the product installed in the **projects/CzechIdM/** folder.
+* The **czechidm-app** module is in the **projects/CzechIdM/Realization/frontend/czechidm-app/**.
+* For example, the externally developed module (frontend part) **czechidm-ext** is in the **projects/czechidm-ext/** folder.
+
+First, we create the symlink to the "czechidm-ext" module:
+
+`cd projects/CzechIdM/Realization/frontend/czechidm-app/czechidm-modules`
+
+`ln -s ../../../../../czechidm-ext`
+
+Then we create a symlink from the external module to the product "node_modules". This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html).
+The goal is to have only one node_modules directory (for all modules) with React.
+
+`cd projects/czechidm-ext`
+
+`ln -s ../CzechIdM/Realization/frontend/node_modules`
 
 ## Make all modules together
 After when we have installed all required modules, we have to copy them together. Its means create symlinks from czechidm-modules to app node_modules.

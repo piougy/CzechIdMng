@@ -161,7 +161,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                 ({ rowIndex, data }) => {
                   const templId = data[rowIndex].template;
                   return (
-                    <Advanced.NotificationTemplateInfo entityIdentifier={templId} face="link" />
+                    <Advanced.EntityInfo entityType="notificationTemplate" entityIdentifier={templId} face="popover" />
                   );
                 }
                 }

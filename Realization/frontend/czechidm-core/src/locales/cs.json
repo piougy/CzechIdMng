@@ -2432,10 +2432,10 @@
       "template": "Šablona"
     },
     "NotificationTemplate": {
+      "_type": "Notifikační šablona",
       "name": "Název",
       "code": "Kód",
       "subject": "Předmět",
-      "_type": "Notifikační šablona",
       "parameter": {
         "name": "Parametry",
         "help": "Seznam parametrů šablony. Parametry oddělujte čárkou."

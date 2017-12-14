@@ -1,13 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.7.0] unreleased
+## [7.6.1]
 
 ### Added
 
-##### Long running task
-
-- [#644](https://redmine.czechidm.com/issues/644) - add dry run mode and long running task detail with processed items.
+- [#870](https://redmine.czechidm.com/issues/870) - Cannot save 0x00 to Postgres column - Provisioning operation.
+- [#621](https://redmine.czechidm.com/issues/621) - add dry run mode and long running task detail with processed items.
+- [#784](https://redmine.czechidm.com/issues/784) - notification template info card improvements.
 
 
 ## [7.6.0]

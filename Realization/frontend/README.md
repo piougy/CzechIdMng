@@ -94,7 +94,7 @@ Go to app module.
 `cd ../../`
 
 ## (Optional) Install the dependencies for **external** module
-If you are developing a custom module (for example named "czechidm-ext") that is not part of our product, you need to do the following:
+If you are developing a custom module (for example named as "czechidm-ext") that is not part of our product, you need to do the following:
 
 * We have the product installed in the **projects/CzechIdM/** folder.
 * The **czechidm-app** module is in the **projects/CzechIdM/Realization/frontend/czechidm-app/**.

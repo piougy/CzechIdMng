@@ -198,7 +198,8 @@ public enum CoreResultCode implements ResultCode {
 	ATTACHMENT_INIT_DEFAULT_TEMP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default temp storage [%s] in temp directory failed"),
 	ATTACHMENT_CREATE_TEMP_FILE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating temporary file [%s] in temp directory [%s] failed"),
 	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed"),
-	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed");
+	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed"),
+	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found.");
 	
 	private final HttpStatus status;
 	private final String message;

@@ -137,7 +137,7 @@ public class DefaultIdmIdentityContractService
 										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), today),
 										builder.isNull(root.get(IdmIdentityContract_.validTill))
 										),
-								builder.equal(root.get(IdmIdentityContract_.disabled), false)
+								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.FALSE)
 								)								
 						);
 			} else {
@@ -146,7 +146,7 @@ public class DefaultIdmIdentityContractService
 						builder.or(
 								builder.lessThan(root.get(IdmIdentityContract_.validTill), today),
 								builder.greaterThan(root.get(IdmIdentityContract_.validFrom), today),
-								builder.equal(root.get(IdmIdentityContract_.disabled), true)
+								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.TRUE)
 								)
 						);
 			}
@@ -159,7 +159,7 @@ public class DefaultIdmIdentityContractService
 										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), LocalDate.now()),
 										builder.isNull(root.get(IdmIdentityContract_.validTill))
 										),
-								builder.equal(root.get(IdmIdentityContract_.disabled), false)
+								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.FALSE)
 							));
 			} else {
 				predicates.add(builder.lessThan(root.get(IdmIdentityContract_.validTill), LocalDate.now()));

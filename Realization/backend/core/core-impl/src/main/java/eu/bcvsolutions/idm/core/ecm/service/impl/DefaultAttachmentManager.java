@@ -370,7 +370,11 @@ public class DefaultAttachmentManager
 		try {
 			return new FileInputStream(getStoragePath() + attachment.getContentPath());
 		} catch (FileNotFoundException ex) {
-			throw new RuntimeException("Binary data for attachment [" + attachment.getId() + ":" + attachment.getName() + "] - [" + attachment.getContentPath() + "] not found.");
+			throw new ResultCodeException(CoreResultCode.ATTACHMENT_DATA_NOT_FOUND, ImmutableMap.of(
+					"attachmentId", attachment.getId(),
+					"attachmentName", attachment.getName(),
+					"contentPath", attachment.getContentPath())
+					, ex);
 		}
 	}
 	
@@ -403,7 +407,7 @@ public class DefaultAttachmentManager
 				directory.mkdirs();
 			}
 			// file not has same guid as on FS - guid attachment is not change, will be create new version
-			attachment.setContentPath(path + "/" + UUID.randomUUID().toString() + ".bin");
+			attachment.setContentPath(path + "/" + UUID.randomUUID() + ".bin");
 			// save binary data
 			targetFile = new File(getStoragePath() + attachment.getContentPath());
 			os = new FileOutputStream(targetFile);

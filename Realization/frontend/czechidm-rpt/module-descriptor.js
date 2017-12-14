@@ -2,7 +2,7 @@ module.exports = {
   'id': 'rpt',
   'npmName': 'czechidm-rpt',
   'backendId': 'rpt',
-  'name': 'Report module.',
+  'name': 'Report module',
   'description': 'Contains support for reports.',
   'mainRouteFile': 'routes.js',
   'mainComponentDescriptorFile': 'component-descriptor.js',

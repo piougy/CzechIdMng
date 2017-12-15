@@ -86,7 +86,7 @@ public class IdmMessageDto extends AbstractDto {
     	}
     	if (builder.parameters != null) {
     		// higher priority than model parameters
-    		builder.parameters.putAll(builder.parameters);
+    		this.parameters.putAll(builder.parameters);
     	}
     	// make sure html is filled, if text is filled
     	if (this.htmlMessage == null) {

@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
-public class DefaultRptReportManagetIntegrationTest extends AbstractIntegrationTest {
+public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;

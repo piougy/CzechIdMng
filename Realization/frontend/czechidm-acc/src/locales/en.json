@@ -909,7 +909,10 @@
       "operationType": "Operation",
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
-      "entity": "IdM entity"
+      "entity": "IdM entity",
+      "lrt": {
+        "start": "Long running task, which will clean provisioning queue, was started."
+      }
     },
     "ProvisioningBreakConfig": {
       "operationType": {

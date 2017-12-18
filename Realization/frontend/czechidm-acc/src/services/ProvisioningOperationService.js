@@ -24,6 +24,17 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   }
 
   /**
+   * Remove all filtered provisioning operation from queue
+   *
+   * @param  {Object} filter
+   * @return {Promise}
+   */
+  cleanAll(filter) {
+    return Services.RestApiService
+      .put(Services.RestApiService.getUrl(this.getApiPath() + `/bulk/cleanAll` + filter.toUrl()));
+  }
+
+  /**
    * Retry or cancel provisioning operation
    *
    * @param  {string} operation id

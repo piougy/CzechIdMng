@@ -26,6 +26,16 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
   }
 
   /**
+   * Remove all filtered provisioning operation from queue
+   *
+   * @param  {Object} filter
+   * @return {Promise}
+   */
+  cleanAll(filter) {
+    return service.cleanAll(filter);
+  }
+
+  /**
    * Retry or cancel provisioning operation
    *
    * @param  {[type]} _ids           [description]

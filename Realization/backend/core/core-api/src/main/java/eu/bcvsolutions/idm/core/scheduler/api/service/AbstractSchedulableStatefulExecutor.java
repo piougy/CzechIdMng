@@ -20,13 +20,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
 /**
  * Abstract base class for statefull tasks, which handles common
@@ -132,8 +132,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				Assert.notNull(candidate.getId());
 				//
 				retrievedRefs.add(candidate.getId());
-				processCandidate(candidate);
-				canContinue &= this.updateState();
+				processCandidate(candidate, longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun());
+ 				canContinue &= this.updateState();
 			}
 			canContinue &= candidates.hasNext();			
 			++page;
@@ -145,14 +145,24 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
 	}
 
-	private void processCandidate(DTO candidate) {
+	private void processCandidate(DTO candidate, boolean dryRun) {
 		if (isInProcessedQueue(candidate)) {
 			// item was processed earlier - just drop the count by one
 			--count;
 			return;
 		}
-		Optional<OperationResult> result = this.processItem(candidate);
-		++counter;
+		Optional<OperationResult> result;
+		if (dryRun) {
+			// dry run mode - operation is not executed with dry run code (no content)
+			result = Optional.of(new OperationResult
+					.Builder(OperationState.NOT_EXECUTED)
+					.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
+					.build());
+		} else {
+			result = this.processItem(candidate);
+		}
+		//
+ 		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);

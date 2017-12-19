@@ -34,13 +34,14 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
  * @author Jan Helbich
  *
  */
-@SuppressWarnings("serial")
 @Entity
 @Table(name = "idm_processed_task_item", indexes = {
 	@Index(name = "idm_processed_t_i_l_r_t", columnList = "long_running_task"),
 	@Index(name = "idm_processed_t_i_q_o", columnList = "scheduled_task_queue_owner")
 })
 public class IdmProcessedTaskItem extends AbstractEntity {
+
+	private static final long serialVersionUID = 1L;
 
 	@NotNull
 	@Column(name = "referenced_entity_id", updatable = false, length = 16)

@@ -166,6 +166,7 @@ midlewares = [...midlewares, thunkMiddleware, promiseMiddleware, reduxRouterMidd
 const createStoreWithMiddleware = applyMiddleware(...midlewares)(createPersistentStore);
 // redux store
 const store = createStoreWithMiddleware(reducer);
+// const store = createStoreWithMiddleware(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 // Required for replaying actions from devtools to work
 reduxRouterMiddleware.listenForReplays(store);
 //

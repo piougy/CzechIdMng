@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServletResponse;
  * An interface common to all authentication filters in IdM.
  * 
  * @author Jan Helbich
- *
+ * @author Radek Tomiška
+ * 
  */
 public interface IdmAuthenticationFilter {
 	

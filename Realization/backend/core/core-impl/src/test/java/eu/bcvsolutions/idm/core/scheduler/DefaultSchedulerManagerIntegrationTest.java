@@ -289,7 +289,6 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	private void checkScheduledTask(Task task) {
 		IdmScheduledTaskDto scheduledTask = scheduledTaskService.findByQuartzTaskName(task.getId());
 		assertNotNull(scheduledTask);
-		assertEquals(false, scheduledTask.isDryRun());
 		assertEquals(task.getId(), scheduledTask.getQuartzTaskName());
 	}
 	

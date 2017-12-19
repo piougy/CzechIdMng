@@ -41,6 +41,7 @@ import LoggingEventExceptionManager from './LoggingEventExceptionManager';
 import ConfidentialStorageValueManager from './ConfidentialStorageValueManager';
 import AutomaticRoleAttributeManager from './AutomaticRoleAttributeManager';
 import AutomaticRoleAttributeRuleManager from './AutomaticRoleAttributeRuleManager';
+import LongRunningTaskItemManager from './LongRunningTaskItemManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -85,7 +86,8 @@ const ManagerRoot = {
   LoggingEventExceptionManager,
   ConfidentialStorageValueManager,
   AutomaticRoleAttributeManager,
-  AutomaticRoleAttributeRuleManager
+  AutomaticRoleAttributeRuleManager,
+  LongRunningTaskItemManager
 };
 
 ManagerRoot.version = '0.0.1';

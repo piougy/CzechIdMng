@@ -271,7 +271,8 @@ public class DefaultIdmScriptService
 							if (locationScripts.containsKey(scriptType.getCode())) {
 								LOG.error("More scripts with code [{}], category [{}] found on the same location [{}].",
 										scriptType.getCode(),
-										scriptType.getCategory());
+										scriptType.getCategory(),
+										location);
 							}
 							// last one wins
 							locationScripts.put(scriptType.getCode(), scriptType);

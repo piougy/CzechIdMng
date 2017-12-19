@@ -5,8 +5,11 @@ import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponen
 import Label from '../Label/Label';
 
 /**
- * Renders localized enum label - usable in forms
+ * Renders localized enum label -
  *
+ * Look out: usable in forms - it's form component. Use EnumValue otherwise.
+ *
+ * @author Vít Švanda
  * @author Radek Tomiška
  */
 class EnumLabel extends AbstractFormComponent {

@@ -531,8 +531,7 @@
       "EXECUTED": "Executed",
       "EXCEPTION": "Failed",
       "NOT_EXECUTED": "Not executed",
-      "CANCELED": "Canceled",
-      "BLOCKED": "Blocked"
+      "CANCELED": "Canceled"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
@@ -1828,7 +1827,8 @@
         "header": "Scheduled tasks",
         "title": "Scheduled tasks",
         "button": {
-          "run": "Run manually"
+          "run": "Run manually",
+          "dryRun": "Run as dryRun (demo process)"
         },
         "action": {
           "trigger-delete": {
@@ -1851,6 +1851,9 @@
           },
           "task-run": {
             "success": "Task [{{record}}] successfully started."
+          },
+          "task-dry-run": {
+            "success": "Task [{{record}}] successfully started as dryRun (demo process)."
           },
           "task-delete": {
             "header": "Remove task",
@@ -1882,7 +1885,10 @@
         "detail": {
           "header": "Task details",
           "result": "Result",
-          "resultCode": "Code"
+          "resultCode": "Code",
+          "scheduledTask": {
+            "empty": "Selected long running task was executed without scheduler, queue is not available."
+          }
         },
         "action": {
           "processCreated": {
@@ -1890,6 +1896,11 @@
             "success": "Created task will be executed.",
             "selectedButton": "Run selected tasks"
           }
+        },
+        "tabs": {
+          "basic": "Basic information",
+          "items": "Processed items",
+          "queue": "Queue"
         }
       }
     },
@@ -2490,6 +2501,7 @@
       "template": "Template"
     },
     "NotificationTemplate": {
+      "_type": "Notification Template",
       "name": "Name",
       "code": "Code",
       "subject": "Subject",
@@ -2693,8 +2705,12 @@
       "taskDescription": "Description",
       "count": "Count",
       "counter": "Processed",
+      "started": "Started",
+      "notstarted": "Not started yet!",
+      "history": "List of all processed items",
       "result": {
-        "state": "State"
+        "state": "State",
+        "code": "Code"
       },
       "instanceId": {
         "label": "Instance",
@@ -2705,6 +2721,16 @@
         "label": "Parameters"
       }
     },
+    "LongRunningTaskItem": {
+      "referencedEntityId": {
+        "label": "Entity",
+        "placeholder": "Entity identifier"
+      },
+      "result": {
+        "state": "State"
+      },
+      "referencedDtoType": "Entity type"
+    },
     "SchedulerTask": {
       "_type": "Scheduled task",
       "id": "Identificator",
@@ -2714,6 +2740,7 @@
         "help": "Execute on server (instance identifier)"
       },
       "description": "Description",
+      "dryRun" : "Dry run",
       "triggers": "Scheduled starts",
       "trigger": {
         "_type": {
@@ -3212,7 +3239,10 @@
     "IDENTITY_NOT_DISABLED_MANUALLY": {
       "title": "User is not deactivated manually",
       "message": "User [{{username}}] cannot be activated manually. Only manually deactivated user can be activated."
-
+    },
+    "DRY_RUN": {
+      "title": "Dry run",
+      "message": "Demo process."
     }
   },
   "validationError": {

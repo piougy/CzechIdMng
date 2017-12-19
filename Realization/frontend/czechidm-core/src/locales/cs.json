@@ -554,8 +554,7 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno",
-      "BLOCKED": "Blokováno"
+    	"CANCELED": "Zrušeno"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
@@ -1865,7 +1864,8 @@
         "header": "Naplánované úlohy",
         "title": "Naplánované úlohy",
         "button": {
-          "run": "Spustit ručně"
+          "run": "Spustit ručně",
+          "dryRun": "Spustit zkušební běh"
         },
         "action": {
           "trigger-delete": {
@@ -1888,6 +1888,9 @@
           },
           "task-run": {
             "success": "Úloha [{{record}}] byla úspěšně spuštěna."
+          },
+          "task-dry-run": {
+            "success": "Úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu."
           },
           "task-delete": {
             "header": "Odebrat úlohu",
@@ -1919,7 +1922,10 @@
         "detail": {
           "header": "Detail úlohy",
           "result": "Výsledek",
-          "resultCode": "Kód"
+          "resultCode": "Kód",
+          "scheduledTask": {
+            "empty": "Vybraná dlouhotrvající úloha byla spuštěna bez plánovače. Fronta zpracovaných úloh není dostupná."
+          }
         },
         "action": {
           "processCreated": {
@@ -1927,6 +1933,11 @@
             "success": "Vytvořené úlohy budou spuštěny.",
             "selectedButton": "Spustit vybrané úlohy"
           }
+        },
+        "tabs": {
+          "basic": "Základní informace",
+          "items": "Zpracované položky",
+          "queue": "Fronta"
         }
       }
     },
@@ -2527,6 +2538,7 @@
       "template": "Šablona"
     },
     "NotificationTemplate": {
+      "_type": "Notifikační šablona",
       "name": "Název",
       "code": "Kód",
       "subject": "Předmět",
@@ -2730,8 +2742,11 @@
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
+      "started": "Spuštěno",
+      "notstarted": "Úloha nebyla spuštěna!",
       "result": {
-        "state": "Stav"
+        "state": "Stav",
+        "code": "Kód"
       },
       "instanceId": {
         "label": "Instance",
@@ -2742,6 +2757,16 @@
         "label": "Parametry úlohy"
       }
     },
+    "LongRunningTaskItem": {
+      "referencedEntityId": {
+        "label": "Entita",
+        "placeholder": "Identifikátor entity"
+      },
+      "result": {
+        "state": "Stav"
+      },
+      "referencedDtoType": "Typ entity"
+    },
     "SchedulerTask": {
       "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
@@ -2751,6 +2776,7 @@
         "help": "Spustit na serveru (identifikátor instance)"
       },
       "description": "Popis",
+      "dryRun" : "Zkušební běh",
       "triggers": "Plánovaná spuštění",
       "trigger": {
         "_type": {
@@ -3253,6 +3279,10 @@
     "IDENTITY_NOT_DISABLED_MANUALLY": {
       "title": "Uživatel není deaktivován manuálně",
       "message": "Uživatel [{{username}}] nemůže být manuálně aktivován. Manuálně aktivovat lze pouze manuálně deaktivované uživatele."
+    },
+    "DRY_RUN": {
+      "title": "Zkušení běh",
+      "message": "Zkušení běh (dry run)."
     }
   },
   "validationError": {

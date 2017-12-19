@@ -57,7 +57,6 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 	protected IdmScheduledTaskDto createIdmScheduledTask(String taskName) {
 		IdmScheduledTaskDto t = new IdmScheduledTaskDto();
 		t.setQuartzTaskName(taskName);
-		t.setDryRun(false);
 		return scheduledTaskService.save(t);
 	}
 
@@ -71,6 +70,7 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		longRunningTask.setInstanceId(context.getMergedJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 		longRunningTask.setScheduledTask(taskDto.getId());
 		longRunningTask.setStateful(isStateful());
+		longRunningTask.setDryRun(context.getMergedJobDataMap().getBoolean(PARAMETER_DRY_RUN));
 		//
 		return longRunningTaskService.save(longRunningTask);
 	}

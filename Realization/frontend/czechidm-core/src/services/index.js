@@ -44,6 +44,7 @@ import LoggingEventExceptionService from './LoggingEventExceptionService';
 import ConfidentialStorageValueService from './ConfidentialStorageValueService';
 import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
 import AutomaticRoleAttributeRuleService from './AutomaticRoleAttributeRuleService';
+import LongRunningTaskItemService from './LongRunningTaskItemService';
 
 const ServiceRoot = {
   RestApiService,
@@ -91,7 +92,8 @@ const ServiceRoot = {
   LoggingEventExceptionService,
   ConfidentialStorageValueService,
   AutomaticRoleAttributeService,
-  AutomaticRoleAttributeRuleService
+  AutomaticRoleAttributeRuleService,
+  LongRunningTaskItemService
 };
 
 ServiceRoot.version = '0.0.1';

@@ -306,8 +306,30 @@ module.exports = {
         {
           path: 'all-tasks',
           component: require('./src/content/scheduler/AllTasks'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
         }
+      ]
+    },
+    {
+      path: 'scheduler/all-tasks/:entityId',
+      component: require('./src/content/scheduler/LongRunningTaskRoute'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/scheduler/LongRunningTaskContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+        },
+        {
+          path: 'items',
+          component: require('./src/content/scheduler/LongRunningTaskItems'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+        },
+        {
+          path: 'queue',
+          component: require('./src/content/scheduler/LongRunningTaskQueue'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_EXECUTE'] } ]
+        },
       ]
     },
     {

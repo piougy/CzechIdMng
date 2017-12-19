@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
+import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -34,6 +35,16 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	@Embedded(dtoClass = IdmScheduledTaskDto.class)
 	private UUID scheduledTask;
 	private boolean stateful;
+	private DateTime taskStarted;
+	private boolean dryRun;
+
+	public void setTaskStarted(DateTime date){
+		taskStarted = date;
+	}
+
+	public DateTime getTaskStarted(){
+		return taskStarted;
+	}
 
 	public IdmLongRunningTaskDto() {
 	}
@@ -146,5 +157,11 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 
 	public void setStateful(boolean stateful) {
 		this.stateful = stateful;
+	}
+
+	public boolean isDryRun() {return dryRun;}
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
 	}
 }

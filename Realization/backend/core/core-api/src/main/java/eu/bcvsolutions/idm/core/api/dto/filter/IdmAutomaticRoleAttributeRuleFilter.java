@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  * Filter rules for automatic role by attribute
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * @since 7.6.0
+ * @since 7.7.0
  *
  */
 

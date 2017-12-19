@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
 import { RoleTreeNodeManager } from '../../../redux';
@@ -17,7 +18,7 @@ export default class AutomaticRoleTrees extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.automaticRoles';
+    return 'content.automaticRoles.tree';
   }
 
   componentDidMount() {
@@ -27,6 +28,7 @@ export default class AutomaticRoleTrees extends Basic.AbstractContent {
   render() {
     return (
       <div>
+        <Helmet title={this.i18n('title')} />
         <RoleTreeNodeTable uiKey="automatic-role-tree-table" manager={this.manager} forceSearchParameters={this.manager.getDefaultSearchParameters()}/>
       </div>
     );

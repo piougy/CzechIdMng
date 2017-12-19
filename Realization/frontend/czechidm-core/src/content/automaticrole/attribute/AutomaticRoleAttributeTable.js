@@ -126,9 +126,22 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
             header={this.i18n('entity.AutomaticRole.name.label')}
             sort/>
           <Advanced.Column
+            property="concept"
+            header={this.i18n('entity.AutomaticRole.attribute.concept.label')}
+            cell={
+              ({ rowIndex, data }) => {
+                if (data && data[rowIndex].concept === true) {
+                  return (
+                    <Basic.Tooltip value={this.i18n('entity.AutomaticRole.attribute.concept.help')}>
+                      <Basic.Label level="warning" text={this.i18n('entity.AutomaticRole.attribute.concept.info')}/>
+                    </Basic.Tooltip>
+                  );
+                }
+              }
+            }/>
+          <Advanced.Column
             property="_embedded.role.name"
-            header={this.i18n('entity.AutomaticRole.role')}
-            />
+            header={this.i18n('entity.AutomaticRole.role')}/>
         </Advanced.Table>
       </div>
     );

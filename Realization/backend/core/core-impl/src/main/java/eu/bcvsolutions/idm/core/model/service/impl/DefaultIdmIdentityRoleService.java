@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -255,6 +256,13 @@ public class DefaultIdmIdentityRoleService
 		// is automatic role
 		if (filter.getAutomaticRole() != null) {
 			predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
+		}
+		//
+		if (filter.getAutomaticRoleId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.automaticRole).get(IdmAutomaticRole_.id), 
+					filter.getAutomaticRoleId())
+					);
 		}
 		//
 		return predicates;

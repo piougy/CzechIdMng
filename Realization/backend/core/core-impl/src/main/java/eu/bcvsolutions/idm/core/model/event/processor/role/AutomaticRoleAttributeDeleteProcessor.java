@@ -10,8 +10,10 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent.AutomaticRoleAttributeEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 
 @Component
 @Description("Delete automatic role by attribute.")
@@ -19,29 +21,26 @@ public class AutomaticRoleAttributeDeleteProcessor extends CoreEventProcessor<Id
 
 	public static final String PROCESSOR_NAME = "automatic-role-attribute-delete-processor";
 	
-	private final IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
-	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
+	private final LongRunningTaskManager longRunningTaskManager;
 	
 	@Autowired
 	public AutomaticRoleAttributeDeleteProcessor(
-			IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService,
-			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
-		Assert.notNull(automaticRoleAttributeRuleService);
-		Assert.notNull(automaticRoleAttributeService);
+			LongRunningTaskManager longRunningTaskManager) {
+		super(AutomaticRoleAttributeEventType.DELETE);
 		//
-		this.automaticRoleAttributeRuleService = automaticRoleAttributeRuleService;
-		this.automaticRoleAttributeService = automaticRoleAttributeService;
+		Assert.notNull(longRunningTaskManager);
+		//
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
 	
 	@Override
 	public EventResult<IdmAutomaticRoleAttributeDto> process(EntityEvent<IdmAutomaticRoleAttributeDto> event) {
 		IdmAutomaticRoleAttributeDto content = event.getContent();
 		//
-		// remove all rules
-		automaticRoleAttributeRuleService.deleteAllByAttribute(content.getId());
-		//
-		// delete
-		automaticRoleAttributeService.deleteInternal(content);
+		// delete all assigned roles gained by this automatic role by long running task
+		RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
+		automaticRoleTask.setAutomaticRoleId(content.getId());
+		longRunningTaskManager.executeSync(automaticRoleTask);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

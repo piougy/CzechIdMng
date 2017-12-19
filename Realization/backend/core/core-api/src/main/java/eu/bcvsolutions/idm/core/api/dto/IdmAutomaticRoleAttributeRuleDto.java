@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 /**
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * @since 7.6.0
+ * @since 7.7.0
  *
  */
 @Relation(collectionRelation = "automaticRoleAttributeRules")

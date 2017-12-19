@@ -575,7 +575,6 @@
       "EXCLUDED": "Excluded",
       "DISABLED": "$t(label.disabled)"
     },
-<<<<<<< HEAD
     "AutomaticRoleAttributeRuleTypeEnum": {
       "IDENTITY": "Identity attribute",
       "IDENITITY_EAV": "Extended attribute of identity",
@@ -608,7 +607,7 @@
       "DISABLED": "Disabled (boolean)",
       "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)"
-=======
+    },
     "IdentityStateEnum": {
       "CREATED": "Created",
       "NO_CONTRACT": "No contract",
@@ -618,7 +617,6 @@
       "LEFT": "Left",
       "DISABLED": "$t(label.disabled)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manually"
->>>>>>> develop
     }
   },
   "dashboard": {
@@ -1188,15 +1186,20 @@
           },
           "filter": {
             "text": "Name of attribute or value"
-          }
+          },
+          "save": {
+            "success": "Save new automatic role based on the attribute was successfully.",
+            "recalculate": "Automatic role [{{name}}] will be recalculated. Assign role to identities run asynchronously. You can see progress in long running tasks agenda."
+          },
         },
         "filter": {
           "text": "Name of automatic role or role name"
         }
       },
       "recalculate": {
-        "header": "Perform recalculate automatic roles based on attributes?",
-        "message": "All the automatic roles will be recalculated based on attributes for all identities.<br/ ><b>Recalculating will started as new long runnign task.</b><br / ><i>(This operation can be very demanding).</i>"
+        "label": "Recalculation",
+        "header": "Perform recalculate this automatic role based on attributes?",
+        "message": "The automatic role will be recalculated based on attributes for all identities.<br/ ><b>Recalculating will started as new long runnign task.</b><br / ><i>(This operation can be very demanding).</i>"
       }
     },
     "formDefinitions": {
@@ -2284,6 +2287,11 @@
         "type": {
           "label": "Type of checked attribute",
           "help": "For this attribute type, the value of the rule will be checked"
+        },
+        "concept": {
+          "label": "Concept",
+          "info": "Inconsistent state",
+          "help": "Automatic role is in an inconsistent state (isn't recalculate to all users), you can return it to a consistent state by doing the recalculation."
         },
         "attributeName": "Attribute name",
         "comparison": "Comparison type",

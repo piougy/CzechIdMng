@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
  * Rule definition for automatic role that is assignment by attribute
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * @since 7.6.0
+ * @since 7.7.0
  *
  */
 

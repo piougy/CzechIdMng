@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -16,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
- * Processor recalculate automatic roles after save identify or identity eav's.
+ * Processor recalculate automatic roles by attribute after save identify or identity eav's.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -45,7 +48,9 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 		IdmIdentityDto identity = event.getContent();
 		//
 		// resolve automatic role by attribute
-		automaticRoleAttributeService.resolveAutomaticRolesByAttribute(identity.getId());
+		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNewPassedAutomaticRoleForIdentity(identity.getId());
+		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNotPassedAutomaticRoleForIdentity(identity.getId());
+		automaticRoleAttributeService.processAutomaticRolesForIdentity(identity.getId(), allNewPassedAutomaticRoleForIdentity, allNotPassedAutomaticRoleForIdentity);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

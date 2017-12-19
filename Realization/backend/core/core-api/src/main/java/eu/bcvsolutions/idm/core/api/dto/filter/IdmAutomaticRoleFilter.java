@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  * Filter for automatic roles
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * @since 7.6.0
+ * @since 7.7.0
  *
  */
 

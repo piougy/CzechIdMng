@@ -598,7 +598,6 @@
       "EXCLUDED": "Vyňat z evidenčního počtu",
       "DISABLED": "$t(label.disabled)"
     },
-<<<<<<< HEAD
     "AutomaticRoleAttributeRuleTypeEnum": {
       "IDENTITY": "Atribut identity",
       "IDENITITY_EAV": "Rozšířený atribut identity",
@@ -631,7 +630,7 @@
       "DISABLED": "Zakázaný (boolean)",
       "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "STATE": "Stav (ContractState - String)"
-=======
+    },
     "IdentityStateEnum": {
       "CREATED": "Vytvořen(a)",
       "NO_CONTRACT": "Bez úvazku",
@@ -641,7 +640,6 @@
       "LEFT": "Odešel(a)",
       "DISABLED": "$t(label.disabled)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
->>>>>>> develop
     }
   },
   "dashboard": {
@@ -1223,15 +1221,17 @@
           }
         },
         "save": {
-          "success": "Uložení nové automatické role na základě atributu proběhlo úspešně."
+          "success": "Uložení nové automatické role na základě atributu proběhlo úspešně.",
+          "recalculate": "Automatická role [{{name}}] bude přepočítána. Přiřazení role identitám proběhne asynchronně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
         },
         "filter": {
           "text": "Název automatické role, nebo role"
         }
       },
       "recalculate": {
-        "header": "Provést přepočet automatických rolí na základě attributu?",
-        "message": "Bude proveden přepočet všech automatických rolí na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br / ><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i>"
+        "label": "Přepočet",
+        "header": "Provést přepočet této automatické role na základě attributu?",
+        "message": "Bude proveden přepočet této automatické role na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br / ><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i>"
       }
     },
     "formDefinitions": {
@@ -2325,13 +2325,18 @@
           "label": "Typ kontrolovaného atributu",
           "help": "Pro tento typ atributu bude kontrolována hodnota pravidla"
         },
+        "concept": {
+          "label": "Koncept",
+          "info": "Nekonzistentní stav",
+          "help": "Automatická role se nachází v nekonzistentním stavu (není přepočítána pro všechny uživatele), provedením přepočtu ji vrátíte opět do konzistentního stavu."
+        },
         "attributeName": "Název atributu",
         "comparison": "Typ porovnání",
         "formAttribute": "Atribut formuláře",
         "value": {
             "label": "Hodnota",
             "help": "Hodnota s kterou se bude porovnávat hodnota v atributu."
-          }
+        }
       }
     },
     "AuthorizationPolicy": {

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.StatelessAsynchronousTask;
+import eu.bcvsolutions.idm.core.scheduler.api.service.StatelessAsynchronousTask;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -61,6 +63,7 @@ public class IdmAutomaticRoleAttributeController extends AbstractReadWriteDtoCon
 
 	protected static final String TAG = "Automatic roles by attribute";
 	private final LongRunningTaskManager taskManager;
+	private final IdmAutomaticRoleAttributeService entityService;
 	
 	@Autowired
 	public IdmAutomaticRoleAttributeController(IdmAutomaticRoleAttributeService entityService,
@@ -68,8 +71,10 @@ public class IdmAutomaticRoleAttributeController extends AbstractReadWriteDtoCon
 		super(entityService);
 		//
 		Assert.notNull(taskManager);
+		Assert.notNull(entityService);
 		//
 		this.taskManager = taskManager;
+		this.entityService = entityService;
 	}
 
 	@Override
@@ -153,6 +158,25 @@ public class IdmAutomaticRoleAttributeController extends AbstractReadWriteDtoCon
 			notes = "If role has guarantee assigned, then automatic role has to be approved by him at first (configurable by entity event processor).")
 	public ResponseEntity<?> post(@Valid @RequestBody IdmAutomaticRoleAttributeDto dto) {
 		return super.post(dto);
+	}
+	
+	@RequestMapping(value = "/{backendId}/recalculate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE + "')")
+	@ApiOperation(
+			value = "Recalculate automatic role attribute", 
+			nickname = "recalculateAutomaticRoleAttribute", 
+			tags = { IdmAutomaticRoleAttributeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE, description = "")})
+				},
+			notes = "Recalculate automatic role by attribute for identities in LRT.")
+	public ResponseEntity<?> post(@ApiParam(value = "Automatic role's uuid identifier.", required = true)
+	@PathVariable @NotNull String backendId) {
+		entityService.recalculate(UUID.fromString(backendId));
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	@Override

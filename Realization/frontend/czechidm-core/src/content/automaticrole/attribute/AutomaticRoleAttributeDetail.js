@@ -107,11 +107,37 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     }
   }
 
+  _showConceptWarning() {
+    const { entity } = this.props;
+    //
+    if (entity && entity.concept) {
+      return (
+        <Basic.Alert level="warning" text={this.i18n('entity.AutomaticRole.attribute.concept.help')}/>
+      );
+    }
+    return null;
+  }
+
+  _recalculate() {
+    const { entity } = this.props;
+    // modal window with information about recalculate automatic roles
+    this.refs['recalculate-automatic-role'].show(
+      this.i18n(`content.automaticRoles.recalculate.message`),
+      this.i18n(`content.automaticRoles.recalculate.header`)
+    ).then(() => {
+      this.manager.recalculate(entity.id);
+      this.addMessage({ message: this.i18n('save.recalculate', { name: entity.name }), level: 'info' });
+    }, () => {
+      // reject
+    });
+  }
+
   render() {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     return (
       <div>
+        <Basic.Confirm ref="recalculate-automatic-role" level="danger"/>
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.AbstractForm
             ref="form"
@@ -132,6 +158,10 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               required/>
           </Basic.AbstractForm>
 
+          {
+            this._showConceptWarning()
+          }
+
           <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
             <Basic.PanelHeader text={this.i18n('rules')}/>
               <Basic.Alert level="info" text={this.i18n('automaticRoleAttributeSaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
@@ -140,6 +170,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="success" onClick={this._recalculate.bind(this)} rendered={entity && entity.concept === true}>{this.i18n('content.automaticRoles.recalculate.label')}</Basic.Button>
             <Basic.SplitButton
               level="success"
               title={ this.i18n('button.saveAndContinue') }

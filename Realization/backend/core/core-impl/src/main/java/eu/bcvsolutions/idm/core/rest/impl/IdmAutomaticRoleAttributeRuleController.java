@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -23,12 +24,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,16 +58,15 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 
 	protected static final String TAG = "Rules for automatic role attribute";
 
-	private final IdmAutomaticRoleAttributeRuleService service;
+	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	
 	@Autowired
 	public IdmAutomaticRoleAttributeRuleController(
-			IdmAutomaticRoleAttributeRuleService entityService) {
+			IdmAutomaticRoleAttributeRuleService entityService,
+			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
 		super(entityService);
 		//
-		Assert.notNull(entityService);
-		//
-		this.service = entityService;
+		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 
 	@Override
@@ -146,7 +148,11 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "")})
 				})
 	public ResponseEntity<?> post(@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
-		return super.post(dto);
+		ResponseEntity<?> post = super.post(dto);
+		//
+		this.setConcept(dto.getAutomaticRoleAttribute());
+		//
+		return post;
 	}
 	
 	@ResponseBody
@@ -169,7 +175,7 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 	public ResponseEntity<?> postAndRecalculate(@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
 		ResponseEntity<?> responseEntity = super.post(dto);
 		//
-		service.recalculate();
+		automaticRoleAttributeService.recalculate(dto.getAutomaticRoleAttribute());
 		//
 		return responseEntity;
 	}
@@ -193,7 +199,11 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 			@ApiParam(value = "Rule's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
-		return super.put(backendId, dto);
+		ResponseEntity<?> responseEntity = super.put(backendId, dto);
+		//
+		this.setConcept(dto.getAutomaticRoleAttribute());
+		//
+		return responseEntity;
 	}
 	
 	@ResponseBody
@@ -216,7 +226,7 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 			@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
 		ResponseEntity<?> responseEntity = super.put(backendId, dto);
 		//
-		service.recalculate();
+		automaticRoleAttributeService.recalculate(dto.getAutomaticRoleAttribute());
 		//
 		return responseEntity;
 	}
@@ -259,5 +269,19 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 			@ApiParam(value = "Rule's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	/**
+	 * Set concept to true after save, create without update
+	 * 
+	 * @param automaticRoleId
+	 */
+	private void setConcept(UUID automaticRoleId) {
+		Assert.notNull(automaticRoleId);
+		//
+		IdmAutomaticRoleAttributeDto automaticRoleAttributeDto = automaticRoleAttributeService.get(automaticRoleId);
+		//
+		automaticRoleAttributeDto.setConcept(true);
+		automaticRoleAttributeDto = automaticRoleAttributeService.save(automaticRoleAttributeDto);
 	}
 }

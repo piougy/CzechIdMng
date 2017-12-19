@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -25,11 +27,14 @@ public interface IdmAutomaticRoleAttributeRuleService
 	void deleteAllByAttribute(UUID attributeId);
 	
 	/**
-	 * Method recalculate all automatic role by attribute in LRT.
+	 * Return all {@link IdmAutomaticRoleAttributeRuleDto} for given id of  {@link IdmAutomaticRoleAttributeDto}
+	 * and is equals with given {@link AutomaticRoleAttributeRuleType}.
 	 * 
-	 * @param dto
-	 * @param permission
+	 * @param automaticRole
+	 * @param type
 	 * @return
 	 */
-	void recalculate();
+	List<IdmAutomaticRoleAttributeRuleDto> findAllRulesForAutomaticRoleAndType(UUID automaticRole,
+			AutomaticRoleAttributeRuleType type);
+	
 }

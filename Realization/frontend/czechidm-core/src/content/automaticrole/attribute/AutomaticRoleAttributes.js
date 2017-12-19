@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
 import { AutomaticRoleAttributeManager } from '../../../redux';
@@ -17,7 +18,7 @@ export default class AutomaticRoleAttributes extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.automaticRoles';
+    return 'content.automaticRoles.attribute';
   }
 
   componentDidMount() {
@@ -27,6 +28,7 @@ export default class AutomaticRoleAttributes extends Basic.AbstractContent {
   render() {
     return (
       <div>
+        <Helmet title={this.i18n('title')} />
         <AutomaticRoleAttributeTable uiKey="automatic-role-attribute-table" manager={this.manager}/>
       </div>
     );

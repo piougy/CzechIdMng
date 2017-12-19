@@ -19,7 +19,9 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -187,30 +189,42 @@ public class DefaultIdmIdentityService
             );			
 			predicates.add(builder.exists(subquery));
 		}
-		// property
+		// property, if is property filled and it isn't find in defined properties return disjunction
+		boolean exitsProperty = filter.getProperty() == null ? true : false;
 		if (StringUtils.equals(IdmIdentity_.username.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.username), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.firstName.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.firstName), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.lastName.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.email.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.email), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.description.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.description), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.titleAfter.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.titleAfter), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.titleBefore.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.titleBefore), filter.getValue()));
 		}
 		if (StringUtils.equals(IdmIdentity_.phone.getName(), filter.getProperty())) {
+			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.phone), filter.getValue()));
+		}
+		if (!exitsProperty) {
+			predicates.add(builder.disjunction());
 		}
 		//
 		// disabled

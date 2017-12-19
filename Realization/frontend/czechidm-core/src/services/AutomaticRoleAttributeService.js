@@ -1,12 +1,17 @@
+import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
+import * as Utils from '../utils';
 
 /**
  * Automatic roles service
  *
  * @author Ondrej Kopr
  */
+
+const REACALCULATE_PATH = '/recalculate';
+
 export default class AutomaticRoleAttributeService extends AbstractService {
 
   constructor() {
@@ -44,5 +49,19 @@ export default class AutomaticRoleAttributeService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name', 'asc');
+  }
+
+  recalculate(id) {
+    return RestApiService
+      .post(this.getApiPath() + '/' + id + REACALCULATE_PATH)
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
   }
 }

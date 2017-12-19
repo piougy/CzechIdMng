@@ -24,4 +24,8 @@ export default class AutomaticRoleAttributeManager extends EntityManager {
   getCollectionType() {
     return 'automaticRoleAttributes';
   }
+
+  recalculate(id) {
+    this.getService().recalculate(id);
+  }
 }

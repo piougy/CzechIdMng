@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -55,6 +56,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
 	
 	/**
 	 * Automatic role removal can be start, if previously LRT ended.
@@ -154,14 +156,21 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			}
 			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
-			concept.setRoleTreeNode(null);
+			concept.setAutomaticRole(null);
 			
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
 		}
 		//
 		// delete entity
-		roleTreeNodeService.deleteInternalById(automaticRole.getId());
+		if (automaticRole instanceof IdmRoleTreeNodeDto) {
+			roleTreeNodeService.deleteInternalById(automaticRole.getId());
+		} else {
+			// remove all rules
+			automaticRoleAttributeRuleService.deleteAllByAttribute(automaticRole.getId());
+			automaticRoleAttributeService.deleteInternalById(automaticRole.getId());
+		}
+		//
 		LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), automaticRole.getId(), counter, count);
 		//
 		return Boolean.TRUE;

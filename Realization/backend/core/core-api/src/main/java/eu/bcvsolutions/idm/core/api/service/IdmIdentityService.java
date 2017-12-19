@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.annotations.Beta;
 
@@ -162,5 +165,4 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	IdentityState evaluateState(UUID identityId);
-	
 }

@@ -174,6 +174,7 @@ CREATE TABLE idm_auto_role_att_rule_a
 CREATE TABLE idm_auto_role_attribute
 (
   id bytea NOT NULL,
+  concept boolean NOT NULL,
   CONSTRAINT idm_auto_role_attribute_pkey PRIMARY KEY (id),
   CONSTRAINT fk_b8r7j4ssop819j82ebm29kdaq FOREIGN KEY (id)
       REFERENCES idm_auto_role (id) MATCH SIMPLE
@@ -183,6 +184,8 @@ CREATE TABLE idm_auto_role_attribute
 CREATE TABLE idm_auto_role_attribute_a
 (
   id bytea NOT NULL,
+  concept boolean,
+  concept_m boolean,
   rev bigint NOT NULL,
   CONSTRAINT idm_auto_role_attribute_a_pkey PRIMARY KEY (id, rev),
   CONSTRAINT fk_otby9l02vverqso9ejrgeabj2 FOREIGN KEY (id, rev)

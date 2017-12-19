@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * Entity store main information about automatic roles and their assignment
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * @since 7.6.0
+ * @since 7.7.0
  *
  */
 @Entity

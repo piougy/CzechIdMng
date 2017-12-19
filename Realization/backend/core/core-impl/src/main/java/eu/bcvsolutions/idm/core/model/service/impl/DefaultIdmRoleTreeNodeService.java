@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -68,7 +67,6 @@ public class DefaultIdmRoleTreeNodeService
 	private final IdmTreeNodeRepository treeNodeRepository;
 	private final EntityEventManager entityEventManager;
 	private final IdmRoleRequestService roleRequestService;
-	private final IdmIdentityContractService identityContractService;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	
@@ -78,7 +76,6 @@ public class DefaultIdmRoleTreeNodeService
 			IdmTreeNodeRepository treeNodeRepository,
 			EntityEventManager entityEventManager,
 			IdmRoleRequestService roleRequestService,
-			IdmIdentityContractService identityContractService,
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
 		super(repository);
@@ -87,7 +84,6 @@ public class DefaultIdmRoleTreeNodeService
 		Assert.notNull(treeNodeRepository);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(conceptRoleRequestService);
-		Assert.notNull(identityContractService);
 		Assert.notNull(automaticRoleAttributeService);
 		//
 		this.repository = repository;
@@ -95,7 +91,6 @@ public class DefaultIdmRoleTreeNodeService
 		this.entityEventManager = entityEventManager;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.roleRequestService = roleRequestService;
-		this.identityContractService = identityContractService;
 		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 	

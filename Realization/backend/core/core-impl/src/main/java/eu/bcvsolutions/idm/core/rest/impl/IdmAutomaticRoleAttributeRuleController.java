@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.Set;
-import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -13,7 +12,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -148,11 +145,7 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE, description = "")})
 				})
 	public ResponseEntity<?> post(@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
-		ResponseEntity<?> post = super.post(dto);
-		//
-		this.setConcept(dto.getAutomaticRoleAttribute());
-		//
-		return post;
+		return super.post(dto);
 	}
 	
 	@ResponseBody
@@ -199,11 +192,7 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 			@ApiParam(value = "Rule's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@Valid @RequestBody IdmAutomaticRoleAttributeRuleDto dto) {
-		ResponseEntity<?> responseEntity = super.put(backendId, dto);
-		//
-		this.setConcept(dto.getAutomaticRoleAttribute());
-		//
-		return responseEntity;
+		return super.put(backendId, dto);
 	}
 	
 	@ResponseBody
@@ -269,19 +258,5 @@ public class IdmAutomaticRoleAttributeRuleController extends AbstractReadWriteDt
 			@ApiParam(value = "Rule's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
-	}
-	
-	/**
-	 * Set concept to true after save, create without update
-	 * 
-	 * @param automaticRoleId
-	 */
-	private void setConcept(UUID automaticRoleId) {
-		Assert.notNull(automaticRoleId);
-		//
-		IdmAutomaticRoleAttributeDto automaticRoleAttributeDto = automaticRoleAttributeService.get(automaticRoleId);
-		//
-		automaticRoleAttributeDto.setConcept(true);
-		automaticRoleAttributeDto = automaticRoleAttributeService.save(automaticRoleAttributeDto);
 	}
 }

@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -22,11 +23,14 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilt
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
+import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent;
+import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent.AutomaticRoleAttributeRuleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -42,10 +46,17 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 		AbstractReadWriteDtoService<IdmAutomaticRoleAttributeRuleDto, IdmAutomaticRoleAttributeRule, IdmAutomaticRoleAttributeRuleFilter>
 		implements IdmAutomaticRoleAttributeRuleService {
 
+	private final EntityEventManager entityEventManager;
 
 	@Autowired
-	public DefaultIdmAutomaticRoleAttributeRuleService(IdmAutomaticRoleAttributeRuleRepository repository) {
+	public DefaultIdmAutomaticRoleAttributeRuleService(
+			IdmAutomaticRoleAttributeRuleRepository repository,
+			EntityEventManager entityEventManager) {
 		super(repository);
+		//
+		Assert.notNull(entityEventManager);
+		//
+		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -67,7 +78,16 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 					"attribute", IdmAutomaticRoleAttributeRule_.value.getName()));
 		}
 		//
-		return super.save(dto, permission);
+		// throw new event
+		if (isNew(dto)) {
+			return entityEventManager.process(new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.CREATE, dto)).getContent();			
+		}
+		return entityEventManager.process(new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.UPDATE, dto)).getContent();
+	}
+	
+	@Override
+	public void delete(IdmAutomaticRoleAttributeRuleDto dto, BasePermission... permission) {
+		entityEventManager.process(new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.DELETE, dto)).getContent();
 	}
 
 	@Override

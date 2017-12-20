@@ -1230,7 +1230,7 @@
       "recalculate": {
         "label": "Přepočet",
         "header": "Provést přepočet této automatické role na základě attributu?",
-        "message": "Bude proveden přepočet této automatické role na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br / ><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i>"
+        "message": "Bude proveden přepočet této automatické role na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br />Pokud zvolíte ne, automatická role podle atributu bude označena jako Koncept.<br /><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i>"
       }
     },
     "formDefinitions": {
@@ -2338,8 +2338,8 @@
         },
         "concept": {
           "label": "Koncept",
-          "info": "Nekonzistentní stav",
-          "help": "Automatická role se nachází v nekonzistentním stavu (není přepočítána pro všechny uživatele), provedením přepočtu ji vrátíte opět do konzistentního stavu."
+          "info": "Koncept",
+          "help": "Automatická role se nachází v konceptním stavu (není přepočítána pro všechny uživatele), provedením přepočtu ji vrátíte opět do konzistentního stavu."
         },
         "attributeName": "Název atributu",
         "comparison": "Typ porovnání",

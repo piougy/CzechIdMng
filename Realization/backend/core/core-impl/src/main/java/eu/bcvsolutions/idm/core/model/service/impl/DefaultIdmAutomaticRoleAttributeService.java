@@ -44,7 +44,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -81,9 +80,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent;
-import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent.AutomaticRoleAttributeEventType;
-import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -502,8 +499,6 @@ public class DefaultIdmAutomaticRoleAttributeService
 			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
 			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
 			subquery.select(subRoot);
-			//
-			
 			//
 			Subquery<IdmIdentityContractFormValue> subQueryContractEav = query.subquery(IdmIdentityContractFormValue.class);
 			Root<IdmIdentityContractFormValue> subRootContractEav = subQueryContractEav.from(IdmIdentityContractFormValue.class);

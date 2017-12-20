@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -80,7 +81,9 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent.AutomaticRoleAttributeEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -180,9 +183,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 
 	@Override
+	@Transactional(noRollbackFor = AcceptedException.class)
 	public IdmAutomaticRoleAttributeDto save(IdmAutomaticRoleAttributeDto dto, BasePermission... permission) {
 		if (isNew(dto)) { // create
-			return super.save(dto, permission);
+			EventContext<IdmAutomaticRoleAttributeDto> context = entityEventManager.process(new AutomaticRoleAttributeEvent(AutomaticRoleAttributeEventType.CREATE, dto));
+			if (context.isSuspended()) {
+				throw new AcceptedException();
+			}
+			return context.getContent();
 		}
 		//
 		// only attribute that can be changed is concept
@@ -420,12 +428,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 					predicatesFromRules.add(predicate);
 				}
 				//
-				if (!passed) {
-					// if we find all rules that not pass is necessary add or between predicates from rules
-					Predicate or = cb.or(predicatesFromRules.toArray(new Predicate[predicates.size()]));
-					predicates.add(or);
-				} else {
-					predicates.addAll(predicatesFromRules);
+				if (!predicatesFromRules.isEmpty()) {
+					if (!passed) {
+						// if we find all rules that not pass is necessary add or between predicates from rules
+						Predicate or = cb.or(predicatesFromRules.toArray(new Predicate[predicates.size()]));
+						predicates.add(or);
+					} else {
+						predicates.addAll(predicatesFromRules);
+					}
 				}
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
 			}

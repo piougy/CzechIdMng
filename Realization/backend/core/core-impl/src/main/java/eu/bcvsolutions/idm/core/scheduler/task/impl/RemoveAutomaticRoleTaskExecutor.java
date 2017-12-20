@@ -65,27 +65,34 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	public void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
+		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
+		if (automaticRole == null) {
+			// get from automatic role attribute service
+			automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
+		}
+		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
-		service.find(filter, null).forEach(longRunningTask -> {
-			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
+		//
+		for (IdmLongRunningTaskDto longRunningTask : service.find(filter, null)) {
+			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY,
 						ImmutableMap.of(
-								"roleTreeNode", roleTreeNode.getId().toString(),
+								"roleTreeNode", automaticRole.getId().toString(),
 								"taskId", longRunningTask.getId().toString()));
 			}
-		});
+		}
+		//
 		filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
-		service.find(filter, null).forEach(longRunningTask -> {
-			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
+		for (IdmLongRunningTaskDto longRunningTask : service.find(filter, null)) {
+			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
 						ImmutableMap.of(
-								"roleTreeNode", roleTreeNode.getId().toString(),
+								"roleTreeNode", automaticRole.getId().toString(),
 								"taskId", longRunningTask.getId().toString()));
 			}
-		});
+		}
 	}
 	
 	@Override

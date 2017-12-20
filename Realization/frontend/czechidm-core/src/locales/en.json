@@ -1158,7 +1158,7 @@
       "header": "Automatic roles",
       "tree": {
         "header": "Automatic roles from organizational structure",
-        "title": "Automatic roles from organizational structure",
+        "title": "Automatic roles from organizational structure"
       },
       "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
       "attribute": {
@@ -1185,11 +1185,11 @@
           },
           "filter": {
             "text": "Name of attribute or value"
-          },
-          "save": {
-            "success": "Save new automatic role based on the attribute was successfully.",
-            "recalculate": "Automatic role [{{name}}] will be recalculated. Assign role to identities run asynchronously. You can see progress in long running tasks agenda."
-          },
+          }
+        },
+        "save": {
+          "success": "Save new automatic role based on the attribute was successfully.",
+          "recalculate": "Automatic role [{{name}}] will be recalculated. Assign role to identities run asynchronously. You can see progress in long running tasks agenda."
         },
         "filter": {
           "text": "Name of automatic role or role name"

@@ -79,7 +79,13 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     // edit isn't allowed
     if (entity.id === undefined) {
       this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error, afterAction);
+        if (error && error.status === 'ACCEPTED') {
+          // approving
+          this.addMessage({ message: this.i18n('error.ACCEPTED.message'), title: this.i18n('error.ACCEPTED.title') });
+          this.context.router.goBack();
+        } else {
+          this._afterSave(createdEntity, error, afterAction);
+        }
       }));
     }
   }

@@ -209,7 +209,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           [
             <Basic.Button level="danger" key="clean_button" className="btn-xs"
                     onClick={this._cleanAll.bind(this)}
-                    rendered={Managers.SecurityManager.hasAnyAuthority('SYSTEM_ADMIN')}>
+                    rendered={Managers.SecurityManager.hasAnyAuthority('SYSTEM_ADMIN') && !isArchive}>
               <Basic.Icon type="fa" icon="minus"/>
               {' '}
               {this.i18n('button.clean')}

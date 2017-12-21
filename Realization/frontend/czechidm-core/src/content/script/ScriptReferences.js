@@ -5,13 +5,10 @@ import { ScriptManager } from '../../redux';
 import uuid from 'uuid';
 import Helmet from 'react-helmet';
 //
-import { SecurityManager } from '../../redux';
-import * as Advanced from '../../components/advanced';
-import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
+import ScriptTable from './ScriptTable';
 
 // const uiKey = 'script-authorities';
 const scriptManager = new ScriptManager();
-const MAX_DESCRIPTION_LENGTH = 60;
 
 /**
  * Script usage in other scripts
@@ -72,41 +69,14 @@ class ScriptReferences extends Basic.AbstractContent {
 
         <Helmet title={ this.i18n('title') } />
         <Basic.Panel className={ 'no-border last' }>
-        <Basic.PanelHeader text={ this.i18n('header') } />
-        <Basic.PanelBody style={ { padding: 0 } }>
-
-        <Advanced.Table
-          ref="table"
-          uiKey={uiKey}
-          manager={scriptManager}
-          forceSearchParameters={scriptManager.getDefaultSearchParameters().setFilter('usedIn', _entity.code)}
-          showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
-          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}>
-          <Advanced.Column
-            header=""
-            className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                );
-              }
-            }
-            sort={false}/>
-          <Advanced.ColumnLink to="scripts/:id/detail" property="code" sort />
-          <Advanced.Column property="name" sort />
-          <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
-          <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
-            if (data[rowIndex] && data[rowIndex].description !== null) {
-              const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, '').substr(0, MAX_DESCRIPTION_LENGTH);
-              return description.substr(0, Math.min(description.length, description.lastIndexOf(' ')));
-            }
-            return '';
-          }}/>
-        </Advanced.Table>
-        </Basic.PanelBody>
+          <Basic.PanelHeader text={ this.i18n('header') } />
+          <Basic.PanelBody style={ { padding: 0 } }>
+            <ScriptTable
+              uiKey={uiKey}
+              scriptManager={scriptManager}
+              forceSearchParameters={scriptManager.getDefaultSearchParameters().setFilter('usedIn', _entity.code)}
+              disableAdd/>
+          </Basic.PanelBody>
         </Basic.Panel>
       </div>
     );

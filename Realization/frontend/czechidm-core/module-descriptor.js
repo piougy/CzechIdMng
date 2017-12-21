@@ -709,7 +709,7 @@ module.exports = {
                 'labelKey': 'content.scripts.detail.title',
                 'order': 100,
                 'path': '/scripts/:entityId/detail',
-                'icon': 'fa:newspaper-o',
+                'icon': '',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
               },
               {
@@ -718,6 +718,7 @@ module.exports = {
                 'labelKey': 'content.scripts.authorities.title',
                 'order': 110,
                 'path': '/scripts/:entityId/authorities',
+                'icon': '',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
               },
               {
@@ -726,6 +727,7 @@ module.exports = {
                 'labelKey': 'content.scripts.references.title',
                 'order': 120,
                 'path': '/scripts/:entityId/references',
+                'icon': '',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
               }
             ]

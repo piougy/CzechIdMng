@@ -29,7 +29,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.scripts';
+    return 'content.scripts.detail';
   }
 
   componentDidMount() {
@@ -126,7 +126,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
     <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
     <form onSubmit={this.save.bind(this, 'CONTINUE')}>
       <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-        <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
+        <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('header')} />
 
         <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
           <Basic.AbstractForm

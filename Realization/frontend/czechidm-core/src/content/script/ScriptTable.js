@@ -90,7 +90,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, scriptManager } = this.props;
+    const { uiKey, scriptManager, disableAdd, forceSearchParameters } = this.props;
     const { filterOpened } = this.state;
     //
     return (
@@ -104,6 +104,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
           manager={scriptManager}
           showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          forceSearchParameters={forceSearchParameters}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -147,6 +148,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
+                hidden={disableAdd}
                 onClick={this.showDetail.bind(this, {})}
                 rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
@@ -188,10 +190,13 @@ export class ScriptTable extends Advanced.AbstractTableContent {
 
 ScriptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  scriptManager: PropTypes.object.isRequired
+  scriptManager: PropTypes.object.isRequired,
+  disableAdd: PropTypes.boolean,
+  forceSearchParameters: PropTypes.object
 };
 
 ScriptTable.defaultProps = {
+  disableAdd: false
 };
 
 function select(state, component) {

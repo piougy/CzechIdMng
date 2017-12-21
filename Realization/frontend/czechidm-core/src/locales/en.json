@@ -1183,7 +1183,6 @@
     "scripts": {
       "header": "Script definitions",
       "title": "Script definitions",
-      "label": "Script definitions",
       "edit": {
         "title": "Script detail",
         "header": "{{name}} rule detail"
@@ -1205,7 +1204,7 @@
       },
       "authorities": {
           "header": "Script authorities",
-          "title": "Script definitions",
+          "title": "Script authorities",
           "edit": {
             "header": "Edit authority for script <small>{{name}}</small>"
           },

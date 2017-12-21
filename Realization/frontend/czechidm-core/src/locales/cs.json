@@ -1216,7 +1216,6 @@
     "scripts": {
       "header": "Definice skriptů",
       "title": "Definice skriptů",
-      "label": "Definice skriptů",
       "edit": {
         "title": "Detail skriptu",
         "header": "{{name}} detail skriptu"

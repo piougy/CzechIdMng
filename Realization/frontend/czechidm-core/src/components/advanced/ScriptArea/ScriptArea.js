@@ -125,7 +125,7 @@ class ScriptArea extends Basic.ScriptArea {
                   useFirst clearable={false}
                   onChange={this._chageScript.bind(this)}
                   forceSearchParameters={
-                    scriptManager.getDefaultSearchParameters().setFilter('category', scriptCategory)}
+                    scriptManager.getDefaultSearchParameters().setFilter('inCategory', scriptCategory)}
                   label={this.i18n('entity.Script.select.label')}/>
               </Basic.AbstractForm>
               <Basic.AbstractForm ref="scriptDetail" data={script} >
@@ -169,11 +169,13 @@ ScriptArea.propTypes = {
   scriptManager: PropTypes.object,
   headerText: PropTypes.string.isRequired,
   mode: PropTypes.string,
-  height: PropTypes.string
+  height: PropTypes.string,
+  scriptCategories: PropTypes.object
 };
 
 ScriptArea.defaultProps = {
   scriptCategory: null,
+  scriptCategories: null,
   height: '10em',
   mode: 'groovy'
 };

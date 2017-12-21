@@ -508,13 +508,18 @@ public class DefaultIdmScriptService
 		if (filter.getCategory() != null) {
 			predicates.add(builder.equal(root.get(IdmScript_.category), filter.getCategory()));
 		}
+		//categories of script
+		List<IdmScriptCategory> categories = filter.getInCategory();
+		if (categories != null) {
+		  predicates.add(root.get(IdmScript_.category).in(categories));
+		}
 		//usedIn of script - finds in which scripts is used in
 		if (StringUtils.isNotEmpty(filter.getUsedIn())) {
 			predicates.add(builder.like(root.get(IdmScript_.script),( "%setScriptCode('" + filter.getUsedIn() + "')%")));
 		}
 		//
 		return predicates;
-		}
+	}
 
 	@Override
 	public AuthorizableType getAuthorizableType() {

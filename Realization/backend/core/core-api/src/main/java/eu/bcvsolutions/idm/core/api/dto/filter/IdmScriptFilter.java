@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.List;
+
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 
 /**
@@ -22,7 +24,17 @@ public class IdmScriptFilter extends QuickFilter {
     
     private String usedIn;
 
-    public String getUsedIn() {
+	private List<IdmScriptCategory> inCategory;
+
+    public List<IdmScriptCategory> getInCategory() {
+		return inCategory;
+	}
+
+	public void setInCategory(List<IdmScriptCategory> inCategory) {
+		this.inCategory = inCategory;
+	}
+
+	public String getUsedIn() {
 		return usedIn;
 	}
 

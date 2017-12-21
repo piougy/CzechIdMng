@@ -169,13 +169,11 @@ ScriptArea.propTypes = {
   scriptManager: PropTypes.object,
   headerText: PropTypes.string.isRequired,
   mode: PropTypes.string,
-  height: PropTypes.string,
-  scriptCategories: PropTypes.object
+  height: PropTypes.string
 };
 
 ScriptArea.defaultProps = {
   scriptCategory: null,
-  scriptCategories: null,
   height: '10em',
   mode: 'groovy'
 };

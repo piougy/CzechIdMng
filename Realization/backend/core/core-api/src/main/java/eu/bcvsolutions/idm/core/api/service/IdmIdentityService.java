@@ -7,11 +7,14 @@ import org.joda.time.DateTime;
 
 import com.google.common.annotations.Beta;
 
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -133,4 +136,38 @@ public interface IdmIdentityService extends
 	 * @param identity
 	 */
 	void validate(PasswordChangeDto passwordChange, IdmIdentityDto identity);
+
+	/**
+	 * Enable a given identity manually.
+	 * 
+	 * @since 7.6.0
+	 * @param identityId
+	 * @param permission permissions to evaluate
+	 * @return the saved DTO
+	 * @throws IllegalArgumentException in case the given identity is {@literal null}.
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmIdentityDto enable(UUID identityId, BasePermission... permission);
+	
+	/**
+	 * Disabled a given identity manually.
+	 * 
+	 * @since 7.6.0
+	 * @param identityId
+	 * @param permission permissions to evaluate
+	 * @return the saved DTO
+	 * @throws IllegalArgumentException in case the given identity is {@literal null}.
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmIdentityDto disable(UUID identityId, BasePermission... permission);
+	
+	/**
+	 * Returns state from identity contracts state.
+	 * - manually disabled identity  remains disabled manually even valid contracts are found
+	 * 
+	 * @since 7.6.0
+	 * @param identityId
+	 * @return
+	 */
+	IdentityState evaluateState(UUID identityId);
 }

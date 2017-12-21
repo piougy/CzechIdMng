@@ -177,7 +177,7 @@
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Default role",
-            "helpBlock": "When sync creating a relation between identity and account, this role will be assigned to the identity. This role will be linked to the main contractual relationship of identity."
+            "helpBlock": "If the synchronization creates a link between an identity and an account, this role will be assigned to the identity. This assignment will be linked to the main contractual relationship of the identity."
           }
         }
       },
@@ -299,6 +299,16 @@
         },
         "protectionEnabled": {
           "help": "Enables account protection before deletion. When trying to remove an IdM account (last relation assigning this account), it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IdM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
+        },
+        "validation":{
+          "systemMissingIdentifier":{
+            "message": "Beware: None of mapped attributes are marked as identifier.",
+            "info": "When there is not any identifier, then a role assigned to this system cannot be assigned to any identity."
+            },
+          "systemMissingOwner":{
+            "message":  "Beware: The contractual relationship should have the attribute mapping the 'Owner' field.",
+            "info": ""
+          }
         }
       },
       "attributeDetail": {
@@ -779,7 +789,7 @@
         "label": "Reconciliation",
         "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entities in CzechIdM."
       },
-      "correlationAttribute": "Collation attribute",
+      "correlationAttribute": "Correlation attribute",
       "systemMapping": "Set of mapped attributes",
       "linkedAction": "Linked",
       "unlinkedAction": "Not linked",
@@ -1311,6 +1321,10 @@
     "PROVISIONING_SYSTEM_BLOCKED": {
       "title": "Provisioning of account [{{name}}] wasn't executed",
       "message": "Provisioning of account [{{name}}] in system [{{system}}] was blocked by provisioning brake."
+    },
+    "SYSTEM_MAPPING_VALIDATION": {
+      "title": "Validation of system mapping {{name}} was not successful",
+      "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
     }
   }
 }

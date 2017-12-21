@@ -17,13 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
@@ -121,6 +124,18 @@ public class DefaultIdmLongRunningTaskService
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
 	public IdmLongRunningTaskDto get(Serializable id, BasePermission... permission) {
 		return super.get(id, permission);
+	}
+	
+	@Override
+	@Transactional()
+	public IdmLongRunningTaskDto create(IdmScheduledTaskDto scheduledTask, SchedulableTaskExecutor<?> taskExecutor, String instanceId) {
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getName());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId(instanceId);
+		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+		task.setScheduledTask(scheduledTask.getId());
+		return this.save(task);
 	}
 	
 	@Override

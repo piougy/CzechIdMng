@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,18 +14,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
 /**
  * Abstract base class for statefull tasks, which handles common
@@ -130,8 +132,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				Assert.notNull(candidate.getId());
 				//
 				retrievedRefs.add(candidate.getId());
-				processCandidate(candidate);
-				canContinue &= this.updateState();
+				processCandidate(candidate, longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun());
+ 				canContinue &= this.updateState();
 			}
 			canContinue &= candidates.hasNext();			
 			++page;
@@ -143,14 +145,24 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
 	}
 
-	private void processCandidate(DTO candidate) {
+	private void processCandidate(DTO candidate, boolean dryRun) {
 		if (isInProcessedQueue(candidate)) {
 			// item was processed earlier - just drop the count by one
 			--count;
 			return;
 		}
-		Optional<OperationResult> result = this.processItem(candidate);
-		++counter;
+		Optional<OperationResult> result;
+		if (dryRun) {
+			// dry run mode - operation is not executed with dry run code (no content)
+			result = Optional.of(new OperationResult
+					.Builder(OperationState.NOT_EXECUTED)
+					.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
+					.build());
+		} else {
+			result = this.processItem(candidate);
+		}
+		//
+ 		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);
@@ -167,6 +179,11 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	}
 	
 	private Page<IdmProcessedTaskItemDto> getItemFromQueue(UUID entityRef) {
+		// if scheduled task is null process all item including already processed items 
+		// TODO: this is probably not good idea, but for now it is only choice
+		if (this.getScheduledTaskId() == null) {
+			return new PageImpl<>(Collections.emptyList());
+		}
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setReferencedEntityId(entityRef);
 		filter.setScheduledTaskId(this.getScheduledTaskId());

@@ -198,6 +198,10 @@ public class DefaultIdmFormDefinitionService
 		boolean changed = false;
 		Short seq = 0;
 		for(IdmFormAttributeDto attribute : attributes) {
+			// update seq - attributes can be simply given in different order
+			if (attribute.getSeq() == null) {
+				attribute.setSeq(seq);
+			}
 			IdmFormAttributeDto savedAttribute = formAttributeService.findAttribute(formDefinition.getType(), formDefinition.getCode(), attribute.getCode());
 			if (savedAttribute == null) {
 				savedAttribute = attribute;

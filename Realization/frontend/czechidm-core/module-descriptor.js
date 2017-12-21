@@ -498,7 +498,7 @@ module.exports = {
             'id': 'scheduler',
             'labelKey': 'content.scheduler.title',
             'order': 55,
-            'path': '/scheduler/running-tasks',
+            'path': '/scheduler/all-tasks',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
             'icon': 'fa:calendar-times-o',
             'items': [
@@ -527,7 +527,43 @@ module.exports = {
                 'path': '/scheduler/all-tasks',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
+                'items': [
+                  {
+                    'id': 'long-running-task-detail',
+                    'type': 'TAB',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.basic',
+                    'order': 100,
+                    'path': '/scheduler/all-tasks/:entityId/detail',
+                    'icon': 'fa:newspaper-o'
+                  },
+                  {
+                    'id': 'long-running-task-items',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.items',
+                    'order': 200,
+                    'path': '/scheduler/all-tasks/:entityId/items',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['SCHEDULER_READ']
+                      }
+                    ]
+                  },
+                  {
+                    'id': 'long-running-task-queue',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.queue',
+                    'order': 300,
+                    'path': '/scheduler/all-tasks/:entityId/queue',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['SCHEDULER_EXECUTE']
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },

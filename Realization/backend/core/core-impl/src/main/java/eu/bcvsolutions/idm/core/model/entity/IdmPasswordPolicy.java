@@ -144,19 +144,23 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	private boolean defaultPolicy = false;
 	
 	@Audited
-	@Column(name = "special_char_base")
+	@NotNull
+	@Column(name = "special_char_base", nullable = false)
 	private String specialCharBase;
 	
 	@Audited
-	@Column(name = "upper_char_base")
+	@NotNull
+	@Column(name = "upper_char_base", nullable = false)
 	private String upperCharBase;
 	
 	@Audited
-	@Column(name = "number_base")
+	@NotNull
+	@Column(name = "number_base", nullable = false)
 	private String numberBase;
 	
 	@Audited
-	@Column(name = "lower_char_base")
+	@NotNull
+	@Column(name = "lower_char_base", nullable = false)
 	private String lowerCharBase;
 	
 	@Audited

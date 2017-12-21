@@ -401,7 +401,8 @@ public class IdmServiceConfiguration {
 				roleService(), 
 				entityEventManager(),
 				authChangeRepository,
-				roleConfiguration());
+				roleConfiguration(),
+				identityContractService());
 	}
 	
 	/**

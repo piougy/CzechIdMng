@@ -7,6 +7,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager, RoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
+import IdentityStateEnum from '../../enums/IdentityStateEnum';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../components/advanced/Filter/README_cs.md';
 
@@ -91,12 +92,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
 
   onActivate(bulkActionValue, usernames) {
     const { identityManager } = this.props;
+    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), usernames);
     //
     this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: usernames.length, username: identityManager.getEntity(this.context.store.getState(), usernames[0]).username }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: usernames.length})
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, username: this.getManager().getNiceLabel(selectedEntities[0]) }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length})
     ).then(() => {
-      this.context.store.dispatch(identityManager.setUsersActivity(usernames, bulkActionValue));
+      this.context.store.dispatch(identityManager.setUsersActivity(selectedEntities, bulkActionValue));
     }, () => {
       // nothing
     });
@@ -148,32 +150,32 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.name.placeholder')}
                       help={filterHelp}/>
-                  </div>
-                  <div className="col-lg-3">
+                  </Basic.Col>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.SelectBox
                       ref="role"
                       placeholder={ this.i18n('filter.role.placeholder') }
                       manager={ this.roleManager }
                       rendered={ !roleDisabled }/>
-                  </div>
-                  <div className="col-lg-3 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 3 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.SelectBox
                       ref="treeNodeId"
                       placeholder={ this.i18n('filter.organization.placeholder') }
-                      forceSearchParameters={forceTreeNodeSearchParams}
-                      manager={this.treeNodeManager}/>
-                  </div>
-                  <div className="col-lg-6">
+                      forceSearchParameters={ forceTreeNodeSearchParams }
+                      manager={ this.treeNodeManager }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="recursively"
                       placeholder={ this.i18n('filter.recursively.placeholder') }
@@ -181,10 +183,10 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                         { value: 'true', niceLabel: this.i18n('filter.recursively.yes') },
                         { value: 'false', niceLabel: this.i18n('filter.recursively.no') }
                       ]}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last">
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="disabled"
                       placeholder={ this.i18n('filter.disabled.placeholder') }
@@ -192,7 +194,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                         { value: 'true', niceLabel: this.i18n('label.disabled') },
                         { value: 'false', niceLabel: this.i18n('label.enabled') }
                       ]}/>
-                  </div>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="state"
+                      placeholder={ this.i18n('entity.Identity.state.help') }
+                      enum={ IdentityStateEnum }/>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
@@ -202,9 +210,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           forceSearchParameters={_forceSearchParameters}
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: !deleteEnabled },
-              { value: 'activate', niceLabel: this.i18n('action.activate.action'), action: this.onActivate.bind(this) },
-              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this) }
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_DELETE') || !deleteEnabled },
+              { value: 'activate', niceLabel: this.i18n('action.activate.action'), action: this.onActivate.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_ADMIN') },
+              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_ADMIN') }
             ]
           }
           buttons={
@@ -253,6 +261,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="firstName" width="10%" face="text" rendered={_.includes(columns, 'firstName')}/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={_.includes(columns, 'email')}/>
           <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={_.includes(columns, 'disabled')}/>
+          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={_.includes(columns, 'state')}/>
           <Advanced.Column property="description" face="text" rendered={_.includes(columns, 'description')}/>
         </Advanced.Table>
       </div>
@@ -306,7 +315,7 @@ IdentityTable.propTypes = {
 };
 
 IdentityTable.defaultProps = {
-  columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
+  columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'state', 'description'],
   filterOpened: false,
   showAddButton: true,
   showDetailButton: true,

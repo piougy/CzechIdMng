@@ -1,8 +1,11 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -30,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentityAccountDto> {
 
 	private static final String PROCESSOR_NAME = "identity-account-save-processor";
+	private static final Logger LOG = LoggerFactory.getLogger(IdentityAccountSaveProcessor.class);
 	private final AccIdentityAccountService service;
 	private final AccAccountService accountService;
 
@@ -57,8 +61,9 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 		Assert.notNull(account, "Account cannot be null!");
 
 		// If is account protected and new role for same account is creates, then we
-		// have to deactivate account protection and delete last protected identity-account
-		if(service.isNew(entity) && entity.isOwnership() && accountEntity.isInProtection()){
+		// have to deactivate account protection and delete last protected
+		// identity-account
+		if (service.isNew(entity) && entity.isOwnership() && accountEntity.isInProtection()) {
 			AccIdentityAccountDto protectedIdentityAccount = findProtectedIdentityAccount(account);
 			// First we save new identity-account
 			event.setContent(service.saveInternal(entity));
@@ -69,7 +74,6 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 			accountEntity = accountService.save(accountEntity);
 			return new DefaultEventResult<>(event, this);
 		}
-
 		event.setContent(service.saveInternal(entity));
 
 		return new DefaultEventResult<>(event, this);
@@ -77,12 +81,11 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 
 	private AccIdentityAccountDto findProtectedIdentityAccount(UUID account) {
 		List<AccIdentityAccountDto> identityAccounts = findIdentityAccounts(account);
-		if(!identityAccounts.isEmpty()){
+		if (!identityAccounts.isEmpty()) {
 			return identityAccounts.get(0);
 		}
 		return null;
 	}
-
 
 	private List<AccIdentityAccountDto> findIdentityAccounts(UUID account) {
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();

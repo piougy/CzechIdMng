@@ -65,6 +65,7 @@ public class IdentityDeleteProcessor
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
+		Assert.notNull(identity);
 		
 		if(identity != null && identity.getId() != null) {
 			syncConfigRepository.clearDefaultLeader(identity.getId());

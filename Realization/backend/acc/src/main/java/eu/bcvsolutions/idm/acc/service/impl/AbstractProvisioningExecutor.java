@@ -288,7 +288,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		}
 
 		// Distinct by accounts
-		List<UUID> accounts = new ArrayList<>();
+		List<UUID> accountIds = new ArrayList<>();
 		entityAccountList.stream().filter(entityAccount -> {
 			if (!entityAccount.isOwnership()) {
 				return false;
@@ -311,15 +311,15 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				return passwordChange.getAccounts().contains(entityAccount.getAccount().toString());
 			}
 		}).forEach(entityAccount -> {
-			if (!accounts.contains(entityAccount.getAccount())) {
-				accounts.add(entityAccount.getAccount());
+			if (!accountIds.contains(entityAccount.getAccount())) {
+				accountIds.add(entityAccount.getAccount());
 			}
 		});
-		Map<String, AccAccountDto> operationAccounts = new HashMap<>(); // accountUid
-																		// /
-																		// account
-		accounts.forEach(accountId -> {
+		//
+		List<AccAccountDto> accounts = new ArrayList<>();
+		accountIds.forEach(accountId -> {
 			AccAccountDto account = accountService.get(accountId);
+			accounts.add(account);
 			// find uid from system entity or from account
 			String uid = account.getUid();
 			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
@@ -362,11 +362,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				//
 				// add wish for password
 				ProvisioningAttributeDto passwordAttribute = ProvisioningAttributeDto.createProvisioningAttributeKey(
-						mappedAttribute, schemaAttributeService.get(mappedAttribute.getSchemaAttribute()).getName() // TODO:
-																													// use
-																													// previously
-																													// loaded
-																													// attribute
+						mappedAttribute, schemaAttributeService.get(mappedAttribute.getSchemaAttribute()).getName() 
+						// TODO: use previously loaded attribute
 				);
 				Object value = passwordChange.getNewPassword();
 				if (!mappedAttribute.isEntityAttribute() && !mappedAttribute.isExtendedAttribute()) {
@@ -395,7 +392,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 					preparedOperations.add(additionalProvisioningOperation);
 				}
 			}
-			operationAccounts.put(systemEntityService.getByProvisioningOperation(operation).getUid(), account);
 		});
 		passwordChange.setNewPassword(null);
 		passwordChange.setOldPassword(null);
@@ -403,9 +399,14 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		// execute prepared operations
 		return preparedOperations.stream().map(operation -> {
 			SysProvisioningOperationDto result = provisioningExecutor.executeSync(operation);
-			Map<String, Object> parameters = new LinkedHashMap<String, Object>();
-			AccAccountDto account = operationAccounts
-					.get(systemEntityService.getByProvisioningOperation(operation).getUid());
+			Map<String, Object> parameters = new LinkedHashMap<String, Object>();			
+			AccAccountDto account = accounts
+					.stream()
+					.filter(a -> {					
+						return a.getUid().equals(result.getSystemEntityUid()) 
+								&& a.getSystem().equals(operation.getSystem());
+					})
+					.findFirst().get();				
 			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
 			//
 			IdmAccountDto resultAccountDto = new IdmAccountDto();
@@ -414,7 +415,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			resultAccountDto.setRealUid(account.getRealUid());
 			resultAccountDto.setSystemId(system.getId());
 			resultAccountDto.setSystemName(system.getName());
-			parameters.put("account", resultAccountDto);
+			parameters.put(IdmAccountDto.PARAMETER_NAME, resultAccountDto);
 			//
 			if (result.getResult().getState() == OperationState.EXECUTED) {
 				// Add success changed password account
@@ -422,9 +423,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 						.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS, parameters))
 						.build();
 			}
-			return new OperationResult.Builder(result.getResult().getState())
+			OperationResult changeResult = new OperationResult.Builder(result.getResult().getState())
 					.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED, parameters))
 					.build();
+			changeResult.setCause(result.getResult().getCause());
+			changeResult.setCode(result.getResult().getCode());
+			return changeResult;
 		}).collect(Collectors.toList());
 	}
 	

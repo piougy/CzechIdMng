@@ -23,37 +23,37 @@ import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTest {
-	
+
 	public static final String WF_1_ENABLED_PROCESS_KEY = "testNotificationEnable";
 	private static final String WF_2_FORM_DISABLED_PROCESS_KEY = "testNotificationDisable";
 	private static final String WF_3_DISABLED_PROCESS_KEY = "testNotificationDisableGlobal";
-	
+
 	public static final String WF_TEST_IDENTITY_01 = "wfTestUser01";
 	private static final String WF_TEST_IDENTITY_02 = "wfTestUser02";
 	private static final String WF_TEST_IDENTITY_03 = "wfTestUser03";
-	
+
 	@Autowired
 	private WorkflowProcessInstanceService processInstanceService;
-	
+
 	@Autowired
 	private ConfigurationService configurationService;
-	
+
 	@Autowired
 	private IdmNotificationLogService notificationLogService;
-	
+
 	@Autowired
 	private IdmIdentityService identityService;
-	
+
 	@Before
 	public void login() {
 		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
-	
+
 	@After
 	public void logout() {
 		super.logout();
 	}
-	
+
 	@Test
 	public void sendNotificationWithEnabledForm() {
 		configurationService.setValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, Boolean.TRUE.toString());
@@ -77,7 +77,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, notifications.get(1).getTopic());
 		}
 	}
-	
+
 	@Test
 	public void sendNotificationGlobalDisabled() {
 		configurationService.setValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, Boolean.FALSE.toString());
@@ -92,7 +92,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		assertEquals(0, notifications.size());
 	}
-	
+
 	@Test
 	public void sendNotificationWithDisabledForm() {
 		configurationService.setValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, Boolean.TRUE.toString());
@@ -107,7 +107,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		assertEquals(0, notifications.size());
 	}
-	
+
 	private IdmIdentityDto createIdentity(String username) {
 		IdmIdentityDto entity = identityService.getByUsername(username);
 		//

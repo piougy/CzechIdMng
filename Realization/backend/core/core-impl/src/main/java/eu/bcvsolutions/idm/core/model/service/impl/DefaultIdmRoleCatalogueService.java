@@ -24,8 +24,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;

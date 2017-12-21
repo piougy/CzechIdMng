@@ -78,13 +78,17 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 	@Test
 	public void testIsInProcessedQueue() {
 		IdmScheduledTaskDto scheduledTask = new IdmScheduledTaskDto();
-		when(scheduledTaskService.findByLongRunningTaskId(any(UUID.class)))
+		UUID randomId = UUID.randomUUID();
+		scheduledTask.setId(randomId);
+		when(scheduledTaskService.findByLongRunningTaskId(randomId))
 			.thenReturn(scheduledTask);
 		//
 		List<IdmProcessedTaskItemDto> items = Lists.newArrayList(new IdmProcessedTaskItemDto());
 		//
 		when(itemService.find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class)))
 			.thenReturn(new PageImpl<>(items));
+		//
+		when(executor.getLongRunningTaskId()).thenReturn(randomId);
 		//
 		boolean inProcessedQueue = executor.isInProcessedQueue(getTestIdentityDto());
 		assertTrue(inProcessedQueue);
@@ -96,7 +100,7 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		assertFalse(inProcessedQueue);
 		//
 		verify(executor, times(2)).isInProcessedQueue(any(IdmIdentityDto.class));
-		verify(scheduledTaskService, times(2)).findByLongRunningTaskId(any(UUID.class));
+		verify(scheduledTaskService, times(1)).findByLongRunningTaskId(randomId);
 		verify(itemService, times(2)).find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class));
 	}
 	
@@ -204,7 +208,7 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		//
 		//
 		verify(scheduledTaskService, times(3)).get(any(UUID.class));
-		verify(longRunningTaskService, times(3)).get(any(UUID.class));
+		verify(longRunningTaskService, times(6)).get(any(UUID.class));
 		//
 		verify(executor, times(3)).getItemsToProcess(any(Pageable.class));
 		verify(executor, times(1)).isInProcessedQueue(dto1);
@@ -214,8 +218,8 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		verify(executor, times(2)).removeFromProcessedQueue(any(UUID.class));
 		verify(executor, times(3)).addToProcessedQueue(any(IdmIdentityDto.class), any(OperationResult.class));
 		verify(executor, times(3)).logItemProcessed(any(IdmIdentityDto.class), any(OperationResult.class));
-		// 6x addToProcessQueue, 2x removeItemFromQueue, other invocations are stubbed
-		verify(executor, times(8)).getScheduledTaskId();
+		// 6x addToProcessQueue, 2x removeItemFromQueue, 2x stubbed
+		verify(executor, times(10)).getScheduledTaskId();
 		verify(executor, times(3)).processItem(any(IdmIdentityDto.class));
 		// 3x addToProcessQueue, 3x logItemProcessed
 		verify(itemService, times(2)).deleteInternal(any(IdmProcessedTaskItemDto.class));
@@ -227,6 +231,7 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 	
 	@Test
 	public void testDontTouchProcessed() {
+		IdmLongRunningTaskDto lrt = new IdmLongRunningTaskDto();
 		IdmScheduledTaskDto scheduledTask = new IdmScheduledTaskDto();
 		scheduledTask.setId(UUID.randomUUID());
 		//
@@ -239,7 +244,10 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 			.when(executor).getProcessedItemRefsFromQueue();
 		doReturn(scheduledTask.getId())
 			.when(executor).getScheduledTaskId();
+
 		// matchers
+		when(longRunningTaskService.get(any(UUID.class)))
+				.thenReturn(lrt);
 		when(executor.getItemsToProcess(any(Pageable.class)))
 			.thenReturn(new PageImpl<>(Lists.newArrayList(dto1, dto2)))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));
@@ -248,6 +256,8 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		Boolean processingResult = executor.process();
 		assertTrue(processingResult);
 		//
+		//
+		verify(longRunningTaskService, times(2)).get(any(UUID.class));
 		//
 		verify(executor, times(1)).getItemsToProcess(any(Pageable.class));
 		verify(executor, times(1)).isInProcessedQueue(dto1);

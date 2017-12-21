@@ -85,7 +85,7 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 		// Delete archived vs requests
 		requestFilter = new VsRequestFilter();
 		requestFilter.setSystemId(system.getId());
-		requestFilter.setOnlyArchived(true);
+		requestFilter.setOnlyArchived(Boolean.TRUE);
 		requestService.find(requestFilter, null).forEach(entity -> {
 			requestService.delete(entity);
 		});

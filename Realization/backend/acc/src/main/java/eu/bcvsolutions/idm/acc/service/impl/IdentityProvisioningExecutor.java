@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -147,7 +148,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 					&& account.getSystem().equals(system.getId())
 					&& ia.isOwnership();
 		}).forEach((identityAccountInner) -> {
-			AccIdentityAccountDto identityAccount = (AccIdentityAccountDto)identityAccountInner;
+			AbstractDto identityAccount = (AbstractDto) identityAccountInner;
 			// All identity account with same system and with filled
 			// identityRole
 			AccAccountDto account = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account, AccAccountDto.class);

@@ -22,7 +22,7 @@ public class SchedulerTestUtils {
 	public static IdmScheduledTaskDto createIdmScheduledTask(String taskName) {
 		IdmScheduledTaskDto t = new IdmScheduledTaskDto();
 		t.setQuartzTaskName(taskName);
-		t.setDryRun(false);
+		//t.setDryRun(false);
 		return t;
 	}
 

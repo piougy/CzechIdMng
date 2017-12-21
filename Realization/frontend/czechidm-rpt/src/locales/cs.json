@@ -46,7 +46,8 @@
           "longRunningTask": {
             "title": "Zobrazit dlouho trvající úlohy"
           }
-        }
+        },
+        "add": "Vytvořit report"
       },
       "message": {
         "renderer": {

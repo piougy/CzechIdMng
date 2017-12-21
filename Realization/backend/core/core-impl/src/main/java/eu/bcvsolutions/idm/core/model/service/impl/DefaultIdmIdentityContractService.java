@@ -86,7 +86,9 @@ public class DefaultIdmIdentityContractService
 	@Override
 	protected IdmIdentityContract toEntity(IdmIdentityContractDto dto, IdmIdentityContract entity) {
 		IdmIdentityContract contract = super.toEntity(dto, entity);
-		contract.setDisabled(dto.isDisabled()); // redundant attribute for queries
+		if (contract != null && dto != null) {
+			contract.setDisabled(dto.isDisabled()); // redundant attribute for queries
+		}
 		return contract;
 	}
 	
@@ -135,7 +137,7 @@ public class DefaultIdmIdentityContractService
 										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), today),
 										builder.isNull(root.get(IdmIdentityContract_.validTill))
 										),
-								builder.equal(root.get(IdmIdentityContract_.disabled), false)
+								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.FALSE)
 								)								
 						);
 			} else {
@@ -144,7 +146,7 @@ public class DefaultIdmIdentityContractService
 						builder.or(
 								builder.lessThan(root.get(IdmIdentityContract_.validTill), today),
 								builder.greaterThan(root.get(IdmIdentityContract_.validFrom), today),
-								builder.equal(root.get(IdmIdentityContract_.disabled), true)
+								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.TRUE)
 								)
 						);
 			}
@@ -157,7 +159,7 @@ public class DefaultIdmIdentityContractService
 										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), LocalDate.now()),
 										builder.isNull(root.get(IdmIdentityContract_.validTill))
 										),
-								builder.equal(root.get(IdmIdentityContract_.disabled), false)
+								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.FALSE)
 							));
 			} else {
 				predicates.add(builder.lessThan(root.get(IdmIdentityContract_.validTill), LocalDate.now()));
@@ -213,12 +215,14 @@ public class DefaultIdmIdentityContractService
 		contract.setIdentity(identityId);
 		contract.setMain(true);
 		//
+		// set default contract name
+		// TODO: add boolean attribute
+		contract.setPosition(DEFAULT_POSITION_NAME);
+		//
 		// set working position
 		IdmTreeNodeDto defaultTreeNode = treeConfiguration.getDefaultNode();
 		if (defaultTreeNode != null) {
 			contract.setWorkPosition(defaultTreeNode.getId());
-		} else {
-			contract.setPosition(DEFAULT_POSITION_NAME);
 		}
 		return contract;
 	}

@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.6.0-SNAPSHOT</version>
+	<version>7.7.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -410,7 +410,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- Excel -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -425,7 +425,7 @@
 			<artifactId>ooxml-schemas</artifactId>
 			<version>1.1</version>
 		</dependency>
-		
+
 		<!-- CSV -->
 		<dependency>
 		    <groupId>com.opencsv</groupId>

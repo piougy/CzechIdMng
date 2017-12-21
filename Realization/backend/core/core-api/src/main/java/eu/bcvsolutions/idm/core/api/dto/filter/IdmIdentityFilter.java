@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
@@ -45,6 +46,10 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Identity is disabled
 	 */
 	public static final String PARAMETER_DISABLED = "disabled";
+	/**
+	 * Identity state
+	 */
+	public static final String PARAMETER_STATE = "state";
 	
 	/**
 	 * roles - OR
@@ -229,5 +234,13 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+	
+	public void setState(IdentityState state) {
+		data.set(PARAMETER_STATE, state);
+	}
+	
+	public IdentityState getState() {
+		return (IdentityState) data.getFirst(PARAMETER_STATE);
 	}
 }

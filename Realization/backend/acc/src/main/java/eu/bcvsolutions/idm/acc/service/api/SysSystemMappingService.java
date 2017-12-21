@@ -66,6 +66,13 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 */
 	Integer getProtectionInterval(AccAccountDto account);
 
+	
+	/**
+	 * Validate, if system mapping has attribute as identificator
+	 * @param systemMapingId
+	 */
+	void validate (UUID systemMapingId);
+
 	/**
 	 * Call script "Can be account created?" on the mapping.
 	 * @param uid
@@ -83,4 +90,5 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 * @return
 	 */
 	SysSystemMappingDto findProvisioningMapping(UUID systemId, SystemEntityType entityType);
+
 }

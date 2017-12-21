@@ -74,19 +74,18 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 				// for all only must change also password for czechidm
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
 			}
-			// check old password - the same identity only
+			// check old password - the same identity only (other identity has to have IdentityBasePermission.PASSWORDCHANGE for other identity)
 			// checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE) is called before event publishing
-			if (identity.getId().equals(securityService.getCurrentId())) {
+			if (identity.getId().equals(securityService.getCurrentId()) 
+				&& identityConfiguration.isRequireOldPassword()) {
+				
 				if (passwordChangeDto.getOldPassword() == null) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 				}
-				//
-				if (identityConfiguration.isRequireOldPassword()) {
-					// authentication trough chain
-					boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
-					if (!successChainAuthentication) {
-						throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-					}
+				// authentication trough chain
+				boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
+				if (!successChainAuthentication) {
+					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 				}
 			}
 		}

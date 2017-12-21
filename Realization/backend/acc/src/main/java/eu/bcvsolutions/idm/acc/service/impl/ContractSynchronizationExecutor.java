@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -68,6 +69,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
@@ -83,7 +85,15 @@ import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
@@ -101,12 +111,17 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmTreeNodeService treeNodeService;
 	private final LookupService lookupService;
 	private final LongRunningTaskManager longRunningTaskManager;
+	private final SchedulerManager schedulerService;
+	private final IdmLongRunningTaskService longRunningTaskService;
+	private final IdmScheduledTaskService scheduledTaskService;
+	private final IdmConfigurationService configurationService;
 
 	public final static String CONTRACT_STATE_FIELD = "state";
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
 	public final static String CONTRACT_IDENTITY_FIELD = "identity";
 	public final static String CONTRACT_WORK_POSITION_FIELD = "workPosition";
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
+	public final static String DEFAULT_TASK = "Default";
 
 	@Autowired
 	public ContractSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -121,7 +136,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
 			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
 			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService,
-			LongRunningTaskManager longRunningTaskManager) {
+			LongRunningTaskManager longRunningTaskManager, SchedulerManager schedulerService,
+			IdmLongRunningTaskService longRunningTaskService, IdmScheduledTaskService scheduledTaskService,
+			IdmConfigurationService configurationService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -134,6 +151,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.notNull(guaranteeService, "Contract guarantee service is mandatory!");
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
 		Assert.notNull(longRunningTaskManager, "Long runing task manager is mandatory!");
+		Assert.notNull(schedulerService, "Scheduler service is mandatory!");
+		Assert.notNull(longRunningTaskService, "LRT service is mandatory!");
+		Assert.notNull(scheduledTaskService, "Scheduled task service is mandatory!");
+		Assert.notNull(configurationService, "Configuration service is mandatory!");
 		//
 		this.contractService = contractService;
 		this.contractAccoutnService = contractAccoutnService;
@@ -141,6 +162,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		this.guaranteeService = guaranteeService;
 		this.treeNodeService = treeNodeService;
 		this.longRunningTaskManager = longRunningTaskManager;
+		this.schedulerService = schedulerService;
+		this.longRunningTaskService = longRunningTaskService;
+		this.scheduledTaskService = scheduledTaskService;
+		this.configurationService = configurationService;
 	}
 
 	@Override
@@ -176,37 +201,17 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			return log;
 		}
 		// Enable contracts task
-		log.addToLog(MessageFormat.format(
-				"After success sync have to be run HR task for enable of contracts (HrEnableContractProcess). We start him (synchronously) now [{0}]",
-				LocalDateTime.now()));
-		log = synchronizationLogService.save(log);
-	
-		HrEnableContractProcess startContractExecutor = new HrEnableContractProcess();
-		longRunningTaskManager.executeSync(startContractExecutor);
-		log.addToLog(MessageFormat.format("HR task for enable of contracts ended in [{0}].", LocalDateTime.now()));
+		log = executeHrProcess(log, new HrEnableContractProcess());
 		
 		// End contracts task
-		log.addToLog(MessageFormat.format(
-				"After success sync have to be run HR task for end of contracts (HrEndContractProcess). We start him (synchronously) now [{0}]",
-				LocalDateTime.now()));
-		log = synchronizationLogService.save(log);
-		
-		HrEndContractProcess endContractExecutor = new HrEndContractProcess();
-		longRunningTaskManager.executeSync(endContractExecutor);
-		log.addToLog(MessageFormat.format("HR task for end of contracts ended in [{0}].", LocalDateTime.now()));
-		
+		log = executeHrProcess(log, new HrEndContractProcess());
+	
 		// Exclude contracts task
-		log.addToLog(MessageFormat.format(
-				"After success sync have to be run HR task for exclude of contracts (HrContractExclusionProcess). We start him (synchronously) now [{0}]",
-				LocalDateTime.now()));
-		log = synchronizationLogService.save(log);
-		
-		HrContractExclusionProcess excludeContractExecutor = new HrContractExclusionProcess();
-		longRunningTaskManager.executeSync(excludeContractExecutor);
-		log.addToLog(MessageFormat.format("HR task for exlude of contracts ended in [{0}].", LocalDateTime.now()));
-		
+		log = executeHrProcess(log, new HrContractExclusionProcess());
+
 		return log;
 	}
+
 
 	/**
 	 * Call provisioning for given account
@@ -254,7 +259,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// For this we skip them now. HR processes must be start after whole
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-		entityEventManager.process(event).getContent();
+		entityEventManager.process(event);
 	}
 
 	/**
@@ -673,5 +678,89 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			return entities.get(0);
 		}
 		return null;
+	}
+	
+	/**
+	 * Start HR process. Find quartz task and LRT. If some LRT for this task type
+	 * exists, then is used. If not exists, then is created new. Task is execute
+	 * synchronously.
+	 * 
+	 * @param log
+	 * @param executor
+	 * @return
+	 */
+	private SysSyncLogDto executeHrProcess(SysSyncLogDto log, SchedulableTaskExecutor<?> executor) {
+
+		@SuppressWarnings("unchecked")
+		Class<? extends SchedulableTaskExecutor<?>> taskType = (Class<? extends SchedulableTaskExecutor<?>>) executor
+				.getClass();
+
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setOperationState(OperationState.CREATED);
+		filter.setTaskType(taskType.getCanonicalName());
+		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
+
+		IdmLongRunningTaskDto lrt = null;
+		if (createdLrts.isEmpty()) {
+			// We do not have LRT for this task, we will create him
+			Task processTask = findTask(taskType);
+			if (processTask == null) {
+				addToItemLog(log, MessageFormat.format(
+						"Warning - HR process [{0}] cannot be executed, because task for this type was not found!",
+						taskType.getSimpleName()));
+				log = synchronizationLogService.save(log);
+				return log;
+			}
+			IdmScheduledTaskDto scheduledTask = scheduledTaskService.findByQuartzTaskName(processTask.getId());
+			if (scheduledTask == null) {
+				addToItemLog(log, MessageFormat.format(
+						"Warning - HR process [{0}] cannot be executed, because scheduled task for this type was not found!",
+						taskType.getSimpleName()));
+				log = synchronizationLogService.save(log);
+				return log;
+			}
+			lrt = longRunningTaskService.create(scheduledTask, executor, configurationService.getInstanceId());
+		} else {
+			lrt = createdLrts.get(0);
+		}
+
+		if (lrt != null) {
+			log.addToLog(MessageFormat.format(
+					"After success sync have to be run HR task [{1}]. We start him (synchronously) now [{0}]. LRT ID: [{2}]",
+					LocalDateTime.now(), taskType.getSimpleName(), lrt.getId()));
+			log = synchronizationLogService.save(log);
+			executor.setLongRunningTaskId(lrt.getId());
+			longRunningTaskManager.executeSync(executor);
+			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(),
+					taskType.getSimpleName()));
+			log = synchronizationLogService.save(log);
+		}
+		return log;
+	}
+	
+	/**
+	 * Find quartz task for given task type. If existed more then one task for same
+	 * type, then is using that with name "Default". If none with this name exists,
+	 * then is used first.
+	 * 
+	 * @param taskType
+	 * @return
+	 */
+	private Task findTask(Class<? extends SchedulableTaskExecutor<?>> taskType) {
+		List<Task> tasks = schedulerService.getAllTasksByType(taskType);
+		if (tasks.size() == 1) {
+			return tasks.get(0);
+		}
+		if (tasks.isEmpty()) {
+			return null;
+		}
+
+		Task defaultTask = tasks.stream().filter(task -> {
+			return task.getDescription().equals(DEFAULT_TASK);
+		}).findFirst().orElse(null);
+		if (defaultTask != null) {
+			return defaultTask;
+		}
+		return tasks.get(0);
 	}
 }

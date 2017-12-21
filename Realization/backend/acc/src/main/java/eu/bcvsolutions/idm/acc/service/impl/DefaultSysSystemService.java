@@ -789,4 +789,16 @@ public class DefaultSysSystemService
 		key.setBundleVersion("2.2.4");
 		return key;
 	}
+
+	@Override
+	public IcConnectorInstance getConnectorInstance(SysSystemDto system) {
+		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+		//
+		if (system.isRemote() && connectorInstance.getConnectorServer() != null) {
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
+					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
+		}
+		//
+		return connectorInstance;
+	}
 }

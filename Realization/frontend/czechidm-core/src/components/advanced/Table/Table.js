@@ -380,11 +380,18 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // automatic rowClass by entity's "disabled" attribute
       _rowClass = ({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); };
     }
+    //
+    let _actions = [];
+    if (actions !== null && actions.length > 0) {
+      _actions = actions.filter(action => {
+        return action.rendered === undefined || action.rendered === true || action.rendered === null;
+      });
+    }
 
     return (
       <div className="advanced-table" style={style}>
         {
-          !filter && (actions === null || actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
+          !filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
           <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop} rendered={showToolbar}>
             <div className="advanced-table-heading">
@@ -395,9 +402,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   componentSpan=""
                   className={selectedRows.length <= 0 ? 'hidden' : 'bulk-action'}
                   multiSelect={false}
-                  options={actions}
+                  options={ _actions }
                   placeholder={this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
-                  rendered={actions !== null && actions.length > 0 && showRowSelection}
+                  rendered={ _actions.length > 0 && showRowSelection}
                   searchable={false}/>
               </div>
               <div className="pull-right">
@@ -451,7 +458,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               showLoading={_showLoading || showLoading}
               onRowClick={onRowClick}
               onRowDoubleClick={onRowDoubleClick}
-              showRowSelection={showRowSelection}
+              showRowSelection={ _actions.length > 0 && showRowSelection }
               selectedRows={selectedRows}
               onRowSelect={this._onRowSelect.bind(this)}
               rowClass={_rowClass}
@@ -476,8 +483,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             </Basic.BasicTable.Table>
             <Basic.BasicTable.Pagination
               ref="pagination"
-              showPageSize={showPageSize}
-              paginationHandler={pagination ? this._handlePagination.bind(this) : null}
+              showPageSize={ showPageSize }
+              paginationHandler={ pagination ? this._handlePagination.bind(this) : null }
               total={ pagination ? _total : _entities.length } {...range} />
           </div>
         }

@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -35,6 +36,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
@@ -92,6 +94,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
+	private final ProvisioningConfiguration provisioningConfiguration;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -104,7 +107,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSystemAttributeMappingService attributeMappingService,
 			SysSchemaAttributeService schemaAttributeService,
 			SysProvisioningArchiveService provisioningArchiveService,
-			SysSchemaObjectClassService schemaObjectClassService) {
+			SysSchemaObjectClassService schemaObjectClassService,
+			ProvisioningConfiguration provisioningConfiguration) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
@@ -117,6 +121,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		Assert.notNull(schemaAttributeService);
 		Assert.notNull(provisioningArchiveService);
 		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(provisioningConfiguration);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -127,6 +132,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.schemaAttributeService = schemaAttributeService;
 		this.provisioningArchiveService = provisioningArchiveService;
 		this.schemaObjectClassService = schemaObjectClassService;
+		this.provisioningConfiguration = provisioningConfiguration;
 	}
 	
 	@Override
@@ -142,7 +148,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
-		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
+		SysSystemEntityDto systemEntity = provisioningOperationService.getByProvisioningOperation(provisioningOperation);
+		String uid = systemEntity.getUid();
+		boolean isWish = systemEntity.isWish();
 		LOG.debug("Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
 				uid,
@@ -161,12 +169,14 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		//
 		try {
-			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
-			IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-					system.getConnectorInstance(), 
-					connectorConfig, 
-					objectClass, 
-					uidAttribute);
+			IcConnectorObject existsConnectorObject = null;
+			// We do not want search account on the target system, when this is the first
+			// call the connector and auto mapping is not allowed.
+			if (!(isWish && !provisioningConfiguration.isAllowedAutoMappingOnExistingAccount())) {
+				IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
+				existsConnectorObject = connectorFacade.readObject(system.getConnectorInstance(), connectorConfig,
+						objectClass, uidAttribute);
+			}
 			if (existsConnectorObject == null) {
 				processCreate(provisioningOperation);
 			} else {
@@ -617,12 +627,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		} 
 		
 		// Multivalued values are equals, when value from system is null and value in IdM is empty list
-		if(schemaAttribute.isMultivalued() && idmValue != null && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
+		if(schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
 			return true;
 		}
 		
 		// Multivalued values are equals, when value in IdM is null and value from system is empty list
-		if(schemaAttribute.isMultivalued() && icValueTransformed != null && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
+		if(schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
 			return true;
 		}
 		

@@ -21,6 +21,7 @@ public enum CoreResultCode implements ResultCode {
 	// 2xx
 	OK(HttpStatus.OK, "ok"),
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
+	DRY_RUN(HttpStatus.NO_CONTENT, "Dry run mode"),
 	//
 	// Commons 4xx
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),
@@ -50,6 +51,9 @@ public enum CoreResultCode implements ResultCode {
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),
 	// filter
 	FILTER_IMPLEMENTATION_NOT_FOUND(HttpStatus.CONFLICT, "Filter implementation [%s] for property [%s] not found. Repair configuration property [%s]."),
+	// identity
+	IDENTITY_ALREADY_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is already disabled manually, cannot be disable twice."),
+	IDENTITY_NOT_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is not disabled manually [%s], cannot be enabled."),
 	// password change
 	PASSWORD_CHANGE_NO_SYSTEM(HttpStatus.BAD_REQUEST, "No system selected."),
 	PASSWORD_CHANGE_CURRENT_FAILED_IDM(HttpStatus.BAD_REQUEST, "Given current password doesn't match to current idm password."),
@@ -194,7 +198,8 @@ public enum CoreResultCode implements ResultCode {
 	ATTACHMENT_INIT_DEFAULT_TEMP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default temp storage [%s] in temp directory failed"),
 	ATTACHMENT_CREATE_TEMP_FILE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating temporary file [%s] in temp directory [%s] failed"),
 	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed"),
-	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed");
+	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed"),
+	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found.");
 	
 	private final HttpStatus status;
 	private final String message;

@@ -73,7 +73,7 @@ public interface IdmPasswordPolicyService extends ReadWriteDtoService<IdmPasswor
 	
 	/**
 	 * Generate password by default password policy with type {@link IdmPasswordPolicyType.GENERATE},
-	 * if this type dont exist use default password policy with type {@link IdmPasswordPolicyType.VALIDATE}
+	 * if this type doesn't exist use default password policy with type {@link IdmPasswordPolicyType.VALIDATE}
 	 * 
 	 * @return new password
 	 */

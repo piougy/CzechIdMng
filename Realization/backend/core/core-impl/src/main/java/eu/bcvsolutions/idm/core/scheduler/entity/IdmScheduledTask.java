@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * tasks run by quartz. The purpose is to aggregate {@link IdmLongRunningTask}
  * as with processed items log and an item queue of already
  * processed records.
- * 
+ *
  * @author Jan Helbich
  *
  */
@@ -29,23 +29,12 @@ public class IdmScheduledTask extends AbstractEntity {
 	@Column(name = "quartz_task_name", unique = true)
 	private String quartzTaskName; // quartz job name - default group is supported now
 
-	@Column(name = "dry_run")
-	private boolean dryRun;
-
 	public String getQuartzTaskName() {
 		return quartzTaskName;
 	}
 
 	public void setQuartzTaskName(String quartzTaskName) {
 		this.quartzTaskName = quartzTaskName;
-	}
-
-	public boolean isDryRun() {
-		return dryRun;
-	}
-
-	public void setDryRun(boolean dryRun) {
-		this.dryRun = dryRun;
 	}
 
 }

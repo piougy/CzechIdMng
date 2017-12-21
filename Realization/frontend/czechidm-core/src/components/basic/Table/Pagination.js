@@ -7,6 +7,8 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
  * - shows information about rendered records
  * - change current page by links and directly
  * - change page size
+ *
+ * @author Radek Tomiška
  */
 class Pagination extends AbstractContextComponent {
 
@@ -20,11 +22,16 @@ class Pagination extends AbstractContextComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.state = {
+    this.setState({
       currentPage: nextProps.page,
       changePage: nextProps.page + 1,
       currentSize: nextProps.size
-    };
+    }, () => {
+      if (nextProps.total && (nextProps.total <= (nextProps.page * nextProps.size))) {
+        // index of bound - load last page
+        this.setPage(this.getMaxPage(nextProps.total));
+      }
+    });
   }
 
   next(event) {
@@ -53,10 +60,10 @@ class Pagination extends AbstractContextComponent {
     return newFrom < total;
   }
 
-  getMaxPage() {
-    const { total } = this.props;
+  getMaxPage(total = null) {
+    const _total = total || this.props.total;
     const { currentSize } = this.state;
-    return Math.ceil(total / currentSize) - 1;
+    return Math.ceil(_total / currentSize) - 1;
   }
 
   setPage(page, event) {

@@ -537,7 +537,8 @@ public class DefaultIdmNotificationTemplateService extends
 							// log error, if script with the same code was found twice in one resource
 							if (locationTemplates.containsKey(templateType.getCode())) {
 								LOG.error("More templates with code [{}] found on the same location [{}].",
-										templateType.getCode());
+										templateType.getCode(),
+										location);
 							}
 							// last one wins
 							locationTemplates.put(templateType.getCode(), templateType);

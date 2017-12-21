@@ -14,7 +14,7 @@ Input variables:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <endEvent id="endevent1" name="End" activiti:async="false"></endEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
     <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Create new automatic role ${roleService.get(entityEvent.content.role, null).getName()} on tree node ${treeNodeService.get(entityEvent.content.treeNode, null).getName()} " activiti:resultVariableName="processInstanceName"></serviceTask>
     <serviceTask id="servicetask2" name="Continue entity event processing" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
@@ -41,9 +41,9 @@ def guarantees = [];
 def skipApproving = false;
 //
 for (guarantee in role.guarantees) {
-  guarantees.add(guarantee.guarantee)
+  guarantees.add(guarantee.guarantee.toString())
 }
-if(guarantees.empty || guarantees.contains(applicantIdentifier)) {
+if(guarantees.empty || guarantees.contains(applicantIdentifier.toString())) {
   skipApproving = true;
 }
 

@@ -92,7 +92,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 			}
 		}
 		//
-		IcUidAttribute icUid = connectorFacade.createObject(system.getConnectorInstance(), connectorConfig,
+		IcUidAttribute icUid = connectorFacade.createObject(systemService.getConnectorInstance(system), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
 		//
 		// set connector object back to provisioning context

@@ -135,7 +135,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	public void createIdentityTest() {
+	public void createIdentityWithDefaultRoleTest() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
@@ -153,8 +153,11 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		synchornizationService.setSynchronizationConfigId(config.getId());
 		synchornizationService.process();
 
+		// Have to be in the warning state, because default role cannot be assigned for
+		// new identity, because sync do not creates the default contract. See
+		// IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION.
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
-				OperationResultType.SUCCESS);
+				OperationResultType.WARNING);
 
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
@@ -162,8 +165,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(1, identities.size());
 		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identities.get(0).getId());
-		Assert.assertEquals(1, roles.size());
-		Assert.assertEquals(defaultRole.getId(), roles.get(0).getRole());
+		Assert.assertEquals(0, roles.size());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -171,7 +173,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	public void updateIdentityTest() {
+	public void updateIdentityWithDefaultRoleTest() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
@@ -238,7 +240,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
-	
+
 	@Test
 	public void updateIdentityPropagateValidityTest() {
 		SysSystemDto system = initData();
@@ -253,7 +255,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
 		IdmIdentityContractDto primeContract = contractService.getPrimeContract(identityOne.getId());
 		Assert.assertNotNull(primeContract);
-		
+
 		LocalDate validTill = LocalDate.now().plusDays(10);
 		LocalDate validFrom = LocalDate.now().plusDays(-10);
 		primeContract.setValidFrom(validFrom);
@@ -277,7 +279,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(defaultRole.getId(), identityRole.getRole());
 		Assert.assertEquals(identityRole.getValidFrom(), validFrom);
 		Assert.assertEquals(identityRole.getValidTill(), validTill);
-		
+
 		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setIdentityRoleId(identityRole.getId());
 		Assert.assertEquals(1, identityAccountService.find(identityAccountFilter, null).getContent().size());
@@ -286,7 +288,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
-	
+
 	@Test
 	public void deleteDefaulRoleIntegrityTest() {
 		SysSystemDto system = initData();
@@ -303,7 +305,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		config = (SysSyncIdentityConfigDto) syncConfigService.get(config.getId());
 		Assert.assertNull(config.getDefaultRole());
 	}
-
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,
 			OperationResultType resultType) {

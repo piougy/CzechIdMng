@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
@@ -49,7 +49,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service("notificationConfigurationService")
 public class DefaultIdmNotificationConfigurationService
-	extends AbstractReadWriteDtoService<IdmNotificationConfigurationDto, IdmNotificationConfiguration, IdmNotificationConfigurationFilter> implements IdmNotificationConfigurationService {
+	extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, IdmNotificationConfigurationFilter> implements IdmNotificationConfigurationService {
 	
 	private final IdmNotificationConfigurationRepository repository;
 	private final PluginRegistry<NotificationSender<?>, String> notificationSenders;
@@ -72,7 +72,7 @@ public class DefaultIdmNotificationConfigurationService
 	
 	@Override
 	@Transactional
-	public IdmNotificationConfigurationDto save(IdmNotificationConfigurationDto dto, BasePermission... permission) {
+	public NotificationConfigurationDto save(NotificationConfigurationDto dto, BasePermission... permission) {
 		Assert.notNull(dto);
 		//
 		// check duplicity
@@ -97,7 +97,7 @@ public class DefaultIdmNotificationConfigurationService
 				if (topicToCreate.contains(topic) || count == 0) {
 					topicToCreate.add(topic);
 					UUID template = config.getTemplate();
-					IdmNotificationConfigurationDto notConfiguration = new IdmNotificationConfigurationDto(config);
+					NotificationConfigurationDto notConfiguration = new NotificationConfigurationDto(config);
 					notConfiguration.setTemplate(template);
 					repository.save(toEntity(notConfiguration, null));
 				}
@@ -168,12 +168,12 @@ public class DefaultIdmNotificationConfigurationService
 	}
 
 	@Override
-	public IdmNotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType) {
+	public NotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType) {
 		return toDto(this.repository.findByTopicAndLevelAndNotificationType(topic, level, notificationType));
 	}
 
 	@Override
-	public List<IdmNotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level) {
+	public List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level) {
 		return toDtos(repository.findByTopicAndLevel(topic, level), false);
 	}
 	

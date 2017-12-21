@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "7.6.0-snapshot",
+  "version": "7.7.0-snapshot",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {
@@ -20,7 +20,7 @@
   "scripts": {
     "modules-link": "mkdir ../node_modules && ln -s ../node_modules",
     "modules-link-or-skip": "mkdir -p ../node_modules && test -L node_modules || ln -s ../node_modules",
-    "czechidm-modules-link": "test -L ./czechidm-modules/czechidm-core || ln -s ../../czechidm-core ./czechidm-modules/; test -L ./czechidm-modules/czechidm-acc || ln -s ../../czechidm-acc ./czechidm-modules/; test -L ./czechidm-modules/czechidm-vs || ln -s ../../czechidm-vs ./czechidm-modules/",
+    "czechidm-modules-link": "test -L ./czechidm-modules/czechidm-core || ln -s ../../czechidm-core ./czechidm-modules/; test -L ./czechidm-modules/czechidm-acc || ln -s ../../czechidm-acc ./czechidm-modules/; test -L ./czechidm-modules/czechidm-vs || ln -s ../../czechidm-vs ./czechidm-modules/; test -L ./czechidm-modules/czechidm-rpt || ln -s ../../czechidm-rpt ./czechidm-modules/",
     "test": "npm run tests-set",
     "test-lint": "npm run lint && npm run tests-set",
     "tests-set": "mocha ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
@@ -157,9 +157,9 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "7.6.0-snapshot",
-    "czechidm-acc": "7.6.0-snapshot",
-    "czechidm-vs": "7.6.0-snapshot",
-    "czechidm-rpt": "7.6.0-snapshot"
+    "czechidm-core": "7.7.0-snapshot",
+    "czechidm-acc": "7.7.0-snapshot",
+    "czechidm-vs": "7.7.0-snapshot",
+    "czechidm-rpt": "7.7.0-snapshot"
   }
 }

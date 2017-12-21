@@ -186,7 +186,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     if (!error) {
       this.context.router.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
-      this._startSynchronization(entity.id);
+      this._startSynchronization(entity);
     } else {
       this.addError(error);
     }
@@ -198,27 +198,27 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
-  _startSynchronization(id) {
+  _startSynchronization(sync) {
     this.refs[`confirm-delete`].show(
-      this.i18n(`acc:content.system.systemSynchronizationConfigs.action.startSynchronization.message`),
+      this.i18n(`acc:content.system.systemSynchronizationConfigs.action.startSynchronization.message`, {name: sync.name}),
       this.i18n(`acc:content.system.systemSynchronizationConfigs.action.startSynchronization.header`)
     ).then(() => {
       this.setState({
         showLoading: true
       });
-      const promise = synchronizationConfigManager.getService().startSynchronization(id);
+      const promise = synchronizationConfigManager.getService().startSynchronization(sync.id);
       promise.then((json) => {
         this.setState({
           showLoading: false
         });
         this.addMessage({ level: 'info', message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
-        this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
+        this.context.store.dispatch(synchronizationConfigManager.fetchEntity(sync.id));
       }).catch(ex => {
         this.setState({
           showLoading: false
         });
         this.addError(ex);
-        this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
+        this.context.store.dispatch(synchronizationConfigManager.fetchEntity(sync.id));
       });
     }, () => {
       this.setState({

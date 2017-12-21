@@ -50,6 +50,7 @@ public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		IdmTreeNodeDto node = event.getContent();
+		Assert.notNull(node);
 		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setTreeNodeId(node.getId());
 		treeAccountService.find(filter, null).forEach(treeAccount -> {

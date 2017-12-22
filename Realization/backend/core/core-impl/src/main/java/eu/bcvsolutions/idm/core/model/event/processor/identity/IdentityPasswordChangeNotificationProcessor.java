@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(CoreModuleDescriptor.MODULE_ID)
 @Description("Sends notification to identity of changed password.")
-public class IdentityPasswordChangeNotification extends CoreEventProcessor<IdmIdentityDto>
+public class IdentityPasswordChangeNotificationProcessor extends CoreEventProcessor<IdmIdentityDto>
 		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-password-change-notification";
@@ -41,7 +41,7 @@ public class IdentityPasswordChangeNotification extends CoreEventProcessor<IdmId
 	private final String code = "PASSWORD_CHANGE_ACCOUNT_SUCCESS";
 
 	@Autowired
-	public IdentityPasswordChangeNotification(NotificationManager notificationManager) {
+	public IdentityPasswordChangeNotificationProcessor(NotificationManager notificationManager) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(notificationManager);
@@ -66,7 +66,7 @@ public class IdentityPasswordChangeNotification extends CoreEventProcessor<IdmId
 				}
 			}
 		}
-		
+
 		if (!systems.isEmpty()) {
 			sendNotification(identity, systems);
 		}

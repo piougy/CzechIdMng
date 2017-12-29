@@ -138,6 +138,31 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		return getTask(getKey(taskId));
 	}
 	
+	public Task updateTask(Task task) {
+		Assert.notNull(task);
+		try {
+			// job properties
+			JobDataMap jobDataMap = new JobDataMap();
+			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
+			task.getParameters().entrySet().forEach(entry -> {
+				jobDataMap.put(entry.getKey(), entry.getValue());
+			});
+			// create job detail - job definition
+			JobDetail jobDetail = JobBuilder.newJob().withIdentity(task.getId(), DEFAULT_GROUP_NAME)
+					.withDescription(task.getDescription()).ofType(task.getTaskType()).usingJobData(jobDataMap)
+					.storeDurably().build();
+			// add job
+			scheduler.addJob(jobDetail, false);
+			//
+			LOG.debug("Job '{}' ({}) was created and registered", task.getId(), task.getTaskType());
+			//
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TASK_FAILED, ex);
+		}
+		return getTask(task.getId());
+
+	}
+	
 	/**
 	 * Returns task by given key
 	 * 

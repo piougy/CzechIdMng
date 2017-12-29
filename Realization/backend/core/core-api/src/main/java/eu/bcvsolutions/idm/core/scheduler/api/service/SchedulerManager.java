@@ -121,4 +121,6 @@ public interface SchedulerManager {
 	 * @return
 	 */
 	List<Task> getAllTasksByType(Class<?> taskType);
+	
+	Task updateTask(Task task);
 }

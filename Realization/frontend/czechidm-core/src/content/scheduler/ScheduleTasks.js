@@ -53,6 +53,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
    * Open modal task detail
    */
   showDetail(entity) {
+    console.log(88, entity);
     // transform parameters to Form
     if (entity.parameters) {
       _.keys(entity.parameters).map(parameterName => {

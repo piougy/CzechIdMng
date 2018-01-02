@@ -1185,7 +1185,7 @@
       "title": "Script definitions",
       "edit": {
         "title": "Script detail",
-        "header": "{{name}} rule detail"
+        "header": "{{name}} script detail"
       },
       "scriptAuthoritySaveFirst": "You can add script authorities only after saving.",
       "create": {

@@ -1183,12 +1183,10 @@
     "scripts": {
       "header": "Script definitions",
       "title": "Script definitions",
-      "label": "Script definitions",
       "edit": {
         "title": "Script detail",
-        "header": "{{name}} rule detail"
+        "header": "{{name}} script detail"
       },
-      "scriptAuthorities": "Script authorities",
       "scriptAuthoritySaveFirst": "You can add script authorities only after saving.",
       "create": {
         "title": "New script",
@@ -1199,17 +1197,28 @@
       },
       "filter": {
         "text": "Code / Name / Description"
-      }
-    },
-    "scriptAuthorities": {
-      "create": {
-        "header": "Create new authority for script <small>{{name}}</small>"
       },
-      "edit": {
-        "header": "Edit authority for script <small>{{name}}</small>"
+      "detail": {
+        "header" : "Basic informations",
+        "title" : "Basic informations"
       },
-      "save": {
-        "success": "Authority for script successfully saved"
+      "authorities": {
+          "header": "Script authorities",
+          "title": "Script authorities",
+          "edit": {
+            "header": "Edit authority for script <small>{{name}}</small>"
+          },
+          "create": {
+            "header": "Create new authority for script <small>{{name}}</small>"
+          },
+          "save": {
+            "header": "Authority for script successfully saved",
+            "success": "Authority for script successfully saved"
+          }
+      },
+      "references": {
+        "header" : "Script usage",
+        "title" : "Script usage"
       }
     },
     "roles": {

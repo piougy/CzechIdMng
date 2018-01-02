@@ -2,8 +2,10 @@ package eu.bcvsolutions.idm.core.model.jaxb;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.jaxb.CDATAAdapter;
 
 @XmlRootElement(name = "script") // root element
 public class IdmScriptType {
@@ -73,6 +75,7 @@ public class IdmScriptType {
 	}
 
 	@XmlElement(type = String.class)
+	@XmlJavaTypeAdapter(CDATAAdapter.class)
 	public String getBody() {
 		return body;
 	}

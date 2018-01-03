@@ -26,9 +26,18 @@ let contentEn = fs.readFileSync(accLocales + 'en.json', 'utf8', (err, data) => {
 });
 
 let jsonEn = JSON.parse(contentEn);
-let pathsEn = jPath({json: jsonCs, path: '$..name', resultType: 'path'});
+let pathsEn = jPath({json: jsonCs, path: '$..message', resultType: 'path'});
 console.log(pathsEn);
 
+function compareMessages(language1, language2) {
+  if (language1.length > language2.length) {
+    console.log('Language 1 is way longer than 2!');
+  } else {
+    console.log('Language 2 is way longer than 1!');
+  }
+}
+
+compareMessages(pathsCs, pathsEn);
 // Functionality check
 // describe('Testing tests: ', function() {
 //   it('To be matcher compares with ===', function() {

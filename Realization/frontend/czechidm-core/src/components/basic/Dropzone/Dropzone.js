@@ -7,6 +7,8 @@ import defaultStyle from './styles';
 
 /**
 * Dropzone component
+*
+* @author Vít Švanda
 */
 class Dropzone extends AbstractContextComponent {
 
@@ -16,7 +18,7 @@ class Dropzone extends AbstractContextComponent {
   }
 
   render() {
-    const { onDrop, multiple, accept, style, styleActive, styleReject, showLoading, rendered } = this.props;
+    const { onDrop, multiple, accept, style, styleActive, styleReject, showLoading, rendered, children } = this.props;
     if (!rendered) {
       return null;
     }
@@ -33,7 +35,13 @@ class Dropzone extends AbstractContextComponent {
           accept={accept}
           disablePreview
           onDrop={onDrop}>
-          <div style={{color: '#777'}}>{this.i18n('component.basic.Dropzone.infoText')}</div>
+          <div style={{color: '#777'}}>
+            {
+              children
+              ||
+              this.i18n('component.basic.Dropzone.infoText')
+            }
+          </div>
         </ReactDropzone>
       </div>
 
@@ -73,7 +81,7 @@ Dropzone.propTypes = {
   /**
   * Object with styles for reject state (when are files rejected)
   */
-  styleReject: PropTypes.object,
+  styleReject: PropTypes.object
 };
 
 Dropzone.defaultProps = {

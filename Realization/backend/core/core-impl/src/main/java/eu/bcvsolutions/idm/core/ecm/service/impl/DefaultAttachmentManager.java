@@ -459,7 +459,9 @@ public class DefaultAttachmentManager
 	 */
 	private UUID getOwnerId(Identifiable owner) {
 		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		if (owner.getId() == null) {
+			return null;
+		}		
 		Assert.isInstanceOf(UUID.class, owner.getId(), "Entity with UUID identifier is supported as owner for attachments.");
 		//
 		return (UUID) owner.getId();

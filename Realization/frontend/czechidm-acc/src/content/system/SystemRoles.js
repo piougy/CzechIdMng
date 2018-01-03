@@ -30,24 +30,21 @@ class SystemRoles extends Advanced.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.systemRoles';
+    return 'acc:content.system.roles';
   }
 
   componentDidMount() {
     this.selectNavigationItems(['sys-systems', 'system-roles']);
   }
 
-  showDetail(add) {
-    if (add) {
-      // When we add new object class, then we need id of role as parametr and use "new" url
-      const uuidId = uuid.v1();
-      this.context.router.push(`/role/${uuidId}/new?new=1`);
-    }
+  showDetail() {
+    const roleId = this.props.params.entityId;
+    this.context.router.push(`role/${roleId}/detail`);
   }
 
   render() {
     const { entityId } = this.props.params;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setSort('created', 'dsc');
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setSort('created', 'desc');
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -70,13 +67,48 @@ class SystemRoles extends Advanced.AbstractTableContent {
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
               null
+            }
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm">
+                  <Basic.Row>
+                    <Basic.Col lg={ 8 }>
+                      <Advanced.Filter.TextField
+                        ref="text"
+                        placeholder={this.i18n('content.roles.filter.text.placeholder')}/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 4 }>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+                    </Basic.Col>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
             }>
             <Advanced.Column
-              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-              property="_embedded.role.name"
-              header={this.i18n('core:entity.IdentityRole.role')}
+              property=""
+              header=""
+              className="detail-button"
               cell={
-                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+                  );
+                }
+              }/>
+            <Advanced.Column
+              property="_embedded.role.name"
+              header={this.i18n('core:entity.Role._type')}
+              cell={
                 ({ rowIndex, data }) => {
                   return (
                     <Advanced.RoleInfo
@@ -86,17 +118,18 @@ class SystemRoles extends Advanced.AbstractTableContent {
                   );
                 }
               }
+              // sort
               />
             <Advanced.Column
-              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.role.description"
-              header={this.i18n('core:entity.IdentityRole.description.title')}
+              header={this.i18n('core:entity.Role.description')}
+              // sort
               />
             <Advanced.Column
               face="bool"
-              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.role.disabled"
-              header={this.i18n('core:entity.IdentityRole.disabled.title')}
+              header={this.i18n('core:entity.Role.disabled')}
+              // sort
               />
           </Advanced.Table>
         </Basic.Panel>
@@ -118,7 +151,6 @@ SystemRoles.defaultProps = {
 function select(state, component) {
   return {
     role: Utils.Entity.getEntity(state, roleManager.getEntityType(), component.params.entityId),
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }
 

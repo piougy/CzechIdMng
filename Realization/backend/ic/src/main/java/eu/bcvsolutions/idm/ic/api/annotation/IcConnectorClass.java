@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
 
 /**
  * This annotation identifies connector
@@ -27,7 +27,7 @@ public @interface IcConnectorClass {
      */
     String displayName();
     
-    Class<? extends IcConnectorConfigurationClass> configurationClass();
+    Class<? extends ConfigurationClass> configurationClass();
    
 
 }

@@ -10,13 +10,13 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
-import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
  */
 public class CzechIdMIcConvertUtil {
 
-	public static IcConfigurationProperty convertConfigurationProperty(IcConfigurationClassProperty property) {
+	public static IcConfigurationProperty convertConfigurationProperty(ConfigurationClassProperty property) {
 		if (property == null) {
 			return null;
 		}
@@ -56,8 +56,8 @@ public class CzechIdMIcConvertUtil {
 		return info;
 	}
 
-	public static IcConnectorConfigurationClass convertIcConnectorConfiguration(IcConnectorConfiguration configuration,
-			Class<? extends IcConnectorConfigurationClass> configurationClass) {
+	public static ConfigurationClass convertIcConnectorConfiguration(IcConnectorConfiguration configuration,
+			Class<? extends ConfigurationClass> configurationClass) {
 		if (configuration == null || configuration.getConfigurationProperties() == null
 				|| configuration.getConfigurationProperties().getProperties() == null) {
 			return null;
@@ -65,7 +65,7 @@ public class CzechIdMIcConvertUtil {
 		List<IcConfigurationProperty> properties = configuration.getConfigurationProperties().getProperties();
 
 		try {
-			IcConnectorConfigurationClass configurationClassInstance = configurationClass.newInstance();
+			ConfigurationClass configurationClassInstance = configurationClass.newInstance();
 
 			PropertyDescriptor[] descriptors;
 			descriptors = Introspector.getBeanInfo(configurationClass).getPropertyDescriptors();

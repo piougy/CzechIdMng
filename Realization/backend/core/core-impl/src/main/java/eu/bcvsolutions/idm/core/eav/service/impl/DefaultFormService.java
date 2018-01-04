@@ -733,7 +733,7 @@ public class DefaultFormService implements FormService {
 	}
 
 	/**
-	 * Create instance of form definition from the given configuration class
+	 * Create instance form definition from the given configuration class
 	 * 
 	 * @param configurationClass
 	 * @return
@@ -753,19 +753,18 @@ public class DefaultFormService implements FormService {
 				String propertyName = descriptor.getName();
 				ConfigurationClassProperty property = readMethod.getAnnotation(ConfigurationClassProperty.class);
 				if (property != null) {
-					IdmFormAttributeDto icProperty = this.convertConfigurationProperty(property);
-					icProperty.setName(propertyName);
-					// TODO: Convertors !!!
-					icProperty.setPersistentType(PersistentType.TEXT);
-					// icProperty.setPersistentType(readMethod.getGenericReturnType().getTypeName());
+					IdmFormAttributeDto formAttribute = this.convertConfigurationProperty(property);
+					formAttribute.setCode(propertyName);
+					// TODO: Better convertors  (move from IC and ACC module to the Core)!
+					initPersistentType(readMethod, formAttribute);
+					
 					try {
-						// TODO: Convertors !!!
-						icProperty.setDefaultValue((String) readMethod.invoke(configurationClassInstance));
+						formAttribute.setDefaultValue(this.convertDefaultValue(readMethod.invoke(configurationClassInstance), formAttribute.isMultiple()));
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						throw new CoreException("Cannot read value of connector configuration property!", e);
 					}
 
-					properties.add(icProperty);
+					properties.add(formAttribute);
 				}
 			});
 
@@ -779,18 +778,60 @@ public class DefaultFormService implements FormService {
 		}
 	}
 
+	private void initPersistentType(Method readMethod, IdmFormAttributeDto formAttribute) {
+		Assert.notNull(readMethod);
+		Assert.notNull(formAttribute);
+		
+		String typeName = readMethod.getGenericReturnType().getTypeName();
+		if (typeName.equals(boolean.class.getTypeName())) {
+			formAttribute.setPersistentType(PersistentType.BOOLEAN);
+			formAttribute.setMultiple(false);
+		} else if (typeName.equals(String[].class.getTypeName())) {
+			formAttribute.setPersistentType(PersistentType.TEXT);
+			formAttribute.setMultiple(true);
+		} else if (typeName.equals(String.class.getTypeName())) {
+			formAttribute.setPersistentType(PersistentType.TEXT);
+			formAttribute.setMultiple(false);
+		} else {
+			throw new CoreException(
+					MessageFormat.format("For return type [{0}] was not found persistent type!", typeName));
+		}
+
+	}
+
 	private IdmFormAttributeDto convertConfigurationProperty(ConfigurationClassProperty property) {
 		if (property == null) {
 			return null;
 		}
 		IdmFormAttributeDto icProperty = new IdmFormAttributeDto();
 		icProperty.setConfidential(property.confidential());
-		icProperty.setDescription(property.displayName());
-		icProperty.setPlaceholder(property.helpMessage());
+		icProperty.setName(property.displayName());
+		icProperty.setDescription(property.helpMessage());
 		icProperty.setRequired(property.required());
 		icProperty.setSeq(Integer.valueOf(property.order()).shortValue());
 		icProperty.setFaceType(property.face());
 
 		return icProperty;
+	}
+	
+	private String convertDefaultValue(Object value, boolean multivalue) {
+		//
+		if (value == null) {
+			return null;
+		}		
+		if (!multivalue) {
+			return value.toString();
+		}		
+		StringBuilder result = new StringBuilder();
+		// arrays only
+		// override for other data types
+		Object[] values = (Object[]) value;
+		for (Object singleValue : values) {
+			if (result.length() > 0) {
+				result.append(System.getProperty("line.separator"));
+			}
+			result.append(singleValue);
+		}
+		return result.toString();
 	}
 }

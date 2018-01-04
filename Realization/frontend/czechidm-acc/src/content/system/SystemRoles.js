@@ -37,8 +37,8 @@ class SystemRoles extends Advanced.AbstractTableContent {
     this.selectNavigationItems(['sys-systems', 'system-roles']);
   }
 
-  showDetail() {
-    const roleId = this.props.params.entityId;
+  showDetail(entity) {
+    const roleId = entity.role;
     this.context.router.push(`role/${roleId}/detail`);
   }
 
@@ -73,20 +73,12 @@ class SystemRoles extends Advanced.AbstractTableContent {
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
                     <Basic.Col lg={ 8 }>
-                      <Advanced.Filter.TextField
-                        ref="text"
-                        placeholder={this.i18n('content.roles.filter.text.placeholder')}/>
+                    <Advanced.Filter.SelectBox
+                      ref="roleSystem"
+                      placeholder={this.i18n('content.roles.filter.text.placeholder')}/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </Basic.Col>
-                  </Basic.Row>
-                  <Basic.Row className="last">
-                    <Basic.Col lg={ 4 }>
-                    </Basic.Col>
-                    <Basic.Col lg={ 4 }>
-                    </Basic.Col>
-                    <Basic.Col lg={ 4 }>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -118,18 +110,15 @@ class SystemRoles extends Advanced.AbstractTableContent {
                   );
                 }
               }
-              // sort
               />
             <Advanced.Column
               property="_embedded.role.description"
               header={this.i18n('core:entity.Role.description')}
-              // sort
               />
             <Advanced.Column
               face="bool"
               property="_embedded.role.disabled"
               header={this.i18n('core:entity.Role.disabled')}
-              // sort
               />
           </Advanced.Table>
         </Basic.Panel>

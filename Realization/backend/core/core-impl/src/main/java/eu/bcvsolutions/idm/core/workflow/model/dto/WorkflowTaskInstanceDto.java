@@ -1,21 +1,27 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * 
  * @author svandav
  *
  */
+@Relation(collectionRelation = "workflowTaskInstances")
+public class WorkflowTaskInstanceDto implements BaseDto {
 
-public class WorkflowTaskInstanceDto {
-
+	private static final long serialVersionUID = 1L;
 	private String id;
 	@JsonProperty(value = "taskName")
 	private String name;
@@ -162,4 +168,8 @@ public class WorkflowTaskInstanceDto {
 		this.formKey = formKey;
 	}
 
+	@Override
+	public void setId(Serializable id) {
+		this.id = (String) id;
+	}
 }

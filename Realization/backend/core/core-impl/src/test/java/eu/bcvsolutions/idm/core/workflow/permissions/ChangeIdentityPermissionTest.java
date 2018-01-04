@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
@@ -60,6 +61,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmConfigurationService configurationService;
+	@Autowired private SecurityService securityService;
 
 	@Before
 	public void login() {
@@ -94,19 +96,24 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 		
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// HELPDESK
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// MANAGER
 		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// USER MANAGER
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// SECURITY
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
 		request = roleRequestService.get(request.getId());
@@ -136,15 +143,18 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 		
 		// HELPDESK - must be skipped
 		// MANAGER
 		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// USER MANAGER
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// SECURITY - must be skipped
 		request = roleRequestService.get(request.getId());
@@ -174,12 +184,14 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 		
 		// HELPDESK - must be skipped
 		// MANAGER
 		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "disapprove");
 		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.DISAPPROVED, request.getState());
@@ -221,22 +233,27 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 		
 		// HELPDESK - must be skipped
 		// MANAGER
 		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// USER MANAGER
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// Subprocess - approve by GUARANTEE
 		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 
 		// SECURITY 
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
 		request = roleRequestService.get(request.getId());
@@ -278,7 +295,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 
 		// HELPDESK 	turn off
@@ -286,6 +304,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// USER MANAGER	turn off
 		// SECURITY
 		loginAsAdmin(InitTestData.TEST_USER_1);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_1);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
 		request = roleRequestService.get(request.getId());

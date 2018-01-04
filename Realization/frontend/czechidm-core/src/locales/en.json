@@ -628,7 +628,8 @@
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
       "WORKFLOWDEFINITION": "Workflow - definitions",
-      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
+      "WORKFLOWTASK": "Tasks"
 
     }
   },
@@ -942,6 +943,16 @@
             "message": "Do you really want to delete roles"
           }
         }
+      }
+    },
+    "tasks": {
+      "all": {
+        "title": "Overview of all tasks",
+        "label": "Overview of all tasks"
+      },
+      "identity": {
+        "title": "My taks",
+        "label": "My taks"
       }
     },
     "identities": {
@@ -2359,7 +2370,12 @@
     "WorkflowTaskInstance": {
       "taskDescription": "Subject",
       "taskCreated": "Created on",
-      "id": "Task Id"
+      "id": "Task Id",
+      "taskAssignee": "Assigned",
+      "filter": {
+        "createdBefore": "Tasks created before",
+        "createdAfter": "Tasks created after"
+      }
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Process name",

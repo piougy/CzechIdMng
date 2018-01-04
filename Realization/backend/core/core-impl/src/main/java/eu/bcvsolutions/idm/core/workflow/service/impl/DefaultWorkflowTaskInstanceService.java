@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.activiti.engine.FormService;
@@ -16,10 +19,29 @@ import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.AbstractComponentFormType;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.DecisionFormType;
@@ -40,7 +62,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  *
  */
 @Service
-public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceService {
+public class DefaultWorkflowTaskInstanceService extends AbstractBaseDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> implements WorkflowTaskInstanceService {
 
 	@Autowired
 	private SecurityService securityService;
@@ -50,12 +72,21 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Autowired
 	private FormService formService;
+	
+	@Autowired
+	private LookupService lookupService;
 
 	@Autowired
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
 
 	@Override
-	public ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter) {
+	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
+			BasePermission... permission) {
+		// user want show all candidates or assigned -> check permissions
+		if (filter.getCandidateOrAssigned() == null && !canReadAllTask()) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
+					"You do not have permission for access to all tasks!");
+		}
 
 		String processDefinitionId = filter.getProcessDefinitionId();
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
@@ -77,35 +108,73 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		if (filter.getId() != null) {
 			query.taskId(filter.getId().toString());
 		}
+		if (filter.getCreatedAfter() != null) {
+			query.taskCreatedAfter(filter.getCreatedAfter().toDate());
+		}
+		if (filter.getCreatedBefore() != null) {
+			query.taskCreatedBefore(filter.getCreatedBefore().toDate());
+		}
 		if (equalsVariables != null) {
 			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
 				query.processVariableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
 
-		// check security ... only candidate or assigned user can read task
-		String loggedUser = securityService.getCurrentId().toString();
-		query.taskCandidateOrAssigned(loggedUser);
+		if (filter.getCandidateOrAssigned() != null) {
+			BaseDto dto = lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
+			Assert.notNull(dto);
+			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
+		}
+		
 		query.orderByTaskCreateTime();
 		query.desc();
 		long count = query.count();
-		List<Task> tasks = query.listPage((filter.getPageNumber()) * filter.getPageSize(), filter.getPageSize());
-		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
+		
+		// it's possible that pageable is null
+		List<Task> tasks = null;
+		if (pageable == null) {
+			tasks = query.list();
+		} else {
+			tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+		}
 
+		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
 		if (tasks != null) {
 			for (Task task : tasks) {
 				dtos.add(toResource(task));
 			}
 		}
+		
+		long pageSize = pageable != null ? pageable.getPageSize() : count;
 
-		double totalPageDouble = ((double) count / filter.getPageSize());
+		double totalPageDouble = ((double) count / pageSize);
 		double totlaPageFlorred = Math.floor(totalPageDouble);
 		long totalPage = 0;
 		if (totalPageDouble > totlaPageFlorred) {
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
+		
 
-		ResourcesWrapper<WorkflowTaskInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
+		return new PageImpl<WorkflowTaskInstanceDto>(dtos, pageable, totalPage);
+	}
+	
+	@Override
+	public ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter) {
+		Pageable pageable = null;
+		if (StringUtils.isNotEmpty(filter.getSortByFields())) {
+			Sort sort = null;
+			if (filter.isSortAsc()) {
+				sort = new Sort(Direction.ASC, filter.getSortByFields());	
+			} else {
+				sort = new Sort(Direction.DESC, filter.getSortByFields());
+			}
+			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize(), sort);
+		} else {
+			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize());
+		}
+		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable);
+		
+		ResourcesWrapper<WorkflowTaskInstanceDto> result = new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
 				filter.getPageNumber(), filter.getPageSize());
 		return result;
 	}
@@ -132,6 +201,13 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData,
 			Map<String, Object> variables) {
+		// check if user can complete this task
+		Set<String> permissions = this.getPermissions(taskId);
+		if (!permissions.contains(IdmBasePermission.EXECUTE.getName())) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
+					"You do not have permission for execute task with ID: %s !",
+					ImmutableMap.of("taskId", taskId));
+		}
 		String loggedUser = securityService.getCurrentId().toString();
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
@@ -143,8 +219,37 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		}
 		formService.submitTaskFormData(taskId, properties);
 	}
+	
+	@Override
+	public Set<String> getPermissions(Serializable id) {
+		Assert.notNull(id);
+		return this.getPermissions(this.get(id));
+	}
+	
+	@Override
+	public WorkflowTaskInstanceDto get(Serializable id, BasePermission... permission) {
+		return this.get(String.valueOf(id));
+	}
+	
+	@Override
+	public Set<String> getPermissions(WorkflowTaskInstanceDto dto) {
+		Assert.notNull(dto);
+		//
+		final Set<String> permissions = new HashSet<>();
+		String loggedUserId = securityService.getCurrentId().toString();
+		
+		// TODO: user with admin permission can execute any tasks.
+		// Set<GrantedAuthority> defaultAuthorities = autorizationPolicyService.getDefaultAuthorities(securityService.getCurrentId());
+		// defaultAuthorities.contains(CoreGroupPermission.WORKFLOW_TASK_ADMIN);
 
-	@SuppressWarnings("unchecked")
+		for (IdentityLinkDto identity : dto.getIdentityLinks()) {
+			if (identity.getUserId().equals(loggedUserId)) {
+				permissions.add(IdmBasePermission.EXECUTE.getName());
+			}
+		}
+		return permissions;
+	}
+
 	private WorkflowTaskInstanceDto toResource(Task task) {
 		if (task == null) {
 			return null;
@@ -275,5 +380,16 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		dto.setType(link.getType());
 		dto.setUserId(link.getUserId());
 		return dto;
+	}
+	
+	/**
+	 * Method return true if it is possible read all tasks.
+	 * @return
+	 */
+	private boolean canReadAllTask() {
+		if (securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN)) {
+			return true;
+		}
+		return false;
 	}
 }

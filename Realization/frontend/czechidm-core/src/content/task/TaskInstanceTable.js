@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-
+import { IdentityManager } from '../../redux';
 /**
 * Table of tasks
+* Without given props search parameter show this table only tasks for logged identity.
 */
 export class TaskInstanceTable extends Basic.AbstractContent {
 
@@ -18,6 +19,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
         entity: {}
       }
     };
+    this.identityManager = new IdentityManager();
   }
 
   getContentKey() {
@@ -58,18 +60,63 @@ export class TaskInstanceTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, taskInstanceManager, columns } = this.props;
+    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username } = this.props;
     const { filterOpened} = this.state;
-
+    let _searchParameters = null;
+    if (searchParameters == null) {
+      _searchParameters = taskInstanceManager.getDefaultSearchParameters().setFilter('candidateOrAssigned', username);
+    } else {
+      _searchParameters = searchParameters;
+    }
     return (
       <div>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
           manager={taskInstanceManager}
+          forceSearchParameters={_searchParameters}
           showRowSelection={false}
-          filterOpened={filterOpened}>
-
+          filterOpened={filterOpened}
+          showFilter={showFilter}
+          showToolbar={showToolbar}
+          filter={
+            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row>
+                  <div className="col-lg-6">
+                    <Advanced.Filter.SelectBox
+                      ref="candidateOrAssigned"
+                      rendered={_.includes(columns, 'taskAssignee')}
+                      placeholder={this.i18n('entity.WorkflowTaskInstance.taskAssignee')}
+                      manager={this.identityManager}/>
+                  </div>
+                  <div className="col-lg-6 text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  </div>
+                </Basic.Row>
+                <Basic.Row>
+                  <div className="col-lg-12">
+                    <Advanced.Filter.TextField
+                      ref="description"
+                      rendered={_.includes(columns, 'description')}
+                      placeholder={this.i18n('entity.WorkflowTaskInstance.taskDescription')}/>
+                  </div>
+                </Basic.Row>
+                <Basic.Row>
+                  <div className="col-lg-6">
+                    <Advanced.Filter.DateTimePicker
+                      ref="createdBefore"
+                      placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdBefore')}/>
+                  </div>
+                  <div className="col-lg-6">
+                    <Advanced.Filter.DateTimePicker
+                      ref="createdAfter"
+                      placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdAfter')}/>
+                  </div>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
+          }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -85,6 +132,18 @@ export class TaskInstanceTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.ColumnLink property="taskDescription" to="task/:id" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="taskAssignee" sort face="text" rendered={_.includes(columns, 'taskAssignee')}
+            cell={({rowIndex, data}) => {
+              const identityIds = [];
+              for (const index in data[rowIndex].identityLinks) {
+                if (data[rowIndex].identityLinks.hasOwnProperty(index)) {
+                  identityIds.push(data[rowIndex].identityLinks[index].userId);
+                }
+              }
+              return (
+                <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
+              );
+            }}/>
         </Advanced.Table>
       </div>
     );
@@ -95,19 +154,26 @@ TaskInstanceTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   taskInstanceManager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
-  filterOpened: PropTypes.bool
+  filterOpened: PropTypes.bool,
+  searchParameters: PropTypes.object,
+  showFilter: PropTypes.bool,
+  showToolbar: PropTypes.bool
 };
 
 TaskInstanceTable.defaultProps = {
   columns: ['created', 'description', 'id'],
   filterOpened: false,
-  _showLoading: false
+  _showLoading: false,
+  searchParameters: null,
+  showFilter: false,
+  showToolbar: false
 };
 
 function select(state, component) {
   return {
     _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
-    _showLoading: component.taskInstanceManager.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: component.taskInstanceManager.isShowLoading(state, `${component.uiKey}-detail`),
+    username: state.security.userContext.username
   };
 }
 

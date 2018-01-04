@@ -35,7 +35,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
   }
 
   render() {
-    const {task, taskManager} = this.props;
+    const {task, taskManager, canExecute} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     let force = new SearchParameters();
@@ -66,7 +66,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
           <Basic.PanelFooter>
-            <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)}/>
+            <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)} readOnly={!canExecute} />
           </Basic.PanelFooter>
         </Basic.Panel>
         <RoleRequestDetail
@@ -75,6 +75,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
           entityId={task.variables.entityEvent.content.id}
           showRequestDetail={false}
           editableInStates={['IN_PROGRESS']}
+          canExecute={canExecute}
           showLoading={showLoadingInternal}/>
       </div>
     );
@@ -84,12 +85,14 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
 DynamicTaskRoleDetail.propTypes = {
   task: PropTypes.object,
   readOnly: PropTypes.bool,
-  taskManager: PropTypes.object.isRequired
+  taskManager: PropTypes.object.isRequired,
+  canExecute: PropTypes.bool
 };
 
 DynamicTaskRoleDetail.defaultProps = {
   task: null,
-  readOnly: false
+  readOnly: false,
+  canExecute: false
 };
 function select(state, component) {
   const task = component.task;

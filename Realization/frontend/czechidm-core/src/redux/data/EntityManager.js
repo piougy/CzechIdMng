@@ -1035,4 +1035,21 @@ export default class EntityManager {
     }
     return Utils.Permission.hasPermission(permissions, 'DELETE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
   }
+
+  /**
+   * Authorization evaluator helper - evaluates read permission on given entity
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canExecute(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (!this.supportsAuthorization() || !entity) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
+    }
+    return Utils.Permission.hasPermission(permissions, 'EXECUTE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
+  }
 }

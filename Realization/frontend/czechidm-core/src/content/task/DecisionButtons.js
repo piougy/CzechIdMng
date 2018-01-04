@@ -24,7 +24,11 @@ class DecisionButtons extends Basic.AbstractContent {
   }
 
   _getDecisionsButton(decisions, showLoading) {
+    const { readOnly } = this.props;
     const buttons = [];
+    if (readOnly) {
+      return buttons;
+    }
     for (const decision of decisions) {
       buttons.push(
                     <Basic.Button

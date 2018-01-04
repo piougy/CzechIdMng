@@ -60,7 +60,7 @@ class Task extends Basic.AbstractContent {
   }
 
   render() {
-    const { readOnly, task } = this.props;
+    const { readOnly, task, _permissions } = this.props;
     const { nonExistentTask } = this.state;
     let DetailComponent;
     if (task && task.formKey) {
@@ -94,7 +94,7 @@ class Task extends Basic.AbstractContent {
     return (
       <div>
         {task ?
-        <DetailComponent task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly}/>
+        <DetailComponent task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly} canExecute={workflowTaskInstanceManager.canExecute(task, _permissions)}/>
         :
         <Basic.Well showLoading/>
         }
@@ -105,20 +105,22 @@ class Task extends Basic.AbstractContent {
 
 Task.propTypes = {
   task: PropTypes.object,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 
 Task.defaultProps = {
   task: null,
-  readOnly: false
+  readOnly: false,
+  _permissions: null
 };
 
 function select(state, component) {
   const { taskID } = component.params;
   const task = workflowTaskInstanceManager.getEntity(state, taskID);
-
   return {
-    task
+    task,
+    _permissions: workflowTaskInstanceManager.getPermissions(state, null, taskID)
   };
 }
 

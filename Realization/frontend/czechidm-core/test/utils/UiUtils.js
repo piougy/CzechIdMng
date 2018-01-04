@@ -41,6 +41,34 @@ describe('UiUtils', function testUiUtils() {
     it('- begin for null', function test() {
       expect(UiUtils.substringBegin(null, 2, '/')).to.equal(null);
     });
+
+    it('- tests of cutting in the end with suffix', function test() {
+      expect(UiUtils.substringBegin('ahojj/j/', 5, '/', '...')).to.equal('ahojj...');
+    });
+
+    it('- basic function - 10 chars with suffix', function test() {
+      expect(UiUtils.substringBegin('ahojjj/jjhjhjgj/', 10, '/', '...')).to.equal('ahojjj...');
+    });
+
+    it('- basic function - 4 chars with suffix', function test() {
+      expect(UiUtils.substringBegin('ahojj/j/', 4, '/', '...')).to.equal('...');
+    });
+
+    it('- of position of cutChar same as needed length with suffix', function test() {
+      expect(UiUtils.substringBegin('ahojj/j/', 6, '/', '...')).to.equal('ahojj...');
+    });
+
+    it('- of low number wit cutChar at begining with suffix', function test() {
+      expect(UiUtils.substringBegin('/ahojj/j/', 2, '/', '...')).to.equal('...');
+    });
+
+    it('- begin with blank text with suffix', function test() {
+      expect(UiUtils.substringBegin('', 5, '/', '...')).to.equal('');
+    });
+
+    it('- begin for null with suffix', function test() {
+      expect(UiUtils.substringBegin(null, 2, '/', '...')).to.equal(null);
+    });
   });
 
   describe('[substringEnd]', function testSubstringEnd() {
@@ -63,6 +91,26 @@ describe('UiUtils', function testUiUtils() {
 
     it('- end for null', function test() {
       expect(UiUtils.substringEnd(null, 2, '/')).to.equal(null);
+    });
+
+    it('- of position of cutChar higher than needed length with suffix', function test() {
+      expect(UiUtils.substringEnd('ahojj/j/', 4, '/', '...')).to.equal('.../j/');
+    });
+
+    it('- of position of cutChar same as needed length  with suffix', function test() {
+      expect(UiUtils.substringEnd('ahojj/j/', 3, '/', '...')).to.equal('.../j/');
+    });
+
+    it('- of position of cutChar lower than needed length  with suffix', function test() {
+      expect(UiUtils.substringEnd('ahojj/j/', 2, '/', '...')).to.equal('.../');
+    });
+
+    it('- end with blank text with suffix', function test() {
+      expect(UiUtils.substringEnd('', 2, '/', '...')).to.equal('/');
+    });
+
+    it('- end for null with suffix', function test() {
+      expect(UiUtils.substringEnd(null, 2, '/', '...')).to.equal(null);
     });
   });
 

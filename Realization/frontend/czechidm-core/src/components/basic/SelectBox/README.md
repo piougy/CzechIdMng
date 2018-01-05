@@ -27,6 +27,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' |
 | useFirst | bool | Use the first searched value on component is inited, if selcted value is empty | false |
 | pageSize | number | Search results page size | SearchParameters.getDefaultSize() |
+| loadMoreContent | bool | Load next options after reached end of list | true |
 
 
 ## Usage

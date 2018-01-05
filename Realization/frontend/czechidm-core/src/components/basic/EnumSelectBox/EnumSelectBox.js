@@ -5,6 +5,12 @@ import Select from 'react-select';
 import SelectBox from '../SelectBox/SelectBox';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 
+/**
+ * Select box with enumetation or static options
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
 class EnumSelectBox extends SelectBox {
 
   constructor(props) {
@@ -62,7 +68,7 @@ class EnumSelectBox extends SelectBox {
         [SelectBox.ITEM_FULL_KEY]: enumItem.value,
         disabled: this._isDisabled(enumItem.value)
       });
-    } else {
+    } else { // item is rendered already
       item = _.merge({}, enumItem);
       let niceLabel;
       if (this.props.enum) {
@@ -73,6 +79,9 @@ class EnumSelectBox extends SelectBox {
           // niceLabel dont exist, then get new by key
           niceLabel = this.props.enum.getNiceLabel(key);
         }
+      } else if (typeof enumItem === 'string') {
+        niceLabel = enumItem;
+        key = key || enumItem;
       }
       const itemFullKey = niceLabel;
       _.merge(item, {

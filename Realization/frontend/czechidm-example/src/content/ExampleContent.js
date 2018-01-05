@@ -24,6 +24,13 @@ export default class ExampleContent extends Basic.AbstractContent {
     return 'example:content.example';
   }
 
+  /**
+   * Selected navigation item
+   */
+  getNavigationKey() {
+    return 'example-content';
+  }
+
   render() {
     return (
       <div>

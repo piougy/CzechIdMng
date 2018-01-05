@@ -25,4 +25,9 @@ public class DefaultProvisioningConfiguration extends AbstractConfiguration impl
 	public ProvisioningBreakConfiguration getBeakConfiguration() {
 		return provisioningBreakConfiguration;
 	}
+
+	@Override
+	public boolean isAllowedAutoMappingOnExistingAccount() {
+		return getConfigurationService().getBooleanValue(PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT, DEFAULT_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT);
+	}
 }

@@ -104,6 +104,20 @@ export default class SchedulerService extends AbstractService {
     });
   }
 
+  dryRunTask(taskId) {
+    return RestApiService
+    .post(this.getApiPath() + `/${taskId}/dry-run`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
   /**
    * Deletes given trigger
    *

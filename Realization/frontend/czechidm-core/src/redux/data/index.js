@@ -38,6 +38,8 @@ import NotificationRecipientManager from './NotificationRecipientManager';
 import SmsManager from './SmsManager';
 import LoggingEventManager from './LoggingEventManager';
 import LoggingEventExceptionManager from './LoggingEventExceptionManager';
+import ConfidentialStorageValueManager from './ConfidentialStorageValueManager';
+import LongRunningTaskItemManager from './LongRunningTaskItemManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -79,7 +81,9 @@ const ManagerRoot = {
   NotificationRecipientManager,
   SmsManager,
   LoggingEventManager,
-  LoggingEventExceptionManager
+  LoggingEventExceptionManager,
+  ConfidentialStorageValueManager,
+  LongRunningTaskItemManager
 };
 
 ManagerRoot.version = '0.0.1';

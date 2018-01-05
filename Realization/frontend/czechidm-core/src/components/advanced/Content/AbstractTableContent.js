@@ -36,6 +36,12 @@ export default class AbstractTableContent extends Basic.AbstractContent {
    * Returns main content uiKey
    */
   getUiKey() {
+    const { uiKey } = this.props;
+    // uiKey was given in props
+    if (uiKey) {
+      return uiKey;
+    }
+    // default uiKey by manager given in props
     if (this.getManager() !== null) {
       return this.getManager().resolveUiKey();
     }

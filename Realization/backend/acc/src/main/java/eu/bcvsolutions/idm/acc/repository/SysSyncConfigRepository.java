@@ -73,4 +73,14 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	@Modifying
 	@Query("update SysSyncContractConfig e set e.defaultTreeNode = null where e.defaultTreeNode.id = :defaultTreeNode")
 	int clearDefaultTreeNode(@Param("defaultTreeNode") UUID defaultTreeNodeId);
+	
+	/**
+	 * Clears default role
+	 * 
+	 * @param Role id
+	 * @return
+	 */
+	@Modifying
+	@Query("update SysSyncIdentityConfig e set e.defaultRole = null where e.defaultRole.id = :defaultRole")
+	int clearDefaultRole(@Param("defaultRole") UUID defaultRole);
 }

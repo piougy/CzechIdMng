@@ -306,8 +306,30 @@ module.exports = {
         {
           path: 'all-tasks',
           component: require('./src/content/scheduler/AllTasks'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
         }
+      ]
+    },
+    {
+      path: 'scheduler/all-tasks/:entityId',
+      component: require('./src/content/scheduler/LongRunningTaskRoute'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/scheduler/LongRunningTaskContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+        },
+        {
+          path: 'items',
+          component: require('./src/content/scheduler/LongRunningTaskItems'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+        },
+        {
+          path: 'queue',
+          component: require('./src/content/scheduler/LongRunningTaskQueue'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_EXECUTE'] } ]
+        },
       ]
     },
     {
@@ -340,9 +362,31 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
-      path: 'scripts/:entityId',
+      path: 'scripts/:entityId/',
+      component: require('./src/content/script/Script'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/script/ScriptContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        },
+        {
+          path: 'authorities',
+          component: require('./src/content/script/ScriptAuthorities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        },
+        {
+          path: 'references',
+          component: require('./src/content/script/ScriptReferences'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'scripts/:entityId/new',
       component: require('./src/content/script/ScriptContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_CREATE'] } ],
     },
     {
       path: 'forms',
@@ -397,6 +441,16 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
         }
       ]
+    },
+    {
+      path: 'confidential-storage',
+      component: require('./src/content/confidentialstorage/ConfidentialStorageValues'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ]
+    },
+    {
+      path: 'confidential-storage/:entityId',
+      component: require('./src/content/confidentialstorage/ConfidentialStorageValueContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ]
     },
     {
       path: 'audit',

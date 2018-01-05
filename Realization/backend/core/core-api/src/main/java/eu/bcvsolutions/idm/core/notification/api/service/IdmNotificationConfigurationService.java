@@ -3,12 +3,12 @@ package eu.bcvsolutions.idm.core.notification.api.service;
 import java.util.List;
 import java.util.Set;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 
 /**
  * Configuration for notification routing
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationConfiguratio
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationConfigurationService extends ReadWriteDtoService<IdmNotificationConfigurationDto, EmptyFilter> {
+public interface IdmNotificationConfigurationService extends ReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfigurationFilter> {
 
 	/**
 	 * Returns default notification sender. Will be used for notification's topics, which can not be found in configuration.
@@ -34,7 +34,7 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	List<NotificationSender<?>> getSenders(BaseNotification notification);
 	
 	/**
-	 * Method return {@link IdmNotificationConfigurationDto} by topic, level, notification type.
+	 * Method return {@link NotificationConfigurationDto} by topic, level, notification type.
 	 * All parameters must exits, except notification level. 
 	 * 
 	 * @param topic
@@ -42,7 +42,7 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * @param notificationType
 	 * @return
 	 */
-	IdmNotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType);
+	NotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType);
 	
 	/**
 	 * Returns registered senders notification types.
@@ -71,5 +71,5 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * @param level
 	 * @return
 	 */
-	List<IdmNotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level);
+	List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level);
 }

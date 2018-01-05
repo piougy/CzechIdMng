@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
@@ -9,6 +10,8 @@ import * as Utils from '../utils';
 
 const uiKey = 'configuration_table';
 const manager = new ConfigurationManager();
+
+const IDM_CONFIGURATION_PREFIX = 'idm.';
 
 /**
  * Application configurations
@@ -26,7 +29,8 @@ class Configurations extends Advanced.AbstractTableContent {
         entity: {}
       },
       isGuarded: false,
-      isSecured: false
+      isSecured: false,
+      showPrefixWarning: false
     };
   }
 
@@ -135,7 +139,27 @@ class Configurations extends Advanced.AbstractTableContent {
     const confidential = this.refs.confidential.getValue();
     const name = event.currentTarget.value;
     //
+    // if name doesn't start with prefix "idm.*"
+    // defined in constatn IDM_CONFIGURATION_PREFIX show info message
+    let showPrefixWarning = false;
+    const containsPrefix = name.startsWith(IDM_CONFIGURATION_PREFIX);
+    if (!containsPrefix && name.length >= IDM_CONFIGURATION_PREFIX.length) {
+      showPrefixWarning = true;
+    }
+    this.setState({
+      showPrefixWarning
+    });
+    //
     this._setForceProperties(confidential, name);
+    //
+    // if name constains also value (characters after =)
+    // set this characters directly into value (1 = value, 0 = key)
+    const keyAndValue = _.split(name, '=');
+    if (keyAndValue.length === 2 && keyAndValue[1].length > 0) {
+      this.refs.value.setValue(keyAndValue[1]);
+      event.currentTarget.value = keyAndValue[0]; // setValue on name doestn work
+      this.refs.value.focus();
+    }
   }
 
   _changeConfidential(event) {
@@ -185,7 +209,14 @@ class Configurations extends Advanced.AbstractTableContent {
       _environmentConfigurationsShowLoading,
       _permissions
     } = this.props;
-    const { filterOpened, detail, isGuarded, isSecured } = this.state;
+    //
+    const {
+      filterOpened,
+      detail,
+      isGuarded,
+      isSecured,
+      showPrefixWarning
+    } = this.state;
 
     return (
       <div>
@@ -281,6 +312,10 @@ class Configurations extends Advanced.AbstractTableContent {
                 data={ detail.entity }
                 showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
+                <Basic.Alert
+                  text={<span dangerouslySetInnerHTML={{ __html: this.i18n('nameDoesntContainPrefixAlert', {prefix: IDM_CONFIGURATION_PREFIX})}}/>}
+                  level="warning"
+                  rendered={showPrefixWarning}/>
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('entity.Configuration.name')}

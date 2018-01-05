@@ -432,4 +432,5 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
 	}
+
 }

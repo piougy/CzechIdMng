@@ -42,6 +42,17 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
     const entityFormData = _.merge({}, entity, {
       system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
     });
+    if (!Utils.Entity.isNew(entity)) {
+      manager.getService().getConnectorObject(entity.id)
+      .then(json => {
+        const detail = this.state.detail;
+        detail.connectorObject = json;
+        this.setState({detail});
+      })
+      .catch(error => {
+        this.addError(error);
+      });
+    }
     //
     super.showDetail(entityFormData, () => {
       this.refs.uid.focus();
@@ -105,33 +116,17 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               ]
             }
             filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <div className="col-lg-4">
-                      <Advanced.Filter.EnumSelectBox
-                        ref="entityType"
-                        placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-                        enum={SystemEntityTypeEnum}/>
-                    </div>
-                    <div className="col-lg-4">
-                      <Advanced.Filter.TextField
-                        ref="text"
-                        placeholder={this.i18n('filter.text.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
+              <Filter
+                ref="filterForm"
+                onSubmit={ this.useFilter.bind(this) }
+                onCancel={ this.cancelFilter.bind(this) } />
             }
             _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               property=""
               header=""
               className="detail-button"
-              rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
+              rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_READ']) }
               cell={
                 ({ rowIndex, data }) => {
                   return (
@@ -162,10 +157,13 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading }
+                readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 <Basic.SelectBox
                   ref="system"
                   manager={systemManager}
@@ -184,11 +182,17 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   required/>
               </Basic.AbstractForm>
 
-              {/*
-              <Basic.ContentHeader>
-                Vazby <small> v idm</small>
-              </Basic.ContentHeader>
-              TODO: accounts*/}
+              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+
+              <Basic.Table
+                showLoading = {!detail || !detail.hasOwnProperty('connectorObject')}
+                data={detail && detail.connectorObject ? detail.connectorObject.attributes : null}
+                noData={this.i18n('component.basic.Table.noData')}
+                className="table-bordered"
+                rendered={ !Utils.Entity.isNew(detail.entity) }>
+                <Basic.Column property="name" header={this.i18n('label.property')}/>
+                <Basic.Column property="values" header={this.i18n('label.value')}/>
+              </Basic.Table>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>
@@ -203,7 +207,8 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>
@@ -232,3 +237,38 @@ function select(state, component) {
 }
 
 export default connect(select)(SystemEntitiesContent);
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ */
+class Filter extends Advanced.Filter {
+
+  render() {
+    const { onSubmit, onCancel } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="entityType"
+                placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
+                enum={ SystemEntityTypeEnum }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={ this.i18n('acc:content.system.entities.filter.text.placeholder') }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } className="text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+    );
+  }
+}

@@ -38,5 +38,17 @@ public interface IdmConfidentialStorageValueRepository extends AbstractEntityRep
 	 */
 	@Transactional
 	int deleteByKey(@Param("key") String key);
-	
+
+	/**
+	 * Deletes all values by given owner. Use this method after delete whole owner.
+	 * 
+	 * @param ownerId
+	 * @param ownerType
+	 * @return
+	 * @since 7.6.0
+	 */
+	@Transactional
+	int deleteByOwnerIdAndOwnerType(
+			@Param("ownerId") UUID ownerId,
+			@Param("ownerType") String ownerType);
 }

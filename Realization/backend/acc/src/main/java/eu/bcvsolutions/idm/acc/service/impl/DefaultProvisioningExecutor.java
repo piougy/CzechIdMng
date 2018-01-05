@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -52,6 +53,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final SysSystemService systemService;
 	private final SecurityService securityService;
 	private final ProvisioningConfiguration provisioningConfiguration;
+	private final SysSystemEntityService systemEntityService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -62,7 +64,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			NotificationManager notificationManager,
 			SysSystemService systemService,
 			SecurityService securityService,
-			ProvisioningConfiguration provisioningConfiguration) {
+			ProvisioningConfiguration provisioningConfiguration,
+			SysSystemEntityService systemEntityService) {
 		Assert.notNull(entityEventManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(batchService);
@@ -70,6 +73,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(systemService);
 		Assert.notNull(securityService);
 		Assert.notNull(provisioningConfiguration);
+		Assert.notNull(systemEntityService);
 		//
 		this.entityEventManager = entityEventManager;
 		this.provisioningOperationService = provisioningOperationService;
@@ -78,6 +82,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		this.systemService = systemService;
 		this.securityService = securityService;
 		this.provisioningConfiguration = provisioningConfiguration;
+		this.systemEntityService = systemEntityService;
 	}
 	
 	/**
@@ -88,7 +93,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 */
 	private SysProvisioningOperationDto persistOperation(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
-		Assert.notNull(provisioningOperation.getSystemEntityUid());
+		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		// get system from service, in provisioning operation may not exist
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
@@ -96,7 +101,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		provisioningOperation.getEmbedded().put(SysProvisioningOperation_.system.getName(), system); // make sure system will be in embedded
 		//
 		// save new operation to provisioning log / queue
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), provisioningOperation.getCreatorId(), provisioningOperation.getSystemEntityUid());
+		String uid = systemEntityService.getByProvisioningOperation(provisioningOperation).getUid();
+		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), provisioningOperation.getEntityIdentifier(), provisioningOperation.getSystemEntity());
 		if (batch == null) {
 			batch = batchService.save(new SysProvisioningBatchDto());
 			provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());
@@ -104,7 +110,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			// put to queue, if previous
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
 					ImmutableMap.of(
-							"name", provisioningOperation.getSystemEntityUid(), 
+							"name", uid, 
 							"system", system.getName(),
 							"operationType", provisioningOperation.getOperationType(),
 							"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
@@ -158,7 +164,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
-		Assert.notNull(provisioningOperation.getSystemEntityUid());
+		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		//
 		if (provisioningOperationService.isNew(provisioningOperation)) {

@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProcessor;
 
@@ -48,6 +49,10 @@ public class IdentityContractEnableProcessor
 	 */
 	@Override
 	protected boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
+		// Skip HR process
+		if (this.getBooleanProperty(IdmIdentityContractService.SKIP_HR_PROCESSES, event.getProperties())) {
+			return false;
+		}
 		IdmIdentityContractDto current = event.getContent();
 		IdmIdentityContractDto previous = event.getOriginalSource();
 		//

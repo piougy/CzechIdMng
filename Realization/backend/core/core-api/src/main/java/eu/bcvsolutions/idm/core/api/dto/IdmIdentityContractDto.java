@@ -84,6 +84,10 @@ public class IdmIdentityContractDto extends AbstractDto implements ValidableEnti
     public boolean isDisabled() {
         return state == null ? disabled : state.isDisabled();
     }
+    
+    public boolean isExcluded() {
+        return state == ContractState.EXCLUDED;
+    }
 
     public void setMain(boolean main) {
         this.main = main;

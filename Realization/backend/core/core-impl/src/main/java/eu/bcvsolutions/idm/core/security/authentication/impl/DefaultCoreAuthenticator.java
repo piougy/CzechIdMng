@@ -34,7 +34,7 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 	
 	@Override
 	public int getOrder() {
-		return DEFAULT_AUTHENTICATOR_ORDER;
+		return super.getOrder();
 	}
 
 	@Override
@@ -50,8 +50,7 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		loginDto.setAuthenticationModule(this.getModule());
-		loginDto = this.loginService.login(loginDto);
-		return loginDto;
+		return this.loginService.login(loginDto);
 	}
 
 	@Override

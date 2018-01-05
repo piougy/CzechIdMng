@@ -68,4 +68,11 @@ public interface IdmRoleCatalogueService extends
 	 * @return
 	 */
 	List<IdmRoleCatalogueDto> findAllByRole(UUID role);
+
+	/**
+	 * Get list of {@link IdmRoleCatalogueDto} parents for given catalogue.
+	 * @param catalogueId
+	 * @return
+	 */
+	List<IdmRoleCatalogueDto> findAllParents(UUID catalogueId);
 }

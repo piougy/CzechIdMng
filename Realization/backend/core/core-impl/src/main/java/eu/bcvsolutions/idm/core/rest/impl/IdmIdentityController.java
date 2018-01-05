@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -88,6 +89,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 
 	protected static final String TAG = "Identities";
 	//
+	private final IdmIdentityService identityService;
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
 	private final IdmIdentityRoleService identityRoleService;
@@ -107,6 +109,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmTreeNodeService treeNodeService) {
 		super(identityService);
 		//
+		Assert.notNull(identityService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(grantedAuthoritiesFactory);
 		Assert.notNull(identityContractService);
@@ -114,6 +117,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(auditService);
 		Assert.notNull(treeNodeService);
 		//
+		this.identityService = identityService;
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
@@ -268,6 +272,67 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest);
+	}
+	
+	/**
+	 * @since 7.6.0
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_ADMIN + "')")
+	@RequestMapping(value = "/{backendId}/enable", method = RequestMethod.PATCH)
+	@ApiOperation(
+			value = "Activate identity", 
+			nickname = "activateIdentity", 
+			response = IdmIdentityDto.class, 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") })
+				},
+			notes = "Enable manually disabled identity. Identity will have automatically recounted state assigned by their contract state." )
+	public ResponseEntity<?> enable(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
+		IdmIdentityDto identity = getDto(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		return new ResponseEntity<>(toResource(identityService.enable(identity.getId(), IdmBasePermission.ADMIN)), HttpStatus.OK);
+	}
+	
+	/**
+	 * @since 7.6.0
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_ADMIN + "')")
+	@RequestMapping(value = "/{backendId}/disable", method = RequestMethod.PATCH)
+	@ApiOperation(
+			value = "Disable identity", 
+			nickname = "disableIdentity", 
+			response = IdmIdentityDto.class, 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") })
+				},
+			notes = "Disable identity manually. This identity will be disabled even with valid contracts."
+					+ " Identity can be enabled manually again only. See 'enable' method." )
+	public ResponseEntity<?> disable(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
+		IdmIdentityDto identity = getDto(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		return new ResponseEntity<>(toResource(identityService.disable(identity.getId(), IdmBasePermission.ADMIN)), HttpStatus.OK);
 	}
 
 	@Override
@@ -570,10 +635,25 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
+	
+	@Override
+	protected IdmIdentityDto validateDto(IdmIdentityDto dto) {
+		dto = super.validateDto(dto);
+		//
+		// state is reded only
+		if (!getService().isNew(dto)) {
+			IdmIdentityDto previous = getDto(dto.getId());
+			dto.setState(previous.getState());
+		} else {
+			dto.setState(IdentityState.CREATED);
+		}
+		return dto;
+	}
+	
 	@Override
 	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityFilter filter = new IdmIdentityFilter(parameters);
-		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
+		filter.setDisabled(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_DISABLED));
 		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
@@ -591,6 +671,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		}
 		filter.setFirstName(getParameterConverter().toString(parameters, "firstName"));
 		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
+		filter.setState(getParameterConverter().toEnum(parameters, IdmIdentityFilter.PARAMETER_STATE, IdentityState.class));
 		return filter;
 	}
 }

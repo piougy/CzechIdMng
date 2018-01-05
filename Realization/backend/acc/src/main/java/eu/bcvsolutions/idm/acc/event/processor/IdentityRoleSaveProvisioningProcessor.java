@@ -37,22 +37,18 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 
 	public static final String PROCESSOR_NAME = "identity-role-save-provisioning-processor";
 	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleSaveProvisioningProcessor.class);
-	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
 	private final IdmIdentityContractService identityContractService;
 
 	@Autowired
 	public IdentityRoleSaveProvisioningProcessor(
-			AccAccountManagementService accountManagementService,
 			ProvisioningService provisioningService,
 			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
-		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
 		Assert.notNull(identityContractService);
 		//
-		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
 		this.identityContractService = identityContractService;
 	}
@@ -69,7 +65,7 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 		//
 		LOG.debug("Call account management for identity [{}]", identity.getUsername());
-		accountManagementService.resolveIdentityAccounts(identity);
+		provisioningService.accountManagement(identity);
 		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		provisioningService.doProvisioning(identity);
 		//

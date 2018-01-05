@@ -172,6 +172,14 @@ public class DefaultIdmRoleCatalogueService
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public List<IdmRoleCatalogueDto> findAllParents(UUID catalogueId) {
+		IdmRoleCatalogue catalogue = this.getEntity(catalogueId);
+		List<IdmRoleCatalogue> roleCatalogues = repository.findAllParents(catalogue, null);
+		return toDtos(roleCatalogues, true);
+	}
+	
+	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleCatalogue> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			IdmRoleCatalogueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
@@ -222,19 +230,6 @@ public class DefaultIdmRoleCatalogueService
 		if (this.baseTreeService.validateTreeNodeParents(roleCatalogue)) {
 			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog [" + roleCatalogue.getName() + "] have bad parent.");
 		}
-		
-		// VS: I turned off this validation ... because in implementation is same name (different code) normal situation 
-		//		IdmRoleCatalogue parent = roleCatalogue.getParent();
-		//		List<IdmRoleCatalogue> roleCatalogues = null;
-		//		if (parent != null) { // get same level
-		//			roleCatalogues = repository.findDirectChildren(parent, null).getContent();
-		//		} else { // get roots
-		//			roleCatalogues = repository.findRoots(null).getContent();
-		//		}
-		//		//
-		//		if (this.baseTreeService.validateUniqueName(roleCatalogues, roleCatalogue)) {
-		//			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", roleCatalogue.getName()));
-		//		}
 	}
 	
 	private IdmRoleCatalogueDto setForestIndex(IdmRoleCatalogueDto roleCatalogue, IdmForestIndexEntity index) {
@@ -244,4 +239,5 @@ public class DefaultIdmRoleCatalogueService
 		}
 		return roleCatalogue;
 	}	
+
 }

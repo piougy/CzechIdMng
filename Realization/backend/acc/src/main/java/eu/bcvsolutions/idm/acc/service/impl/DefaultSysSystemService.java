@@ -268,7 +268,6 @@ public class DefaultSysSystemService
 	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
 		Assert.notNull(systemId, "System ID cannot be null!");
 		Assert.notNull(uid, "Account UID cannot be null!");
-		Assert.notNull(objectClass, "Object class cannot be null!");
 		
 		SysSystemDto system = this.get(systemId);
 		Assert.notNull(system, "System cannot be null!");
@@ -789,5 +788,17 @@ public class DefaultSysSystemService
 		key.setBundleName("net.tirasa.connid.bundles.db.table");
 		key.setBundleVersion("2.2.4");
 		return key;
+	}
+
+	@Override
+	public IcConnectorInstance getConnectorInstance(SysSystemDto system) {
+		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+		//
+		if (system.isRemote() && connectorInstance.getConnectorServer() != null) {
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
+					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
+		}
+		//
+		return connectorInstance;
 	}
 }

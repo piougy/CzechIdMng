@@ -59,10 +59,8 @@ public class ContractGuaranteeDeleteProvisioningProcessor extends CoreEventProce
 
 	@Override
 	public EventResult<IdmContractGuaranteeDto> process(EntityEvent<IdmContractGuaranteeDto> event) {
-		Object skipProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		//
-		// skip?
-		if (skipProvisioning instanceof Boolean && (Boolean) skipProvisioning) {
+		// Skip provisioning
+		if (this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties())) {
 			return new DefaultEventResult<>(event, this);
 		}
 		//
@@ -84,6 +82,6 @@ public class ContractGuaranteeDeleteProvisioningProcessor extends CoreEventProce
 
 	@Override
 	public int getOrder() {
-		return CoreEvent.DEFAULT_ORDER - 100;
+		return CoreEvent.DEFAULT_ORDER + 100;
 	}
 }

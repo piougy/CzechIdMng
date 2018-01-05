@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -31,33 +32,33 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
  */
 @Component("accRoleDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class RoleDeleteProcessor
-		extends CoreEventProcessor<IdmRoleDto> 
-		implements RoleProcessor {
-	
+public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> implements RoleProcessor {
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleDeleteProcessor.class);
-	
+
 	public static final String PROCESSOR_NAME = "role-delete-processor";
 	private final SysRoleSystemService roleSystemService;
 	private final AccRoleAccountService roleAccountService;
 	private final SysProvisioningBreakRecipientService provisioningBreakRecipientService;
-	
+	private final SysSyncConfigRepository syncConfigRepository;
+
 	@Autowired
-	public RoleDeleteProcessor(
-			SysRoleSystemService roleSystemService,
-			AccRoleAccountService roleAccountService,
-			SysProvisioningBreakRecipientService provisioningBreakRecipientService) {
+	public RoleDeleteProcessor(SysRoleSystemService roleSystemService, AccRoleAccountService roleAccountService,
+			SysProvisioningBreakRecipientService provisioningBreakRecipientService,
+			SysSyncConfigRepository syncConfigRepository) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(roleSystemService);
 		Assert.notNull(roleAccountService);
 		Assert.notNull(provisioningBreakRecipientService);
+		Assert.notNull(syncConfigRepository);
 		//
 		this.roleSystemService = roleSystemService;
 		this.roleAccountService = roleAccountService;
 		this.provisioningBreakRecipientService = provisioningBreakRecipientService;
+		this.syncConfigRepository = syncConfigRepository;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
@@ -65,23 +66,29 @@ public class RoleDeleteProcessor
 
 	@Override
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
-		// delete mapped roles
-		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
-		roleSystemFilter.setRoleId(event.getContent().getId());
-		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
-			roleSystemService.delete(roleSystem);
-		});
-		//
-		// delete relations on account (includes delete of account	)
-		AccRoleAccountFilter filter = new AccRoleAccountFilter();
-		filter.setRoleId(event.getContent().getId());
-		roleAccountService.find(filter, null).forEach(roleAccount -> {
-			roleAccountService.delete(roleAccount);
-		});
-		//
-		// remove all recipients from provisioning break
-		deleteProvisioningRecipient(event.getContent().getId());
-		//
+		IdmRoleDto role = event.getContent();
+		if (role.getId() != null) {
+			// delete mapped roles
+			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
+			roleSystemFilter.setRoleId(role.getId());
+			roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
+				roleSystemService.delete(roleSystem);
+			});
+			//
+			// delete relations on account (includes delete of account )
+			AccRoleAccountFilter filter = new AccRoleAccountFilter();
+			filter.setRoleId(role.getId());
+			roleAccountService.find(filter, null).forEach(roleAccount -> {
+				roleAccountService.delete(roleAccount);
+			});
+			//
+			// remove all recipients from provisioning break
+			deleteProvisioningRecipient(event.getContent().getId());
+			//
+			// Delete link to sync identity configuration
+			syncConfigRepository.clearDefaultRole(role.getId());
+		}
+
 		return new DefaultEventResult<>(event, this);
 	}
 
@@ -90,12 +97,12 @@ public class RoleDeleteProcessor
 		// right now before role delete
 		return CoreEvent.DEFAULT_ORDER - 1;
 	}
-	
+
 	@Override
 	public boolean isDisableable() {
 		return false;
 	}
-	
+
 	/**
 	 * Method remove all provisioning recipient for role id given in parameter
 	 * 
@@ -104,7 +111,8 @@ public class RoleDeleteProcessor
 	private void deleteProvisioningRecipient(UUID roleId) {
 		SysProvisioningBreakRecipientFilter filter = new SysProvisioningBreakRecipientFilter();
 		filter.setRoleId(roleId);
-		for (SysProvisioningBreakRecipientDto recipient : provisioningBreakRecipientService.find(filter, null).getContent()) {
+		for (SysProvisioningBreakRecipientDto recipient : provisioningBreakRecipientService.find(filter, null)
+				.getContent()) {
 			LOG.debug("Remove recipient from provisioning break [{}]", recipient.getId());
 			provisioningBreakRecipientService.delete(recipient);
 		}

@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -61,12 +62,13 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	@Override
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 		IdmIdentityDto identity = null;
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			identity = identityService.get(provisioningOperation.getEntityIdentifier());
 		}
 		// TODO: identity or email null, send message to actual log user?
-		if (identity != null) {
+		if (identity != null && identity.getState() != IdentityState.CREATED) {
 			for (IcAttribute attribute : provisioningOperationService.getFullConnectorObject(provisioningOperation).getAttributes()) {
 				// TODO: send password always, when create?
 				if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
@@ -79,7 +81,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 							new IdmMessageDto.Builder()
 							.setLevel(NotificationLevel.SUCCESS)
 							.addParameter("systemName", system.getName())
-							.addParameter("uid", provisioningOperation.getSystemEntityUid())
+							.addParameter("uid", uid)
 							.addParameter("password", password)
 							.build(),
 							identity);

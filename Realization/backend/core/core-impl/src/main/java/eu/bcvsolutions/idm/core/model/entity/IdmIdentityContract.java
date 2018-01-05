@@ -91,6 +91,7 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled; // redundant to state now
 	
+	@Audited
 	@Enumerated(EnumType.STRING)
 	@Column(name = "state", nullable = true, length = 45)
 	private ContractState state;

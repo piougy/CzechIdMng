@@ -168,6 +168,16 @@
           "defaultLeader": {
             "label": "Výchozí vedoucí",
             "helpBlock": "Pokud není pro daný vztah vyplněn žádný vedoucí (ve zdrojovém systému), pak bude vztahu přiřazen tento výchozí vedoucí."
+          },
+          "startOfHrProcesses": {
+            "label": "Po dokončení spustit HR procesy",
+            "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy."
+          }
+        },
+        "identityConfigDetail":{
+          "defaultRole": {
+            "label": "Výchozí role",
+            "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
           }
         }
       },
@@ -268,7 +278,7 @@
         }
       },
       "mappingDetail": {
-        "title" :"Mapování atributů",
+        "title" :"Detail",
         "header": "Mapování atributů <small>pro IdM entitu a typ operace</small>",
         "systemAttributesMappingHeader": "Namapované atributy",
         "edit": {
@@ -289,6 +299,16 @@
         },
         "protectionEnabled": {
           "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IdM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu. Mazání provádí naplánovaná úloha."
+        },
+        "validation":{
+          "systemMissingIdentifier":{
+            "message": "Upozornění: Žádný z atributů není identifikátorem.",
+            "info": "Když žádný atribut není identifikátorem, tak role přidělená k tomu systému nemůže být přiřazena žádnému uživateli."
+            },
+          "systemMissingOwner":{
+            "message":   "Upozornění: Kontrakt musí mít atribut mapující položku 'Vlastník'.",
+            "info": ""
+          }
         }
       },
       "attributeDetail": {
@@ -360,7 +380,7 @@
         }
       },
       "accounts": {
-        "header": "Účty na koncovém systému",
+        "header": "Účty na systémech",
         "title": "Účty na systému",
         "edit": {
           "header": "Detail účtu na koncovém systému"
@@ -402,8 +422,9 @@
     },
     "identity": {
       "accounts": {
-        "header": "Účty na koncovém systému",
-        "title": "Účty na systému",
+        "header": "Účty na systémech",
+        "identity-accounts":"Vazby na účty",
+        "title": "Účty na systémech",
         "edit": {
           "header": "Detail účtu na koncovém systému"
         },
@@ -620,7 +641,8 @@
       "_type": "Entita na systému",
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
-      "system": "Napojený systém"
+      "system": "Napojený systém",
+      "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {
       "auxiliary": "Pomocný objekt",
@@ -637,7 +659,12 @@
       "objectClass": "Název objektu",
       "treeType": "Typ stromu",
       "protectionEnabled": "Ochrana účtů (před smazáním)",
-      "protectionInterval": "Délka ochranného intervalu (ve dnech)"
+      "protectionInterval": "Délka ochranného intervalu (ve dnech)",
+      "account-management": "Správa účtů",
+      "canBeAccountCreatedScript": {
+        "label": "Může být pro danou entitu vytvořen účet?",
+        "help": "Správa účtů - umožňuje zakázat vytvoření účtu (pro danou entitu) na tomto systému. Vstupním parametrem tohoto Groovy skriptu, je IdM entita 'entity', vygenerovaný identifikátor účtu 'uid' a IdM system 'system'. Výstupní hodnota musí být Boolean.TRUE nebo Boolean.FALSE!"
+      }
     },
     "SchemaAttribute": {
       "name": "Název atributu",
@@ -1084,7 +1111,9 @@
       "SYSTEM": "Napojené systémy",
       "SYNCHRONIZATION": "Synchronizace",
       "TREEACCOUNT": "Účty pro prvky stromu",
-      "IDENTITYACCOUNT": "Účty pro identity"
+      "IDENTITYACCOUNT": "Účty pro identity",
+      "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
+      "PROVISIONINGBREAK": "Brzda provisioningu"
     }
   },
   "error": {
@@ -1280,6 +1309,10 @@
       "title": "Účet [{{uid}}] nemůže být smazán!",
       "message": "Účet [{{uid}}] nemůže být smazán! Je chráněn před smazáním!"
     },
+    "ACCOUNT_CANNOT_UPDATE_IS_PROTECTED": {
+      "title": "Účet [{{uid}}] nemůže být upraven!",
+      "message": "Účet [{{uid}}] nemůže být vyjmut z chráněného režimu manuálně!"
+    },
     "SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED": {
       "title": "Typ struktury nelze odebrat",
       "message": "Typ struktury [{{treeType}}] je již použit v mapování u systému [{{system}}]. Před odebráním tohoto typu odstraňte mapování ze systému."
@@ -1303,6 +1336,10 @@
     "PROVISIONING_SYSTEM_BLOCKED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] byl zablokován brzdou provisioningu."
+    },
+    "SYSTEM_MAPPING_VALIDATION": {
+      "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
+      "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
     }
   }
 }

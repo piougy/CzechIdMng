@@ -46,9 +46,10 @@ class TextField extends AbstractFormComponent {
     return validation;
   }
 
-  getRequiredValidationSchema() {
+  getRequiredValidationSchema(validation = null) {
     const { type } = this.props;
-    if (type === 'number') {
+    // join validation was given
+    if (type === 'number' || (validation && validation._type === 'number')) {
       return Joi.number().required();
     }
     return Joi.string().required();

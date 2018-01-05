@@ -46,7 +46,7 @@ public class SelfIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		if (!securityService.isAuthenticated()) {
 			return null;
 		}
-		return builder.equal(root.get(IdmIdentity_.username), securityService.getUsername());
+		return builder.equal(root.get(IdmIdentity_.id), securityService.getCurrentId());
 	}
 	
 	@Override

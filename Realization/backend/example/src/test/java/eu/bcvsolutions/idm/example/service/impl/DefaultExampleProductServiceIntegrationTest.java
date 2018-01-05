@@ -4,9 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
-import org.junit.Assume;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

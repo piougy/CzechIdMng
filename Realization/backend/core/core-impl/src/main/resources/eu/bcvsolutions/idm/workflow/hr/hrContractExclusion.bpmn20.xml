@@ -29,50 +29,40 @@ Input:
 // IdmLongRunningTaskDtoService 	= longRunningTaskService
 //
 //
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
-Logger LOG = LoggerFactory.getLogger("hrContractExclusion")
+org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrContractExclusion");
 
-LOG.info("Exculded contract dto: [{}]", dto)
+LOG.info("Exculded contract dto: [{}]", dto);
 
 if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!");
 }
 
-def result = null
+def result = null;
 try {
-	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
-	def hasValidContracts = false
-	for (c in contracts) {
-		if (c.getState() != ContractState.EXCLUDED &amp;&amp; c.isValid()) {
-			hasValidContracts = true
-			break
-		}
-	}
+	def identity = identityService.get(dto.getIdentity());
+	def newState = identityService.evaluateState(identity.getId());
 	//
-	if (!hasValidContracts) {
-		def identity = identityService.get(dto.getIdentity())
-		if (!identity.isDisabled()) {
-			identity.setDisabled(true)
-			identityService.save(identity)
-		}
+	if (identity.getState() != newState) {
+		identity.setState(newState);
+		identityService.save(identity);
 	}
-	result = new OperationResult.Builder(OperationState.EXECUTED).build()
+	result = new OperationResult.Builder(OperationState.EXECUTED).build();
 } catch (Exception e) {
-	LOG.error("An error occurred.", e)
-	result = new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build()
+	LOG.error("An error occurred.", e);
+	result = new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build();
 }
 
-LOG.info("result state: [{}]", result.getState())
+LOG.info("result state: [{}]", result.getState());
 
 // set operation result for next activities
-execution.setVariable("success", OperationState.isSuccessful(result.getState()))
-execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
+execution.setVariable("success", OperationState.isSuccessful(result.getState()));
+execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result);
 //
 // process end
 </script>
@@ -83,7 +73,10 @@ execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${success == false}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask2" name="handle failure script" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>println "FAILURE!"</script>
+      <script>
+      	org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrContractExclusion");
+		LOG.warn("FAILURE!");
+      </script>
     </scriptTask>
     <sequenceFlow id="flow5" name="[SUCCESS]" sourceRef="exclusivegateway1" targetRef="scripttask3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${success == true}]]></conditionExpression>
@@ -91,7 +84,10 @@ execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
     <sequenceFlow id="flow6" sourceRef="scripttask2" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow7" sourceRef="scripttask3" targetRef="endevent"></sequenceFlow>
     <scriptTask id="scripttask3" name="handle success script" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>println "SUCCESS!"</script>
+      <script>
+      	org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrContractExclusion");
+		LOG.info("SUCCESS!");
+      </script>
     </scriptTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_hrContractExclusion">

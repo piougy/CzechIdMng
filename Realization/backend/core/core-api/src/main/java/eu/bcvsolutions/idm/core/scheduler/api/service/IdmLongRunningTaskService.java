@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -40,5 +41,15 @@ public interface IdmLongRunningTaskService extends
 	 * @param counter
 	 */
 	void updateState(UUID id, Long count, Long counter);
+
+	/**
+	 * Create LRT by given scheduled task and executor
+	 * @param scheduledTask
+	 * @param taskExecutor
+	 * @param instanceId
+	 * @return
+	 */
+	IdmLongRunningTaskDto create(IdmScheduledTaskDto scheduledTask, SchedulableTaskExecutor<?> taskExecutor,
+			String instanceId);
 	
 }

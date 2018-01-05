@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -49,6 +50,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	@Mock private ModelMapper modelMapper;
 	@Mock private SysProvisioningBatchRepository batchRepository;
 	@Mock private SecurityService securityService;
+	@Mock private SysSystemEntityService systemEntityService;
 	//
 	private DefaultSysProvisioningOperationService service;
 
@@ -61,7 +63,8 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 				notificationManager, 
 				confidentialStorage,
 				systemService,
-				securityService);
+				securityService,
+				systemEntityService);
 	}
 	
 	@Test

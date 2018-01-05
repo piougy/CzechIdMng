@@ -28,7 +28,9 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
@@ -36,7 +38,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
@@ -59,6 +63,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -80,6 +85,7 @@ public class DefaultIdmIdentityService
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
 	private final RoleConfiguration roleConfiguration;
+	private final IdmIdentityContractService identityContractService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -88,19 +94,22 @@ public class DefaultIdmIdentityService
 			IdmRoleService roleService,
 			EntityEventManager entityEventManager,
 			IdmAuthorityChangeRepository authChangeRepository,
-			RoleConfiguration roleConfiguration	) {
+			RoleConfiguration roleConfiguration,
+			IdmIdentityContractService identityContractService) {
 		super(repository, entityEventManager, formService);
 		//
 		Assert.notNull(roleService);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(authChangeRepository);
 		Assert.notNull(roleConfiguration);
+		Assert.notNull(identityContractService);
 		//
 		this.repository = repository;
 		this.roleService = roleService;
 		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
 		this.roleConfiguration = roleConfiguration;
+		this.identityContractService = identityContractService;
 	}
 	
 	@Override
@@ -118,6 +127,28 @@ public class DefaultIdmIdentityService
 	@Transactional(readOnly = true)
 	public IdmIdentityDto getByUsername(String username) {
 		return toDto(repository.findOneByUsername(username));
+	}
+	
+	@Override
+	protected IdmIdentity toEntity(IdmIdentityDto dto, IdmIdentity entity) {
+		IdmIdentity identity = super.toEntity(dto, entity);
+		if (identity != null) {
+			if (identity.getState() == null) {
+				identity.setState(evaluateState(dto));
+			}
+			identity.setDisabled(identity.getState().isDisabled()); // redundant attribute for queries
+		}
+		return identity;
+	}
+	
+	@Override
+	protected IdmIdentityDto toDto(IdmIdentity entity) {
+		IdmIdentityDto dto = super.toDto(entity);
+		if (dto != null && entity != null) {
+			// set state - prevent to use disabled setter
+			dto.setState(entity.getState());
+		}
+		return dto;
 	}
 	
 	@Override
@@ -255,7 +286,7 @@ public class DefaultIdmIdentityService
 					boolean success = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
 					boolean failure = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name());
 					if (success || failure) {				
-						IdmAccountDto resultAccount = (IdmAccountDto) result.getModel().getParameters().get("account");
+						IdmAccountDto resultAccount = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
 						if (!passwordChangeResults.containsKey(resultAccount.getId())) {
 							passwordChangeResults.put(resultAccount.getId(), result);
 						} else if (failure) {
@@ -274,18 +305,23 @@ public class DefaultIdmIdentityService
 		if (identity == null) {
 			return null;
 		}
+		// if lastname is blank, then username is returned
+		if (StringUtils.isBlank(identity.getLastName())) {
+			return identity.getUsername();
+		}
+		//
 		StringBuilder sb = new StringBuilder();
-		if (identity.getTitleBefore() != null) {
+		if (StringUtils.isNotEmpty(identity.getTitleBefore())) {
 			sb.append(identity.getTitleBefore()).append(' ');
 		}
-		if (identity.getFirstName() != null) {
+		if (StringUtils.isNotEmpty(identity.getFirstName())) {
 			sb.append(identity.getFirstName()).append(' ');
 		}
-		if (identity.getLastName() != null) {
-			sb.append(identity.getLastName()).append(' ');
+		if (StringUtils.isNotEmpty(identity.getLastName())) {
+			sb.append(identity.getLastName());
 		}
-		if (identity.getTitleAfter() != null) {
-			sb.append(identity.getTitleAfter()).append(' ');
+		if (StringUtils.isNotEmpty(identity.getTitleAfter())) {
+			sb.append(", ").append(identity.getTitleAfter());
 		}
 		return sb.toString().trim();
 	}
@@ -434,6 +470,110 @@ public class DefaultIdmIdentityService
 		if (!identitiesCopy.isEmpty()) {
 			repository.setIdmAuthorityChangeForIdentity(identitiesCopy, changeTime);
 		}
+	}
+	
+	@Override
+	public IdmIdentityDto enable(UUID identityId, BasePermission... permission) {
+		Assert.notNull(identityId);
+		IdmIdentityDto identity = get(identityId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId.toString()));
+		}
+		//
+		if (identity.getState() != IdentityState.DISABLED_MANUALLY) {
+			// not disabled
+			throw new ResultCodeException(CoreResultCode.IDENTITY_NOT_DISABLED_MANUALLY, ImmutableMap.of(
+					IdmIdentity_.username.getName(), identity.getUsername(),
+					IdmIdentity_.state.getName(), identity.getState()));
+		}
+		identity.setState(evaluateState(identity));
+		return save(identity, permission);
+	}
+	
+	@Override
+	public IdmIdentityDto disable(UUID identityId, BasePermission... permission) {
+		Assert.notNull(identityId);
+		IdmIdentityDto identity = get(identityId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId.toString()));
+		}
+		//
+		if (identity.getState() == IdentityState.DISABLED_MANUALLY) {
+			// already disabled
+			throw new ResultCodeException(CoreResultCode.IDENTITY_ALREADY_DISABLED_MANUALLY, ImmutableMap.of(
+					IdmIdentity_.username.getName(), identity.getUsername()));
+			
+		}
+		identity.setState(IdentityState.DISABLED_MANUALLY);
+		return save(identity, permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdentityState evaluateState(UUID identityId) {
+		Assert.notNull(identityId);
+		IdmIdentityDto identity = get(identityId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId.toString()));
+		}
+		//
+		// manually disabled - cannot be enable automatically
+		if (identity.getState() == IdentityState.DISABLED_MANUALLY) {
+			return IdentityState.DISABLED_MANUALLY;
+		}
+		//
+		return evaluateState(identity);
+	}
+	
+	/**
+	 * Return evaluated state without {@link IdentityState#DISABLED_MANUALLY} check
+	 * - can be used internally for enable identity
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	private IdentityState evaluateState(IdmIdentityDto identity) {
+		if (identity == null || identity.getId() == null) {
+			return IdentityState.CREATED;
+		}
+		// read identity contract
+		List<IdmIdentityContractDto> contracts = identityContractService.findAllByIdentity(identity.getId());
+		if (contracts.isEmpty()) {
+			return IdentityState.NO_CONTRACT;
+		}
+		//
+		// evaluate state by contracts
+		boolean hasFutureContract = false;
+		boolean hasValidContract = false;
+		boolean hasExcludedContract = false;
+		boolean hasInvalidContract = false;
+		for (IdmIdentityContractDto contract : contracts) {
+			if (contract.isValid()) {
+				if (contract.isExcluded()) {
+					hasExcludedContract = true;
+				} else {
+					hasValidContract = true;
+				}
+			} else if (contract.isValidNowOrInFuture()) {
+				hasFutureContract = true;
+			} else {
+				hasInvalidContract = true;
+			}
+		}
+		if (hasValidContract) {
+			return IdentityState.VALID;
+		}
+		if (hasFutureContract) {
+			return IdentityState.FUTURE_CONTRACT;
+		}
+		if (hasExcludedContract) {
+			return IdentityState.DISABLED; // new identity excluded state?
+		}
+		if (hasInvalidContract) {
+			return IdentityState.LEFT;
+		}
+		//
+		return IdentityState.DISABLED;
 	}
 
 	private void createAuthorityChange(Collection<IdmIdentity> withoutAuthChange, DateTime changeTime) {

@@ -444,7 +444,7 @@ module.exports = {
             'type': 'HAS_ANY_AUTHORITY',
             'authorities': [
               'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ',
-              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ'
+              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ', 'CONFIDENTIALSTORAGEVALUE_READ'
             ]
           }
         ],
@@ -498,7 +498,7 @@ module.exports = {
             'id': 'scheduler',
             'labelKey': 'content.scheduler.title',
             'order': 55,
-            'path': '/scheduler/running-tasks',
+            'path': '/scheduler/all-tasks',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
             'icon': 'fa:calendar-times-o',
             'items': [
@@ -527,7 +527,43 @@ module.exports = {
                 'path': '/scheduler/all-tasks',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
+                'items': [
+                  {
+                    'id': 'long-running-task-detail',
+                    'type': 'TAB',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.basic',
+                    'order': 100,
+                    'path': '/scheduler/all-tasks/:entityId/detail',
+                    'icon': 'fa:newspaper-o'
+                  },
+                  {
+                    'id': 'long-running-task-items',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.items',
+                    'order': 200,
+                    'path': '/scheduler/all-tasks/:entityId/items',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['SCHEDULER_READ']
+                      }
+                    ]
+                  },
+                  {
+                    'id': 'long-running-task-queue',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.queue',
+                    'order': 300,
+                    'path': '/scheduler/all-tasks/:entityId/queue',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['SCHEDULER_EXECUTE']
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -666,6 +702,35 @@ module.exports = {
             'order': 30,
             'path': '/scripts',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
+            'items': [
+              {
+                'id': 'script-detail',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.detail.title',
+                'order': 100,
+                'path': '/scripts/:entityId/detail',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              },
+              {
+                'id': 'script-authorities',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.authorities.title',
+                'order': 110,
+                'path': '/scripts/:entityId/authorities',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              },
+              {
+                'id': 'script-references',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.references.title',
+                'order': 120,
+                'path': '/scripts/:entityId/references',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              }
+            ]
           },
           {
             'id': 'forms',
@@ -696,7 +761,17 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
               }
             ]
-          }
+          },
+          {
+            'id': 'confidential-storage',
+            'labelKey': 'content.confidentialStorage.header',
+            'titleKey': 'content.confidentialStorage.title',
+            'icon': 'fa:lock',
+            'iconColor': '#272fd8',
+            'order': 70,
+            'path': '/confidential-storage',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIDENTIALSTORAGEVALUE_READ'] } ],
+          },
         ]
       },
       {

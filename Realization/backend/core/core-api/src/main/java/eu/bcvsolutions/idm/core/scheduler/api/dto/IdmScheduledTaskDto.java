@@ -16,7 +16,6 @@ public class IdmScheduledTaskDto extends AbstractDto {
 	//
 	@NotNull
 	private String quartzTaskName;
-	private boolean dryRun;
 
 	public String getQuartzTaskName() {
 		return quartzTaskName;
@@ -24,14 +23,6 @@ public class IdmScheduledTaskDto extends AbstractDto {
 
 	public void setQuartzTaskName(String quartzTaskName) {
 		this.quartzTaskName = quartzTaskName;
-	}
-
-	public boolean isDryRun() {
-		return dryRun;
-	}
-
-	public void setDryRun(boolean dryRun) {
-		this.dryRun = dryRun;
 	}
 
 }

@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
@@ -231,12 +231,19 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		String systemName = "t_s_" + System.currentTimeMillis();
 		system.setName(systemName);
 		system = systemService.save(system);
+
 		// system entity
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
+		systemEntity.setUid("test");
+		systemEntity.setSystem(system.getId());
+		systemEntity.setEntityType(SystemEntityType.IDENTITY);		
+		systemEntity = systemEntityService.save(systemEntity);
+		
 		SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
 		provisioningOperation.setSystem(system.getId());
 		provisioningOperation.setEntityType(SystemEntityType.IDENTITY);
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
-		provisioningOperation.setSystemEntityUid("mock");
+		provisioningOperation.setSystemEntity(systemEntity.getId());
 		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
 		provisioningOperation.setProvisioningContext(new ProvisioningContext());
 		provisioningOperation.setResult(new OperationResult());
@@ -463,7 +470,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		}).findFirst().get();
 		
 		// create synchronization config
-		AbstractSysSyncConfigDto syncConfigDuplicate = new SysSyncConfigDto();
+		AbstractSysSyncConfigDto syncConfigDuplicate = new SysSyncIdentityConfigDto();
 		syncConfigDuplicate.setCustomFilter(true);
 		syncConfigDuplicate.setSystemMapping(mappingOrig.getId());
 		syncConfigDuplicate.setCorrelationAttribute(nameAttribute.getId());

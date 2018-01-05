@@ -5,7 +5,8 @@
       "name": "BCV solutions s.r.o.",
       "homePage": "http://www.bcvsolutions.eu"
     },
-    "helpdesk": "HelpDesk",
+    "serviceDesk": "ServiceDesk",
+    "helpDesk": "Nápověda",
     "version": {
       "frontend": "Verze",
       "backend": "Verze rozhraní",
@@ -41,6 +42,7 @@
     "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
     "default": "Výchozí",
+    "download": "Stáhnout",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
@@ -64,6 +66,7 @@
     "deactivatePrepare": "Připravuji deaktivaci ...",
     "delete": "Odebrat",
     "detail": "Detail",
+    "download": "$t(label.download)",
     "edit": "Upravit",
     "filter": {
       "toogle": "Filtr ",
@@ -83,6 +86,16 @@
     "saving": "Ukládám ...",
     "yes": "Ano",
     "set": "Nastavit"
+  },
+  "filter": {
+    "dateFrom": {
+      "label": "Od",
+      "placeholder": "Datum od"
+    },
+    "dateTill": {
+      "label": "Do",
+      "placeholder": "Datum do"
+    }
   },
   "action": {
     "delete": {
@@ -319,6 +332,10 @@
           }
         }
       },
+      "EntitySelectBox": {
+        "componentNotFound": "Komponenta pro select box typu [{{entityType}}] není zaregistrovaná. Opravte konfiguraci komponent.",
+        "defaultHelpBlock": "Vyhledávání je realizováno v těchto atributech: {{searchInFields}}."
+      },
       "Filter": {
         "option": {
           "yes": "Ano",
@@ -395,7 +412,8 @@
           "TEXTAREA": "Textové pole (TextArea)",
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
-          "ROLE-SELECT": "Výběr rolí (SelectBox)"
+          "ROLE-SELECT": "Výběr rolí (SelectBox)",
+          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
@@ -536,8 +554,7 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno",
-      "BLOCKED": "Blokováno"
+    	"CANCELED": "Zrušeno"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
@@ -579,6 +596,16 @@
     "ContractStateEnum": {
       "EXCLUDED": "Vyňat z evidenčního počtu",
       "DISABLED": "$t(label.disabled)"
+    },
+    "IdentityStateEnum": {
+      "CREATED": "Vytvořen(a)",
+      "NO_CONTRACT": "Bez úvazku",
+      "FUTURE_CONTRACT": "Nastoupí",
+      "VALID": "Validní",
+      "PASSWORD_EXPIRED": "Heslo vypršelo",
+      "LEFT": "Odešel(a)",
+      "DISABLED": "$t(label.disabled)",
+      "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
     }
   },
   "dashboard": {
@@ -623,7 +650,8 @@
       "PASSWORDPOLICY": "Politiky hesel",
       "ROLEREQUEST": "Agenda žádostí o role",
       "SCHEDULER": "Nastavení plánovače",
-      "WORKFLOWDEFINITION": "Workflow - definice"
+      "WORKFLOWDEFINITION": "Workflow - definice",
+      "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah"
     }
   },
   "content": {
@@ -792,7 +820,8 @@
       "secured": {
         "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
         "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
-      }
+      },
+      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='https://wiki.czechidm.com/devel/dev/configuration/backend' target='_blank'>konfigurace aplikace</a>."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -971,25 +1000,25 @@
       },
       "action": {
         "deactivate": {
-          "action": "Deaktivovat",
-          "header_1": "Deaktivace uživatele",
-          "header_2": "Deaktivace uživatelů",
+          "action": "Deaktivovat - manuálně",
+          "header_1": "Manuální deaktivace uživatele",
+          "header_2": "Manuální deaktivace uživatelů",
           "header_5": "$t(content.identities.action.deactivate.header_2)",
-          "message_1": "Opravdu chcete deaktivovat vybraného uživatele <strong>{{username}}</strong>?",
-          "message_2": "Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané uživatele?",
+          "message_1": "Opravdu chcete manuálně deaktivovat vybraného uživatele <strong>{{username}}</strong>? Manuálně deaktivovaný uživatel může být opět aktiovován pouze manuálně.",
+          "message_2": "Opravdu chcete manuálně deaktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně deaktivovaní uživatelé můžou být opět aktiovováni pouze manuálně.",
           "message_5": "$t(content.identities.action.deactivate.message_2)",
           "error": "Při deaktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
         },
         "activate": {
-          "action": "Aktivovat",
+          "action": "Aktivovat - manuálně",
           "header_0": "N/A",
-          "header_1": "Aktivace uživatele",
-          "header_2": "Aktivace uživatelů",
+          "header_1": "Manuální aktivace uživatele",
+          "header_2": "Manuální aktivace uživatelů",
           "header_5": "$t(content.identities.action.activate.header_2)",
-          "message_1": "Opravdu chcete aktivovat vybraného uživatele <strong>{{username}}</strong>?",
-          "message_2": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybrané uživatele?",
-          "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
+          "message_1": "Opravdu chcete manuálně aktivovat vybraného uživatele <strong>{{username}}</strong>? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
+          "message_2": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
+          "message_5": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybraných uživatelů? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
         },
@@ -1168,15 +1197,29 @@
         }
       }
     },
+    "confidentialStorage": {
+      "header": "Šifrovaný obsah",
+      "title": "Šifrovaný obsah",
+      "label": "Šifrovaný obsah",
+      "filter": {
+        "text": "Klíč / Typ majitele",
+        "ownerId": "Id majitele",
+        "key": "Klíč",
+        "ownerType": "Typ majitele",
+        "value": "Hodnota"
+      },
+      "edit": {
+        "title": "Detail obsahu",
+        "header": "Detail šifrované hodnoty"
+      }
+    },
     "scripts": {
       "header": "Definice skriptů",
       "title": "Definice skriptů",
-      "label": "Definice skriptů",
       "edit": {
         "title": "Detail skriptu",
         "header": "{{name}} detail skriptu"
       },
-      "scriptAuthorities": "Oprávnění skriptu",
       "scriptAuthoritySaveFirst": "Oprávnění skriptu můžete přidat až po uložení.",
       "create": {
         "title": "Nový skript",
@@ -1187,17 +1230,28 @@
       },
       "filter": {
         "text": "Kód / Název / Popis"
-      }
-    },
-    "scriptAuthorities": {
-      "create": {
-        "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
       },
-      "edit": {
-        "header": "Editace autorizace pro skript <small>{{name}}</small>"
+      "detail": {
+        "header" : "Základní informace",
+        "title" : "Základní informace"
       },
-      "save": {
-        "success": "Oprávnění pro skript bylo úspěšně uloženo"
+      "authorities": {
+          "header": "Oprávnění skriptu",
+          "title": "Oprávnění skriptu",
+          "edit": {
+            "header": "Editace autorizace pro skript <small>{{name}}</small>"
+          },
+          "create": {
+            "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
+          },
+          "save": {
+            "header": "Oprávnění pro skript bylo úspěšně uloženo",
+            "success": "Oprávnění pro skript bylo úspěšně uloženo"
+          }
+      },
+      "references": {
+        "header" : "Použití scriptu",
+        "title" : "Použití scriptu"
       }
     },
     "roles": {
@@ -1738,7 +1792,8 @@
         "header": "Naplánované úlohy",
         "title": "Naplánované úlohy",
         "button": {
-          "run": "Spustit ručně"
+          "run": "Spustit ručně",
+          "dryRun": "Spustit zkušební běh"
         },
         "action": {
           "trigger-delete": {
@@ -1762,6 +1817,9 @@
           "task-run": {
             "success": "Úloha [{{record}}] byla úspěšně spuštěna."
           },
+          "task-dry-run": {
+            "success": "Úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu."
+          },
           "task-delete": {
             "header": "Odebrat úlohu",
             "message": "Opravdu chcete odebrat úlohu [<strong>{{record}}</strong>]?",
@@ -1776,14 +1834,6 @@
         "header": "Všechny úlohy",
         "title": "Všechny úlohy",
         "filter": {
-          "dateFrom": {
-            "label": "Od",
-            "placeholder": "Datum od"
-          },
-          "dateTill": {
-            "label": "Do",
-            "placeholder": "Datum do"
-          },
           "text": {
             "label": "Klíč / Typ",
             "placeholder": "Klíč nebo typ úlohy"
@@ -1800,7 +1850,10 @@
         "detail": {
           "header": "Detail úlohy",
           "result": "Výsledek",
-          "resultCode": "Kód"
+          "resultCode": "Kód",
+          "scheduledTask": {
+            "empty": "Vybraná dlouhotrvající úloha byla spuštěna bez plánovače. Fronta zpracovaných úloh není dostupná."
+          }
         },
         "action": {
           "processCreated": {
@@ -1808,6 +1861,11 @@
             "success": "Vytvořené úlohy budou spuštěny.",
             "selectedButton": "Spustit vybrané úlohy"
           }
+        },
+        "tabs": {
+          "basic": "Základní informace",
+          "items": "Zpracované položky",
+          "queue": "Fronta"
         }
       }
     },
@@ -2044,6 +2102,7 @@
     },
     "name": "Název",
     "created": "Vytvořeno",
+    "creator": "Vytvořil",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
 
@@ -2058,11 +2117,19 @@
       "password": "Heslo",
       "passwordAgain": "Heslo znovu",
       "homeOrganisation": "Domovská organizace",
-      "disabled": "Neaktivní",
+      "disabled": "$t(label.disabled)",
       "internist": "Internista",
       "externe": "Externista",
       "titleBefore": "Titul před",
-      "titleAfter": "Titul za"
+      "titleAfter": "Titul za",
+      "state": {
+        "label": "Stav",
+        "help": "Stav uživatele."
+      },
+      "disabledReadonly": {
+        "label": "$t(label.disabled)",
+        "help": "Neaktivní identitě není povoleno přihlášení."
+      }
     },
     "RoleCatalogue": {
       "_type": "Složka katalogu",
@@ -2080,6 +2147,14 @@
       "parent": {
         "name": "Nadřazená složka v katalogu"
       }
+    },
+    "ConfidentialStorageValue": {
+      "ownerId": "Id majitele",
+      "key": "Klíč",
+      "ownerType": "Typ majitele",
+      "serializableValue": "Hodnota",
+      "created": "$t(entity.created)",
+      "creator": "$t(entity.creator)"
     },
     "Script": {
       "name": "Název skriptu",
@@ -2372,6 +2447,7 @@
       "template": "Šablona"
     },
     "NotificationTemplate": {
+      "_type": "Notifikační šablona",
       "name": "Název",
       "code": "Kód",
       "subject": "Předmět",
@@ -2575,8 +2651,11 @@
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
+      "started": "Spuštěno",
+      "notstarted": "Úloha nebyla spuštěna!",
       "result": {
-        "state": "Stav"
+        "state": "Stav",
+        "code": "Kód"
       },
       "instanceId": {
         "label": "Instance",
@@ -2587,6 +2666,16 @@
         "label": "Parametry úlohy"
       }
     },
+    "LongRunningTaskItem": {
+      "referencedEntityId": {
+        "label": "Entita",
+        "placeholder": "Identifikátor entity"
+      },
+      "result": {
+        "state": "Stav"
+      },
+      "referencedDtoType": "Typ entity"
+    },
     "SchedulerTask": {
       "_type": "Naplánovaná úloha",
       "id": "Identifikátor",
@@ -2596,6 +2685,7 @@
         "help": "Spustit na serveru (identifikátor instance)"
       },
       "description": "Popis",
+      "dryRun" : "Zkušební běh",
       "triggers": "Plánovaná spuštění",
       "trigger": {
         "_type": {
@@ -2935,6 +3025,10 @@
       "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
     },
+    "GROOVY_SCRIPT_SYNTAX_VALIDATION": {
+      "title": "Groovy skript obsahuje chyby syntaxe",
+      "message": "Chybová zpráva: {{message}} na řádku {{line}}."
+    },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy skript neprošel bezpečností kontrolou!",
       "message": "Příčina: {{message}}"
@@ -3082,6 +3176,18 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Prvek stromové struktury nelze odebrat",
       "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
+    },
+    "IDENTITY_ALREADY_DISABLED_MANUALLY": {
+      "title": "Uživatel je již deaktivován",
+      "message": "Uživatel [{{username}}] je již manuálně deaktivován. Nelze jej deaktivovat znovu."
+    },
+    "IDENTITY_NOT_DISABLED_MANUALLY": {
+      "title": "Uživatel není deaktivován manuálně",
+      "message": "Uživatel [{{username}}] nemůže být manuálně aktivován. Manuálně aktivovat lze pouze manuálně deaktivované uživatele."
+    },
+    "DRY_RUN": {
+      "title": "Zkušení běh",
+      "message": "Zkušení běh (dry run)."
     }
   },
   "validationError": {
@@ -3098,7 +3204,8 @@
     "number": {
       "min" : "Minimální hodnota je: {{count}}!",
       "base" : "Položka musí být číslo!",
-      "max" : "Maximální hodnota je: {{count}}!"
+      "max" : "Maximální hodnota je: {{count}}!",
+      "integer": "Celé číslo (integer)"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"

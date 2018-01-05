@@ -58,10 +58,26 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
     }
 	
 	@Test
-	@Ignore // TODO: url decode does not works in test ... why? 
-    public void testUsernameWithSpecialCharacters() throws Exception {
+    public void testUsernameWithDotCharacter() throws Exception {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("hh.hh#./sd");
+		identity.setUsername("admin.com");
+		identity.setFirstName("test");
+		identity.setLastName("test");
+		identity = identityService.save(identity);
+		//
+		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/" + URLEncoder.encode(identity.getUsername(), "UTF-8"))
+        		.with(authentication(getAuthentication()))
+                .contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(jsonPath("$.username", equalTo(identity.getUsername())));
+    }
+	
+	@Test
+	@Ignore // TODO: surefire parameters are ignored ... why?
+    public void testUsernameWithSlashCharacter() throws Exception {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername("admin/com");
 		identity.setFirstName("test");
 		identity.setLastName("test");
 		identity = identityService.save(identity);

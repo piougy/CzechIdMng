@@ -55,7 +55,7 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   _resolveValue(props) {
-    const value = props.value ? this.normalizeValue(props.value) : null;
+    const value = props.value != null ? this.normalizeValue(props.value) : null;
     this.setState({ value });
   }
 
@@ -89,23 +89,36 @@ class AbstractFormComponent extends AbstractContextComponent {
     // override in component
   }
 
+  /**
+   * Resolves required attribute validation
+   *
+   * @return {object} Joi validation
+   */
   getRequiredValidationSchema() {
     return Joi.any().required();
   }
 
+  /**
+   * Automatically appends required Joi validation by their schema
+   *
+   * @param  {boolean} required
+   * @return {object} Joi validation
+   */
   getValidationDefinition(required) {
-    let validation;
+    const { validation } = this.props;
+    //
+    let _validation;
     if (required === true) {
-      validation = this.getRequiredValidationSchema();
-      if (this.props.validation) {
-        validation = this.props.validation.concat(validation);
+      _validation = this.getRequiredValidationSchema(validation);
+      if (validation) {
+        _validation = validation.concat(_validation);
       }
     } else {
       // this is default value for not required value
       const notMandatory = Joi.any().empty('');
-      validation = this.props.validation ? notMandatory.concat(this.props.validation) : notMandatory;
+      _validation = validation ? notMandatory.concat(validation) : notMandatory;
     }
-    return validation;
+    return _validation;
   }
 
   isValid() {

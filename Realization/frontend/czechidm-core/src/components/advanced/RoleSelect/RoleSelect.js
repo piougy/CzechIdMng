@@ -3,6 +3,7 @@ import _ from 'lodash';
 //
 import { RoleManager, RoleCatalogueManager } from '../../../redux';
 import * as Basic from '../../basic';
+import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import Table from '../Table/Table';
 import Column from '../Table/Column';
 import Tree from '../Tree/Tree';
@@ -301,13 +302,14 @@ class RoleSelect extends Basic.AbstractFormComponent {
       <div>
         <Basic.Row className={ showRoleCatalogue ? 'hidden' : null }>
           <Basic.Col lg={ 9 }>
-            <Basic.SelectBox
+            <EntitySelectBox
               ref="role"
               manager={this.roleManager}
               label={this.i18n('entity.IdentityRole.role')}
               multiSelect={multiSelect}
               onChange={this._selectChange.bind(this)}
               readOnly={readOnly}
+              entityType="role"
               required/>
           </Basic.Col>
           <Basic.Col lg={ 3 }>

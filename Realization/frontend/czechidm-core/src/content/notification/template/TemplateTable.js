@@ -134,7 +134,7 @@ export class TemplateTable extends Advanced.AbstractTableContent {
                 </Basic.AbstractForm>
               </Advanced.Filter>
             }
-            filterOpened={!filterOpened}
+            filterOpened={filterOpened}
             actions={
               [
                 { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },

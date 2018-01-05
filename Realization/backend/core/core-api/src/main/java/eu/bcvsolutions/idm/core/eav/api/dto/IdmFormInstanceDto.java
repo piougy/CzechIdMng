@@ -9,13 +9,13 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Used as value holder for form service - form definition + their values by owner
@@ -25,28 +25,29 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 public class IdmFormInstanceDto implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	
+	//
 	@NotNull
 	private IdmFormDefinitionDto formDefinition;
-	@NotNull
 	private Serializable ownerId;
-	@NotEmpty
-	private Class<? extends FormableEntity> ownerType;
-	//
+	@NotNull
+	private Class<? extends Identifiable> ownerType;
 	private List<IdmFormValueDto> values;
 	
 	public IdmFormInstanceDto() {
 	}
 	
-	public IdmFormInstanceDto(FormableEntity owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
+	public IdmFormInstanceDto(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
 		Assert.notNull(owner);
 		Assert.notNull(formDefinition);
 		//
-		ownerId = owner.getId();
-		ownerType = owner.getClass();
-		// todo: embedded?
+		this.ownerId = owner.getId();
+		this.ownerType = owner.getClass();
 		this.formDefinition = formDefinition;
 		this.values = values;
+	}
+	
+	public IdmFormInstanceDto(Identifiable owner, IdmFormDefinitionDto formDefinition, IdmFormDto form) {
+		this(owner, formDefinition, form == null ? null : form.getValues());
 	}
 
 	public IdmFormDefinitionDto getFormDefinition() {
@@ -69,7 +70,7 @@ public class IdmFormInstanceDto implements Serializable {
 		return ownerType;
 	}
 
-	public void setOwnerType(Class<? extends FormableEntity> ownerType) {
+	public void setOwnerType(Class<? extends Identifiable> ownerType) {
 		this.ownerType = ownerType;
 	}
 
@@ -160,5 +161,21 @@ public class IdmFormInstanceDto implements Serializable {
 			throw new IllegalArgumentException(MessageFormat.format("Attribute [{}] has mutliple values [{}]", attributeCode, values.size()));
 		}
 		return values.get(0);
+	}
+	
+	/**
+	 * Returns form values as map, key is attribute code
+	 *
+	 * @param values
+	 * @return
+	 */
+	public MultiValueMap<String, Object> toMultiValueMap() {
+		MultiValueMap<String, Object> results = new LinkedMultiValueMap<>();
+		for(IdmFormValueDto value : getValues()) {
+			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(value.getFormAttribute());
+			String key = attribute.getCode();
+			results.add(key, value.getValue());
+		}		
+		return results;
 	}
 }

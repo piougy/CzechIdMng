@@ -21,11 +21,21 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityContractService extends
-	EventableDtoService<IdmIdentityContractDto, IdmIdentityContractFilter>,
-	AuthorizableService<IdmIdentityContractDto>,
-	ScriptEnabled {
+		EventableDtoService<IdmIdentityContractDto, IdmIdentityContractFilter>,
+		AuthorizableService<IdmIdentityContractDto>,
+		ScriptEnabled {
 	
 	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
+	
+	/**
+	 * Property in event. If is value TRUE, then will be creation of the default position skipped.
+	 */
+	static final String SKIP_CREATION_OF_DEFAULT_POSITION = "skip_creation_of_default_position";
+	
+	/**
+	 * Property in event - when is true, then all dependent HR processes (hrEnableContract, hrEndContract, hrExclusionContract) will be not executed.
+	 */
+	static final String SKIP_HR_PROCESSES = "skip_hr_processes";
 	
 	/**
 	 * Returns working positions for given identity
@@ -92,4 +102,18 @@ public interface IdmIdentityContractService extends
 	 * @return
 	 */
 	List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne);
+
+	
+	/**
+	 * Returns given valid identity's prime contract, by contract's priority:
+	 * - 1. main
+	 * - 2. valid (validable and not disabled)
+	 * - 3. with working position with default tree type
+	 * - 4. with working position with any tree type
+	 * - 5. other with lowest valid from
+	 * 
+	 * @param identityId
+	 * @return
+	 */
+	IdmIdentityContractDto getPrimeValidContract(UUID identityId);
 }

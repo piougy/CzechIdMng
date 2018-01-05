@@ -6,6 +6,11 @@ import { SecurityManager } from '../redux';
 
 const securityManager = new SecurityManager();
 
+/**
+ * Login box
+ *
+ * @author Radek Tomiška
+ */
 class Login extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -14,6 +19,10 @@ class Login extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.login';
+  }
+
+  hideFooter() {
+    return true;
   }
 
   _redirectIfIsAuthenticated() {
@@ -29,6 +38,8 @@ class Login extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._redirectIfIsAuthenticated();
     this.selectNavigationItem('home');
     this.refs.form.setData({});

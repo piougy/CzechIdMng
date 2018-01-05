@@ -13,7 +13,8 @@ const INITIAL_STATE = new Immutable.Map({
   navigationReady: false,
   configurationReady: false,
   appReady: false,
-  appUnavailable: false
+  appUnavailable: false,
+  hideFooter: false
 });
 
 /**
@@ -95,6 +96,9 @@ export function config(state = INITIAL_STATE, action) {
     }
     case Actions.CONFIGURATION_RECEIVED: {
       return state.set(Properties.PROPERTIES, action.data);
+    }
+    case Actions.HIDE_FOOTER: {
+      return state.set(Properties.HIDE_FOOTER, action.hideFooter);
     }
     default:
       return state;

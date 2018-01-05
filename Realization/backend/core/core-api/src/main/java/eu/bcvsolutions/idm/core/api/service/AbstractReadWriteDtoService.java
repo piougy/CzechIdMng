@@ -86,7 +86,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		// valitade
 		entity = validateEntity(entity);
 		// then persist
-		entity = getRepository().save(entity);
+		entity = getRepository().saveAndFlush(entity);
 		// finally convert to dto
 		return toDto(entity);
 	}

@@ -245,7 +245,7 @@ public class ConnIdIcConvertUtil {
 			return AttributeBuilder.build(icAttribute.getName(), icAttribute.getValues());
 		}
 
-		return null;
+		return icAttribute.getName() != null ? AttributeBuilder.build(icAttribute.getName()) : null;
 	}
 
 	public static IcAttribute convertConnIdAttribute(Attribute attribute) {

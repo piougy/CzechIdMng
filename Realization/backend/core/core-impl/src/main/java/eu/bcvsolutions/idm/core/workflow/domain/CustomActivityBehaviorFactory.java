@@ -13,18 +13,15 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 
 /**
+ * Sending emails from activity through our emailer.
  * 
  * @author svandav
  *
  */
 public class CustomActivityBehaviorFactory extends DefaultActivityBehaviorFactory {
 	
-	@Autowired
-	private EmailNotificationSender emailService;
-	
-	@Autowired
-	private IdmIdentityService identityService;
-
+	@Autowired private EmailNotificationSender emailService;
+	@Autowired private IdmIdentityService identityService;
 
 	@Override
 	protected MailActivityBehavior createMailActivityBehavior(String taskId, List<FieldExtension> fields) {

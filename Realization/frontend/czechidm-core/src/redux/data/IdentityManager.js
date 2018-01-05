@@ -48,32 +48,32 @@ export default class IdentityManager extends FormableEntityManager {
    * @param {array[string]} usernames selected usernames
    * @param {string} bulkActionName activate|deactivate
    */
-  setUsersActivity(usernames, bulkActionName) {
-    return (dispatch, getState) => {
+  setUsersActivity(entities, bulkActionName) {
+    return (dispatch) => {
       dispatch(
         this.startBulkAction(
           {
             name: bulkActionName,
-            title: this.i18n(`content.identities.action.${bulkActionName}.header`, { count: usernames.length })
+            title: this.i18n(`content.identities.action.${bulkActionName}.header`, { count: entities.length })
           },
-          usernames.length
+          entities.length
         )
       );
-      const successUsernames = [];
-      usernames.reduce((sequence, username) => {
+      const successEntities = [];
+      entities.reduce((sequence, identity) => {
         return sequence.then(() => {
           if (bulkActionName === 'activate') {
-            return this.getService().activate(username);
+            return this.getService().activate(identity.id);
           }
-          return this.getService().deactivate(username);
+          return this.getService().deactivate(identity.id);
         }).then(json => {
           dispatch(this.updateBulkAction());
-          successUsernames.push(this.getEntity(getState(), username).username);
+          successEntities.push(identity);
           // new entity to redux trimmed store
           json._trimmed = true;
-          dispatch(this.receiveEntity(username, json));
+          dispatch(this.receiveEntity(identity.id, json));
         }).catch(error => {
-          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.identities.action.${bulkActionName}.error`, { username }) }, error));
+          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.identities.action.${bulkActionName}.error`, { username: this.getNiceLabel(identity) }) }, error));
           throw error;
         });
       }, Promise.resolve())
@@ -82,10 +82,10 @@ export default class IdentityManager extends FormableEntityManager {
         // catch is before then - we want execute nex then clausule
       })
       .then(() => {
-        if (successUsernames.lengt > 0) {
+        if (successEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
-            level: successUsernames.length === usernames.length ? 'success' : 'info',
-            message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
+            level: successEntities.length === entities.length ? 'success' : 'info',
+            message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: this.getNiceLabels(successEntities).join(', ') })
           }));
         }
         dispatch(this.stopBulkAction());

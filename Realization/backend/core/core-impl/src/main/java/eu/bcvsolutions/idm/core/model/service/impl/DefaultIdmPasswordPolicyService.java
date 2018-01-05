@@ -139,7 +139,7 @@ public class DefaultIdmPasswordPolicyService
 		//
 		LOG.debug("Delete entity [{}]", dto.getName());
 		//
-		entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.DELETE, dto)).getContent();
+		entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.DELETE, dto));
 	}
 	
 	@Override

@@ -2,12 +2,12 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.UUID;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModel;
@@ -43,7 +44,6 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private transient GuardedString password;	
 	@Size(max = DefaultFieldLengths.NAME)
 	private String firstName;
-	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	private String lastName;
 	@Email
@@ -59,8 +59,11 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private String titleAfter;
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
-	@NotNull
+	@JsonProperty(access = Access.READ_ONLY)
+	@Deprecated // since 7.6.0. - use state property
 	private boolean disabled;
+	@JsonProperty(access = Access.READ_ONLY)
+	private IdentityState state;
 	
 	public IdmIdentityDto() {
 	}
@@ -158,11 +161,24 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	}
 
 	public boolean isDisabled() {
-		return disabled;
+		return state == null ? disabled : state.isDisabled();
 	}
 
+	/**
+	 * Sets state to {@link IdentityState#DISABLED} (true given) or {@code null} (true given)
+	 * 
+	 * @deprecated since 7.6.0  - use {@link #setState(IdentityState)} directly
+	 */
+	@Override
+	@Deprecated
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+		if (disabled) {
+			state = IdentityState.DISABLED;
+		}  else {
+			// state will be evaluated, when identity is saved again
+			state = null;
+		}
 	}
 	
 	public void setPassword(GuardedString password) {
@@ -171,5 +187,15 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	
 	public GuardedString getPassword() {
 		return password;
+	}
+	
+	public IdentityState getState() {
+		return state;
+	}
+	
+	public void setState(IdentityState state) {
+		Assert.notNull(state, "Identity state is required");
+		//
+		this.state = state;
 	}
 }

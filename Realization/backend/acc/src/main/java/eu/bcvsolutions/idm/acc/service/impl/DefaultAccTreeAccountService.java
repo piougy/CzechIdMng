@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
@@ -21,6 +23,8 @@ import eu.bcvsolutions.idm.acc.entity.AccTreeAccount;
 import eu.bcvsolutions.idm.acc.entity.AccTreeAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
+import eu.bcvsolutions.idm.acc.event.AccountEvent;
+import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccTreeAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
@@ -43,15 +47,14 @@ public class DefaultAccTreeAccountService
 	private final AccAccountService accountService;
 
 	@Autowired
-	public DefaultAccTreeAccountService(AccTreeAccountRepository repository,
-			AccAccountService accountService) {
+	public DefaultAccTreeAccountService(AccTreeAccountRepository repository, AccAccountService accountService) {
 		super(repository);
 		//
 		Assert.notNull(accountService);
 		//
 		this.accountService = accountService;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.TREEACCOUNT, getEntityClass());
@@ -88,27 +91,33 @@ public class DefaultAccTreeAccountService
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
+			accountService.publish(new AccountEvent(AccountEventType.DELETE, accountService.get(account),
+					ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount,
+							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
 		}
 	}
 
 	@Override
-	protected List<Predicate> toPredicates(Root<AccTreeAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, AccTreeAccountFilter filter) {
+	protected List<Predicate> toPredicates(Root<AccTreeAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			AccTreeAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
-		if(filter.getAccountId() != null) {
+		if (filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccTreeAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}
-		if(filter.getTreeNodeId() != null) {
-			predicates.add(builder.equal(root.get(AccTreeAccount_.treeNode).get(IdmTreeNode_.id), filter.getTreeNodeId()));
+		if (filter.getTreeNodeId() != null) {
+			predicates.add(
+					builder.equal(root.get(AccTreeAccount_.treeNode).get(IdmTreeNode_.id), filter.getTreeNodeId()));
 		}
-		if(filter.getRoleSystemId() != null) {
-			predicates.add(builder.equal(root.get(AccTreeAccount_.roleSystem).get(SysRoleSystem_.id), filter.getRoleSystemId()));
+		if (filter.getRoleSystemId() != null) {
+			predicates.add(builder.equal(root.get(AccTreeAccount_.roleSystem).get(SysRoleSystem_.id),
+					filter.getRoleSystemId()));
 		}
-		if(filter.getSystemId() != null) {
-			predicates.add(builder.equal(root.get(AccTreeAccount_.account).get(AccAccount_.system).get(SysSystem_.id), filter.getSystemId()));
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(AccTreeAccount_.account).get(AccAccount_.system).get(SysSystem_.id),
+					filter.getSystemId()));
 		}
-		if(filter.isOwnership() != null) {
+		if (filter.isOwnership() != null) {
 			predicates.add(builder.equal(root.get(AccTreeAccount_.ownership), filter.isOwnership()));
 		}
 		//

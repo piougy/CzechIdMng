@@ -9,6 +9,9 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -17,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -45,6 +49,13 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
 			OperationResult result = process(variables);
+			//
+			// wf throws exception
+			if (result.getException() != null) {
+				throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, 
+						ImmutableMap.of("exception", result.getException()),
+						result.getException());
+			}
 			return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 		}
 		//

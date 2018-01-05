@@ -40,7 +40,7 @@
     <!-- example -->
     <file>
       <source>../example/target/classes/META-INF/resources/webjars/example/${project.version}/doc/index.html</source>
-      <outputDirectory>/example</outputDirectory>
+      <outputDirectory>example</outputDirectory>
     </file>
     <file>
       <source>../example/target/idm-example-${project.version}-javadoc.jar</source>
@@ -51,6 +51,30 @@
     <file>
       <source>../ic/target/idm-ic-${project.version}-javadoc.jar</source>
       <outputDirectory>ic</outputDirectory>
+    </file>
+
+    <!-- vs -->
+    <file>
+      <source>../vs/target/classes/META-INF/resources/webjars/vs/${project.version}/doc/index.html</source>
+      <outputDirectory>vs</outputDirectory>
+    </file>
+    <file>
+      <source>../vs/target/idm-vs-${project.version}-javadoc.jar</source>
+      <outputDirectory>vs</outputDirectory>
+    </file>
+
+    <!-- rpt -->
+    <file>
+      <source>../rpt/rpt-impl/target/classes/META-INF/resources/webjars/rpt/${project.version}/doc/index.html</source>
+      <outputDirectory>rpt</outputDirectory>
+    </file>
+    <file>
+      <source>../rpt/rpt-impl/target/idm-rpt-impl-${project.version}-javadoc.jar</source>
+      <outputDirectory>rpt</outputDirectory>
+    </file>
+    <file>
+      <source>../rpt/rpt-api/target/idm-rpt-api-${project.version}-javadoc.jar</source>
+      <outputDirectory>rpt</outputDirectory>
     </file>
 
   </files>

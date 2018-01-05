@@ -21,4 +21,13 @@ export default class SystemMappingManager
   getCollectionType() {
     return 'systemMappings';
   }
+
+  /**
+   * Validates system mappping
+   *
+   * @param systemMappingId {String}
+   */
+  validate(systemMappingId) {
+    return service.validate(systemMappingId);
+  }
 }

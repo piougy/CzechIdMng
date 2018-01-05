@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -7,8 +8,6 @@ import { ScriptManager, SecurityManager, ScriptAuthorityManager } from '../../re
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
 import AbstractEnum from '../../enums/AbstractEnum';
-import ScriptAuthorityTable from './ScriptAuthorityTable';
-
 /**
  * Detail for sript
  * * name
@@ -35,7 +34,6 @@ export default class ScriptDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entity } = this.props;
-    this.selectNavigationItem('scripts');
     this._initForm(entity);
   }
 
@@ -112,7 +110,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
         showLoading: false
       }, this.refs.form.processEnded());
       //
-      this.context.router.replace('/scripts/' + entity.id);
+      this.context.router.replace('/scripts/' + entity.id + '/detail');
     }
   }
 
@@ -123,22 +121,28 @@ export default class ScriptDetail extends Basic.AbstractContent {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     return (
-      <div>
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
+  <div>
+
+    <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
+    <form onSubmit={this.save.bind(this, 'CONTINUE')}>
+      <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+        <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('detail.header')} />
+
+        <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
           <Basic.AbstractForm
             ref="form"
             uiKey={uiKey}
             readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
             style={{ padding: '15px 15px 0 15px' }}>
           <Basic.Row>
-            <div className="col-lg-2">
+            <div className="col-lg-4">
               <Basic.TextField
                 ref="code"
                 label={this.i18n('entity.Script.code')}
                 required
                 max={255}/>
             </div>
-            <div className="col-lg-10">
+            <div className="col-lg-8">
               <Basic.TextField
                 ref="name"
                 label={this.i18n('entity.Script.name')}
@@ -160,12 +164,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
             helpBlock={this.i18n('entity.Script.script.help')}
             label={this.i18n('entity.Script.script.label')}/>
           </Basic.AbstractForm>
-
-          <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
-            <Basic.PanelHeader text={this.i18n('scriptAuthorities')}/>
-              <Basic.Alert level="info" text={this.i18n('scriptAuthoritySaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
-              <ScriptAuthorityTable uiKey={entity.id} script={entity} rendered={!Utils.Entity.isNew(entity)} />
-          </Basic.Panel>
+          </Basic.PanelBody>
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
@@ -176,12 +175,14 @@ export default class ScriptDetail extends Basic.AbstractContent {
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
+              dropup>
               <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
             </Basic.SplitButton>
           </Basic.PanelFooter>
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
           <input type="submit" className="hidden"/>
+          </Basic.Panel>
         </form>
       </div>
     );

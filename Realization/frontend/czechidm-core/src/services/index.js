@@ -41,6 +41,8 @@ import SmsService from './SmsService';
 import RecaptchaService from './RecaptchaService';
 import LoggingEventService from './LoggingEventService';
 import LoggingEventExceptionService from './LoggingEventExceptionService';
+import ConfidentialStorageValueService from './ConfidentialStorageValueService';
+import LongRunningTaskItemService from './LongRunningTaskItemService';
 
 const ServiceRoot = {
   RestApiService,
@@ -85,7 +87,9 @@ const ServiceRoot = {
   SmsService,
   RecaptchaService,
   LoggingEventService,
-  LoggingEventExceptionService
+  LoggingEventExceptionService,
+  ConfidentialStorageValueService,
+  LongRunningTaskItemService
 };
 
 ServiceRoot.version = '0.0.1';

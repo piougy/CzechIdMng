@@ -76,6 +76,13 @@ class LongRunningTask extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Shows modal detail with given entity
+   */
+   showDetail(entity) {
+     this.context.router.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+   }
+
   render() {
     const { rendered, instanceId, entityIdentifier, entity, _showLoading, header } = this.props;
     //
@@ -99,8 +106,15 @@ class LongRunningTask extends Basic.AbstractContent {
       <Basic.Panel showLoading={_showLoading}>
         <Basic.Confirm ref="confirm-cancel" level="warning"/>
         <Basic.Confirm ref="confirm-interrupt" level="danger"/>
-
-        <Basic.PanelHeader text={ header || <span>{ Utils.Ui.getSimpleJavaType(_entity.taskType) } <small>{ _entity.taskDescription }</small></span> } />
+        <Basic.PanelHeader text={
+            header
+            ||
+            <span>
+              { Utils.Ui.getSimpleJavaType(_entity.taskType) }
+              {' '}
+              <small>{ _entity.taskDescription }</small>
+            </span>
+          } />
         <Basic.PanelBody>
           <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
           {
@@ -127,9 +141,15 @@ class LongRunningTask extends Basic.AbstractContent {
           <Basic.Button
             level="warning"
             onClick={this.onCancel.bind(this, _entity)}
+            style={{ marginRight: 5 }}
             rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}
             disabled={_showLoading}>
             {this.i18n('button.cancel')}
+          </Basic.Button>
+          <Basic.Button
+            title={this.i18n('button.detail')}
+            onClick={this.showDetail.bind(this, _entity)}>
+            {this.i18n('button.detail')}
           </Basic.Button>
         </Basic.PanelFooter>
       </Basic.Panel>

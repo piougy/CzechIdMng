@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -70,8 +71,15 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 			policy.setRole(role.getId());
 			policy.setGroupPermission(AccGroupPermission.IDENTITYACCOUNT.getName());
 			policy.setAuthorizableType(AccIdentityAccount.class.getCanonicalName());
-			policy.setEvaluator(IdentityAccountByIdentityEvaluator.class);
+			policy.setEvaluator(IdentityAccountByAccountEvaluator.class);
 			authorizationPolicyService.save(policy);
+			
+			IdmAuthorizationPolicyDto policyAccount = new IdmAuthorizationPolicyDto();
+			policyAccount.setRole(role.getId());
+			policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
+			policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
+			policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
+			authorizationPolicyService.save(policyAccount);
 			
 			helper.createIdentityRole(identity, role);
 			helper.createIdentityRole(identity, defaultRole);

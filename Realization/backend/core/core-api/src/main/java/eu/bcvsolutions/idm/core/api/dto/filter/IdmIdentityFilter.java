@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
@@ -41,6 +42,14 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Returns managers by identity's contract working prosition 
 	 */
 	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
+	/**
+	 * Identity is disabled
+	 */
+	public static final String PARAMETER_DISABLED = "disabled";
+	/**
+	 * Identity state
+	 */
+	public static final String PARAMETER_STATE = "state";
 	
 	/**
 	 * roles - OR
@@ -67,10 +76,6 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * managers with contract guarantees included
 	 */
 	private boolean includeGuarantees = true;
-	/**
-	 * Enabled, disable or empty filter for disabled identities
-	 */
-	private Boolean disabled;
 	/**
 	 * Identity first name - exact match
 	 */
@@ -200,11 +205,19 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	}
 
 	public Boolean getDisabled() {
-		return disabled;
+		// TODO: parameter converter
+		Object disabled = data.getFirst(PARAMETER_DISABLED);
+		if (disabled == null) {
+			return null;
+		}
+		if (disabled instanceof Boolean) {
+			return (Boolean) disabled;
+		}
+		return Boolean.valueOf(disabled.toString()) ;
 	}
 
 	public void setDisabled(Boolean disabled) {
-		this.disabled = disabled;
+		data.set(PARAMETER_DISABLED, disabled);
 	}
 
 	public String getFirstName() {
@@ -221,5 +234,13 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+	
+	public void setState(IdentityState state) {
+		data.set(PARAMETER_STATE, state);
+	}
+	
+	public IdentityState getState() {
+		return (IdentityState) data.getFirst(PARAMETER_STATE);
 	}
 }

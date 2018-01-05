@@ -35,10 +35,12 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -51,8 +53,10 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
@@ -331,8 +335,7 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 
-		List<IdmIdentityRoleDto> identityRolesToSave = new ArrayList<>();
-		List<IdmConceptRoleRequestDto> conceptsToSave = new ArrayList<>();
+		
 
 		// Create new identity role
 		concepts.stream().filter(concept -> {
@@ -344,14 +347,17 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRolesToSave.add(
+			identityRole = identityRoleService.save(
 					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
+			// Save created identity role id
+			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
 			String message = MessageFormat.format("Role [{0}] was added to applicant. Requested in concept [{1}].",
-					identityRole.getRole(), concept.getId());
+					roleDto.getCode(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
 			conceptRoleRequestService.addToLog(request, message);
-			conceptsToSave.add(concept);
+			conceptRoleRequestService.save(concept);
 		});
 
 		// Update identity role
@@ -364,14 +370,17 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			identityRolesToSave.add(
+			identityRole = identityRoleService.save(
 					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
+			// Save created identity role id
+			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
 			String message = MessageFormat.format("Role [{0}] was changed. Requested in concept [{1}].",
-					identityRole.getRole(), concept.getId());
+					roleDto.getCode(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
 			conceptRoleRequestService.addToLog(request, message);
-			conceptsToSave.add(concept);
+			conceptRoleRequestService.save(concept);
 		});
 
 		// Delete identity role
@@ -400,8 +409,6 @@ public class DefaultIdmRoleRequestService
 			}
 		});
 
-		identityRoleService.saveAll(identityRolesToSave);
-		conceptRoleRequestService.saveAll(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
 		return this.save(request);
 
@@ -531,6 +538,22 @@ public class DefaultIdmRoleRequestService
 		dto.setState(RoleRequestState.CANCELED);
 		this.save(dto);
 	}
+	
+	@Override
+	public IdmRoleRequestDto createRequest(IdmIdentityContractDto contract, IdmRoleDto... roles) {
+		Assert.notNull(contract, "Contract must be filled for create role request!");
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setApplicant(contract.getIdentity());
+		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+		roleRequest.setExecuteImmediately(true);
+		roleRequest = this.save(roleRequest);
+		if(roles != null) {
+			for(IdmRoleDto role : roles) {
+				createConcept(roleRequest, contract, role.getId(), ConceptRoleRequestOperation.ADD);
+			}
+		}
+		return roleRequest;
+	}
 
 	private void cancelWF(IdmRoleRequestDto dto) {
 		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
@@ -640,6 +663,27 @@ public class DefaultIdmRoleRequestService
 
 		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
 		return exceptionToLog;
+	}
+	
+	/**
+	 * Method create {@link IdmConceptRoleRequestDto}
+	 * @param roleRequest
+	 * @param contract
+	 * @param roleId
+	 * @param operation
+	 * @return
+	 */
+	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest,
+			IdmIdentityContractDto contract, UUID roleId,
+			ConceptRoleRequestOperation operation) {
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setRoleRequest(roleRequest.getId());
+		conceptRoleRequest.setIdentityContract(contract.getId());
+		conceptRoleRequest.setValidFrom(contract.getValidFrom());
+		conceptRoleRequest.setValidTill(contract.getValidTill());
+		conceptRoleRequest.setRole(roleId);
+		conceptRoleRequest.setOperation(operation);
+		return conceptRoleRequestService.save(conceptRoleRequest);
 	}
 
 }

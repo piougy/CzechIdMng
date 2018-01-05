@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -25,11 +28,14 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,8 +44,6 @@ import io.swagger.annotations.AuthorizationScope;;
 
 /**
  * Entities on target system
- * 
- * TODO: remove ROLE_READ access? 
  * 
  * @author Radek Tomiška
  *
@@ -65,19 +69,16 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')"
-			+ " or hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@ApiOperation(
 			value = "Search system entities (/search/quick alias)", 
 			nickname = "searchSystemEntities",
 			tags = { SysSystemEntityController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
@@ -86,8 +87,7 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')"
-			+ " or hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Search system entities", 
@@ -95,11 +95,9 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 			tags = { SysSystemEntityController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
@@ -109,8 +107,7 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')"
-			+ " or hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "System entity detail", 
@@ -119,11 +116,9 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 			tags = { SysSystemEntityController.TAG }, 
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = ""),
-							@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")}),
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = ""),
-							@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")})
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 					})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "System entity's uuid identifier.", required = true)
@@ -195,6 +190,35 @@ public class SysSystemEntityController extends AbstractReadWriteDtoController<Sy
 		return super.delete(backendId);
 	}
 	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/connector-object", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Connector object for the system entity", 
+			nickname = "getConnectorObject", 
+			response = IcConnectorObject.class, 
+			tags = { SysSystemEntityController.TAG }, 
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+					})
+	public ResponseEntity<IcConnectorObject> getConnectorObject(
+			@ApiParam(value = "System entity's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		SysSystemEntityDto systemEntity = this.getDto(backendId);
+		if(systemEntity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IcConnectorObject connectorObject = ((SysSystemEntityService)getService())
+				.getConnectorObject(systemEntity, IdmBasePermission.READ);
+		if(connectorObject == null) {
+			return new ResponseEntity<IcConnectorObject>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<IcConnectorObject>(connectorObject, HttpStatus.OK);
+	}
+
 	@Override
 	protected SysSystemEntityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SysSystemEntityFilter filter = new SysSystemEntityFilter();

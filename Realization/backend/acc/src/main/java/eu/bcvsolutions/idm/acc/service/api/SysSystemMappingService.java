@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -64,4 +65,30 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 * @return
 	 */
 	Integer getProtectionInterval(AccAccountDto account);
+
+	
+	/**
+	 * Validate, if system mapping has attribute as identificator
+	 * @param systemMapingId
+	 */
+	void validate (UUID systemMapingId);
+
+	/**
+	 * Call script "Can be account created?" on the mapping.
+	 * @param uid
+	 * @param dto
+	 * @param script
+	 * @param system
+	 * @return true or false
+	 */
+	boolean canBeAccountCreated(String uid, AbstractDto dto, String script, SysSystemDto system);
+
+	/**
+	 * Find provisioning mapping on the given system and for entity type.
+	 * @param systemId
+	 * @param entityType
+	 * @return
+	 */
+	SysSystemMappingDto findProvisioningMapping(UUID systemId, SystemEntityType entityType);
+
 }

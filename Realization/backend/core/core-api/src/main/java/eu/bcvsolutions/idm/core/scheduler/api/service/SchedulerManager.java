@@ -54,6 +54,15 @@ public interface SchedulerManager {
 	 * @return
 	 */
 	AbstractTaskTrigger runTask(String taskId);
+
+	/**
+	 * Run task manually
+	 *
+	 * @param taskId
+	 * @param dryRun
+	 * @return
+	 */
+	AbstractTaskTrigger runTask(String taskId, boolean dryRun);
 	
 	/**
 	 * Interrupt given task
@@ -71,6 +80,16 @@ public interface SchedulerManager {
 	 * @return trigger containing name
 	 */
 	AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger);
+
+	/**
+	 * Creates trigger for task
+	 *
+	 * @param taskId task identifier
+	 * @param trigger trigger to add
+	* @param dryRun
+	 * @return trigger containing name
+	 */
+	AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger, boolean dryRun);
 
 	/**
 	 * Pauses trigger
@@ -95,4 +114,11 @@ public interface SchedulerManager {
 	 * @param triggerId trigger identifier
 	 */
 	void deleteTrigger(String taskId, String triggerId);
+
+	/**
+	 * Find all task with given task type
+	 * @param taskType
+	 * @return
+	 */
+	List<Task> getAllTasksByType(Class<?> taskType);
 }

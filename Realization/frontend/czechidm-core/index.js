@@ -19,6 +19,8 @@ import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
 import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
+import IdentityStateEnum from './src/enums/IdentityStateEnum';
+import ContractStateEnum from './src/enums/ContractStateEnum';
 //
 import ValidationMessage from './src/content/identity/ValidationMessage';
 
@@ -45,7 +47,9 @@ const ModuleRoot = {
     OperationStateEnum,
     PasswordPolicyTypeEnum,
     ScriptCategoryEnum,
-    ApiOperationTypeEnum
+    ApiOperationTypeEnum,
+    IdentityStateEnum,
+    ContractStateEnum
   },
   Content: {
     ValidationMessage

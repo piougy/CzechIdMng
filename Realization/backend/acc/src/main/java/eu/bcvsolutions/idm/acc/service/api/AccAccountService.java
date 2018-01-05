@@ -10,7 +10,10 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Accounts on target system
@@ -18,23 +21,25 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Radek Tomiška
  *
  */
-public interface AccAccountService extends 
-		ReadWriteDtoService<AccAccountDto, AccAccountFilter>, 
-		ScriptEnabled {
+public interface AccAccountService extends//
+		EventableDtoService<AccAccountDto, AccAccountFilter>, //
+		ScriptEnabled, //
+		AuthorizableService<AccAccountDto>//
+{
 
-	@Deprecated
 	/**
-	 * Delete AccAccount
-	 * @param account
-	 * @param deleteTargetAccount If is true, then will be call provisioning 
-	 *  and deleted account on target system
-	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
-	 * @deprecated Will be moved to event. This method will be removed!
+	 * DeleteTargetAccount If is true, then will be call provisioning
 	 */
-	void delete(AccAccountDto account, boolean deleteTargetAccount, UUID entityId);
-	
+	public static final String DELETE_TARGET_ACCOUNT_PROPERTY = "DELETE_TARGET_ACCOUNT";
+	/**
+	 * Id of entity connected to the account. Can be null, but provisioning archive
+	 * will not have correct information.
+	 */
+	public static final String ENTITY_ID_PROPERTY = "ENTITY_ID";
+
 	/**
 	 * Get accounts for identity on system.
+	 * 
 	 * @param systemId
 	 * @param identityId
 	 * @return
@@ -43,18 +48,29 @@ public interface AccAccountService extends
 
 	/**
 	 * Find account by UID on given system.
+	 * 
 	 * @param uid
 	 * @param systemId
 	 * @return
 	 */
 	AccAccountDto getAccount(String uid, UUID systemId);
-	
+
 	/**
-	 * Returns accounts with expired protection. Account has to be in protection mode.
+	 * Returns accounts with expired protection. Account has to be in protection
+	 * mode.
 	 * 
 	 * @param expirationDate
 	 * @param pageable
 	 * @return
 	 */
 	Page<AccAccountDto> findExpired(DateTime expirationDate, Pageable pageable);
+
+	/**
+	 * Load object from the connector
+	 * 
+	 * @param account
+	 * @param permissions
+	 * @return
+	 */
+	IcConnectorObject getConnectorObject(AccAccountDto account, BasePermission... permissions);
 }

@@ -18,6 +18,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -590,6 +591,15 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(FORM_VALUE_ONE, ((IdmFormValueDto) getValues.get(0)).getValue());
 		//
 		identityService.deleteById(owner.getId());
+	}
+	
+	@Test
+	public void testFindDefinitionByDtoClass() {
+		IdmFormDefinitionDto definitionByEntityClass = formService.getDefinition(IdmIdentity.class, null);
+		IdmFormDefinitionDto definitionByDtoClass = formService.getDefinition(IdmIdentityDto.class, null);
+		//
+		Assert.assertNotNull(definitionByEntityClass);
+		Assert.assertEquals(definitionByEntityClass, definitionByDtoClass);
 	}
 	
 	private FormableEntity createTestOwner(String name) {

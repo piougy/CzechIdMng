@@ -64,7 +64,7 @@ public class RoleSaveProcessor
 
 	private void doProvisioning(IdmRoleDto role) {
 		LOG.debug("Call account managment (create accounts for all systems) for role [{}]", role.getCode());
-		getProvisioningService().createAccountsForAllSystems(role);
+		getProvisioningService().accountManagement(role);
 		LOG.debug("Call provisioning for role [{}]", role.getCode());
 		getProvisioningService().doProvisioning(role);
 	}

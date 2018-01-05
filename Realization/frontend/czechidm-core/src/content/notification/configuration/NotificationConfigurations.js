@@ -21,6 +21,18 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      detail: {
+        show: false,
+        entity: {}
+      },
+      filterOpened: true
+    };
+  }
+
+  componentDidMount() {
+    this.selectNavigationItems(['notification', 'notification-configurations']);
+    this.context.store.dispatch(manager.fetchSupportedNotificationTypes());
   }
 
   getManager() {
@@ -35,14 +47,27 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
     return 'content.notificationConfigurations';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['notification', 'notification-configurations']);
-    this.context.store.dispatch(manager.fetchSupportedNotificationTypes());
+  showDetail(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      detail: {
+        show: true,
+        entity
+      }
+    });
   }
 
-  showDetail(entity) {
-    super.showDetail(entity, () => {
-      this.refs.topic.focus();
+  closeDetail(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      detail: {
+        show: false,
+        entity: {}
+      }
     });
   }
 
@@ -67,7 +92,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
 
   render() {
     const { _showLoading, _supportedNotificationTypesLoading, _supportedNotificationTypes } = this.props;
-    const { detail } = this.state;
+    const { detail, filterOpened } = this.state;
 
     return (
       <div>
@@ -82,6 +107,8 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
+            filterOpened={filterOpened}
+            _searchParameters={ this.getSearchParameters() }
             manager={this.getManager()}
             showRowSelection={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_UPDATE'])}
             actions={
@@ -104,7 +131,15 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }>
+            }
+            filter={
+              <Filter
+                ref="filterForm"
+                onSubmit={ this.useFilter.bind(this) }
+                onCancel={ this.cancelFilter.bind(this) }
+                supportedNotificationTypes={_supportedNotificationTypes}/>
+            }
+            >
             <Advanced.Column
               property=""
               header=""
@@ -126,7 +161,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                 ({ rowIndex, data }) => {
                   const templId = data[rowIndex].template;
                   return (
-                    <Advanced.NotificationTemplateInfo entityIdentifier={templId} face="link" />
+                    <Advanced.EntityInfo entityType="notificationTemplate" entityIdentifier={templId} face="popover" />
                   );
                 }
                 }
@@ -146,7 +181,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.topic })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading}>
                 <Basic.TextField
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}
@@ -203,12 +238,65 @@ NotificationConfigurations.defaultProps = {
   _supportedNotificationTypesLoading: true
 };
 
-function select(state) {
+function select(state, component) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     _supportedNotificationTypesLoading: Utils.Ui.isShowLoading(state, NotificationConfigurationManager.SUPPORTED_NOTIFICATION_TYPES),
-    _supportedNotificationTypes: DataManager.getData(state, NotificationConfigurationManager.SUPPORTED_NOTIFICATION_TYPES)
+    _supportedNotificationTypes: DataManager.getData(state, NotificationConfigurationManager.SUPPORTED_NOTIFICATION_TYPES),
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 
 export default connect(select)(NotificationConfigurations);
+
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ * @author Patrik Stloukal
+ */
+class Filter extends Advanced.Filter {
+
+  render() {
+    const { onSubmit, onCancel, supportedNotificationTypes } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row>
+            <div className="col-lg-4">
+              <Advanced.Filter.EnumSelectBox
+                ref="level"
+                placeholder={this.i18n('entity.NotificationConfiguration.level')}
+                enum={NotificationLevelEnum}/>
+            </div>
+            <div className="col-lg-4">
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={this.i18n('entity.NotificationConfiguration.topic')}/>
+            </div>
+            <div className="col-lg-4 text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </div>
+          </Basic.Row>
+          <Basic.Row>
+            <div className="col-lg-4">
+              <Advanced.Filter.EnumSelectBox
+                ref="notificationType"
+                placeholder={this.i18n('entity.NotificationConfiguration.notificationType')}
+                options={!supportedNotificationTypes ? null : supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}/>
+            </div>
+            <div className="col-lg-4">
+              <Advanced.Filter.SelectBox
+                ref="template"
+                placeholder={this.i18n('entity.NotificationConfiguration.template')}
+                multiSelect={false}
+                manager={notificationTemplateManager}/>
+            </div>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+      );
+  }
+}

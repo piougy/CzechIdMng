@@ -338,7 +338,10 @@
       },
       "roles": {
         "title" : "Roles",
-        "header" : "Roles <small>assigned roles</small>"
+        "header" : "Roles <small>assigned roles</small>",
+        "filter": {
+          "role": "Name of role"
+        }
       }
     },
     "role": {

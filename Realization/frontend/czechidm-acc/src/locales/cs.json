@@ -338,7 +338,10 @@
       },
       "roles": {
         "title" : "Role",
-        "header" : "Role <small>přiřazené role</small>"
+        "header" : "Role <small>přiřazené role</small>",
+        "filter": {
+          "role": "Název role"
+        }
       }
     },
     "role": {

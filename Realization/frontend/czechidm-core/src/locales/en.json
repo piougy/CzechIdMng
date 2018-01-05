@@ -2251,12 +2251,6 @@
     },
     "IdentityRole": {
       "role" : "Role",
-      "description": {
-        "title": "Description"
-      },
-      "disabled": {
-        "title": "Disabled"
-      },
       "identityContract": {
         "label": "Contracted position",
         "title": "Contracted position",

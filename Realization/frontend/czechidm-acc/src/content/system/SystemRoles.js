@@ -1,21 +1,22 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
+import { Link } from 'react-router';
 //
-import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { RoleSystemManager } from '../../redux';
-import uuid from 'uuid';
+import { Basic, Advanced, Domain, Managers } from 'czechidm-core';
+import { RoleSystemManager, SystemMappingManager } from '../../redux';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'system-role-table';
 const manager = new RoleSystemManager();
 const roleManager = new Managers.RoleManager();
+const systemMappingManager = new SystemMappingManager();
 
 /**
  * Table to display roles, assigned to system
  *
  * @author Petr Hanák
  */
-class SystemRoles extends Advanced.AbstractTableContent {
+export default class SystemRoles extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -40,6 +41,12 @@ class SystemRoles extends Advanced.AbstractTableContent {
   showDetail(entity) {
     const roleId = entity.role;
     this.context.router.push(`role/${roleId}/detail`);
+  }
+
+  _getSystemMappingLink(roleSystem) {
+    return (
+      <Link to={`/system/${roleSystem._embedded.system.id}/mappings/${roleSystem._embedded.systemMapping.id}/detail`} >{systemMappingManager.getNiceLabel(roleSystem._embedded.systemMapping)}</Link>
+    );
   }
 
   render() {
@@ -73,9 +80,10 @@ class SystemRoles extends Advanced.AbstractTableContent {
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
                     <Basic.Col lg={ 8 }>
-                    <Advanced.Filter.SelectBox
-                      ref="roleSystem"
-                      placeholder={this.i18n('content.roles.filter.text.placeholder')}/>
+                      <Advanced.Filter.SelectBox
+                        ref="roleId"
+                        manager={ roleManager }
+                        placeholder={this.i18n('acc:content.system.roles.filter.role')}/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -109,17 +117,20 @@ class SystemRoles extends Advanced.AbstractTableContent {
                       face="popover" />
                   );
                 }
-              }
-              />
+              }/>
             <Advanced.Column
-              property="_embedded.role.description"
-              header={this.i18n('core:entity.Role.description')}
-              />
+              property="_embedded.systemMapping.entityType"
+              header={this.i18n('acc:entity.SystemEntity.entityType')}
+              sort face="enum"
+              enumClass={SystemEntityTypeEnum} />
             <Advanced.Column
-              face="bool"
-              property="_embedded.role.disabled"
-              header={this.i18n('core:entity.Role.disabled')}
-              />
+              property="systemMapping"
+              header={this.i18n('acc:entity.RoleSystem.systemMapping')}
+              cell={
+                ({ rowIndex, data }) => {
+                  return this._getSystemMappingLink(data[rowIndex]);
+                }
+              }/>
           </Advanced.Table>
         </Basic.Panel>
       </div>
@@ -128,19 +139,7 @@ class SystemRoles extends Advanced.AbstractTableContent {
 }
 
 SystemRoles.propTypes = {
-  role: PropTypes.object,
-  _showLoading: PropTypes.bool,
 };
 
 SystemRoles.defaultProps = {
-  role: null,
-  _showLoading: false,
 };
-
-function select(state, component) {
-  return {
-    role: Utils.Entity.getEntity(state, roleManager.getEntityType(), component.params.entityId),
-  };
-}
-
-export default connect(select)(SystemRoles);

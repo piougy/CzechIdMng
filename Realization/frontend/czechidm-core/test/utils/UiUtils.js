@@ -15,23 +15,23 @@ describe('UiUtils', function testUiUtils() {
   describe('[substringBegin]', function testSubstringBegin() {
     //
     it('- tests of cutting in the end', function test() {
-      expect(UiUtils.substringBegin('ahojj/j/', 5, '/')).to.equal('ahojj');
+      expect(UiUtils.substringBegin('halloo/o/', 6, '/')).to.equal('halloo');
     });
 
     it('- basic function - 10 chars', function test() {
-      expect(UiUtils.substringBegin('ahojjj/jjhjhjgj/', 10, '/')).to.equal('ahojjj');
+      expect(UiUtils.substringBegin('halloo/oohll/', 10, '/')).to.equal('halloo');
     });
 
     it('- basic function - 4 chars', function test() {
-      expect(UiUtils.substringBegin('ahojj/j/', 4, '/')).to.equal('');
+      expect(UiUtils.substringBegin('halloo/h/', 4, '/')).to.equal('');
     });
 
     it('- of position of cutChar same as needed length', function test() {
-      expect(UiUtils.substringBegin('ahojj/j/', 6, '/')).to.equal('ahojj');
+      expect(UiUtils.substringBegin('halloo/h/', 7, '/')).to.equal('halloo');
     });
 
     it('- of low number wit cutChar at begining', function test() {
-      expect(UiUtils.substringBegin('/ahojj/j/', 2, '/')).to.equal('');
+      expect(UiUtils.substringBegin('/halloo/h/', 2, '/')).to.equal('');
     });
 
     it('- begin with blank text', function test() {
@@ -43,23 +43,23 @@ describe('UiUtils', function testUiUtils() {
     });
 
     it('- tests of cutting in the end with suffix', function test() {
-      expect(UiUtils.substringBegin('ahojj/j/', 5, '/', '...')).to.equal('ahojj...');
+      expect(UiUtils.substringBegin('halloo/o/', 6, '/', '...')).to.equal('halloo...');
     });
 
     it('- basic function - 10 chars with suffix', function test() {
-      expect(UiUtils.substringBegin('ahojjj/jjhjhjgj/', 10, '/', '...')).to.equal('ahojjj...');
+      expect(UiUtils.substringBegin('halloo/oohll/', 10, '/', '...')).to.equal('halloo...');
     });
 
     it('- basic function - 4 chars with suffix', function test() {
-      expect(UiUtils.substringBegin('ahojj/j/', 4, '/', '...')).to.equal('...');
+      expect(UiUtils.substringBegin('halloo/h/', 4, '/', '...')).to.equal('...');
     });
 
-    it('- of position of cutChar same as needed length with suffix', function test() {
-      expect(UiUtils.substringBegin('ahojj/j/', 6, '/', '...')).to.equal('ahojj...');
+    it('- of position of cutChar same as needed length  with suffix', function test() {
+      expect(UiUtils.substringBegin('halloo/h/', 7, '/', '...')).to.equal('halloo...');
     });
 
     it('- of low number wit cutChar at begining with suffix', function test() {
-      expect(UiUtils.substringBegin('/ahojj/j/', 2, '/', '...')).to.equal('...');
+      expect(UiUtils.substringBegin('/halloo/h/', 2, '/', '...')).to.equal('...');
     });
 
     it('- begin with blank text with suffix', function test() {
@@ -74,15 +74,15 @@ describe('UiUtils', function testUiUtils() {
   describe('[substringEnd]', function testSubstringEnd() {
     //
     it('- of position of cutChar higher than needed length', function test() {
-      expect(UiUtils.substringEnd('ahojj/j/', 4, '/')).to.equal('/j/');
+      expect(UiUtils.substringEnd('halloo/o/', 4, '/')).to.equal('/o/');
     });
 
     it('- of position of cutChar same as needed length', function test() {
-      expect(UiUtils.substringEnd('ahojj/j/', 3, '/')).to.equal('/j/');
+      expect(UiUtils.substringEnd('halloo/o/', 3, '/')).to.equal('/o/');
     });
 
     it('- of position of cutChar lower than needed length', function test() {
-      expect(UiUtils.substringEnd('ahojj/j/', 2, '/')).to.equal('/');
+      expect(UiUtils.substringEnd('halloo/o/', 2, '/')).to.equal('/');
     });
 
     it('- end with blank text', function test() {
@@ -94,15 +94,15 @@ describe('UiUtils', function testUiUtils() {
     });
 
     it('- of position of cutChar higher than needed length with suffix', function test() {
-      expect(UiUtils.substringEnd('ahojj/j/', 4, '/', '...')).to.equal('.../j/');
+      expect(UiUtils.substringEnd('halloo/o/', 4, '/', '...')).to.equal('.../o/');
     });
 
-    it('- of position of cutChar same as needed length  with suffix', function test() {
-      expect(UiUtils.substringEnd('ahojj/j/', 3, '/', '...')).to.equal('.../j/');
+    it('- of position of cutChar same as needed length with suffix', function test() {
+      expect(UiUtils.substringEnd('halloo/o/', 3, '/', '...')).to.equal('.../o/');
     });
 
-    it('- of position of cutChar lower than needed length  with suffix', function test() {
-      expect(UiUtils.substringEnd('ahojj/j/', 2, '/', '...')).to.equal('.../');
+    it('- of position of cutChar lower than needed length with suffix', function test() {
+      expect(UiUtils.substringEnd('halloo/o/', 2, '/', '...')).to.equal('.../');
     });
 
     it('- end with blank text with suffix', function test() {

@@ -184,8 +184,8 @@ export default class UiUtils {
    */
   static substringBegin(data, maxLength, cutChar, suffix = '') {
     if (data != null) {
-      if(data.length <= maxLength){
-        suffix = "";
+      if (data.length <= maxLength) {
+        suffix = '';
       }
       if (data.charAt(maxLength) === cutChar) {
         const result = data.substr(0, maxLength) + suffix;
@@ -214,8 +214,8 @@ export default class UiUtils {
    */
   static substringEnd(data, maxLength, cutChar, suffix = '') {
     if (data != null) {
-      if(data.length <= maxLength){
-        suffix = "";
+      if (data.length <= maxLength) {
+        suffix = '';
       }
       data = cutChar + data;
       let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(data.length - maxLength, data.length);

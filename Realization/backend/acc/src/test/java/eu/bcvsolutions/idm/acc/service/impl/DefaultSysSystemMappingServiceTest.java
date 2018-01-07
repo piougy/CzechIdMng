@@ -85,7 +85,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 
 		testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
 		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
-		SysSystemMappingDto mappingSystem3 = testHelper.createMappingSystem(SystemEntityType.ROLE, objectClass);
+		 SysSystemMappingDto mappingSystem3 = testHelper.createMappingSystem(SystemEntityType.TREE, objectClass);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setEntityType(SystemEntityType.CONTRACT);
@@ -105,7 +105,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
 		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
-		SysSystemMappingDto mappingSystem2 = createProvisioningMappingSystem(SystemEntityType.ROLE, objectClass);
+		SysSystemMappingDto mappingSystem2 = createProvisioningMappingSystem(SystemEntityType.TREE, objectClass);
 		SysSystemMappingDto mappingSystem3 = createProvisioningMappingSystem(entityType, objectClass);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();

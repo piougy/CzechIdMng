@@ -5,12 +5,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.DefaultTestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -38,6 +40,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 	@Autowired private SysProvisioningOperationService operationService;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysProvisioningBatchService batchService;
+	@Autowired private DefaultTestHelper helper;
 
 	@Before
 	public void init() {
@@ -52,7 +55,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 	@Test
 	public void typeFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		createProvisioningOperation(SystemEntityType.CONTRACT, system);
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(SystemEntityType.IDENTITY, system);
@@ -72,18 +75,18 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
-		provisioningOperation2.setOperationType(ProvisioningEventType.UPDATE);
+		provisioningOperation2.setOperationType(ProvisioningEventType.CANCEL);
 		operationService.save(provisioningOperation2);
 		SysProvisioningOperationDto provisioningOperation3 = createProvisioningOperation(entityType, system);
-		provisioningOperation3.setOperationType(ProvisioningEventType.UPDATE);
+		provisioningOperation3.setOperationType(ProvisioningEventType.CANCEL);
 		operationService.save(provisioningOperation3);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setOperationType(ProvisioningEventType.UPDATE);
+		filter.setOperationType(ProvisioningEventType.CANCEL);
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
@@ -96,8 +99,8 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system2 = createRoleSystem();
-		SysSystemDto system1 = createRoleSystem();
+		SysSystemDto system2 = createSystem();
+		SysSystemDto system1 = createSystem();
 
 		createProvisioningOperation(entityType, system2);
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system1);
@@ -117,7 +120,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
@@ -137,7 +140,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 	public void batchIdFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto();
 		provisioningBatch = batchService.save(provisioningBatch);
@@ -164,7 +167,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 	public void entityIdentifierFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		createProvisioningOperation(entityType, system);
 
@@ -186,7 +189,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 	public void resultStateFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		OperationResult resultState = new OperationResult();
 		resultState.setState(OperationState.CREATED);
@@ -209,7 +212,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 	public void dateTimeFilterTest() {
 		IdmBasePermission permission = IdmBasePermission.ADMIN;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
-		SysSystemDto system = createRoleSystem();
+		SysSystemDto system = createSystem();
 
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
 
@@ -232,9 +235,13 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		assertEquals(0, result2.getTotalElements());
 	}
 
-	private SysSystemDto createRoleSystem() {
+	private SysSystemDto createSystem() {
 		SysSystemDto system = new SysSystemDto();
 		system.setName("system_" + UUID.randomUUID());
+		system.setReadonly(true);
+		system.setDisabled(false);
+		system.setVirtual(false);
+		system.setQueue(false);
 		return systemService.save(system);
 	}
 
@@ -244,7 +251,9 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 		provisioningOperation.setProvisioningContext(new ProvisioningContext());
 		provisioningOperation.setSystem(system.getId());
-		provisioningOperation.setSystemEntityUid("SomeEntityUID" + UUID.randomUUID());
+
+		SysSystemEntityDto systemEntity = helper.createSystemEntity(system);
+		provisioningOperation.setSystemEntity(systemEntity.getId());
 
 		OperationResult result = new OperationResult();
 		result.setState(OperationState.RUNNING);

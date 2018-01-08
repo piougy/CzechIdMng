@@ -132,12 +132,16 @@ export default class AbstractTableContent extends Basic.AbstractContent {
             this.addError(error);
           }
         } else {
-          this.refs.table.getWrappedInstance().reload();
+          this.afterDelete();
         }
       }));
     }, () => {
       // nothing
     });
+  }
+
+  afterDelete() {
+    this.refs.table.getWrappedInstance().reload();
   }
 
   /**

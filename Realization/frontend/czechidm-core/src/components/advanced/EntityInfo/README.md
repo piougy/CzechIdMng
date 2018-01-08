@@ -15,7 +15,7 @@ Information about entity. Entity is defined by `entityType` and `entityIdentifie
 All plugable entity info components (generalize `AbstractEntityInfo` component) should implement:
 - all parameters from AbstractComponent
 - fetching entity by identifier from BE
-- If entity doesn't exist, then short entity's idenfifier will be shown. Use `UuidInfo` component.
+- If entity doesn't exist, then short entity's identifier will be shown. Use `UuidInfo` component.
 - different decorators - see `face` parameter
 - `showLink` parameter
 

@@ -177,13 +177,18 @@ public class DefaultIdmFormDefinitionService
 	public IdmFormDefinitionDto updateDefinition(Class<? extends Identifiable> ownerType, String definitionCode, List<IdmFormAttributeDto> attributes) {
 		Assert.notNull(ownerType);
 		//
-		// check form definition
-		// incompatible changes has to be solved by change script
-		// adding parameter is compatible change
-		IdmFormDefinitionDto formDefinition = findOneByTypeAndCode(getOwnerType(ownerType), definitionCode);
+		return updateDefinition(getOwnerType(ownerType), definitionCode, attributes);
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto updateDefinition(String definitionType, String definitionCode, List<IdmFormAttributeDto> attributes) {
+		Assert.notNull(definitionType);
+		//
+		IdmFormDefinitionDto formDefinition = findOneByTypeAndCode(definitionType, definitionCode);
 		if (formDefinition == null) {
 			formDefinition = new IdmFormDefinitionDto();
-			formDefinition.setType(getOwnerType(ownerType));
+			formDefinition.setType(definitionType);
 			formDefinition.setCode(definitionCode);
 			// TODO: we don't set definition to unmodifiable - some changes can be done through ui?
 			formDefinition = save(formDefinition);

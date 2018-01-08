@@ -16,6 +16,15 @@ class PasswordField extends Basic.AbstractFormComponent {
     };
   }
 
+  /**
+   * Return component identifier, with can be used in localization etc.
+   *
+   * @return {string} component identifier
+   */
+  getComponentKey() {
+    return 'component.advanced.PasswordField';
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.props.newPassword !== nextProps.newPassword) {
       this.refs.newPassword.setValue(nextProps.newPassword);
@@ -74,17 +83,54 @@ class PasswordField extends Basic.AbstractFormComponent {
     return result;
   }
 
-  render() {
-    const { newPassword, newPasswordAgain, type, required, readOnly, labelSpan, componentSpan } = this.props;
-    const { passwordForValidation } = this.state;
+  _newPasswordLabel(label) {
+    if (label !== null && label !== undefined) {
+      return label;
+    }
+    // default label
+    return this.i18n('newPassword.label');
+  }
 
+  _newPasswordAgainLabel(label) {
+    if (label !== null && label !== undefined) {
+      return label;
+    }
+    // default label
+    return this.i18n('newPasswordAgain.label');
+  }
+
+  render() {
+    const {
+      newPassword,
+      newPasswordAgain,
+      type,
+      required,
+      readOnly,
+      rendered,
+      labelSpan,
+      componentSpan,
+      newPasswordLabel,
+      newPasswordAgainLabel,
+      hidden
+    } = this.props;
+    const { passwordForValidation } = this.state;
+    //
+    if (!rendered) {
+      return null;
+    }
+    //
     return (
-      <div>
-        <Basic.TextField type={type} ref="newPassword" value={newPassword}
-          validate={this._validatePassword.bind(this, 'newPasswordAgain', true)} readOnly={readOnly}
-          label={this.i18n('content.password.change.password')} required={required}
-          labelSpan={labelSpan}
-          componentSpan={componentSpan}
+      <div className={ hidden ? 'hidden' : '' }>
+        <Basic.TextField
+          type={ type }
+          ref="newPassword"
+          value={ newPassword }
+          validate={ this._validatePassword.bind(this, 'newPasswordAgain', true) }
+          readOnly={ readOnly }
+          label={ this._newPasswordLabel(newPasswordLabel) }
+          required={ required }
+          labelSpan={ labelSpan }
+          componentSpan={ componentSpan }
           style={{ marginBottom: 0 }}/>
         <div className="form-group" style={{ margin: 0 }}>
           {
@@ -100,12 +146,16 @@ class PasswordField extends Basic.AbstractFormComponent {
             isIcon={false}
             spanClassName={componentSpan} />
         </div>
-        <Basic.TextField type={type} ref="newPasswordAgain"
-          value={newPasswordAgain} readOnly={readOnly}
-          validate={this._validatePassword.bind(this, 'newPassword', false)}
-          label={this.i18n('content.password.change.passwordAgain.label')} required={required}
-          labelSpan={labelSpan}
-          componentSpan={componentSpan}/>
+        <Basic.TextField
+          type={type}
+          ref="newPasswordAgain"
+          value={ newPasswordAgain }
+          readOnly={ readOnly }
+          validate={ this._validatePassword.bind(this, 'newPassword', false) }
+          label={ this._newPasswordAgainLabel(newPasswordAgainLabel) }
+          required={required}
+          labelSpan={ labelSpan }
+          componentSpan={ componentSpan }/>
       </div>
     );
   }
@@ -115,8 +165,12 @@ PasswordField.propTypes = {
   newPassword: PropTypes.string,
   newPasswordAgain: PropTypes.string,
   readOnly: PropTypes.bool,
+  rendered: PropTypes.bool,
+  hidden: PropTypes.bool,
   type: PropTypes.string,
-  required: PropTypes.bool
+  required: PropTypes.bool,
+  newPasswordLabel: PropTypes.string,
+  newPasswordAgainLabel: PropTypes.string
 };
 
 PasswordField.defaultProps = {
@@ -124,7 +178,9 @@ PasswordField.defaultProps = {
   readOnly: false,
   newPasswordAgain: '',
   type: 'password',
-  required: true
+  required: true,
+  hidden: false,
+  rendered: true
 };
 
 

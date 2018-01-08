@@ -398,6 +398,20 @@
       },
       "Recaptcha": {
         "required": "Check 'you are not a robot' please"
+      },
+      "PasswordField":{
+        "newPassword": {
+          "label": "New password"
+        },
+        "newPasswordAgain": {
+          "label": "Re-enter new password"
+        },
+        "password": {
+          "label": "Password"
+        },
+        "passwordAgain": {
+          "label": "Re-enter password"
+        }
       }
     }
   },

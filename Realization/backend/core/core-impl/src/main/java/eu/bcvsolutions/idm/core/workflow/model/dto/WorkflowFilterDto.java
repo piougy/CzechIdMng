@@ -172,8 +172,7 @@ public class WorkflowFilterDto extends QuickFilter {
 			if(WorkflowFilterDto.ORDER_DESC.equals(order)){
 				this.setSortDesc(true);
 			}
-		}
-		
+		}	
 	}
 
 	public String getCandidateOrAssigned() {

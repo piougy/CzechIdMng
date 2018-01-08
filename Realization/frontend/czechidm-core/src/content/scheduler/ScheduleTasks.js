@@ -156,9 +156,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
-      this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
-    }));
+    this.refs['confirm-delete'].show(
+      this.i18n(`action.run_manually.message`, { count: 1, record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.run_manually.header`, { count: 1 })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
+        this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+      }));
+    }, () => {
+      // Rejected
+    });
   }
 
   onDryRun(entity, event) {

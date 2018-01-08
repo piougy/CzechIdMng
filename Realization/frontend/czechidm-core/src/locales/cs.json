@@ -117,6 +117,16 @@
       "accepted_2": "Smazání záznamů [{{records}}] proběhne na pozadí asynchronně (odebrání podléhá schválení či je spuštěno jako dlouhotrvající úloha)",
       "accepted_5": "Smazání záznamů [{{records}}] proběhne na pozadí asynchronně (odebrání podléhá schválení či je spuštěno jako dlouhotrvající úloha)"
     },
+    "run_manually": {
+      "action": "SpustitRucne",
+      "header": "Spustit úlohu ručně",
+      "header_plural": "Spustit úlohy ručně",
+      "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ručně?",
+      "message_plural": "Vybrané úlohy: [<strong>{{records}}</strong>].<br /><br /> Chcete spustit <strong>{{count}}</strong> vybraných úloh ručně?",
+      "error": "Při ručním spouštění úlohy [{{record}}] nastala chyba.",
+      "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna ručně",
+      "success_plural": "Vybrané úlohy [{{records}}] byly úspěšně spuštěny ručně"
+    },
     "activate": {
       "action": "Aktivovat",
       "header_0": "N/A",

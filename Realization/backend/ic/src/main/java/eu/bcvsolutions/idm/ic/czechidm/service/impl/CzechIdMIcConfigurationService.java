@@ -25,16 +25,16 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
-import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
@@ -130,7 +130,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
 				IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation,
 						(Class<? extends IcConnector>) clazz);
-				Class<? extends IcConnectorConfigurationClass> configurationClass = connectorAnnotation
+				Class<? extends ConfigurationClass> configurationClass = connectorAnnotation
 						.configurationClass();
 				connectorInfos.add(info);
 
@@ -258,9 +258,9 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	private IcConnectorConfiguration initDefaultConfiguration(
-			Class<? extends IcConnectorConfigurationClass> configurationClass) {
+			Class<? extends ConfigurationClass> configurationClass) {
 		try {
-			IcConnectorConfigurationClass configurationClassInstance = configurationClass.newInstance();
+			ConfigurationClass configurationClassInstance = configurationClass.newInstance();
 			List<IcConfigurationProperty> properties = new ArrayList<>();
 
 			PropertyDescriptor[] descriptors = Introspector.getBeanInfo(configurationClass).getPropertyDescriptors();
@@ -268,7 +268,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 			Lists.newArrayList(descriptors).stream().forEach(descriptor -> {
 				Method readMethod = descriptor.getReadMethod();
 				String propertyName = descriptor.getName();
-				IcConfigurationClassProperty property = readMethod.getAnnotation(IcConfigurationClassProperty.class);
+				ConfigurationClassProperty property = readMethod.getAnnotation(ConfigurationClassProperty.class);
 				if (property != null) {
 					IcConfigurationPropertyImpl icProperty = (IcConfigurationPropertyImpl) CzechIdMIcConvertUtil
 							.convertConfigurationProperty(property);

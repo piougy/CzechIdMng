@@ -421,6 +421,20 @@
       },
       "Recaptcha": {
         "required": "Potvrďte prosím, že nejste robot"
+      },
+      "PasswordField":{
+        "newPassword": {
+          "label": "Nové heslo"
+        },
+        "newPasswordAgain": {
+          "label": "Nové heslo znovu"
+        },
+        "password": {
+          "label": "Heslo"
+        },
+        "passwordAgain": {
+          "label": "Heslo znovu"
+        }
       }
     }
   },

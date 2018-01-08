@@ -174,7 +174,7 @@ export default class UiUtils {
    * If data is cutted then substring is extended by suffix from right.
    * Examples:
    * UiUtils.substringBegin('This is too long text', 5, '');
-   * UiUtils.substringBegin('ahojj/j/', 6, '/', '...'); --> 'ahojj...'
+   * UiUtils.substringBegin('hello/j/', 6, '/', '...'); --> 'hello...'
    *
    * @param  {String} data
    * @param  {Number} maxLength
@@ -205,7 +205,7 @@ export default class UiUtils {
    * If data is cutted then substring is extended by suffix from left.
    * Examples:
    * UiUtils.substringEnd('this/is/path', 5, '/');
-   * UiUtils.substringEnd('ahojj/j/', 4, '/', '...')); -->'.../j/'
+   * UiUtils.substringEnd('hello/j/', 4, '/', '...')); -->'.../j/'
    * @param  {String} data
    * @param  {Number} maxLength
    * @param  {String} cutChar Character cutting words

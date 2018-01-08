@@ -68,7 +68,8 @@ public interface IdmAutomaticRoleAttributeService
 	Page<UUID> getNewNotPassedIdentitiesForAutomaticRole(UUID automaticRoleId, Pageable pageable);
 	
 	/**
-	 * Return all new passed automatic role by attribute for given identity id
+	 * Return all new passed automatic role by attribute for given identity id.
+	 * All roles in concept are skipped.
 	 * 
 	 * @param identityId
 	 * @return
@@ -77,6 +78,7 @@ public interface IdmAutomaticRoleAttributeService
 	
 	/**
 	 * Return current not passed list of automatic roles for given identity id
+	 * All roles in concept are skipped.
 	 * 
 	 * @param identityId
 	 * @return

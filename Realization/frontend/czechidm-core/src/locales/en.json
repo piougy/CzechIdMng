@@ -1198,7 +1198,7 @@
       "recalculate": {
         "label": "Recalculation",
         "header": "Perform recalculate this automatic role based on attributes?",
-        "message": "The automatic role will be recalculated based on attributes for all identities.<br/ ><b>Recalculating will started as new long runnign task.</b><br />If you choose no, automatic role by attribute will be flagged as Concept.<br /><i>(This operation can be very demanding).</i>"
+        "message": "The automatic role will be recalculated based on attributes for all identities.<br/ ><b>Recalculating will started as new long runnign task.</b><br />If you choose no, automatic role by attribute will be flagged as Concept.<br /><i>(This operation can be very demanding).</i><br /><br /><br /><b>Yes:</b> Role assignment to users will start now as a new long running task.<br /><b>No:</b> This configuration will be saved as a concept."
       }
     },
     "formDefinitions": {
@@ -2293,7 +2293,10 @@
           "label": "Name",
           "help": "The name is used to easily identify the automatic role."
       },
-      "role": "Role",
+      "role": {
+        "label": "Role",
+        "help": "Selected role will be assigned to identities base on specified Rules."
+      },
       "attribute": {
         "type": {
           "label": "Type of checked attribute",
@@ -2302,7 +2305,7 @@
         "concept": {
           "label": "Concept",
           "info": "Concept",
-          "help": "Automatic role is in an concept state (isn't recalculate to all users), you can return it to a consistent state by doing the recalculation."
+          "help": "This automatic role is a Concept. Push 'Recalculation' to assign the role to the users."
         },
         "attributeName": "Attribute name",
         "comparison": "Comparison type",

@@ -1230,7 +1230,7 @@
       "recalculate": {
         "label": "Přepočet",
         "header": "Provést přepočet této automatické role na základě attributu?",
-        "message": "Bude proveden přepočet této automatické role na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br />Pokud zvolíte ne, automatická role podle atributu bude označena jako Koncept.<br /><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i>"
+        "message": "Bude proveden přepočet této automatické role na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br />Pokud zvolíte ne, automatická role podle atributu bude označena jako Koncept.<br /><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i><br /><br /><br /><b>Ano:</b> Přiřazení role bude provedeno nyní jako nová dlouho trvajicí úloha.<br /><b>Ne:</b> Tato konfigurace bude uložena jako koncept."
       }
     },
     "formDefinitions": {
@@ -2330,7 +2330,10 @@
           "label": "Název",
           "help": "Název je použit pro jednoduší identifikaci automatické role."
       },
-      "role": "Role",
+      "role": {
+        "label": "Role",
+        "help": "Selected role will be assigned to identities base on specified Rules."
+      },
       "attribute": {
         "type": {
           "label": "Typ kontrolovaného atributu",
@@ -2339,7 +2342,7 @@
         "concept": {
           "label": "Koncept",
           "info": "Koncept",
-          "help": "Automatická role se nachází v konceptním stavu (není přepočítána pro všechny uživatele), provedením přepočtu ji vrátíte opět do konzistentního stavu."
+          "help": "Tato automatická role je koncept. Stiskněte tlačítko 'Přepočet' pro přidělení role uživatelům."
         },
         "attributeName": "Název atributu",
         "comparison": "Typ porovnání",

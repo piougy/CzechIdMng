@@ -159,7 +159,8 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
             <Advanced.EntitySelectBox
               ref="role"
               readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') && Utils.Entity.isNew(entity))}
-              label={this.i18n('entity.AutomaticRole.role')}
+              label={this.i18n('entity.AutomaticRole.role.label')}
+              helpBlock={this.i18n('entity.AutomaticRole.role.help')}
               entityType="role"
               required/>
           </Basic.AbstractForm>
@@ -171,7 +172,11 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
           <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
             <Basic.PanelHeader text={this.i18n('rules')}/>
               <Basic.Alert level="info" text={this.i18n('automaticRoleAttributeSaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
-              <AutomaticRoleAttributeRuleTable manager={this.automaticRoleAttributeRuleManager} uiKey={entity ? entity.id : null} rendered={!Utils.Entity.isNew(entity)} attributeId={entity ? entity.id : null} />
+              <AutomaticRoleAttributeRuleTable
+                manager={this.automaticRoleAttributeRuleManager}
+                uiKey={entity ? entity.id : null}
+                rendered={!Utils.Entity.isNew(entity)}
+                attributeId={entity ? entity.id : null} />
           </Basic.Panel>
 
           <Basic.PanelFooter showLoading={showLoading} >

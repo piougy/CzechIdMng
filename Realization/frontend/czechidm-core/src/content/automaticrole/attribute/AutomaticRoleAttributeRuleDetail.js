@@ -98,7 +98,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   /**
    * Default save method that catch save event from form.
    */
-  save(afterAction = 'CONTINUE', event) {
+  save(afterAction = 'CLOSE', event) {
     const { uiKey, attributeId } = this.props;
 
     if (event) {
@@ -264,14 +264,18 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
             <Basic.SplitButton
               level="success"
-              title={ this.i18n('button.saveAndContinue') }
-              onClick={ this.save.bind(this, 'CONTINUE') }
+              title={ this.i18n('button.saveAndClose') }
+              onClick={ this.save.bind(this, 'CLOSE') }
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
               rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'AUTOMATICROLERULE_CREATE' : 'AUTOMATICROLERULE_UPDATE')}
               dropup>
-              <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              <Basic.MenuItem
+                eventKey="1"
+                onClick={this.save.bind(this, 'CONTINUE')}>
+                {this.i18n('button.saveAndContinue')}
+              </Basic.MenuItem>
             </Basic.SplitButton>
           </Basic.PanelFooter>
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}

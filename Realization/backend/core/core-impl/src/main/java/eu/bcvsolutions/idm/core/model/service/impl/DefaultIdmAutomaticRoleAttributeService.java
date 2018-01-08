@@ -252,7 +252,19 @@ public class DefaultIdmAutomaticRoleAttributeService
 		//
 		// iterate trough all automatic role
 		for (IdmAutomaticRoleAttributeDto automaticRole : this.find(null).getContent()) {
+			if (automaticRole.isConcept()) {
+				LOG.debug("Automatic role id [{}] is in concept state, skip this role.", automaticRole.getId());
+				continue;
+			}
+			//
 			List<IdmAutomaticRoleAttributeRuleDto> allRulesForAutomaticRole = automaticRoleAttributeRuleService.findAllRulesForAutomaticRoleAndType(automaticRole.getId(), null);
+			//
+			// if automatic role hasn't rules skip adding
+			if (allRulesForAutomaticRole.isEmpty()) {
+				LOG.debug("Automatic role id [{}] hasn't rules, skip this role.", automaticRole.getId());
+				continue;
+			}
+			//
 			Specification<IdmIdentity> criteria = this.getCriteriaForRules(automaticRole.getId(), allRulesForAutomaticRole, true, true, identityId);
 			boolean pass = !identityRepository.findAll(criteria).isEmpty();
 			if (pass) {
@@ -269,7 +281,19 @@ public class DefaultIdmAutomaticRoleAttributeService
 		//
 		// iterate trough all automatic role
 		for (IdmAutomaticRoleAttributeDto automaticRole : this.find(null).getContent()) {
+			if (automaticRole.isConcept()) {
+				LOG.debug("Automatic role id [{}] is in concept state and will be skipped.", automaticRole.getId());
+				continue;
+			}
+			//
 			List<IdmAutomaticRoleAttributeRuleDto> allRulesForAutomaticRole = automaticRoleAttributeRuleService.findAllRulesForAutomaticRoleAndType(automaticRole.getId(), null);
+			//
+			// if automatic role hasn't rules skip adding
+			if (allRulesForAutomaticRole.isEmpty()) {
+				LOG.debug("Automatic role id [{}] hasn't rules, skip this role.", automaticRole.getId());
+				continue;
+			}
+			//
 			Specification<IdmIdentity> criteria = this.getCriteriaForRules(automaticRole.getId(), allRulesForAutomaticRole, false, false, identityId);
 			// if identity is in list, is'nt pass by this automatic role
 			boolean notPass = !identityRepository.findAll(criteria).isEmpty();

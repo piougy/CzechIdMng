@@ -103,7 +103,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
+          filterOpened={filterOpened}
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }

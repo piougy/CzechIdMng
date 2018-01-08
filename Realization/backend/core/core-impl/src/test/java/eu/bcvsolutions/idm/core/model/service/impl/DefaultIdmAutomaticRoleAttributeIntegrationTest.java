@@ -3,12 +3,8 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,9 +12,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
@@ -41,10 +34,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -722,6 +712,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 
 	/**
 	 * Create new rule with given informations. See params.
+	 * And remove concept state from automatic role by attribute
 	 * 
 	 * @param automaticRoleId
 	 * @param comparsion
@@ -741,7 +732,10 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		rule.setFormAttribute(formAttrId);
 		rule.setValue(value);
 		rule.setAutomaticRoleAttribute(automaticRoleId);
-		return automaticRoleAttributeRuleService.save(rule);
+		rule = automaticRoleAttributeRuleService.save(rule);
+		// disable concept must be after rule save
+		disableConcept(automaticRoleId);
+		return rule;
 	}
 	
 	/**
@@ -751,5 +745,27 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
 		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
 		return longRunningTaskManager.executeSync(automaticRoleTask);
+	}
+	
+	/**
+	 * Disable concept state for given automatic role
+	 * 
+	 * @param automaticRoleId
+	 * @return
+	 */
+	private IdmAutomaticRoleAttributeDto disableConcept(UUID automaticRoleId) {
+		return this.disableConcept(automaticRoleAttributeService.get(automaticRoleId));
+	}
+	
+	/**
+	 * Disable concept state for given automatic role
+	 * 
+	 * @param automaticRole
+	 * @return
+	 */
+	private IdmAutomaticRoleAttributeDto disableConcept(IdmAutomaticRoleAttributeDto automaticRole) {
+		// remove concept state
+		automaticRole.setConcept(false);
+		return automaticRoleAttributeService.save(automaticRole);
 	}
 }

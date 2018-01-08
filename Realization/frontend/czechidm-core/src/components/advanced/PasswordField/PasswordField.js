@@ -106,15 +106,21 @@ class PasswordField extends Basic.AbstractFormComponent {
       type,
       required,
       readOnly,
+      rendered,
       labelSpan,
       componentSpan,
       newPasswordLabel,
-      newPasswordAgainLabel
+      newPasswordAgainLabel,
+      hidden
     } = this.props;
     const { passwordForValidation } = this.state;
-
+    //
+    if (!rendered) {
+      return null;
+    }
+    //
     return (
-      <div>
+      <div className={ hidden ? 'hidden' : '' }>
         <Basic.TextField
           type={ type }
           ref="newPassword"
@@ -159,6 +165,8 @@ PasswordField.propTypes = {
   newPassword: PropTypes.string,
   newPasswordAgain: PropTypes.string,
   readOnly: PropTypes.bool,
+  rendered: PropTypes.bool,
+  hidden: PropTypes.bool,
   type: PropTypes.string,
   required: PropTypes.bool,
   newPasswordLabel: PropTypes.string,
@@ -170,7 +178,9 @@ PasswordField.defaultProps = {
   readOnly: false,
   newPasswordAgain: '',
   type: 'password',
-  required: true
+  required: true,
+  hidden: false,
+  rendered: true
 };
 
 

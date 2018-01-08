@@ -18,15 +18,28 @@ class Dropzone extends AbstractContextComponent {
   }
 
   render() {
-    const { onDrop, multiple, accept, style, styleActive, styleReject, showLoading, rendered, children } = this.props;
+    const {
+      onDrop,
+      multiple,
+      accept,
+      style,
+      styleActive,
+      styleReject,
+      showLoading,
+      rendered,
+      children,
+      hidden
+    } = this.props;
+    //
     if (!rendered) {
       return null;
     }
     if (showLoading) {
       return <Well showLoading/>;
     }
+    //
     return (
-      <div>
+      <div className={ hidden ? 'hidden' : '' }>
         <ReactDropzone ref="dropzone"
           style={style ? style : defaultStyle.style}
           activeStyle={styleActive ? styleActive : defaultStyle.styleActive}
@@ -54,6 +67,10 @@ Dropzone.propTypes = {
   * Rendered component
   */
   rendered: PropTypes.bool,
+  /**
+  * Hidden component
+  */
+  hidden: PropTypes.bool,
   /**
   * Show loading in component
   */
@@ -87,7 +104,8 @@ Dropzone.propTypes = {
 Dropzone.defaultProps = {
   rendered: true,
   showLoading: false,
-  multiple: true
+  multiple: true,
+  hidden: false
 };
 
 

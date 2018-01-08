@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
@@ -142,6 +143,9 @@ public class WorkflowProcessDefinitionDto implements BaseDto {
 
 	@Override
 	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(String.class, id, "WorkflowProcessDefinitionDto supports only String identifier.");
+		}
 		this.id = (String) id;
 	}
 }

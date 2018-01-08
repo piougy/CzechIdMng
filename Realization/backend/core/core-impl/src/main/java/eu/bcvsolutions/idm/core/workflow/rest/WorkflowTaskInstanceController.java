@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.workflow.rest;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,17 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -61,7 +50,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Running WF tasks",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class WorkflowTaskInstanceController extends AbstractReadWriteDtoController<WorkflowTaskInstanceDto, WorkflowFilterDto> {
+public class WorkflowTaskInstanceController extends AbstractReadDtoController<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 
 
 	protected static final String TAG = "Workflow - task instances";
@@ -104,18 +93,10 @@ public class WorkflowTaskInstanceController extends AbstractReadWriteDtoControll
 			nickname = "getHistoricTaskInstance", 
 			response = WorkflowTaskInstanceDto.class, 
 			tags = { WorkflowTaskInstanceController.TAG })
-	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> get(
+	public ResponseEntity<?> get(
 			@ApiParam(value = "Task instance id.", required = true)
 			@PathVariable String backendId) {
-		WorkflowTaskInstanceDto taskInstanceDto = workflowTaskInstanceService.get(backendId);
-		//
-		if (taskInstanceDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("taskId", backendId));
-		}
-		//
-		ResourceWrapper<WorkflowTaskInstanceDto> resource = new ResourceWrapper<WorkflowTaskInstanceDto>(
-				taskInstanceDto);
-		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(resource, HttpStatus.OK);
+		return super.get(backendId);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/complete")

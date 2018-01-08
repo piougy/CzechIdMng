@@ -27,6 +27,7 @@ class Task extends Basic.AbstractContent {
   componentDidMount() {
     this.selectNavigationItem('tasks');
     const { taskID } = this.props.params;
+    this.context.store.dispatch(workflowTaskInstanceManager.fetchPermissions(taskID, null));
     this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID, null, (json, error) => {
       if (error) {
         // task isn't exists or is solved

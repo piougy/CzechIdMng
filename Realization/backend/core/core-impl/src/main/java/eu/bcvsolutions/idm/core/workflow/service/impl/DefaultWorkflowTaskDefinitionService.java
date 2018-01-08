@@ -10,6 +10,8 @@ import org.activiti.engine.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 
@@ -19,7 +21,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
  *
  */
 @Service
-public class DefaultWorkflowTaskDefinitionService implements WorkflowTaskDefinitionService {
+public class DefaultWorkflowTaskDefinitionService  extends AbstractBaseDtoService<WorkflowTaskDefinitionDto, EmptyFilter> implements WorkflowTaskDefinitionService {
 
 	@Autowired
 	private RepositoryService repositoryService;

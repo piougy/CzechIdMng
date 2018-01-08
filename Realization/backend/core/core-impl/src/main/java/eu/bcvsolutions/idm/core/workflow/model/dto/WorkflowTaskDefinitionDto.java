@@ -1,14 +1,22 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.io.Serializable;
 import java.util.List;
+
+import org.springframework.hateoas.core.Relation;
+import org.springframework.util.Assert;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * 
  * @author svandav
  *
  */
+@Relation(collectionRelation = "workflowTaskDefinitions")
+public class WorkflowTaskDefinitionDto implements BaseDto {
 
-public class WorkflowTaskDefinitionDto {
+	private static final long serialVersionUID = 1L;
 
 	private String id;
 	private String name;
@@ -57,6 +65,14 @@ public class WorkflowTaskDefinitionDto {
 
 	public void setCandicateGroups(List<String> candicateGroups) {
 		this.candicateGroups = candicateGroups;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(String.class, id, "WorkflowTaskDefinitionDto supports only String identifier.");
+		}
+		this.id = (String) id;
 	}
 
 }

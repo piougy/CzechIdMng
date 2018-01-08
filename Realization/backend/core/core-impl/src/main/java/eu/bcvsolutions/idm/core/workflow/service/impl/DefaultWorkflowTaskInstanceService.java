@@ -82,85 +82,13 @@ public class DefaultWorkflowTaskInstanceService extends AbstractBaseDtoService<W
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		// user want show all candidates or assigned -> check permissions
-		if (filter.getCandidateOrAssigned() == null && !canReadAllTask()) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
-					"You do not have permission for access to all tasks!");
-		}
-
-		String processDefinitionId = filter.getProcessDefinitionId();
-		Map<String, Object> equalsVariables = filter.getEqualsVariables();
-
-		TaskQuery query = taskService.createTaskQuery();
-
-		query.active();
-		query.includeProcessVariables();
-
-		if (processDefinitionId != null) {
-			query.processDefinitionId(processDefinitionId);
-		}
-		if (filter.getProcessDefinitionKey() != null) {
-			query.processDefinitionKey(filter.getProcessDefinitionKey());
-		}
-		if (filter.getProcessInstanceId() != null) {
-			query.processInstanceId(filter.getProcessInstanceId());
-		}
-		if (filter.getId() != null) {
-			query.taskId(filter.getId().toString());
-		}
-		if (filter.getCreatedAfter() != null) {
-			query.taskCreatedAfter(filter.getCreatedAfter().toDate());
-		}
-		if (filter.getCreatedBefore() != null) {
-			query.taskCreatedBefore(filter.getCreatedBefore().toDate());
-		}
-		if (equalsVariables != null) {
-			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
-				query.processVariableValueEquals(entry.getKey(), entry.getValue());
-			}
-		}
-
-		if (filter.getCandidateOrAssigned() != null) {
-			BaseDto dto = lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
-			Assert.notNull(dto);
-			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
-		}
-		
-		query.orderByTaskCreateTime();
-		query.desc();
-		long count = query.count();
-		
-		// it's possible that pageable is null
-		List<Task> tasks = null;
-		if (pageable == null) {
-			tasks = query.list();
-		} else {
-			tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
-		}
-
-		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
-		if (tasks != null) {
-			for (Task task : tasks) {
-				dtos.add(toResource(task));
-			}
-		}
-		
-		long pageSize = pageable != null ? pageable.getPageSize() : count;
-
-		double totalPageDouble = ((double) count / pageSize);
-		double totlaPageFlorred = Math.floor(totalPageDouble);
-		long totalPage = 0;
-		if (totalPageDouble > totlaPageFlorred) {
-			totalPage = (long) (totlaPageFlorred + 1);
-		}
-		
-
-		return new PageImpl<WorkflowTaskInstanceDto>(dtos, pageable, totalPage);
+		return internalSearch(filter, pageable, true);
 	}
 	
 	@Override
 	public ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter) {
 		Pageable pageable = null;
+		// get pageable setting from filter - backward compatibility
 		if (StringUtils.isNotEmpty(filter.getSortByFields())) {
 			Sort sort = null;
 			if (filter.isSortAsc()) {
@@ -174,16 +102,15 @@ public class DefaultWorkflowTaskInstanceService extends AbstractBaseDtoService<W
 		}
 		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable);
 		
-		ResourcesWrapper<WorkflowTaskInstanceDto> result = new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
+		return new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
 				filter.getPageNumber(), filter.getPageSize());
-		return result;
 	}
 
 	@Override
 	public WorkflowTaskInstanceDto get(String taskId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(taskId));
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) search(filter).getResources();
+		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null, false).getContent();
 
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
@@ -391,5 +318,84 @@ public class DefaultWorkflowTaskInstanceService extends AbstractBaseDtoService<W
 			return true;
 		}
 		return false;
+	}
+	
+	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable, boolean checkrights) {
+		// user want show all candidates or assigned -> check permissions
+		if (checkrights) {
+			if (filter.getCandidateOrAssigned() == null && !canReadAllTask()) {
+				throw new ResultCodeException(CoreResultCode.FORBIDDEN,
+						"You do not have permission for access to all tasks!");
+			}
+		}
+
+		String processDefinitionId = filter.getProcessDefinitionId();
+		Map<String, Object> equalsVariables = filter.getEqualsVariables();
+
+		TaskQuery query = taskService.createTaskQuery();
+
+		query.active();
+		query.includeProcessVariables();
+
+		if (processDefinitionId != null) {
+			query.processDefinitionId(processDefinitionId);
+		}
+		if (filter.getProcessDefinitionKey() != null) {
+			query.processDefinitionKey(filter.getProcessDefinitionKey());
+		}
+		if (filter.getProcessInstanceId() != null) {
+			query.processInstanceId(filter.getProcessInstanceId());
+		}
+		if (filter.getId() != null) {
+			query.taskId(filter.getId().toString());
+		}
+		if (filter.getCreatedAfter() != null) {
+			query.taskCreatedAfter(filter.getCreatedAfter().toDate());
+		}
+		if (filter.getCreatedBefore() != null) {
+			query.taskCreatedBefore(filter.getCreatedBefore().toDate());
+		}
+		if (equalsVariables != null) {
+			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+				query.processVariableValueEquals(entry.getKey(), entry.getValue());
+			}
+		}
+
+		if (filter.getCandidateOrAssigned() != null) {
+			BaseDto dto = lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
+			Assert.notNull(dto);
+			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
+		}
+		
+		query.orderByTaskCreateTime();
+		query.desc();
+		long count = query.count();
+		
+		// it's possible that pageable is null
+		List<Task> tasks = null;
+		if (pageable == null) {
+			tasks = query.list();
+		} else {
+			tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+		}
+
+		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
+		if (tasks != null) {
+			for (Task task : tasks) {
+				dtos.add(toResource(task));
+			}
+		}
+		
+		long pageSize = pageable != null ? pageable.getPageSize() : count;
+
+		double totalPageDouble = ((double) count / pageSize);
+		double totlaPageFlorred = Math.floor(totalPageDouble);
+		long totalPage = 0;
+		if (totalPageDouble > totlaPageFlorred) {
+			totalPage = (long) (totlaPageFlorred + 1);
+		}
+		
+
+		return new PageImpl<WorkflowTaskInstanceDto>(dtos, pageable, totalPage);
 	}
 }

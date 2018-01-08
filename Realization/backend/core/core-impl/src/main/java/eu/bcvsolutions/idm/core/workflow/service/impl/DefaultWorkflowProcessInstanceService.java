@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,7 +24,14 @@ import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -33,8 +41,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.domain.ResourcePage;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -48,7 +59,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  *
  */
 @Service
-public class DefaultWorkflowProcessInstanceService implements WorkflowProcessInstanceService {
+public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> implements WorkflowProcessInstanceService {
 
 	@Autowired
 	private RuntimeService runtimeService;
@@ -102,6 +113,58 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
 		}
 		return instance;
+	}
+	
+	@Override
+	public WorkflowProcessInstanceDto get(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		return this.get(String.valueOf(id));
+	}
+	
+	@Override
+	public Page<WorkflowProcessInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
+			BasePermission... permission) {
+		// we must call original method search because is there check flag checkRight
+		if (pageable != null) {
+			filter.setPageNumber(pageable.getPageNumber());
+			filter.setPageSize(pageable.getPageSize());
+			//
+			String fieldForSort = null;
+			boolean ascSort = false;
+			boolean descSort = false;
+			if (pageable != null) {
+				Sort sort = pageable.getSort();
+				if (sort != null) {
+					for (Order order : sort) {
+						if (!StringUtils.isEmpty(order.getProperty())) {
+							// TODO: now is implemented only one property sort 
+							fieldForSort = order.getProperty();
+							if (order.getDirection() == Direction.ASC) {
+								ascSort = true;
+							} else if (order.getDirection() == Direction.DESC) {
+								descSort = true;
+							}
+							break;
+						}
+						
+					}
+				}
+			}
+			filter.setSortAsc(ascSort);
+			filter.setSortDesc(descSort);
+			filter.setSortByFields(fieldForSort);
+		}
+		ResourcesWrapper<WorkflowProcessInstanceDto> search = this.search(filter);
+		//
+		ResourcePage pages = search.getPage();
+		List<WorkflowProcessInstanceDto> processes = (List<WorkflowProcessInstanceDto>) search.getResources();
+		//
+		return new PageImpl<WorkflowProcessInstanceDto>(processes, pageable, pages.getTotalPages());
+	}
+	
+	@Override
+	public Page<WorkflowProcessInstanceDto> find(Pageable pageable, BasePermission... permission) {
+		return this.find(new WorkflowFilterDto(), pageable, permission);
 	}
 
 	@Override
@@ -189,6 +252,26 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		filter.setSortAsc(true);
 		Collection<WorkflowProcessInstanceDto> resources = this.search(filter).getResources();
 		return !resources.isEmpty() ? resources.iterator().next() : null;
+	}
+	
+	@Override
+	public void delete(WorkflowProcessInstanceDto dto, BasePermission... permission) {
+		this.delete(dto.getId(), null);
+	}
+	
+	@Override
+	public void deleteById(Serializable id, BasePermission... permission) {
+		this.delete(String.valueOf(id), null);
+	}
+	
+	@Override
+	public void deleteInternalById(Serializable id) {
+		this.delete(String.valueOf(id), null);
+	}
+	
+	@Override
+	public void deleteInternal(WorkflowProcessInstanceDto dto) {
+		this.delete(dto.getId(), null);
 	}
 
 	@Override

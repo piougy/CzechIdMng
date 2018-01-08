@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 /**
@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
  * @author svandav
  *
  */
-public interface WorkflowTaskInstanceService extends ReadWriteDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto>{
+public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 	
 	public static final String WORKFLOW_DECISION = "decision";
 	public static final String FORM_PROPERTY_TOOLTIP_KEY = "tooltip";

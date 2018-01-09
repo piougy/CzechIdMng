@@ -113,7 +113,6 @@
       "accepted_plural": "Records deletion [{{records}}] run asynchronously (deletion has to be approved or run as long running task)"
     },
     "run_manually": {
-      "action": "RunManually",
       "header": "Run record manually",
       "header_plural": "Run records manually",
       "message": "Do you want to run selected record [<strong>{{record}}</strong>] manually?",

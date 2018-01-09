@@ -118,7 +118,6 @@
       "accepted_5": "Smazání záznamů [{{records}}] proběhne na pozadí asynchronně (odebrání podléhá schválení či je spuštěno jako dlouhotrvající úloha)"
     },
     "run_manually": {
-      "action": "SpustitRucne",
       "header": "Spustit úlohu ručně",
       "header_plural": "Spustit úlohy ručně",
       "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ručně?",

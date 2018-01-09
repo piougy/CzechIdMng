@@ -157,8 +157,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs['confirm-delete'].show(
-      this.i18n(`action.run_manually.message`, { count: 1, record: this.getManager().getNiceLabel(entity) }),
-      this.i18n(`action.run_manually.header`, { count: 1 })
+      this.i18n(`action.run_manually.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.run_manually.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
         this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });

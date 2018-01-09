@@ -606,7 +606,7 @@
       }
     },
     "RoleSystem": {
-      "_type": "Role assigns account in system",
+      "_type": "Role assigns account in systems",
       "type": "Assign type",
       "role": "Role",
       "system": "System",

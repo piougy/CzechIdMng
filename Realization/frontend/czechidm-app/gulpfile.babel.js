@@ -436,18 +436,18 @@ gulp.task('watchTask', () => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'localization-validator', 'browserSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
 });
 
 gulp.task('watch-nosync', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'localization-validator', 'browserNoSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
 });
 
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'localization-validator', 'browserify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

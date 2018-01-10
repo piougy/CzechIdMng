@@ -1193,12 +1193,17 @@
         },
         "filter": {
           "text": "Name of automatic role or role name"
+        },
+        "setOnlyTextField": {
+          "label": "Show a text field",
+          "help": "Displays the value as a simple text field",
+          "back": "Return the original face"
         }
       },
       "recalculate": {
         "label": "Recalculation",
-        "header": "Perform recalculate this automatic role based on attributes?",
-        "message": "The automatic role will be recalculated based on attributes for all identities.<br/ ><b>Recalculating will started as new long runnign task.</b><br />If you choose no, automatic role by attribute will be flagged as Concept.<br /><i>(This operation can be very demanding).</i><br /><br /><br /><b>Yes:</b> Role assignment to users will start now as a new long running task.<br /><b>No:</b> This configuration will be saved as a concept."
+        "header": "Recalculate the automatic role based on attributes?",
+        "message": "<b>Yes:</b> Role assignment to users will start now as a new long running task.<br /><b>No:</b> This configuration will be saved as a concept."
       }
     },
     "formDefinitions": {

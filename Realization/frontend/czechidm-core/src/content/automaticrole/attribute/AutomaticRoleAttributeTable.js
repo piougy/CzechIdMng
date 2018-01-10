@@ -141,7 +141,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="_embedded.role.name"
-            header={this.i18n('entity.AutomaticRole.role')}/>
+            header={this.i18n('entity.AutomaticRole.role.label')}/>
         </Advanced.Table>
       </div>
     );

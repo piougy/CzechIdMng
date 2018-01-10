@@ -29,7 +29,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.booleanValue;
+    return formValue.booleanValue ? formValue.booleanValue : formValue.value;
   }
 
   renderSingleInput() {

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -18,9 +19,10 @@ import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -481,7 +483,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			SingularAttribute<? super IdmIdentity, ?> singularAttribute = metamodel.entity(IdmIdentity.class)
 					.getSingularAttribute(rule.getAttributeName());
 			Path<Object> path = root.get(singularAttribute.getName());
-			return getPredicateWithComparsion(path, singularAttribute.getJavaType().cast(rule.getValue()), cb,
+			return getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
 					rule.getComparison(), !pass);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT) {
 			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
@@ -493,14 +495,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 			Path<Object> path = subRoot.get(singularAttribute.getName());
 			//
 			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-					getPredicateWithComparsion(path, singularAttribute.getJavaType().cast(rule.getValue()), cb,
+					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
 							rule.getComparison(), !pass)));
 			return cb.exists(subquery);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENITITY_EAV) {
-			//
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			//
-			Object value = ConvertUtils.convert(rule.getValue(), getEavType(formAttributeDto.getPersistentType()));
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
 			Subquery<IdmIdentityFormValue> subquery = query.subquery(IdmIdentityFormValue.class);
 			Root<IdmIdentityFormValue> subRoot = subquery.from(IdmIdentityFormValue.class);
@@ -518,7 +519,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			//
-			Object value = ConvertUtils.convert(rule.getValue(), getEavType(formAttributeDto.getPersistentType()));
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
 			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
 			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
@@ -566,13 +567,28 @@ public class DefaultIdmAutomaticRoleAttributeService
 		Assert.notNull(cb);
 		// TODO: now is implement only equals
 		if (comparsion == AutomaticRoleAttributeRuleComparison.EQUALS) {
-			// for string type is necessary explicit type to as String
-			if (value instanceof String) {
-				path.as(String.class);
-			}
+			//
+			// is necessary explicit type to as String
+			path.as(String.class);
+			//
 			if (negation) {
+				Predicate predicate = null;
+				//
+				if (value instanceof Boolean) {
+					// for boolean must be specific equals (isTrue or isFalse, notEqual doesn't works)
+					Expression<Boolean> booleanAs = path.as(Boolean.class);
+					if (BooleanUtils.isTrue((Boolean) value)) {
+						predicate = cb.equal(booleanAs, cb.literal(Boolean.FALSE));
+					} else {
+						predicate = cb.equal(booleanAs, cb.literal(Boolean.TRUE));
+					}
+				} else {
+					// for other type just classic negative compare
+					predicate = cb.notEqual(path, value);
+				}
+				//
 				return cb.or(
-						cb.notEqual(path, value),
+						predicate,
 						cb.isNull(path));
 			}
 			return cb.equal(path, value);
@@ -610,31 +626,71 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	/**
-	 * Return class type for {@link PersistentType}
+	 * Method cast input value by {@link SingularAttribute},
+	 * method check if attribute is primitive and then cast
+	 * as primitive or just use cast from {@link SingularAttribute}
 	 * 
+	 * @param singularAttribute
+	 * @param value
+	 * @return
+	 */
+	private Object castToType(SingularAttribute<?, ?> singularAttribute, String value) {
+		Class<?> javaType = singularAttribute.getJavaType();
+		LOG.debug("Value: [{}], will be cast to java type: [{}].", value, javaType.getName());
+		if (javaType.isPrimitive()) {
+			if (javaType == boolean.class) {
+				return Boolean.valueOf(value);
+			} else if (javaType == double.class) {
+				return (double) Double.valueOf(value);
+			} else if (javaType == int.class) {
+				return (int) Integer.valueOf(value);
+			} else if (javaType == float.class) {
+				return (float) Float.valueOf(value);
+			} else if (javaType == byte.class) {
+				return (byte) Byte.valueOf(value);
+			} else if (javaType == short.class) {
+				return (short) Short.valueOf(value);
+			} else if (javaType == long.class) {
+				return (long) Long.valueOf(value);
+			} else if (javaType == char.class) {
+				char ch = value.toString().charAt(0);
+				return ch;
+			} else {
+				throw new UnsupportedOperationException("Primitive type :" + javaType.getName() + ", can't be cast!");
+			}
+		} else {
+			return javaType.cast(value);
+		}
+	}
+	
+	/**
+	 * Cast value in string to given persistent type
+	 *
+	 * @param value
 	 * @param persistentType
 	 * @return
 	 */
-	private Class<?> getEavType(PersistentType persistentType) {
+	private Object getEavValue(String value, PersistentType persistentType) {
+		Assert.notNull(value);
 		switch (persistentType) {
 		case INT:
 		case LONG:
-			return Long.class;
+			return Long.valueOf(value);
 		case BOOLEAN:
-			return Boolean.class;
+			return Boolean.valueOf(value);
 		case DATE:
 		case DATETIME:
-			return DateTime.class;
+			return new DateTime(value, DateTimeZone.UTC);
 		case DOUBLE:
-			return BigDecimal.class;
+			return new BigDecimal(value);
 		case BYTEARRAY: {
-			return byte[].class;
+			return value.getBytes();
 		}
 		case UUID: {
-			return UUID.class;
+			return UUID.fromString(value);
 		}
 		default:
-			return String.class;
+			return value;
 		}
 	}
 }

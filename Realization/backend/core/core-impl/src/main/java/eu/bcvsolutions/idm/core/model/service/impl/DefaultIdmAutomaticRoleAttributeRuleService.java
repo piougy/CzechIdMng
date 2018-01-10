@@ -74,7 +74,6 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 		}
 		if (dto.getComparison() == AutomaticRoleAttributeRuleComparison.EQUALS && dto.getValue() == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY, ImmutableMap.of(
-					"automaticRoleId", dto.getId(),
 					"attribute", IdmAutomaticRoleAttributeRule_.value.getName()));
 		}
 		//

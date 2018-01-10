@@ -8,6 +8,8 @@ import * as Advanced from '../../../components/advanced';
 import { SecurityManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
+import IdentityAttributeEnum from '../../../enums/IdentityAttributeEnum';
+import ContractAttributeEnum from '../../../enums/ContractAttributeEnum';
 
 /**
  * Table with rules for automatic role by attribute
@@ -61,6 +63,25 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
       this.context.router.push(`/automatic-role/attributes/${attributeId}/rule/${uuidId}?new=1`);
     } else {
       this.context.router.push(`/automatic-role/attributes/${attributeId}/rule/${entity.id}`);
+    }
+  }
+
+  /**
+   * Return name of attribute for evaluating
+   *
+   * @param  {[String]} automaticRole
+   * @return {[String]}
+   */
+  _getAttributeName(automaticRole) {
+    if (automaticRole) {
+      console.log(123, automaticRole);
+      if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
+        return IdentityAttributeEnum.getNiceLabel(automaticRole.attributeName.toString().toUpperCase());
+      } else if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {
+        return ContractAttributeEnum.getNiceLabel(automaticRole.attributeName.toString().toUpperCase());
+      } else if (automaticRole._embedded && automaticRole._embedded.formAttribute) {
+        return automaticRole._embedded.formAttribute.name;
+      }
     }
   }
 
@@ -140,6 +161,12 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
             face="enum"
             enumClass={AutomaticRoleAttributeRuleTypeEnum}
             header={this.i18n('entity.AutomaticRole.attribute.type.label')}/>
+          <Advanced.Column
+            property="attributeName"
+            header={this.i18n('entity.AutomaticRole.attribute.attributeName')}
+            cell={({ rowIndex, data }) => {
+              return this._getAttributeName(data[rowIndex]);
+            }}/>
           <Advanced.Column
             property="comparison"
             face="enum"

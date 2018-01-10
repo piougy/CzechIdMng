@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
@@ -31,9 +32,12 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     this.formAttributeManager = new FormAttributeManager();
     this.state = {
       showLoading: false,
-      typeForceSearchParameters: null,
-      type: AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY),
-      valueRequired: true
+      typeForceSearchParameters: null, // force search parameters for EAV attribute
+      type: AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY), // default type, show when create new entity
+      valueRequired: true, // flag for required field
+      formAttribute: null, // instance of form attribute, is used for computed field input
+      attributeName: null, // name of identity attribute
+      setOnlyTextField: false // override computed field by simple text field
     };
   }
 
@@ -61,23 +65,30 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
    */
   _initForm(entity) {
     if (entity !== undefined) {
+      let formAttribute = null;
       if (!entity.id) {
         entity.type = AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY);
         entity.comparison = AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS);
         entity.attributeName = IdentityAttributeEnum.USERNAME;
       } else {
-        this.setState({
-          typeForceSearchParameters: this._getForceSearchParametersForType(entity.type),
-          type: entity.type
-        });
         if (entity.attributeName) {
           if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
             entity.attributeName = IdentityAttributeEnum.getEnum(entity.attributeName);
           } else {
             entity.attributeName = ContractAttributeEnum.getEnum(entity.attributeName);
           }
+        } else {
+          // eav is used
+          if (entity._embedded && entity._embedded.formAttribute) {
+            formAttribute = entity._embedded.formAttribute;
+          }
         }
       }
+      this.setState({
+        typeForceSearchParameters: this._getForceSearchParametersForType(entity.type),
+        type: entity.type,
+        formAttribute
+      });
       this.refs.type.focus();
       this.refs.form.setData(entity);
     }
@@ -119,40 +130,61 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   }
 
   _saveInternal(recalculatedRoles, attributeId, uiKey, afterAction) {
+    const { entity } = this.props;
     this.setState({
       showLoading: true
     }, this.refs.form.processStarted());
 
-    const entity = this.refs.form.getData();
-    entity.automaticRoleAttribute = attributeId;
+    const formData = this.refs.form.getData();
+    let value = this.refs.value.getValue();
+    if (value && value.value) {
+      // eav form value
+      value = this._getValueFromEav(value);
+    }
+    formData.value = value;
+    //
+    formData.automaticRoleAttribute = attributeId;
     // we must transform attribute name with case sensitive letters
-    if (entity.attributeName) {
-      if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
-        entity.attributeName = IdentityAttributeEnum.getField(IdentityAttributeEnum.findKeyBySymbol(entity.attributeName));
+    if (formData.attributeName) {
+      if (formData.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
+        formData.attributeName = IdentityAttributeEnum.getField(IdentityAttributeEnum.findKeyBySymbol(formData.attributeName));
       } else {
-        entity.attributeName = ContractAttributeEnum.getField(ContractAttributeEnum.findKeyBySymbol(entity.attributeName));
+        formData.attributeName = ContractAttributeEnum.getField(ContractAttributeEnum.findKeyBySymbol(formData.attributeName));
       }
     }
     //
-    if (entity.id === undefined) {
+    const newSavedEntity = _.merge(entity, formData);
+    if (newSavedEntity.id === undefined) {
       if (recalculatedRoles) {
-        this.context.store.dispatch(this.manager.createAndRecalculateEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.context.store.dispatch(this.manager.createAndRecalculateEntity(newSavedEntity, `${uiKey}-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.context.store.dispatch(this.manager.createEntity(newSavedEntity, `${uiKey}-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);
         }));
       }
     } else {
       if (recalculatedRoles) {
-        this.context.store.dispatch(this.manager.updateAndRecalculateEntity(entity, `${uiKey}-detail`, (updatedEntity, error) => {
+        this.context.store.dispatch(this.manager.updateAndRecalculateEntity(newSavedEntity, `${uiKey}-detail`, (updatedEntity, error) => {
           this._afterSave(updatedEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.updateEntity(entity, `${uiKey}-detail`, (updatedEntity, error) => {
+        this.context.store.dispatch(this.manager.updateEntity(newSavedEntity, `${uiKey}-detail`, (updatedEntity, error) => {
           this._afterSave(updatedEntity, error, afterAction);
         }));
+      }
+    }
+  }
+
+  /**
+   * Get field form EAV, saved eav form value contains
+   * value, seq and then value by persistent type for example: dateValue, doubleValue, ...
+   */
+  _getValueFromEav(eav) {
+    for (const field in eav) {
+      if (field !== 'value' && field.includes('Value')) {
+        return eav[field];
       }
     }
   }
@@ -192,7 +224,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     //
     this.setState({
       typeForceSearchParameters,
-      type: option.value
+      type: option.value,
+      setOnlyTextField: false
     });
   }
 
@@ -207,9 +240,152 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     });
   }
 
+  _formAttributeChange(option) {
+    // just change formAttribute
+    this.setState({
+      formAttribute: option,
+      setOnlyTextField: false
+    });
+  }
+
+  _attributeNameChange(option) {
+    // set new attribute name
+    this.setState({
+      attributeName: option.value
+    });
+  }
+
+  _setTextFieldChange(setOnlyTextField) {
+    this.setState({
+      setOnlyTextField: !setOnlyTextField
+    });
+  }
+
+  /**
+   * Return component that corespond with persisntent type of value type.
+   * As default show text field.
+   */
+  _getValueField(type, valueRequired, formAttribute, attributeName, setOnlyTextField) {
+    const { entity } = this.props;
+    const value = entity.value;
+    let finalComponent = null;
+    //
+    // if set to show only simple text field return it immediatele
+    if (setOnlyTextField) {
+      return this._getDefaultTextField(value);
+    }
+    //
+    if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY) ||
+    type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {
+      finalComponent = this._getValueFieldForEntity(entity, type, value, attributeName);
+    } else if (formAttribute) {
+      finalComponent = this._getValueFieldForEav(formAttribute, value, valueRequired);
+    } else {
+      // form attribute doesn't exists
+      finalComponent = this._getDefaultTextField(value);
+    }
+    return finalComponent;
+  }
+
+  _getValueFieldForEntity(entity, type, value, attributeName) {
+    if (attributeName == null) {
+      return this._getDefaultTextField(value);
+    }
+    // identity attributes
+    if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
+      // disabled is obly attribute that has different face
+      if (IdentityAttributeEnum.findSymbolByKey(attributeName) === IdentityAttributeEnum.DISABLED) {
+        return this._getDefaultBooleanSelectBox(value);
+      }
+      return this._getDefaultTextField(value);
+    }
+    // contracts attributes
+    // contract has externe and main as boolean and valid attributes as date
+    if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.MAIN || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.EXTERNE) {
+      return this._getDefaultBooleanSelectBox(value);
+    } else if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_FROM || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_TILL) {
+      return this._getDefaultDateTimePicker(value);
+    }
+    return this._getDefaultTextField(value);
+  }
+
+  _getValueFieldForEav(formAttribute, value, valueRequired) {
+    const component = this.formAttributeManager.getFormComponent(formAttribute);
+    if (!component || !component.component) {
+      // when component doesn't exists show default field
+      return this._getDefaultTextField(value);
+    }
+    const FormValueComponent = component.component;
+    //
+    // override helpBlock, label and placeholder
+    formAttribute.description = this.i18n('entity.AutomaticRole.attribute.value.help');
+    formAttribute.name = this.i18n('entity.AutomaticRole.attribute.value.label');
+    formAttribute.placeholder = '';
+    formAttribute.defaultValue = null;
+    //
+    // is neccessary transform value to array
+    return (
+      <FormValueComponent
+        ref="value"
+        required={valueRequired}
+        attribute={formAttribute}
+        values={[{value}]}/>
+    );
+  }
+
+  /**
+   * Return simple text field for value input
+   */
+  _getDefaultTextField(value) {
+    const { valueRequired } = this.state;
+    return (
+      <Basic.TextField
+        ref="value"
+        value={value}
+        required={valueRequired}
+        label={this.i18n('entity.AutomaticRole.attribute.value.label')}
+        helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
+  }
+
+  /**
+   * Return date time picker
+   */
+  _getDefaultDateTimePicker(value) {
+    const { valueRequired } = this.state;
+    return (<Basic.DateTimePicker
+      ref="value"
+      mode="date"
+      value={value}
+      required={valueRequired}
+      label={this.i18n('entity.AutomaticRole.attribute.value.label')}
+      helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
+  }
+
+  /**
+   * Return default boolean select box
+   */
+  _getDefaultBooleanSelectBox(value) {
+    const { valueRequired } = this.state;
+    return (
+      <Basic.BooleanSelectBox
+        ref="value"
+        value={value}
+        required={valueRequired}
+        label={this.i18n('entity.AutomaticRole.attribute.value.label')}
+        helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
+  }
+
   render() {
     const { uiKey, entity } = this.props;
-    const { showLoading, typeForceSearchParameters, type, valueRequired } = this.state;
+    const {
+      showLoading,
+      typeForceSearchParameters,
+      type,
+      valueRequired,
+      formAttribute,
+      attributeName,
+      setOnlyTextField
+    } = this.state;
     //
     return (
       <div>
@@ -229,19 +405,24 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
               onChange={this._typeChange.bind(this)}/>
             <Basic.EnumSelectBox
               ref="attributeName"
+              clearable={false}
               label={this.i18n('entity.AutomaticRole.attribute.attributeName')}
               enum={type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY) ? IdentityAttributeEnum : ContractAttributeEnum}
               hidden={typeForceSearchParameters !== null}
+              onChange={this._attributeNameChange.bind(this)}
               required={!(typeForceSearchParameters !== null)}/>
             <Basic.SelectBox
               ref="formAttribute"
+              useFirst
+              clearable={false}
+              onChange={this._formAttributeChange.bind(this)}
               forceSearchParameters={typeForceSearchParameters}
               label={this.i18n('entity.AutomaticRole.attribute.formAttribute')}
               hidden={typeForceSearchParameters === null}
               required={!(typeForceSearchParameters === null)}
               manager={this.formAttributeManager}/>
             <Basic.Row>
-              <div className="col-lg-4">
+              <div className="col-lg-3">
                 <Basic.EnumSelectBox
                   ref="comparison"
                   required
@@ -250,12 +431,18 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
                   label={this.i18n('entity.AutomaticRole.attribute.comparison')}
                   enum={AutomaticRoleAttributeRuleComparisonEnum}/>
               </div>
-              <div className="col-lg-8">
-                <Basic.TextField
-                  ref="value"
-                  required={valueRequired}
-                  label={this.i18n('entity.AutomaticRole.attribute.value.label')}
-                  helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>
+              <div className="col-lg-7">
+                { this._getValueField(type, valueRequired, formAttribute, attributeName, setOnlyTextField) }
+              </div>
+              <div className="col-lg-2">
+                <Basic.Tooltip
+                  value={this.i18n('setOnlyTextField.help')}>
+                <Basic.Button
+                  className="pull-right"
+                  style={{marginTop: '25px'}}
+                  text={setOnlyTextField ? this.i18n('setOnlyTextField.back') : this.i18n('setOnlyTextField.label')}
+                  onClick={this._setTextFieldChange.bind(this, setOnlyTextField)} />
+              </Basic.Tooltip>
               </div>
             </Basic.Row>
           </Basic.AbstractForm>

@@ -76,7 +76,7 @@ class Button extends AbstractComponent {
                   ?
                   <Icon type="fa" icon="refresh" showLoading/>
                   :
-                  null
+                  <Icon value={ icon } className="icon-left"/>
                 }
                 {
                   showLoadingIcon && _showLoadingText

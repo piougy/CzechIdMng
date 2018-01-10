@@ -57,14 +57,12 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 			 result.getResults().stream().filter(res-> {
 				 return res.getCode().equals(this.code);
 			 }).forEach(res -> {
-					if (this.code.equals(res.getCode())) {
 						IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get("account");
 						if (!account.isIdm()) {
 							systems.add(account.getSystemName());
 						} else {
 							systems.add("CzechIdm");
 						}
-					}
 				});
 			 
 		}

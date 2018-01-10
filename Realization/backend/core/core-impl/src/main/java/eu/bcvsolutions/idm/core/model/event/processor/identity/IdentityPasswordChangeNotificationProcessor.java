@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -55,16 +54,19 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 		List<EventResult<IdmIdentityDto>> results = event.getContext().getResults();
 		List<String> systems = new ArrayList<>();
 		for (EventResult<IdmIdentityDto> result : results) {
-			for (OperationResult res : result.getResults()) {
-				if (this.code.equals(res.getCode())) {
-					IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get("account");
-					if (!account.isIdm()) {
-						systems.add(account.getSystemName());
-					} else {
-						systems.add("CzechIdm");
+			 result.getResults().stream().filter(res-> {
+				 return res.getCode().equals(this.code);
+			 }).forEach(res -> {
+					if (this.code.equals(res.getCode())) {
+						IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get("account");
+						if (!account.isIdm()) {
+							systems.add(account.getSystemName());
+						} else {
+							systems.add("CzechIdm");
+						}
 					}
-				}
-			}
+				});
+			 
 		}
 
 		if (!systems.isEmpty()) {

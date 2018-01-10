@@ -149,6 +149,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
+		// Clear cache
+		this.clearCache();
+				
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
 				
@@ -225,6 +228,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			//
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
+			// Clear cache
+			this.clearCache();
 		}
 		return config;
 	}

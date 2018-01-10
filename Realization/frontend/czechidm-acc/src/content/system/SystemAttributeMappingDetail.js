@@ -161,7 +161,6 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
-    const inCategory = [Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_FROM), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)];
     //
     return (
       <div>
@@ -288,7 +287,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
               <Advanced.ScriptArea
                 ref="transformFromResourceScript"
-                scriptCategory={inCategory}
+                scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_FROM), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT)]}
                 headerText={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help')}
@@ -296,7 +295,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
               <Advanced.ScriptArea
                 ref="transformToResourceScript"
-                scriptCategory={inCategory}
+                scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)]}
                 headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}

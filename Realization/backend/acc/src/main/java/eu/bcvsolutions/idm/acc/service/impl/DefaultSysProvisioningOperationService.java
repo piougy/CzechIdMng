@@ -144,7 +144,7 @@ public class DefaultSysProvisioningOperationService
 	
 	@Override
 	@Transactional
-	public SysProvisioningOperationDto save(SysProvisioningOperationDto dto, BasePermission... permission) {
+	public SysProvisioningOperationDto saveInternal(SysProvisioningOperationDto dto) {
 		// replace guarded strings to confidential strings (save to persist)
 		Map<String, Serializable> confidentialValues = replaceGuardedStrings(dto.getProvisioningContext());
 		// save operation

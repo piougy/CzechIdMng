@@ -143,6 +143,17 @@ public class DefaultAttachmentManager
 		}
 	}
 	
+	@Override
+	@Transactional
+	public IdmAttachmentDto saveAttachmentVersion(Identifiable owner, IdmAttachmentDto attachment, UUID previousVersionId, BasePermission... permission) {
+		IdmAttachmentDto previousVersion = null;
+		if (previousVersionId != null) {
+			 previousVersion = get(previousVersionId);
+		}
+		//
+		return saveAttachmentVersion(owner, attachment, previousVersion, permission);
+	}
+	
 	/**
 	 * Save new version of attachment
 	 *

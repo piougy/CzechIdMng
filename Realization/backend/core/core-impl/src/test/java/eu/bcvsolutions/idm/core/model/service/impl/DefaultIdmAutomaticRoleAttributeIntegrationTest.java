@@ -5,9 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -319,7 +322,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmIdentityDto identity = testHelper.createIdentity();
 		//
 		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.TEXT);
-		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue);
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.TEXT);
 		//
 		//
 		IdmRoleDto role = testHelper.createRole();
@@ -342,7 +345,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
-		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue + "-test");
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue + "-test", PersistentType.TEXT);
 		//
 		// recalculate isn't needed, is done when save identity contract
 		//
@@ -357,7 +360,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
 		//
 		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.TEXT);
-		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testValue);
+		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testValue, PersistentType.TEXT);
 		//
 		IdmRoleDto role = testHelper.createRole();
 		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
@@ -376,7 +379,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
-		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testValue + "-test");
+		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testValue + "-test", PersistentType.TEXT);
 		//
 		// recalculate isn't needed, is done when save identity
 		//
@@ -537,6 +540,211 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	}
 	
 	@Test
+	public void testAutomaticRoleIntegerEav() {
+		Integer testValue = 123456;
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.INT);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENITITY_EAV, null, createEavAttribute.getId(), testValue.toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// change eav value
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.INT);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleLongEav() {
+		Long testValue = 123456l;
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.LONG);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENITITY_EAV, null, createEavAttribute.getId(), testValue.toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// change eav value
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.LONG);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleDoubleEav() {
+		Double testValue = 123456d;
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.DOUBLE);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENITITY_EAV, null, createEavAttribute.getId(), testValue.toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// change eav value
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.DOUBLE);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleDateEav() {
+		DateTime testValue = new DateTime(1514764800);
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.DATE);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENITITY_EAV, null, createEavAttribute.getId(), testValue.toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// change eav value
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.DATE);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleDateTimeEav() {
+		DateTime testValue = new DateTime(System.currentTimeMillis());
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.DATETIME);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENITITY_EAV, null, createEavAttribute.getId(), testValue.toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// change eav value
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.DATETIME);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleBooleanEav() {
+		Boolean testValue = true;
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.BOOLEAN);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENITITY_EAV, null, createEavAttribute.getId(), testValue.toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// change eav value
+		setEavValue(identity, createEavAttribute, IdmIdentity.class, testValue, PersistentType.BOOLEAN);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleDisableAttribute() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.disabled.getName(), null, "true");
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		identity.setState(IdentityState.DISABLED);
+		identity = identityService.save(identity);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleContractExterneAttribute() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT, IdmIdentityContract_.externe.getName(), null, "true");
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		primeContract.setExterne(true);
+		primeContract = identityContractService.save(primeContract);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		primeContract.setExterne(false);
+		primeContract = identityContractService.save(primeContract);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleContractMainAttribute() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
+		createRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT, IdmIdentityContract_.main.getName(), null, "false");
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		primeContract.setMain(false);
+		primeContract = identityContractService.save(primeContract);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		primeContract.setMain(true);
+		primeContract = identityContractService.save(primeContract);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
 	public void testTwoAutomaticRoleMoreRules() {
 		String testEmail = "testing-email-" + System.currentTimeMillis() + "@example.tld";
 		String testEavContractValue = "testing-eav-value-" + System.currentTimeMillis();
@@ -550,9 +758,9 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		// create two eav attributes (for identity and contract)
 		IdmFormAttributeDto createEavAttribute = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.TEXT);
-		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testEavContractValue + "-not-passed");
+		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testEavContractValue + "-not-passed", PersistentType.TEXT);
 		IdmFormAttributeDto createEavAttribute2 = createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.TEXT);
-		setEavValue(identity, createEavAttribute2, IdmIdentity.class, testEavIdentityValue + "-not-passed");
+		setEavValue(identity, createEavAttribute2, IdmIdentity.class, testEavIdentityValue + "-not-passed", PersistentType.TEXT);
 		//
 		IdmAutomaticRoleAttributeDto automaticRole = createAutomaticRole(role.getId());
 		IdmAutomaticRoleAttributeDto automaticRole2 = createAutomaticRole(role2.getId());
@@ -583,7 +791,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(0, identityRoles.size());
 		//
-		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testEavContractValue);
+		setEavValue(primeContract, createEavAttribute, IdmIdentityContract.class, testEavContractValue, PersistentType.TEXT);
 		//
 		// one automatic roles has passed all rules
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -598,7 +806,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(0, identityRoles.size());
 		//
-		setEavValue(identity, createEavAttribute2, IdmIdentity.class, testEavIdentityValue);
+		setEavValue(identity, createEavAttribute2, IdmIdentity.class, testEavIdentityValue, PersistentType.TEXT);
 		// passed second automatic role
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
@@ -665,20 +873,20 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	 * @param clazz
 	 * @param value
 	 */
-	private void setEavValue(Identifiable owner, IdmFormAttributeDto attribute, Class<? extends Identifiable> clazz, String stringValue) {
+	private void setEavValue(Identifiable owner, IdmFormAttributeDto attribute, Class<? extends Identifiable> clazz, Serializable value, PersistentType type) {
 		UUID ownerId = UUID.fromString(owner.getId().toString());
 		IdmFormDefinitionDto main = formDefinitionService.findOneByMain(clazz.getName());
 		List<IdmFormValueDto> values = formService.getValues(ownerId, clazz, attribute);
 		
 		if (values.isEmpty()) {
 			IdmFormValueDto newValue = new IdmFormValueDto();
-			newValue.setStringValue(stringValue);
-			newValue.setPersistentType(PersistentType.TEXT);
+			newValue.setPersistentType(type);
+			newValue.setValue(value);
 			newValue.setFormAttribute(attribute.getId());
 			newValue.setOwnerId(owner.getId());
 			values.add(newValue);
 		} else {
-			values.get(0).setStringValue(stringValue);
+			values.get(0).setValue(value);
 		}
 		
 		formService.saveFormInstance(owner, main, values);

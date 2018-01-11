@@ -86,7 +86,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     		}
     	}
     	//
-    	// assign new not passed roles
+    	// remove new not passed roles
     	while (canContinue) {
     		for(UUID identityId : newNotPassedIdentities) {
     			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
@@ -94,7 +94,8 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     			filter.setAutomaticRoleId(automaticRoleId);
     			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
     			for (IdmIdentityRoleDto identityRole : identityRoles) {
-    				automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, setWithAutomaticRole);
+    				IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, setWithAutomaticRole);
+    				roleRequestService.startRequestInternal(roleRequest.getId(), false);
     			}
     			counter++;
     			canContinue = updateState();

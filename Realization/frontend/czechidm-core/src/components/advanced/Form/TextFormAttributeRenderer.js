@@ -82,7 +82,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.stringValue;
+    return formValue.stringValue ? formValue.stringValue : formValue.value;
   }
 
   /**

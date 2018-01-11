@@ -1225,12 +1225,17 @@
         },
         "filter": {
           "text": "Název automatické role, nebo role"
+        },
+        "setOnlyTextField": {
+          "label": "Zobrazit textové pole",
+          "help": "Zobrazí hodnotu jako jednoduché textové pole",
+          "back": "Vrátit původní zobrazení"
         }
       },
       "recalculate": {
         "label": "Přepočet",
-        "header": "Provést přepočet této automatické role na základě attributu?",
-        "message": "Bude proveden přepočet této automatické role na základě atributů pro všechny identity.<br/ ><b>Přepočet bude proveden v nové dlouho trvající úloze.</b><br />Pokud zvolíte ne, automatická role podle atributu bude označena jako Koncept.<br /><i>(Tato operace je závislá na počtu identit a může se zpracovávat i velmi dlouho).</i><br /><br /><br /><b>Ano:</b> Přiřazení role bude provedeno nyní jako nová dlouho trvajicí úloha.<br /><b>Ne:</b> Tato konfigurace bude uložena jako koncept."
+        "header": "Přepočet této automatické role na základě attributu?",
+        "message": "<b>Ano:</b> Přiřazení role bude provedeno nyní jako nová dlouho trvajicí úloha.<br /><b>Ne:</b> Tato konfigurace bude uložena jako koncept."
       }
     },
     "formDefinitions": {

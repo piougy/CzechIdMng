@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -37,7 +38,6 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 	public static final String PROCESSOR_NAME = "identity-password-change-notification";
 
 	private final NotificationManager notificationManager;
-	private final String code = "PASSWORD_CHANGE_ACCOUNT_SUCCESS";
 
 	@Autowired
 	public IdentityPasswordChangeNotificationProcessor(NotificationManager notificationManager) {
@@ -54,19 +54,17 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 		List<EventResult<IdmIdentityDto>> results = event.getContext().getResults();
 		List<String> systems = new ArrayList<>();
 		for (EventResult<IdmIdentityDto> result : results) {
-			 result.getResults().stream().filter(res-> {
-				 return res.getCode().equals(this.code);
-			 }).forEach(res -> {
-						IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get("account");
-						if (!account.isIdm()) {
-							systems.add(account.getSystemName());
-						} else {
-							systems.add("CzechIdm");
-						}
-				});
-			 
+			result.getResults().stream().filter(res -> {
+				return res.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
+			}).forEach(res -> {
+				IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get("account");
+				if (!account.isIdm()) {
+					systems.add(account.getSystemName());
+				} else {
+					systems.add("CzechIdM");
+				}
+			});
 		}
-
 		if (!systems.isEmpty()) {
 			sendNotification(identity, systems);
 		}
@@ -83,7 +81,6 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 		notificationManager.send(CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED,
 				new IdmMessageDto.Builder().setLevel(NotificationLevel.INFO)
 						.addParameter("username", identity.getUsername()).addParameter("accounts", accounts).build(),
-
 				identity);
 	}
 }

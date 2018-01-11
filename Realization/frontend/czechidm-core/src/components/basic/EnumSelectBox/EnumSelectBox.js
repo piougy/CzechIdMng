@@ -39,7 +39,7 @@ class EnumSelectBox extends SelectBox {
       const results = [];
       if (enumeration) {
         for (const enumItem in enumeration) {
-          if (typeof enumeration[enumItem] === 'symbol') {
+          if (_.isSymbol(enumeration[enumItem])) {
             const item = this.itemRenderer(enumeration[enumItem], enumItem);
             results.push(item);
           }

@@ -60,6 +60,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent;
+import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent.PasswordChangeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -473,12 +475,11 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
-	public void validate(PasswordChangeDto passwordChange, IdmIdentityDto identity) {
-		entityEventManager.process(
-				new IdentityEvent(
-						IdentityEventType.PASSWORD_PREVALIDATION,
-						identity, 
-						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChange)));
+	public void validatePassword(PasswordChangeDto passwordChange) {
+			entityEventManager.process(
+					new PasswordChangeEvent(
+							PasswordChangeEventType.PASSWORD_PREVALIDATION,
+							passwordChange));
 	}
 
 	@Override

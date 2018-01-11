@@ -80,15 +80,6 @@ class PasswordChange extends Basic.AbstractContent {
 
     identityManager.getService().preValidate(entityId, requestData)
     .then(response => {
-      if (response.status === 204) {
-        const error = undefined;
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
-
-        throw error;
-      }
       return response.json();
     })
     .then(json => {
@@ -206,6 +197,7 @@ class PasswordChange extends Basic.AbstractContent {
         });
       } else {
         this.addError(error);
+        this._preValidate();
       }
       this.refs.passwords.setValue(password);
     });

@@ -1,22 +1,22 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.PasswordChangeProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent;
+import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent.PasswordChangeEventType;
 
 /**
  * Pre-validate identity password
@@ -26,33 +26,38 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  */
 @Component
 @Description("Pre validates identity's password.")
-public class IdentityPasswordValidateDefinitionProcessor extends CoreEventProcessor<IdmIdentityDto> 
-implements IdentityProcessor {
+public class IdentityPasswordValidateDefinitionProcessor extends CoreEventProcessor<PasswordChangeDto> 
+implements PasswordChangeProcessor {
 
+	public static final String PROCESSOR_NAME = "identity-password-validate-definition-processor";
 	private final IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
 	public IdentityPasswordValidateDefinitionProcessor(IdmPasswordPolicyService passwordPolicyService) {
-		super(IdentityEventType.PASSWORD_PREVALIDATION);
+		super(PasswordChangeEventType.PASSWORD_PREVALIDATION);
 		this.passwordPolicyService = passwordPolicyService;
 	}
 	
 	@Override
-	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
-		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties()
-				.get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		
-		if (passwordChangeDto.isIdm()) {
-			passwordPolicyService.preValidate();
+	public EventResult<PasswordChangeDto> process(EntityEvent<PasswordChangeDto> event) {
+		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+		if (event.getContent().isIdm()) {
+			passwordPolicyService.preValidate(passwordValidationDto);
 		} else {
-			IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
-			policy.setSpecialCharBase("");
-			List<IdmPasswordPolicyDto> policies = new ArrayList<IdmPasswordPolicyDto>();
-			policies.add(policy);
-			passwordPolicyService.preValidate(policies);
+			passwordPolicyService.preValidate(passwordValidationDto, new ArrayList<IdmPasswordPolicyDto>());
 		}
 		
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	@Override
+	public int getOrder() {
+		return PasswordChangeEvent.DEFAULT_ORDER;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 }

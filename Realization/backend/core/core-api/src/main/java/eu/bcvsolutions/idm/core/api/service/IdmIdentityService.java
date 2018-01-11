@@ -133,9 +133,8 @@ public interface IdmIdentityService extends
 	 * Method create new IdentityEvent for pre validate password
 	 * 
 	 * @param passwordChange
-	 * @param identity
 	 */
-	void validate(PasswordChangeDto passwordChange, IdmIdentityDto identity);
+	void validatePassword(PasswordChangeDto passwordChange);
 
 	/**
 	 * Enable a given identity manually.

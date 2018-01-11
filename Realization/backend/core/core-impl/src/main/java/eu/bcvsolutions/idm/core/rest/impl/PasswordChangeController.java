@@ -136,15 +136,9 @@ public class PasswordChangeController {
 			nickname = "validationOfPasswordBeforeApplying",
 			tags = { PasswordChangeController.TAG })
 	public ResponseEntity<?> validate(
-			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable String backendId,
 			@RequestBody PasswordChangeDto passwordChangeDto) {
-		IdmIdentityDto identity = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, backendId);
-		if (identity == null) {
-			identity = new IdmIdentityDto();
-		}
 		passwordChangeDto.setNewPassword(new GuardedString());
-		identityService.validate(passwordChangeDto, identity);
+		identityService.validatePassword(passwordChangeDto);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
 }

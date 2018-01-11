@@ -68,15 +68,6 @@ class Profile extends Basic.AbstractContent {
 
     identityManager.getService().preValidate(entityId, requestData)
     .then(response => {
-      if (response.status === 204) {
-        const error = undefined;
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
-
-        throw error;
-      }
       return response.json();
     })
     .then(json => {

@@ -96,17 +96,18 @@ public interface IdmPasswordPolicyService extends ReadWriteDtoService<IdmPasswor
 	IdmPasswordPolicyDto findOneByName(String name);
 
 	/**
-	 * Method pre-validate password policies (non-existing password fails all enabled password policy rules)
-	 * Method throw exception with all validation errors.
-	 * 
-	 * @param passwordPolicyList
-	 */
-	void preValidate(List<IdmPasswordPolicyDto> passwordPolicyList);
-
-	/**
 	 * Method pre-validate default password policy (non-existing password fails all enabled password policy rules)
 	 * Method throw exception with all validation errors.
 	 * 
 	 */
-	void preValidate();
+	void preValidate(IdmPasswordValidationDto passwordValidationDto);
+	
+	/**
+	 * Method pre-validate password policies (non-existing password fails all enabled password policy rules)
+	 * Method throw exception with all validation errors.
+	 * 
+	 * @param passwordValidationDto
+	 * @param passwordPolicyList
+	 */
+	void preValidate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList);
 }

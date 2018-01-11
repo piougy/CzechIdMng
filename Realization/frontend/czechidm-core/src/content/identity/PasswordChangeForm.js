@@ -228,6 +228,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
           newPassword: null,
           newPasswordAgain: null
         });
+        this._preValidate(this.props.accountOptions);
       });
     })
     .catch(error => {
@@ -235,6 +236,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
         this.addErrorMessage({hidden: true}, error);
       } else {
         this.addError(error);
+        this._preValidate(this.props.accountOptions);
       }
 
       this.refs.form.setData({

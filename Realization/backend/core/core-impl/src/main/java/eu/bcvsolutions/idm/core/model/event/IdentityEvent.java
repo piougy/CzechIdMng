@@ -26,8 +26,7 @@ public class IdentityEvent extends CoreEvent<IdmIdentityDto> {
 		UPDATE, 
 		DELETE, 
 		PASSWORD, // password change
-		PASSWORD_EXPIRED,
-		PASSWORD_PREVALIDATION
+		PASSWORD_EXPIRED
 	}
 	
 	public IdentityEvent(IdentityEventType operation, IdmIdentityDto content) {

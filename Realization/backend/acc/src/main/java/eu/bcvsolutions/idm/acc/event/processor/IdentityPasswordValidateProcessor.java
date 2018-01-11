@@ -144,7 +144,14 @@ public class IdentityPasswordValidateProcessor
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	// returns password policy list for accounts
+	/**
+	 * Method returns password policy list for accounts
+	 * 
+	 * @param identity
+	 * @param passwordChangeDto
+	 * @return
+	 * 
+	 */
 	public List<IdmPasswordPolicyDto> validateDefinition(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
 		
 		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<>();
@@ -184,11 +191,7 @@ public class IdentityPasswordValidateProcessor
 			}
 		});
 	
-		return passwordPolicyList;
-	}
-	
-	public void preValidate(List<IdmPasswordPolicyDto> passwordPolicyList) {
-		this.passwordPolicyService.preValidate(passwordPolicyList);
+		return  passwordPolicyList;
 	}
 
 	@Override

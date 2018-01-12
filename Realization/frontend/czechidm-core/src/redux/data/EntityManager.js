@@ -1037,7 +1037,7 @@ export default class EntityManager {
   }
 
   /**
-   * Authorization evaluator helper - evaluates read permission on given entity
+   * Authorization evaluator helper - evaluates execute permission on given entity
    *
    * @param  {object} entity
    * @param  {arrayOf(string)} permissions
@@ -1047,9 +1047,9 @@ export default class EntityManager {
     if (!this.getGroupPermission()) {
       return false;
     }
-    if (!this.supportsAuthorization() || !entity) {
+    if (Utils.Entity.isNew(entity)) {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
     }
-    return Utils.Permission.hasPermission(permissions, 'EXECUTE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
+    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'EXECUTE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
   }
 }

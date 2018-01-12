@@ -1840,10 +1840,22 @@
             "parameters": "Parametry úlohy"
           },
           "task-run": {
-            "success": "Úloha [{{record}}] byla úspěšně spuštěna."
+            "header": "Spustit úlohu ručně",
+            "header_plural": "Spustit úlohy ručně",
+            "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ručně?",
+            "message_plural": "Vybrané úlohy: [<strong>{{records}}</strong>].<br /><br /> Chcete spustit <strong>{{count}}</strong> vybraných úloh ručně?",
+            "error": "Při ručním spouštění úlohy [{{record}}] nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna ručně",
+            "success_plural": "Vybrané úlohy [{{records}}] byly úspěšně spuštěny ručně"
           },
           "task-dry-run": {
-            "success": "Úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu."
+            "header": "Spustit úlohu ve zkušením režimu",
+            "header_plural": "Spustit úlohy ve zkušením režimu",
+            "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ve zkušením režimu?",
+            "message_plural": "Vybrané úlohy: [<strong>{{records}}</strong>].<br /><br /> Chcete spustit <strong>{{count}}</strong> vybraných úloh ve zkušením režimu?",
+            "error": "Při spouštění úlohy [{{record}}] ve zkušením režimu nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu",
+            "success_plural": "Vybrané úlohy [{{records}}] byly úspěšně spuštěny ve zkušením režimu"
           },
           "task-delete": {
             "header": "Odebrat úlohu",

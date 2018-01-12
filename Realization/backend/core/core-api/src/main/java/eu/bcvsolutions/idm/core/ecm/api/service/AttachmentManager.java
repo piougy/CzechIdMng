@@ -56,6 +56,18 @@ public interface AttachmentManager extends
 	IdmAttachmentDto saveAttachmentVersion(Identifiable owner, IdmAttachmentDto attachment, IdmAttachmentDto previousVersion, BasePermission... permission);
 	
 	/**
+	 * Persist new version of attachment. Closes given data input stream automatically.
+	 * 
+	 * @param owner
+	 * @param attachment
+	 * @param previousVersionId  [optional] if its not specified, then is searching attachment for same object by name
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	IdmAttachmentDto saveAttachmentVersion(Identifiable owner, IdmAttachmentDto attachment, UUID previousVersionId, BasePermission... permission);
+	
+	/**
 	 * Update attachment - replaces attachment binary data and updates metadata. 
 	 * Doesn't create new attachment version.
 	 * Usable mainly for update attachment metadata (e.g. description)

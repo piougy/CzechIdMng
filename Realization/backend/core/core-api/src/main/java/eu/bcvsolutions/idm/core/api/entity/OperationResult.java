@@ -15,6 +15,8 @@ import com.google.common.base.Throwables;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
  * Universal operation result
@@ -132,6 +134,12 @@ public class OperationResult implements Serializable {
 			if (model != null) {
 				this.code = model.getStatusEnum();
 			}
+			return this;
+		}
+		
+		public Builder setException(ResultCodeException ex) {
+			this.setCause(ex);
+			this.setModel(ex == null || ex.getError() == null ? null : ex.getError().getError());
 			return this;
 		}
 		

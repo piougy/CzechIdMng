@@ -156,18 +156,32 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
-      this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
-    }));
+    this.refs['confirm-task-run'].show(
+      this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-run.header`)
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
+        this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+      }));
+    }, () => {
+      // Rejected
+    });
   }
 
   onDryRun(entity, event) {
     if (event) {
       event.preventDefault();
     }
-    this.context.store.dispatch(this.getManager().dryRunTask(entity.id, () => {
-      this.addMessage({ message: this.i18n('action.task-dry-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
-    }));
+    this.refs['confirm-task-dry-run'].show(
+      this.i18n(`action.task-dry-run.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-dry-run.header`)
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().dryRunTask(entity.id, () => {
+        this.addMessage({ message: this.i18n('action.task-dry-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+      }));
+    }, () => {
+      // Rejected
+    });
   }
 
   onTriggerDelete(trigger) {
@@ -274,6 +288,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-task-run" level="success"/>
+        <Basic.Confirm ref="confirm-task-dry-run" level="info"/>
 
         <Advanced.Table
           ref="table"

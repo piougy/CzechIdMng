@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -138,21 +139,37 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		return getTask(getKey(taskId));
 	}
 	
-	public Task updateTask(Task task) {
-		Assert.notNull(task);
+	public Task updateTask(String taskId, String description, Map<String, String> parameters) {
+		Assert.notNull(taskId);
+		Task task = getTask(taskId);
+		if (StringUtils.isEmpty(description)) {
+			description = AutowireHelper.getBeanDescription(task.getTaskType());
+		}
 		try {
 			// job properties
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
-			task.getParameters().entrySet().forEach(entry -> {
+			parameters.entrySet().forEach(entry -> {
 				jobDataMap.put(entry.getKey(), entry.getValue());
 			});
+			// validate init method
+			try {
+				LongRunningTaskExecutor<?> taskExecutor = AutowireHelper.createBean(task.getTaskType());
+				taskExecutor.init(jobDataMap);
+			} catch (ResultCodeException ex) {
+				throw ex;
+			} catch (Exception ex) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
+			}
 			// create job detail - job definition
 			JobDetail jobDetail = JobBuilder.newJob().withIdentity(task.getId(), DEFAULT_GROUP_NAME)
-					.withDescription(task.getDescription()).ofType(task.getTaskType()).usingJobData(jobDataMap)
+					.withDescription(description)
+					.ofType(task.getTaskType())
+					.usingJobData(jobDataMap)
 					.storeDurably().build();
 			// add job
-			scheduler.addJob(jobDetail, false);
+			scheduler.addJob(jobDetail, true);
 			//
 			LOG.debug("Job '{}' ({}) was created and registered", task.getId(), task.getTaskType());
 			//

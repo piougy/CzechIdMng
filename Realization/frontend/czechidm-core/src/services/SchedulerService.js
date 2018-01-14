@@ -37,6 +37,28 @@ export default class SchedulerService extends AbstractService {
   }
 
   /**
+   * Overrided method for edit LRT
+   *
+   * @param {Object} entity
+   * @param {ArrayList} parameters
+   */
+  updateTask(entity, parameters) {
+    return RestApiService
+      .put(this.getApiPath() + `/${encodeURIComponent(entity.id)}` + '/update', parameters)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
+  /**
    * Return simple class name
    *
    * @param  {string} taskType cannonical class name

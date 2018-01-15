@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Patrik Stloukal
  *
  */
-public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
+public class PasswordPreValidationIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
@@ -64,9 +64,9 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testLenght() {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("norand" + System.currentTimeMillis());
-		identity.setFirstName("nor");
-		identity.setLastName("and");
+		identity.setUsername("test" + System.currentTimeMillis());
+		identity.setFirstName("testFirst");
+		identity.setLastName("testSecond");
 		identity = idmIdentityService.save(identity);
 		//
 		SysSystemDto system = testHelper.createTestResourceSystem(true);
@@ -126,9 +126,9 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testMinChar() {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("norand" + System.currentTimeMillis());
-		identity.setFirstName("nor");
-		identity.setLastName("and");
+		identity.setUsername("test" + System.currentTimeMillis());
+		identity.setFirstName("testFirst");
+		identity.setLastName("testSecond");
 		identity = idmIdentityService.save(identity);
 		//
 		SysSystemDto system = testHelper.createTestResourceSystem(true);
@@ -187,9 +187,9 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testNumberSpecialChar() {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("norand" + System.currentTimeMillis());
-		identity.setFirstName("nor");
-		identity.setLastName("and");
+		identity.setUsername("test" + System.currentTimeMillis());
+		identity.setFirstName("testFirst");
+		identity.setLastName("testSecond");
 		identity = idmIdentityService.save(identity);
 		//
 		SysSystemDto system = testHelper.createTestResourceSystem(true);
@@ -248,9 +248,9 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testAdvancedEnabled() {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("norand" + System.currentTimeMillis());
-		identity.setFirstName("nor");
-		identity.setLastName("and");
+		identity.setUsername("test" + System.currentTimeMillis());
+		identity.setFirstName("testFirst");
+		identity.setLastName("testSecond");
 		identity = idmIdentityService.save(identity);
 		//
 		SysSystemDto system = testHelper.createTestResourceSystem(true);
@@ -341,9 +341,9 @@ public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testAdvancedEnabledSimilarAttributes() {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("norand" + System.currentTimeMillis());
-		identity.setFirstName("nor");
-		identity.setLastName("and");
+		identity.setUsername("test" + System.currentTimeMillis());
+		identity.setFirstName("testFirst");
+		identity.setLastName("testSecond");
 		identity = idmIdentityService.save(identity);
 		//
 		SysSystemDto system = testHelper.createTestResourceSystem(true);

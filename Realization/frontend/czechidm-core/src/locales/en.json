@@ -771,7 +771,7 @@
         "passwordSimilarLastName": "Password cannot be similar to surname: ",
         "date": "Password can not be change now, try again: ",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
-        "specialCharactersBase": "Allowed special characters:  {{0}}",
+        "specialCharactersBase": "List of special characters:  {{0}}",
         "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
         "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
         "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",

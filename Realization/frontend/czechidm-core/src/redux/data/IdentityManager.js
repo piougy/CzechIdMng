@@ -151,6 +151,16 @@ export default class IdentityManager extends FormableEntityManager {
     }
     return Utils.Permission.hasPermission(permissions, 'PASSWORDCHANGE');
   }
+
+  /**
+   * PreValidates password
+   *
+   * @param  {string} requestData
+   * @return
+   */
+  preValidate(requestData) {
+    return this.identityService.preValidate(requestData);
+  }
 }
 
 IdentityManager.PASSWORD_DISABLED = 'DISABLED';

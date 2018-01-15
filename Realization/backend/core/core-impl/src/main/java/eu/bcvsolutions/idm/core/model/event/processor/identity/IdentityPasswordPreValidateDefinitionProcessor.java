@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.PasswordChangeProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent.PasswordChangeEventType;
@@ -26,18 +25,17 @@ import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent.PasswordChangeEv
  */
 @Component
 @Description("Pre validates identity's password.")
-public class IdentityPasswordValidateDefinitionProcessor extends CoreEventProcessor<PasswordChangeDto> 
-implements PasswordChangeProcessor {
+public class IdentityPasswordPreValidateDefinitionProcessor extends CoreEventProcessor<PasswordChangeDto> {
 
-	public static final String PROCESSOR_NAME = "identity-password-validate-definition-processor";
+	public static final String PROCESSOR_NAME = "identity-password-pre-validate-definition-processor";
 	private final IdmPasswordPolicyService passwordPolicyService;
-	
+
 	@Autowired
-	public IdentityPasswordValidateDefinitionProcessor(IdmPasswordPolicyService passwordPolicyService) {
+	public IdentityPasswordPreValidateDefinitionProcessor(IdmPasswordPolicyService passwordPolicyService) {
 		super(PasswordChangeEventType.PASSWORD_PREVALIDATION);
 		this.passwordPolicyService = passwordPolicyService;
 	}
-	
+
 	@Override
 	public EventResult<PasswordChangeDto> process(EntityEvent<PasswordChangeDto> event) {
 		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
@@ -46,15 +44,15 @@ implements PasswordChangeProcessor {
 		} else {
 			passwordPolicyService.preValidate(passwordValidationDto, new ArrayList<IdmPasswordPolicyDto>());
 		}
-		
+
 		return new DefaultEventResult<>(event, this);
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return PasswordChangeEvent.DEFAULT_ORDER;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;

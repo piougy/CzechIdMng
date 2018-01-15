@@ -70,11 +70,11 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       return null;
     }
     // For pre validate it shows as info (blue)
-    let level1 = `warning`;
-    let level2 = `danger`;
+    let levelWarning = `warning`;
+    let levelDanger = `danger`;
     if (validationDefinition) {
-      level1 = `info`;
-      level2 = `info`;
+      levelWarning = `info`;
+      levelDanger = `info`;
     }
     const validationMessage = [];
     let policies = '';
@@ -94,7 +94,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           }
           rules += '</ul></span>';
           validationMessage.push(
-            <Basic.Alert level={level1} >
+            <Basic.Alert level={levelWarning} >
               <span dangerouslySetInnerHTML={{
                 __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
               />
@@ -102,10 +102,10 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
         } else if (key !== PASSWORD_POLICIES_NAMES) {
           // validation message with date
           if (key === DATE) {
-            validationMessage.push(<Basic.Alert level={level1} >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
+            validationMessage.push(<Basic.Alert level={levelWarning} >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
           } else {
             // other validation messages
-            validationMessage.push(<Basic.Alert level={level1} >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
+            validationMessage.push(<Basic.Alert level={levelWarning} >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
           }
         }
       }
@@ -113,7 +113,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     // first message is password policies names, with danger class
     if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) || error.parameters.hasOwnProperty(POLICY_NAME_PREVALIDATION)) {
       policies = error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) ? this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES] : this.i18n('content.passwordPolicies.validation.' + POLICY_NAME_PREVALIDATION) + error.parameters[POLICY_NAME_PREVALIDATION];
-      validationMessage.unshift(<Basic.Alert level={level2} >{policies}</Basic.Alert>);
+      validationMessage.unshift(<Basic.Alert level={levelDanger} >{policies}</Basic.Alert>);
     }
 
     return validationMessage;

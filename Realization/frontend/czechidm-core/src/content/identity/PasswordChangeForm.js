@@ -82,7 +82,6 @@ class PasswordChangeForm extends Basic.AbstractContent {
    * Method shows password rules before applying change of password
    */
   _preValidate(options) {
-    const { entityId } = this.props;
     const requestData = {
       accounts: []
     };
@@ -94,7 +93,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
         requestData.accounts.push(resourceValue.value);
       }
     });
-    identityService.preValidate(entityId, requestData)
+    identityManager.preValidate(requestData)
     .then(response => {
       if (response.status === 204) {
         const error = undefined;

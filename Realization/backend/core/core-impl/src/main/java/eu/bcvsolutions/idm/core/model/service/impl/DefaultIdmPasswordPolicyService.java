@@ -239,18 +239,19 @@ public class DefaultIdmPasswordPolicyService
 		passwordPolicyList.add(defaultPolicy);
 		preValidate(passwordValidationDto, passwordPolicyList);
 	}
-	
-	
-	public void preValidate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList) {
+
+	public void preValidate(IdmPasswordValidationDto passwordValidationDto,
+			List<IdmPasswordPolicyDto> passwordPolicyList) {
 		passwordValidationDto.setPassword("");
 		validate(passwordValidationDto, passwordPolicyList, true);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList, boolean prevalidation) {
+	private void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList,
+			boolean prevalidation) {
 		Assert.notNull(passwordPolicyList);
 		Assert.notNull(passwordValidationDto);
-		
+
 		// if list is empty, get default password policy
 		if (passwordPolicyList.isEmpty() && !prevalidation) {
 			IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
@@ -258,63 +259,75 @@ public class DefaultIdmPasswordPolicyService
 				passwordPolicyList.add(defaultPolicy);
 			}
 		}
-		
+
 		// if list with password policies is empty, validate is always true
 		if (passwordPolicyList.isEmpty()) {
 			// this state means that system idm hasn't default password policy
 			return;
 		}
-		
-		IdmPasswordDto oldPassword = passwordValidationDto.getOldPassword() != null ? passwordService.get(passwordValidationDto.getOldPassword()) : null;
+
+		IdmPasswordDto oldPassword = passwordValidationDto.getOldPassword() != null
+				? passwordService.get(passwordValidationDto.getOldPassword())
+				: null;
 		String password = passwordValidationDto.getPassword().asString();
-		
+
 		DateTime now = new DateTime();
-		
+
 		Map<String, Object> errors = new HashMap<>();
 		Set<Character> prohibitedChar = new HashSet<>();
 		List<String> policyNames = new ArrayList<String>();
-		String prohibitedCharacters = "", specialCharBase = "";
-		
+		String prohibitedCharacters = "", specialCharBase = null;
+
 		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
 			if (passwordPolicy.isDisabled()) {
 				continue;
 			}
 			boolean validateNotSuccess = false;
-			
+
 			// check if can change password for minimal age for change
 			// if loged user is admin, skip this
 			if (oldPassword != null && !securityService.isAdmin() && !prevalidation) {
-				if (passwordPolicy.getMinPasswordAge() != null && oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
-					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE,
-							ImmutableMap.of(("date"), oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));
+				if (passwordPolicy.getMinPasswordAge() != null && oldPassword.getValidFrom()
+						.plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
+					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE, ImmutableMap.of(("date"),
+							oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));
 				}
 			}
-			
+
 			// minimum rules to fulfill
 			Map<String, Object> notPassRules = new HashMap<>();
-			
-			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill() == null ? 0 : passwordPolicy.getMinRulesToFulfill().intValue();
-	
+
+			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill() == null ? 0
+					: passwordPolicy.getMinRulesToFulfill().intValue();
+
 			// check to max password length
-			if (!isNull(passwordPolicy.getMaxPasswordLength()) && password.length() > passwordPolicy.getMaxPasswordLength() || !isNull(passwordPolicy.getMaxPasswordLength()) && prevalidation) {
+			if (!isNull(passwordPolicy.getMaxPasswordLength())
+					&& password.length() > passwordPolicy.getMaxPasswordLength()
+					|| !isNull(passwordPolicy.getMaxPasswordLength()) && prevalidation) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
-					notPassRules.put(MAX_LENGTH, Math.min(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
-				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(passwordPolicy.getMaxPasswordLength(), errors.get(MAX_LENGTH)))) {
+					notPassRules.put(MAX_LENGTH,
+							Math.min(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
+				} else if (!(errors.containsKey(MAX_LENGTH)
+						&& compareInt(passwordPolicy.getMaxPasswordLength(), errors.get(MAX_LENGTH)))) {
 					errors.put(MAX_LENGTH, passwordPolicy.getMaxPasswordLength());
 				}
 				validateNotSuccess = true;
 			}
 			// check to minimal password length
-			if (!isNull(passwordPolicy.getMinPasswordLength()) && password.length() < passwordPolicy.getMinPasswordLength()) {
+			if (!isNull(passwordPolicy.getMinPasswordLength())
+					&& password.length() < passwordPolicy.getMinPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
-					notPassRules.put(MIN_LENGTH, Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
-				} else if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
+					notPassRules.put(MIN_LENGTH,
+							Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
+				} else if (!(errors.containsKey(MIN_LENGTH)
+						&& compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
 					errors.put(MIN_LENGTH, passwordPolicy.getMinPasswordLength());
 				}
 				validateNotSuccess = true;
 			}
 			// check to prohibited characters
-			if (!Strings.isNullOrEmpty(passwordPolicy.getProhibitedCharacters()) && !password.matches("[^" + passwordPolicy.getProhibitedCharacters() + "]*")) {
+			if (!Strings.isNullOrEmpty(passwordPolicy.getProhibitedCharacters())
+					&& !password.matches("[^" + passwordPolicy.getProhibitedCharacters() + "]*")) {
 				for (char character : passwordPolicy.getProhibitedCharacters().toCharArray()) {
 					if (password.indexOf(character) >= 0) {
 						prohibitedChar.add(character);
@@ -323,46 +336,65 @@ public class DefaultIdmPasswordPolicyService
 				validateNotSuccess = true;
 			}
 			// check to minimal numbers
-			if (!isNull(passwordPolicy.getMinNumber()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
+			if (!isNull(passwordPolicy.getMinNumber()) && !password.matches("(.*["
+					+ Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
 				if (!passwordPolicy.isNumberRequired() && passwordPolicy.isEnchancedControl()) {
-					notPassRules.put(MIN_NUMBER, Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
-				} else if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
+					notPassRules.put(MIN_NUMBER,
+							Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
+				} else if (!(errors.containsKey(MIN_NUMBER)
+						&& compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
 					errors.put(MIN_NUMBER, passwordPolicy.getMinNumber());
 				}
 				validateNotSuccess = true;
 			}
 			// check to minimal lower characters
-			if (!isNull(passwordPolicy.getMinLowerChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinLowerChar())
+					&& !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){"
+							+ passwordPolicy.getMinLowerChar() + ",}")) {
 				if (!passwordPolicy.isLowerCharRequired() && passwordPolicy.isEnchancedControl()) {
-					notPassRules.put(MIN_LOWER_CHAR, Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
-				} else if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
+					notPassRules.put(MIN_LOWER_CHAR,
+							Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
+				} else if (!(errors.containsKey(MIN_LOWER_CHAR)
+						&& compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
 					errors.put(MIN_LOWER_CHAR, passwordPolicy.getMinLowerChar());
 				}
 				validateNotSuccess = true;
 			}
 			// check to minimal upper character
-			if (!isNull(passwordPolicy.getMinUpperChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinUpperChar())
+					&& !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){"
+							+ passwordPolicy.getMinUpperChar() + ",}")) {
 				if (!passwordPolicy.isUpperCharRequired() && passwordPolicy.isEnchancedControl()) {
-					notPassRules.put(MIN_UPPER_CHAR, Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
-				} else if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
+					notPassRules.put(MIN_UPPER_CHAR,
+							Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
+				} else if (!(errors.containsKey(MIN_UPPER_CHAR)
+						&& compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
 					errors.put(MIN_UPPER_CHAR, passwordPolicy.getMinUpperChar());
 				}
 			}
 			// check to minimal special character
-			if (!isNull(passwordPolicy.getMinSpecialChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinSpecialChar())
+					&& !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){"
+							+ passwordPolicy.getMinSpecialChar() + ",}")) {
 				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
-					notPassRules.put(MIN_SPECIAL_CHAR, Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
-				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
+					notPassRules.put(MIN_SPECIAL_CHAR,
+							Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
+				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR)
+						&& compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
 					errors.put(MIN_SPECIAL_CHAR, passwordPolicy.getMinSpecialChar());
 				}
 				validateNotSuccess = true;
 			}
 			
-			if(prevalidation) {
-				prohibitedCharacters = (setPolicyDefinitionSpecialCharacters(prohibitedCharacters, passwordPolicy.getProhibitedCharacters()));
-				specialCharBase = (setPolicyDefinitionSpecialCharacters(specialCharBase, passwordPolicy.getSpecialCharBase()));
+			if (prevalidation && !isNull(passwordPolicy.getMinSpecialChar())) {
+				if (specialCharBase == null) {
+					specialCharBase = passwordPolicy.getSpecialCharBase();
+				} else {
+					specialCharBase = (setPolicyDefinitionAllowedSpecialCharacters(specialCharBase,
+							passwordPolicy.getSpecialCharBase()));
+				}
 			}
-			
+
 			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
 				int notRequiredRules = passwordPolicy.getNotRequiredRules();
 				int missingRules = notRequiredRules - notPassRules.size();
@@ -371,108 +403,129 @@ public class DefaultIdmPasswordPolicyService
 					errors.put(MIN_RULES_TO_FULFILL, notPassRules);
 				}
 			}
-			
+
 			// if not success we want password policy name
 			if (validateNotSuccess && !errors.isEmpty()) {
 				policyNames.add(passwordPolicy.getName());
 			}
-			
+
 			// check to similar identity attributes, enhanced control
-			if(prevalidation) {
-				EnhancedControlForSimilar(passwordPolicy, prevalidation, errors);
+			if (prevalidation) {
+				enhancedControlForSimilar(passwordPolicy, prevalidation, errors);
 			} else {
-				EnhancedControlForSimilar(passwordPolicy, passwordValidationDto, errors);
+				enhancedControlForSimilar(passwordPolicy, passwordValidationDto, errors);
 			}
-			
+
 			// TODO: weak words
-			
+
 			// TODO: history similar
 		}
-		
+
 		if (prevalidation) {
 			if (errors.containsKey(MIN_SPECIAL_CHAR)) {
-			specialCharBase(errors, specialCharBase, prohibitedCharacters);
+				getSpecialCharBase(errors, specialCharBase, prohibitedCharacters);
 			} else {
-				if (errors.containsKey(MIN_RULES_TO_FULFILL)){
+				if (errors.containsKey(MIN_RULES_TO_FULFILL)) {
 					if (((Map<String, Object>) errors.get(MIN_RULES_TO_FULFILL)).containsKey(MIN_SPECIAL_CHAR)) {
-					specialCharBase(errors, specialCharBase, prohibitedCharacters);
+						getSpecialCharBase(errors, specialCharBase, prohibitedCharacters);
 					}
 				}
 			}
 		}
-		
+
 		if (!policyNames.isEmpty()) {
 			String name = prevalidation ? POLICY_NAME_PREVALIDATION : POLICY_NAME;
 			errors.put(name, String.join(", ", policyNames));
 		}
-		
+
 		if (!prohibitedChar.isEmpty()) {
 			errors.put(COINTAIN_PROHIBITED, prohibitedChar.toString());
 		}
-		
+
 		if (!errors.isEmpty()) {
 			// TODO: password policy audit
 			throw new ResultCodeException(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY, errors);
 		}
 	}
 
-	private Map<String, Object> specialCharBase( Map<String, Object> errors, String specialCharBase, String prohibitedCharacters) {
-		if(!errors.containsKey(MIN_SPECIAL_CHAR))
-		  if (!(specialCharBase.isEmpty())) {
-			    if(prohibitedCharacters == null) {
-			    	errors.put(SPECIAL_CHARACTERS_BASE, specialCharBase);
-			    } else {
-			    	String specialBase = "";
-			    	for (char character : specialCharBase.toCharArray()) {
-			    		if (prohibitedCharacters.indexOf(character) == -1) {
-			    			specialBase = specialBase + character;
-			    		}
-			    	}
-			    	errors.put(SPECIAL_CHARACTERS_BASE, specialBase);
-			    }
-		  }
-		  return errors;
+	/**
+	 * Method sets special char base from String of acceptable chars and String of prohibited chars
+	 * 
+	 * @param errors
+	 * @param specialCharBase
+	 * @param prohibitedCharacters
+	 * @return
+	 */
+	private Map<String, Object> getSpecialCharBase(Map<String, Object> errors, String specialCharBase,
+			String prohibitedCharacters) {
+		if (specialCharBase != null)
+			if (!(specialCharBase.isEmpty())) {
+					errors.put(SPECIAL_CHARACTERS_BASE, specialCharBase);
+			}
+		return errors;
 	}
-	
-	private Map<String, Object> EnhancedControlForSimilar (IdmPasswordPolicyDto passwordPolicy, boolean prevalidation, Map<String, Object> errors) {
-	  if (passwordPolicy.isEnchancedControl()) {
-	      String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
-	      for (int index = 0; index < attributes.length; index++) {
-	        if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
-	            errors.put(PASSWORD_SIMILAR_EMAIL_PREVALIDATE, "");
-	        } else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
-	            errors.put(PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE, "");
-	        } else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {					
-	            errors.put(PASSWORD_SIMILAR_LASTNAME_PREVALIDATE, "");
-	        } else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
-	            errors.put(PASSWORD_SIMILAR_USERNAME_PREVALIDATE, "");
-	        }
-	      }
-	    }
-	  return errors;
-	  }
-	
-	private Map<String, Object> EnhancedControlForSimilar (IdmPasswordPolicyDto passwordPolicy, IdmPasswordValidationDto passwordValidationDto, Map<String, Object> errors) {
+
+	/**
+	 * Method sets to which attribute of identity cannot be similar to password - pre-validation
+	 * 
+	 * @param passwordPolicy
+	 * @param prevalidation
+	 * @param errors
+	 * @return
+	 */
+	private Map<String, Object> enhancedControlForSimilar(IdmPasswordPolicyDto passwordPolicy, boolean prevalidation,
+			Map<String, Object> errors) {
+		if (passwordPolicy.isEnchancedControl()) {
+			String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
+			for (int index = 0; index < attributes.length; index++) {
+				if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
+					errors.put(PASSWORD_SIMILAR_EMAIL_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
+					errors.put(PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {
+					errors.put(PASSWORD_SIMILAR_LASTNAME_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
+					errors.put(PASSWORD_SIMILAR_USERNAME_PREVALIDATE, "");
+				}
+			}
+		}
+		return errors;
+	}
+
+	/**
+	 * Method sets to which attribute of identity is similar to password - password validation
+	 * 
+	 * @param passwordPolicy
+	 * @param passwordValidationDto
+	 * @param errors
+	 * @return
+	 */
+	private Map<String, Object> enhancedControlForSimilar(IdmPasswordPolicyDto passwordPolicy,
+			IdmPasswordValidationDto passwordValidationDto, Map<String, Object> errors) {
 		String password = passwordValidationDto.getPassword().asString();
-		
+
 		if (passwordPolicy.isEnchancedControl()) {
 			String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
 			IdmIdentityDto identity = passwordValidationDto.getIdentity();
 			for (int index = 0; index < attributes.length; index++) {
 				if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
-					if (identity.getEmail()!= null && identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+					if (identity.getEmail() != null
+							&& identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 						errors.put(PASSWORD_SIMILAR_EMAIL, identity.getEmail());
 					}
 				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
-					if (identity.getFirstName() != null && identity.getFirstName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+					if (identity.getFirstName() != null && identity.getFirstName().toLowerCase()
+							.matches("(?i).*" + password.toLowerCase() + ".*")) {
 						errors.put(PASSWORD_SIMILAR_FIRSTNAME, identity.getFirstName());
 					}
 				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {
-					if (identity.getLastName() != null && identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+					if (identity.getLastName() != null
+							&& identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 						errors.put(PASSWORD_SIMILAR_LASTNAME, identity.getLastName());
 					}
 				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
-					if (identity.getUsername() != null && identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+					if (identity.getUsername() != null
+							&& identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 						errors.put(PASSWORD_SIMILAR_USERNAME, identity.getUsername());
 					}
 				}
@@ -525,26 +578,21 @@ public class DefaultIdmPasswordPolicyService
 		return this.toDto(this.repository.findOneByName(name));
 	}
 	
-	
 	/**
-	 * merge password policy special base char + forbidden char
+	 * merge password policy allowed special base char
 	 * 
 	 * @param firstRule, secondRule
 	 */
-	private String setPolicyDefinitionSpecialCharacters(String firstRule, String secondRule) {
+	private String setPolicyDefinitionAllowedSpecialCharacters(String firstRule, String secondRule) {
 		String specialCharacters = "";
-		if( (firstRule != null && secondRule != null ) ||  (secondRule != null) ){
-			if(firstRule == null) {
-				return secondRule;
-			} else {
-				for (char character : secondRule.toCharArray()) {
-					if (firstRule.indexOf(character) == -1) {
-						specialCharacters = specialCharacters + character;
-					}
+		if (!firstRule.isEmpty() || !secondRule.isEmpty()) {
+			for (char character : secondRule.toCharArray()) {
+				if (firstRule.indexOf(character) > -1) {
+					specialCharacters = specialCharacters + character;
 				}
-				return firstRule + specialCharacters;
 			}
+			return specialCharacters;
 		}
-		return firstRule;
+		return specialCharacters;
 	}
 }

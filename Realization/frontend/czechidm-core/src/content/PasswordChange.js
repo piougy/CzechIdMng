@@ -72,13 +72,12 @@ class PasswordChange extends Basic.AbstractContent {
    * Method shows password rules before applying change of password
    */
   _preValidate() {
-    const { entityId } = this.props;
     const requestData = {
       accounts: []
     };
     requestData.idm = true;
 
-    identityManager.getService().preValidate(entityId, requestData)
+    identityManager.identityManager.preValidate(requestData)
     .then(response => {
       return response.json();
     })

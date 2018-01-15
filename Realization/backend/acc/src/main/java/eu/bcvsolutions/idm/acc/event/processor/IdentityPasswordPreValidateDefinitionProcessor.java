@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.PasswordChangeProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent;
@@ -38,15 +37,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accIdentityPasswordValidateDefinitionProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Pre validates identity's and all selected system's password, before password is changed.")
-public class IdentityPasswordValidateDefinitionProcessor extends CoreEventProcessor<PasswordChangeDto>
-		implements PasswordChangeProcessor {
+public class IdentityPasswordPreValidateDefinitionProcessor extends CoreEventProcessor<PasswordChangeDto> {
 
-	public static final String PROCESSOR_NAME = "identity-password-validate-definition-processor-acc";
+	public static final String PROCESSOR_NAME = "identity-password-pre-validate-definition-processor-acc";
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final AccAccountService accountService;
 
 	@Autowired
-	public IdentityPasswordValidateDefinitionProcessor(IdmPasswordPolicyService passwordPolicyService,
+	public IdentityPasswordPreValidateDefinitionProcessor(IdmPasswordPolicyService passwordPolicyService,
 			AccAccountService accountService) {
 		super(PasswordChangeEventType.PASSWORD_PREVALIDATION);
 		//
@@ -73,6 +71,9 @@ public class IdentityPasswordValidateDefinitionProcessor extends CoreEventProces
 		IdmPasswordPolicyDto defaultPasswordPolicy = this.passwordPolicyService
 				.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 
+		if (defaultPasswordPolicy == null) {
+			defaultPasswordPolicy = new IdmPasswordPolicyDto();
+		}
 		for (String account : passwordChangeDto.getAccounts()) {
 			SysSystemDto system = DtoUtils.getEmbedded(accountService.get(UUID.fromString(account)), AccAccount_.system,
 					SysSystemDto.class);
@@ -97,7 +98,7 @@ public class IdentityPasswordValidateDefinitionProcessor extends CoreEventProces
 	public int getOrder() {
 		return PasswordChangeEvent.DEFAULT_ORDER - 10;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;

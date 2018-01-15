@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Patrik Stloukal
  *
  */
-public class PasswordValidationIntegrationTest extends AbstractIntegrationTest {
+public class PasswordPreValidationIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;

@@ -130,7 +130,7 @@ public class PasswordChangeController {
 	 */
 	@ResponseBody
 	@ResponseStatus(code = HttpStatus.OK)
-	@RequestMapping(value = BaseController.BASE_PATH + "/public/identities/{backendId}/validate", method = RequestMethod.PUT)
+	@RequestMapping(value = BaseController.BASE_PATH + "/public/identities/prevalidate", method = RequestMethod.PUT)
 	@ApiOperation(
 			value = "Validation of password before applying", 
 			nickname = "validationOfPasswordBeforeApplying",

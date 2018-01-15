@@ -67,13 +67,12 @@ class IdentityService extends FormableEntityService {
   /**
    * Shows password policies rules on selected systems via exception
    *
-   * @param username {string}
    * @param passwordChangeDto {object}
    * @param token {string} - if token has to be used (from public page is is not needed, then *false* could be given)
    * @return {Promise}
    */
-  preValidate(username, accounts, token = null) {
-    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${encodeURIComponent(username)}/validate`), accounts, token);
+  preValidate(passwordChangeDto, token = null) {
+    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/prevalidate`), passwordChangeDto, token);
   }
 
   /**

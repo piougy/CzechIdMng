@@ -255,6 +255,15 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	}
 	
 	@Override
+	public WorkflowProcessInstanceDto get(String processInstanceId, boolean checkRight) {
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processInstanceId);
+		filter.setSortAsc(true);
+		Collection<WorkflowProcessInstanceDto> resources = this.searchInternal(filter, checkRight).getResources();
+		return !resources.isEmpty() ? resources.iterator().next() : null;
+	}
+	
+	@Override
 	public void delete(WorkflowProcessInstanceDto dto, BasePermission... permission) {
 		this.delete(dto.getId(), null);
 	}
@@ -357,5 +366,4 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		
 		return dto;
 	}
-
 }

@@ -80,6 +80,15 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	 * @return
 	 */
 	WorkflowProcessInstanceDto get(String processInstanceId);
+	
+	/**
+	 * Search process instance by ID process instance and check permission
+	 * 
+	 * @param processInstanceId
+	 * @param checkRight
+	 * @return
+	 */
+	WorkflowProcessInstanceDto get(String processInstanceId, boolean checkRight);
 
 	@Deprecated
 	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);

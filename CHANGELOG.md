@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [7.7.0] unreleased
+
+### Added
+
+- Workflow task instances has permissions now. Add new permission for read and execute task,
+
+### Changed
+
+- All workflow services and controllers now using DTO layer, for more information read [#529](https://redmine.czechidm.com/issues/529).
+
+
 ## [7.6.1]
 
 ### Added

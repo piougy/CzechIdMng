@@ -961,12 +961,12 @@
     },
     "tasks": {
       "all": {
-        "title": "Overview of all tasks",
-        "label": "Overview of all tasks"
+        "title": "All tasks",
+        "label": "All tasks"
       },
       "identity": {
-        "title": "My taks",
-        "label": "My taks"
+        "title": "My tasks",
+        "label": "My tasks"
       }
     },
     "identities": {
@@ -2850,7 +2850,7 @@
     },
     "FORBIDDEN": {
       "title": "Insufficient permissions",
-      "message": "You do not have insufficient permissions for selected action."
+      "message": "You do not have sufficient permissions for selected action."
     },
     "FORBIDDEN_ENTITY": {
       "title": "Insufficient permissions",

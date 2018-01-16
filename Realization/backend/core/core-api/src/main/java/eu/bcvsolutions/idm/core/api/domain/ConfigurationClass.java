@@ -8,7 +8,6 @@ import java.io.Serializable;
  *
  */
 public interface ConfigurationClass extends Serializable {
-
 	
 	/**
 	 * Validate configuration. When is configuration invalid, then throw runtime exception.

@@ -74,7 +74,6 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
    */
   _getAttributeName(automaticRole) {
     if (automaticRole) {
-      console.log(123, automaticRole);
       if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
         return IdentityAttributeEnum.getNiceLabel(automaticRole.attributeName.toString().toUpperCase());
       } else if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {

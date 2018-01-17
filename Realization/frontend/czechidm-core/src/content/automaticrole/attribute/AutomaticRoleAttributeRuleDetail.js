@@ -36,8 +36,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       type: AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY), // default type, show when create new entity
       valueRequired: true, // flag for required field
       formAttribute: null, // instance of form attribute, is used for computed field input
-      attributeName: null, // name of identity attribute
-      setOnlyTextField: false // override computed field by simple text field
+      attributeName: null // name of identity attribute
     };
   }
 
@@ -115,6 +114,10 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     if (event) {
       event.preventDefault();
     }
+    if (!this.refs.value.isValid()) {
+      // with eav component doesn't  work validate by form
+      return;
+    }
     if (!this.refs.form.isFormValid()) {
       return;
     }
@@ -137,11 +140,12 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
 
     const formData = this.refs.form.getData();
     let value = this.refs.value.getValue();
-    if (value && value.value) {
+    if (_.isObject(value)) {
       // eav form value
       value = this._getValueFromEav(value);
     }
-    formData.value = value;
+    // attribute in backend is String type, we must explicit cast to string
+    formData.value = String(value);
     //
     formData.automaticRoleAttribute = attributeId;
     // we must transform attribute name with case sensitive letters
@@ -224,8 +228,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     //
     this.setState({
       typeForceSearchParameters,
-      type: option.value,
-      setOnlyTextField: false
+      type: option.value
     });
   }
 
@@ -243,8 +246,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   _formAttributeChange(option) {
     // just change formAttribute
     this.setState({
-      formAttribute: option,
-      setOnlyTextField: false
+      formAttribute: option
     });
   }
 
@@ -255,25 +257,14 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     });
   }
 
-  _setTextFieldChange(setOnlyTextField) {
-    this.setState({
-      setOnlyTextField: !setOnlyTextField
-    });
-  }
-
   /**
    * Return component that corespond with persisntent type of value type.
    * As default show text field.
    */
-  _getValueField(type, valueRequired, formAttribute, attributeName, setOnlyTextField) {
+  _getValueField(type, valueRequired, formAttribute, attributeName) {
     const { entity } = this.props;
     const value = entity.value;
     let finalComponent = null;
-    //
-    // if set to show only simple text field return it immediatele
-    if (setOnlyTextField) {
-      return this._getDefaultTextField(value);
-    }
     //
     if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY) ||
     type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {
@@ -322,6 +313,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     formAttribute.name = this.i18n('entity.AutomaticRole.attribute.value.label');
     formAttribute.placeholder = '';
     formAttribute.defaultValue = null;
+    formAttribute.required = valueRequired;
     //
     // is neccessary transform value to array
     return (
@@ -383,8 +375,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       type,
       valueRequired,
       formAttribute,
-      attributeName,
-      setOnlyTextField
+      attributeName
     } = this.state;
     //
     return (
@@ -422,7 +413,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
               required={!(typeForceSearchParameters === null)}
               manager={this.formAttributeManager}/>
             <Basic.Row>
-              <div className="col-lg-3">
+              <div className="col-lg-4">
                 <Basic.EnumSelectBox
                   ref="comparison"
                   required
@@ -431,18 +422,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
                   label={this.i18n('entity.AutomaticRole.attribute.comparison')}
                   enum={AutomaticRoleAttributeRuleComparisonEnum}/>
               </div>
-              <div className="col-lg-7">
-                { this._getValueField(type, valueRequired, formAttribute, attributeName, setOnlyTextField) }
-              </div>
-              <div className="col-lg-2">
-                <Basic.Tooltip
-                  value={this.i18n('setOnlyTextField.help')}>
-                <Basic.Button
-                  className="pull-right"
-                  style={{marginTop: '25px'}}
-                  text={setOnlyTextField ? this.i18n('setOnlyTextField.back') : this.i18n('setOnlyTextField.label')}
-                  onClick={this._setTextFieldChange.bind(this, setOnlyTextField)} />
-              </Basic.Tooltip>
+              <div className="col-lg-8">
+                { this._getValueField(type, valueRequired, formAttribute, attributeName) }
               </div>
             </Basic.Row>
           </Basic.AbstractForm>

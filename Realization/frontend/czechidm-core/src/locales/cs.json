@@ -1239,11 +1239,6 @@
         },
         "filter": {
           "text": "Název automatické role, nebo role"
-        },
-        "setOnlyTextField": {
-          "label": "Zobrazit textové pole",
-          "help": "Zobrazí hodnotu jako jednoduché textové pole",
-          "back": "Vrátit původní zobrazení"
         }
       },
       "recalculate": {

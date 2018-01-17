@@ -1207,11 +1207,6 @@
         },
         "filter": {
           "text": "Name of automatic role or role name"
-        },
-        "setOnlyTextField": {
-          "label": "Show a text field",
-          "help": "Displays the value as a simple text field",
-          "back": "Return the original face"
         }
       },
       "recalculate": {

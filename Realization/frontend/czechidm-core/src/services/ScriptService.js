@@ -58,6 +58,10 @@ class ScriptService extends AbstractService {
         throw error;
       });
   }
+  // script references
+  _getScriptReferences(scriptId) {
+    return RestApiService.get(this.getApiPath() + `/${encodeURIComponent(scriptId)}/getScriptReferences`);
+  }
 }
 
 export default ScriptService;

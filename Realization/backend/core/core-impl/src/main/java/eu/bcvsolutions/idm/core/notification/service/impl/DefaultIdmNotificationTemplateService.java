@@ -155,7 +155,7 @@ public class DefaultIdmNotificationTemplateService extends
 	@Override
 	@Transactional(readOnly = true)
 	public IdmNotificationTemplateDto getTemplateByCode(String code) {
-		return toDto(this.repository.findOneByCode(code));
+		return getByCode(code);
 	}
 
 	/**

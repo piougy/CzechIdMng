@@ -398,6 +398,20 @@
       },
       "Recaptcha": {
         "required": "Check 'you are not a robot' please"
+      },
+      "PasswordField":{
+        "newPassword": {
+          "label": "New password"
+        },
+        "newPasswordAgain": {
+          "label": "Re-enter new password"
+        },
+        "password": {
+          "label": "Password"
+        },
+        "passwordAgain": {
+          "label": "Re-enter password"
+        }
       }
     }
   },
@@ -1269,12 +1283,10 @@
     "scripts": {
       "header": "Script definitions",
       "title": "Script definitions",
-      "label": "Script definitions",
       "edit": {
         "title": "Script detail",
-        "header": "{{name}} rule detail"
+        "header": "{{name}} script detail"
       },
-      "scriptAuthorities": "Script authorities",
       "scriptAuthoritySaveFirst": "You can add script authorities only after saving.",
       "create": {
         "title": "New script",
@@ -1285,17 +1297,28 @@
       },
       "filter": {
         "text": "Code / Name / Description"
-      }
-    },
-    "scriptAuthorities": {
-      "create": {
-        "header": "Create new authority for script <small>{{name}}</small>"
       },
-      "edit": {
-        "header": "Edit authority for script <small>{{name}}</small>"
+      "detail": {
+        "header" : "Basic informations",
+        "title" : "Basic informations"
       },
-      "save": {
-        "success": "Authority for script successfully saved"
+      "authorities": {
+          "header": "Script authorities",
+          "title": "Script authorities",
+          "edit": {
+            "header": "Edit authority for script <small>{{name}}</small>"
+          },
+          "create": {
+            "header": "Create new authority for script <small>{{name}}</small>"
+          },
+          "save": {
+            "header": "Authority for script successfully saved",
+            "success": "Authority for script successfully saved"
+          }
+      },
+      "references": {
+        "header" : "Script usage",
+        "title" : "Script usage"
       }
     },
     "roles": {
@@ -1855,10 +1878,22 @@
             "parameters": "Task parameters"
           },
           "task-run": {
-            "success": "Task [{{record}}] successfully started."
+            "header": "Run record manually",
+            "header_plural": "Run records manually",
+            "message": "Do you want to run selected record [<strong>{{record}}</strong>] manually?",
+            "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to run <strong>{{count}}</strong> selected records manually?",
+            "error": "An error occurred while running [{{record}}] manually.",
+            "success": "Selected record [{{record}}] successfully ran manually",
+            "success_plural": "Selected records [{{records}}] were successfully run"
           },
           "task-dry-run": {
-            "success": "Task [{{record}}] successfully started as dryRun (demo process)."
+            "header": "Run record as dryRun (demo process)",
+            "header_plural": "Run records as dryRun (demo process)",
+            "message": "Do you want to run selected record [<strong>{{record}}</strong>] as dryRun (demo process)?",
+            "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to run <strong>{{count}}</strong> selected records as dryRun (demo process)?",
+            "error": "An error occurred while running [{{record}}] as dryRun (demo process).",
+            "success": "Selected record [{{record}}] successfully ran as dryRun (demo process)",
+            "success_plural": "Selected records [{{records}}] were successfully run as dryRun (demo process)"
           },
           "task-delete": {
             "header": "Remove task",

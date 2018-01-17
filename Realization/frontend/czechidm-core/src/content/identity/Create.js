@@ -16,7 +16,7 @@ const identityManager = new IdentityManager();
  *
  * @author Radek Tomiška
  */
-class Profile extends Basic.AbstractContent {
+class Create extends Basic.AbstractContent {
 
   constructor(props) {
     super(props);
@@ -278,10 +278,10 @@ class Profile extends Basic.AbstractContent {
   }
 }
 
-Profile.propTypes = {
+Create.propTypes = {
   userContext: React.PropTypes.object
 };
-Profile.defaultProps = {
+Create.defaultProps = {
   userContext: null
 };
 
@@ -291,4 +291,4 @@ function select(state) {
   };
 }
 
-export default connect(select)(Profile);
+export default connect(select)(Create);

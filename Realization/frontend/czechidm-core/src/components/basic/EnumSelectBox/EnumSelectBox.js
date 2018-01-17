@@ -39,7 +39,7 @@ class EnumSelectBox extends SelectBox {
       const results = [];
       if (enumeration) {
         for (const enumItem in enumeration) {
-          if (typeof enumeration[enumItem] === 'symbol') {
+          if (_.isSymbol(enumeration[enumItem])) {
             const item = this.itemRenderer(enumeration[enumItem], enumItem);
             results.push(item);
           }
@@ -111,7 +111,7 @@ class EnumSelectBox extends SelectBox {
       return null;
     }
     let rawValue;
-    if (typeof value === 'symbol') {
+    if (_.isSymbol(value)) {
       rawValue = this._findKeyBySymbol(value);
     } else {
       rawValue = value;
@@ -140,7 +140,7 @@ class EnumSelectBox extends SelectBox {
       return false;
     }
     let rawValue;
-    if (typeof value === 'symbol') {
+    if (_.isSymbol(value)) {
       rawValue = this._findKeyBySymbol(value);
     } else {
       rawValue = value;
@@ -167,17 +167,17 @@ class EnumSelectBox extends SelectBox {
   normalizeValue(value) {
     if (value) {
       // value is array ... enum multiselect
-      if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'symbol') {
+      if (value instanceof Array && this.props.multiSelect === true && _.isSymbol(value[0])) {
         const valueArray = [];
         for (const item of value) {
-          if (typeof item === 'symbol') {
+          if (_.isSymbol(value)) {
             // value is symbol
             // add item to array
             valueArray.push(this.itemRenderer(item, this._findKeyBySymbol(item)));
           }
         }
         return valueArray;
-      } else if (typeof value === 'symbol') {
+      } else if (_.isSymbol(value)) {
         // value is symbol
         return this.itemRenderer(value, this._findKeyBySymbol(value));
       } else if (typeof value === 'string') {
@@ -250,11 +250,11 @@ class EnumSelectBox extends SelectBox {
     //
     let convertedValue = value;
     if (this.useSymbol) {
-      if (typeof value !== 'symbol') {
+      if (!_.isSymbol(value)) {
         convertedValue = this.props.enum.findSymbolByKey(value);
       }
     } else {
-      if (typeof value === 'symbol') {
+      if (_.isSymbol(value)) {
         convertedValue = this.props.enum.findKeyBySymbol(value);
       }
     }

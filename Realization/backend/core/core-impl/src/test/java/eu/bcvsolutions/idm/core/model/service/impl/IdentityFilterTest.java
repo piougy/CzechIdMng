@@ -231,7 +231,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		 */
 		IdmTreeNodeDto node1 = helper.createTreeNode(type1,"ThisIsTestNode005",null);
 		IdmTreeNodeDto node11 = helper.createTreeNode(type1,"ThisIsTestNode006",node1);
-		IdmTreeNodeDto node12 = helper.createTreeNode(type2,"ThisIsTestNode007",node11);
+		IdmTreeNodeDto node12 = helper.createTreeNode(type1,"ThisIsTestNode007",node11);
 		/*
 		    r2  o
 		 */
@@ -249,10 +249,10 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		filter.setRecursively(true);
 		filter.setTreeNode(node1id);
 		Page<IdmIdentityDto> result = identityService.find(filter, null);
-		assertEquals("Wrong Recursive firstname",3, result.getTotalElements());
+		assertEquals("Wrong Recursive firstname", 4, result.getTotalElements());
 		filter.setRecursively(false);
 		result = identityService.find(filter, null);
-		assertEquals("Wrong NonRecursive firstname",1, result.getTotalElements());
+		assertEquals("Wrong NonRecursive firstname", 1, result.getTotalElements());
 	}
 
 	@Test

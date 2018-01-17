@@ -421,6 +421,20 @@
       },
       "Recaptcha": {
         "required": "Potvrďte prosím, že nejste robot"
+      },
+      "PasswordField":{
+        "newPassword": {
+          "label": "Nové heslo"
+        },
+        "newPasswordAgain": {
+          "label": "Nové heslo znovu"
+        },
+        "password": {
+          "label": "Heslo"
+        },
+        "passwordAgain": {
+          "label": "Heslo znovu"
+        }
       }
     }
   },
@@ -1302,12 +1316,10 @@
     "scripts": {
       "header": "Definice skriptů",
       "title": "Definice skriptů",
-      "label": "Definice skriptů",
       "edit": {
         "title": "Detail skriptu",
         "header": "{{name}} detail skriptu"
       },
-      "scriptAuthorities": "Oprávnění skriptu",
       "scriptAuthoritySaveFirst": "Oprávnění skriptu můžete přidat až po uložení.",
       "create": {
         "title": "Nový skript",
@@ -1318,17 +1330,28 @@
       },
       "filter": {
         "text": "Kód / Název / Popis"
-      }
-    },
-    "scriptAuthorities": {
-      "create": {
-        "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
       },
-      "edit": {
-        "header": "Editace autorizace pro skript <small>{{name}}</small>"
+      "detail": {
+        "header" : "Základní informace",
+        "title" : "Základní informace"
       },
-      "save": {
-        "success": "Oprávnění pro skript bylo úspěšně uloženo"
+      "authorities": {
+          "header": "Oprávnění skriptu",
+          "title": "Oprávnění skriptu",
+          "edit": {
+            "header": "Editace autorizace pro skript <small>{{name}}</small>"
+          },
+          "create": {
+            "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
+          },
+          "save": {
+            "header": "Oprávnění pro skript bylo úspěšně uloženo",
+            "success": "Oprávnění pro skript bylo úspěšně uloženo"
+          }
+      },
+      "references": {
+        "header" : "Použití scriptu",
+        "title" : "Použití scriptu"
       }
     },
     "roles": {
@@ -1892,10 +1915,22 @@
             "parameters": "Parametry úlohy"
           },
           "task-run": {
-            "success": "Úloha [{{record}}] byla úspěšně spuštěna."
+            "header": "Spustit úlohu ručně",
+            "header_plural": "Spustit úlohy ručně",
+            "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ručně?",
+            "message_plural": "Vybrané úlohy: [<strong>{{records}}</strong>].<br /><br /> Chcete spustit <strong>{{count}}</strong> vybraných úloh ručně?",
+            "error": "Při ručním spouštění úlohy [{{record}}] nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna ručně",
+            "success_plural": "Vybrané úlohy [{{records}}] byly úspěšně spuštěny ručně"
           },
           "task-dry-run": {
-            "success": "Úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu."
+            "header": "Spustit úlohu ve zkušením režimu",
+            "header_plural": "Spustit úlohy ve zkušením režimu",
+            "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ve zkušením režimu?",
+            "message_plural": "Vybrané úlohy: [<strong>{{records}}</strong>].<br /><br /> Chcete spustit <strong>{{count}}</strong> vybraných úloh ve zkušením režimu?",
+            "error": "Při spouštění úlohy [{{record}}] ve zkušením režimu nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna ve zkušením režimu",
+            "success_plural": "Vybrané úlohy [{{records}}] byly úspěšně spuštěny ve zkušením režimu"
           },
           "task-delete": {
             "header": "Odebrat úlohu",

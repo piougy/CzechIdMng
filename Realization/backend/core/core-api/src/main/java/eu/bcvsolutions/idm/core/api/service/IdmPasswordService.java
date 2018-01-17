@@ -44,6 +44,7 @@ public interface IdmPasswordService
 	 */
 	IdmPasswordDto findOneByIdentity(UUID identityId);
 
+//	TODO: remove this method
 	/**
 	 * Return password for given username
 	 *
@@ -80,12 +81,12 @@ public interface IdmPasswordService
 	/**
 	 * Increase count of unsuccessful attemps
 	 *
-	 * @param username
+	 * @param identityId
 	 */
-	void increaseUnsuccessfulAttempts(String username);
+	void increaseUnsuccessfulAttempts(UUID identityId);
 
 	/**
 	 * Save timestamp of last successful login
 	 */
-	void setLastSuccessfulLogin(String username);
+	void setLastSuccessfulLogin(UUID identityId);
 }

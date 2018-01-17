@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
@@ -126,6 +128,25 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(LocalDate.now(), password.getValidFrom());
 		assertEquals(identity.getId(), password.getIdentity());
 		assertNull(password.getValidTill());
+	}
+
+	@Test
+	public void testIncreaseUnsuccessfulAttempts() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+//		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		passwordService.increaseUnsuccessfulAttempts(identity.getId());
+		passwordService.increaseUnsuccessfulAttempts(identity.getId());
+		assertEquals(2, passwordService.findOneByIdentity(identity.getId()).getUnsuccessfulAttempts());
+	}
+
+	@Test
+	public void testSetLastSuccessfulLtogin() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+//		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		passwordService.setLastSuccessfulLogin(identity.getId());
+		DateTime lastLogin = passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin();
+		assertEquals(lastLogin, passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
+		assertNotEquals(DateTime.now(), passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
 	}
 
 	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {

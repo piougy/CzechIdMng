@@ -123,18 +123,18 @@ public class DefaultIdmPasswordService
 	}
 
 	@Override
-	public void increaseUnsuccessfulAttempts(String username) {
-		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
+	public void increaseUnsuccessfulAttempts(UUID identityId) {
+		IdmPasswordDto passwordDto = getPasswordByIdentity(identityId);
 		passwordDto.increaseUnsuccessfulAttempts();
-		passwordDto = save(passwordDto);
+		save(passwordDto);
 	}
 
 	@Override
-	public void setLastSuccessfulLogin(String username) {
-		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
+	public void setLastSuccessfulLogin(UUID identityId) {
+		IdmPasswordDto passwordDto = getPasswordByIdentity(identityId);
 		passwordDto.setLastSuccessfulLogin(new DateTime());
 		passwordDto.resetUnsuccessfulAttempts();
-		passwordDto = save(passwordDto);
+		save(passwordDto);
 	}
 
 	/**

@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Attachment - saved to FS
+ * TODO: delete attachment from FS after transaction is commited
  * 
  * @author Radek Tomiška
  * @since 7.6.0

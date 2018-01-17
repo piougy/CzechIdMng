@@ -4,6 +4,7 @@ import * as Basic from '../../basic';
 
 /**
  * Component with two TextField and password estimator.
+ * TODO: - isValid method is not supported
  *
  * @author Ondřej Kopr
  */
@@ -40,6 +41,13 @@ class PasswordField extends Basic.AbstractFormComponent {
   setValue(value) {
     this.refs.newPassword.setValue(value);
     this.refs.newPasswordAgain.setValue(value);
+  }
+
+  /**
+   * Focus input field
+   */
+  focus() {
+    this.refs.newPassword.focus();
   }
 
   _updatePasswordForValidation(value) {

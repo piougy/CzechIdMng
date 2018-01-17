@@ -59,7 +59,9 @@ export default class AbstractTableContent extends Basic.AbstractContent {
       }
     }, () => {
       this.refs.form.setData(entity);
-      cb();
+      if (cb) {
+        cb();
+      }
     });
   }
 

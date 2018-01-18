@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.acc.domain;
 
-import java.io.Serializable;
 import java.util.UUID;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * Interface for mapping attribute dto
@@ -10,7 +11,7 @@ import java.util.UUID;
  *
  */
 
-public interface AttributeMapping extends Serializable {
+public interface AttributeMapping extends BaseDto {
 
 	
 	String getIdmPropertyName();

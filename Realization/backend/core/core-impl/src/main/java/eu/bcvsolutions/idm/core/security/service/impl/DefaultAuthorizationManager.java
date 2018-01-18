@@ -173,6 +173,12 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(entity);
 		Assert.notNull(permission);
 		//
+		// check super admin
+		if(securityService.isAdmin()) {
+			LOG.debug("Logged as admin [{}], authorization granted", securityService.getCurrentUsername());
+			return true;
+		}
+		//
 		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass())) {
 			if (!supportsEntityType(policy, entity.getClass())) {
 				// TODO: compatibility issues - agendas without authorization support

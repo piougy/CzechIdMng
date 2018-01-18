@@ -54,9 +54,8 @@ public interface IdmIdentityService extends
 	 */
 	List<OperationResult> passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto);
 	
-	
 	/**
-	 * Find all identities by assigned role
+	 * Find all identities by assigned role. Returns even identities with invalid roles (future valid and expired).
 	 * 
 	 * @param roleId
 	 * @return List of identities with assigned role
@@ -70,7 +69,6 @@ public interface IdmIdentityService extends
 	 * @return List of identities with assigned role
 	 */
 	List<IdmIdentityDto> findAllByRoleName(String roleName);
-	
 
 	/**
 	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).

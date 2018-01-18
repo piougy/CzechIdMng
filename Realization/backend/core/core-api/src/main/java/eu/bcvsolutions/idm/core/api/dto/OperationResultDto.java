@@ -1,57 +1,38 @@
-package eu.bcvsolutions.idm.core.api.entity;
+package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Type;
-
 import com.google.common.base.Throwables;
 
-import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
  * Universal operation result
  * 
  * @author Radek Tomiška
+ * @author svandav
  */
-@Embeddable
-public class OperationResult implements Serializable {
+public class OperationResultDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotNull
-	@Enumerated(EnumType.STRING)
-	@Column(name = "result_state", nullable = false, length = 45)
 	private OperationState state = OperationState.CREATED;
-	
-	@Column(name = "result_code", length = DefaultFieldLengths.NAME)
 	private String code;
-	
-	@Column(name = "result_model", length = Integer.MAX_VALUE)
 	private ResultModel model;
-	
-	@Column(name = "result_cause")
-	@Type(type = "org.hibernate.type.StringClobType")
 	private String cause;
-	
 	private transient Throwable exception;
 	
-	public OperationResult() {
+	public OperationResultDto() {
 	}
 	
-	public OperationResult(OperationState state) {
+	public OperationResultDto(OperationState state) {
 		this.state = state;
 	}
 	
-	private OperationResult(Builder builder) {
+	private OperationResultDto(Builder builder) {
 		state = builder.state;
 		code = builder.code;
 		if (builder.cause != null) {
@@ -142,8 +123,8 @@ public class OperationResult implements Serializable {
 			return this;
 		}
 		
-		public OperationResult build() {
-			return new OperationResult(this);
+		public OperationResultDto build() {
+			return new OperationResultDto(this);
 		}
 	}
 	

@@ -214,6 +214,7 @@ public class DefaultIdmScriptService
 		IdmScriptType type = dtoToType(dto, this.scriptAuthorityService.find(filter, null).getContent());
 		//
 		File file = new File(getBackupFileName(directory, dto));
+		LOG.info("Backup for script code: [{}] to file: [{}]", dto.getCode(), file.getAbsolutePath());
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {

@@ -31,6 +31,7 @@ import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
 import EntitySelectBox from './EntitySelectBox/EntitySelectBox';
+import Dropzone from './Dropzone/Dropzone';
 
 const Components = {
   Table,
@@ -67,7 +68,8 @@ const Components = {
   Recaptcha,
   IdentitiesInfo,
   SchedulerTaskInfo,
-  EntitySelectBox
+  EntitySelectBox,
+  Dropzone
 };
 
 Components.version = '0.0.1';

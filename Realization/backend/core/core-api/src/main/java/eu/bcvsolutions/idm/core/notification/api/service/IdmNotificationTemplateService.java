@@ -36,7 +36,9 @@ public interface IdmNotificationTemplateService extends
 	 * 
 	 * @param code
 	 * @return
+	 * @deprecated @since 7.7.0, use {@link #getByCode(String)}
 	 */
+	@Deprecated
 	IdmNotificationTemplateDto getTemplateByCode(String code);
 
 	/**

@@ -28,6 +28,7 @@ import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.util.ClassUtils;
 
 import com.google.common.collect.Sets;
 
@@ -93,8 +94,13 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			targetClass = AopUtils.getTargetClass(o);
 		} else if (o instanceof Class<?>) {
 			targetClass = (Class<?>) o;
+		} else if ((o.getClass()).isArray()) {
+			targetClass = o.getClass().getComponentType();
 		} else {
 			targetClass = o.getClass();
+		}
+		if (targetClass.isPrimitive()) {
+			return o;
 		}
 		if (ALLOWED_TYPES.contains(targetClass) || getCustomTypes().contains(targetClass)) {
 			return o;

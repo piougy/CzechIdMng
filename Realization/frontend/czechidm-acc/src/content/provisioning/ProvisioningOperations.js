@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import { Basic, Advanced, Managers } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
@@ -255,6 +256,17 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                 <div style={{ marginBottom: 15 }}>
                   <Advanced.OperationResult result={ detail.entity.result } enumLabel={ detail.entity.resultState }/>
+                  {
+                    (!detail.entity.nextAttempt)
+                    ||
+                    <div>
+                      <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt', {
+                        currentAttempt: detail.entity.currentAttempt,
+                        maxAttempts: detail.entity.maxAttempts,
+                        nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
+                      })}}/>
+                    </div>
+                  }
                 </div>
                 {
                   (!detail.entity.result || !detail.entity.result.stackTrace)

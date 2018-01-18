@@ -103,7 +103,7 @@ class OperationResult extends Basic.AbstractContextComponent {
 OperationResult.propTypes = {
   ...AbstractEntityInfo.propTypes,
   result: PropTypes.object,
-  enumLabel: PropTypes.object,
+  enumLabel: PropTypes.sting,
   rendered: PropTypes.bool
 };
 OperationResult.defaultProps = {

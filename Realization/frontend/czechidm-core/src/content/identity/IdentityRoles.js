@@ -202,11 +202,9 @@ class Roles extends Basic.AbstractContent {
   }
 
   _roleNameCell({ rowIndex, data }) {
-    const role = roleManager.getEntity(this.context.store.getState(), data[rowIndex].processVariables.conceptRole.role);
-    if (role) {
-      return role.name;
-    }
-    return null;
+    return (<Advanced.RoleInfo
+      entityIdentifier={ data[rowIndex].processVariables.conceptRole.role }
+      face="popover" />);
   }
 
   _changePermissions() {

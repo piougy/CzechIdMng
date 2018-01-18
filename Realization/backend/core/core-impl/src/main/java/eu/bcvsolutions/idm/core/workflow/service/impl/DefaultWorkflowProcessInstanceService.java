@@ -84,7 +84,7 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
-
+ 
 		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
 			applicantIdentity = identityService.getByUsername(applicant);
@@ -108,9 +108,9 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		ProcessInstance instance = builder.start();
 		if(!instance.isEnded()){
 			// Set applicant as owner of process
-			runtimeService.addUserIdentityLink(instance.getId(), applicant, IdentityLinkType.OWNER);
+			runtimeService.addUserIdentityLink(instance.getId(), applicantIdentity != null ? applicantIdentity.getId().toString() : null, IdentityLinkType.OWNER);
 			// Set current logged user (implementer) as starter of process
-			runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
+			runtimeService.addUserIdentityLink(instance.getId(), securityService.getCurrentId().toString(), IdentityLinkType.STARTER);
 		}
 		return instance;
 	}

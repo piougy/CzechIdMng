@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  * @author svandav
  *
  */
-@Relation(collectionRelation = "workflowHistoricProcessInstances")
+@Relation(collectionRelation = "workflowProcessInstances")
 public class WorkflowProcessInstanceDto implements BaseDto{
 
 	private static final long serialVersionUID = -719948059760251573L;

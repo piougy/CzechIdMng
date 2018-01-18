@@ -220,22 +220,10 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 if (!entity.result || !entity.result.state) {
                   return null;
                 }
+                const label = OperationStateEnum.findSymbolByKey(entity.result.state) !== OperationStateEnum.RUNNING ? null : this.getManager().getProcessedCount(entity);
                 //
                 return (
-                  <div>
-                  <Basic.EnumValue
-                    value={ entity.result.state }
-                    enum={ OperationStateEnum }
-                    label={
-                      OperationStateEnum.findSymbolByKey(entity.result.state) !== OperationStateEnum.RUNNING
-                      ?
-                      null
-                      :
-                      this.getManager().getProcessedCount(entity)
-                    } />
-                  <br/>
-                  <Advanced.OperationResult result={ entity.result }/>
-                </div>
+                  <Advanced.OperationResult result={ entity.result } enumLabel={ label }/>
                 );
               }
             }/>

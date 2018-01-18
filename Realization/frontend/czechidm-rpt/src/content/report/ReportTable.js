@@ -356,22 +356,10 @@ export class ReportTable extends Advanced.AbstractTableContent {
                   return null;
                 }
                 const lrt = entity._embedded && entity._embedded.longRunningTask ? entity._embedded.longRunningTask : null;
+                const label = !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING ? null : longRunningTaskManager.getProcessedCount(lrt);
                 //
                 return (
-                  <div>
-                  <Basic.EnumValue
-                    value={ entity.result.state }
-                    enum={ Enums.OperationStateEnum }
-                    label={
-                      !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING
-                      ?
-                      null
-                      :
-                      longRunningTaskManager.getProcessedCount(lrt)
-                    } />
-                  <br/>
-                  <Advanced.OperationResult result={ entity.result }/>
-                  </div>
+                  <Advanced.OperationResult result={ entity.result } enumLabel= { label }/>
                 );
               }
             }/>
@@ -481,9 +469,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
 
                     <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
                     <div style={{ marginBottom: 15 }}>
-                      <Basic.EnumValue value={ longRunningTask.resultState } enum={ Enums.OperationStateEnum }/>
-                      <br/>
-                      <Advanced.OperationResult result={ longRunningTask.result }/>
+                      <Advanced.OperationResult result={ longRunningTask.result } enumLabel={ longRunningTask.resultState }/>
                     </div>
                     {
                       (!longRunningTask.result || !longRunningTask.result.stackTrace)

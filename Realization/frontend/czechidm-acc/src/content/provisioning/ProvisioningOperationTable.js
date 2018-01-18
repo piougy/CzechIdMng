@@ -157,15 +157,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           cell={
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
-              const content = (<Basic.EnumValue value={entity.resultState} enum={Enums.OperationStateEnum}/>);
-              if (!entity.result || !entity.result.code) {
-                return content;
-              }
               return (
-                <div>
-                  <span>{ content }</span><br/>
-                <Advanced.OperationResult result={ entity.result }/>
-              </div>
+                <Advanced.OperationResult result={ entity.result } enumLavel={ entity.resultState }/>
               );
             }
           }

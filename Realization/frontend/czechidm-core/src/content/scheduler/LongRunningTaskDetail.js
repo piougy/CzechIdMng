@@ -6,7 +6,6 @@ import _ from 'lodash';
 import moment from 'moment';
 import { LocalizationService } from '../../services';
 import { LongRunningTaskManager } from '../../redux';
-import OperationStateEnum from '../../enums/OperationStateEnum';
 
 const longRunningTaskManager = new LongRunningTaskManager();
 
@@ -116,9 +115,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
 
               <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
               <div style={{ marginBottom: 15 }}>
-                <Basic.EnumValue value={ entity.resultState } enum={ OperationStateEnum }/>
-                <br/>
-                <Advanced.OperationResult result={ entity.result }/>
+                <Advanced.OperationResult result={ entity.result } enumLabel={ entity.resultState }/>
               </div>
               {
                 (!entity.result || !entity.result.stackTrace)

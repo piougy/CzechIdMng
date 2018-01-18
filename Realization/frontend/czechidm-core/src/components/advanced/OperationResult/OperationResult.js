@@ -1,8 +1,15 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
+import OperationStateEnum from '../../../enums/OperationStateEnum';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
+/**
+* Operation result component - shows enum value and result code with flash message
+*
+* @author Patrik Stloukal
+*
+*/
 class OperationResult extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
@@ -43,16 +50,33 @@ class OperationResult extends Basic.AbstractContextComponent {
     );
   }
 
+  /**
+   * Returns enum value
+   *
+   */
+  getEnumValue( enumLabel, state) {
+    return (
+      <Basic.EnumValue
+        value={ state }
+        enum={ OperationStateEnum }
+        label={ enumLabel } />
+    );
+  }
+
   render() {
-    const { style, result, rendered } = this.props;
+    const { style, result, rendered, enumLabel } = this.props;
     if (!rendered || result === null) {
       return null;
     }
     if (result.code === null) {
-      return null;
+      return this.getEnumValue( enumLabel, result.state);
     }
     //
     return (
+      <div>
+      <span style={{display: 'block'}}>
+        { this.getEnumValue( enumLabel, result.state) }
+      </span>
       <Basic.Popover
         trigger={['click']}
         value={ this.getPopoverContent(result) }
@@ -70,6 +94,7 @@ class OperationResult extends Basic.AbstractContextComponent {
           </span>
         }
       </Basic.Popover>
+    </div>
     );
   }
 
@@ -78,11 +103,13 @@ class OperationResult extends Basic.AbstractContextComponent {
 OperationResult.propTypes = {
   ...AbstractEntityInfo.propTypes,
   result: PropTypes.object,
+  enumLabel: PropTypes.object,
   rendered: PropTypes.bool
 };
 OperationResult.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   result: null,
+  enumLabel: null,
   rendered: true
 };
 

@@ -2,9 +2,8 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import moment from 'moment';
 //
-import { Basic, Advanced, Managers, Enums } from 'czechidm-core';
+import { Basic, Advanced, Managers } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTableComponent, { ProvisioningOperationTable } from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
@@ -255,26 +254,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                 <Basic.ContentHeader text={ this.i18n('detail.result') }/>
 
                 <div style={{ marginBottom: 15 }}>
-                  <Basic.EnumValue value={detail.entity.resultState} enum={Enums.OperationStateEnum}/>
-                  {
-                    (!detail.entity.result || !detail.entity.result.code)
-                    ||
-                    <span style={{ marginLeft: 15 }}>
-                      {this.i18n('detail.resultCode')}: {detail.entity.result.code}
-                    </span>
-                  }
-                  <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
-                  {
-                    (!detail.entity.nextAttempt)
-                    ||
-                    <div>
-                      <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt', {
-                        currentAttempt: detail.entity.currentAttempt,
-                        maxAttempts: detail.entity.maxAttempts,
-                        nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
-                      })}}/>
-                    </div>
-                  }
+                  <Advanced.OperationResult result={ detail.entity.result } enumLabel={ detail.entity.resultState }/>
                 </div>
                 {
                   (!detail.entity.result || !detail.entity.result.stackTrace)

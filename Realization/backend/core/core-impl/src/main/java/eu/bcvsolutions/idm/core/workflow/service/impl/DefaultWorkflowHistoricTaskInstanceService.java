@@ -80,12 +80,7 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
 			
 			String loggedUserId = securityService.getCurrentId().toString();
-			query.or();
-			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, loggedUserId);
-			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, loggedUserId);
 			query.taskInvolvedUser(loggedUserId);
-			// TODO admin
-			query.endOr();
 		}
 		
 		String fieldForSort = null;

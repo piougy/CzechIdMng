@@ -19,11 +19,6 @@
 			<artifactId>idm-core-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>idm-crt-impl</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>

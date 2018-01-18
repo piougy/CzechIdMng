@@ -162,9 +162,10 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 return content;
               }
               return (
-                <Basic.Tooltip placement="bottom" value={`${this.i18n('detail.resultCode')}: ${entity.result.code}`}>
-                  { <span>{content}</span> }
-                </Basic.Tooltip>
+                <div>
+                  <span>{ content }</span><br/>
+                <Advanced.OperationResult result={ entity.result }/>
+              </div>
               );
             }
           }

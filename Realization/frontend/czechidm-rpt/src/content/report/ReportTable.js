@@ -358,6 +358,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                 const lrt = entity._embedded && entity._embedded.longRunningTask ? entity._embedded.longRunningTask : null;
                 //
                 return (
+                  <div>
                   <Basic.EnumValue
                     value={ entity.result.state }
                     enum={ Enums.OperationStateEnum }
@@ -368,6 +369,9 @@ export class ReportTable extends Advanced.AbstractTableContent {
                       :
                       longRunningTaskManager.getProcessedCount(lrt)
                     } />
+                  <br/>
+                  <Advanced.OperationResult result={ entity.result }/>
+                  </div>
                 );
               }
             }/>
@@ -478,14 +482,8 @@ export class ReportTable extends Advanced.AbstractTableContent {
                     <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
                     <div style={{ marginBottom: 15 }}>
                       <Basic.EnumValue value={ longRunningTask.resultState } enum={ Enums.OperationStateEnum }/>
-                      {
-                        (!longRunningTask.result || !longRunningTask.result.code)
-                        ||
-                        <span style={{ marginLeft: 15 }}>
-                          {this.i18n('content.scheduler.all-tasks.detail.resultCode')}: { longRunningTask.result.code }
-                        </span>
-                      }
-                      <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(longRunningTask.result.model)} style={{ marginTop: 15 }}/>
+                      <br/>
+                      <Advanced.OperationResult result={ longRunningTask.result }/>
                     </div>
                     {
                       (!longRunningTask.result || !longRunningTask.result.stackTrace)

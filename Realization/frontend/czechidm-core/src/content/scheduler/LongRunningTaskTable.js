@@ -222,6 +222,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 }
                 //
                 return (
+                  <div>
                   <Basic.EnumValue
                     value={ entity.result.state }
                     enum={ OperationStateEnum }
@@ -232,6 +233,9 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                       :
                       this.getManager().getProcessedCount(entity)
                     } />
+                  <br/>
+                  <Advanced.OperationResult result={ entity.result }/>
+                </div>
                 );
               }
             }/>

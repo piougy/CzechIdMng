@@ -117,14 +117,8 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
               <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
               <div style={{ marginBottom: 15 }}>
                 <Basic.EnumValue value={ entity.resultState } enum={ OperationStateEnum }/>
-                {
-                  (!entity.result || !entity.result.code)
-                  ||
-                  <span style={{ marginLeft: 15 }}>
-                    {this.i18n('content.scheduler.all-tasks.detail.resultCode')}: { entity.result.code }
-                  </span>
-                }
-                <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(entity.result.model)} style={{ margin: '15px 0 0 0' }}/>
+                <br/>
+                <Advanced.OperationResult result={ entity.result }/>
               </div>
               {
                 (!entity.result || !entity.result.stackTrace)

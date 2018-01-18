@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 public class IdentityPasswordChangeNotificationProcessor extends CoreEventProcessor<IdmIdentityDto>
 		implements IdentityProcessor {
 
+	private static final String CZECHIDM_NAME = "CzechIdM";
 	public static final String PROCESSOR_NAME = "identity-password-change-notification";
 
 	private final NotificationManager notificationManager;
@@ -57,11 +58,11 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 			result.getResults().stream().filter(res -> {
 				return res.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
 			}).forEach(res -> {
-				IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get("account");
+				IdmAccountDto account = (IdmAccountDto) res.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
 				if (!account.isIdm()) {
 					systems.add(account.getSystemName());
 				} else {
-					systems.add("CzechIdM");
+					systems.add(CZECHIDM_NAME);
 				}
 			});
 		}
@@ -79,8 +80,12 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 
 	private void sendNotification(IdmIdentityDto identity, List<String> accounts) {
 		notificationManager.send(CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED,
-				new IdmMessageDto.Builder().setLevel(NotificationLevel.INFO)
-						.addParameter("username", identity.getUsername()).addParameter("accounts", accounts).build(),
+				new IdmMessageDto.
+					Builder()
+						.setLevel(NotificationLevel.INFO)
+						.addParameter("username", identity.getUsername())
+						.addParameter("accounts", accounts)
+					.build(),
 				identity);
 	}
 }

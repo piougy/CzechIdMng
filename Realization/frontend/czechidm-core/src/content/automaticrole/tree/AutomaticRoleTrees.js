@@ -28,6 +28,7 @@ export default class AutomaticRoleTrees extends Basic.AbstractContent {
   render() {
     return (
       <div>
+        sdfs
         <Helmet title={this.i18n('title')} />
         <RoleTreeNodeTable uiKey="automatic-role-tree-table" manager={ this.manager }/>
       </div>

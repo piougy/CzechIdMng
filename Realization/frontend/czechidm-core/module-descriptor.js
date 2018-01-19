@@ -633,6 +633,35 @@ module.exports = {
                     'type': 'HAS_ANY_AUTHORITY',
                     'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
                   }
+                ],
+                'items': [
+                  {
+                    'id': 'automatic-role-attribute-detail',
+                    'labelKey': 'content.automaticRoles.attribute.basic.title',
+                    'order': 10,
+                    'path': '/automatic-role/attributes/:entityId',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                  },
+                  {
+                    'id': 'automatic-role-attribute-rules',
+                    'labelKey': 'content.automaticRoles.attribute.rules.title',
+                    'order': 15,
+                    'path': '/automatic-role/attributes/:entityId/rules',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                  },
+                  {
+                    'id': 'automatic-role-attribute-identities',
+                    'labelKey': 'content.automaticRoles.attribute.identities.title',
+                    'order': 20,
+                    'path': '/automatic-role/attributes/:entityId/identities',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                  }
                 ]
               }
             ]

@@ -24,7 +24,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-attribute']);
+    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-attribute-detail']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
@@ -43,7 +43,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity } = this.props;
+    const { entity, entityId } = this.props;
     return (
       <div>
         {
@@ -53,26 +53,8 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
           :
           <Helmet title={this.i18n('edit.title')} />
         }
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:universal-access"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create.header')
-              :
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
 
-        <Basic.Panel>
-          <AutomaticRoleAttributeDetail entity={entity} manager={manager} />
-        </Basic.Panel>
+        <AutomaticRoleAttributeDetail entity={entity} entityId={entityId} manager={manager} />
 
       </div>
     );

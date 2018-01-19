@@ -108,6 +108,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
+        AutomaticRoleAttributeRuleTable id {attributeId}
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -191,10 +192,12 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
 
 AutomaticRoleAttributeRuleTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  manager: PropTypes.object.isRequired
+  manager: PropTypes.object.isRequired,
+  rendered: PropTypes.bool.isRequired
 };
 
 AutomaticRoleAttributeRuleTable.defaultProps = {
+  rendered: true
 };
 
 function select(state, component) {

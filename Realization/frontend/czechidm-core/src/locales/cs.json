@@ -1223,6 +1223,18 @@
       "attribute": {
         "header": "Automatické role na základě atributu",
         "title": "Na základě atributu",
+        "rules": {
+          "header": "Pravidla",
+          "title": "Pravidla"
+        },
+        "basic": {
+          "header": "Základní informace",
+          "title": "Základní informace"
+        },
+        "identities":{
+          "header": "Uživatelé",
+          "title": "Uživatelé"
+        },
         "create": {
           "header": "Nová automatická role na základě atributu",
           "title": "Nová automatická role na základě atributu"
@@ -1231,7 +1243,6 @@
           "header": "Editace automatické role na základě atributu",
           "title": "Editace automatické role na základě atributu"
         },
-        "rules": "Pravidla",
         "automaticRoleAttributeSaveFirst": "Pro přidání jednotlivých pravidel, je potřeba nejdřívě automatickou roli uložit.",
         "rule": {
           "create": {
@@ -2381,9 +2392,9 @@
       },
       "role": {
         "label": "Role",
-        "help": "Vybraná role bude přidělená identitám na základě pravidel."
+        "help": "Vybraná role bude přiřazena uživatelům podle specifických pravidel."
       },
-      "attribute": {
+     "attribute": {
         "type": {
           "label": "Typ kontrolovaného atributu",
           "help": "Pro tento typ atributu bude kontrolována hodnota pravidla"

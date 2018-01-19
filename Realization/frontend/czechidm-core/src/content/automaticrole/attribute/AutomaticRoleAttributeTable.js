@@ -67,6 +67,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     //
     return (
       <div>
+        AutomaticRoleAttributeTable
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"

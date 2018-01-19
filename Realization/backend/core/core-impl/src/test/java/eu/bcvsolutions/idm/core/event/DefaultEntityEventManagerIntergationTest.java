@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -184,13 +183,24 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		EventContext<TestContentTwo> context = entityEventManager.process(event);
 		assertEquals(0, context.getResults().size());
 
-		String configPropName = testTwoEntityEventProcessorOne.getConfigurationPrefix() + ConfigurationService.PROPERTY_SEPARATOR
-			+ EntityEventProcessor.PROPERTY_EVENT_TYPES;
+		String configPropName = testTwoEntityEventProcessorOne.getConfigurationPropertyName(EntityEventProcessor.PROPERTY_EVENT_TYPES);
 		configurationService.setValue(configPropName, eventTypeName);
-
 
 		EntityEvent<TestContentTwo> event2 = new CoreEvent<>(type, new TestContentTwo());
 		EventContext<TestContentTwo> context2 = entityEventManager.process(event2);
 		assertEquals(2, context2.getResults().size());
+	}
+	
+	@Test
+	public void testConditionalProcessor() {
+		EntityEvent<ConditionalContent> event = new CoreEvent<>(CoreEventType.CREATE, new ConditionalContent(false));
+		EventContext<ConditionalContent> context = entityEventManager.process(event);
+		//
+		assertEquals(0, context.getResults().size());
+		//
+		event = new CoreEvent<>(CoreEventType.CREATE, new ConditionalContent(true));
+		context = entityEventManager.process(event);
+		//
+		assertEquals(1, context.getResults().size());
 	}
 }

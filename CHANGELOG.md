@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [7.7.0 - unreleased]
+
+### Added
+
+  - [#920](https://redmine.czechidm.com/issues/920) - Event processor - support conditional processing. New method ``EntityEventProcessor#conditional``.
+
 ## [7.6.1]
 
 ### Added

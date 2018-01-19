@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
  * 
  * @author Radek Tomiška
  * @author svandav
+ * @since 7.7.0
  */
 public class OperationResultDto implements Serializable {
 

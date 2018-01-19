@@ -360,6 +360,11 @@ public class DefaultIdmAutomaticRoleAttributeService
 	public void recalculate(UUID automaticRoleId) {
 		Assert.notNull(automaticRoleId);
 		//
+		// set concept to false before recalculation
+		IdmAutomaticRoleAttributeDto automaticRolAttributeDto = this.get(automaticRoleId);
+		automaticRolAttributeDto.setConcept(false);
+		automaticRolAttributeDto = this.save(automaticRolAttributeDto);
+		//
 		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
 		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
 		longRunningTaskManager.execute(automaticRoleTask);

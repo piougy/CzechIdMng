@@ -380,7 +380,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     //
     return (
       <div>
-        <Basic.Confirm ref="recalculate-automatic-role" level="danger"/>
+        <Basic.Confirm ref="recalculate-automatic-role" level="success"/>
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.AbstractForm
             ref="form"

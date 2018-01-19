@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
   - [#920](https://redmine.czechidm.com/issues/920) - Event processor - support conditional processing. New method ``EntityEventProcessor#conditional``.
+  - [#842](https://redmine.czechidm.com/issues/842) - Add new automatic roles by attribute and refactor current automatic role by tree structure. Backward compatibility of current automatic role and assigned roles is guaranteed.
 
 ## [7.6.1]
 

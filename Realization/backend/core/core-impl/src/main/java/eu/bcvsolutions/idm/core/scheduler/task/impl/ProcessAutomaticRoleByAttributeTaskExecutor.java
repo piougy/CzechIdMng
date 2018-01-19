@@ -110,10 +110,6 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     		}
     	}
 		//
-    	// after recalculate set concept to false
-    	automaticRolAttributeDto.setConcept(false);
-    	automaticRolAttributeDto = this.automaticRoleAttributeService.save(automaticRolAttributeDto);
-		//
 		return Boolean.TRUE;
 	}
 

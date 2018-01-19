@@ -5,7 +5,6 @@ import java.io.Serializable;
 import com.google.common.base.Throwables;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
@@ -83,7 +82,7 @@ public class OperationResultDto implements Serializable {
 	}
 	
 	/**
-	 * {@link OperationResult} builder
+	 * {@link OperationResultDto} builder
 	 * 
 	 * @author Radek Tomiška
 	 */

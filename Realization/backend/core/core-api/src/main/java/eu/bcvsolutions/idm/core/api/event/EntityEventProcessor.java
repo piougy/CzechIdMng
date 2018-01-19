@@ -72,7 +72,7 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered, C
 	EventResult<E> process(EntityEvent<E> event);
 	
 	/**
-	 * Returns true, when processor could close event (only documentatio purpose now)
+	 * Returns true, when processor could close event (only documentation purpose now)
 	 * 
 	 * @return
 	 */

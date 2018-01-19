@@ -68,6 +68,11 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
     const component = EntityInfo.getComponent(entityType);
     if (component) {
       const EntityInfoComponent = component.component;
+      let manager = null;
+      if (component.manager) {
+        const ManagerType = component.manager;
+        manager = new ManagerType();
+      }
       return (
         <EntityInfoComponent
           entity={ entity }
@@ -76,7 +81,8 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
           className={ classNames }
           showLoading={ showLoading }
           showLink={ showLink }
-          style={ style }/>
+          style={ style }
+          manager={ manager }/>
       );
     }
     //

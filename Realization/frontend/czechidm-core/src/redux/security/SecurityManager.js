@@ -97,6 +97,7 @@ export default class SecurityManager {
     const userName = decoded.currentUsername;
     // construct logged user context
     const userContext = {
+      id: json.authentication.currentIdentityId,
       isAuthenticated: true,
       username: userName,
       tokenCIDMST: json.token,

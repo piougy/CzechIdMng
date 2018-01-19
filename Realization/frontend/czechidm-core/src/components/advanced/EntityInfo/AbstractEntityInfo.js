@@ -33,7 +33,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Returns entity manager
    */
   getManager() {
-    return null;
+    return this.props.manager;
   }
 
   /**
@@ -373,7 +373,11 @@ AbstractEntityInfo.propTypes = {
   /**
    * Shows link to full identity detail (if currently logged user has appropriate permission)
    */
-  showLink: PropTypes.bool
+  showLink: PropTypes.bool,
+  /**
+   * Entity manager
+   */
+  manager: PropTypes.object
 };
 AbstractEntityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

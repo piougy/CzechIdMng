@@ -14,6 +14,7 @@ import com.google.common.base.Throwables;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
@@ -103,8 +104,10 @@ public class OperationResult implements Serializable {
 	
 	/**
 	 * {@link OperationResult} builder
-	 * 
 	 * @author Radek Tomiška
+	 * 
+	 * @deprecated (since 7.7.0) - Use {@link OperationResultDto.Builder}
+	 * 
 	 */
 	public static class Builder {
 		// required

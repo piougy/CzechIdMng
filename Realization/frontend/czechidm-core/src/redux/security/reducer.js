@@ -8,10 +8,11 @@ import {
 
 // TODO: integrate immutable map with redux-localstorage
 const INITIAL_STATE = {
-  userContext: { // logged userContext {username, token, isGuest etc .}
+  userContext: { // logged userContext {id, username, token, isGuest etc .}
+    id: null, // logged identity id
     showLoading: false,
     isExpired: false,
-    username: null,
+    username: null, // logged identity username
     isAuthenticated: false,
     isTryRemoteLogin: true,
     tokenCSRF: null,

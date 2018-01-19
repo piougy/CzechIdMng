@@ -36,8 +36,8 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	
 	public static final String PROPERTY_WF = "wf";
 	
-	@Autowired private WorkflowProcessInstanceService workflowService;
-	@Autowired private SecurityService securityService;
+	@Autowired protected WorkflowProcessInstanceService workflowService;
+	@Autowired protected SecurityService securityService;
 	
 	public AbstractWorkflowEventProcessor(EventType... type) {
 		super(type);
@@ -45,21 +45,17 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	
 	@Override
 	public EventResult<DTO> process(EntityEvent<DTO> event) {
-		if (conditional(event)) {
-			Map<String, Object> variables = new HashMap<>();
-			variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
-			OperationResult result = process(variables);
-			//
-			// wf throws exception
-			if (result.getException() != null) {
-				throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, 
-						ImmutableMap.of("exception", result.getException()),
-						result.getException());
-			}
-			return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
-		}
+		Map<String, Object> variables = new HashMap<>();
+		variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
+		OperationResult result = process(variables);
 		//
-		return new DefaultEventResult<>(event, this);
+		// wf throws exception
+		if (result.getException() != null) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, 
+					ImmutableMap.of("exception", result.getException()),
+					result.getException());
+		}
+		return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 	}
 	
 	/**
@@ -79,16 +75,6 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	 */
 	protected String getDefaultWorkflowDefinitionKey() {
 		return null;
-	}
-	
-	/**
-	 * Execute processor conditionally
-	 * 
-	 * @param event
-	 * @return
-	 */
-	protected boolean conditional(EntityEvent<DTO> event) {
-		return true;
 	}
 	
 	/**

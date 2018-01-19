@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
   - [#920](https://redmine.czechidm.com/issues/920) - Event processor - support conditional processing. New method ``EntityEventProcessor#conditional``.
+  - [#922](https://redmine.czechidm.com/issues/922) - ``IdmIdentityService#findValidByRole`` method was added - return valid identities with assigned valid role (valid contract and identity role relation).
 
 ## [7.6.1]
 

@@ -208,6 +208,17 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role);
+	
+	/**
+	 * Creates assigned identity's role directly (without approving etc.)
+	 * 
+	 * @param identity
+	 * @param role
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role, LocalDate validFrom, LocalDate validTill);
 
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
@@ -217,6 +228,17 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role);
+	
+	/**
+	 * Creates assigned identity's role directly (without approving etc.)
+	 * 
+	 * @param identityContract
+	 * @param role
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role, LocalDate validFrom, LocalDate validTill);
 
 	/**
 	 * Returns prime identity contract

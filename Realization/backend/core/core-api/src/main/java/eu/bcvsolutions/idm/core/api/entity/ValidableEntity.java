@@ -11,6 +11,9 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  */
 public interface ValidableEntity {
 	
+	String PROPERTY_VALID_FROM = "validFrom";
+	String PROPERTY_VALID_TILL = "validTill";
+	
 	/**
 	 * Entity is valid from date
 	 * 

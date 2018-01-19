@@ -6,7 +6,6 @@ import com.google.common.base.Throwables;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
@@ -14,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
  * 
  * @author Radek Tomiška
  * @author svandav
+ * @since 7.7.0
  */
 public class OperationResultDto implements Serializable {
 

@@ -98,13 +98,23 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 	}
 
 	@Override
-	public boolean supports(EntityEvent<?> entityEvent) {
-		Assert.notNull(entityEvent);
-		Assert.notNull(entityEvent.getContent(), "Entity event does not contain content, content is required!");
+	public boolean supports(EntityEvent<?> event) {
+		Assert.notNull(event);
+		Assert.notNull(event.getContent(), "Entity event does not contain content, content is required!");
 		//
 		final List<String> supportedEventTypes = Arrays.asList(getEventTypes());
-		return entityClass.isAssignableFrom(entityEvent.getContent().getClass())
-				&& (supportedEventTypes.isEmpty() || supportedEventTypes.contains(entityEvent.getType().name()));
+		return entityClass.isAssignableFrom(event.getContent().getClass())
+				&& (supportedEventTypes.isEmpty() || supportedEventTypes.contains(event.getType().name()));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Returns true by default - processor will be processed.
+	 */
+	@Override
+	public boolean conditional(EntityEvent<E> event) {
+		return true;
 	}
 	
 	/* 
@@ -137,6 +147,11 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		if (event.isSuspended()) {	
 			// event is suspended
 			LOG.debug("Skipping processor [{}]. [{}] is suspended.", getName(), event);
+			return;
+		}
+		if (!conditional(event)) {
+			// event doesn't met conditions
+			LOG.debug("Skipping processor [{}]. [{}] event doesn't met conditions.", getName(), event);
 			return;
 		}
 		//
@@ -176,6 +191,10 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		// process event
 		EventResult<E> result = process(event);
 		// add result to history
+		if (result == null) {
+			// processor without result is added into history with empty result
+			result = new DefaultEventResult<>(event, this);
+		}
 		context.addResult(result);
 		//
 		LOG.info("Processor [{}] end for [{}] with order [{}].", getName(), event, getOrder());

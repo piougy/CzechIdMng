@@ -49,10 +49,19 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered, C
 	/**
 	 * Returns true, when processor supports given event
 	 * 
-	 * @param entityEvent
+	 * @param event
 	 * @return
 	 */
-	boolean supports(EntityEvent<?> entityEvent);
+	boolean supports(EntityEvent<?> event);
+	
+	/**
+	 * Execute processor conditionally.
+	 * 
+	 * @param event
+	 * @return true, when processor can process given event.
+	 * @since 7.7.0
+	 */
+	boolean conditional(EntityEvent<E> event);
 	
 	/**
 	 * Process entity event without context.

@@ -84,12 +84,12 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
+		UUID implementerId = securityService.getCurrentId();
  
 		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
 			applicantIdentity = identityService.getByUsername(applicant);
 		}
-		UUID implementerId = securityService.getCurrentId();
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
@@ -107,10 +107,15 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 
 		ProcessInstance instance = builder.start();
 		if(!instance.isEnded()){
-			// Set applicant as owner of process
-			runtimeService.addUserIdentityLink(instance.getId(), applicantIdentity != null ? applicantIdentity.getId().toString() : null, IdentityLinkType.OWNER);
-			// Set current logged user (implementer) as starter of process
-			runtimeService.addUserIdentityLink(instance.getId(), securityService.getCurrentId().toString(), IdentityLinkType.STARTER);
+			// must explicit check null, else throw org.activiti.engine.ActivitiIllegalArgumentException: userId and groupId cannot both be null
+			if (applicantIdentity != null) {
+				// Set applicant as owner of process
+				runtimeService.addUserIdentityLink(instance.getId(), applicantIdentity.getId().toString(), IdentityLinkType.OWNER);
+			}
+			if (implementerId != null) {
+				// Set current logged user (implementer) as starter of process
+				runtimeService.addUserIdentityLink(instance.getId(), implementerId.toString(), IdentityLinkType.STARTER);
+			}
 		}
 		return instance;
 	}

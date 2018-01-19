@@ -672,6 +672,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		filter.setFirstName(getParameterConverter().toString(parameters, "firstName"));
 		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
 		filter.setState(getParameterConverter().toEnum(parameters, IdmIdentityFilter.PARAMETER_STATE, IdentityState.class));
+		filter.setAutomaticRoleAttributeId(getParameterConverter().toUuid(parameters, "automaticRoleAttributeId"));
 		return filter;
 	}
 }

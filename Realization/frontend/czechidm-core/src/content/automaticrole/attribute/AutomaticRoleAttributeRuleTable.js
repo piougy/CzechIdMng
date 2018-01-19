@@ -74,7 +74,6 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
    */
   _getAttributeName(automaticRole) {
     if (automaticRole) {
-      console.log(123, automaticRole);
       if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
         return IdentityAttributeEnum.getNiceLabel(automaticRole.attributeName.toString().toUpperCase());
       } else if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {
@@ -100,6 +99,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
+        AutomaticRoleAttributeRuleTable id {attributeId}
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -183,10 +183,12 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
 
 AutomaticRoleAttributeRuleTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  manager: PropTypes.object.isRequired
+  manager: PropTypes.object.isRequired,
+  rendered: PropTypes.bool.isRequired
 };
 
 AutomaticRoleAttributeRuleTable.defaultProps = {
+  rendered: true
 };
 
 function select(state, component) {

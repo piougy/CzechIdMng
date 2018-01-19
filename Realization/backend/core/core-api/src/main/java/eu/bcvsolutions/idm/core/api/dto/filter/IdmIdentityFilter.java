@@ -84,6 +84,10 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Identity last name - exact match
 	 */
 	private String lastName;
+	/**
+	 * Automatic role
+	 */
+	private UUID automaticRoleAttributeId;
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -243,4 +247,13 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	public IdentityState getState() {
 		return (IdentityState) data.getFirst(PARAMETER_STATE);
 	}
+
+	public UUID getAutomaticRoleAttributeId() {
+		return automaticRoleAttributeId;
+	}
+
+	public void setAutomaticRoleAttributeId(UUID automaticRoleAttributeId) {
+		this.automaticRoleAttributeId = automaticRoleAttributeId;
+	}
+	
 }

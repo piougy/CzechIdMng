@@ -4,7 +4,6 @@ import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { AutomaticRoleAttributeManager, AutomaticRoleAttributeRuleManager, SecurityManager } from '../../../redux';
-import AutomaticRoleAttributeRuleTable from './AutomaticRoleAttributeRuleTable';
 
 /**
  * Detail automatic role by attribute
@@ -19,6 +18,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     this.state = {
       showLoading: false
     };
+    console.log('PROPS d', props);
   }
 
   getContentKey() {
@@ -76,7 +76,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
       showLoading: true
     }, this.refs.form.processStarted());
 
-    // edit isn't allowed
+    // edit isn't allowedattributeId
     if (entity.id === undefined) {
       this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         if (error && error.status === 'ACCEPTED') {
@@ -139,18 +139,21 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
   }
 
   render() {
-    const { uiKey, entity } = this.props;
+    const { uiKey, entity, attributeId } = this.props;
     const { showLoading } = this.state;
     return (
       <div>
+        ###AutomaticRoleAttributeDetail
         <Basic.Confirm ref="recalculate-automatic-role" level="danger"/>
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
+          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.automaticRoles.attribute.basic.title')} />
+            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
           <Basic.AbstractForm
             ref="form"
             uiKey={uiKey}
             showLoading={entity === null}
-            readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') && Utils.Entity.isNew(entity))}
-            style={{ padding: '15px 15px 0 15px' }}>
+            readOnly={!(SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') && Utils.Entity.isNew(entity))}>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.AutomaticRole.name.label')}
@@ -169,16 +172,6 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
             this._showConceptWarning()
           }
 
-          <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
-            <Basic.PanelHeader text={this.i18n('rules')}/>
-              <Basic.Alert level="info" text={this.i18n('automaticRoleAttributeSaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
-              <AutomaticRoleAttributeRuleTable
-                manager={this.automaticRoleAttributeRuleManager}
-                uiKey={entity ? entity.id : null}
-                rendered={!Utils.Entity.isNew(entity)}
-                attributeId={entity ? entity.id : null} />
-          </Basic.Panel>
-
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
             <Basic.Button type="button" level="success" onClick={this._recalculate.bind(this)} rendered={entity && entity.concept === true}>{this.i18n('content.automaticRoles.recalculate.label')}</Basic.Button>
@@ -196,6 +189,8 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
           </Basic.PanelFooter>
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
           <input type="submit" className="hidden"/>
+          </Basic.PanelBody>
+          </Basic.Panel>
         </form>
       </div>
     );

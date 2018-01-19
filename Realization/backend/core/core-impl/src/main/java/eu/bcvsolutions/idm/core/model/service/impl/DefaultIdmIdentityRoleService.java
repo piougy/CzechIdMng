@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -146,25 +147,9 @@ public class DefaultIdmIdentityRoleService
 			final LocalDate today = LocalDate.now();
 			predicates.add(
 					builder.and(
-							builder.or(
-									builder.lessThanOrEqualTo(root.get(IdmIdentityRole_.validFrom), today),
-									builder.isNull(root.get(IdmIdentityRole_.validFrom))
-									),
-							builder.or(
-									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.validTill), today),
-									builder.isNull(root.get(IdmIdentityRole_.validTill))
-									)
-							,
-							builder.or(
-									builder.lessThanOrEqualTo(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validFrom), today),
-									builder.isNull(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validFrom))
-									),
-							builder.or(
-									builder.greaterThanOrEqualTo(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validTill), today),
-									builder.isNull(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.validTill))
-									)
-							)
-					);
+							RepositoryUtils.getValidPredicate(root, builder, today),
+							RepositoryUtils.getValidPredicate(root.get(IdmIdentityRole_.identityContract), builder, today)
+					));
 		}
 		// Only unvalid identity-role
 		if (filter.getValid() != null && !filter.getValid()) {

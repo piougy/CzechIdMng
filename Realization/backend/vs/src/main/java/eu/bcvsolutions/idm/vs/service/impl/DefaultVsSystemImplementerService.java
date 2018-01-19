@@ -98,7 +98,7 @@ public class DefaultVsSystemImplementerService
 				.collect(Collectors.toSet());
 
 		roles.forEach(role -> {
-			identities.addAll(identityService.findAllByRole(role));
+			identities.addAll(identityService.findValidByRole(role));
 		});
 		return new ArrayList<>(identities);
 	}

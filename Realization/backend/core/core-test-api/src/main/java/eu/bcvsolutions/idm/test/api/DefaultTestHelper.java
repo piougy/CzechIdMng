@@ -231,17 +231,29 @@ public class DefaultTestHelper implements TestHelper {
 		dto.setPermissions(permission);
 		return authorizationPolicyService.save(dto);
 	}
-
+	
 	@Override
 	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role) {
-		return createIdentityRole(getPrimeContract(identity.getId()), role);
+		return createIdentityRole(identity, role, null, null);
+	}
+
+	@Override
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role, LocalDate validFrom, LocalDate validTill) {
+		return createIdentityRole(getPrimeContract(identity.getId()), role, validFrom, validTill);
 	}
 
 	@Override
 	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role) {
+		return createIdentityRole(identityContract, role, null, null);
+	}
+	
+	@Override
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role, LocalDate validFrom, LocalDate validTill) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(identityContract.getId());
 		identityRole.setRole(role.getId());
+		identityRole.setValidFrom(validFrom);
+		identityRole.setValidTill(validTill);
 		return identityRoleService.save(identityRole);
 	}
 

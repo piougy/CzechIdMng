@@ -36,8 +36,8 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	
 	public static final String PROPERTY_WF = "wf";
 	
-	@Autowired protected WorkflowProcessInstanceService workflowService;
-	@Autowired protected SecurityService securityService;
+	@Autowired private WorkflowProcessInstanceService workflowService;
+	@Autowired private SecurityService securityService;
 	
 	public AbstractWorkflowEventProcessor(EventType... type) {
 		super(type);
@@ -153,5 +153,13 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 		List<String> properties =  super.getPropertyNames();
 		properties.add(PROPERTY_WF);
 		return properties;		
+	}
+
+	public WorkflowProcessInstanceService getWorkflowService() {
+		return workflowService;
+	}
+
+	public SecurityService getSecurityService() {
+		return securityService;
 	}
 }

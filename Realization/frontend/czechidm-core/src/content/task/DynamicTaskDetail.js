@@ -5,7 +5,7 @@ import Helmet from 'react-helmet';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
+import IdentityInfo from '../../components/advanced/IdentityInfo/IdentityInfo';
 import DecisionButtons from './DecisionButtons';
 
 /**
@@ -100,10 +100,10 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       return (
         <div>
           <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
-            <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
+            <IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
           </Basic.LabelWrapper>
           <Basic.LabelWrapper rendered={task.variables.implementerIdentifier} readOnly ref="implementerIdentifier" label={this.i18n('implementerIdentifier')}>
-            <Advanced.IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
+            <IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
           </Basic.LabelWrapper>
         </div>
       );

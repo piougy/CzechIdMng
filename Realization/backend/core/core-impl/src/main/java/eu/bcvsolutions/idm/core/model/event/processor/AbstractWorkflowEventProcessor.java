@@ -36,8 +36,8 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	
 	public static final String PROPERTY_WF = "wf";
 	
-	@Autowired private WorkflowProcessInstanceService workflowService;
-	@Autowired private SecurityService securityService;
+	@Autowired protected WorkflowProcessInstanceService workflowService;
+	@Autowired protected SecurityService securityService;
 	
 	public AbstractWorkflowEventProcessor(EventType... type) {
 		super(type);

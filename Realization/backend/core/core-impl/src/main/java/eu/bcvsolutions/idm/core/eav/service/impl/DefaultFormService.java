@@ -792,6 +792,12 @@ public class DefaultFormService implements FormService {
 		} else if (typeName.equals(String.class.getTypeName())) {
 			formAttribute.setPersistentType(PersistentType.TEXT);
 			formAttribute.setMultiple(false);
+		} else if (typeName.equals(UUID.class.getTypeName())) {
+			formAttribute.setPersistentType(PersistentType.UUID);
+			formAttribute.setMultiple(false);
+		} else if (typeName.equals(UUID[].class.getTypeName())) {
+			formAttribute.setPersistentType(PersistentType.UUID);
+			formAttribute.setMultiple(true);
 		} else {
 			throw new CoreException(
 					MessageFormat.format("For return type [{0}] was not found persistent type!", typeName));

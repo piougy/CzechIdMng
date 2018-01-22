@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -474,20 +472,22 @@ public class SchedulerController implements BaseController {
 	 * @param task
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	@ResponseBody
-	@RequestMapping(method = RequestMethod.PUT, value = "/{taskId}/update")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_CREATE + "')")
+	@RequestMapping(value = "/{taskId}", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
 	@ApiOperation(
 			value = "Update scheduled task", 
 			nickname = "updateSchedulerTask", 
-			tags={ SchedulerController.TAG })
+			tags={ SchedulerController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_UPDATE, description = "") })
+					})
 public Task updateTask(
-		@ApiParam(value = "task's uuid identifier or username.", required = true)
+		@ApiParam(value = "Task identifier.", required = true)
 		@PathVariable String taskId,
-		@RequestBody @Valid ArrayList<Object> parametersList) {
-		String description = (String) parametersList.get(0);
-		Map<String, String> parameters = (Map<String, String>) parametersList.get(1);
-		return schedulerService.updateTask(taskId, description, parameters);
+		@Valid @RequestBody Task task) {
+		return schedulerService.updateTask(taskId, task);
 	}
 }

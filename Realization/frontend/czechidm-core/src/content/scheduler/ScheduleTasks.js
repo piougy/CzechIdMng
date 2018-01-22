@@ -99,7 +99,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     const { taskType } = this.state;
     const entity = this.refs.form.getData();
     const parameters = entity.parameters;
-    let description;
     // transform parameters
     if (taskType) {
       if (taskType.parameters) {
@@ -114,7 +113,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           parameters[parameterName] = entity[`parameter-${parameterName}`];
         });
       }
-      description = [entity[`description`], parameters];
     }
     //
     if (entity.dryRun) {
@@ -124,7 +122,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       this.context.store.dispatch(this.getManager().createEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     } else {
-      this.context.store.dispatch(this.getManager().updateTask(entity, description, this.getUiKey(), this.afterSave.bind(this)));
+      this.context.store.dispatch(this.getManager().updateEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     }
   }
 
@@ -446,7 +444,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           <form onSubmit={this.save.bind(this)}>
             <Basic.Modal.Header closeButton={!showLoading} text={detail.entity.id !== undefined ? this.i18n('action.task-edit.header') : this.i18n('action.task-create.header')}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={showLoading}>
+              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && detail.entity.id !== undefined}>
                 <Basic.EnumSelectBox
                   ref="taskType"
                   label={this.i18n('entity.SchedulerTask.taskType')}
@@ -520,7 +518,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 showLoading={showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
+                rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE']) && detail.entity.id === undefined || detail.entity.id !== undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

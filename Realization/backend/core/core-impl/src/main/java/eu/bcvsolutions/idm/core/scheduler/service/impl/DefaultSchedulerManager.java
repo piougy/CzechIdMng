@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -139,9 +138,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		return getTask(getKey(taskId));
 	}
 	
-	public Task updateTask(String taskId, String description, Map<String, String> parameters) {
+	public Task updateTask(String taskId, Task newTask) {
 		Assert.notNull(taskId);
 		Task task = getTask(taskId);
+		String description = newTask.getDescription();
 		if (StringUtils.isEmpty(description)) {
 			description = AutowireHelper.getBeanDescription(task.getTaskType());
 		}
@@ -149,7 +149,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			// job properties
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
-			parameters.entrySet().forEach(entry -> {
+			newTask.getParameters().entrySet().forEach(entry -> {
 				jobDataMap.put(entry.getKey(), entry.getValue());
 			});
 			// validate init method

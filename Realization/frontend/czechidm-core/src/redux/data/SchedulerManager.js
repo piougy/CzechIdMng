@@ -46,31 +46,6 @@ export default class SchedulerManager extends EntityManager {
   }
 
   /**
-   * Overrided method for edit LRT
-   *
-   * @param {Object} entity
-   * @param {ArrayList} parameters
-   */
-  updateTask(entity, parameters, uiKey = null, cb = null) {
-    if (!entity) {
-      return {
-        type: EMPTY
-      };
-    }
-    uiKey = this.resolveUiKey(uiKey, '[updated]');
-    return (dispatch) => {
-      dispatch(this.requestEntity('[updated]', uiKey));
-      this.getService().updateTask(entity, parameters)
-      .then(json => {
-        dispatch(this.receiveEntity(json.id, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
-      });
-    };
-  }
-
-  /**
    * Loads registeered scheduled tasks
    *
    * @return {action}

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.List;
-import java.util.Map;
 
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
@@ -131,5 +130,5 @@ public interface SchedulerManager {
 	 * @param parameters
 	 * @return
 	 */
-	Task updateTask(String taskId, String description, Map<String, String> parameters);
+	Task updateTask(String taskId, Task task);
 }

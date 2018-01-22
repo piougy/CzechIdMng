@@ -11,17 +11,17 @@ import org.joda.time.DateTime;
  */
 public interface Auditable {
 	
-	final String PROPERTY_CREATED = "created";
-	final String PROPERTY_CREATOR = "creator";
-	final String PROPERTY_CREATOR_ID = "creatorId";
-	final String PROPERTY_ORIGINAL_CREATOR = "originalCreator";
-	final String PROPERTY_ORIGINAL_CREATOR_ID = "originalCreatorId";
-	final String PROPERTY_MODIFIED = "modified";
-	final String PROPERTY_MODIFIER = "modifier";
-	final String PROPERTY_MODIFIER_ID = "modifierId";
-	final String PROPERTY_ORIGINAL_MODIFIER = "originalModifier";
-	final String PROPERTY_ORIGINAL_MODIFIER_ID = "originalModifierId";
-	final String PROPERTY_TRANSACTION_ID = "transactionId";
+	String PROPERTY_CREATED = "created";
+	String PROPERTY_CREATOR = "creator";
+	String PROPERTY_CREATOR_ID = "creatorId";
+	String PROPERTY_ORIGINAL_CREATOR = "originalCreator";
+	String PROPERTY_ORIGINAL_CREATOR_ID = "originalCreatorId";
+	String PROPERTY_MODIFIED = "modified";
+	String PROPERTY_MODIFIER = "modifier";
+	String PROPERTY_MODIFIER_ID = "modifierId";
+	String PROPERTY_ORIGINAL_MODIFIER = "originalModifier";
+	String PROPERTY_ORIGINAL_MODIFIER_ID = "originalModifierId";
+	String PROPERTY_TRANSACTION_ID = "transactionId";
 	
 	/**
 	 * Entity identifier

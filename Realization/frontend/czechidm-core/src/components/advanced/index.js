@@ -34,6 +34,8 @@ import EntitySelectBox from './EntitySelectBox/EntitySelectBox';
 import Dropzone from './Dropzone/Dropzone';
 import PasswordChangeComponent from './PasswordChangeComponent/PasswordChangeComponent';
 import ValidationMessage from './ValidationMessage/ValidationMessage';
+import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
+import DecisionButtons from '../../content/task/DecisionButtons';
 
 const Components = {
   Table,
@@ -73,7 +75,9 @@ const Components = {
   EntitySelectBox,
   Dropzone,
   PasswordChangeComponent,
-  ValidationMessage
+  ValidationMessage,
+  DecisionButtons,
+  DynamicTaskDetail
 };
 
 Components.version = '0.0.1';

@@ -107,7 +107,7 @@ public class DefaultSysProvisioningBreakRecipientService extends
 					LOG.error("Identity for id: [{}] was not found, please check provisioning break configuration id: [{}]", recipient.getIdentity(), recipient.getBreakConfig());
 				}
 			} else if (recipient.getRole() != null) {
-				recipients.addAll(identityService.findAllByRole(recipient.getRole()));
+				recipients.addAll(identityService.findValidByRole(recipient.getRole()));
 			} else {
 				LOG.error("Provisioning break recipient id: [{}] hasn't set role or identity. Provisioning break config: [{}]", recipient.getId(), recipient.getBreakConfig());
 			}
@@ -142,7 +142,7 @@ public class DefaultSysProvisioningBreakRecipientService extends
 		List<IdmRoleDto> roleRecipients = provisioningBreakConfiguration.getRoleRecipients(eventType);
 		//
 		for (IdmRoleDto role : roleRecipients) {
-			recipients.addAll(identityService.findAllByRole(role.getId()));
+			recipients.addAll(identityService.findValidByRole(role.getId()));
 		}
 		return recipients;
 	}

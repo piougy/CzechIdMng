@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -27,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
@@ -43,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -343,18 +347,71 @@ public class DefaultIdmIdentityService
 		return this.findAllByRole(role.getId());				
 	}
 	
-	/**
-	 * Find all identities by assigned role
-	 * 
-	 * @param roleId
-	 * @return List of IdmIdentity with assigned role
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllByRole(UUID roleId) {
 		Assert.notNull(roleId, "Role is required");
 		//
-		return toDtos(repository.findAllByRole(roleId), false);
+		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
+				Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
+				subquery.select(subRoot);
+				subquery.where(
+		                builder.and(
+		                		builder.equal(subRoot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity), root), // correlation attr
+		                		builder.equal(subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id), roleId)
+		                		)
+		        );
+				//
+				return query.where(builder.exists(subquery)).getRestriction();
+			}
+		};
+		return toDtos(getRepository().findAll(criteria), false);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityDto> findValidByRole(UUID roleId) {
+		Assert.notNull(roleId, "Role is required");
+		//
+		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				List<Predicate> predicates = new ArrayList<>();
+				//
+				// valid identity
+				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), false));
+				//
+				// valid contract (and not excluded) and role
+				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
+				Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
+				subquery.select(subRoot);
+				Path<IdmIdentityContract> contract = subRoot.get(IdmIdentityRole_.identityContract);
+				subquery.where(
+		                builder.and(
+		                		builder.equal(contract.get(IdmIdentityContract_.identity), root), // correlation attr
+		                		builder.equal(subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id), roleId),
+		                		//
+		                		// valid contract
+		                		RepositoryUtils.getValidPredicate(contract, builder),
+		                		//
+		                		// not disabled, not excluded contract
+		                		builder.equal(contract.get(IdmIdentityContract_.disabled), false),
+		                		builder.or(
+		                				builder.notEqual(contract.get(IdmIdentityContract_.state), ContractState.EXCLUDED),
+		                				builder.isNull(contract.get(IdmIdentityContract_.state))
+		                		),
+		                		//
+		                		// valid identity role
+		                		RepositoryUtils.getValidPredicate(subRoot, builder)
+		                		)
+		        );
+				predicates.add(builder.exists(subquery));
+				// 
+				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
+			}
+		};
+		return toDtos(getRepository().findAll(criteria), false);
 	}
 
 	/**
@@ -396,8 +453,8 @@ public class DefaultIdmIdentityService
 		if (!results.isEmpty()) {
 			return results;
 		}
-		// return all identities with admin role
-		return this.findAllByRole(roleConfiguration.getAdminRoleId());
+		// return all valid identities with admin role
+		return this.findValidByRole(roleConfiguration.getAdminRoleId());
 	}
 	
 	@Override

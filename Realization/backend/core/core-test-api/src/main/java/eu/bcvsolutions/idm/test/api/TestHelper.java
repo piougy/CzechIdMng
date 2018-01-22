@@ -17,12 +17,15 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
  * Creates common test entities
@@ -197,8 +200,27 @@ public interface TestHelper {
 	 * @param evaluatorType
 	 * @param permission
 	 * @return
+	 * @deprecated use {@link #createAuthorizationPolicy(UUID, GroupPermission, Class, Class, BasePermission...)}
 	 */
+	@Deprecated
 	IdmAuthorizationPolicyDto createSpecificPolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, String evaluatorType, BasePermission... permission);
+	
+	/**
+	 * Creates authorization policy
+	 * 
+	 * @param role
+	 * @param groupPermission
+	 * @param authorizableType
+	 * @param evaluatorType
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createAuthorizationPolicy(
+			UUID role, 
+			GroupPermission groupPermission, 
+			Class<? extends AbstractEntity> authorizableType, 
+			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+		    BasePermission... permission);
 
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)

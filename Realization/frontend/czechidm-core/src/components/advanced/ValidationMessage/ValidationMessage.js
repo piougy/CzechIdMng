@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 //
-import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
+import * as Basic from '../../basic';
+import DateValue from '../DateValue/DateValue';
 
 /**
  * Parameters in errors. Contain names of not success policies
@@ -93,7 +93,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
         } else if (key !== PASSWORD_POLICIES_NAMES) {
           // validation message with date
           if (key === DATE) {
-            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
+            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key)} <DateValue value={error.parameters[key]} /> </Basic.Alert>);
           } else {
             // other validation messages
             validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);

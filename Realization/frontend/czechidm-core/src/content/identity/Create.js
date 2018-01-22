@@ -7,7 +7,6 @@ import Joi from 'joi';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
-import ValidationMessage from './ValidationMessage';
 
 const identityManager = new IdentityManager();
 
@@ -254,7 +253,7 @@ class Create extends Basic.AbstractContent {
                     newPasswordAgain={passwordAgain}/>
                 </div>
                 <Basic.Panel className="col-lg-5 no-border">
-                  <ValidationMessage error={validationError} />
+                  <Advanced.ValidationMessage error={validationError} />
                 </Basic.Panel>
               </Basic.AbstractForm>
 

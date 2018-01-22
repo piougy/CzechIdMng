@@ -32,6 +32,8 @@ import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
 import EntitySelectBox from './EntitySelectBox/EntitySelectBox';
 import Dropzone from './Dropzone/Dropzone';
+import PasswordChangeComponent from './PasswordChangeComponent/PasswordChangeComponent';
+import ValidationMessage from './ValidationMessage/ValidationMessage';
 
 const Components = {
   Table,
@@ -69,7 +71,9 @@ const Components = {
   IdentitiesInfo,
   SchedulerTaskInfo,
   EntitySelectBox,
-  Dropzone
+  Dropzone,
+  PasswordChangeComponent,
+  ValidationMessage
 };
 
 Components.version = '0.0.1';

@@ -14,11 +14,6 @@ export default class SchedulerService extends AbstractService {
     return '/scheduler-tasks';
   }
 
-  // dto
-  supportsPatch() {
-    return false;
-  }
-
   /**
    * Returns default searchParameters for current entity type
    *

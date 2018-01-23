@@ -63,11 +63,9 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
 
   render() {
     const { uiKey, manager } = this.props;
-    const { filterOpened } = this.state;
     //
     return (
       <div>
-        AutomaticRoleAttributeTable
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -90,7 +88,6 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }

@@ -99,7 +99,6 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
-        AutomaticRoleAttributeRuleTable id {attributeId}
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"

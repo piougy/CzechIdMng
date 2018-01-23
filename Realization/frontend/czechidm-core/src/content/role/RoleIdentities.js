@@ -30,7 +30,6 @@ class RoleIdentities extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('role', this.props.params.entityId);
     return (
       <div>
-        ###RoleIdentities
         <Helmet title={this.i18n('title')} />
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>

@@ -1172,7 +1172,18 @@
           "header": "Edit automatic roles based on the attribute",
           "title": "Edit automatic roles based on the attribute"
         },
-        "rules": "Rules",
+        "rules": {
+          "header": "Rules",
+          "title": "Rules"
+        },
+        "basic": {
+          "header": "Basic informations",
+          "title": "Basic informations"
+        },
+        "identities":{
+          "header": "Users with assigned role",
+          "title": "Users with role"
+        },
         "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
         "rule": {
           "create": {

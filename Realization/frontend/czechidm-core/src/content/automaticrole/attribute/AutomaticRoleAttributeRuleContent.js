@@ -47,30 +47,6 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     return (
       <div>
-        {
-          this._getIsNew()
-          ?
-          <Helmet title={this.i18n('create.title')} />
-          :
-          <Helmet title={this.i18n('edit.title')} />
-        }
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:universal-access"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create.header')
-              :
-              <span>{this.i18n('edit.header')}</span>
-            }
-          </Basic.PageHeader>
-        }
-
         <Basic.Panel>
           <Basic.Loading isStatic showLoading={showLoading} />
           {

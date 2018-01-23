@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -13,6 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
@@ -31,6 +34,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * Password service integration test.
  * 
  * @author Jan Helbich
+ * @author Petr Hanák
  */
 @Transactional // we need rollback after each test
 public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegrationTest {
@@ -39,6 +43,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private IdmPasswordPolicyService policyService;
 	@Autowired private TestHelper testHelper;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private LoginController loginController;
 
 	@Before
 	public void before() {
@@ -133,20 +138,43 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	public void testIncreaseUnsuccessfulAttempts() {
 		IdmIdentityDto identity = testHelper.createIdentity();
-//		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		passwordService.increaseUnsuccessfulAttempts(identity.getId());
-		passwordService.increaseUnsuccessfulAttempts(identity.getId());
+		passwordService.increaseUnsuccessfulAttempts(identity.getUsername());
+		passwordService.increaseUnsuccessfulAttempts(identity.getUsername());
 		assertEquals(2, passwordService.findOneByIdentity(identity.getId()).getUnsuccessfulAttempts());
 	}
 
 	@Test
-	public void testSetLastSuccessfulLtogin() {
+	public void testSetLastSuccessfulLogin() {
 		IdmIdentityDto identity = testHelper.createIdentity();
-//		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		passwordService.setLastSuccessfulLogin(identity.getId());
-		DateTime lastLogin = passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin();
-		assertEquals(lastLogin, passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
-		assertNotEquals(DateTime.now(), passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
+		passwordService.setLastSuccessfulLogin(identity.getUsername());
+		assertNotNull(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
+		assertTrue(DateTime.now().isAfter(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin()));
+	}
+
+	@Test
+	public void testSuccessfulLoginTimestamp() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		identity.setUsername("Honza");
+		identity.setPassword(new GuardedString("SomePasswd"));
+		identityService.save(identity);
+
+		// first login
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername("Honza");
+		loginDto.setPassword(new GuardedString("SomePasswd"));
+		Resource<LoginDto> response = loginController.login(loginDto);
+		DateTime timestamp = passwordService.findOneByIdentity("Honza").getLastSuccessfulLogin();
+
+		assertNotNull(passwordService.findOneByIdentity("Honza").getLastSuccessfulLogin());
+
+		// second login
+		loginDto = new LoginDto();
+		loginDto.setUsername("Honza");
+		loginDto.setPassword(new GuardedString("SomePasswd"));
+		response = loginController.login(loginDto);
+		DateTime timestamp2 = passwordService.findOneByIdentity("Honza").getLastSuccessfulLogin();
+
+		assertTrue(timestamp2.isAfter(timestamp));
 	}
 
 	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {

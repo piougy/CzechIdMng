@@ -58,7 +58,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
         entity
       }
     }, () => {
-      this.refs.form.setData(entity);
+      this.getFormComponent().setData(entity);
       if (cb) {
         cb();
       }
@@ -77,6 +77,10 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     });
   }
 
+  getFormComponent() {
+    return this.refs.form;
+  }
+
   /**
    * Saves given entity
    */
@@ -84,7 +88,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.form.isFormValid()) {
+    if (!this.getFormComponent().isFormValid()) {
       return;
     }
     //
@@ -108,7 +112,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   afterSave(entity, error) {
     if (error) {
       this.addError(error);
-      this.refs.form.processEnded();
+      this.getFormComponent().processEnded();
       if (error.statusCode !== 202) {
         return;
       }

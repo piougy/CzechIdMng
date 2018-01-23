@@ -1232,7 +1232,7 @@
           "title": "Základní informace"
         },
         "identities":{
-          "header": "Uživatelé",
+          "header": "Uživatelé s přiřazenou automatickou rolí",
           "title": "Uživatelé"
         },
         "create": {

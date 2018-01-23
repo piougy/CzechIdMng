@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
 import { AutomaticRoleAttributeManager, AutomaticRoleAttributeRuleManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTable from './AutomaticRoleAttributeRuleTable';
@@ -33,19 +32,16 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity} = this.props;
     return (
       <div>
-        QWDW
-        <Helmet title={this.i18n('edit.title')} />
-
-        <Basic.Panel showLoading={showLoading}>
-          <Basic.PanelHeader text={this.i18n('content.automaticRoles.attribute.rules.header')}/>
+            <Basic.ContentHeader style={{ marginBottom: 0 }}>
+              {this.i18n('content.automaticRoles.attribute.rules.header')}
+            </Basic.ContentHeader>
             <AutomaticRoleAttributeRuleTable
               manager={this.automaticRoleAttributeRuleManager}
               uiKey={entity ? entity.id : null}
               attributeId={entity ? entity.id : null} />
-        </Basic.Panel>
 
       </div>
     );

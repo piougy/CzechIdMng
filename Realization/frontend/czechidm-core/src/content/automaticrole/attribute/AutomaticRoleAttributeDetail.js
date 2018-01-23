@@ -19,7 +19,6 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     this.state = {
       showLoading: false
     };
-    console.log('PROPS d', props);
   }
 
   getContentKey() {
@@ -156,7 +155,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
   }
 
   render() {
-    const { uiKey, entity, attributeId } = this.props;
+    const { uiKey, entity} = this.props;
     const { showLoading } = this.state;
     //
     return (

@@ -1,9 +1,8 @@
 import fs from 'fs';
 import jPath from 'JSONPath';
 import log4js from 'log4js';
-import chai, { expect } from 'chai';
+import chai from 'chai';
 import dirtyChai from 'dirty-chai';
-import path from 'path';
 chai.use(dirtyChai);
 
 const accLocales = '../czechidm-acc/src/locales/';
@@ -18,20 +17,29 @@ global.LOGGER = logger;
 
 const extraWords = [];
 
-let walkSync = (dir, filelist = []) => {
-  fs.readdirSync(dir).forEach(file => {
-    filelist = fs.statSync(path.join(dir, file)).isDirectory()
-    ? walkSync(path.join(dir, file), filelist)
-    : filelist.concat(path.join(dir, file));
+function noMissingFiles(folderWithLocalizationFiles) {
+  let foundCs = false;
+  let foundEn = false;
+  fs.readdirSync(folderWithLocalizationFiles).forEach(file => {
+    if (file === 'cs.json') {
+      foundCs = true;
+    } else if (file === 'en.json') {
+      foundEn = true;
+    }
   });
-  return filelist;
-};
-
-   // TODO Add searching for files and automatic reading of languages
-function searchPaths() {
-  const files = fs.readdirSync(coreLocales);
-  LOGGER.debug(fs.readdirSync('../'));
   //
+  if (!foundCs && !foundEn) {
+    LOGGER.debug('Missing both localization files in: ' + folderWithLocalizationFiles);
+    return false;
+  } else if (!foundCs) {
+    LOGGER.debug('Missing cs.json localization file in: ' + folderWithLocalizationFiles);
+    return false;
+  } else if (!foundEn) {
+    LOGGER.debug('Missing en.json localization file in: ' + folderWithLocalizationFiles);
+    return false;
+  } else if (foundCs && foundEn) {
+    return true;
+  }
 }
 
 function isNumeric(num) {
@@ -356,17 +364,16 @@ function compareMessages(language1, language2) {
       extraWords.push('EN: ' + cropPath(language2[i]));
     }
   }
-  //
+  // control found paths for non matched pairs
+  checkExtraWords();
 }
 
 // Main
-// searchPaths();
-LOGGER.debug(walkSync('/Workspace/idm7/CzechIdMng/Realization/frontend/czechidm-core/'));
-//
 for (let i = 0; i < pathsToLocales.length; i++) {
-  const pathsCs = jsonToPaths(pathsToLocales[i] + '/cs.json');
-  const pathsEn = jsonToPaths(pathsToLocales[i] + '/en.json');
-  LOGGER.debug('Comparing JSON catalogs in: ' + pathsToLocales[i]);
-  compareMessages(pathsCs, pathsEn);
-  checkExtraWords();
+  if (noMissingFiles(pathsToLocales[i])) {
+    const pathsCs = jsonToPaths(pathsToLocales[i] + '/cs.json');
+    const pathsEn = jsonToPaths(pathsToLocales[i] + '/en.json');
+    LOGGER.debug('Comparing JSON catalogs in: ' + pathsToLocales[i]);
+    compareMessages(pathsCs, pathsEn);
+  }
 }

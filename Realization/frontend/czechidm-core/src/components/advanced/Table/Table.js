@@ -219,7 +219,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
   onBulkAction(actionItem) {
     if (actionItem.action) {
-      actionItem.action(actionItem.value, this.state.selectedRows);
+      actionItem.action(actionItem.value, this.state.selectedRows, actionItem);
     } else {
       this.addMessage({ level: 'info', message: this.i18n('bulk-action.notImplemented') });
     }

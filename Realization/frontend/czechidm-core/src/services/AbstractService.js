@@ -303,4 +303,32 @@ export default class AbstractService {
       return json;
     });
   }
+
+  /**
+   * Common put (=> update) action on given entity
+   *
+   * @param  {string} method - action name (e.g. activate / deactivate / archivate )
+   * @param  {string} actionName  - action name (e.g. activate / deactivate / archivate )
+   * @param  {string} id        entity id or alias (codeable)
+   * @return {promise}
+   */
+  action(method, actionName, id) {
+    return RestApiService
+      .action(method, this.getApiPath() + `/${encodeURIComponent(id)}${actionName ? '/' + actionName : ''}`)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
 }

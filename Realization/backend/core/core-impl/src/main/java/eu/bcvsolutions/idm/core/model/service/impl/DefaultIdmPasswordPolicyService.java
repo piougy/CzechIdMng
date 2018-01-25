@@ -77,7 +77,7 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE = "passwordSimilarFirstNamePreValidate";
 	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
-	private static final String SPECIAL_CHARACTERS_BASE = "specialCharactersBase";
+	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository repository;
@@ -246,7 +246,6 @@ public class DefaultIdmPasswordPolicyService
 		validate(passwordValidationDto, passwordPolicyList, true);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList,
 			boolean prevalidation) {
 		Assert.notNull(passwordPolicyList);
@@ -276,7 +275,7 @@ public class DefaultIdmPasswordPolicyService
 		Map<String, Object> errors = new HashMap<>();
 		Set<Character> prohibitedChar = new HashSet<>();
 		List<String> policyNames = new ArrayList<String>();
-		String prohibitedCharacters = "", specialCharBase = null;
+		Map<String, Object> specialCharBase = new HashMap<>();
 
 		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
 			if (passwordPolicy.isDisabled()) {
@@ -372,27 +371,20 @@ public class DefaultIdmPasswordPolicyService
 					errors.put(MIN_UPPER_CHAR, passwordPolicy.getMinUpperChar());
 				}
 			}
-			// check to minimal special character
+			// check to minimal special character and add special character base
 			if (!isNull(passwordPolicy.getMinSpecialChar())
 					&& !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){"
 							+ passwordPolicy.getMinSpecialChar() + ",}")) {
 				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_SPECIAL_CHAR,
 							Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
+					specialCharBase.put(passwordPolicy.getName(), passwordPolicy.getSpecialCharBase());
 				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR)
 						&& compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
 					errors.put(MIN_SPECIAL_CHAR, passwordPolicy.getMinSpecialChar());
+					specialCharBase.put(passwordPolicy.getName(), passwordPolicy.getSpecialCharBase());
 				}
 				validateNotSuccess = true;
-			}
-			
-			if (prevalidation && !isNull(passwordPolicy.getMinSpecialChar())) {
-				if (specialCharBase == null) {
-					specialCharBase = passwordPolicy.getSpecialCharBase();
-				} else {
-					specialCharBase = (setPolicyDefinitionAllowedSpecialCharacters(specialCharBase,
-							passwordPolicy.getSpecialCharBase()));
-				}
 			}
 
 			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
@@ -420,17 +412,8 @@ public class DefaultIdmPasswordPolicyService
 
 			// TODO: history similar
 		}
-
-		if (prevalidation) {
-			if (errors.containsKey(MIN_SPECIAL_CHAR)) {
-				getSpecialCharBase(errors, specialCharBase, prohibitedCharacters);
-			} else {
-				if (errors.containsKey(MIN_RULES_TO_FULFILL)) {
-					if (((Map<String, Object>) errors.get(MIN_RULES_TO_FULFILL)).containsKey(MIN_SPECIAL_CHAR)) {
-						getSpecialCharBase(errors, specialCharBase, prohibitedCharacters);
-					}
-				}
-			}
+		if (!specialCharBase.isEmpty()) {
+			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
 		}
 
 		if (!policyNames.isEmpty()) {
@@ -446,23 +429,6 @@ public class DefaultIdmPasswordPolicyService
 			// TODO: password policy audit
 			throw new ResultCodeException(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY, errors);
 		}
-	}
-
-	/**
-	 * Method sets special char base from String of acceptable chars and String of prohibited chars
-	 * 
-	 * @param errors
-	 * @param specialCharBase
-	 * @param prohibitedCharacters
-	 * @return
-	 */
-	private Map<String, Object> getSpecialCharBase(Map<String, Object> errors, String specialCharBase,
-			String prohibitedCharacters) {
-		if (specialCharBase != null)
-			if (!(specialCharBase.isEmpty())) {
-					errors.put(SPECIAL_CHARACTERS_BASE, specialCharBase);
-			}
-		return errors;
 	}
 
 	/**
@@ -572,27 +538,8 @@ public class DefaultIdmPasswordPolicyService
 		return number == null;
 	}
 
-
 	@Override
 	public IdmPasswordPolicyDto findOneByName(String name) {
 		return this.toDto(this.repository.findOneByName(name));
-	}
-	
-	/**
-	 * merge password policy allowed special base char
-	 * 
-	 * @param firstRule, secondRule
-	 */
-	private String setPolicyDefinitionAllowedSpecialCharacters(String firstRule, String secondRule) {
-		String specialCharacters = "";
-		if (!firstRule.isEmpty() || !secondRule.isEmpty()) {
-			for (char character : secondRule.toCharArray()) {
-				if (firstRule.indexOf(character) > -1) {
-					specialCharacters = specialCharacters + character;
-				}
-			}
-			return specialCharacters;
-		}
-		return specialCharacters;
 	}
 }

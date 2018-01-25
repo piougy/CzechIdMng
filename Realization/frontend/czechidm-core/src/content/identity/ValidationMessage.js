@@ -26,6 +26,12 @@ const MIN_RULES_TO_FULFILL = 'minRulesToFulfill';
 const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
 
 /**
+ * Special character base for each required policies
+ * @type {String}
+ */
+const SPECIAL_CHARACTER_BASE = 'specialCharacterBase';
+
+/**
  * Error message with date, date is format by local
  * @type {String}
  */
@@ -39,7 +45,7 @@ const DATE = 'date';
 const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
 'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
 'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
-'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName', 'specialCharactersBase',
+'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName',
 'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate', 'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate'];
 
 export default class ValidationMessage extends Basic.AbstractFormComponent {
@@ -59,6 +65,22 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     if (error !== nextProps.error || validationDefinition !== nextProps.validationDefinition) {
       this._prepareValidationMessage(nextProps.error, nextProps.validationDefinition);
     }
+  }
+
+  _showSpecialCharacterBase(parameter, validationMessage, level) {
+    let rules = '<ul style="padding-left: 20px">';
+    for (const ruleKey in parameter) {
+      if (parameter.hasOwnProperty(ruleKey)) {
+        rules += _.size(parameter) === 1 ? '<span><li>' + parameter[ruleKey] + '</li>' : '<span><li>' + ruleKey + ':  ' + parameter[ruleKey] + '</li>';
+      }
+    }
+    rules += '</ul></span>';
+    validationMessage.push(
+      <Basic.Alert level={level} >
+        <span dangerouslySetInnerHTML={{
+          __html: this.i18n('content.passwordPolicies.validation.specialCharacterBase') + ' ' + rules}}
+        />
+      </Basic.Alert>);
   }
 
   /**
@@ -81,6 +103,9 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
+      if (key === SPECIAL_CHARACTER_BASE) {
+        this._showSpecialCharacterBase(error.parameters[key], validationMessage, levelWarning);
+      }
       // error prameters must contain key and VALIDATION_WARNINGS must also contain key
       if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill

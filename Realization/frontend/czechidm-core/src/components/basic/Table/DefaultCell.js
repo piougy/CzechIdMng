@@ -36,11 +36,12 @@ class DefaultCell extends AbstractComponent {
     if (!rowData || !property) {
       return null;
     }
+    if (rowData[property] !== undefined) { // scalar property
+      return rowData[property];
+    }
     let propertyValue = _.merge({}, rowData);
     //
-    if (propertyValue[property] !== undefined) { // scalar property
-      return propertyValue[property];
-    } else if (_.includes(property, '.')) { // nested property
+    if (_.includes(property, '.')) { // nested property
       const nestedProperties = property.split('.'); // properties are joined by dot notation e.g `identityManager.name`
       for (const nestedProperty of nestedProperties) {
         if (!propertyValue[nestedProperty]) {

@@ -296,7 +296,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           hover={ false }
           noHeader
           data={ this.getPopoverContent(_entity) }
-          children={this.getTableChildren()}/>
+          children={ this.getTableChildren() }/>
 
         <Basic.PanelFooter rendered={ this.showLink() }>
           <Link to={ this.getLink() }>

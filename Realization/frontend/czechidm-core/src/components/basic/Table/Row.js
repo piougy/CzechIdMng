@@ -6,6 +6,8 @@ import Cell from './Cell';
  * Component that renders the row for <Table />.
  * This component should not be used directly by developer. Instead,
  * only <Table /> should use the component internally.
+ *
+ * @author Radek Tomiška
  */
 class Row extends AbstractComponent {
 
@@ -13,11 +15,11 @@ class Row extends AbstractComponent {
     super(props);
   }
 
-  _onClick(/* object */ event) {
+  _onClick(event) {
     this.props.onClick(event, this.props.rowIndex, this.props.data);
   }
 
-  _onDoubleClick(/* object */ event) {
+  _onDoubleClick(event) {
     this.props.onDoubleClick(event, this.props.rowIndex, this.props.data);
   }
 

@@ -554,7 +554,7 @@ export default class EntityManager {
           successEntities.push(entity);
           // remove entity to redux store
           if (!responseEntity) {
-            dispatch(this.deletedEntity(entity.id, entity, uiKey));
+            dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
           } else {
             dispatch(this.receiveEntity(responseEntity.id, responseEntity, uiKey, cb));
           }

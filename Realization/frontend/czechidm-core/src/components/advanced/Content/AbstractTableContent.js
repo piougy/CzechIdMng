@@ -165,7 +165,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(this.getManager().action(action.method, action.value, selectedEntities, this.getUiKey(), (entity, error) => {
+      this.context.store.dispatch(this.getManager().action(action.method, action.value, selectedEntities, this.getUiKey(), (entity, error, successEntities) => {
         if (entity && error) {
           if (error.statusCode !== 202) {
             this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
@@ -173,7 +173,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
             this.addError(error);
           }
         } else {
-          this.afterAction(action);
+          this.afterAction(action, successEntities);
         }
       }));
     }, () => {
@@ -181,8 +181,10 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     });
   }
 
-  afterAction(/* action*/) {
-    this.refs.table.getWrappedInstance().reload();
+  afterAction(action, successEntities) {
+    if (successEntities) {
+      this.refs.table.getWrappedInstance().reload();
+    }
   }
 
   /**

@@ -393,8 +393,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				}
 			}
 		});
-		passwordChange.setNewPassword(null);
-		passwordChange.setOldPassword(null);
 		//
 		// execute prepared operations
 		return preparedOperations.stream().map(operation -> {

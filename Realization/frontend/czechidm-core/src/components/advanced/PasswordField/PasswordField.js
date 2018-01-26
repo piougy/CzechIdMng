@@ -119,7 +119,8 @@ class PasswordField extends Basic.AbstractFormComponent {
       componentSpan,
       newPasswordLabel,
       newPasswordAgainLabel,
-      hidden
+      hidden,
+      helpBlock
     } = this.props;
     const { passwordForValidation } = this.state;
     //
@@ -163,7 +164,8 @@ class PasswordField extends Basic.AbstractFormComponent {
           label={ this._newPasswordAgainLabel(newPasswordAgainLabel) }
           required={required}
           labelSpan={ labelSpan }
-          componentSpan={ componentSpan }/>
+          componentSpan={ componentSpan }
+          helpBlock={ helpBlock }/>
       </div>
     );
   }

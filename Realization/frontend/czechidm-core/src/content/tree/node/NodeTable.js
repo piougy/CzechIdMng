@@ -384,10 +384,12 @@ class NodeTable extends Advanced.AbstractTableContent {
                     <Advanced.Column property="code" width="125px" sort face="text"/>
                     <Advanced.ColumnLink to="/tree/nodes/:id/detail" property="name" width="20%" sort face="text"/>
                     <Advanced.ColumnLink
+                      header={ this.i18n('entity.TreeNode.parent.name') }
                       to="/tree/nodes/:_target/detail"
-                      target="parent.id"
-                      property="parent.name"
-                      sort/>
+                      target="parent"
+                      property="_embedded.parent.name"
+                      sort
+                      sortProperty="parent.name"/>
                     <Advanced.Column property="treeType.name" sort rendered={false}/>
                     <Advanced.Column property="disabled" sort face="bool"/>
                     <Advanced.Column property="shortName" sort rendered={false}/>

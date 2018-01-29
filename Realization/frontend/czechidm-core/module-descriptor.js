@@ -702,6 +702,35 @@ module.exports = {
             'order': 30,
             'path': '/scripts',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
+            'items': [
+              {
+                'id': 'script-detail',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.detail.title',
+                'order': 100,
+                'path': '/scripts/:entityId/detail',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              },
+              {
+                'id': 'script-authorities',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.authorities.title',
+                'order': 110,
+                'path': '/scripts/:entityId/authorities',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              },
+              {
+                'id': 'script-references',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.references.title',
+                'order': 120,
+                'path': '/scripts/:entityId/references',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              }
+            ]
           },
           {
             'id': 'forms',

@@ -112,24 +112,22 @@ class Team extends Basic.AbstractContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row>
-                    <div className="col-lg-4">
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.TextField
                         ref="filterCreatedAtFrom"
                         field="createdAt"
-                        relation="GE"
                         placeholder={this.i18n('filter.createdAtFrom.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4">
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.TextField
                         ref="filterCreatedAtTill"
                         field="createdAt"
-                        relation="LE"
                         placeholder={this.i18n('filter.createdAtTill.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4 text-right">
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
@@ -157,7 +155,7 @@ class Team extends Basic.AbstractContent {
             <Advanced.Column property="email" width="15%" face="text" />
             <Basic.Column
               header={this.i18n('entity.Identity.description')}
-              cell={<Basic.TextCell property="description" />}/>
+              cell={<Basic.TextCell property="description" maxLength={ 30 }/>}/>
             <Advanced.Column property="createdAt" width="10%" face="date" />
           </Advanced.Table>
         </Basic.Panel>

@@ -233,6 +233,14 @@ module.exports = {
       'entityType': ['treeNode'],
       'searchInFields': ['code', 'name'],
       'manager': require('./src/redux').TreeNodeManager
+    },
+    {
+      'id': 'basic-password-change',
+      'type': 'password-change-component',
+      'component': require('./src/components/advanced/PasswordChangeComponent/PasswordChangeComponent'),
+      'disabled': false,
+      'order': 0,
+      'col': 6
     }
   ]
 };

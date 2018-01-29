@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Attachment - saved to FS
+ * TODO: delete attachment from FS after transaction is commited
  * 
  * @author Radek Tomiška
  * @since 7.6.0
@@ -141,6 +142,17 @@ public class DefaultAttachmentManager
 		} finally {
 			IOUtils.closeQuietly(attachment.getInputData());
 		}
+	}
+	
+	@Override
+	@Transactional
+	public IdmAttachmentDto saveAttachmentVersion(Identifiable owner, IdmAttachmentDto attachment, UUID previousVersionId, BasePermission... permission) {
+		IdmAttachmentDto previousVersion = null;
+		if (previousVersionId != null) {
+			 previousVersion = get(previousVersionId);
+		}
+		//
+		return saveAttachmentVersion(owner, attachment, previousVersion, permission);
 	}
 	
 	/**
@@ -459,7 +471,9 @@ public class DefaultAttachmentManager
 	 */
 	private UUID getOwnerId(Identifiable owner) {
 		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		if (owner.getId() == null) {
+			return null;
+		}		
 		Assert.isInstanceOf(UUID.class, owner.getId(), "Entity with UUID identifier is supported as owner for attachments.");
 		//
 		return (UUID) owner.getId();

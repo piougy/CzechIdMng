@@ -144,11 +144,11 @@ public class DefaultSysProvisioningOperationService
 	
 	@Override
 	@Transactional
-	public SysProvisioningOperationDto save(SysProvisioningOperationDto dto, BasePermission... permission) {
+	public SysProvisioningOperationDto saveInternal(SysProvisioningOperationDto dto) {
 		// replace guarded strings to confidential strings (save to persist)
 		Map<String, Serializable> confidentialValues = replaceGuardedStrings(dto.getProvisioningContext());
 		// save operation
-		dto = super.save(dto);
+		dto = super.saveInternal(dto);
 		// save prepared guarded strings into confidential storage 
 		for(Entry<String, Serializable> entry : confidentialValues.entrySet()) {
 			confidentialStorage.save(dto.getId(), SysProvisioningOperation.class, entry.getKey(), entry.getValue());
@@ -159,7 +159,7 @@ public class DefaultSysProvisioningOperationService
 
 	@Override
 	@Transactional
-	public void delete(SysProvisioningOperationDto provisioningOperation, BasePermission... permission) {
+	public void deleteInternal(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		//
 		// delete persisted confidential storage values
@@ -174,7 +174,7 @@ public class DefaultSysProvisioningOperationService
 			batchService.delete(batch);
 		}
 		//
-		super.delete(provisioningOperation);
+		super.deleteInternal(provisioningOperation);
 	}
 	
 	@Override

@@ -37,6 +37,7 @@ export default class EntityManager {
     }
     this.flashMessagesManager = new FlashMessagesManager();
     this.dataManager = new DataManager();
+    this.localizationPrefix = null;
   }
 
   /**
@@ -143,6 +144,14 @@ export default class EntityManager {
     return this.getService().getAbsoluteApiPath() + `/${entityId}`;
   }
 
+  getLocalizationPrefix() {
+    return this.localizationPrefix;
+  }
+
+  setLocalizationPrefix(localizationPrefix) {
+    this.localizationPrefix = localizationPrefix;
+  }
+
   /**
    * Returns localized message
    * - for supported options see http://i18next.com/pages/doc_features.html
@@ -152,7 +161,15 @@ export default class EntityManager {
    * @return {string}         localized message
    */
   i18n(key, options) {
-    return LocalizationService.i18n(key, options);
+    const componentKey = this.getLocalizationPrefix();
+    // TODO: move to localization service - reuse in abstract context component
+    const resultKeyWithModule = (key.indexOf(':') > -1 || !componentKey) ? key : `${componentKey}.${key}`;
+    const resultKeyWithoutModule = (resultKeyWithModule.indexOf(':') > -1) ? resultKeyWithModule.split(':')[1] : resultKeyWithModule;
+    const i18nValue = LocalizationService.i18n(resultKeyWithModule, options);
+    if (i18nValue === resultKeyWithModule || i18nValue === resultKeyWithoutModule) {
+      return LocalizationService.i18n(key, options);
+    }
+    return i18nValue;
   }
 
   /**
@@ -438,13 +455,88 @@ export default class EntityManager {
    * @param  {func} cb - function will be called after entities are deleted or error occured
    * @return {object} - action
    */
-  deleteEntities(entities, uiKey = null, cb = null) {
+   deleteEntities(entities, uiKey = null, cb = null) {
+     return (dispatch) => {
+       dispatch(
+         this.startBulkAction(
+           {
+             name: 'delete',
+             title: this.i18n(`action.delete.header`, { count: entities.length })
+           },
+           entities.length
+         )
+       );
+       const successEntities = [];
+       const approveEntities = [];
+       let currentEntity = null; // currentEntity in loop
+       entities.reduce((sequence, entity) => {
+         return sequence.then(() => {
+           // stops when first error occurs
+           currentEntity = entity;
+           return this.getService().deleteById(entity.id);
+         }).then(() => {
+           dispatch(this.updateBulkAction());
+           successEntities.push(entity);
+           // remove entity to redux store
+           dispatch(this.deletedEntity(entity.id, entity, uiKey));
+         }).catch(error => {
+           if (error && error.statusCode === 202) {
+             dispatch(this.updateBulkAction());
+             approveEntities.push(entity);
+           } else {
+             if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
+               if (!cb) { // if no callback given, we need show error
+                 dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
+               } else { // otherwise caller has to show eror etc. himself
+                 cb(entity, error, null);
+               }
+             }
+             throw error;
+           }
+         });
+       }, Promise.resolve())
+       .catch((error) => {
+         // nothing - message is propagated before
+         // catch is before then - we want execute next then clausule
+         return error;
+       })
+       .then((error) => {
+         if (successEntities.length > 0) {
+           dispatch(this.flashMessagesManager.addMessage({
+             level: 'success',
+             message: this.i18n(`action.delete.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+           }));
+         }
+         if (approveEntities.length > 0) {
+           dispatch(this.flashMessagesManager.addMessage({
+             level: 'info',
+             message: this.i18n(`action.delete.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
+           }));
+         }
+         dispatch(this.stopBulkAction());
+         if (cb) {
+           cb(null, error, successEntities);
+         }
+       });
+     };
+   }
+
+  /**
+   * Common bulk action on single entity, supports put (=> update) actions only
+   *
+   * @param  {string} actionName - action name (e.g. activate / deactivate / archivate )
+   * @param  {array[object]} entities - Entities to delete
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entities are deleted or error occured
+   * @return {object} - action
+   */
+  action(method, actionName, entities, uiKey = null, cb = null) {
     return (dispatch) => {
       dispatch(
         this.startBulkAction(
           {
-            name: 'delete',
-            title: this.i18n(`action.delete.header`, { count: entities.length })
+            name: actionName,
+            title: this.i18n(`action.${actionName}.header`, { count: entities.length })
           },
           entities.length
         )
@@ -456,12 +548,16 @@ export default class EntityManager {
         return sequence.then(() => {
           // stops when first error occurs
           currentEntity = entity;
-          return this.getService().deleteById(entity.id);
-        }).then(() => {
+          return this.getService().action(method, actionName, entity.id);
+        }).then((responseEntity) => {
           dispatch(this.updateBulkAction());
           successEntities.push(entity);
           // remove entity to redux store
-          dispatch(this.deletedEntity(entity.id, entity, uiKey));
+          if (!responseEntity) {
+            dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
+          } else {
+            dispatch(this.receiveEntity(responseEntity.id, responseEntity, uiKey, cb));
+          }
         }).catch(error => {
           if (error && error.statusCode === 202) {
             dispatch(this.updateBulkAction());
@@ -469,7 +565,7 @@ export default class EntityManager {
           } else {
             if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
               if (!cb) { // if no callback given, we need show error
-                dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
+                dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.${actionName}.error`, { record: this.getNiceLabel(entity) }) }, error));
               } else { // otherwise caller has to show eror etc. himself
                 cb(entity, error, null);
               }
@@ -487,13 +583,13 @@ export default class EntityManager {
         if (successEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
             level: 'success',
-            message: this.i18n(`action.delete.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+            message: this.i18n(`action.${actionName}.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
           }));
         }
         if (approveEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
             level: 'info',
-            message: this.i18n(`action.delete.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
+            message: this.i18n(`action.${actionName}.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
           }));
         }
         dispatch(this.stopBulkAction());
@@ -1034,5 +1130,22 @@ export default class EntityManager {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
     }
     return Utils.Permission.hasPermission(permissions, 'DELETE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
+  }
+
+  /**
+   * Authorization evaluator helper - evaluates execute permission on given entity
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canExecute(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (Utils.Entity.isNew(entity)) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
+    }
+    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'EXECUTE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
   }
 }

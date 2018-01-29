@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -267,5 +268,79 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identity = identityService.get(identity.getId());
 		Assert.assertTrue(identity.isDisabled());
 		Assert.assertEquals(IdentityState.FUTURE_CONTRACT, identity.getState());
+	}
+	
+	@Test
+	@Transactional
+	public void testFindByRole() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmRoleDto role = helper.createRole();
+		helper.createIdentityRole(identity, role);
+		helper.createIdentityRole(identity, role);
+		helper.createIdentityRole(identity, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		IdmIdentityContractDto contract = helper.createIdentityContact(identity);
+		helper.createIdentityRole(contract, role);
+		helper.createIdentityRole(contract, role);
+		helper.createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		//
+		List<IdmIdentityDto> identities = identityService.findAllByRole(role.getId());
+		//
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(identity.getId(), identities.get(0).getId());
+		//
+		identities = identityService.findValidByRole(role.getId());
+		//
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(identity.getId(), identities.get(0).getId());
+	}
+	
+	@Test
+	@Transactional
+	public void testFindValidByRole() {
+		IdmIdentityDto validIdentity = helper.createIdentity();
+		IdmRoleDto role = helper.createRole();
+		helper.createIdentityRole(validIdentity, role, new LocalDate().plusDays(1), null);
+		IdmIdentityContractDto contract = helper.createIdentityContact(validIdentity, null, new LocalDate().minusDays(1), null);
+		helper.createIdentityRole(contract, role);
+		helper.createIdentityRole(contract, role);
+		helper.createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		//
+		// disabled identity
+		IdmIdentityDto identityDisabled = helper.createIdentity();
+		identityDisabled.setState(IdentityState.DISABLED);
+		identityDisabled = identityService.save(identityDisabled);
+		helper.createIdentityRole(identityDisabled, role);
+		//
+		// left identity
+		IdmIdentityDto identityLeft = helper.createIdentity();
+		identityLeft.setState(IdentityState.LEFT);
+		identityLeft = identityService.save(identityLeft);
+		helper.createIdentityRole(identityLeft, role);
+		//
+		// disabled contract
+		IdmIdentityDto identityDisabledContract = helper.createIdentity();
+		IdmIdentityContractDto disabledContract = helper.getPrimeContract(identityDisabledContract.getId());
+		disabledContract.setState(ContractState.DISABLED);
+		identityContractService.save(disabledContract);
+		helper.createIdentityRole(identityDisabledContract, role);
+		//
+		// expired contract
+		IdmIdentityDto identityInvalidContract = helper.createIdentity();
+		IdmIdentityContractDto invalidContract = helper.getPrimeContract(identityInvalidContract.getId());
+		invalidContract.setValidFrom(new LocalDate().plusDays(1));
+		identityContractService.save(invalidContract);
+		helper.createIdentityRole(identityInvalidContract, role);
+		//
+		// excluded contract
+		IdmIdentityDto identityExcludedContract = helper.createIdentity();
+		IdmIdentityContractDto excludedContract = helper.getPrimeContract(identityExcludedContract.getId());
+		excludedContract.setState(ContractState.EXCLUDED);
+		identityContractService.save(excludedContract);
+		helper.createIdentityRole(identityExcludedContract, role);
+		//
+		List<IdmIdentityDto> identities = identityService.findValidByRole(role.getId());
+		//
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(validIdentity.getId(), identities.get(0).getId());
 	}
 }

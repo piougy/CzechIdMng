@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
  * * text(from quick filter) - name
  * * category
  * * description
+ * * usedIn - in which scripts is script used
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */
@@ -18,8 +19,18 @@ public class IdmScriptFilter extends QuickFilter {
     private IdmScriptCategory category;
     
     private String code;
+    
+    private String usedIn;
 
-    public String getDescription() {
+    public String getUsedIn() {
+		return usedIn;
+	}
+
+	public void setUsedIn(String usedIn) {
+		this.usedIn = usedIn;
+	}
+
+	public String getDescription() {
         return description;
     }
 

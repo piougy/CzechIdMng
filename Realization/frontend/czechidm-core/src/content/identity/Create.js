@@ -8,7 +8,6 @@ import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
-import ValidationMessage from './ValidationMessage';
 
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
@@ -19,7 +18,7 @@ const identityManager = new IdentityManager();
  *
  * @author Radek Tomiška
  */
-class Profile extends Basic.AbstractContent {
+class Create extends Basic.AbstractContent {
 
   constructor(props) {
     super(props);
@@ -297,7 +296,7 @@ class Profile extends Basic.AbstractContent {
                     newPasswordAgain={passwordAgain}/>
                 </div>
                 <Basic.Panel className="col-lg-5 no-border">
-                  <ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
+                  <Advanced.ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
                 </Basic.Panel>
               </Basic.AbstractForm>
 
@@ -321,10 +320,10 @@ class Profile extends Basic.AbstractContent {
   }
 }
 
-Profile.propTypes = {
+Create.propTypes = {
   userContext: React.PropTypes.object
 };
-Profile.defaultProps = {
+Create.defaultProps = {
   userContext: null
 };
 
@@ -334,4 +333,4 @@ function select(state) {
   };
 }
 
-export default connect(select)(Profile);
+export default connect(select)(Create);

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc;
 
+import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemMappingService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -70,6 +71,7 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private AccAccountService accountService;
 	@Autowired private AccIdentityAccountService identityAccountService;
+	@Autowired private DefaultSysSystemMappingService mappingService;
 	
 	/**
 	 * Create test system connected to same database (using configuration from dataSource)
@@ -318,5 +320,17 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 		accountIdentity.setAccount(account.getId());
 
 		return identityAccountService.save(accountIdentity);
+	}
+
+	@Override
+	public SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass) {
+		// system mapping
+		SysSystemMappingDto mapping = new SysSystemMappingDto();
+		mapping.setName(createName());
+		mapping.setEntityType(type);
+		mapping.setObjectClass(objectClass.getId());
+		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		//
+		return mappingService.save(mapping);
 	}
 }

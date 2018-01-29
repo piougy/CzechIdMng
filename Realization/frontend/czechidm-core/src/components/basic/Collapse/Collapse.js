@@ -4,6 +4,13 @@ import { Collapse } from 'react-bootstrap';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
 
+/**
+ * Colappse panel
+ *
+ * TODO: can be controlled by external action only. Support default collapse action (e.g. bz button)
+ *
+ * @author Radek Tomiška
+ */
 export default class BasicCollapse extends AbstractComponent {
 
   render() {

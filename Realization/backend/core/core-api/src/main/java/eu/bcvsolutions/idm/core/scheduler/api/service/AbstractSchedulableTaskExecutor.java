@@ -18,6 +18,9 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * Schedulable task services (this services will be automatically available as scheduled tasks)
  * 
+ * Scheduler persists LRT only. 
+ * LRT is processed asynchronously by different internal scheduled task {@link LongRunningTaskManager#processCreated()}.
+ * 
  * @author Radek Tomiška
  * @author Jan Helbich
  * @since 7.6.0

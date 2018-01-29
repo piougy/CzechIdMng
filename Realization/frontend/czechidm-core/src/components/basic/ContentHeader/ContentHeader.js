@@ -7,6 +7,8 @@ import HelpIcon from '../HelpIcon/HelpIcon';
 
 /**
  * Content header
+ *
+ * @author Radek Tomiška
  */
 class ContentHeader extends AbstractComponent {
 
@@ -15,7 +17,7 @@ class ContentHeader extends AbstractComponent {
   }
 
   render() {
-    const { rendered, showLoading, children, className, help, text, ...others } = this.props;
+    const { rendered, showLoading, children, className, help, text, icon, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -33,11 +35,19 @@ class ContentHeader extends AbstractComponent {
               ?
               <Icon type="fa" icon="refresh" showLoading className="icon-loading"/>
               :
-              <span>
-                {text}
-                {children}
-              </span>
+              <Icon value={ icon } className="icon-left"/>
             }
+            {
+              showLoading || icon
+              ?
+              '\u00a0'
+              :
+              null
+            }
+            <span>
+              {text}
+              {children}
+            </span>
           </h2>
         </div>
         {

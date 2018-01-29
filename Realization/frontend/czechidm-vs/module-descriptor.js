@@ -17,6 +17,7 @@ module.exports = {
         'icon': 'link',
         'iconColor': '#008AFF',
         'order': 1101,
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ', 'VSREQUEST_READ'] } ],
         'items': [
           {
             'id': 'vs-systems',

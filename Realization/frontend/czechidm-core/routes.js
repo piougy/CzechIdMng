@@ -362,9 +362,31 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
-      path: 'scripts/:entityId',
+      path: 'scripts/:entityId/',
+      component: require('./src/content/script/Script'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/script/ScriptContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        },
+        {
+          path: 'authorities',
+          component: require('./src/content/script/ScriptAuthorities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        },
+        {
+          path: 'references',
+          component: require('./src/content/script/ScriptReferences'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'scripts/:entityId/new',
       component: require('./src/content/script/ScriptContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_CREATE'] } ],
     },
     {
       path: 'forms',

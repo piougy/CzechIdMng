@@ -54,7 +54,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
   * ``final`` modifier only there, when is needed (its discutable, but we are using it this way)
 * Modules
   * Spring bean names, component names, services, entities etc. should start with module identifier prefix.
-  * Use `idm-core-api` module as dependency. If some API is missing (its only in `idm-core-impl`), contact us. Only exception is entity + jpa metamodel usage. 
+  * Use interfaces and classes from `idm-core-api` module dependency. If some API is missing (its only in `idm-core-impl`), contact us. Only exception is entity + jpa metamodel usage. 
 
 ### IDE
 * [Eclipse](https://wiki.czechidm.com/7.3/dev/quickstart/ide/eclipse)

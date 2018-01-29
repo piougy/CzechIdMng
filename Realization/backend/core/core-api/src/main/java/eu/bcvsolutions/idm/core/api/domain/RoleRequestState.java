@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.domain;
 
 /**
  * State of role request
+ * 
  * @author svandav
  *
  */

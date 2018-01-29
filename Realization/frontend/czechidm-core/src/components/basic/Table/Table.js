@@ -182,15 +182,19 @@ class Table extends AbstractComponent {
   _isAllRowsSelected() {
     const { data } = this.props;
     const { selectedRows } = this.state;
-    if (!data || data.lenght === 0) {
+    if (!data || data.length === 0) {
       return false;
     }
+    let enabledRowsCount = 0;
     for (let i = 0; i < data.length; i++) {
-      if (!selectedRows.has(this.getIdentifier(i))) {
-        return false;
+      if (this._showRowSelection({ ...this.props, rowIndex: i })) {
+        if (!selectedRows.has(this.getIdentifier(i))) {
+          return false;
+        }
+        enabledRowsCount++;
       }
     }
-    return true;
+    return enabledRowsCount > 0;
   }
 
   getIdentifierProperty() {
@@ -204,7 +208,7 @@ class Table extends AbstractComponent {
   }
 
   renderHeader(columns) {
-    const { showLoading, showRowSelection, noHeader } = this.props;
+    const { showLoading, showRowSelection, noHeader, data } = this.props;
     if (noHeader) {
       return null;
     }
@@ -218,7 +222,8 @@ class Table extends AbstractComponent {
           showLoading={showLoading}
           showRowSelection={showRowSelection}
           onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
-          selected={this._isAllRowsSelected()}/>
+          selected={this._isAllRowsSelected()}
+          data={ data }/>
       </thead>
     );
   }

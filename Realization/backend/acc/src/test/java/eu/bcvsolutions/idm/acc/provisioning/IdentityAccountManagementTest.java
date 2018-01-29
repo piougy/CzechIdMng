@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -237,7 +238,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		Assert.assertEquals("Account on target system, must be enabled", "enabled",
 				resourceAccount.getStatus());
 		
-		identity.setDisabled(true);
+		identity.setState(IdentityState.DISABLED);
 		
 		// This evokes Identity SAVE event. On this event will be start account
 		// management and provisioning

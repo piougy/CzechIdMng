@@ -270,13 +270,17 @@ public class DefaultIdmTreeNodeService
 	
 	/**
 	 * Method check type of current node and saved node.
-	 * TODO: bug - this will work only in update. If node is created, then parent from diferent type could be given
 	 * 
 	 * @param treeNode
 	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;
 	 */
 	private boolean checkCorrectType(IdmTreeNodeDto treeNode, boolean isNew) {
 		if (isNew) {
+			if (treeNode.getParent() != null) {
+				IdmTreeNodeDto parent = this.get(treeNode.getParent());
+				return !treeNode.getTreeType().equals(parent.getTreeType());
+			}
+			// treeNode is new and hasn't parent
 			return false;
 		}
 		

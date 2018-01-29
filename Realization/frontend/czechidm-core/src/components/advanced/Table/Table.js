@@ -219,7 +219,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
   onBulkAction(actionItem) {
     if (actionItem.action) {
-      actionItem.action(actionItem.value, this.state.selectedRows);
+      actionItem.action(actionItem.value, this.state.selectedRows, actionItem);
     } else {
       this.addMessage({ level: 'info', message: this.i18n('bulk-action.notImplemented') });
     }
@@ -332,6 +332,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       } else {
         switch (column.props.face) {
+          case 'text': {
+            cell = (
+              <Basic.BasicTable.TextCell {...commonProps} maxLength={ column.props.maxLength }/>
+            );
+            break;
+          }
           case 'date': {
             cell = (
               <Basic.BasicTable.DateCell format={this.i18n('format.date')} {...commonProps}/>

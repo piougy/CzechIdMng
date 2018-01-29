@@ -7,7 +7,6 @@ import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
 import help from './PasswordChange_cs.md';
-import ValidationMessage from './identity/ValidationMessage';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
@@ -265,7 +264,7 @@ class PasswordChange extends Basic.AbstractContent {
                     ref="passwords"/>
                 </Basic.AbstractForm>
                 <Basic.Panel className="no-border last">
-                  <ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
+                  <Advanced.ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
                 </Basic.Panel>
                 <Basic.PanelFooter>
                   <Basic.Button level="link" onClick={this.cancel.bind(this)}>

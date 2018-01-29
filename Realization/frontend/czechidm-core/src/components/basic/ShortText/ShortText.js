@@ -20,17 +20,15 @@ class ShortText extends AbstractComponent {
     const { text, value, maxLength, cutPointEnd, cutChar, className, rendered } = this.props;
     const _text = text || value;
     //
-    if (!rendered) {
+    if (!rendered || !_text) {
       return null;
     }
     let shortText = '';
     if (_text.length > maxLength) {
       if (cutPointEnd) {
-        shortText = UiUtils.substringBegin(_text, maxLength, cutChar);
-        shortText = shortText + '...';
+        shortText = UiUtils.substringBegin(_text, maxLength, cutChar, '...');
       } else {
-        shortText = UiUtils.substringEnd(_text, maxLength, cutChar);
-        shortText = '...' + shortText;
+        shortText = UiUtils.substringEnd(_text, maxLength, cutChar, '...');
       }
     } else {
       shortText = _text;

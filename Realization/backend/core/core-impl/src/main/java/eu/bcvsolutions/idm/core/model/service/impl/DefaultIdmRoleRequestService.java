@@ -335,8 +335,6 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 
-		
-
 		// Create new identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();

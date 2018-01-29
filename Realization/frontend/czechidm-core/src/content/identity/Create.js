@@ -66,6 +66,9 @@ class Create extends Basic.AbstractContent {
 
     identityManager.preValidate(requestData)
     .then(response => {
+      if (response.status === 204) {
+        return {};
+      }
       return response.json();
     })
     .then(json => {

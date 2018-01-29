@@ -5,17 +5,8 @@ import _ from 'lodash';
 //
 import ComponentService from '../../services/ComponentService';
 import * as Basic from '../../components/basic';
-import { IdentityManager } from '../../redux';
-import * as Utils from '../../utils';
 
 const componentService = new ComponentService();
-const identityManager = new IdentityManager();
-
-const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
-const RESOURCE_IDM = `0:${IDM_NAME}`;
-
-const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
-
 
 /**
  * Password change component contains all components defined in component descriptor
@@ -27,23 +18,6 @@ class PasswordChangeForm extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-  }
-
-  _initForm(permissions) {
-    const { accountOptions } = this.props;
-    if (this._canPasswordChange(permissions)) {
-      this.setState({
-        preload: false
-      }, () => {
-        this.refs.form.setData({
-          accounts: accountOptions,
-          oldPassword: ''
-        });
-        // focus old password
-        this.refs.oldPassword.focus();
-      });
-    }
-    this._preValidate(accountOptions);
   }
 
   /**
@@ -80,58 +54,6 @@ class PasswordChangeForm extends Basic.AbstractContent {
         </Basic.Col>);
     });
     return finalComponents;
-  }
-
-  /*
-   * Method shows password rules before applying change of password
-   */
-  _preValidate(options) {
-    const requestData = {
-      accounts: []
-    };
-
-    options.forEach(resourceValue => {
-      if (resourceValue.value === RESOURCE_IDM) {
-        requestData.idm = true;
-      } else {
-        requestData.accounts.push(resourceValue.value);
-      }
-    });
-    identityManager.preValidate(requestData)
-    .then(response => {
-      if (response.status === 204) {
-        const error = undefined;
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
-
-        throw error;
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        const error = Utils.Response.getFirstError(json);
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
-
-        throw error;
-      }
-      return json;
-    })
-    .catch(error => {
-      if (!error) {
-        return {};
-      }
-      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
-        this.addErrorMessage({hidden: true}, error);
-      } else {
-        this.addError(error);
-      }
-    });
   }
 
   getContentKey() {

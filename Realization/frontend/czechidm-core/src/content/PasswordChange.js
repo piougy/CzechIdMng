@@ -76,8 +76,11 @@ class PasswordChange extends Basic.AbstractContent {
     };
     requestData.idm = true;
 
-    identityManager.identityManager.preValidate(requestData)
+    identityManager.preValidate(requestData)
     .then(response => {
+      if (response.status === 204) {
+        return {};
+      }
       return response.json();
     })
     .then(json => {

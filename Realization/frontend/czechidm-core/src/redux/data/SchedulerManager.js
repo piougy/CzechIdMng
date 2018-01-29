@@ -4,8 +4,6 @@ import EntityManager from './EntityManager';
 import { SchedulerService } from '../../services';
 import DataManager from './DataManager';
 
-export const EMPTY = 'VOID_ACTION'; // dispatch cannot return null
-
 /**
  * Scheduler administration
  *

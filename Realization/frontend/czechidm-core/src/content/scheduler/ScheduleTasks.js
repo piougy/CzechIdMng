@@ -119,7 +119,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       entity.parameters.dryRun = true;
     }
     //
-    if (entity.id === undefined) {
+    if (Utils.Entity.isNew(entity)) {
       this.context.store.dispatch(this.getManager().createEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     } else {
       this.context.store.dispatch(this.getManager().updateEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
@@ -267,7 +267,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { supportedTasks, showLoading, instanceId } = this.props;
+    const { supportedTasks, showLoading, showLoadingDetail, instanceId } = this.props;
     const { detail, triggerDetail, triggerType, taskType } = this.state;
     //
     const _supportedTasks = [];
@@ -302,7 +302,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
 
         <Advanced.Table
           ref="table"
-          uiKey={ this.getUiKey() }
+          uiKey="schedule-task-table"
           manager={ manager }
           buttons={
             [
@@ -422,7 +422,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         className="btn-xs"
                         title={this.i18n('button.delete')}
                         titlePlacement="bottom"
-                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE'])}>
+                        rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }>
                         <Basic.Icon icon="trash"/>
                       </Basic.Button>
                       <Basic.Button
@@ -432,7 +432,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         title={this.i18n('button.dryRun')}
                         titlePlacement="bottom"
                         style={{ marginLeft: 3 }}
-                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE'])}>
+                        rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }>
                         <Basic.Icon icon="play"/>
                       </Basic.Button>
                       <Basic.Button
@@ -442,7 +442,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         title={this.i18n('button.run')}
                         titlePlacement="bottom"
                         style={{ marginLeft: 3 }}
-                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE'])}>
+                        rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }>
                         <Basic.Icon icon="play"/>
                       </Basic.Button>
                     </div>
@@ -458,9 +458,14 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           keyboard={!showLoading}>
 
           <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!showLoading} text={detail.entity.id !== undefined ? this.i18n('action.task-edit.header') : this.i18n('action.task-create.header')}/>
+            <Basic.Modal.Header
+              closeButton={ !showLoadingDetail }
+              text={ !Utils.Entity.isNew(detail.entity) ? this.i18n('action.task-edit.header') : this.i18n('action.task-create.header')}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && detail.entity.id !== undefined}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ showLoadingDetail }
+                readOnly={ !this.getManager().canSave(detail.entity) }>
                 <Basic.EnumSelectBox
                   ref="taskType"
                   label={this.i18n('entity.SchedulerTask.taskType')}
@@ -468,7 +473,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   onChange={this.onChangeTaskType.bind(this)}
                   required
                   searchable
-                  readOnly={detail.entity.id !== undefined}/>
+                  readOnly={ !Utils.Entity.isNew(detail.entity) }/>
                 <Basic.TextArea
                   ref="description"
                   placeholder={taskType ? taskType.description : null}
@@ -478,10 +483,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   ref="instanceId"
                   label={this.i18n('entity.SchedulerTask.instanceId.label')}
                   helpBlock={this.i18n('entity.SchedulerTask.instanceId.help')}
-                  required
-                  readOnly={detail.entity.id !== undefined}/>
+                  required/>
                 {
-                  (detail.entity.id === undefined && taskType && taskType.parameters && _.keys(taskType.parameters).length > 0)
+                  (Utils.Entity.isNew(detail.entity) && taskType && taskType.parameters && _.keys(taskType.parameters).length > 0)
                   ?
                   <div>
                     <Basic.ContentHeader text={this.i18n('action.task-edit.parameters')} />
@@ -524,18 +528,18 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={showLoading}>
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ showLoadingDetail }>
                 {this.i18n('button.close')}
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={showLoading}
+                showLoading={ showLoadingDetail }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE']) && detail.entity.id === undefined || detail.entity.id !== undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}>
-                {this.i18n('button.save')}
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ this.getManager().canSave(detail.entity) }>
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
@@ -611,13 +615,15 @@ ScheduleTasks.propTypes = {
   instanceId: PropTypes.string,
   userContext: PropTypes.object,
   supportedTasks: PropTypes.object,
-  showLoading: PropTypes.bool
+  showLoading: PropTypes.bool,
+  showLoadingDetail: PropTypes.bool
 };
 ScheduleTasks.defaultProps = {
   instanceId: null,
   userContext: null,
   supportedTasks: null,
-  showLoading: true
+  showLoading: true,
+  showLoadingDetail: false
 };
 
 function select(state) {
@@ -626,6 +632,7 @@ function select(state) {
     userContext: state.security.userContext,
     supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
     showLoading: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
+    showLoadingDetail: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_TASKS)
   };
 }
 

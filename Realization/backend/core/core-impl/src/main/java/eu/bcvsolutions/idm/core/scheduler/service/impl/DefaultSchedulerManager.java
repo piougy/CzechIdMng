@@ -138,48 +138,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		return getTask(getKey(taskId));
 	}
 	
-	public Task updateTask(String taskId, Task newTask) {
-		Assert.notNull(taskId);
-		Task task = getTask(taskId);
-		String description = newTask.getDescription();
-		if (StringUtils.isEmpty(description)) {
-			description = AutowireHelper.getBeanDescription(task.getTaskType());
-		}
-		try {
-			// job properties
-			JobDataMap jobDataMap = new JobDataMap();
-			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
-			newTask.getParameters().entrySet().forEach(entry -> {
-				jobDataMap.put(entry.getKey(), entry.getValue());
-			});
-			// validate init method
-			try {
-				LongRunningTaskExecutor<?> taskExecutor = AutowireHelper.createBean(task.getTaskType());
-				taskExecutor.init(jobDataMap);
-			} catch (ResultCodeException ex) {
-				throw ex;
-			} catch (Exception ex) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
-						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
-			}
-			// create job detail - job definition
-			JobDetail jobDetail = JobBuilder.newJob().withIdentity(task.getId(), DEFAULT_GROUP_NAME)
-					.withDescription(description)
-					.ofType(task.getTaskType())
-					.usingJobData(jobDataMap)
-					.storeDurably().build();
-			// add job
-			scheduler.addJob(jobDetail, true);
-			//
-			LOG.debug("Job '{}' ({}) was created and registered", task.getId(), task.getTaskType());
-			//
-		} catch (org.quartz.SchedulerException ex) {
-			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TASK_FAILED, ex);
-		}
-		return getTask(task.getId());
-
-	}
-	
 	/**
 	 * Returns task by given key
 	 * 
@@ -286,6 +244,49 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TASK_FAILED, ex);
 		}
 	}
+	
+	@Override
+	public Task updateTask(String taskId, Task newTask) {
+		Assert.notNull(taskId);
+		Task task = getTask(taskId);
+		String description = newTask.getDescription();
+		if (StringUtils.isEmpty(description)) {
+			description = AutowireHelper.getBeanDescription(task.getTaskType());
+		}
+		try {
+			// job properties
+			JobDataMap jobDataMap = new JobDataMap();
+			newTask.getParameters().entrySet().forEach(entry -> {
+				jobDataMap.put(entry.getKey(), entry.getValue());
+			});
+			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, newTask.getInstanceId());
+			// validate init method
+			try {
+				LongRunningTaskExecutor<?> taskExecutor = AutowireHelper.createBean(task.getTaskType());
+				taskExecutor.init(jobDataMap);
+			} catch (ResultCodeException ex) {
+				throw ex;
+			} catch (Exception ex) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
+			}
+			// create job detail - job definition
+			JobDetail jobDetail = JobBuilder.newJob().withIdentity(task.getId(), DEFAULT_GROUP_NAME)
+					.withDescription(description)
+					.ofType(task.getTaskType())
+					.usingJobData(jobDataMap)
+					.storeDurably().build();
+			// add job
+			scheduler.addJob(jobDetail, true);
+			//
+			LOG.debug("Job '{}' ({}) was updated and registered", task.getId(), task.getTaskType());
+			//
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TASK_FAILED, ex);
+		}
+		return getTask(task.getId());
+
+	}
 
 	@Override
 	public void deleteTask(String taskId) {		
@@ -310,8 +311,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
  		trigger.setFireTime(new DateTime());
 		return createTrigger(taskId, trigger, dryRun);
 	}
-	
-	
 	
 	@Override
 	public boolean interruptTask(String taskId) {

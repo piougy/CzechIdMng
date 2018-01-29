@@ -14,6 +14,14 @@ export default class SchedulerService extends AbstractService {
     return '/scheduler-tasks';
   }
 
+  supportsAuthorization() {
+    return false;
+  }
+
+  getGroupPermission() {
+    return 'SCHEDULER';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

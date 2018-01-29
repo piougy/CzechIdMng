@@ -1,13 +1,21 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
+import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import java.util.List;
 
+import org.hibernate.type.EntityType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -63,8 +71,9 @@ public class EntityEventProcessorController {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") })
 				},
-			notes = "Returns all registered entity event processors with state properties (diabled, order)")
-	public List<EntityEventProcessorDto> find() {
+			notes = "Returns all registered entity event processors with state properties (disabled, order)")
+	public List<EntityEventProcessorDto> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
 		return entityEventManager.find(null);
 	}
 }

@@ -58,7 +58,7 @@ public final class AutowireHelper implements ApplicationContextAware {
 	}
 	
 	/**
-	 * Return specified instace of bean class defined by class.
+	 * Return specified instance of bean class defined by class.
 	 * 
 	 * @param clazz
 	 * @return

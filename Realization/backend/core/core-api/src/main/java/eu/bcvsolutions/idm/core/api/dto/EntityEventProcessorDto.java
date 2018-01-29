@@ -3,12 +3,14 @@ package eu.bcvsolutions.idm.core.api.dto;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import org.springframework.hateoas.core.Relation;
 
 /**
  * Event processor dto
  * 
  * @author Radek Tomiška
  */
+@Relation(collectionRelation = "entityEventProcessors")
 public class EntityEventProcessorDto extends AbstractComponentDto {
 
 	private static final long serialVersionUID = 1L;

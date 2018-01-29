@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,10 +11,21 @@ import org.activiti.engine.history.HistoricIdentityLink;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.task.IdentityLinkType;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
@@ -27,7 +39,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  *
  */
 @Service
-public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHistoricTaskInstanceService {
+public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoService<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto> implements WorkflowHistoricTaskInstanceService {
 
 	@Autowired
 	private HistoryService historyService;
@@ -36,7 +48,13 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 	private SecurityService securityService;
 
 	@Override
-	public ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter) {
+	public Page<WorkflowHistoricTaskInstanceDto> find(Pageable pageable, BasePermission... permission) {
+		return this.find(new WorkflowFilterDto(), pageable, permission);
+	}
+	
+	@Override
+	public Page<WorkflowHistoricTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
+			BasePermission... permission) {
 		String processDefinitionId = filter.getProcessDefinitionId();
 		String processInstanceId = filter.getProcessInstanceId();
 
@@ -62,29 +80,54 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
 			
 			String loggedUserId = securityService.getCurrentId().toString();
-			query.or();
-			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, loggedUserId);
-			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, loggedUserId);
 			query.taskInvolvedUser(loggedUserId);
-			// TODO admin
-			query.endOr();
 		}
-		if (WorkflowHistoricTaskInstanceService.SORT_BY_CREATE_TIME.equals(filter.getSortByFields())) {
+		
+		String fieldForSort = null;
+		boolean ascSort = false;
+		boolean descSort = false;
+		if (pageable != null) {
+			Sort sort = pageable.getSort();
+			if (sort != null) {
+				for (Order order : sort) {
+					if (!StringUtils.isEmpty(order.getProperty())) {
+						// TODO: now is implemented only one property sort 
+						fieldForSort = order.getProperty();
+						if (order.getDirection() == Direction.ASC) {
+							ascSort = true;
+						} else if (order.getDirection() == Direction.DESC) {
+							descSort = true;
+						}
+						break;
+					}
+					
+				}
+			}
+		}
+		if (WorkflowHistoricTaskInstanceService.SORT_BY_CREATE_TIME.equals(fieldForSort)) {
 			query.orderByTaskCreateTime();
-		} else if (WorkflowHistoricTaskInstanceService.SORT_BY_END_TIME.equals(filter.getSortByFields())) {
+		} else if (WorkflowHistoricTaskInstanceService.SORT_BY_END_TIME.equals(fieldForSort)) {
 			query.orderByHistoricTaskInstanceEndTime();
 		} else {
 			query.orderByProcessDefinitionId();
-		}
-		if (filter.isSortAsc()) {
+			// there must be default order
 			query.asc();
 		}
-		if (filter.isSortDesc()) {
+		if (ascSort) {
+			query.asc();
+		}
+		if (descSort) {
 			query.desc();
 		}
 		long count = query.count();
-		List<HistoricTaskInstance> processInstances = query.listPage((filter.getPageNumber()) * filter.getPageSize(),
-				filter.getPageSize());
+		
+		List<HistoricTaskInstance> processInstances = null;
+		if (pageable == null) {
+			processInstances = query.list();
+		} else {
+			processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(),
+					pageable.getPageSize());
+		}
 		List<WorkflowHistoricTaskInstanceDto> dtos = new ArrayList<>();
 
 		if (processInstances != null) {
@@ -92,14 +135,45 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 				dtos.add(toResource(instance));
 			}
 		}
-		double totalPageDouble = ((double) count / filter.getPageSize());
+		
+		long pageSize = pageable != null ? pageable.getPageSize() : count;
+		
+		double totalPageDouble = ((double) count / pageSize);
 		double totlaPageFlorred = Math.floor(totalPageDouble);
 		long totalPage = 0;
 		if (totalPageDouble > totlaPageFlorred) {
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		return new ResourcesWrapper<>(dtos, count, totalPage, filter.getPageNumber(), filter.getPageSize());
+		return new PageImpl<WorkflowHistoricTaskInstanceDto>(dtos, pageable, totalPage);
+	}
+	
+	@Override
+	public ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter) {
+		Pageable pageable = null;
+		// get pageable setting from filter - backward compatibility
+		if (StringUtils.isNotEmpty(filter.getSortByFields())) {
+			Sort sort = null;
+			if (filter.isSortAsc()) {
+				sort = new Sort(Direction.ASC, filter.getSortByFields());	
+			} else {
+				sort = new Sort(Direction.DESC, filter.getSortByFields());
+			}
+			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize(), sort);
+		} else {
+			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize());
+		}
+		
+		Page<WorkflowHistoricTaskInstanceDto> page = this.find(filter, pageable);
+
+		return new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
+				filter.getPageNumber(), filter.getPageSize());
+	}
+	
+	@Override
+	public WorkflowHistoricTaskInstanceDto get(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		return this.get(String.valueOf(id));
 	}
 
 	@Override
@@ -156,7 +230,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 			}
 			dto.setCandicateUsers(candicateUsers);
 		}
-		
+
 		return dto;
 	}
 

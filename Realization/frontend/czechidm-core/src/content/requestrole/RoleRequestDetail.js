@@ -421,7 +421,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return null;
     }
     //
-    const { _permissions } = this.props;
+    const { _permissions, canExecute } = this.props;
     return (
       <div>
         <Basic.ContentHeader>
@@ -436,7 +436,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             showLoading={showLoading}
             showLoadingButtonRemove={showLoadingButtonRemove}
             className="vertical-scroll"
-            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions)}
+            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
             identityUsername={request && request.applicant}
             identityRoles={_currentIdentityRoles}
             addedIdentityRoles={addedIdentityRoles}
@@ -617,11 +617,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 RoleRequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
   editableInStates: PropTypes.arrayOf(PropTypes.string),
-  showRequestDetail: PropTypes.bool
+  showRequestDetail: PropTypes.bool,
+  canExecute: PropTypes.bool,
 };
 RoleRequestDetail.defaultProps = {
   editableInStates: ['CONCEPT', 'EXCEPTION', 'DUPLICATED'],
-  showRequestDetail: true
+  showRequestDetail: true,
+  canExecute: true
 };
 
 function select(state, component) {

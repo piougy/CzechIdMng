@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import Helmet from 'react-helmet';
+//
 import * as Basic from '../../components/basic';
 import { WorkflowTaskInstanceManager } from '../../redux';
 import TaskInstanceTable from './TaskInstanceTable';
@@ -14,8 +16,12 @@ class TaskInstances extends Basic.AbstractContent {
     this.workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
   }
 
+  componentDidMount() {
+    this.selectNavigationItems(['tasks', 'tasks-identity']);
+  }
+
   getContentKey() {
-    return 'content.task.instances';
+    return 'content.tasks.identity';
   }
 
   getNavigationKey() {
@@ -25,12 +31,8 @@ class TaskInstances extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        {this.renderPageHeader()}
-
-        <Basic.Panel>
-          <TaskInstanceTable uiKey="task-instance-table" taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
-        </Basic.Panel>
-
+        <Helmet title={this.i18n('title')} />
+        <TaskInstanceTable uiKey="task-instance-table" taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
       </div>
     );
   }

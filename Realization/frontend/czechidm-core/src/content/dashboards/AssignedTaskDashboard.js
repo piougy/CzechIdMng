@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { WorkflowTaskInstanceManager } from '../../redux';
+import { WorkflowTaskInstanceManager, SecurityManager } from '../../redux';
 import TaskInstanceTable from '../task/TaskInstanceTable';
 
 class AssignedTaskDashboard extends Basic.AbstractContent {
@@ -12,7 +12,7 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
 
   render() {
     return (
-      <Basic.Panel>
+      <Basic.Panel rendered={SecurityManager.hasAuthority('WORKFLOWTASK_READ')}>
         <Basic.PanelHeader text={this.i18n('content.tasks-assigned.assigned')}/>
         <TaskInstanceTable uiKey="task_instance_dashboard_table" taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
       </Basic.Panel>

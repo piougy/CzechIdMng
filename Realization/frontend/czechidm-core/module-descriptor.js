@@ -151,13 +151,34 @@ module.exports = {
       {
         'id': 'tasks',
         'disabled': false,
-        'label': 'Úkoly',
         'labelKey': 'navigation.menu.tasks.label',
-        'title': 'Moje úkoly',
         'titleKey': 'navigation.menu.tasks.title',
         'icon': 'tasks',
-        'path': '/tasks/:entityId',
-        'order': 30
+        'path': '/tasks/identity/:entityId',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_READ'] } ],
+        'order': 30,
+        'items': [
+          {
+            'id': 'tasks-identity',
+            'labelKey': 'content.tasks.identity.label',
+            'titleKey': 'content.tasks.identity.title',
+            'order': 10,
+            'path': '/tasks/identity/:entityId',
+            'icon': '',
+            'type': 'TAB',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_READ'] } ]
+          },
+          {
+            'id': 'tasks-all',
+            'labelKey': 'content.tasks.all.label',
+            'titleKey': 'content.tasks.all.title',
+            'order': 20,
+            'path': '/tasks/all',
+            'icon': '',
+            'type': 'TAB',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_ADMIN'] } ]
+          }
+        ]
       },
       {
         'id': 'identities',

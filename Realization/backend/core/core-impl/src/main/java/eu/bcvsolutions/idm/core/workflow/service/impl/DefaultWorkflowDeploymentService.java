@@ -10,6 +10,13 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 
+/**
+ * Default implementation of workflow service for deployment
+ * 
+ * @author svandav
+ *
+ */
+
 @Service
 public class DefaultWorkflowDeploymentService implements WorkflowDeploymentService {
 

@@ -7,6 +7,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 /**
@@ -15,7 +16,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
  * @author svandav
  *
  */
-public interface WorkflowProcessInstanceService {
+public interface WorkflowProcessInstanceService extends ReadWriteDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> {
 	
 	final static String OBJECT_TYPE = "objectType";
 	final static String OBJECT_IDENTIFIER = "objectIdentifier";
@@ -62,6 +63,7 @@ public interface WorkflowProcessInstanceService {
 	 * @param filter
 	 * @return
 	 */
+	@Deprecated
 	ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter);
 
 	/**
@@ -78,7 +80,17 @@ public interface WorkflowProcessInstanceService {
 	 * @return
 	 */
 	WorkflowProcessInstanceDto get(String processInstanceId);
+	
+	/**
+	 * Search process instance by ID process instance and check permission
+	 * 
+	 * @param processInstanceId
+	 * @param checkRight
+	 * @return
+	 */
+	WorkflowProcessInstanceDto get(String processInstanceId, boolean checkRight);
 
+	@Deprecated
 	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
 
 

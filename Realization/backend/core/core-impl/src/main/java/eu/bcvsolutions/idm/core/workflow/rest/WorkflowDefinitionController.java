@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -59,7 +59,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "WF definition administration",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class WorkflowDefinitionController extends AbstractReadWriteDtoController<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
+public class WorkflowDefinitionController extends AbstractReadDtoController<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
 
 	protected static final String TAG = "Workflow - definitions";
 	//

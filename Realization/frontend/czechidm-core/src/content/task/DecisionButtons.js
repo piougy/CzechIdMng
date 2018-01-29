@@ -9,10 +9,21 @@ class DecisionButtons extends Basic.AbstractContent {
 
   constructor(props) {
     super(props);
-    this.state = {showLoading: props.showLoading};
+    this.state = {
+      showLoading: props.showLoading,
+      canGoBack: false
+    };
   }
 
   componentDidMount() {
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps) {
+      this.setState({
+        canGoBack: true
+      });
+    }
   }
 
   getContentKey() {
@@ -24,7 +35,11 @@ class DecisionButtons extends Basic.AbstractContent {
   }
 
   _getDecisionsButton(decisions, showLoading) {
+    const { readOnly } = this.props;
     const buttons = [];
+    if (readOnly) {
+      return buttons;
+    }
     for (const decision of decisions) {
       buttons.push(
                     <Basic.Button
@@ -43,11 +58,13 @@ class DecisionButtons extends Basic.AbstractContent {
 
   _goBack() {
     const { task } = this.props;
-    if (this.context.router.goBack()) {
+    const { canGoBack } = this.state;
+    if (canGoBack) {
       // nothig, router just can go back
+      this.context.router.goBack();
     } else {
-      // transmition to /task, history doesnt exist
-      this.context.router.push(`tasks/${task.variables.implementerIdentifier}`);
+      // transmition to /task, history doesnt exist, for now transmition to identity task
+      this.context.router.push(`tasks/identity/${task.variables.implementerIdentifier}`);
     }
   }
 

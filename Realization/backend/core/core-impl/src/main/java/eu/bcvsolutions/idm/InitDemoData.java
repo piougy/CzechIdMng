@@ -262,6 +262,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				treeTypePolicy.setAuthorizableType(IdmTreeType.class.getCanonicalName());
 				treeTypePolicy.setEvaluator(BasePermissionEvaluator.class);
 				authorizationPolicyService.save(treeTypePolicy);
+				// workflow task read and execute
+				IdmAuthorizationPolicyDto workflowTaskPolicy = new IdmAuthorizationPolicyDto();
+				workflowTaskPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.EXECUTE);
+				workflowTaskPolicy.setRole(role1.getId());
+				workflowTaskPolicy.setGroupPermission(CoreGroupPermission.WORKFLOWTASK.getName());
+				workflowTaskPolicy.setEvaluator(BasePermissionEvaluator.class);
+				authorizationPolicyService.save(workflowTaskPolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//

@@ -665,7 +665,8 @@
       "ROLEREQUEST": "Agenda žádostí o role",
       "SCHEDULER": "Nastavení plánovače",
       "WORKFLOWDEFINITION": "Workflow - definice",
-      "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah"
+      "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
+      "WORKFLOWTASK": "Úkoly"
     }
   },
   "content": {
@@ -985,6 +986,16 @@
             }
           }
         }
+    },
+    "tasks": {
+      "all": {
+        "title": "Všechny úkoly",
+        "label": "Všechny úkoly"
+      },
+      "identity": {
+        "title": "Moje úkoly",
+        "label": "Moje úkoly"
+      }
     },
     "identities": {
       "header": "Uživatelé",
@@ -2423,7 +2434,12 @@
     "WorkflowTaskInstance": {
       "taskDescription": "Název úkolu",
       "taskCreated": "Datum vytvoření",
-      "id": "ID"
+      "id": "ID",
+      "taskAssignee": "Přiřazeno",
+      "filter": {
+        "createdBefore": "Úkoly vytvořené před",
+        "createdAfter": "Úkoly vytvořené po"
+      }
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Název",

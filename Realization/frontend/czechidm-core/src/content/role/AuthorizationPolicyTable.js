@@ -182,6 +182,11 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
    */
   _getBasePermissionNiceLabel(permission) {
     let _permission = permission;
+    const { allAuthorities } = this.props;
+    if (!allAuthorities) {
+      // will be refreshed after authorities are loaded
+      return null;
+    }
     if (!permission.name) {
       _permission = this._getUniqueBasePermissions(this.props.allAuthorities).get(permission);
     }

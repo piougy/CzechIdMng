@@ -28,13 +28,18 @@ public class SchedulerTestUtils {
 
 	public static IdmLongRunningTaskDto createIdmLongRunningTask(IdmScheduledTaskDto taskDto,
 			Class<? extends SchedulableTaskExecutor<Boolean>> clazz) {
+		return createIdmLongRunningTask(taskDto, clazz, true);
+	}
+	
+	public static IdmLongRunningTaskDto createIdmLongRunningTask(
+			IdmScheduledTaskDto taskDto,Class<? extends SchedulableTaskExecutor<Boolean>> clazz, boolean running) {
 		//
 		IdmLongRunningTaskDto longRunningTask = new IdmLongRunningTaskDto();
 		longRunningTask.setTaskType(clazz.getCanonicalName()); 
-		longRunningTask.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		longRunningTask.setResult(new OperationResult.Builder(running ? OperationState.RUNNING : OperationState.CREATED).build());
 		longRunningTask.setInstanceId("test_instance");
 		longRunningTask.setScheduledTask(taskDto.getId());
-		longRunningTask.setRunning(true);
+		longRunningTask.setRunning(running);
 		//
 		return longRunningTask;
 	}

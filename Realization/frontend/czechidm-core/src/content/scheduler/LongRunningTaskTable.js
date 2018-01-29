@@ -135,7 +135,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={manager}
-          showRowSelection={showRowSelection}
+          showRowSelection={ showRowSelection && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE', 'SCHEDULER_EXECUTE']) }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -175,8 +175,8 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           filterOpened={filterOpened}
           actions={
             [
-              { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this) },
-              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onCancel.bind(this) }
+              { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_EXECUTE') },
+              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onCancel.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_UPDATE') }
             ]
           }
           buttons={

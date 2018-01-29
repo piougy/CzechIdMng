@@ -121,4 +121,14 @@ public interface SchedulerManager {
 	 * @return
 	 */
 	List<Task> getAllTasksByType(Class<?> taskType);
+	
+	/**
+	 * Update scheduled task - only parameters and descriptions
+	 * 
+	 * @param taskId
+	 * @param description
+	 * @param parameters
+	 * @return
+	 */
+	Task updateTask(String taskId, Task task);
 }

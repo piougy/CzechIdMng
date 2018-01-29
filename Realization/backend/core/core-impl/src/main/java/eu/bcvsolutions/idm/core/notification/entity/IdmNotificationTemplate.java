@@ -23,7 +23,8 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  */
 @Entity
 @Table(name = "idm_notification_template", indexes = { 
-		@Index(name = "ux_idm_notification_template_code", columnList = "code", unique = true)})
+		@Index(name = "ux_idm_notification_template_code", columnList = "code", unique = true),
+		@Index(name = "idx_idm_n_template_name", columnList = "name")})
 public class IdmNotificationTemplate extends AbstractEntity implements Codeable, UnmodifiableEntity {
 
 	private static final long serialVersionUID = 4978924621333160086L;

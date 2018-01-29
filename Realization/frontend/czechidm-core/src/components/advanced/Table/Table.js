@@ -332,6 +332,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       } else {
         switch (column.props.face) {
+          case 'text': {
+            cell = (
+              <Basic.BasicTable.TextCell {...commonProps} maxLength={ column.props.maxLength }/>
+            );
+            break;
+          }
           case 'date': {
             cell = (
               <Basic.BasicTable.DateCell format={this.i18n('format.date')} {...commonProps}/>

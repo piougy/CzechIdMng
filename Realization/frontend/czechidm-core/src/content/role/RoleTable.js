@@ -42,6 +42,7 @@ class RoleTable extends Advanced.AbstractTableContent {
         showLoading: false
       });
     }));
+    this.refs.text.focus();
   }
 
   getContentKey() {

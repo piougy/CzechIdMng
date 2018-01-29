@@ -666,7 +666,7 @@
       "SCHEDULER": "Nastavení plánovače",
       "WORKFLOWDEFINITION": "Workflow - definice",
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
-      "WORKFLOWTASK": "Úkoly"
+      "WORKFLOWTASK": "Workflow úkoly"
     }
   },
   "content": {

@@ -643,7 +643,7 @@
       "SCHEDULER": "Scheduler",
       "WORKFLOWDEFINITION": "Workflow - definitions",
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
-      "WORKFLOWTASK": "Tasks"
+      "WORKFLOWTASK": "Workflow task"
 
     }
   },

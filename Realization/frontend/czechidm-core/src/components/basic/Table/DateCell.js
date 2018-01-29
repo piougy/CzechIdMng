@@ -10,8 +10,10 @@ import DefaultCell from './DefaultCell';
  * @param array[json] input data
  * @param property column key
  * @param props other optional properties
+ *
+ * @uthor Radek Tomiška
  */
-const TextCell = ({rowIndex, data, property, format, ...props}) => {
+const DateCell = ({rowIndex, data, property, format, ...props}) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   //
   return (
@@ -21,4 +23,4 @@ const TextCell = ({rowIndex, data, property, format, ...props}) => {
   );
 };
 
-export default TextCell;
+export default DateCell;

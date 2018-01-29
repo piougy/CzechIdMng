@@ -20,7 +20,7 @@ class ShortText extends AbstractComponent {
     const { text, value, maxLength, cutPointEnd, cutChar, className, rendered } = this.props;
     const _text = text || value;
     //
-    if (!rendered) {
+    if (!rendered || !_text) {
       return null;
     }
     let shortText = '';

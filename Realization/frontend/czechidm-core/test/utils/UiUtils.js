@@ -86,7 +86,7 @@ describe('UiUtils', function testUiUtils() {
     });
 
     it('- end with blank text', function test() {
-      expect(UiUtils.substringEnd('', 2, '/')).to.equal('/');
+      expect(UiUtils.substringEnd('', 2, '/')).to.equal('');
     });
 
     it('- end for null', function test() {
@@ -106,7 +106,7 @@ describe('UiUtils', function testUiUtils() {
     });
 
     it('- end with blank text with suffix', function test() {
-      expect(UiUtils.substringEnd('', 2, '/', '...')).to.equal('/');
+      expect(UiUtils.substringEnd('', 2, '/', '...')).to.equal('');
     });
 
     it('- end for null with suffix', function test() {

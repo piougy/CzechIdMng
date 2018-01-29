@@ -183,21 +183,22 @@ export default class UiUtils {
    * @return {String}
    */
   static substringBegin(data, maxLength, cutChar, suffix = '') {
-    if (data != null) {
-      if (data.length <= maxLength) {
-        suffix = '';
-      }
-      if (data.charAt(maxLength) === cutChar) {
-        const result = data.substr(0, maxLength) + suffix;
-        return result;
-      }
-      data = data + cutChar;
-      let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
-      result = result.substr(0, Math.min(result.length, result.lastIndexOf(cutChar)));
-      result = result + suffix;
+    if (data === null || data === undefined) {
+      return null;
+    }
+    if (data.length <= maxLength) {
+      return data;
+    }
+    if (data.charAt(maxLength) === cutChar) {
+      const result = data.substr(0, maxLength) + suffix;
       return result;
     }
-    return null;
+    //
+    data = data + cutChar;
+    let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
+    result = result.substr(0, Math.min(result.length, result.lastIndexOf(cutChar)));
+    result = result + suffix;
+    return result;
   }
   /**
    * Do substring on given data by max length. Substring is not on char byt on word.
@@ -206,6 +207,7 @@ export default class UiUtils {
    * Examples:
    * UiUtils.substringEnd('this/is/path', 5, '/');
    * UiUtils.substringEnd('hello/j/', 4, '/', '...')); -->'.../j/'
+   *
    * @param  {String} data
    * @param  {Number} maxLength
    * @param  {String} cutChar Character cutting words
@@ -213,17 +215,18 @@ export default class UiUtils {
    * @return {String}
    */
   static substringEnd(data, maxLength, cutChar, suffix = '') {
-    if (data != null) {
-      if (data.length <= maxLength) {
-        suffix = '';
-      }
-      data = cutChar + data;
-      let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(data.length - maxLength, data.length);
-      result = result.substr(result.indexOf(cutChar), result.length);
-      result = suffix + result;
-      return result;
+    if (data === null || data === undefined) {
+      return null;
     }
-    return null;
+    if (data.length <= maxLength) {
+      return data;
+    }
+    //
+    data = cutChar + data;
+    let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(data.length - maxLength, data.length);
+    result = result.substr(result.indexOf(cutChar), result.length);
+    result = suffix + result;
+    return result;
   }
 
   /**
@@ -234,7 +237,7 @@ export default class UiUtils {
   * @param  {Number} maxLength
   * @return {String}
   */
-  static substringByWord(data, maxLength, suffix) {
+  static substringByWord(data, maxLength, suffix = null) {
     return this.substringBegin(data, maxLength, ' ', suffix);
   }
 
@@ -251,8 +254,8 @@ export default class UiUtils {
   }
 
   /**
-   * Decode given string in base 64 to utf-8
-   *substringBegin
+   * Decode given string in base 64 to utf-8 substringBegin
+   *
    * @param  {String}
    * @return {String}
    */

@@ -98,12 +98,21 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     }
     const { taskType } = this.state;
     const entity = this.refs.form.getData();
+    const parameters = entity.parameters;
     // transform parameters
-    if (taskType.parameters) {
-      entity.parameters = {};
-      _.keys(taskType.parameters).map(parameterName => {
-        entity.parameters[parameterName] = this.refs[`parameter-${parameterName}`].getValue();
-      });
+    if (taskType) {
+      if (taskType.parameters) {
+        entity.parameters = {};
+        _.keys(taskType.parameters).map(parameterName => {
+          entity.parameters[parameterName] = this.refs[`parameter-${parameterName}`].getValue();
+        });
+      }
+    } else {
+      if (parameters) {
+        _.keys(parameters).map(parameterName => {
+          parameters[parameterName] = entity[`parameter-${parameterName}`];
+        });
+      }
     }
     //
     if (entity.dryRun) {
@@ -113,7 +122,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       this.context.store.dispatch(this.getManager().createEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     } else {
-      this.context.store.dispatch(this.getManager().patchEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
+      this.context.store.dispatch(this.getManager().updateEntity(entity, this.getUiKey(), this.afterSave.bind(this)));
     }
   }
 
@@ -451,14 +460,15 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           <form onSubmit={this.save.bind(this)}>
             <Basic.Modal.Header closeButton={!showLoading} text={detail.entity.id !== undefined ? this.i18n('action.task-edit.header') : this.i18n('action.task-create.header')}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={detail.entity.id !== undefined}>
+              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && detail.entity.id !== undefined}>
                 <Basic.EnumSelectBox
                   ref="taskType"
                   label={this.i18n('entity.SchedulerTask.taskType')}
                   options={_supportedTasks}
                   onChange={this.onChangeTaskType.bind(this)}
                   required
-                  searchable/>
+                  searchable
+                  readOnly={detail.entity.id !== undefined}/>
                 <Basic.TextArea
                   ref="description"
                   placeholder={taskType ? taskType.description : null}
@@ -468,7 +478,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   ref="instanceId"
                   label={this.i18n('entity.SchedulerTask.instanceId.label')}
                   helpBlock={this.i18n('entity.SchedulerTask.instanceId.help')}
-                  required/>
+                  required
+                  readOnly={detail.entity.id !== undefined}/>
                 {
                   (detail.entity.id === undefined && taskType && taskType.parameters && _.keys(taskType.parameters).length > 0)
                   ?
@@ -523,7 +534,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 showLoading={showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={detail.entity.id === undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
+                rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE']) && detail.entity.id === undefined || detail.entity.id !== undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

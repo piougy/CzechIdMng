@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,10 @@ import java.util.Map;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -24,19 +29,21 @@ public class Task implements BaseDto {
 
 	private static final long serialVersionUID = 1L;
 	//
+	@JsonDeserialize(as = String.class)
 	private String id; // quartz job name
 	private String module;
 	@NotEmpty
 	private String instanceId;
 	private Class<? extends SchedulableTaskExecutor<?>> taskType; // task executor class
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
-	private String description;	
+	private String description;
+	@JsonProperty(access=Access.READ_ONLY)
 	private List<AbstractTaskTrigger> triggers;
 	private Map<String, String> parameters;
 
 	public Task() {
 	}
-
+	
 	@Override
 	public String getId() {
 		return id;
@@ -64,6 +71,9 @@ public class Task implements BaseDto {
 	}
 
 	public List<AbstractTaskTrigger> getTriggers() {
+		if (triggers == null) {
+			triggers = new ArrayList<>();
+		}
 		return triggers;
 	}
 

@@ -78,14 +78,14 @@ public interface IdmPasswordService
 	String getSalt(IdmIdentityDto identity);
 
 	/**
-	 * Increase count of unsuccessful attemps
+	 * If this username exists and password is incorrect -> increase count of unsuccessful attempts
 	 *
 	 * @param username
 	 */
 	void increaseUnsuccessfulAttempts(String username);
 
 	/**
-	 * Save timestamp of last successful login
+	 * If this username exists and the password is correct -> save timestamp of login
 	 */
 	void setLastSuccessfulLogin(String username);
 }

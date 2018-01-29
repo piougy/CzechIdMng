@@ -104,7 +104,7 @@ public class DefaultIdmPasswordService
 	@Override
 	@Transactional(readOnly = true)
 	public IdmPasswordDto findOneByIdentity(String username) {
-		return this.getPasswordByIdentity(username);
+		return this.getPasswordByIdentityUsername(username);
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class DefaultIdmPasswordService
 
 	@Override
 	public void increaseUnsuccessfulAttempts(String username) {
-		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
+		IdmPasswordDto passwordDto = getPasswordByIdentityUsername(username);
 		if (passwordDto != null) {
 			passwordDto.increaseUnsuccessfulAttempts();
 			passwordDto = save(passwordDto);
@@ -133,7 +133,7 @@ public class DefaultIdmPasswordService
 
 	@Override
 	public void setLastSuccessfulLogin(String username) {
-		IdmPasswordDto passwordDto = getPasswordByIdentity(username);
+		IdmPasswordDto passwordDto = getPasswordByIdentityUsername(username);
 		if (passwordDto != null) {
 			passwordDto.setLastSuccessfulLogin(new DateTime());
 			passwordDto.resetUnsuccessfulAttempts();
@@ -153,7 +153,13 @@ public class DefaultIdmPasswordService
 		return toDto(this.repository.findOneByIdentity_Id(identityId));
 	}
 
-	private IdmPasswordDto getPasswordByIdentity(String username) {
+	/**
+	 * Method get IdmIdentityPassword by username.
+	 *
+	 * @param username
+	 * @return Object IdmIdentityPassword when password for identity was founded otherwise null.
+	 */
+	private IdmPasswordDto getPasswordByIdentityUsername(String username) {
 		Assert.notNull(username);
 		//
 		return toDto(this.repository.findOneByIdentity_username(username));

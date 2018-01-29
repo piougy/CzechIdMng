@@ -65,6 +65,8 @@ public class EntityEventProcessorController {
 				},
 			notes = "Returns all registered entity event processors with state properties (diabled, order)")
 	public List<EntityEventProcessorDto> find() {
+		// TODO fill this method!
+
 		return entityEventManager.find(null);
 	}
 }

@@ -97,11 +97,12 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			}
 		}
 		//
-		// authenticator is sorted by implement ordered, return first successs authenticate authenticator, if don't exist any otherwise throw first failure
+		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure
 		if (resultsList.isEmpty()) {
 			passwordService.increaseUnsuccessfulAttempts(loginDto.getUsername());
 			throw firstFailture;
 		}
+		passwordService.setLastSuccessfulLogin(loginDto.getUsername());
 		return resultsList.get(0);
 	}
 	

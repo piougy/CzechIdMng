@@ -18,7 +18,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  * @author svandav
  *
  */
-@Relation(collectionRelation = "workflowHistoricProcessInstances")
+//TODO: Use in the since version 8.x.x @Relation(collectionRelation = "workflowHistoricProcessInstances")
+@Relation(collectionRelation = "resources")
 public class WorkflowHistoricProcessInstanceDto implements BaseDto {
 
 	/**

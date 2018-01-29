@@ -13,7 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  * @author svandav
  *
  */
-@Relation(collectionRelation = "workflowTaskDefinitions")
+// TODO: Use in the since version 8.x.x @Relation(collectionRelation = "workflowTaskDefinitions")
+@Relation(collectionRelation = "resources")
 public class WorkflowTaskDefinitionDto implements BaseDto {
 
 	private static final long serialVersionUID = 1L;

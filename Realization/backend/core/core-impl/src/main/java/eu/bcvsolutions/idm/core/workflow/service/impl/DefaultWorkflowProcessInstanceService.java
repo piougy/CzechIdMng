@@ -164,7 +164,7 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		ResourcePage pages = search.getPage();
 		List<WorkflowProcessInstanceDto> processes = (List<WorkflowProcessInstanceDto>) search.getResources();
 		//
-		return new PageImpl<WorkflowProcessInstanceDto>(processes, pageable, pages.getTotalPages());
+		return new PageImpl<WorkflowProcessInstanceDto>(processes, pageable, pages.getTotalElements());
 	}
 	
 	@Override

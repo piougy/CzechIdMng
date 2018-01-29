@@ -175,16 +175,7 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 			}
 		}
 		
-		long pageSize = pageable != null ? pageable.getPageSize() : count;
-		
-		double totalPageDouble = ((double) count / pageSize);
-		double totlaPageFlorred = Math.floor(totalPageDouble);
-		long totalPage = 0;
-		if (totalPageDouble > totlaPageFlorred) {
-			totalPage = (long) (totlaPageFlorred + 1);
-		}
-		
-		return new PageImpl<WorkflowHistoricProcessInstanceDto>(dtos, pageable, totalPage);
+		return new PageImpl<WorkflowHistoricProcessInstanceDto>(dtos, pageable, count);
 	}
 	
 	/**

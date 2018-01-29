@@ -25,12 +25,6 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 */
 	void completeTask(String taskId, String decision);
 
-	/**
-	 * Find task instance by ID
-	 * @param taskId
-	 * @return
-	 */
-	WorkflowTaskInstanceDto get(String taskId);
 
 	void completeTask(String taskId, String decision, Map<String, String> map);
 

@@ -135,17 +135,8 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 				dtos.add(toResource(instance));
 			}
 		}
-		
-		long pageSize = pageable != null ? pageable.getPageSize() : count;
-		
-		double totalPageDouble = ((double) count / pageSize);
-		double totlaPageFlorred = Math.floor(totalPageDouble);
-		long totalPage = 0;
-		if (totalPageDouble > totlaPageFlorred) {
-			totalPage = (long) (totlaPageFlorred + 1);
-		}
 
-		return new PageImpl<WorkflowHistoricTaskInstanceDto>(dtos, pageable, totalPage);
+		return new PageImpl<WorkflowHistoricTaskInstanceDto>(dtos, pageable, count);
 	}
 	
 	@Override

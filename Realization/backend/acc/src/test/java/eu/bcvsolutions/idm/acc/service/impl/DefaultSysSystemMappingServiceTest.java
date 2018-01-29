@@ -4,6 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.DefaultTestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -18,12 +27,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.util.UUID;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 /**
  * Searching entities, using filters
@@ -31,6 +34,7 @@ import org.springframework.data.domain.Page;
  * @author Petr Hanák
  *
  */
+@Transactional
 public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest {
 
 	@Autowired private DefaultSysSystemMappingService mappingService;
@@ -83,15 +87,17 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SysSystemDto system = createSystem();
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
-		testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
+		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
 		SysSystemMappingDto mappingSystem2 = testHelper.createMappingSystem(SystemEntityType.CONTRACT, objectClass);
-		 SysSystemMappingDto mappingSystem3 = testHelper.createMappingSystem(SystemEntityType.TREE, objectClass);
+		SysSystemMappingDto mappingSystem3 = testHelper.createMappingSystem(SystemEntityType.TREE, objectClass);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
+		filter.setSystemId(system.getId());
 		filter.setEntityType(SystemEntityType.CONTRACT);
 
 		Page<SysSystemMappingDto> result = mappingService.find(filter, null, permission);
 		assertEquals(2, result.getTotalElements());
+		assertTrue(result.getContent().contains(mappingSystem1));
 		assertTrue(result.getContent().contains(mappingSystem2));
 		assertFalse(result.getContent().contains(mappingSystem3));
 	}
@@ -105,7 +111,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		SysSchemaObjectClassDto objectClass = createObjectClass(system);
 
 		SysSystemMappingDto mappingSystem1 = testHelper.createMappingSystem(entityType, objectClass);
-		SysSystemMappingDto mappingSystem2 = createProvisioningMappingSystem(SystemEntityType.TREE, objectClass);
+		createProvisioningMappingSystem(SystemEntityType.TREE, objectClass);
 		SysSystemMappingDto mappingSystem3 = createProvisioningMappingSystem(entityType, objectClass);
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();

@@ -2,19 +2,21 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertTrue;
 
-import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
+
+import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Searching entities, using filters
@@ -22,10 +24,10 @@ import org.springframework.data.domain.Page;
  * @author Petr Hanák
  *
  */
+@Transactional
 public class DefaultSysProvisioningBatchServiceTest extends AbstractIntegrationTest {
 
 	@Autowired private SysProvisioningBatchService batchService;
-	@Autowired private SysSystemService systemService;
 
 	@Before
 	public void init() {

@@ -326,10 +326,11 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	public SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass) {
 		// system mapping
 		SysSystemMappingDto mapping = new SysSystemMappingDto();
-		mapping.setName("Name" + UUID.randomUUID());
+		mapping.setName(createName());
 		mapping.setEntityType(type);
 		mapping.setObjectClass(objectClass.getId());
 		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		//
 		return mappingService.save(mapping);
 	}
 }

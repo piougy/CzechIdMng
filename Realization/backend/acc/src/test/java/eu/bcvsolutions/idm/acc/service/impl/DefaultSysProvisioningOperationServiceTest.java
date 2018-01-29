@@ -1,8 +1,18 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.UUID;
+
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.DefaultTestHelper;
@@ -21,13 +31,6 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.util.UUID;
-import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 /**
  * Searching entities, using filters
@@ -35,6 +38,7 @@ import org.springframework.data.domain.Page;
  * @author Petr Hanák
  *
  */
+@Transactional
 public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired private SysProvisioningOperationService operationService;
@@ -62,6 +66,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		SysProvisioningOperationDto provisioningOperation3 = createProvisioningOperation(SystemEntityType.CONTRACT, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
 		filter.setEntityType(SystemEntityType.CONTRACT);
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
@@ -86,6 +91,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		operationService.save(provisioningOperation3);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
 		filter.setOperationType(ProvisioningEventType.CANCEL);
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
@@ -127,6 +133,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		SysProvisioningOperationDto provisioningOperation3 = createProvisioningOperation(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
 		filter.setSystemEntityUid(provisioningOperation1.getSystemEntityUid());
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
@@ -154,6 +161,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		SysProvisioningOperationDto provisioningOperation3 = createProvisioningOperation(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
 		filter.setBatchId(provisioningBatch.getId());
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
@@ -178,6 +186,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setEntityIdentifier(provisioningOperation1.getEntityIdentifier());
+		filter.setSystemId(system.getId());
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
@@ -201,6 +210,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setResultState(OperationState.CREATED);
+		filter.setSystemId(system.getId());
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
 		assertEquals(1, result.getTotalElements());
@@ -214,13 +224,14 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		SysSystemDto system = createSystem();
 
-		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
+		createProvisioningOperation(entityType, system);
 
 		DateTime dateTime = DateTime.now();
 
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
 		filter.setFrom(dateTime);
 
 		Page<SysProvisioningOperationDto> result = operationService.find(filter, null, permission);
@@ -229,6 +240,7 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		dateTime = dateTime.minusHours(1);
 		SysProvisioningOperationFilter filter2 = new SysProvisioningOperationFilter();
+		filter2.setSystemId(system.getId());
 		filter2.setTill(dateTime);
 
 		Page<SysProvisioningOperationDto> result2 = operationService.find(filter2, null, permission);

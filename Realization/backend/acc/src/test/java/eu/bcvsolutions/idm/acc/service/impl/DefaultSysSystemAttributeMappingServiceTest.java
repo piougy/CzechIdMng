@@ -4,6 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.DefaultTestHelper;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -19,13 +28,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
-import java.util.UUID;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 /**
  * Searching entities, using filters
@@ -33,14 +35,12 @@ import org.springframework.data.domain.Page;
  * @author Petr Hanák
  *
  */
+@Transactional
 public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private TestHelper helper;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired private SysSchemaAttributeService attributeService;
 	@Autowired private SysSystemService systemService;
-	@Autowired private DefaultSysSystemMappingService mappingService;
 	@Autowired private DefaultSysSystemAttributeMappingService attributeMappingService;
 	@Autowired private DefaultTestHelper testHelper;
 

@@ -76,20 +76,20 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
-                <Basic.Row>
-                  <div className="col-lg-6">
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text')}/>
-                  </div>
-                  <div className="col-lg-6 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
+          filterOpened={ filterOpened }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
@@ -123,10 +123,30 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
             sort={false}/>
           <Advanced.Column
             property="name"
+            width="20%"
             header={this.i18n('entity.AutomaticRole.name.label')}
             sort/>
           <Advanced.Column
+            property="_embedded.role.name"
+            header={this.i18n('entity.AutomaticRole.role.label')}
+            width="25%"
+            sort
+            sortProperty="role.name"
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.role }
+                    entity={ entity._embedded.role }
+                    face="popover"/>
+                );
+              }
+            }/>
+          <Advanced.Column
             property="concept"
+            sort
             header={this.i18n('entity.AutomaticRole.attribute.concept.label')}
             cell={
               ({ rowIndex, data }) => {
@@ -139,9 +159,6 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
                 }
               }
             }/>
-          <Advanced.Column
-            property="_embedded.role.name"
-            header={this.i18n('entity.AutomaticRole.role.label')}/>
         </Advanced.Table>
       </div>
     );

@@ -1214,13 +1214,13 @@
       "title": "Automatické role",
       "header": "Automatické role",
       "tree": {
-        "header": "Automatické role z organizační struktury",
-        "title": "Automatické role z organizační struktury"
+        "header": "Automatické role dle organizační struktury",
+        "title": "Dle organizační struktury"
       },
       "emptyRules": "Nenalezeny žádné pravidla. Automatická role nebude přidělena žádným uživatelům.",
       "attribute": {
         "header": "Automatické role na základě atributu",
-        "title": "Automatické role na základě atributu",
+        "title": "Na základě atributu",
         "create": {
           "header": "Nová automatická role na základě atributu",
           "title": "Nová automatická role na základě atributu"

@@ -9,6 +9,7 @@ import AutomaticRoleAttributeRuleTable from './AutomaticRoleAttributeRuleTable';
 /**
  * Detail automatic role by attribute
  *
+ * @author Ondrej Kopr
  */
 export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent {
 
@@ -141,9 +142,10 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
   render() {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
+    //
     return (
       <div>
-        <Basic.Confirm ref="recalculate-automatic-role" level="danger"/>
+        <Basic.Confirm ref="recalculate-automatic-role" level="warning"/>
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.AbstractForm
             ref="form"
@@ -169,19 +171,28 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
             this._showConceptWarning()
           }
 
-          <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
-            <Basic.PanelHeader text={this.i18n('rules')}/>
-              <Basic.Alert level="info" text={this.i18n('automaticRoleAttributeSaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
-              <AutomaticRoleAttributeRuleTable
-                manager={this.automaticRoleAttributeRuleManager}
-                uiKey={entity ? entity.id : null}
-                rendered={!Utils.Entity.isNew(entity)}
-                attributeId={entity ? entity.id : null} />
-          </Basic.Panel>
+          <div style={{ margin: '0 15px'}}>
+            <Basic.ContentHeader className="marginable" style={{ marginBottom: 0 }}>
+              {this.i18n('rules')}
+            </Basic.ContentHeader>
+          </div>
+
+          <Basic.Alert level="info" text={this.i18n('automaticRoleAttributeSaveFirst')} rendered={Utils.Entity.isNew(entity)} />
+
+          <AutomaticRoleAttributeRuleTable
+            manager={this.automaticRoleAttributeRuleManager}
+            uiKey={entity ? entity.id : null}
+            rendered={!Utils.Entity.isNew(entity)}
+            attributeId={entity ? entity.id : null} />
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.Button type="button" level="success" onClick={this._recalculate.bind(this)} rendered={entity && entity.concept === true}>{this.i18n('content.automaticRoles.recalculate.label')}</Basic.Button>
+            <Basic.Button type="button"
+              level="warning"
+              onClick={this._recalculate.bind(this)}
+              rendered={entity && entity.concept === true}>
+              { this.i18n('content.automaticRoles.recalculate.label') }
+            </Basic.Button>
             <Basic.SplitButton
               level="success"
               title={ this.i18n('button.saveAndContinue') }
@@ -189,7 +200,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
-              rendered={Utils.Entity.isNew(entity) && SecurityManager.hasAuthority('AUTOMATICROLE_CREATE')}
+              rendered={ entity && Utils.Entity.isNew(entity) && SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') }
               dropup>
               <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
             </Basic.SplitButton>

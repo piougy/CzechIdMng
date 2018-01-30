@@ -1183,12 +1183,12 @@
       "header": "Automatic roles",
       "tree": {
         "header": "Automatic roles from organizational structure",
-        "title": "Automatic roles from organizational structure"
+        "title": "By organizational structure"
       },
       "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
       "attribute": {
         "header": "Automatic roles based on the attribute",
-        "title": "Automatic roles based on the attribute",
+        "title": "Based on the attribute",
         "create": {
           "header": "New automatic roles based on the attribute",
           "title": "New automatic roles based on the attribute"

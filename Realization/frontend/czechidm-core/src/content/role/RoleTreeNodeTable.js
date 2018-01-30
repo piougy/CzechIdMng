@@ -45,11 +45,13 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     //
     let roleId = null;
     let treeNodeId = null;
-    if (forceSearchParameters.getFilters().has('roleId')) {
-      roleId = forceSearchParameters.getFilters().get('roleId');
-    }
-    if (forceSearchParameters.getFilters().has('treeNodeId')) {
-      treeNodeId = forceSearchParameters.getFilters().get('treeNodeId');
+    if (forceSearchParameters) {
+      if (forceSearchParameters.getFilters().has('roleId')) {
+        roleId = forceSearchParameters.getFilters().get('roleId');
+      }
+      if (forceSearchParameters.getFilters().has('treeNodeId')) {
+        treeNodeId = forceSearchParameters.getFilters().get('treeNodeId');
+      }
     }
     //
     const entityFormData = _.merge({}, entity, {
@@ -58,7 +60,11 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     });
     //
     super.showDetail(entityFormData, () => {
-      this.refs.name.focus();
+      if (forceSearchParameters && forceSearchParameters.getFilters().has('roleId')) {
+        this.refs.name.focus();
+      } else {
+        this.refs.role.focus();
+      }
     });
   }
 
@@ -107,7 +113,8 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 { this.i18n('button.add') }
               </Basic.Button>
             ]
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             header=""
@@ -126,19 +133,49 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             property="name"
             header={ this.i18n('entity.AutomaticRole.name.label') }
             face="text"
-            rendered={_.includes(columns, 'name')}/>
+            width="20%"
+            rendered={_.includes(columns, 'name')}
+            sort/>
           <Advanced.Column
             property="_embedded.role.name"
-            width="40%"
+            width="25%"
             header={ this.i18n('entity.RoleTreeNode.role') }
+            sort
+            sortProperty="role.name"
             face="text"
-            rendered={_.includes(columns, 'role')}/>
+            rendered={_.includes(columns, 'role')}
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.role }
+                    entity={ entity._embedded.role }
+                    face="popover"/>
+                );
+              }
+            }/>
           <Advanced.Column
             property="_embedded.treeNode.name"
             width="40%"
             header={ this.i18n('entity.RoleTreeNode.treeNode') }
             face="text"
-            rendered={_.includes(columns, 'treeNode')}/>
+            sort
+            sortProperty="treeNode.name"
+            rendered={_.includes(columns, 'treeNode')}
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.EntityInfo
+                    entityType="treeNode"
+                    entityIdentifier={ entity.treeNode }
+                    entity={ entity._embedded.treeNode }
+                    face="popover"/>
+                );
+              }
+            }/>
           <Advanced.Column
             property="recursionType"
             header={ this.i18n('entity.RoleTreeNode.recursionType') }
@@ -235,7 +272,8 @@ RoleTreeNodeTable.defaultProps = {
 function select(state, component) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`),
-    _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`)
+    _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`),
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 

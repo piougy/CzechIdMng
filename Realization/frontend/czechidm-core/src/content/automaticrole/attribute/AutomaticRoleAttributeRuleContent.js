@@ -2,10 +2,11 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
-import { AutomaticRoleAttributeRuleManager } from '../../../redux';
+import { AutomaticRoleAttributeRuleManager, AutomaticRoleAttributeManager } from '../../../redux';
 import AutomaticRoleAttributeRuleDetail from './AutomaticRoleAttributeRuleDetail';
 
 const manager = new AutomaticRoleAttributeRuleManager();
+const automaticRoleAttributeManager = new AutomaticRoleAttributeManager();
 
 /**
  * Detail rule for automatic role by attribute
@@ -23,11 +24,12 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { ruleId } = this.props.params;
+    const { ruleId, entityId } = this.props.params;
     this.selectNavigationItems(['system', 'automatic-roles']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(manager.receiveEntity(ruleId, { }));
+      this.context.store.dispatch(automaticRoleAttributeManager.fetchEntityIfNeeded(entityId));
     } else {
       this.getLogger().debug(`[TypeContent] loading entity detail [id:${ruleId}]`);
       this.context.store.dispatch(manager.fetchEntity(ruleId));
@@ -43,7 +45,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, attribute } = this.props;
     const { entityId } = this.props.params;
     return (
       <div>
@@ -64,9 +66,9 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
             {
               this._getIsNew()
               ?
-              this.i18n('create.header')
+              <span>{ attribute ? attribute.name : ''} <small>{ this.i18n('create.header') }</small></span>
               :
-              <span>{this.i18n('edit.header')}</span>
+              <span>{ entity._embedded.automaticRoleAttribute.name } <small>{this.i18n('edit.header')}</small></span>
             }
           </Basic.PageHeader>
         }
@@ -92,10 +94,11 @@ AutomaticRoleAttributeRuleContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { ruleId } = component.params;
+  const { ruleId, entityId } = component.params;
   //
   return {
     entity: manager.getEntity(state, ruleId),
+    attribute: automaticRoleAttributeManager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, ruleId)
   };
 }

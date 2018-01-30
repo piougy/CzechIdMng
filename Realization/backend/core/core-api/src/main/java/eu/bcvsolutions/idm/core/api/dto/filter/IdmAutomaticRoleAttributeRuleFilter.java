@@ -7,8 +7,8 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
-import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 
 /**
  * Filter rules for automatic role by attribute
@@ -36,7 +36,7 @@ public class IdmAutomaticRoleAttributeRuleFilter extends DataFilter {
 	}
 	
 	public IdmAutomaticRoleAttributeRuleFilter(MultiValueMap<String, Object> data) {
-		super(AbstractIdmAutomaticRoleDto.class, data);
+		super(IdmAutomaticRoleAttributeRuleDto.class, data);
 	}
 
 	public UUID getAutomaticRoleAttributeId() {

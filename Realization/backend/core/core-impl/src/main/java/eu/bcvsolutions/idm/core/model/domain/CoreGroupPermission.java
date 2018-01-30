@@ -161,7 +161,11 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE);
+			IdmBasePermission.DELETE),
+	WORKFLOWTASK(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.READ,
+			IdmBasePermission.EXECUTE);
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	
@@ -271,12 +275,15 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_UPDATE = "AUTOMATICROLEATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_DELETE = "AUTOMATICROLEATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
 	//
-	//
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "READ";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_CREATE = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_DELETE = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "DELETE";
-	 
+	// 
+	public static final String WORKFLOW_TASK_ADMIN = "WORKFLOWTASK" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String WORKFLOW_TASK_READ = "WORKFLOWTASK" + BasePermission.SEPARATOR + "READ";
+	public static final String WORKFLOW_TASK_EXECUTE = "WORKFLOWTASK" + BasePermission.SEPARATOR + "EXECUTE";
+	
 	private final List<BasePermission> permissions;
 
 	private CoreGroupPermission(BasePermission... permissions) {

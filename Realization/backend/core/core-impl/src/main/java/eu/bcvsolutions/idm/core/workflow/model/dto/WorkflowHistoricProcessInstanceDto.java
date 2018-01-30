@@ -6,13 +6,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.engine.IdentityService;
+import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
-
+/**
+ * 
+ * @author svandav
+ *
+ */
+//TODO: Use in the since version 8.x.x @Relation(collectionRelation = "workflowHistoricProcessInstances")
+@Relation(collectionRelation = "resources")
 public class WorkflowHistoricProcessInstanceDto implements BaseDto {
 
 	/**

@@ -249,9 +249,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_CREATE'] } ],
     },
     {
-      path: 'tasks/:entityId',
-      component: require('./src/content/task/TaskInstances'),
-      access: [ { 'type': 'IS_AUTHENTICATED'}]
+      path: 'tasks/',
+      component: require('./src/content/task/TaskRoutes'),
+      access: [ { 'type': 'IS_AUTHENTICATED'}],
+      childRoutes: [
+        {
+          path: 'identity/:entityId',
+          component: require('./src/content/task/TaskInstances'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_READ'] } ]
+        },
+        {
+          path: 'all',
+          component: require('./src/content/task/TaskInstancesView'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_ADMIN'] } ]
+        }
+      ]
     },
     {
       path: 'task/:taskID',

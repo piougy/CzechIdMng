@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
   - [#920](https://redmine.czechidm.com/issues/920) - Event processor - support conditional processing. New method ``EntityEventProcessor#conditional``.
   - [#922](https://redmine.czechidm.com/issues/922) - ``IdmIdentityService#findValidByRole`` method was added - return valid identities with assigned valid role (valid contract and identity role relation).
   - [#842](https://redmine.czechidm.com/issues/842) - Add new automatic roles by attribute and refactor current automatic role by tree structure. Backward compatibility of current automatic role and assigned roles is guaranteed.
+  - Workflow task instances has permissions now. You should add ``WORKFLOWTASK_READ`` permission for default user role.
+
+### Changed
+
+  - All workflow services and controllers now using DTO layer, for more information read [#529](https://redmine.czechidm.com/issues/529).
 
 ## [7.6.1]
 

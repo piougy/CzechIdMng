@@ -1,10 +1,18 @@
 package eu.bcvsolutions.idm.core.workflow.service;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 
-public interface WorkflowHistoricTaskInstanceService {
+/**
+ * Service for control workflow task instances.
+ * 
+ * @author svandav
+ *
+ */
+
+public interface WorkflowHistoricTaskInstanceService extends ReadDtoService<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto> {
 
 	public static final String SORT_BY_CREATE_TIME = "createTime";
 	public static final String SORT_BY_END_TIME = "endTime";
@@ -15,6 +23,7 @@ public interface WorkflowHistoricTaskInstanceService {
 	 * @param filter
 	 * @return
 	 */
+	@Deprecated
 	ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter);
 
 	/**

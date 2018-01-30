@@ -675,7 +675,8 @@
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
       "WORKFLOWDEFINITION": "Workflow - definitions",
-      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
+      "WORKFLOWTASK": "Workflow task"
 
     }
   },
@@ -989,6 +990,16 @@
             "message": "Do you really want to delete roles"
           }
         }
+      }
+    },
+    "tasks": {
+      "all": {
+        "title": "All tasks",
+        "label": "All tasks"
+      },
+      "identity": {
+        "title": "My tasks",
+        "label": "My tasks"
       }
     },
     "identities": {
@@ -2495,7 +2506,12 @@
     "WorkflowTaskInstance": {
       "taskDescription": "Subject",
       "taskCreated": "Created on",
-      "id": "Task Id"
+      "id": "Task Id",
+      "taskAssignee": "Assigned",
+      "filter": {
+        "createdBefore": "Tasks created before",
+        "createdAfter": "Tasks created after"
+      }
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Process name",
@@ -2944,7 +2960,7 @@
     },
     "FORBIDDEN": {
       "title": "Insufficient permissions",
-      "message": "You do not have insufficient permissions for selected action."
+      "message": "You do not have sufficient permissions for selected action."
     },
     "FORBIDDEN_ENTITY": {
       "title": "Insufficient permissions",

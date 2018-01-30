@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service;
 import java.io.InputStream;
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 /**
@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
  * @author svandav
  *
  */
-public interface WorkflowProcessDefinitionService extends ReadWriteDtoService<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
+public interface WorkflowProcessDefinitionService extends ReadDtoService<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
 	
 	public static final String SORT_BY_KEY = "key";
 	public static final String SORT_BY_NAME = "name";

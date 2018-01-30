@@ -27,6 +27,7 @@ class Task extends Basic.AbstractContent {
   componentDidMount() {
     this.selectNavigationItem('tasks');
     const { taskID } = this.props.params;
+    this.context.store.dispatch(workflowTaskInstanceManager.fetchPermissions(taskID, null));
     this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID, null, (json, error) => {
       if (error) {
         // task isn't exists or is solved
@@ -94,7 +95,11 @@ class Task extends Basic.AbstractContent {
     return (
       <div>
         {task ?
-        <DetailComponent task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly}/>
+        <DetailComponent
+          task={task}
+          uiKey="dynamic-task-detail"
+          taskManager={workflowTaskInstanceManager}
+          readOnly={readOnly}/>
         :
         <Basic.Well showLoading/>
         }
@@ -116,7 +121,6 @@ Task.defaultProps = {
 function select(state, component) {
   const { taskID } = component.params;
   const task = workflowTaskInstanceManager.getEntity(state, taskID);
-
   return {
     task
   };

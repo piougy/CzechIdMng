@@ -332,6 +332,14 @@ export default class EntityManager {
           permissions,
           uiKey
         });
+        // load permissions to default ui key - refresh
+        dispatch({
+          type: RECEIVE_PERMISSIONS,
+          id,
+          entityType: this.getEntityType(),
+          permissions,
+          uiKey: this.resolveUiKey(null, id)
+        });
         if (cb) {
           cb();
         }

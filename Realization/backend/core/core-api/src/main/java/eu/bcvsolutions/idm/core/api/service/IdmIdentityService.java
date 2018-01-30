@@ -171,5 +171,4 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	IdentityState evaluateState(UUID identityId);
-	
 }

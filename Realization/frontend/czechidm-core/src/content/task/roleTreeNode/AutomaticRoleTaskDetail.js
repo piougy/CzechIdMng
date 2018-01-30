@@ -11,6 +11,7 @@ import RecursionTypeEnum from '../../../enums/RecursionTypeEnum';
 const roleManager = new RoleManager();
 const treeNodeManager = new TreeNodeManager();
 
+const AUTOMATIC_ROLE_BY_ATTRIBUTE = 'eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto';
 /**
  * Custom task detail for approve automatic role
  *
@@ -30,7 +31,7 @@ class AutomaticRoleTaskDetail extends DynamicTaskDetail {
     const {task, taskManager} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
-
+    const automaticRoleByAttribute = task.variables.entityEvent.eventClassType === AUTOMATIC_ROLE_BY_ATTRIBUTE;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -51,6 +52,9 @@ class AutomaticRoleTaskDetail extends DynamicTaskDetail {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<small>{ taskManager.getNiceLabel(task) }</small>}/>
           <Basic.AbstractForm data={ task.variables.entityEvent.content } readOnly style={{ padding: '15px 15px 0px 15px' }}>
+            <Basic.TextField
+              ref="name"
+              label={ this.i18n('entity.AutomaticRole.name.label')}/>
             <Basic.SelectBox
               ref="role"
               label={ this.i18n('entity.RoleTreeNode.role')}
@@ -58,12 +62,14 @@ class AutomaticRoleTaskDetail extends DynamicTaskDetail {
             <Basic.SelectBox
               ref="treeNode"
               label={ this.i18n('entity.RoleTreeNode.treeNode')}
-              manager={ treeNodeManager }/>
+              manager={ treeNodeManager }
+              hidden={automaticRoleByAttribute}/>
             <Basic.EnumSelectBox
               ref="recursionType"
               enum={RecursionTypeEnum}
               label={this.i18n('entity.RoleTreeNode.recursionType')}
-              required/>
+              required
+              hidden={automaticRoleByAttribute}/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)}/>

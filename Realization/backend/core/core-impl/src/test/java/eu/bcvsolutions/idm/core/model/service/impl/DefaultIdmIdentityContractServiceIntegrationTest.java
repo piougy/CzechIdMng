@@ -133,6 +133,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	 * @return
 	 */
 	private IdmRoleTreeNodeDto saveAutomaticRole(IdmRoleTreeNodeDto automaticRole, boolean withLongRunningTask) {
+		automaticRole.setName("default"); // default name
 		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.saveInternal(automaticRole);
 		//
 		if (withLongRunningTask) {

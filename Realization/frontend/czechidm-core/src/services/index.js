@@ -42,6 +42,8 @@ import RecaptchaService from './RecaptchaService';
 import LoggingEventService from './LoggingEventService';
 import LoggingEventExceptionService from './LoggingEventExceptionService';
 import ConfidentialStorageValueService from './ConfidentialStorageValueService';
+import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
+import AutomaticRoleAttributeRuleService from './AutomaticRoleAttributeRuleService';
 import LongRunningTaskItemService from './LongRunningTaskItemService';
 
 const ServiceRoot = {
@@ -89,6 +91,8 @@ const ServiceRoot = {
   LoggingEventService,
   LoggingEventExceptionService,
   ConfidentialStorageValueService,
+  AutomaticRoleAttributeService,
+  AutomaticRoleAttributeRuleService,
   LongRunningTaskItemService
 };
 

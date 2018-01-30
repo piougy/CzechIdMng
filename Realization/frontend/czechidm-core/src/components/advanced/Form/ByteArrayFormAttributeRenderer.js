@@ -26,7 +26,7 @@ export default class ByteArraFormAttributeRenderer extends TextAreaFormAttribute
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.byteValue;
+    return formValue.byteValue ? formValue.byteValue : formValue.value;
   }
 
   /**

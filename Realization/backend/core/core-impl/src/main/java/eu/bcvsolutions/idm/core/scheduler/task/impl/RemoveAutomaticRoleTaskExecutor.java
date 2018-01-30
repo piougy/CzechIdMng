@@ -14,6 +14,8 @@ import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -22,6 +24,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -47,10 +51,12 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveAutomaticRoleTaskExecutor.class);
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
 	
 	/**
 	 * Automatic role removal can be start, if previously LRT ended.
@@ -59,49 +65,59 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	public void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
+		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
+		if (automaticRole == null) {
+			// get from automatic role attribute service
+			automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
+		}
+		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
-		service.find(filter, null).forEach(longRunningTask -> {
-			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
+		//
+		for (IdmLongRunningTaskDto longRunningTask : service.find(filter, null)) {
+			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY,
 						ImmutableMap.of(
-								"roleTreeNode", roleTreeNode.getId().toString(),
+								"roleTreeNode", automaticRole.getId().toString(),
 								"taskId", longRunningTask.getId().toString()));
 			}
-		});
+		}
+		//
 		filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
-		service.find(filter, null).forEach(longRunningTask -> {
-			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
+		for (IdmLongRunningTaskDto longRunningTask : service.find(filter, null)) {
+			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
 						ImmutableMap.of(
-								"roleTreeNode", roleTreeNode.getId().toString(),
+								"roleTreeNode", automaticRole.getId().toString(),
 								"taskId", longRunningTask.getId().toString()));
 			}
-		});
+		}
 	}
 	
 	@Override
 	public Boolean process() {
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
-		if (roleTreeNode == null) {
+		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
+		if (automaticRole == null) {
+			automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
+		}
+		if (automaticRole == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
 		//
 		// TODO: pageable?
-		List<IdmIdentityRoleDto> list = identityRoleService.findByAutomaticRole(roleTreeNode.getId(), null).getContent();
+		List<IdmIdentityRoleDto> list = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
 		//
 		counter = 0L;
 		count = Long.valueOf(list.size());
 		//
-		IdmRoleDto role = roleService.get(roleTreeNode.getRole());
-		LOG.debug("[RemoveAutomaticRoleTaskExecutor] Remove role [{}] by automatic role [{}]. Count: [{}]", role.getCode(), roleTreeNode.getId(), count);		
+		IdmRoleDto role = roleService.get(automaticRole.getRole());
+		LOG.debug("[RemoveAutomaticRoleTaskExecutor] Remove role [{}] by automatic role [{}]. Count: [{}]", role.getCode(), automaticRole.getId(), count);		
 		//
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityRoleDto identityRole : list) {
-			IdmRoleRequestDto roleRequest = roleTreeNodeService.prepareRemoveAutomaticRoles(identityRole, Sets.newHashSet(roleTreeNode));
+			IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, Sets.newHashSet(automaticRole));
 			roleRequest = roleRequestService.startRequest(roleRequest.getId(), false);
 			if (roleRequest.getState() != RoleRequestState.EXCEPTION) {
 				counter++;
@@ -116,11 +132,11 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			}
 		}
 		if (!failedIdentities.isEmpty()) {
-			LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), roleTreeNode.getId(), counter, count);
+			LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), automaticRole.getId(), counter, count);
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE, 
 					ImmutableMap.of(
 							"role", role.getCode(),
-							"roleTreeNode", roleTreeNode.getId(),
+							"roleTreeNode", automaticRole.getId(),
 							"identities", StringUtils.join(failedIdentities, ",")));
 		}
 		if (!canContinue) {
@@ -129,31 +145,40 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		}
 		// Find all concepts and remove relation on role tree
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
-		conceptRequestFilter.setRoleTreeNodeId(roleTreeNode.getId());
-		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
+		conceptRequestFilter.setAutomaticRole(automaticRole.getId());
+		//
+		List<IdmConceptRoleRequestDto> concepts = conceptRequestService.find(conceptRequestFilter, null).getContent();
+		for (IdmConceptRoleRequestDto concept : concepts) {
 			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
 						"Role tree node [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
-						roleTreeNode.getId(), concept.getId());
+						automaticRole.getId(), concept.getId());
 			} else {
 				message = MessageFormat.format(
 						"Request change in concept [{0}], was not executed, because requested RoleTreeNode [{1}] was deleted (not from this role request)!",
-						concept.getId(), roleTreeNode.getId());
+						concept.getId(), automaticRole.getId());
 				concept.setState(RoleRequestState.CANCELED);
 			}
 			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
-			concept.setRoleTreeNode(null);
-
+			concept.setAutomaticRole(null);
+			
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
-		});
+		}
 		//
 		// delete entity
-		roleTreeNodeService.deleteInternalById(roleTreeNode.getId());
-		LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), roleTreeNode.getId(), counter, count);
+		if (automaticRole instanceof IdmRoleTreeNodeDto) {
+			roleTreeNodeService.deleteInternalById(automaticRole.getId());
+		} else {
+			// remove all rules
+			automaticRoleAttributeRuleService.deleteAllByAttribute(automaticRole.getId());
+			automaticRoleAttributeService.deleteInternalById(automaticRole.getId());
+		}
+		//
+		LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), automaticRole.getId(), counter, count);
 		//
 		return Boolean.TRUE;
 	}

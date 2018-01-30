@@ -47,7 +47,7 @@ export default class RoleSelectFormAttributeRenderer extends UuidFormAttributeRe
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.uuidValue;
+    return formValue.uuidValue ? formValue.uuidValue : formValue.value;
   }
 
   /**

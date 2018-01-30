@@ -611,6 +611,39 @@
       "EXCLUDED": "Vyňat z evidenčního počtu",
       "DISABLED": "$t(label.disabled)"
     },
+    "AutomaticRoleAttributeRuleTypeEnum": {
+      "IDENTITY": "Atribut identity",
+      "IDENITITY_EAV": "Rozšířený atribut identity",
+      "CONTRACT": "Attribut pracovního úvazku",
+      "CONTRACT_EAV": "Rozšířený atribut pracovního úvazku"
+    },
+    "AutomaticRoleAttributeRuleComparisonEnum": {
+      "EQUALS": "Rovná se"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "FIRSTNAME": "Jméno (String)",
+      "LASTNAME": "Příjmení (String)",
+      "TITLE_BEFORE": "Titul před (String)",
+      "TITLE_AFTER": "Titul za (String)",
+      "DESCRIPTION": "Poznámka (String)",
+      "PHONE": "Telefon (String)",
+      "EMAIL": "Email (String)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
+      "VALID_FROM": "Platnost od (LocalDate)",
+      "VALID_TILL": "Platnost do (LocalDate)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
+      "POSITION": "Název pozice (String)",
+      "EXTERNE": "Externista (boolean)",
+      "MAIN": "Hlavní vztah (boolean)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "STATE": "Stav (ContractState - String)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Vytvořen(a)",
       "NO_CONTRACT": "Bez úvazku",
@@ -1164,6 +1197,54 @@
       },
       "tabs": {
         "basic": "Základní informace"
+      }
+    },
+    "automaticRoles": {
+      "title": "Automatické role",
+      "header": "Automatické role",
+      "tree": {
+        "header": "Automatické role z organizační struktury",
+        "title": "Automatické role z organizační struktury"
+      },
+      "emptyRules": "Nenalezeny žádné pravidla. Automatická role nebude přidělena žádným uživatelům.",
+      "attribute": {
+        "header": "Automatické role na základě atributu",
+        "title": "Automatické role na základě atributu",
+        "create": {
+          "header": "Nová automatická role na základě atributu",
+          "title": "Nová automatická role na základě atributu"
+        },
+        "edit": {
+          "header": "Editace automatické role na základě atributu",
+          "title": "Editace automatické role na základě atributu"
+        },
+        "rules": "Pravidla",
+        "automaticRoleAttributeSaveFirst": "Pro přidání jednotlivých pravidel, je potřeba nejdřívě automatickou roli uložit.",
+        "rule": {
+          "create": {
+            "header": "Nové pravidlo",
+            "title": "Nové pravidlo"
+          },
+          "edit": {
+            "header": "Editace pravidla",
+            "title": "Editace pravidla"
+          },
+          "filter": {
+            "text": "Název atributu, nebo hodnota"
+          }
+        },
+        "save": {
+          "success": "Uložení nové automatické role na základě atributu proběhlo úspešně.",
+          "recalculate": "Automatická role [{{name}}] bude přepočítána. Přiřazení role identitám proběhne asynchronně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
+        },
+        "filter": {
+          "text": "Název automatické role, nebo role"
+        }
+      },
+      "recalculate": {
+        "label": "Přepočet",
+        "header": "Přepočet této automatické role na základě attributu?",
+        "message": "<b>Ano:</b> Přiřazení role bude provedeno nyní jako nová dlouho trvajicí úloha.<br /><b>Ne:</b> Tato konfigurace bude uložena jako koncept."
       }
     },
     "formDefinitions": {
@@ -2280,6 +2361,34 @@
       "treeNode": "Prvek stromové struktury",
       "recursionType": "Typ rekurze"
     },
+    "AutomaticRole": {
+      "name": {
+          "label": "Název",
+          "help": "Název je použit pro jednoduší identifikaci automatické role."
+      },
+      "role": {
+        "label": "Role",
+        "help": "Selected role will be assigned to identities base on specified Rules."
+      },
+      "attribute": {
+        "type": {
+          "label": "Typ kontrolovaného atributu",
+          "help": "Pro tento typ atributu bude kontrolována hodnota pravidla"
+        },
+        "concept": {
+          "label": "Koncept",
+          "info": "Koncept",
+          "help": "Tato automatická role je koncept. Stiskněte tlačítko 'Přepočet' pro přidělení role uživatelům."
+        },
+        "attributeName": "Název atributu",
+        "comparison": "Typ porovnání",
+        "formAttribute": "Atribut formuláře",
+        "value": {
+            "label": "Hodnota",
+            "help": "Hodnota s kterou se bude porovnávat hodnota v atributu."
+        }
+      }
+    },
     "AuthorizationPolicy": {
       "_type": "Oprávnění",
       "role": "Role",
@@ -3197,6 +3306,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Prvek stromové struktury nelze odebrat",
       "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
+    },
+    "ROLE_TREE_NODE_TYPE_EXISTS": {
+      "title": "Podobná definice automatické role již existuje",
+      "message": "Pro tuto roli, prvek stromové struktury a typ rekurze již existuje prvek."
     },
     "IDENTITY_ALREADY_DISABLED_MANUALLY": {
       "title": "Uživatel je již deaktivován",

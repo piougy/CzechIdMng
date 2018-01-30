@@ -58,6 +58,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
  */
 @Component("testHelper")
 public class DefaultTestHelper implements TestHelper {
+	
+	public static String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
@@ -197,6 +199,7 @@ public class DefaultTestHelper implements TestHelper {
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
+		roleTreeNode.setName(DEFAULT_AUTOMATIC_ROLE_NAME);
 		if (skipLongRunningTask) {
 			return roleTreeNodeService.saveInternal(roleTreeNode);
 		}

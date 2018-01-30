@@ -68,10 +68,10 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	
 	@Audited
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "role_tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "automatic_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmRoleTreeNode roleTreeNode;
+	private IdmAutomaticRole automaticRole;
 	
 	@Audited
 	@Column(name = "valid_from")
@@ -180,12 +180,12 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 		this.log = log;
 	}
 
-	public IdmRoleTreeNode getRoleTreeNode() {
-		return roleTreeNode;
+	public IdmAutomaticRole getAutomaticRole() {
+		return automaticRole;
 	}
 
-	public void setRoleTreeNode(IdmRoleTreeNode roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
+	public void setAutomaticRole(IdmAutomaticRole automaticRole) {
+		this.automaticRole = automaticRole;
 	}
 	
 }

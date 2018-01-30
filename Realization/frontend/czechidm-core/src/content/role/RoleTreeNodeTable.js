@@ -58,7 +58,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     });
     //
     super.showDetail(entityFormData, () => {
-      this.refs.role.focus();
+      this.refs.name.focus();
     });
   }
 
@@ -123,6 +123,11 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column
+            property="name"
+            header={ this.i18n('entity.AutomaticRole.name.label') }
+            face="text"
+            rendered={_.includes(columns, 'name')}/>
+          <Advanced.Column
             property="_embedded.role.name"
             width="40%"
             header={ this.i18n('entity.RoleTreeNode.role') }
@@ -164,6 +169,12 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                   label={this.i18n('entity.RoleTreeNode.role')}
                   readOnly={!Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role')}
                   required/>
+                <Basic.TextField
+                  ref="name"
+                  required
+                  readOnly={!Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'name')}
+                  label={this.i18n('entity.AutomaticRole.name.label')}
+                  helpBlock={this.i18n('entity.AutomaticRole.name.help')}/>
                 <Basic.SelectBox
                   ref="treeNode"
                   manager={treeNodeManager}
@@ -216,7 +227,7 @@ RoleTreeNodeTable.propTypes = {
 };
 
 RoleTreeNodeTable.defaultProps = {
-  columns: ['role', 'treeNode', 'recursionType'],
+  columns: ['name', 'role', 'treeNode', 'recursionType'],
   forceSearchParameters: null,
   _showLoading: false
 };

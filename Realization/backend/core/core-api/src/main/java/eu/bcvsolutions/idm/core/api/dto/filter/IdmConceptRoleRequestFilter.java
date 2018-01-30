@@ -21,7 +21,7 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     private UUID identityRoleId;
     private UUID roleId;
     private UUID identityContractId;
-    private UUID roleTreeNodeId;
+    private UUID automaticRole;
     private ConceptRoleRequestOperation operation;
     
     public IdmConceptRoleRequestFilter() {
@@ -72,20 +72,38 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
         this.identityContractId = identityContractId;
     }
 
-    public UUID getRoleTreeNodeId() {
-        return roleTreeNodeId;
-    }
+    public UUID getAutomaticRole() {
+		return automaticRole;
+	}
 
-    public void setRoleTreeNodeId(UUID roleTreeNodeId) {
-        this.roleTreeNodeId = roleTreeNodeId;
-    }
+	public void setAutomaticRole(UUID automaticRole) {
+		this.automaticRole = automaticRole;
+	}
 
-    public ConceptRoleRequestOperation getOperation() {
+	public ConceptRoleRequestOperation getOperation() {
         return operation;
     }
 
     public void setOperation(ConceptRoleRequestOperation operation) {
         this.operation = operation;
+    }
+    
+    /**
+     * @deprecated since 7.7.0 use {@link #getAutomaticRole()}
+     * @return
+     */
+    @Deprecated
+    public UUID getRoleTreeNodeId() {
+    	return getAutomaticRole();
+    }
+    
+    /**
+     * @deprecated since 7.7.0 use {@link #setAutomaticRole(UUID)}
+     * @param roleTreeNodeId
+     */
+    @Deprecated
+    public void setRoleTreeNodeId(UUID roleTreeNodeId) {
+    	setAutomaticRole(roleTreeNodeId);
     }
 
 }

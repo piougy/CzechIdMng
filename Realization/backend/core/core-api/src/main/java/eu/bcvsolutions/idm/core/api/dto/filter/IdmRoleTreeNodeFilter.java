@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 
 /**
@@ -12,10 +13,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
  *
  * @author Radek Tomiška
  */
-public class IdmRoleTreeNodeFilter extends DataFilter {
+public class IdmRoleTreeNodeFilter extends IdmAutomaticRoleFilter {
 
-    private UUID roleId;
     private UUID treeNodeId;
+    
+    private RecursionType recursionType;
     
     public IdmRoleTreeNodeFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -25,14 +27,6 @@ public class IdmRoleTreeNodeFilter extends DataFilter {
 		super(IdmRoleTreeNodeDto.class, data);
 	}
 
-    public UUID getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(UUID roleId) {
-        this.roleId = roleId;
-    }
-
     public UUID getTreeNodeId() {
         return treeNodeId;
     }
@@ -40,5 +34,13 @@ public class IdmRoleTreeNodeFilter extends DataFilter {
     public void setTreeNodeId(UUID treeNodeId) {
         this.treeNodeId = treeNodeId;
     }
+
+	public RecursionType getRecursionType() {
+		return recursionType;
+	}
+
+	public void setRecursionType(RecursionType recursionType) {
+		this.recursionType = recursionType;
+	}
 
 }

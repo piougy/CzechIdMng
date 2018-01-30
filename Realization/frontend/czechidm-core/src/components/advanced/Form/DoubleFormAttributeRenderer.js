@@ -40,6 +40,6 @@ export default class DoubleFormAttributeRenderer extends TextFormAttributeRender
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.doubleValue;
+    return formValue.doubleValue ? formValue.doubleValue : formValue.value;
   }
 }

@@ -30,7 +30,7 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.dateValue;
+    return formValue.dateValue ? formValue.dateValue : formValue.value;
   }
 
   renderSingleInput() {

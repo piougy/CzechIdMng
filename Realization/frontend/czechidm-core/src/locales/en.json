@@ -588,6 +588,39 @@
       "EXCLUDED": "Excluded",
       "DISABLED": "$t(label.disabled)"
     },
+    "AutomaticRoleAttributeRuleTypeEnum": {
+      "IDENTITY": "Identity attribute",
+      "IDENITITY_EAV": "Extended attribute of identity",
+      "CONTRACT": "Contract attribute",
+      "CONTRACT_EAV": "Extended attribute of contract"
+    },
+    "AutomaticRoleAttributeRuleComparisonEnum": {
+      "EQUALS": "Equals"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "User name (String)",
+      "DISABLED": "Disabled (boolean)",
+      "FIRSTNAME": "First name (String)",
+      "LASTNAME": "Surname (String)",
+      "TITLE_BEFORE": "Title before (String)",
+      "TITLE_AFTER": "Title after (String)",
+      "DESCRIPTION": "Description (String)",
+      "PHONE": "Phone (String)",
+      "EMAIL": "Email (String)"
+    },
+    "ContractAttributeEnum": {
+      "IDENTITY": "Owner (IdmIdentity - Id or username)",
+      "VALID_FROM": "Valid from (LocalDate)",
+      "VALID_TILL": "Valid till (LocalDate)",
+      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
+      "POSITION": "Name of position (String)",
+      "EXTERNE": "Externe (boolean)",
+      "MAIN": "Main relation (boolean)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)",
+      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "STATE": "State (ContractState - String)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Created",
       "NO_CONTRACT": "No contract",
@@ -1143,6 +1176,54 @@
       },
       "tabs": {
         "basic": "Basic information"
+      }
+    },
+    "automaticRoles": {
+      "title": "Automatic roles",
+      "header": "Automatic roles",
+      "tree": {
+        "header": "Automatic roles from organizational structure",
+        "title": "By organizational structure"
+      },
+      "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
+      "attribute": {
+        "header": "Automatic roles based on the attribute",
+        "title": "Based on the attribute",
+        "create": {
+          "header": "New automatic roles based on the attribute",
+          "title": "New automatic roles based on the attribute"
+        },
+        "edit": {
+          "header": "Edit automatic roles based on the attribute",
+          "title": "Edit automatic roles based on the attribute"
+        },
+        "rules": "Rules",
+        "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
+        "rule": {
+          "create": {
+            "header": "New rule",
+            "title": "New rule"
+          },
+          "edit": {
+            "header": "Rule edit",
+            "title": "Rule edit"
+          },
+          "filter": {
+            "text": "Name of attribute or value"
+          }
+        },
+        "save": {
+          "success": "Save new automatic role based on the attribute was successfully.",
+          "recalculate": "Automatic role [{{name}}] will be recalculated. Assign role to identities run asynchronously. You can see progress in long running tasks agenda."
+        },
+        "filter": {
+          "text": "Name of automatic role or role name"
+        }
+      },
+      "recalculate": {
+        "label": "Recalculation",
+        "header": "Recalculate the automatic role based on attributes?",
+        "message": "<b>Yes:</b> Role assignment to users will start now as a new long running task.<br /><b>No:</b> This configuration will be saved as a concept."
       }
     },
     "formDefinitions": {
@@ -2254,6 +2335,34 @@
       "treeNode": "Tree node",
       "recursionType": "Recursion type"
     },
+    "AutomaticRole": {
+      "name": {
+          "label": "Name",
+          "help": "The name is used to easily identify the automatic role."
+      },
+      "role": {
+        "label": "Role",
+        "help": "Selected role will be assigned to identities base on specified Rules."
+      },
+      "attribute": {
+        "type": {
+          "label": "Type of checked attribute",
+          "help": "For this attribute type, the value of the rule will be checked"
+        },
+        "concept": {
+          "label": "Concept",
+          "info": "Concept",
+          "help": "This automatic role is a Concept. Push 'Recalculation' to assign the role to the users."
+        },
+        "attributeName": "Attribute name",
+        "comparison": "Comparison type",
+        "formAttribute": "Form attribute",
+        "value": {
+            "label": "Value",
+            "help": "The value with which the value in the attribute will be compared."
+          }
+      }
+    },
     "AuthorizationPolicy": {
       "_type": "Permission",
       "role": "Role",
@@ -3173,6 +3282,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
       "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+    },
+    "ROLE_TREE_NODE_TYPE_EXISTS": {
+      "title": "A similar definition of an automatic role already exists",
+      "message": "For this role, the tree structure element and recursion type already exists element."
     },
     "IDENTITY_ALREADY_DISABLED_MANUALLY": {
       "title": "User is already deactivated",

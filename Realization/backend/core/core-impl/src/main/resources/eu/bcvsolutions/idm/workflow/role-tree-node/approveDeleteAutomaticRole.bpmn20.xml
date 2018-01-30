@@ -4,18 +4,18 @@
     <documentation>Workflow for approving delete automatic role by guarantee
 
 Input variables:
-- entityEvent: event with roleTreeNode:</documentation>
+- entityEvent: event with automatic role (roleTreeNode, automaticRoleAttribute):</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
     <userTask id="usertask1" name="Approve delete automatic role" activiti:candidateUsers="${guarantees}" activiti:formKey="role-tree-node-task-detail">
-      <documentation>Approve delete automatic role [${roleService.get(entityEvent.content.role, null).getName()}] on tree node [${treeNodeService.get(entityEvent.content.treeNode, null).getName()}]</documentation>
+      <documentation>Approve delete automatic role [${entityEvent.content.name}] with role [${roleService.get(entityEvent.content.role, null).getName()}]</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <endEvent id="endevent1" name="End"></endEvent>
-    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Delete automatic role ${roleService.get(entityEvent.content.role, null).getName()} on tree node ${treeNodeService.get(entityEvent.content.treeNode, null).getName()} " activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Delete automatic role ${entityEvent.content.name} with role ${roleService.get(entityEvent.content.role, null).getName()}" activiti:resultVariableName="processInstanceName"></serviceTask>
     <serviceTask id="servicetask2" name="Continue entity event processing" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <endEvent id="endevent2" name="End"></endEvent>

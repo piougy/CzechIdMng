@@ -1,8 +1,6 @@
 import { Enums } from 'czechidm-core';
-import IdentityAttributeEnum from './IdentityAttributeEnum';
 import TreeAttributeEnum from './TreeAttributeEnum';
 import RoleAttributeEnum from './RoleAttributeEnum';
-import ContractAttributeEnum from './ContractAttributeEnum';
 import RoleCatalogueAttributeEnum from './RoleCatalogueAttributeEnum';
 
 /**
@@ -59,7 +57,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
 
     switch (sym) {
       case this.IDENTITY: {
-        return IdentityAttributeEnum;
+        return Enums.IdentityAttributeEnum;
       }
       case this.TREE: {
         return TreeAttributeEnum;
@@ -71,7 +69,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
         return RoleCatalogueAttributeEnum;
       }
       case this.CONTRACT: {
-        return ContractAttributeEnum;
+        return Enums.ContractAttributeEnum;
       }
       default: {
         return null;

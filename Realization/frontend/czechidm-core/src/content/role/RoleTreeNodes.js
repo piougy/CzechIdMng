@@ -39,7 +39,7 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
         <Basic.Panel className="no-border last">
           <RoleTreeNodeTableComponent
             uiKey="role-tree-nodes-table"
-            forceSearchParameters={forceSearchParameters}
+            forceSearchParameters={ forceSearchParameters }
             columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'role') }/>
         </Basic.Panel>
 

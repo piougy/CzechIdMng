@@ -66,6 +66,7 @@ public class IdentitySaveProcessor
 		GuardedString password = identity.getPassword();
 		
 		identity = service.saveInternal(identity);
+		//
 		event.setContent(identity);
 		//
 		// save password

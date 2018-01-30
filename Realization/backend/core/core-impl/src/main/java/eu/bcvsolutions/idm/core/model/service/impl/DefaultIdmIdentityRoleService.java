@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -12,6 +13,8 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +22,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -37,6 +47,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
+import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -55,19 +66,84 @@ public class DefaultIdmIdentityRoleService
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
 	private final IdmIdentityRoleRepository repository;
+	private final LookupService lookupService;
+	private final IdmAutomaticRoleRepository automaticRoleRepository;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository repository,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			LookupService lookupService,
+			IdmAutomaticRoleRepository automaticRoleRepository) {
 		super(repository, entityEventManager);
 		//
+		Assert.notNull(lookupService);
+		Assert.notNull(automaticRoleRepository);
+		//
 		this.repository = repository;
+		this.lookupService = lookupService;
+		this.automaticRoleRepository = automaticRoleRepository;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITYROLE, getEntityClass());
+	}
+	
+	@Override
+	protected IdmIdentityRoleDto toDto(IdmIdentityRole entity, IdmIdentityRoleDto dto) {
+		if (entity == null) {
+			return null;
+		}
+		//
+		// field automatic role exists in entity but not in dto
+		TypeMap<IdmIdentityRole, IdmIdentityRoleDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
+		if (typeMap == null) {
+			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
+			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
+			typeMap.addMappings(new PropertyMap<IdmIdentityRole, IdmIdentityRoleDto>() {
+				
+				@Override
+				protected void configure() {
+					this.skip().setAutomaticRole(this.source.getAutomaticRole() != null);
+				}
+			});
+		}
+		//
+		if (dto == null) {
+			dto = modelMapper.map(entity, this.getDtoClass(entity));
+		} else {
+			modelMapper.map(entity, dto);
+		}
+		//
+		IdmAutomaticRole automaticRole = entity.getAutomaticRole();
+		if (automaticRole != null) {
+			dto.setRoleTreeNode(automaticRole.getId());
+			dto.setAutomaticRole(true);
+			BaseDto baseDto = null;
+			Map<String, BaseDto> embedded = dto.getEmbedded();
+			if (automaticRole instanceof IdmAutomaticRoleAttribute) {
+				baseDto = lookupService.getDtoService(IdmAutomaticRoleAttributeDto.class).get(automaticRole.getId());
+			} else {
+				baseDto = lookupService.getDtoService(IdmRoleTreeNodeDto.class).get(automaticRole.getId());
+			}
+			embedded.put("roleTreeNode", baseDto);
+			dto.setEmbedded(embedded);
+		}
+		//
+		return dto;
+	}
+	
+	@Override
+	protected IdmIdentityRole toEntity(IdmIdentityRoleDto dto, IdmIdentityRole entity) {
+		IdmIdentityRole resultEntity = super.toEntity(dto, entity);
+		// set additional automatic role
+		if (resultEntity != null && dto.getRoleTreeNode() != null) {
+			// it isn't possible use lookupService entity lookup
+			IdmAutomaticRole automaticRole = automaticRoleRepository.findOne(dto.getRoleTreeNode());
+			resultEntity.setAutomaticRole(automaticRole);
+		}
+		return resultEntity;
 	}
 	
 	/**
@@ -161,6 +237,19 @@ public class DefaultIdmIdentityRoleService
 							)
 					);
 		}
+		//
+		// is automatic role
+		if (filter.getAutomaticRole() != null) {
+			predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
+		}
+		//
+		if (filter.getAutomaticRoleId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.automaticRole).get(IdmAutomaticRole_.id), 
+					filter.getAutomaticRoleId())
+					);
+		}
+		//
 		return predicates;
 	}
 	
@@ -180,8 +269,8 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmIdentityRoleDto> findByAutomaticRole(UUID roleTreeNodeId, Pageable pageable) {
-		return toDtoPage(repository.findByRoleTreeNode_Id(roleTreeNodeId, pageable));
+	public Page<IdmIdentityRoleDto> findByAutomaticRole(UUID automaticRoleId, Pageable pageable) {
+		return toDtoPage(repository.findByAutomaticRole_Id(automaticRoleId, pageable));
 	}
 	
 	@Override

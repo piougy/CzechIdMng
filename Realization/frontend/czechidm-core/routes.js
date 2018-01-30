@@ -401,6 +401,33 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_CREATE'] } ],
     },
     {
+      path: 'automatic-role/',
+      component: require('./src/content/automaticrole/AutomaticRoleRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'attributes',
+          component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+        },
+        {
+          path: 'trees',
+          component: require('./src/content/automaticrole/tree/AutomaticRoleTrees'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'automatic-role/attributes/:entityId',
+      component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+    },
+    {
+      path: 'automatic-role/attributes/:entityId/rule/:ruleId',
+      component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRuleContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
+    },
+    {
       path: 'forms',
       component: require('./src/content/form/FormDefinitions'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]

@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.workflow.permissions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -11,7 +13,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
@@ -22,10 +23,10 @@ import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -347,7 +348,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// helpdesk role and identity
 		IdmRoleDto helpdeskRole = helper.createRole();
 		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
-		// add role dirctly
+		// add role directly
 		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 		
@@ -404,6 +405,204 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(taskCount + 2, taksCountAfter);
 	}
 	
+	@Test
+	public void testCompleteTaskByStarter() {
+		// approve only by help desk
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		//
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = helper.createIdentity();
+		//
+		IdmRoleDto role = helper.createRole();
+		//
+		// helpdesk role and identity
+		IdmRoleDto helpdeskRole = helper.createRole();
+		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		// add role directly
+		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		
+		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		
+		loginAsNoAdmin(test1.getUsername());
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+		
+		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+		
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+		
+		try { 
+			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
+			fail("This user: " + test1.getUsername() + " can't approve task.");
+		} catch (ResultCodeException ex) { 
+			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+		
+		loginAsNoAdmin(helpdeskIdentity.getUsername());
+		try { 
+			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
+		} catch (ResultCodeException ex) { 
+			fail("User has permission to approve task. Error message: " + ex.getLocalizedMessage());
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+	}
+	
+	@Test
+	public void testCompleteTaskByAnotherUser() {
+		// approve only by help desk
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = helper.createIdentity();
+		IdmIdentityDto test2 = helper.createIdentity();
+		//
+		IdmRoleDto role = helper.createRole();
+		//
+		// helpdesk role and identity
+		IdmRoleDto helpdeskRole = helper.createRole();
+		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		// add role directly
+		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		
+		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		
+		loginAsNoAdmin(test1.getUsername());
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+		
+		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+		
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+		
+		try { 
+			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
+			fail("This user: " + test1.getUsername() + " can't approve task.");
+		} catch (ResultCodeException ex) { 
+			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+		
+		loginAsNoAdmin(test2.getUsername());
+		try { 
+			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
+			fail("This user: " + test1.getUsername() + " can't approve task.");
+		} catch (ResultCodeException ex) { 
+			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+	}
+	
+	@Test
+	public void testCompleteTaskByPreviosApprover() {
+		// approve only by help desk
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		//
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = helper.createIdentity();
+		IdmIdentityDto guarantee = helper.createIdentity();
+		
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto role = helper.createRole();
+		role.setPriority(priority);		
+		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
+		roleGuarantee.setRole(role.getId());
+		roleGuarantee.setGuarantee(guarantee.getId());
+		role.getGuarantees().add(roleGuarantee);
+		role = roleService.save(role);
+		// set approve by guarantee
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority, APPROVE_ROLE_BY_GUARANTEE_KEY);
+		//
+		// helpdesk role and identity
+		IdmRoleDto helpdeskRole = helper.createRole();
+		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		// add role directly
+		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		
+		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		
+		loginAsNoAdmin(test1.getUsername());
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+		
+		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+		
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+		
+		try { 
+			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
+			fail("This user: " + test1.getUsername() + " can't approve task.");
+		} catch (ResultCodeException ex) { 
+			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+		
+		loginAsNoAdmin(helpdeskIdentity.getUsername());
+		try { 
+			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
+		} catch (ResultCodeException ex) { 
+			fail("User has permission to approve task. Error message: " + ex.getLocalizedMessage());
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+		
+		loginAsNoAdmin(helpdeskIdentity.getUsername());
+		try { 
+			completeTasksFromUsers(guarantee.getUsername(), "approve");
+			fail("This user: " + helpdeskIdentity.getUsername() + " can't approve task.");
+		} catch (ResultCodeException ex) { 
+			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+		
+		loginAsNoAdmin(test1.getUsername());
+		try { 
+			completeTasksFromUsers(guarantee.getUsername(), "approve");
+			fail("This user: " + test1.getUsername() + " can't approve task.");
+		} catch (ResultCodeException ex) { 
+			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+		
+		loginAsNoAdmin(guarantee.getUsername());
+		try { 
+			completeTasksFromUsers(guarantee.getUsername(), "approve");
+		} catch (ResultCodeException ex) { 
+			fail("User has permission to approve task. Error message: " + ex.getLocalizedMessage());
+		} catch (Exception e) { 
+			fail("Some problem: " + e.getLocalizedMessage());
+		}
+	}
+	
 	/**
 	 * Return {@link WorkflowHistoricProcessInstanceDto} for current logged user
 	 * 
@@ -436,10 +635,26 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision) {
 		IdmIdentityDto identity = identityService.getByUsername(user);
 		List<WorkflowTaskInstanceDto> tasks;
-		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(1, tasks.size());
 		assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
 		
 		workflowTaskInstanceService.completeTask(tasks.get(0).getId(), decision);
+	}
+	
+	/**
+	 * Complete all tasks from user given in parameters. Complete will be done by currently logged user.
+	 * 
+	 * @param approverUser
+	 * @param decision
+	 */
+	private void completeTasksFromUsers(String approverUser, String decision) {
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(approverUser);
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		//
+		for (WorkflowTaskInstanceDto task : tasks) { 
+			workflowTaskInstanceService.completeTask(task.getId(), decision);
+		}
 	}
 }

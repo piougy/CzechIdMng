@@ -41,6 +41,8 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 	private boolean sendOnlyIfNotNull = false;
 	@JsonIgnore
 	private UUID schemaAttribute = null;
+	@JsonIgnore
+	private boolean cached = true;
 
 	public String getName() {
 		return name;
@@ -191,5 +193,19 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 		this.setDisabledDefaultAttribute(disabled);
 		
 	}
+
+	@Override
+	@JsonIgnore
+	public boolean isCached() {
+		return cached;
+	}
+
+	@Override
+	@JsonIgnore
+	public void setCached(boolean cached) {
+		this.cached = cached;
+	}
+	
+	
 
 }

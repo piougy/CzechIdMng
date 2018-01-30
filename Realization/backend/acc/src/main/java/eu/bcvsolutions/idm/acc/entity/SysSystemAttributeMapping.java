@@ -113,6 +113,10 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	@Column(name = "send_on_password_change", nullable = false)
 	private boolean sendOnPasswordChange = false;
 	
+	@Audited
+	@Column(name = "attribute_cached", nullable = false)
+	private boolean cached = true;
+	
 	public String getIdmPropertyName() {
 		return idmPropertyName;
 	}
@@ -239,5 +243,13 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	
 	public void setSendOnPasswordChange(boolean sendOnPasswordChange) {
 		this.sendOnPasswordChange = sendOnPasswordChange;
+	}
+
+	public boolean isCached() {
+		return cached;
+	}
+
+	public void setCached(boolean cached) {
+		this.cached = cached;
 	}
 }

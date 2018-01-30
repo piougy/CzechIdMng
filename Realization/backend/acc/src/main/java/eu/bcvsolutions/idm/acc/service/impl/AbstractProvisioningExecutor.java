@@ -987,6 +987,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				if (!highestPriorityAttribute.isDisabledDefaultAttribute()) {
 					// Default values (values from schema attribute handling)
 					highestPriorityAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+					highestPriorityAttribute.setCached(defaultAttribute.isCached());
 					highestPriorityAttribute
 							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
 					// Add modified attribute to final list

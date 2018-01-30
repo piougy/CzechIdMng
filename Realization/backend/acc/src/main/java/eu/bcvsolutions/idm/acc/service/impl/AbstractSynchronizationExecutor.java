@@ -1669,6 +1669,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if(attribute == null || icAttributes == null) {
 			return null;
 		}
+		
+		// If is attribute marked as not "cached", then none cache is using
+		if(!attribute.isCached()) {
+			return systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
+		}
+		
 		AttributeValueWrapperDto key = new AttributeValueWrapperDto(attribute, icAttributes);
 		ValueWrapper value = this.getCachedValue(key);
 		if(value != null) {

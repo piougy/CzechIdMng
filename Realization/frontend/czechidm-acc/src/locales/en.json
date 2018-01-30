@@ -718,6 +718,10 @@
         "label": "Disabled",
         "tooltip": "Disabled attribute will not be used in provisioning in default state. It can still be overload and activated in roles."
       },
+      "cached": {
+        "label": "The value is cached",
+        "help": "The attribute value will be saved and read from the cache. At this moment, it is used only <strong>in sync</strong>. The key is this attribute and attributes from the end system (IcAttribute). The value is the transformed value from the end system."
+      },
       "sendOnPasswordChange": {
         "label": "Include on password change",
         "help": "Send this attribute into provisioning, when password is changed."

@@ -66,4 +66,8 @@ public interface AttributeMapping extends BaseDto {
 
 	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull);
 
+	boolean isCached();
+
+	void setCached(boolean cached);
+
 }

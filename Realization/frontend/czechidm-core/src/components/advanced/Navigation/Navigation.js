@@ -61,14 +61,13 @@ export class Navigation extends Basic.AbstractContent {
         $('#content-wrapper').css('min-height', (height) + 'px');
       }
     });
-    /*
-    TODO: default menu collapse by url? Now is setted by react
-    var url = window.location;
-    var element = $('ul.nav a').filter(function() {
-        return this.href === url || url.href.indexOf(this.href) === 0;
+    // TODO: default menu collapse by url? Now is setted by react
+    /* const url = window.location;
+    const element = $('ul.nav a').filter(() => {
+      return this.href === url || url.href.indexOf(this.href) === 0;
     }).addClass('active').parent().parent().addClass('in').parent();
     if (element.is('li')) {
-        element.addClass('active');
+      element.addClass('active');
     }*/
   }
 

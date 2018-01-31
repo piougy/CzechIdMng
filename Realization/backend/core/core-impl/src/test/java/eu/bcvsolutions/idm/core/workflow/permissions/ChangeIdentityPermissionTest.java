@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -442,7 +443,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
 			fail("This user: " + test1.getUsername() + " can't approve task.");
 		} catch (ResultCodeException ex) { 
-			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+			assertTrue(CoreResultCode.FORBIDDEN.name().equals(ex.getError().getError().getStatusEnum()));
 		} catch (Exception e) { 
 			fail("Some problem: " + e.getLocalizedMessage());
 		}
@@ -495,7 +496,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
 			fail("This user: " + test1.getUsername() + " can't approve task.");
 		} catch (ResultCodeException ex) { 
-			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+			assertTrue(CoreResultCode.FORBIDDEN.name().equals(ex.getError().getError().getStatusEnum()));
 		} catch (Exception e) { 
 			fail("Some problem: " + e.getLocalizedMessage());
 		}
@@ -505,7 +506,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
 			fail("This user: " + test1.getUsername() + " can't approve task.");
 		} catch (ResultCodeException ex) { 
-			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+			assertTrue(CoreResultCode.FORBIDDEN.name().equals(ex.getError().getError().getStatusEnum()));
 		} catch (Exception e) { 
 			fail("Some problem: " + e.getLocalizedMessage());
 		}
@@ -559,7 +560,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			completeTasksFromUsers(helpdeskIdentity.getUsername(), "approve");
 			fail("This user: " + test1.getUsername() + " can't approve task.");
 		} catch (ResultCodeException ex) { 
-			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+			assertTrue(CoreResultCode.FORBIDDEN.name().equals(ex.getError().getError().getStatusEnum()));
 		} catch (Exception e) { 
 			fail("Some problem: " + e.getLocalizedMessage());
 		}
@@ -578,7 +579,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			completeTasksFromUsers(guarantee.getUsername(), "approve");
 			fail("This user: " + helpdeskIdentity.getUsername() + " can't approve task.");
 		} catch (ResultCodeException ex) { 
-			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+			assertTrue(CoreResultCode.FORBIDDEN.name().equals(ex.getError().getError().getStatusEnum()));
 		} catch (Exception e) { 
 			fail("Some problem: " + e.getLocalizedMessage());
 		}
@@ -588,7 +589,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			completeTasksFromUsers(guarantee.getUsername(), "approve");
 			fail("This user: " + test1.getUsername() + " can't approve task.");
 		} catch (ResultCodeException ex) { 
-			assertTrue(ex.getLocalizedMessage().contains("You do not have permission for execute task with ID"));
+			assertTrue(CoreResultCode.FORBIDDEN.name().equals(ex.getError().getError().getStatusEnum()));
 		} catch (Exception e) { 
 			fail("Some problem: " + e.getLocalizedMessage());
 		}

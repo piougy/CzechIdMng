@@ -124,11 +124,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				testUser2 = this.identityService.save(testUser2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
 			
-				IdmTreeTypeDto type = new IdmTreeTypeDto();
-				type.setCode("ROOT_TYPE");
-				type.setName("ROOT_TYPE");
-				type = this.treeTypeService.save(type);
-				
+				IdmTreeTypeDto type = this.treeTypeService.get(rootOrganization.getTreeType());
 				
 				IdmTreeNodeDto organization = new IdmTreeNodeDto();
 				organization.setCode("test");

@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 @Table(name = "idm_identity_role", indexes = {
 		@Index(name = "idx_idm_identity_role_ident_c", columnList = "identity_contract_id"),
 		@Index(name = "idx_idm_identity_role_role", columnList = "role_id"),
-		@Index(name = "idx_idm_identity_role_aut_r", columnList = "role_tree_node_id")
+		@Index(name = "idx_idm_identity_role_aut_r", columnList = "automatic_role_id")
 })
 public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, AuditSearchable {
 
@@ -54,17 +54,12 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
-	@NotNull
-	@Audited
-	@Column(name = "automatic_role", nullable = false)
-	private boolean automaticRole = false;
-	
 	@Audited
 	@ManyToOne
-	@JoinColumn(name = "role_tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "automatic_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmRoleTreeNode roleTreeNode; // Assigned role depends on automatic role
+	private IdmAutomaticRole automaticRole; // Assigned role depends on automatic role
 	
 	@Audited
 	@Column(name = "valid_from")
@@ -121,27 +116,14 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 		this.identityContract = identityContract;
 	}
 	
-	/**
-	 * Assigned role depends on automatic role
-	 * 
-	 * @return
-	 */
-	public IdmRoleTreeNode getRoleTreeNode() {
-		return roleTreeNode;
-	}
-	
-	public void setRoleTreeNode(IdmRoleTreeNode roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
-	}
-
-	public boolean isAutomaticRole() {
+	public IdmAutomaticRole getAutomaticRole() {
 		return automaticRole;
 	}
 
-	public void setAutomaticRole(boolean automaticRole) {
+	public void setAutomaticRole(IdmAutomaticRole automaticRole) {
 		this.automaticRole = automaticRole;
 	}
-	
+
 	/**
 	 * Check if this entity is valid from now
 	 * @return

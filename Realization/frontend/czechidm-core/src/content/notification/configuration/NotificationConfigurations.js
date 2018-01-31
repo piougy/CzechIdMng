@@ -33,6 +33,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
   componentDidMount() {
     this.selectNavigationItems(['notification', 'notification-configurations']);
     this.context.store.dispatch(manager.fetchSupportedNotificationTypes());
+    this.refs.filterForm.focus();
   }
 
   getManager() {
@@ -258,6 +259,10 @@ export default connect(select)(NotificationConfigurations);
  */
 class Filter extends Advanced.Filter {
 
+  focus() {
+    this.refs.text.focus();
+  }
+
   render() {
     const { onSubmit, onCancel, supportedNotificationTypes } = this.props;
     //
@@ -265,35 +270,35 @@ class Filter extends Advanced.Filter {
       <Advanced.Filter onSubmit={ onSubmit }>
         <Basic.AbstractForm ref="filterForm">
           <Basic.Row>
-            <div className="col-lg-4">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={this.i18n('entity.NotificationConfiguration.topic')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
               <Advanced.Filter.EnumSelectBox
                 ref="level"
                 placeholder={this.i18n('entity.NotificationConfiguration.level')}
                 enum={NotificationLevelEnum}/>
-            </div>
-            <div className="col-lg-4">
-              <Advanced.Filter.TextField
-                ref="text"
-                placeholder={this.i18n('entity.NotificationConfiguration.topic')}/>
-            </div>
-            <div className="col-lg-4 text-right">
+            </Basic.Col>
+            <Basic.Col lg={ 4 } className="text-right">
               <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
-            </div>
+            </Basic.Col>
           </Basic.Row>
-          <Basic.Row>
-            <div className="col-lg-4">
+          <Basic.Row className="lact">
+            <Basic.Col lg={ 4 }>
               <Advanced.Filter.EnumSelectBox
                 ref="notificationType"
                 placeholder={this.i18n('entity.NotificationConfiguration.notificationType')}
                 options={!supportedNotificationTypes ? null : supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}/>
-            </div>
-            <div className="col-lg-4">
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
               <Advanced.Filter.SelectBox
                 ref="template"
                 placeholder={this.i18n('entity.NotificationConfiguration.template')}
                 multiSelect={false}
                 manager={notificationTemplateManager}/>
-            </div>
+            </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>

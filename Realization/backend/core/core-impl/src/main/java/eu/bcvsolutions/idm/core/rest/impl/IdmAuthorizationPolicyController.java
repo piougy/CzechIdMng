@@ -214,7 +214,7 @@ public class IdmAuthorizationPolicyController extends AbstractReadWriteDtoContro
 	}
 	
 	/**
-	 * Returns all registered tasks
+	 * Returns all registered evaluators
 	 * 
 	 * @return
 	 */

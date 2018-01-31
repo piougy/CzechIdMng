@@ -39,6 +39,8 @@ import SmsManager from './SmsManager';
 import LoggingEventManager from './LoggingEventManager';
 import LoggingEventExceptionManager from './LoggingEventExceptionManager';
 import ConfidentialStorageValueManager from './ConfidentialStorageValueManager';
+import AutomaticRoleAttributeManager from './AutomaticRoleAttributeManager';
+import AutomaticRoleAttributeRuleManager from './AutomaticRoleAttributeRuleManager';
 import LongRunningTaskItemManager from './LongRunningTaskItemManager';
 
 const ManagerRoot = {
@@ -83,6 +85,8 @@ const ManagerRoot = {
   LoggingEventManager,
   LoggingEventExceptionManager,
   ConfidentialStorageValueManager,
+  AutomaticRoleAttributeManager,
+  AutomaticRoleAttributeRuleManager,
   LongRunningTaskItemManager
 };
 

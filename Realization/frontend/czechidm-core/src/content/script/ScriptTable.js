@@ -23,8 +23,14 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     // true - open
     // false - close
     this.state = {
-      filterOpened: false
+      filterOpened: props.filterOpened
     };
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.refs.text.focus();
   }
 
   getManager() {
@@ -83,14 +89,14 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     // this is necessary for ScriptDetail
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/scripts/${uuidId}?new=1`);
+      this.context.router.push(`/scripts/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push('/scripts/' + entity.id);
+      this.context.router.push(`/scripts/${entity.id}/detail`);
     }
   }
 
   render() {
-    const { uiKey, scriptManager } = this.props;
+    const { uiKey, scriptManager, disableAdd, forceSearchParameters } = this.props;
     const { filterOpened } = this.state;
     //
     return (
@@ -104,6 +110,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
           manager={scriptManager}
           showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          forceSearchParameters={forceSearchParameters}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -133,7 +140,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
+          filterOpened={ filterOpened }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
@@ -143,9 +150,13 @@ export class ScriptTable extends Advanced.AbstractTableContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
-                      rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                hidden={disableAdd}
+                onClick={this.showDetail.bind(this, {})}
+                rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -167,7 +178,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="code" sort />
+          <Advanced.ColumnLink to="scripts/:id/detail" property="code" sort />
           <Advanced.Column property="name" sort />
           <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
           <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
@@ -185,10 +196,13 @@ export class ScriptTable extends Advanced.AbstractTableContent {
 
 ScriptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  scriptManager: PropTypes.object.isRequired
+  scriptManager: PropTypes.object.isRequired,
+  disableAdd: PropTypes.boolean,
+  forceSearchParameters: PropTypes.object
 };
 
 ScriptTable.defaultProps = {
+  disableAdd: false
 };
 
 function select(state, component) {

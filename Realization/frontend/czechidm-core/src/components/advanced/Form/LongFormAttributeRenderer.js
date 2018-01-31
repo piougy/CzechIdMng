@@ -47,6 +47,6 @@ export default class LongFormAttributeRenderer extends TextFormAttributeRenderer
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.longValue;
+    return formValue.longValue ? formValue.longValue : formValue.value;
   }
 }

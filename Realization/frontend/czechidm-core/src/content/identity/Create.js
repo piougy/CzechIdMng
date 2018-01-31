@@ -7,7 +7,6 @@ import Joi from 'joi';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
-import ValidationMessage from './ValidationMessage';
 
 const identityManager = new IdentityManager();
 
@@ -16,7 +15,7 @@ const identityManager = new IdentityManager();
  *
  * @author Radek Tomiška
  */
-class Profile extends Basic.AbstractContent {
+class Create extends Basic.AbstractContent {
 
   constructor(props) {
     super(props);
@@ -254,7 +253,7 @@ class Profile extends Basic.AbstractContent {
                     newPasswordAgain={passwordAgain}/>
                 </div>
                 <Basic.Panel className="col-lg-5 no-border">
-                  <ValidationMessage error={validationError} />
+                  <Advanced.ValidationMessage error={validationError} />
                 </Basic.Panel>
               </Basic.AbstractForm>
 
@@ -278,10 +277,10 @@ class Profile extends Basic.AbstractContent {
   }
 }
 
-Profile.propTypes = {
+Create.propTypes = {
   userContext: React.PropTypes.object
 };
-Profile.defaultProps = {
+Create.defaultProps = {
   userContext: null
 };
 
@@ -291,4 +290,4 @@ function select(state) {
   };
 }
 
-export default connect(select)(Profile);
+export default connect(select)(Create);

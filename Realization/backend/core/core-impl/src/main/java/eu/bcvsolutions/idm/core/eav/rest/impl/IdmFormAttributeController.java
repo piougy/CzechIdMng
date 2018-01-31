@@ -104,6 +104,26 @@ public class IdmFormAttributeController extends AbstractReadWriteDtoController<I
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_ATTRIBUTE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete form attributes (selectbox usage)", 
+			nickname = "autocompleteFormAttributes", 
+			tags = { IdmFormAttributeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_ATTRIBUTE_READ + "')")
 	@ApiOperation(

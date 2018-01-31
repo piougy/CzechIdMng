@@ -29,9 +29,10 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
     private UUID role;
     private LocalDate validFrom;
     private LocalDate validTill;
+    @Deprecated
     private boolean automaticRole;
-    @Embedded(dtoClass = IdmRoleTreeNodeDto.class)
-    private UUID roleTreeNode;
+    @Embedded(dtoClass = AbstractIdmAutomaticRoleDto.class)
+    private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
 
     public IdmIdentityRoleDto() {
     }
@@ -80,10 +81,12 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
         this.role = role;
     }
 
+    @Deprecated
     public boolean isAutomaticRole() {
         return automaticRole;
     }
 
+    @Deprecated
     public void setAutomaticRole(boolean automaticRole) {
         this.automaticRole = automaticRole;
     }

@@ -17,6 +17,7 @@ export default class WorkflowHistoricProcessInstanceManager extends EntityManage
   }
 
   getCollectionType() {
+    // Use in the version 8.x.x return 'workflowHistoricProcessInstances';
     return 'resources';
   }
 }

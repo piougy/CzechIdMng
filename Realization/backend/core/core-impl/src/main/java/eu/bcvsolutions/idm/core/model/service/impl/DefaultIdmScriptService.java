@@ -10,18 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -44,7 +47,9 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
+import eu.bcvsolutions.idm.core.model.entity.IdmScript_;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassesType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServiceType;
@@ -53,6 +58,7 @@ import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptType;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -118,11 +124,8 @@ public class DefaultIdmScriptService
 	}
 	
 	@Override
-	protected Page<IdmScript> findEntities(IdmScriptFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return getRepository().findAll(pageable);
-		}
-		return repository.find(filter, pageable);
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.SCRIPT, getEntityClass());
 	}
 
 	@Override
@@ -141,6 +144,7 @@ public class DefaultIdmScriptService
 	}
 
 	@Override
+	@Transactional
 	public void deleteInternal(IdmScriptDto dto) {
 		// remove all IdmScriptAuthority for this script
 		scriptAuthorityService.deleteAllByScript(dto.getId());
@@ -149,6 +153,7 @@ public class DefaultIdmScriptService
 	}
 
 	@Override
+	@Transactional
 	public IdmScriptDto save(IdmScriptDto dto, BasePermission... permission) {
 		if (dto.getScript() != null) {
 			groovyScriptService.validateScript(dto.getScript());
@@ -214,6 +219,7 @@ public class DefaultIdmScriptService
 		IdmScriptType type = dtoToType(dto, this.scriptAuthorityService.find(filter, null).getContent());
 		//
 		File file = new File(getBackupFileName(directory, dto));
+		LOG.info("Backup for script code: [{}] to file: [{}]", dto.getCode(), file.getAbsolutePath());
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
@@ -271,7 +277,8 @@ public class DefaultIdmScriptService
 							if (locationScripts.containsKey(scriptType.getCode())) {
 								LOG.error("More scripts with code [{}], category [{}] found on the same location [{}].",
 										scriptType.getCode(),
-										scriptType.getCategory());
+										scriptType.getCategory(),
+										location);
 							}
 							// last one wins
 							locationScripts.put(scriptType.getCode(), scriptType);
@@ -482,5 +489,36 @@ public class DefaultIdmScriptService
 		scriptAuthorityService.deleteAllByScript(oldScript.getId());
 		scriptAuthorityService.saveAll(authorityTypeToDto(newScript, oldScript));
 		return this.save(oldScript);
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmScript> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmScriptFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// quick - "fulltext"
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(IdmScript_.code)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmScript_.description)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmScript_.name)), "%" + filter.getText().toLowerCase() + "%")			
+					));
+		}
+		//code name of script
+		if (StringUtils.isNotEmpty(filter.getCode())) {
+			predicates.add(builder.equal(root.get(IdmScript_.code), filter.getCode()));
+		}
+		//description of script
+		if (StringUtils.isNotEmpty(filter.getDescription())) {
+			predicates.add(builder.like(builder.lower(root.get(IdmScript_.description)),( "%" + filter.getDescription().toLowerCase() + "%")));
+		}
+		//category of script
+		if (filter.getCategory() != null) {
+			predicates.add(builder.equal(root.get(IdmScript_.category), filter.getCategory()));
+		}
+		//usedIn of script - finds in which scripts is used in
+		if (StringUtils.isNotEmpty(filter.getUsedIn())) {
+			predicates.add(builder.like(root.get(IdmScript_.script),( "%setScriptCode('" + filter.getUsedIn() + "')%")));
+		}
+		//
+		return predicates;
 	}
 }

@@ -22,6 +22,12 @@ export class TemplateTable extends Advanced.AbstractTableContent {
     };
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.refs.text.focus();
+  }
+
   getContentKey() {
     return 'content.notificationTemplate';
   }

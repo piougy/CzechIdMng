@@ -4,6 +4,12 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
 import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
 
+/**
+ * Confirm dialog
+ * - onSubmit - func is called on button click ('confirm' / 'reject')
+ *
+ * @author Vít Švanda
+ */
 class Confirm extends AbstractContextComponent {
 
   constructor(props, context) {
@@ -15,8 +21,8 @@ class Confirm extends AbstractContextComponent {
 
   confirm() {
     let canContinue = true;
-    if (this.state.func) {
-      canContinue = this.state.func('confirm', this);
+    if (this.state.onSubmit) {
+      canContinue = this.state.onSubmit('confirm', this);
     }
     if (canContinue) {
       this.state.dispatch(true);
@@ -26,8 +32,8 @@ class Confirm extends AbstractContextComponent {
 
   reject() {
     let canContinue = true;
-    if (this.state.func) {
-      canContinue = this.state.func('reject', this);
+    if (this.state.onSubmit) {
+      canContinue = this.state.onSubmit('reject', this);
     }
     if (canContinue) {
       this.state.dispatch(false);
@@ -41,7 +47,7 @@ class Confirm extends AbstractContextComponent {
     });
   }
 
-  show(message, title, func) {
+  show(message, title, onSubmit) {
     const promise = new Promise((resolve, reject) => {
       this.setState({
         dispatch: (result) => {
@@ -57,7 +63,7 @@ class Confirm extends AbstractContextComponent {
       show: true,
       message,
       title,
-      func
+      onSubmit
     }, () => {
       this.refs.yesButton.focus();
     });
@@ -92,7 +98,7 @@ class Confirm extends AbstractContextComponent {
 Confirm.propTypes = {
   ...AbstractContextComponent.propTypes,
   /**
-   * if cvonfirm dialog is shown
+   * if confirm dialog is shown
    */
   show: PropTypes.bool,
   level: Button.propTypes.level

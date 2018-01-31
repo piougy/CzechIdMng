@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.config.domain;
 import static eu.bcvsolutions.idm.core.api.utils.EntityUtils.getFirstFieldInClassHierarchy;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyMapping;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -17,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 
 /**
  * Converter for transform fields (marked with {@link Embedded} annotation) from BaseEntity to UUID 
@@ -28,10 +31,15 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 
 	private ModelMapper modeler;
+	private LookupService lookupService;
+	private ApplicationContext applicationContext;
 
-	public EntityToUuidConverter(ModelMapper modeler) {
+	public EntityToUuidConverter(ModelMapper modeler, ApplicationContext applicationContext) {
 		Assert.notNull(modeler, "Modeler is required!");
+		Assert.notNull(applicationContext, "Application context is required!");
+		//
 		this.modeler = modeler;
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -59,7 +67,14 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 							// If has field Embedded (enabled) annotation, then
 							// we will create new
 							// instance of DTO
-							AbstractDto dto = embeddedAnnotation.dtoClass().newInstance();
+							//
+							AbstractDto dto = null;
+							// If dto class is abstract get dto from lookup
+							if (Modifier.isAbstract(embeddedAnnotation.dtoClass().getModifiers())) {
+								dto = (AbstractDto) getLookupService().lookupDto(entity.getClass(), entity.getId());
+							} else {
+								dto = embeddedAnnotation.dtoClass().newInstance();
+							}
 							dto.setTrimmed(true);
 							// Separate map entity to new embedded DTO
 							modeler.map(entity, dto);
@@ -75,5 +90,12 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 			return (UUID) context.getSource().getId();
 		}
 		return null;
+	}
+	
+	private LookupService getLookupService() {
+		if (this.lookupService == null) {
+			this.lookupService = this.applicationContext.getBean(LookupService.class);
+		}
+		return this.lookupService;
 	}
 }

@@ -1,6 +1,6 @@
 # WorkflowProcessInfo Component
 
-Information about WF. If WF doesn't exist, then short WF's idenfifier will be shown.
+Information about WF. If WF doesn't exist, then short WF's identifier will be shown.
 
 ## Parameters
 

@@ -40,6 +40,6 @@ export default class UuidFormAttributeRenderer extends TextFormAttributeRenderer
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    return formValue.uuidValue;
+    return formValue.uuidValue ? formValue.uuidValue : formValue.value;
   }
 }

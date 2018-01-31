@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -164,7 +165,7 @@ public class HrEndContractProcessIntegrationTest extends AbstractHrProcessIntegr
 	}
 
 	private void addRolesToContract(IdmIdentityContractDto contract) {
-		roleService.find(null).forEach(role -> {
+		roleService.find(new PageRequest(0, 5)).forEach(role -> {
 			IdmIdentityRoleDto d = new IdmIdentityRoleDto();
 			d.setRole(role.getId());
 			d.setAutomaticRole(false);

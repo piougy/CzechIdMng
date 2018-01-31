@@ -61,14 +61,13 @@ export class Navigation extends Basic.AbstractContent {
         $('#content-wrapper').css('min-height', (height) + 'px');
       }
     });
-    /*
-    TODO: default menu collapse by url? Now is setted by react
-    var url = window.location;
-    var element = $('ul.nav a').filter(function() {
-        return this.href === url || url.href.indexOf(this.href) === 0;
+    // TODO: default menu collapse by url? Now is setted by react
+    /* const url = window.location;
+    const element = $('ul.nav a').filter(() => {
+      return this.href === url || url.href.indexOf(this.href) === 0;
     }).addClass('active').parent().parent().addClass('in').parent();
     if (element.is('li')) {
-        element.addClass('active');
+      element.addClass('active');
     }*/
   }
 
@@ -168,33 +167,44 @@ export class Navigation extends Basic.AbstractContent {
       if (levelItem.type !== 'DYNAMIC' && levelItem.type !== 'SEPARATOR') {
         continue;
       }
-      const children = this.renderSidebarItems(levelItem.id, level);
-      const isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
-      if (children && !navigationCollapsed) {
-        items.push(
-          <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
-            <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
-              <a href="#">
-                <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
-                {
-                  navigationCollapsed
-                  ?
-                  null
-                  :
-                  <span>
-                    { this._resolveNavigationItemText(levelItem, userContext) }
-                    <span className="fa arrow"></span>
-                  </span>
-                }
-              </a>
-            </Basic.Tooltip>
-            { children }
-          </li>
-        );
-      } else {
+      const childrenItems = getNavigationItems(navigation, levelItem.id, 'main', userContext);
+      //
+      if (childrenItems.length === 1 && childrenItems[0].path === levelItem.path) {
+        // if menu contains only one subitem, which leeds to the same path - sub menu is truncated
         const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right', navigationCollapsed);
         if (item) {
           items.push(item);
+        }
+      } else {
+        const children = this.renderSidebarItems(levelItem.id, level);
+        const isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
+        //
+        if (children && !navigationCollapsed) {
+          items.push(
+            <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
+              <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
+                <a href="#">
+                  <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
+                  {
+                    navigationCollapsed
+                    ?
+                    null
+                    :
+                    <span>
+                      { this._resolveNavigationItemText(levelItem, userContext) }
+                      <span className="fa arrow"></span>
+                    </span>
+                  }
+                </a>
+              </Basic.Tooltip>
+              { children }
+            </li>
+          );
+        } else {
+          const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right', navigationCollapsed);
+          if (item) {
+            items.push(item);
+          }
         }
       }
     }

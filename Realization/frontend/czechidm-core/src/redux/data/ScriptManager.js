@@ -20,6 +20,11 @@ export default class ScriptManager extends EntityManager {
     return 'scripts';
   }
 
+  // script references
+  _getScriptReferences(scriptId) {
+    return this.service._getScriptReferences(scriptId);
+  }
+
   /**
    * Bulk operation for scripts action - backup, redeploy.
    *

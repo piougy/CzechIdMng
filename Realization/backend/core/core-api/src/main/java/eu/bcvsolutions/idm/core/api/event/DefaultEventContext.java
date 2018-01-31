@@ -42,7 +42,10 @@ public class DefaultEventContext<E extends Serializable> implements EventContext
 	}
 	
 	@Override
-	public EventResult<E> getLastResult(){
+	public EventResult<E> getLastResult() {
+		if (processed.isEmpty()) {
+			return null;
+		}
 		return processed.get(processed.size() - 1);
 	}
 	

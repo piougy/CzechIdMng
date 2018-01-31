@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service;
 import java.io.InputStream;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 /**
@@ -10,7 +11,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstan
  * @author svandav
  *
  */
-public interface WorkflowHistoricProcessInstanceService {
+public interface WorkflowHistoricProcessInstanceService  extends ReadDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> {
 	public static final String SORT_BY_START_TIME = "startTime";
 	public static final String SORT_BY_END_TIME = "endTime";
 	public static final String PROCESS_INSTANCE_NAME = "processInstanceName";
@@ -21,6 +22,7 @@ public interface WorkflowHistoricProcessInstanceService {
 	 * @param filter
 	 * @return
 	 */
+	@Deprecated
 	ResourcesWrapper<WorkflowHistoricProcessInstanceDto> search(WorkflowFilterDto filter);
 
 	/**

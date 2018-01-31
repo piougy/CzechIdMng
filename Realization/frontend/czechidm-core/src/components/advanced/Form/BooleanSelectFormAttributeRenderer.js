@@ -30,10 +30,11 @@ export default class BooleanSelectFormAttributeRenderer extends AbstractFormAttr
    */
   getInputValue(formValue) {
     // Warning: string representation is needed (false value not work as selected value for react-select clearable functionality)
-    if (formValue.booleanValue === null || formValue.booleanValue === undefined) {
+    if (formValue.booleanValue === null || formValue.booleanValue === undefined
+      || formValue.value === null || formValue.value === undefined) {
       return null;
     }
-    return formValue.booleanValue.toString();
+    return formValue.booleanValue ? formValue.booleanValue.toString() : formValue.value.toString();
   }
 
   renderSingleInput() {

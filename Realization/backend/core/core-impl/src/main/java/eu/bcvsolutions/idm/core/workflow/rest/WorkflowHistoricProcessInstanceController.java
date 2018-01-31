@@ -2,19 +2,18 @@ package eu.bcvsolutions.idm.core.workflow.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,10 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
@@ -50,42 +48,18 @@ import io.swagger.annotations.ApiParam;
 		description = "Read WF audit",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class WorkflowHistoricProcessInstanceController {
+public class WorkflowHistoricProcessInstanceController extends AbstractReadDtoController<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> {
 
 	protected static final String TAG = "Workflow - process instances history";
-	//
-	@Value("${spring.data.rest.defaultPageSize}")
-	private int defaultPageSize;
-	@Autowired
+
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
 
-	/**
-	 * Search historic instances of processes with same variables and for logged
-	 * user
-	 * 
-	 */
-	@RequestMapping(method = RequestMethod.POST, value = "/search")
-	@ApiOperation(
-			value = "Search historic process instances (/search/quick alias)", 
-			nickname = "searchHistoricProcessInstances", 
-			tags = { WorkflowHistoricProcessInstanceController.TAG })
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> search(
-			@RequestBody WorkflowFilterDto filter) {
-		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> result = workflowHistoricProcessInstanceService
-				.search(filter);
-		;
-		List<WorkflowHistoricProcessInstanceDto> processes = (List<WorkflowHistoricProcessInstanceDto>) result
-				.getResources();
-		List<ResourceWrapper<WorkflowHistoricProcessInstanceDto>> wrappers = new ArrayList<>();
-
-		for (WorkflowHistoricProcessInstanceDto process : processes) {
-			wrappers.add(new ResourceWrapper<WorkflowHistoricProcessInstanceDto>(process));
-		}
-		ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>> resources = new ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>(
-				wrappers);
-		resources.setPage(result.getPage());
-		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>>(resources,
-				HttpStatus.OK);
+	@Autowired
+	public WorkflowHistoricProcessInstanceController(
+			WorkflowHistoricProcessInstanceService service) {
+		super(service);
+		//
+		this.workflowHistoricProcessInstanceService = service;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
@@ -93,23 +67,10 @@ public class WorkflowHistoricProcessInstanceController {
 			value = "Search historic process instances", 
 			nickname = "searchQuickHistoricProcessInstances", 
 			tags = { WorkflowHistoricProcessInstanceController.TAG })
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> searchQuick(
-			@RequestParam(required = false) Integer size, 
-			@RequestParam(required = false) Integer page, 
-			@RequestParam(required = false) String sort,
-			@RequestParam(required = false) String name, 
-			@RequestParam(required = false) String processDefinition, 
-			@RequestParam(required = false) String superProcessInstanceId) {
-		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
-		if(page != null){
-			filter.setPageNumber(page);
-		}
-		filter.setProcessDefinitionKey(processDefinition);
-		filter.setSuperProcessInstanceId(superProcessInstanceId);
-		filter.setName(name != null && !name.isEmpty() ? name : null);
-		filter.initSort(sort);
-
-		return this.search(filter);
+	public Resources<?> searchQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return find(parameters, pageable);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}")
@@ -118,12 +79,10 @@ public class WorkflowHistoricProcessInstanceController {
 			nickname = "getHistoricProcessInstance", 
 			response = WorkflowHistoricProcessInstanceDto.class, 
 			tags = { WorkflowHistoricProcessInstanceController.TAG })
-	public ResponseEntity<ResourceWrapper<WorkflowHistoricProcessInstanceDto>> get(
+	public ResponseEntity<?> get(
 			@ApiParam(value = "Historic process instance id.", required = true)
 			@PathVariable @NotNull String backendId) {
-		ResourceWrapper<WorkflowHistoricProcessInstanceDto> resource = new ResourceWrapper<WorkflowHistoricProcessInstanceDto>(
-				workflowHistoricProcessInstanceService.get(backendId));
-		return new ResponseEntity<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>(resource, HttpStatus.OK);
+		return super.get(backendId);
 	}
 
 	/**

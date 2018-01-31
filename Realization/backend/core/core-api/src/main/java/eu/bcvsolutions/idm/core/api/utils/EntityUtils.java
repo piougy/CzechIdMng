@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.Asserts;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
@@ -58,6 +59,30 @@ public class EntityUtils {
 		}				
 		return (entity.getValidFrom() == null || entity.getValidFrom().compareTo(targetDate) <= 0)
 				&& (entity.getValidTill() == null || entity.getValidTill().compareTo(targetDate) >= 0);
+	}
+	
+	/**
+	 * Returns true, when given dates are currently is valid, false otherwise
+	 * 
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	public static boolean isValid(DateTime validFrom, DateTime validTill) {
+		return isValid(validFrom, validTill, new DateTime());
+	}
+	
+	/**
+	 * Returns if dates are valid for given date.
+	 * 
+	 * @param validFrom
+	 * @param validTill
+	 * @param targetDate
+	 * @return
+	 */
+	public static boolean isValid(DateTime validFrom, DateTime validTill, DateTime targetDate) {
+		return (validFrom == null || validFrom.compareTo(targetDate) <= 0)
+				&& (validTill == null || validTill.compareTo(targetDate) >= 0);
 	}
 	
 	/**

@@ -69,6 +69,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         attribute: {
           systemMapping: props.location.query.mappingId,
           objectClassId: props.location.query.objectClassId,
+          cached: true,
           strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET)
         }
       });
@@ -250,6 +251,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 ref="sendOnPasswordChange"
                 label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}/>
+              <Basic.Checkbox
+                ref="cached"
+                label={this.i18n('acc:entity.SystemAttributeMapping.cached.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', { escape: false })}/>
               <Basic.Row>
                 <div className="col-lg-6">
                   <Basic.EnumSelectBox

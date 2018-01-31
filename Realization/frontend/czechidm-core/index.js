@@ -19,10 +19,10 @@ import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
 import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
-import IdentityStateEnum from './src/enums/IdentityStateEnum';
-import ContractStateEnum from './src/enums/ContractStateEnum';
+import IdentityAttributeEnum from './src/enums/IdentityAttributeEnum';
+import ContractAttributeEnum from './src/enums/ContractAttributeEnum';
 //
-import ValidationMessage from './src/content/identity/ValidationMessage';
+import ValidationMessage from './src/components/advanced/ValidationMessage/ValidationMessage';
 
 const ModuleRoot = {
   Basic,
@@ -48,11 +48,11 @@ const ModuleRoot = {
     PasswordPolicyTypeEnum,
     ScriptCategoryEnum,
     ApiOperationTypeEnum,
-    IdentityStateEnum,
-    ContractStateEnum
+    IdentityAttributeEnum,
+    ContractAttributeEnum
   },
   Content: {
-    ValidationMessage
+    ValidationMessage // backward compatibility
   }
 };
 ModuleRoot.version = '0.0.1';

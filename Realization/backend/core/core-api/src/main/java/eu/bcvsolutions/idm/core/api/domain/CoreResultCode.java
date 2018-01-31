@@ -88,6 +88,7 @@ public enum CoreResultCode implements ResultCode {
 	// role
 	ROLE_DELETE_FAILED_IDENTITY_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some identites have role assigned."),
 	ROLE_DELETE_FAILED_HAS_TREE_NODE(HttpStatus.CONFLICT, "Role [%s] has assigned automatic role [%s], which cannot be deleted without approving. Remove automatic role at first."),
+	ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some automatic roles by attribe has assigned this role."),
 	// groovy script
 	GROOVY_SCRIPT_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains compillation errors."),
 	GROOVY_SCRIPT_SYNTAX_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains syntaxt error: [%s] at line [%s]."),
@@ -102,6 +103,7 @@ public enum CoreResultCode implements ResultCode {
 	FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - this attribute is flaged as system attribute."),
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
 	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
+	FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some automatic rules use this attribute."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
@@ -144,6 +146,10 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identities[%s]. Check role request agenda for reason."),
 	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),
 	AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role [%s] is added in concurent task [%s], wait for task is complete, after removal."),
+	AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY(HttpStatus.BAD_REQUEST, "Rule for automatic role hasn't filled necessary attribute: [%s]."),
+	//
+	// role tree node
+	ROLE_TREE_NODE_TYPE_EXISTS(HttpStatus.CONFLICT, "Role tree node for this role id: [%s], tree node id: [%s] and recursion type [%s] already exists"),
 	//
 	// forest index
 	FOREST_INDEX_DISABLED(HttpStatus.BAD_REQUEST, "Forest index is disabled. Enable configuration property [%s]."),
@@ -198,7 +204,8 @@ public enum CoreResultCode implements ResultCode {
 	ATTACHMENT_INIT_DEFAULT_TEMP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default temp storage [%s] in temp directory failed"),
 	ATTACHMENT_CREATE_TEMP_FILE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating temporary file [%s] in temp directory [%s] failed"),
 	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed"),
-	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed");
+	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed"),
+	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found.");
 	
 	private final HttpStatus status;
 	private final String message;

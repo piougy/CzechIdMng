@@ -214,7 +214,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 				// (request can be started/executed async => standard
 				// process update UID in system entity (ACC module) will not
 				// works!)
-				updateSystemEntity(uidValue, attributeUidValue);
+				updateSystemEntity(uidValue, attributeUidValue, true);
 			}
 		}
 
@@ -316,6 +316,12 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
 			updateFormAttributeValue(uidValue, virtualAttirbute, accountId, attributes);
 		});
+		
+		// We have to change system entity directly (set wish=false!!!) from VS module
+		// (request can be started/executed async => standard
+		// process update UID in system entity (ACC module) will not
+		// works!)
+		updateSystemEntity(uid, uid, false);
 
 		return new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null);
 	}
@@ -438,6 +444,12 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		return generateSchema();
 	}
+	
+	@Override
+	public BasicVirtualConfiguration getVirtualConfiguration() {
+		return virtualConfiguration;
+	}
+
 
 	/**
 	 * Overwrite attributes form VS account with attributes from unresloved requests
@@ -668,13 +680,17 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * 
 	 * @param uidValue
 	 * @param attributeUidValue
+	 * @param systemEntityMustExists
 	 */
-	private void updateSystemEntity(String uidValue, Object attributeUidValue) {
+	private void updateSystemEntity(String uidValue, Object attributeUidValue, boolean systemEntityMustExists) {
 		SysSystemEntityFilter systemEntityFilter = new SysSystemEntityFilter();
 		systemEntityFilter.setUid(uidValue);
 		systemEntityFilter.setSystemId(systemId);
 
 		List<SysSystemEntityDto> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
+		if(systemEntities.isEmpty() && !systemEntityMustExists){
+			return;
+		}
 		if (systemEntities.isEmpty()) {
 			throw new IcException(MessageFormat.format(
 					"System entity was not found for UID [{0}] and system ID [{1}]! Change UID attribute (new [{2}]) cannot be executed!",
@@ -687,6 +703,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		}
 		SysSystemEntityDto systemEntity = systemEntities.get(0);
 		systemEntity.setUid((String) attributeUidValue);
+		systemEntity.setWish(false);
 		// Save changed system entity
 		systemEntityService.save(systemEntity);
 		LOG.info("Update account - UID was changed (old: {} new: {}). System entity was updated.", uidValue,

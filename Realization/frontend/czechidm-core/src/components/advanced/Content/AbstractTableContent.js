@@ -17,6 +17,11 @@ export default class AbstractTableContent extends Basic.AbstractContent {
         entity: {}
       }
     };
+    // sets a proper localization prefix automatically
+    const manager = this.getManager();
+    if (manager) {
+      manager.setLocalizationPrefix(this.getContentKey());
+    }
   }
 
   componentDidMount() {
@@ -58,8 +63,10 @@ export default class AbstractTableContent extends Basic.AbstractContent {
         entity
       }
     }, () => {
-      this.refs.form.setData(entity);
-      cb();
+      this.getFormComponent().setData(entity);
+      if (cb) {
+        cb();
+      }
     });
   }
 
@@ -75,6 +82,10 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     });
   }
 
+  getFormComponent() {
+    return this.refs.form;
+  }
+
   /**
    * Saves given entity
    */
@@ -82,7 +93,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.form.isFormValid()) {
+    if (!this.getFormComponent().isFormValid()) {
       return;
     }
     //
@@ -106,7 +117,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   afterSave(entity, error) {
     if (error) {
       this.addError(error);
-      this.refs.form.processEnded();
+      this.getFormComponent().processEnded();
       if (error.statusCode !== 202) {
         return;
       }
@@ -132,12 +143,48 @@ export default class AbstractTableContent extends Basic.AbstractContent {
             this.addError(error);
           }
         } else {
-          this.refs.table.getWrappedInstance().reload();
+          this.afterDelete();
         }
       }));
     }, () => {
       // nothing
     });
+  }
+
+  afterDelete() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
+  /**
+   * Bulk action operation
+   */
+  onAction(bulkActionValue, selectedRows, action) {
+    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().action(action.method, action.value, selectedEntities, this.getUiKey(), (entity, error, successEntities) => {
+        if (entity && error) {
+          if (error.statusCode !== 202) {
+            this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+          } else {
+            this.addError(error);
+          }
+        } else {
+          this.afterAction(action, successEntities);
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
+  afterAction(action, successEntities) {
+    if (successEntities) {
+      this.refs.table.getWrappedInstance().reload();
+    }
   }
 
   /**

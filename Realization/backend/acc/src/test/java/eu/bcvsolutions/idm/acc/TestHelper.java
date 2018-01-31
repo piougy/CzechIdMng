@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
@@ -136,5 +138,15 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	AccIdentityAccountDto createIdentityAccount(SysSystemDto system, IdmIdentityDto identity);
+
+	/**
+	 * Create {@link AccAccountDto} and {@link AccIdentityAccountDto} for given
+	 * system and identity.
+	 *
+	 * @param type
+	 * @param objectClass
+	 * @return
+	 */
+	SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass);
 
 }

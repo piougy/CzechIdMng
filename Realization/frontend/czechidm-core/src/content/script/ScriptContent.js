@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import * as Basic from '../../components/basic';
 import { ScriptManager } from '../../redux';
 import ScriptDetail from './ScriptDetail';
@@ -22,8 +21,8 @@ class ScriptContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('scripts');
     const { entityId } = this.props.params;
+    this.selectNavigationItems(['system', 'scripts', 'script-detail']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(scriptManager.receiveEntity(entityId, { }));
@@ -44,41 +43,15 @@ class ScriptContent extends Basic.AbstractContent {
   render() {
     const { entity, showLoading } = this.props;
     return (
-      <div>
-        {
-          this._getIsNew()
-          ?
-          <Helmet title={this.i18n('create.title')} />
-          :
-          <Helmet title={this.i18n('edit.title')} />
-        }
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:clone"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create.header')
-              :
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
-
-        <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
+      <Basic.Row>
+        <div className={this._getIsNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
             !entity
             ||
-            <ScriptDetail entity={entity} />
+            <ScriptDetail entity={entity} showLoading={showLoading}/>
           }
-        </Basic.Panel>
-
-      </div>
+        </div>
+      </Basic.Row>
     );
   }
 }

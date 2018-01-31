@@ -7,9 +7,6 @@
     "menu" : {
     }
   },
-  "entity": {
-
-  },
   "content": {
     "dashboard": {
     },
@@ -721,6 +718,10 @@
         "label": "Disabled",
         "tooltip": "Disabled attribute will not be used in provisioning in default state. It can still be overload and activated in roles."
       },
+      "cached": {
+        "label": "The value is cached",
+        "help": "The attribute value will be saved and read from the cache. At this moment, it is used only <strong>in sync</strong>. The key is this attribute and attributes from the end system (IcAttribute). The value is the transformed value from the end system."
+      },
       "sendOnPasswordChange": {
         "label": "Include on password change",
         "help": "Send this attribute into provisioning, when password is changed."
@@ -1040,17 +1041,6 @@
       "UPDATE": "Update",
       "DELETE": "Delete"
     },
-    "IdentityAttributeEnum": {
-      "USERNAME": "User name (String)",
-      "DISABLED": "Disabled (boolean)",
-      "FIRSTNAME": "First name (String)",
-      "LASTNAME": "Surname (String)",
-      "TITLE_BEFORE": "Title before (String)",
-      "TITLE_AFTER": "Title after (String)",
-      "DESCRIPTION": "Description (String)",
-      "PHONE": "Phone (String)",
-      "EMAIL": "Email (String)"
-    },
     "TreeAttributeEnum": {
       "CODE": "Code (String)",
       "NAME": "Name (String)",
@@ -1073,19 +1063,6 @@
       "PRIORITY": "Priority (Integer)",
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)"
-    },
-    "ContractAttributeEnum": {
-      "IDENTITY": "Owner (IdmIdentity - Id or username)",
-      "VALID_FROM": "Valid from (LocalDate)",
-      "VALID_TILL": "Valid till (LocalDate)",
-      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
-      "POSITION": "Name of position (String)",
-      "EXTERNE": "Externe (boolean)",
-      "MAIN": "Main relation (boolean)",
-      "DESCRIPTION": "Description (String)",
-      "DISABLED": "Disabled (boolean)",
-      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
-      "STATE": "State (ContractState - String)"
     }
   },
   "permission": {

@@ -7,9 +7,6 @@
     "menu" : {
     }
   },
-  "entity": {
-
-  },
   "content": {
     "dashboard": {
     },
@@ -728,6 +725,10 @@
         "label": "Je deaktivován",
         "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
       },
+      "cached": {
+        "label": "Hodnota ukládána do mezipaměti",
+        "help": "Hodnota atributu bude ukládána a čtena z mezipaměti. V tuto chvíli je využito pouze <strong>v synchronizaci</strong>. Klíčem je tento atribut a atributy z koncového systému (IcAttribute). Hodnotou je transformovaná hodnota z koncového systému."
+      },
       "sendOnPasswordChange": {
         "label": "Zahrnout při změně hesla",
         "help": "Odesílat attribut při změně hesla do provisioningu."
@@ -1047,17 +1048,6 @@
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
     },
-    "IdentityAttributeEnum": {
-      "USERNAME": "Uživatelské jméno (String)",
-      "DISABLED": "Zakázaný (boolean)",
-      "FIRSTNAME": "Jméno (String)",
-      "LASTNAME": "Příjmení (String)",
-      "TITLE_BEFORE": "Titul před (String)",
-      "TITLE_AFTER": "Titul za (String)",
-      "DESCRIPTION": "Poznámka (String)",
-      "PHONE": "Telefon (String)",
-      "EMAIL": "Email (String)"
-    },
     "TreeAttributeEnum": {
       "CODE": "Kód (String)",
       "NAME": "Název (String)",
@@ -1080,19 +1070,6 @@
       "PRIORITY": "Priorita (Integer)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)"
-    },
-    "ContractAttributeEnum": {
-      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
-      "VALID_FROM": "Platnost od (LocalDate)",
-      "VALID_TILL": "Platnost do (LocalDate)",
-      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
-      "POSITION": "Název pozice (String)",
-      "EXTERNE": "Externista (boolean)",
-      "MAIN": "Hlavní vztah (boolean)",
-      "DESCRIPTION": "Popis (String)",
-      "DISABLED": "Zakázaný (boolean)",
-      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
-      "STATE": "Stav (ContractState - String)"
     }
   },
   "permission": {

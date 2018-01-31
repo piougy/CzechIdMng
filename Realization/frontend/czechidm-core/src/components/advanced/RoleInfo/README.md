@@ -1,6 +1,6 @@
 # RoleInfo Component
 
-Information about role. If role doesn't exist, then short role's idenfifier will be shown.
+Information about role. If role doesn't exist, then short role's identifier will be shown.
 
 ## Parameters
 

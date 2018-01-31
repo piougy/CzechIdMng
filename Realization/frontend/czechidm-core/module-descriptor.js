@@ -52,7 +52,7 @@ module.exports = {
             'conditions': [
               'todo: eval( canPasswordChange ...)'
             ],
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'IDENTITY_PASSWORDRESET'] } ] // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
           },
           {
             'id': 'profile-roles',
@@ -151,13 +151,34 @@ module.exports = {
       {
         'id': 'tasks',
         'disabled': false,
-        'label': 'Úkoly',
         'labelKey': 'navigation.menu.tasks.label',
-        'title': 'Moje úkoly',
         'titleKey': 'navigation.menu.tasks.title',
         'icon': 'tasks',
-        'path': '/tasks/:entityId',
-        'order': 30
+        'path': '/tasks/identity/:entityId',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_READ'] } ],
+        'order': 30,
+        'items': [
+          {
+            'id': 'tasks-identity',
+            'labelKey': 'content.tasks.identity.label',
+            'titleKey': 'content.tasks.identity.title',
+            'order': 10,
+            'path': '/tasks/identity/:entityId',
+            'icon': '',
+            'type': 'TAB',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_READ'] } ]
+          },
+          {
+            'id': 'tasks-all',
+            'labelKey': 'content.tasks.all.label',
+            'titleKey': 'content.tasks.all.title',
+            'order': 20,
+            'path': '/tasks/all',
+            'icon': '',
+            'type': 'TAB',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_ADMIN'] } ]
+          }
+        ]
       },
       {
         'id': 'identities',
@@ -577,6 +598,46 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
+            'id': 'automatic-roles',
+            'labelKey': 'content.automaticRoles.header',
+            'titleKey': 'content.automaticRoles.title',
+            'icon': 'fa:universal-access',
+            'order': 70,
+            'iconColor': '#428BCA',
+            'path': '/automatic-role/trees',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+            'items': [
+              {
+                'id': 'automatic-role-tree',
+                'labelKey': 'content.automaticRoles.tree.title',
+                'order': 10,
+                'path': '/automatic-role/trees',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['ROLETREENODE_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'automatic-role-attribute',
+                'labelKey': 'content.automaticRoles.attribute.title',
+                'order': 20,
+                'path': '/automatic-role/attributes',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
+                  }
+                ]
+              }
+            ]
+          },
+          {
             'id': 'tree',
             'labelKey': 'content.tree.header',
             'titleKey': 'content.tree.title',
@@ -702,6 +763,35 @@ module.exports = {
             'order': 30,
             'path': '/scripts',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
+            'items': [
+              {
+                'id': 'script-detail',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.detail.title',
+                'order': 100,
+                'path': '/scripts/:entityId/detail',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              },
+              {
+                'id': 'script-authorities',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.authorities.title',
+                'order': 110,
+                'path': '/scripts/:entityId/authorities',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              },
+              {
+                'id': 'script-references',
+                'type': 'TAB',
+                'labelKey': 'content.scripts.references.title',
+                'order': 120,
+                'path': '/scripts/:entityId/references',
+                'icon': '',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              }
+            ]
           },
           {
             'id': 'forms',

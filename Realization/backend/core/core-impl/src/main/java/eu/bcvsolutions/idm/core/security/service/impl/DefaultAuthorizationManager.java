@@ -173,6 +173,12 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(entity);
 		Assert.notNull(permission);
 		//
+		// check super admin
+		if(securityService.isAdmin()) {
+			LOG.debug("Logged as admin [{}], authorization granted", securityService.getCurrentUsername());
+			return true;
+		}
+		//
 		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass())) {
 			if (!supportsEntityType(policy, entity.getClass())) {
 				// TODO: compatibility issues - agendas without authorization support
@@ -271,7 +277,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 
 	@Override
 	public Set<AuthorizableType> getAuthorizableTypes() {
-		if (authorizableTypes == null) {
+		//if (authorizableTypes == null) {
 			authorizableTypes = new HashSet<>();
 			// types with authorization evaluators support
 			context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
@@ -282,13 +288,14 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			// add default - doesn't supports authorization evaluators
 			moduleService.getAvailablePermissions().forEach(groupPermission -> {
 				boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
-					return authorizableType.getGroup().equals(groupPermission);
+					// equals by group permission name only - name is identifier, base permission can be added in custom module
+					return authorizableType.getGroup().getName().equals(groupPermission.getName());
 				});
 				if (!exists) {
 					authorizableTypes.add(new AuthorizableType(groupPermission, null));
 				}
 			});
-		}
+		// }
 		return authorizableTypes;
 	}
 }

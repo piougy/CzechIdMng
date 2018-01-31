@@ -155,7 +155,7 @@ public class DefaultIdmNotificationTemplateService extends
 	@Override
 	@Transactional(readOnly = true)
 	public IdmNotificationTemplateDto getTemplateByCode(String code) {
-		return toDto(this.repository.findOneByCode(code));
+		return getByCode(code);
 	}
 
 	/**
@@ -537,7 +537,8 @@ public class DefaultIdmNotificationTemplateService extends
 							// log error, if script with the same code was found twice in one resource
 							if (locationTemplates.containsKey(templateType.getCode())) {
 								LOG.error("More templates with code [{}] found on the same location [{}].",
-										templateType.getCode());
+										templateType.getCode(),
+										location);
 							}
 							// last one wins
 							locationTemplates.put(templateType.getCode(), templateType);

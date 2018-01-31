@@ -11,8 +11,8 @@ import org.quartz.Job;
  */
 public interface SchedulableTaskExecutor<V> extends LongRunningTaskExecutor<V>, Job {
 
-	static final String PARAMETER_INSTANCE_ID = LongRunningTaskExecutor.PARAMETER_INSTANCE_ID; // server instance id
-	static final String PARAMETER_DRY_RUN = "core:dryRun"; // dry run mode
+	String PARAMETER_INSTANCE_ID = LongRunningTaskExecutor.PARAMETER_INSTANCE_ID; // server instance id
+	String PARAMETER_DRY_RUN = "core:dryRun"; // dry run mode
 
 	/**
 	 * Returns entity ID of currently processed scheduled task. 

@@ -16,8 +16,6 @@ public class IdmScheduledTaskDto extends AbstractDto {
 	//
 	@NotNull
 	private String quartzTaskName;
-	@SuppressWarnings("unused")
-	private boolean dryRun; // @Deprecated since 7.7.0 - use LRT dryRun
 
 	public String getQuartzTaskName() {
 		return quartzTaskName;

@@ -18,6 +18,7 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
   }
 
   getCollectionType() {
+    // Use in the version 8.x.x return 'workflowTaskInstances';
     return 'resources';
   }
 

@@ -144,6 +144,9 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 		// Create uid attribute
 		IcAttributeImpl uidAttribute = new IcAttributeImpl(IcAttributeInfo.NAME, account.getUid());
 		attributes.add(uidAttribute);
+		// Create enable attribute
+		IcAttributeImpl enableAttribute = new IcAttributeImpl(IcAttributeInfo.ENABLE, account.isEnable());
+		attributes.add(enableAttribute);
 		String connectorKey = account.getConnectorKey();
 		String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", connectorKey,
 				account.getSystemId().toString());

@@ -701,13 +701,14 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
 
 		IdmLongRunningTaskDto lrt = null;
+		String simpleName = taskType.getSimpleName();
 		if (createdLrts.isEmpty()) {
 			// We do not have LRT for this task, we will create him
 			Task processTask = findTask(taskType);
 			if (processTask == null) {
 				addToItemLog(log, MessageFormat.format(
 						"Warning - HR process [{0}] cannot be executed, because task for this type was not found!",
-						taskType.getSimpleName()));
+						simpleName));
 				log = synchronizationLogService.save(log);
 				return log;
 			}
@@ -715,7 +716,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			if (scheduledTask == null) {
 				addToItemLog(log, MessageFormat.format(
 						"Warning - HR process [{0}] cannot be executed, because scheduled task for this type was not found!",
-						taskType.getSimpleName()));
+						simpleName));
 				log = synchronizationLogService.save(log);
 				return log;
 			}
@@ -727,12 +728,12 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		if (lrt != null) {
 			log.addToLog(MessageFormat.format(
 					"After success sync have to be run HR task [{1}]. We start him (synchronously) now [{0}]. LRT ID: [{2}]",
-					LocalDateTime.now(), taskType.getSimpleName(), lrt.getId()));
+					LocalDateTime.now(), simpleName, lrt.getId()));
 			log = synchronizationLogService.save(log);
 			executor.setLongRunningTaskId(lrt.getId());
 			longRunningTaskManager.executeSync(executor);
 			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(),
-					taskType.getSimpleName()));
+					simpleName));
 			log = synchronizationLogService.save(log);
 		}
 		return log;

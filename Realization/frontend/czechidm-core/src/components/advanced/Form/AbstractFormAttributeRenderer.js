@@ -52,6 +52,14 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     return filledFormValues;
   }
 
+  getValue() {
+    const filledFormValues = this.getValues();
+    //
+    // event if multiple output values, return only one
+    return filledFormValues.pop();
+  }
+
+
   /**
    * Input value is valid
    *
@@ -84,7 +92,10 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     //
     if (formValue === null) {
       formValue = {
-        formAttribute: attribute.id
+        formAttribute: attribute.id,
+        _embedded: {
+          formAttribute: attribute
+        }
       };
     }
     formValue.seq = seq;

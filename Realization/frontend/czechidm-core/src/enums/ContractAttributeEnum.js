@@ -1,12 +1,12 @@
-import { Enums } from 'czechidm-core';
+import AbstractEnum from '../enums/AbstractEnum';
 
 /**
  * Keys of contract fields
  */
-export default class ContractAttributeEnum extends Enums.AbstractEnum {
+export default class ContractAttributeEnum extends AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`acc:enums.ContractAttributeEnum.${key}`);
+    return super.getNiceLabel(`core:enums.ContractAttributeEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {

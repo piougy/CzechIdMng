@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
  * Automatic roles for tree structures
@@ -25,20 +24,11 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "idm_role_tree_node", indexes = {
-		@Index(name = "ux_idm_role_tree_node", columnList = "role_id,tree_node_id,recursion_type", unique = true),
-		@Index(name = "idx_idm_role_tree_role", columnList = "role_id"), 
+		@Index(name = "ux_idm_role_tree_node", columnList = "tree_node_id,recursion_type", unique = true),
 		@Index(name = "idx_idm_role_tree_node", columnList = "tree_node_id") })
-public class IdmRoleTreeNode extends AbstractEntity {
+public class IdmRoleTreeNode extends IdmAutomaticRole {
 
 	private static final long serialVersionUID = 6000961264258576244L;
-
-	@NotNull
-	@Audited
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmRole role;
 	
 	@NotNull
 	@Audited
@@ -53,14 +43,6 @@ public class IdmRoleTreeNode extends AbstractEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "recursion_type", nullable = false)
 	private RecursionType recursionType = RecursionType.NO;
-	
-	public IdmRole getRole() {
-		return role;
-	}
-
-	public void setRole(IdmRole role) {
-		this.role = role;
-	}
 
 	public IdmTreeNode getTreeNode() {
 		return treeNode;

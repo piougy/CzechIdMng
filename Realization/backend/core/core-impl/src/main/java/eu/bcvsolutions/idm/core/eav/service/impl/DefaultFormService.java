@@ -814,7 +814,7 @@ public class DefaultFormService implements FormService {
 		icProperty.setName(property.displayName());
 		icProperty.setDescription(property.helpMessage());
 		icProperty.setRequired(property.required());
-		icProperty.setSeq(Integer.valueOf(property.order()).shortValue());
+		icProperty.setSeq((short) property.order());
 		icProperty.setFaceType(property.face());
 
 		return icProperty;

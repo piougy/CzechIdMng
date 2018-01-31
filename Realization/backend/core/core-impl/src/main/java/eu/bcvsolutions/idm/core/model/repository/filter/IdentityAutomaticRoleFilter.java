@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  *
  */
 @Component
-@Description("Filter by identity state")
+@Description("Automatic role filter - by identity")
 public class IdentityAutomaticRoleFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
    
     @Autowired

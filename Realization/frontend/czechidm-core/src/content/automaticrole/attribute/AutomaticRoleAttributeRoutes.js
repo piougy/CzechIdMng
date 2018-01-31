@@ -36,18 +36,15 @@ export default class AutomaticRoleAttributeRoutes extends Basic.AbstractContent 
           this._getIsNew()
           ?
           <div>
-            <Basic.Panel>
               <AutomaticRoleAttributeDetail entity={{}}/>
-            </Basic.Panel>
           </div>
           :
           <div>
-
-              <Basic.ContentHeader text={
-                  <div>
-                    <Basic.Icon value="fa:universal-access"/> {this.i18n('content.automaticRoles.attribute.header')}
-                  </div>
-                }/>
+            <Basic.ContentHeader text={
+                <div>
+                  <Basic.Icon value="fa:universal-access"/> {this.i18n('content.automaticRoles.attribute.header')}
+                </div>
+            }/>
           <Advanced.TabPanel position="left" parentId="automatic-role-attribute" params={this.props.params}>
             {this.props.children}
           </Advanced.TabPanel>

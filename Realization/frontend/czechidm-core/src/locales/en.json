@@ -1209,7 +1209,10 @@
         },
         "identities":{
           "header": "Users with assigned role",
-          "title": "Users with role"
+          "title": "Users with role",
+          "filter": {
+            "text": "Name of user or value"
+          }
         },
         "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
         "rule": {

@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
@@ -43,7 +43,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, entityId } = this.props;
+    const { entity} = this.props;
     return (
       <div>
         {
@@ -54,7 +54,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
           <Helmet title={this.i18n('edit.title')} />
         }
 
-        <AutomaticRoleAttributeDetail entity={entity} entityId={entityId} manager={manager} />
+        <AutomaticRoleAttributeDetail entity={entity} entityId manager={manager} />
 
       </div>
     );
@@ -62,7 +62,6 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 }
 
 AutomaticRoleAttributeContent.propTypes = {
-  showLoading: PropTypes.bool
 };
 AutomaticRoleAttributeContent.defaultProps = {
 };
@@ -71,8 +70,7 @@ function select(state, component) {
   const { entityId } = component.params;
   //
   return {
-    entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    entity: manager.getEntity(state, entityId)
   };
 }
 

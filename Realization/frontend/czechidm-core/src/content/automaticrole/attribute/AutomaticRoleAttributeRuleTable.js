@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
 //
+import Helmet from 'react-helmet';
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -108,6 +109,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
+      <Helmet title={this.i18n('content.automaticRoles.attribute.edit.title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"

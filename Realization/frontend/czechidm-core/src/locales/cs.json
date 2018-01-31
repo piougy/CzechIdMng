@@ -1233,7 +1233,10 @@
         },
         "identities":{
           "header": "Uživatelé s přiřazenou automatickou rolí",
-          "title": "Uživatelé"
+          "title": "Uživatelé",
+          "filter": {
+            "text": "Jméno uživatele nebo hodnota"
+          }
         },
         "create": {
           "header": "Nová automatická role na základě atributu",

@@ -183,12 +183,11 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               entityType="role"
               required/>
           </Basic.AbstractForm>
-
           {
             this._showConceptWarning()
           }
-
-          <Basic.PanelFooter showLoading={showLoading} >
+          </Basic.PanelBody>
+          <Basic.PanelFooter showLoading={showLoading} className="noBorder" >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
             <Basic.Button type="button"
               level="warning"
@@ -209,9 +208,8 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
             </Basic.SplitButton>
           </Basic.PanelFooter>
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-          <input type="submit" className="hidden"/>
-          </Basic.PanelBody>
           </Basic.Panel>
+          <input type="submit" className="hidden"/>
         </form>
       </div>
     );

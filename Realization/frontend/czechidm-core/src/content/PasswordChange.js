@@ -206,6 +206,8 @@ class PasswordChange extends Basic.AbstractContent {
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
 
+                  <Advanced.ValidationMessage error={ validationError } />
+
                   <Basic.TextField
                     ref="username"
                     label={this.i18n('entity.Identity.username')}
@@ -221,9 +223,6 @@ class PasswordChange extends Basic.AbstractContent {
                     className="form-control"
                     ref="passwords"/>
                 </Basic.AbstractForm>
-                <Basic.Panel className="no-border last">
-                  <Advanced.ValidationMessage error={validationError} />
-                </Basic.Panel>
                 <Basic.PanelFooter>
                   <Basic.Button level="link" onClick={this.cancel.bind(this)}>
                     {this.i18n('button.cancel')}

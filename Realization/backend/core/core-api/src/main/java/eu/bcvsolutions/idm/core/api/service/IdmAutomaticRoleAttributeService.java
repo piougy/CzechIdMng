@@ -110,6 +110,7 @@ public interface IdmAutomaticRoleAttributeService
 	 * Recalculate this automatic role and rules and assign new role to identity or remove.
 	 * 
 	 * @param automaticRoleId
+	 * @return 
 	 */
-	void recalculate(UUID automaticRoleId);
+	IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId);
 }

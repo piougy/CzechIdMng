@@ -25,7 +25,10 @@ export default class AutomaticRoleAttributeManager extends EntityManager {
     return 'automaticRoleAttributes';
   }
 
-  recalculate(id) {
-    this.getService().recalculate(id);
+  /**
+   * Recalucalte given automatic role by attribute
+   */
+  recalculate(id, callback = null) {
+    this.getService().recalculate(id, callback);
   }
 }

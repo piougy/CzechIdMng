@@ -25,7 +25,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
    * Return all components of password-change-component type
    */
   getComponents() {
-    return componentService.getPasswordChangeComponent();
+    return componentService.getPasswordChangeComponents();
   }
 
   /**
@@ -52,7 +52,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
             userContext={userContext}
             accountOptions={accountOptions}
             entityId={entityId}/>
-        </Basic.Col>);
+        </Basic.Col>
+      );
     });
     return finalComponents;
   }
@@ -71,15 +72,14 @@ class PasswordChangeForm extends Basic.AbstractContent {
     // if no one components exists show warning
     if (_.size(components) === 0) {
       components = (
-        <Basic.Col lg={7}>
-          <Basic.Alert level="warning" text={this.i18n('message.noContent')}/>
-        </Basic.Col>
+        <Basic.Alert level="warning" text={this.i18n('message.noContent')}/>
       );
     }
     //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
+        {/* TODO: check span counter - the same alghoritm as on dashboard */}
         <Basic.Row>
           { components }
         </Basic.Row>

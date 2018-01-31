@@ -10,6 +10,9 @@ import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttr
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import IdentityAttributeEnum from '../../../enums/IdentityAttributeEnum';
 import ContractAttributeEnum from '../../../enums/ContractAttributeEnum';
+import { AutomaticRoleAttributeManager } from '../../../redux';
+
+const automaticRoleAttributeManager = new AutomaticRoleAttributeManager();
 
 /**
  * Table with rules for automatic role by attribute
@@ -82,6 +85,12 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
         return automaticRole._embedded.formAttribute.name;
       }
     }
+  }
+
+  afterDelete() {
+    super.afterDelete();
+    //
+    this.context.store.dispatch(automaticRoleAttributeManager.fetchEntity(this.props.attributeId));
   }
 
   render() {

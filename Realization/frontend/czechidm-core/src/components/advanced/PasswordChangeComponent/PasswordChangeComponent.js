@@ -222,6 +222,51 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       oldPasswordRequired = requireOldPasswordConfig;
     }
     //
+    const content = [];
+    if (this._canPasswordChange(_permissions) && !preload) {
+      content.push(
+        <Basic.Alert
+          icon="info-sign"
+          text={this.i18n('message.isAdmin')}
+          rendered={ SecurityManager.isAdmin(userContext) }
+          style={{ margin: '15px 0'}}/>
+      );
+      content.push(
+        <ValidationMessage error={validationError} />
+      );
+      content.push(
+        <Basic.AbstractForm ref="form">
+          <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
+            hidden={!oldPasswordRequired}
+            required={oldPasswordRequired}/>
+
+          <PasswordField className="form-control" ref="passwords" />
+
+          <Basic.EnumSelectBox
+            ref="accounts"
+            label={this.i18n('accounts.label')}
+            placeholder={this.i18n('accounts.placeholder')}
+            multiSelect
+            options={accountOptions}
+            required
+            disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
+
+          <div className={allOnlyWarningClassNames}>
+            <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
+          </div>
+        </Basic.AbstractForm>
+      );
+      content.push(
+        <Basic.PanelFooter>
+          <Basic.Button
+            type="submit"
+            level="success"
+            showLoading={this.state.showLoading}>{this.i18n('button.change')}
+          </Basic.Button>
+        </Basic.PanelFooter>
+      );
+    }
+    //
     return (
       <form onSubmit={this.save.bind(this)}>
         <Basic.Panel className="no-border">
@@ -237,47 +282,8 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             icon="exclamation-sign"
             text={ this.i18n('permission.failed') }
             rendered={ _permissions !== undefined && !this._canPasswordChange(_permissions) && passwordChangeType !== IdentityManager.PASSWORD_DISABLED }/>
-          {
-            (!this._canPasswordChange(_permissions) || preload)
-            ||
-            <div>
-              <Basic.Alert
-                icon="info-sign"
-                text={this.i18n('message.isAdmin')}
-                rendered={ SecurityManager.isAdmin(userContext) }
-                style={{ margin: '15px 0 0 0'}}/>
-
-              <Basic.AbstractForm ref="form">
-                <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
-                  hidden={!oldPasswordRequired}
-                  required={oldPasswordRequired}/>
-
-                <PasswordField className="form-control" ref="passwords" />
-
-                <Basic.EnumSelectBox
-                  ref="accounts"
-                  label={this.i18n('accounts.label')}
-                  placeholder={this.i18n('accounts.placeholder')}
-                  multiSelect
-                  options={accountOptions}
-                  required
-                  disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
-
-                <div className={allOnlyWarningClassNames}>
-                  <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
-                </div>
-              </Basic.AbstractForm>
-              <Basic.PanelFooter>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoading={this.state.showLoading}>{this.i18n('button.change')}
-                </Basic.Button>
-              </Basic.PanelFooter>
-            </div>
-          }
+          { content }
         </Basic.Panel>
-        <ValidationMessage error={validationError} />
       </form>
     );
   }

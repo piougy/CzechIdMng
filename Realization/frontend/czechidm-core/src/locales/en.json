@@ -663,7 +663,7 @@
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
       "ROLECATALOGUE": "Role catalog",
-      "ROLETREENODE": "Automatic roles",
+      "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
@@ -676,7 +676,9 @@
       "SCHEDULER": "Scheduler",
       "WORKFLOWDEFINITION": "Workflow - definitions",
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
-      "WORKFLOWTASK": "Workflow task"
+      "WORKFLOWTASK": "Workflow - tasks",
+      "AUTOMATICROLEATTRIBUTE": "Automatic roles (attributes)",
+      "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)"
 
     }
   },
@@ -1632,7 +1634,7 @@
           "strength": "Password strength:"
         },
         "permission": {
-          "failed": "You do not have permissions to change password"
+          "failed": "You do not have permissions to change password."
         },
         "changeType": {
           "DISABLED": "Password change is not allowed in this environment.",
@@ -1648,7 +1650,7 @@
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited.",
-          "noContent": "Password change form not found."
+          "noContent": "You do not have permissions to change password."
         },
         "button": {
           "change": "Change password"
@@ -3298,6 +3300,14 @@
     "DRY_RUN": {
       "title": "Dry run",
       "message": "Demo process."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED": {
+      "title": "Form attribute can not be deleted",
+      "message": "Attribute [{{formAttribute}}] can not be deleted, because is used in the rule/rules by automatic role based on attribute."
+    },
+    "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
+      "title": "Role nelze smazat",
+      "message": "Role [{{role}}] can not be deleted, because is used in the rule/rules by automatic role based on attribute."
     }
   },
   "validationError": {

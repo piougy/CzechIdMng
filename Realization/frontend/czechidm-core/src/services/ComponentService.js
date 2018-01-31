@@ -100,7 +100,7 @@ export default class ComponentService {
    * @param  {string} entityType e.g. identity
    * @return {object}            component
    */
-  getPasswordChangeComponent() {
+  getPasswordChangeComponents() {
     return this.getComponentDefinitions(ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE);
   }
 }

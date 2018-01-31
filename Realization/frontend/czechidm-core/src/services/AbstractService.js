@@ -307,7 +307,7 @@ export default class AbstractService {
   /**
    * Common put (=> update) action on given entity
    *
-   * @param  {string} method - action name (e.g. activate / deactivate / archivate )
+   * @param  {string} method - action name (e.g. PUT / POST / DELETE )
    * @param  {string} actionName  - action name (e.g. activate / deactivate / archivate )
    * @param  {string} id        entity id or alias (codeable)
    * @return {promise}

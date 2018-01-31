@@ -175,8 +175,8 @@ public class IdmAutomaticRoleAttributeController extends AbstractReadWriteDtoCon
 			notes = "Recalculate automatic role by attribute for identities in LRT.")
 	public ResponseEntity<?> post(@ApiParam(value = "Automatic role's uuid identifier.", required = true)
 	@PathVariable @NotNull String backendId) {
-		entityService.recalculate(UUID.fromString(backendId));
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		IdmAutomaticRoleAttributeDto automaticRoleAttributeDto = entityService.recalculate(UUID.fromString(backendId));
+		return new ResponseEntity<>(automaticRoleAttributeDto, HttpStatus.OK);
 	}
 	
 	@Override

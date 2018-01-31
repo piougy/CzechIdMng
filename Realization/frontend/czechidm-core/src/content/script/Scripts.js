@@ -34,7 +34,7 @@ class Scripts extends Basic.AbstractContent {
         {this.renderPageHeader()}
 
         <Basic.Panel>
-          <ScriptTable scriptManager={this.scriptManager} uiKey={SCRIPT_TABLE_UIKEY}/>
+          <ScriptTable scriptManager={this.scriptManager} uiKey={SCRIPT_TABLE_UIKEY} filterOpened/>
         </Basic.Panel>
       </div>
     );

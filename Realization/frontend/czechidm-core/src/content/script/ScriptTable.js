@@ -23,8 +23,14 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     // true - open
     // false - close
     this.state = {
-      filterOpened: false
+      filterOpened: props.filterOpened
     };
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.refs.text.focus();
   }
 
   getManager() {
@@ -134,7 +140,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
+          filterOpened={ filterOpened }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },

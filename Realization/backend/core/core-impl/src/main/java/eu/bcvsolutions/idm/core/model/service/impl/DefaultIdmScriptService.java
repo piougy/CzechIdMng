@@ -25,8 +25,6 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -51,13 +49,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
+import eu.bcvsolutions.idm.core.model.entity.IdmScript_;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptAllowClassesType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServiceType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptServicesType;
 import eu.bcvsolutions.idm.core.model.jaxb.IdmScriptType;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmScript_;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -124,6 +122,11 @@ public class DefaultIdmScriptService
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
 	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.SCRIPT, getEntityClass());
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -141,6 +144,7 @@ public class DefaultIdmScriptService
 	}
 
 	@Override
+	@Transactional
 	public void deleteInternal(IdmScriptDto dto) {
 		// remove all IdmScriptAuthority for this script
 		scriptAuthorityService.deleteAllByScript(dto.getId());
@@ -149,6 +153,7 @@ public class DefaultIdmScriptService
 	}
 
 	@Override
+	@Transactional
 	public IdmScriptDto save(IdmScriptDto dto, BasePermission... permission) {
 		if (dto.getScript() != null) {
 			groovyScriptService.validateScript(dto.getScript());
@@ -515,10 +520,5 @@ public class DefaultIdmScriptService
 		}
 		//
 		return predicates;
-		}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.SCRIPT, getEntityClass());
 	}
 }

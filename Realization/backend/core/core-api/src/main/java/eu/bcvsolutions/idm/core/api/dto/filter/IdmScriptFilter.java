@@ -1,6 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 
 /**
  * Filter for search in scripts. Attributes:
@@ -12,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 
-public class IdmScriptFilter extends QuickFilter {
+public class IdmScriptFilter extends DataFilter {
 
     private String description;
 
@@ -21,6 +25,14 @@ public class IdmScriptFilter extends QuickFilter {
     private String code;
     
     private String usedIn;
+    
+    public IdmScriptFilter() {
+        this(new LinkedMultiValueMap<>());
+    }
+
+    public IdmScriptFilter(MultiValueMap<String, Object> data) {
+        super(IdmScriptDto.class, data);
+    }
 
     public String getUsedIn() {
 		return usedIn;

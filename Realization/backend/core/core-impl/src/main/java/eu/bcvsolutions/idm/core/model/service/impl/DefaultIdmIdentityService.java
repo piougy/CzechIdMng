@@ -405,7 +405,7 @@ public class DefaultIdmIdentityService
 				List<Predicate> predicates = new ArrayList<>();
 				//
 				// valid identity
-				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), false));
+				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE));
 				//
 				// valid contract (and not excluded) and role
 				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
@@ -421,7 +421,7 @@ public class DefaultIdmIdentityService
 		                		RepositoryUtils.getValidPredicate(contract, builder),
 		                		//
 		                		// not disabled, not excluded contract
-		                		builder.equal(contract.get(IdmIdentityContract_.disabled), false),
+		                		builder.equal(contract.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 		                		builder.or(
 		                				builder.notEqual(contract.get(IdmIdentityContract_.state), ContractState.EXCLUDED),
 		                				builder.isNull(contract.get(IdmIdentityContract_.state))

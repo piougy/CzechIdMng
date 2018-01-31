@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor.role;
 
+import java.text.MessageFormat;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -58,7 +60,7 @@ public class AutomaticRoleAttributeRuleConceptProcessor extends CoreEventProcess
 		} else if (type == AutomaticRoleAttributeRuleEventType.DELETE) {
 			automactiRoleAttributeRuleService.deleteInternal(dto);
 		} else {
-			throw new UnsupportedOperationException("Event type: " + type.toString() + ", isn't implemented yet.");
+			throw new UnsupportedOperationException(MessageFormat.format("Event type: [{0}], isn't implemented yet.", type.toString()));
 		}
 		//
 		if (automaticRole == null) {

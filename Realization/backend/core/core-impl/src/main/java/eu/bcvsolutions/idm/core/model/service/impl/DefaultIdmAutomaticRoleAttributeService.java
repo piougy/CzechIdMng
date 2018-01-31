@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -354,6 +355,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	@Override
+	@Transactional
 	public IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId) {
 		Assert.notNull(automaticRoleId);
 		//
@@ -646,19 +648,19 @@ public class DefaultIdmAutomaticRoleAttributeService
 			if (javaType == boolean.class) {
 				return Boolean.valueOf(value);
 			} else if (javaType == double.class) {
-				return (double) Double.valueOf(value);
+				return Double.valueOf(value);
 			} else if (javaType == int.class) {
-				return (int) Integer.valueOf(value);
+				return Integer.valueOf(value);
 			} else if (javaType == float.class) {
-				return (float) Float.valueOf(value);
+				return Float.valueOf(value);
 			} else if (javaType == byte.class) {
-				return (byte) Byte.valueOf(value);
+				return Byte.valueOf(value);
 			} else if (javaType == short.class) {
-				return (short) Short.valueOf(value);
+				return Short.valueOf(value);
 			} else if (javaType == long.class) {
-				return (long) Long.valueOf(value);
+				return Long.valueOf(value);
 			} else if (javaType == char.class) {
-				char ch = value.toString().charAt(0);
+				char ch = value.charAt(0);
 				return ch;
 			} else {
 				throw new UnsupportedOperationException("Primitive type :" + javaType.getName() + ", can't be cast!");
@@ -689,7 +691,11 @@ public class DefaultIdmAutomaticRoleAttributeService
 		case DOUBLE:
 			return new BigDecimal(value);
 		case BYTEARRAY: {
-			return value.getBytes();
+			try {
+				return value.getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new UnsupportedOperationException("Unsuported encoding UTF-8", e);
+			}
 		}
 		case UUID: {
 			return UUID.fromString(value);

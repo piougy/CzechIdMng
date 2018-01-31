@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanRead;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanSearch;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanUpdate;
+import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
 
 /**
  * Basic interface for all virtual connectors
@@ -43,5 +44,11 @@ public interface VsVirtualConnector extends IcConnector, IcCanRead, IcCanCreate,
 	 * @param objectClass
 	 */
 	void internalDelete(IcUidAttribute uid, IcObjectClass objectClass);
+
+	/**
+	 * Get configuration
+	 * @return
+	 */
+	BasicVirtualConfiguration getVirtualConfiguration();
 
 }

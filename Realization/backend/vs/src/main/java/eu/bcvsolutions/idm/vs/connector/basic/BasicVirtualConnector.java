@@ -444,6 +444,12 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 		return generateSchema();
 	}
+	
+	@Override
+	public BasicVirtualConfiguration getVirtualConfiguration() {
+		return virtualConfiguration;
+	}
+
 
 	/**
 	 * Overwrite attributes form VS account with attributes from unresloved requests

@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -54,6 +55,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
+import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
@@ -215,7 +217,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Override
 	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
-		
+
 		// Unfinished requests for same UID and system
 		List<VsRequestDto> duplicities = this.findDuplicities(request.getUid(), request.getSystem());
 		request.setState(VsRequestState.IN_PROGRESS);
@@ -267,26 +269,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		request.setState(VsRequestState.REALIZED);
 		Assert.notNull(request.getConfiguration(), "Request have to contains connector configuration!");
 		Assert.notNull(request.getConnectorKey(), "Request have to contains connector key!");
-
-		IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
-				.stream()//
-				.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
-				.findFirst()//
-				.orElse(null);
-		if (connectorInfo == null) {
-			throw new IcException(MessageFormat.format(
-					"We cannot found connector info by connector key [{0}] from virtual system request!",
-					request.getConnectorKey()));
-		}
-
-		IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null, connectorInfo.getConnectorKey(),
-				false);
-		IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance,
-				request.getConfiguration());
-		if (!(connectorInstance instanceof VsVirtualConnector)) {
-			throw new IcException("Found connector instance is not virtual system connector!");
-		}
-		VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
+		// Find connector by request
+		VsVirtualConnector virtualConnector = getVirtualConnector(request);
 
 		IcUidAttribute result = null;
 
@@ -365,7 +349,17 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			return null;
 		}
 
+		BasicVirtualConfiguration configuration = getVirtualConnector(request).getVirtualConfiguration();
 		List<IcAttribute> attributes = accountService.getIcAttributes(account);
+		// If system does not support enable, then enable attribute will be removed from
+		// result list
+		if (!configuration.isDisableSupported()) {
+			IcAttribute enableAttribute = attributes.stream()
+					.filter(attribute -> attribute.getName().equals(IcAttributeInfo.ENABLE)).findFirst().orElse(null);
+			if (enableAttribute != null) {
+				attributes.remove(enableAttribute);
+			}
+		}
 		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
 		connectorObject.setUidValue(account.getUid());
 		connectorObject.setObjectClass(request.getConnectorObject().getObjectClass());
@@ -462,6 +456,17 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			resultAttributes.add(vsAttribute);
 		});
 
+		BasicVirtualConfiguration configuration = getVirtualConnector(request).getVirtualConfiguration();
+		// If system does not support enable, then enable attribute will be removed from
+		// result list
+		if (!configuration.isDisableSupported()) {
+			VsAttributeDto enableAttribute = resultAttributes.stream()
+					.filter(attribute -> attribute.getName().equals(IcAttributeInfo.ENABLE)).findFirst().orElse(null);
+			if (enableAttribute != null) {
+				resultAttributes.remove(enableAttribute);
+			}
+		}
+
 		VsConnectorObjectDto wishObject = new VsConnectorObjectDto();
 		wishObject.setUid(request.getUid());
 		wishObject.setAttributes(resultAttributes);
@@ -470,8 +475,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	/**
-	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
-	 * and system. For all operation types.
+	 * Find duplicity requests. All request in state IN_PROGRESS for same UID and
+	 * system. For all operation types.
 	 * 
 	 * @param request
 	 * @return
@@ -545,6 +550,35 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
 	}
 
+	/**
+	 * Get virtual connector by vs request
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private VsVirtualConnector getVirtualConnector(VsRequestDto request) {
+		IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
+				.stream()//
+				.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
+				.findFirst()//
+				.orElse(null);
+		if (connectorInfo == null) {
+			throw new IcException(MessageFormat.format(
+					"We cannot found connector info by connector key [{0}] from virtual system request!",
+					request.getConnectorKey()));
+		}
+
+		IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null, connectorInfo.getConnectorKey(),
+				false);
+		IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance,
+				request.getConfiguration());
+		if (!(connectorInstance instanceof VsVirtualConnector)) {
+			throw new IcException("Found connector instance is not virtual system connector!");
+		}
+		VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
+		return virtualConnector;
+	}
+
 	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
 		Assert.notNull(request, "VS request cannot be null for send notification!");
 
@@ -611,9 +645,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	/**
-	 * Check if is request same. Request are equals only if have same UID,
-	 * system, operation type, all connector attributes (attributes may have not
-	 * the same order).
+	 * Check if is request same. Request are equals only if have same UID, system,
+	 * operation type, all connector attributes (attributes may have not the same
+	 * order).
 	 * 
 	 * @param request
 	 * @param previousRequest
@@ -637,8 +671,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	/**
-	 * Find previous request for same operation type. Given duplicities must be
-	 * DESC sorted by when was requests created.
+	 * Find previous request for same operation type. Given duplicities must be DESC
+	 * sorted by when was requests created.
 	 * 
 	 * @param operation
 	 * @param duplicities

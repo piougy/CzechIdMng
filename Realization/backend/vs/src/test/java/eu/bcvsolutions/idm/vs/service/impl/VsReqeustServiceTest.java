@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -30,6 +31,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -147,6 +149,59 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
 		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
 		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+	}
+
+	@Test
+	public void disableRequestTest() {
+
+		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
+		IdmIdentityDto identity = helper.createIdentity(USER_ONE_NAME);
+		this.assignRoleSystem(system, identity, ROLE_ONE_NAME);
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(system.getId());
+		requestFilter.setUid(USER_ONE_NAME);
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		VsRequestDto request = requests.get(0);
+		Assert.assertEquals(USER_ONE_NAME, request.getUid());
+		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		VsAccountDto account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNull("Account must be null, because request was not realized yet!", account);
+		// We try realize the request
+		super.logout();
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
+		request = requestService.realize(request);
+		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
+		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+		Assert.assertEquals(Boolean.TRUE, account.isEnable());
+
+		super.logout();
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		// Disable the identity
+		identity.setState(IdentityState.DISABLED_MANUALLY);
+		identityService.save(identity);
+
+		// Find created requests
+		requests = requestService.find(requestFilter, null).getContent().stream()
+				.filter(r -> VsRequestState.IN_PROGRESS == r.getState()).collect(Collectors.toList());
+		Assert.assertEquals(1, requests.size());
+		request = requests.get(0);
+		Assert.assertEquals(USER_ONE_NAME, request.getUid());
+		Assert.assertEquals(VsOperationType.UPDATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		// We try realize the request
+		super.logout();
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
+		request = requestService.realize(request);
+		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
+		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+		Assert.assertEquals(Boolean.FALSE, account.isEnable());
 	}
 
 	@Test
@@ -456,8 +511,8 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(4, ldapGroupAttribute.getValues().size());
 
 		// Find unchanged value
-		boolean findCorrectTest1Value = ldapGroupAttribute.getValues()
-				.stream().filter(value -> value.getValue().equals(initList.get(0))
+		boolean findCorrectTest1Value = ldapGroupAttribute
+				.getValues().stream().filter(value -> value.getValue().equals(initList.get(0))
 						&& value.getOldValue().equals(initList.get(0)) && value.getChange() == null)
 				.findFirst().isPresent();
 		Assert.assertTrue(findCorrectTest1Value);
@@ -624,8 +679,9 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 
 		// Create policy for vs evaluator and user role
-		helper.createSpecificPolicy(roleService.getByCode("userRole").getId(), VirtualSystemGroupPermission.VSREQUEST,
-				VsRequest.class, VsRequestByImplementerEvaluator.class.getName(), IdmBasePermission.ADMIN);
+		helper.createAuthorizationPolicy(roleService.getByCode("userRole").getId(),
+				VirtualSystemGroupPermission.VSREQUEST, VsRequest.class, VsRequestByImplementerEvaluator.class,
+				IdmBasePermission.ADMIN);
 
 		// Assign system to role
 		helper.createRoleSystem(roleOne, system);

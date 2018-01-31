@@ -119,7 +119,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
     } else if (_.isObject(objectValue)) {
       return JSON.stringify(objectValue);
     }
-    return objectValue;
+    return objectValue + '';
   }
 
   render() {

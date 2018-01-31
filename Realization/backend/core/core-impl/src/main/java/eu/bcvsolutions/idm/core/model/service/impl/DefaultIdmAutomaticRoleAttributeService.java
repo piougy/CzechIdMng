@@ -29,7 +29,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -98,8 +97,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-@Service("automaticRoleAttributeService")
 public class DefaultIdmAutomaticRoleAttributeService
 	extends AbstractReadWriteDtoService<IdmAutomaticRoleAttributeDto, IdmAutomaticRoleAttribute, IdmAutomaticRoleFilter>
 	implements IdmAutomaticRoleAttributeService {

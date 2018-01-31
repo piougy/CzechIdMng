@@ -699,7 +699,7 @@
       "SCHEDULER": "Nastavení plánovače",
       "WORKFLOWDEFINITION": "Workflow - definice",
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
-      "WORKFLOWTASK": "Workflow úkoly",
+      "WORKFLOWTASK": "Workflow - úkoly",
       "AUTOMATICROLEATTRIBUTE": "Automatické role (atributy)",
       "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)"
     }

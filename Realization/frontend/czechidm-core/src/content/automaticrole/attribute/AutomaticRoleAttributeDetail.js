@@ -127,25 +127,26 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
 
   _recalculate() {
     const { entity } = this.props;
-    this.setState({
-      showLoading: true
-    }, this.refs.form.processStarted());
     //
     // modal window with information about recalculate automatic roles
     this.refs['recalculate-automatic-role'].show(
       this.i18n(`content.automaticRoles.recalculate.message`),
       this.i18n(`content.automaticRoles.recalculate.header`)
     ).then(() => {
-      this.manager.recalculate(entity.id, (automaticRole) => {
-        // refresh concept state
-        // there must be fetch only init form doesn't enough
-        this.context.store.dispatch(this.manager.fetchEntity(automaticRole.id));
-        this._initForm(automaticRole);
-        this.setState({
-          showLoading: false
-        }, this.refs.form.processEnded());
+      this.setState({
+        showLoading: true
+      }, () => {
+        this.refs.form.processStarted();
+        this.manager.recalculate(entity.id, (automaticRole) => {
+          // refresh concept state
+          // there must be fetch only init form doesn't enough
+          this.context.store.dispatch(this.manager.receiveEntity(automaticRole.id, automaticRole));
+          this.setState({
+            showLoading: false
+          }, () => this.refs.form.processEnded());
+        });
+        this.addMessage({ message: this.i18n('save.recalculate', { name: entity.name }), level: 'info' });
       });
-      this.addMessage({ message: this.i18n('save.recalculate', { name: entity.name }), level: 'info' });
     }, () => {
       // reject
       this.setState({

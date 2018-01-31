@@ -676,7 +676,7 @@
       "SCHEDULER": "Scheduler",
       "WORKFLOWDEFINITION": "Workflow - definitions",
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
-      "WORKFLOWTASK": "Workflow task",
+      "WORKFLOWTASK": "Workflow - tasks",
       "AUTOMATICROLEATTRIBUTE": "Automatic roles (attributes)",
       "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)"
 

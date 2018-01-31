@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -691,11 +692,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		case DOUBLE:
 			return new BigDecimal(value);
 		case BYTEARRAY: {
-			try {
-				return value.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new UnsupportedOperationException("Unsuported encoding UTF-8", e);
-			}
+			return value.getBytes(StandardCharsets.UTF_8);
 		}
 		case UUID: {
 			return UUID.fromString(value);

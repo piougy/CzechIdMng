@@ -357,7 +357,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	@Override
-	public void recalculate(UUID automaticRoleId) {
+	public IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId) {
 		Assert.notNull(automaticRoleId);
 		//
 		// set concept to false before recalculation
@@ -368,6 +368,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
 		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
 		longRunningTaskManager.execute(automaticRoleTask);
+		//
+		return automaticRolAttributeDto;
 	}
 	
 	/**

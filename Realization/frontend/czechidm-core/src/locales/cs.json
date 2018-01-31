@@ -686,7 +686,7 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "ROLECATALOGUE": "Katalog rolí",
-      "ROLETREENODE": "Automatické role",
+      "ROLETREENODE": "Automatické role (organizační struktura)",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
@@ -699,7 +699,9 @@
       "SCHEDULER": "Nastavení plánovače",
       "WORKFLOWDEFINITION": "Workflow - definice",
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
-      "WORKFLOWTASK": "Workflow úkoly"
+      "WORKFLOWTASK": "Workflow úkoly",
+      "AUTOMATICROLEATTRIBUTE": "Automatické role (atributy)",
+      "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)"
     }
   },
   "content": {
@@ -2379,7 +2381,7 @@
       },
       "role": {
         "label": "Role",
-        "help": "Selected role will be assigned to identities base on specified Rules."
+        "help": "Vybraná role bude přidělená identitám na základě pravidel."
       },
       "attribute": {
         "type": {
@@ -3338,6 +3340,14 @@
     "DRY_RUN": {
       "title": "Zkušení běh",
       "message": "Zkušení běh (dry run)."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED": {
+      "title": "Atribut formuláře nelze smazat",
+      "message": "Atribut [{{formAttribute}}] nelze smazat, protože je používán v pravidle/pravidlech automatických rolích na základě atributu."
+    },
+    "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
+      "title": "Role nelze smazat",
+      "message": "Role [{{role}}] nelze smazat, protože je používána v automatických rolích na základě atributu."
     }
   },
   "validationError": {

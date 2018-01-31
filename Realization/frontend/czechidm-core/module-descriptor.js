@@ -52,7 +52,7 @@ module.exports = {
             'conditions': [
               'todo: eval( canPasswordChange ...)'
             ],
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'IDENTITY_PASSWORDRESET'] } ] // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
           },
           {
             'id': 'profile-roles',

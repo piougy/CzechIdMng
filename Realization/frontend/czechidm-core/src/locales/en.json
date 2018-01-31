@@ -1632,7 +1632,7 @@
           "strength": "Password strength:"
         },
         "permission": {
-          "failed": "You do not have permissions to change password"
+          "failed": "You do not have permissions to change password."
         },
         "changeType": {
           "DISABLED": "Password change is not allowed in this environment.",
@@ -1648,7 +1648,7 @@
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited.",
-          "noContent": "Password change form not found."
+          "noContent": "You do not have permissions to change password."
         },
         "button": {
           "change": "Change password"

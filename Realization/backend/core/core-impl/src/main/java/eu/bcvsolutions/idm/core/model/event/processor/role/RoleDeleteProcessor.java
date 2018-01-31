@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -24,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -50,6 +53,7 @@ public class RoleDeleteProcessor
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmRoleTreeNodeService roleTreeNodeService;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
+	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	
 	@Autowired
 	public RoleDeleteProcessor(
@@ -58,7 +62,8 @@ public class RoleDeleteProcessor
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmRoleRequestService roleRequestService,
 			IdmRoleTreeNodeService roleTreeNodeService,
-			IdmAuthorizationPolicyService authorizationPolicyService) {
+			IdmAuthorizationPolicyService authorizationPolicyService,
+			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -67,6 +72,7 @@ public class RoleDeleteProcessor
 		Assert.notNull(roleRequestService);
 		Assert.notNull(roleTreeNodeService);
 		Assert.notNull(authorizationPolicyService);
+		Assert.notNull(automaticRoleAttributeService);
 		//
 		this.service = service;
 		this.identityRoleRepository = identityRoleRepository;
@@ -74,6 +80,7 @@ public class RoleDeleteProcessor
 		this.roleRequestService = roleRequestService;
 		this.roleTreeNodeService = roleTreeNodeService;
 		this.authorizationPolicyService = authorizationPolicyService;
+		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 	
 	@Override
@@ -89,6 +96,16 @@ public class RoleDeleteProcessor
 		if(identityRoleRepository.countByRole_Id(role.getId()) > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
 		}
+		//
+		// automatic role attribute has assigned this role
+		IdmAutomaticRoleFilter automaticRoleFilter = new IdmAutomaticRoleFilter();
+		automaticRoleFilter.setRoleId(role.getId());
+		long totalElements = automaticRoleAttributeService.find(automaticRoleFilter, new PageRequest(0, 1)).getTotalElements();
+		if (totalElements > 0) {
+			// some automatic role attribute has assigned this role
+			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED, ImmutableMap.of("role", role.getName()));
+		}
+		//
 		// remove related automatic roles
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setRoleId(role.getId());

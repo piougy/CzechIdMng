@@ -63,18 +63,22 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
    * Method for basic initial form
    */
   _initForm(entity) {
+    let attributeName = null;
     if (entity !== undefined) {
       let formAttribute = null;
       if (!entity.id) {
         entity.type = AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY);
         entity.comparison = AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS);
         entity.attributeName = IdentityAttributeEnum.USERNAME;
+        attributeName = IdentityAttributeEnum.USERNAME;
       } else {
         if (entity.attributeName) {
           if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
             entity.attributeName = IdentityAttributeEnum.getEnum(entity.attributeName);
+            attributeName = IdentityAttributeEnum.findKeyBySymbol(entity.attributeName);
           } else {
             entity.attributeName = ContractAttributeEnum.getEnum(entity.attributeName);
+            attributeName = ContractAttributeEnum.findKeyBySymbol(entity.attributeName);
           }
         } else {
           // eav is used
@@ -86,7 +90,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       this.setState({
         typeForceSearchParameters: this._getForceSearchParametersForType(entity.type),
         type: entity.type,
-        formAttribute
+        formAttribute,
+        attributeName
       });
       this.refs.type.focus();
       this.refs.form.setData(entity);

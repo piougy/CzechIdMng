@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
@@ -85,6 +86,7 @@ import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorageValueService;
@@ -165,6 +167,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmAttachmentRepository attachmentRepository;
 	@Autowired private IdmAutomaticRoleAttributeRepository automaticRoleAttributeRepository;
 	@Autowired private IdmAutomaticRoleRepository automaticRoleRepository;
+	@Autowired private IdmAutomaticRoleAttributeRuleRepository automaticRoleAttributeRuleRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -302,7 +305,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmFormAttributeService.class)
 	public IdmFormAttributeService formAttributeService() {
-		return new DefaultIdmFormAttributeService(formAttributeRepository, formValueServices);
+		return new DefaultIdmFormAttributeService(formAttributeRepository, formValueServices, automaticRoleAttributeRuleService());
 	}
 	
 	/**
@@ -466,7 +469,7 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
-	 * Automatic role service by aatribute
+	 * Automatic role service by attribute
 	 * 
 	 * @return
 	 */
@@ -494,6 +497,14 @@ public class IdmServiceConfiguration {
 				entityManager,
 				identityRepository,
 				longRunningTaskManager());
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean(IdmAutomaticRoleAttributeRuleService.class)
+	public IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService() {
+		return new DefaultIdmAutomaticRoleAttributeRuleService(
+				automaticRoleAttributeRuleRepository,
+				entityEventManager());
 	}
 	
 	/**

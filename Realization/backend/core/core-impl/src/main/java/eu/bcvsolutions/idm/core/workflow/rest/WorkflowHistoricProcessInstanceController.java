@@ -6,7 +6,6 @@ import java.io.InputStream;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -52,9 +51,6 @@ import io.swagger.annotations.ApiParam;
 public class WorkflowHistoricProcessInstanceController extends AbstractReadDtoController<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> {
 
 	protected static final String TAG = "Workflow - process instances history";
-	//
-	@Value("${spring.data.rest.defaultPageSize}")
-	private int defaultPageSize;
 
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
 

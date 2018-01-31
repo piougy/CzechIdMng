@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -43,9 +42,6 @@ import io.swagger.annotations.ApiParam;
 public class WorkflowHistoricTaskInstanceController extends AbstractReadDtoController<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto>{
 
 	protected static final String TAG = "Workflow - task instances history";
-	//
-	@Value("${spring.data.rest.defaultPageSize}")
-	private int defaultPageSize;
 	
 	@Autowired
 	public WorkflowHistoricTaskInstanceController(

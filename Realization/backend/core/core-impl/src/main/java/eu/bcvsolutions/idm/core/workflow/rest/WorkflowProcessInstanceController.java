@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.workflow.rest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -49,9 +48,6 @@ public class WorkflowProcessInstanceController extends AbstractReadWriteDtoContr
 	protected static final String TAG = "Workflow - process instances";
 	//
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
-	
-	@Value("${spring.data.rest.defaultPageSize}")
-	private int defaultPageSize;
 	
 	@Autowired
 	public WorkflowProcessInstanceController(

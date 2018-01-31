@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.workflow.rest;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -56,8 +55,6 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 	protected static final String TAG = "Workflow - task instances";
 	//
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;
-	@Value("${spring.data.rest.defaultPageSize}")
-	private int defaultPageSize;
 
 	@Autowired
 	public WorkflowTaskInstanceController(

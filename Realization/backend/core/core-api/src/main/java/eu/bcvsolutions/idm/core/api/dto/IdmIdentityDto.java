@@ -194,8 +194,6 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	}
 	
 	public void setState(IdentityState state) {
-		Assert.notNull(state, "Identity state is required");
-		//
 		this.state = state;
 	}
 }

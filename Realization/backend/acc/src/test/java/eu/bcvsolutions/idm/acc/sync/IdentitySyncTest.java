@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -56,15 +59,22 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -116,6 +126,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
 	private IdmRoleService roleService;
+	@Autowired
+	private IdmScriptAuthorityService scriptAuthrotityService;
+	@Autowired
+	private IdmScriptService scriptService;
 
 	private SynchronizationService synchornizationService;
 
@@ -305,6 +319,99 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		config = (SysSyncIdentityConfigDto) syncConfigService.get(config.getId());
 		Assert.assertNull(config.getDefaultRole());
 	}
+	
+	@Test
+	public void testSynchronizationCache() {
+		SysSystemDto system = initData();
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		this.getBean().deleteAllResourceData();
+		String testLastName = "test-last-name-same-" + System.currentTimeMillis();
+		String testFirstName = "test-first-name";
+		
+		String userOne = "test-1-" + System.currentTimeMillis();
+		this.getBean().setTestData(userOne, testFirstName, testLastName);
+		
+		String userTwo = "test-2-" + System.currentTimeMillis();
+		this.getBean().setTestData(userTwo, testFirstName, testLastName);
+		
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+		mappingFilter.setSystemId(system.getId());
+		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto defaultMapping = mappings.get(0);
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(defaultMapping.getId());
+
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		
+		SysSystemAttributeMappingDto firstNameAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getIdmPropertyName().equals(IdmIdentity_.firstName.getName());
+		}).findFirst().orElse(null);
+		
+		Assert.assertNotNull(firstNameAttribute);
+		StringBuilder scriptGenerateUuid = new StringBuilder();
+		scriptGenerateUuid.append("import java.util.UUID;");
+		scriptGenerateUuid.append(System.lineSeparator());
+		scriptGenerateUuid.append("return UUID.randomUUID();");
+		
+		String scriptName = "generateUuid";
+		IdmScriptDto scriptUuid = new IdmScriptDto();
+		scriptUuid.setCategory(IdmScriptCategory.TRANSFORM_FROM);
+		scriptUuid.setCode(scriptName);
+		scriptUuid.setName(scriptName);
+		scriptUuid.setScript(scriptGenerateUuid.toString());
+		scriptUuid = scriptService.save(scriptUuid);
+		
+		IdmScriptAuthorityDto scriptAuth = new IdmScriptAuthorityDto();
+		scriptAuth.setClassName("java.util.UUID");
+		scriptAuth.setType(ScriptAuthorityType.CLASS_NAME);
+		scriptAuth.setScript(scriptUuid.getId());
+		scriptAuth = scriptAuthrotityService.save(scriptAuth);
+		
+		// we must call script
+		StringBuilder transformationScript = new StringBuilder();
+		
+		transformationScript.append("return scriptEvaluator.evaluate(");
+		transformationScript.append(System.lineSeparator());
+		transformationScript.append("scriptEvaluator.newBuilder()");
+		transformationScript.append(System.lineSeparator());
+		transformationScript.append(".setScriptCode('" + scriptName + "')");
+		transformationScript.append(System.lineSeparator());
+		transformationScript.append(".build());");
+		transformationScript.append(System.lineSeparator());
+		
+		firstNameAttribute.setTransformFromResourceScript(transformationScript.toString());
+		firstNameAttribute.setCached(true);
+		firstNameAttribute = schemaAttributeMappingService.save(firstNameAttribute);
+		
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2,
+				OperationResultType.WARNING);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setLastName(testLastName);
+		List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+		assertEquals(2, identities.size());
+		//
+		IdmIdentityDto identityOne = identities.get(0);
+		IdmIdentityDto identityTwo = identities.get(1);
+		//
+		assertNotEquals(identityOne.getFirstName(), identityTwo.getFirstName());
+	}
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,
 			OperationResultType resultType) {
@@ -389,6 +496,18 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		this.getBean().initIdentityData();
 		return system;
 
+	}
+	
+	/**
+	 * Method set and persist data to test resource
+	 */
+	@Transactional
+	public void setTestData(String name, String firstName, String lastName) {
+		TestResource resourceUser = new TestResource();
+		resourceUser.setName(name);
+		resourceUser.setFirstname(firstName);
+		resourceUser.setLastname(lastName);
+		entityManager.persist(resourceUser);
 	}
 
 	@Transactional

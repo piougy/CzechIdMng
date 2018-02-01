@@ -1,7 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.7.0 - unreleased]
+## [8.0.0 - unreleased]
+
+
+## [7.7.0]
 
 ### Added
 

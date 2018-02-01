@@ -9,6 +9,7 @@ import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +41,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Patrik Stloukal
  *
  */
+@Ignore
 public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired

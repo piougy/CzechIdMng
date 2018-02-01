@@ -35,13 +35,13 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
     const { entity} = this.props;
     return (
       <div>
-            <Basic.ContentHeader style={{ marginBottom: 0 }}>
-              {this.i18n('content.automaticRoles.attribute.rules.header')}
-            </Basic.ContentHeader>
-            <AutomaticRoleAttributeRuleTable
-              manager={this.automaticRoleAttributeRuleManager}
-              uiKey={entity ? entity.id : null}
-              attributeId={entity ? entity.id : null} />
+        <Basic.ContentHeader style={{ marginBottom: 0 }}>
+          {this.i18n('content.automaticRoles.attribute.rules.header')}
+        </Basic.ContentHeader>
+        <AutomaticRoleAttributeRuleTable
+          manager={this.automaticRoleAttributeRuleManager}
+          uiKey={entity ? entity.id : null}
+          attributeId={entity ? entity.id : null} />
 
       </div>
     );

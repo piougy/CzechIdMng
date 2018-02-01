@@ -430,12 +430,12 @@ module.exports = {
         {
           path: ':entityId/rules',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRules'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
         },
         {
           path: ':entityId/identities',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeIdentities'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
         }
       ]
     },

@@ -7,6 +7,12 @@ import * as Advanced from '../../../components/advanced';
 import IdentityStateEnum from '../../../enums/IdentityStateEnum';
 import { IdentityManager } from '../../../redux';
 
+/**
+ * Detail with identities that have assigned this automatic role
+ *
+ * @author Petr Adamec
+ */
+
 export default class AutomaticRoleAttributeIdentities extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -60,8 +66,7 @@ export default class AutomaticRoleAttributeIdentities extends Advanced.AbstractT
           </Advanced.Filter>
         }
         filterOpened={filterOpened}
-        _searchParameters={ this.getSearchParameters() }
-        >
+        _searchParameters={ this.getSearchParameters() }>
         <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
           <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" header={this.i18n('entity.Identity.username')} sort face="text"/>
           <Advanced.Column property="lastName" header={this.i18n('entity.Identity.lastName')} sort face="text"/>

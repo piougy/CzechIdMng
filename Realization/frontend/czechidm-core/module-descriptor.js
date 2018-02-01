@@ -651,7 +651,7 @@ module.exports = {
                     'path': '/automatic-role/attributes/:entityId/rules',
                     'icon': '',
                     'type': 'TAB',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
                   },
                   {
                     'id': 'automatic-role-attribute-identities',
@@ -660,7 +660,7 @@ module.exports = {
                     'path': '/automatic-role/attributes/:entityId/identities',
                     'icon': '',
                     'type': 'TAB',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
                   }
                 ]
               }

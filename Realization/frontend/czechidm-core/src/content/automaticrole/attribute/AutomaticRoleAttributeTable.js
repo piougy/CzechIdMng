@@ -16,12 +16,6 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    // default filter status
-    // true - open
-    // false - close
-    this.state = {
-      filterOpened: false
-    };
   }
 
   getManager() {

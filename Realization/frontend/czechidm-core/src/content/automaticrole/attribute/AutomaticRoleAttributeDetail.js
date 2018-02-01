@@ -76,7 +76,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
       showLoading: true
     }, this.refs.form.processStarted());
 
-    // edit isn't allowedattributeId
+    // edit isn't allowed
     if (entity.id === undefined) {
       this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         if (error && error.status === 'ACCEPTED') {
@@ -155,7 +155,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
   }
 
   render() {
-    const { uiKey, entity} = this.props;
+    const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     //
     return (

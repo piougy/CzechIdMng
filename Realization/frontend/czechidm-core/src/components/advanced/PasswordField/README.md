@@ -10,10 +10,12 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | newPassword  | string   | Default value for new password text field | '' |
-| newPasswordAgain | string | Defailt value for new password again text field |   |
+| newPasswordAgain | string | Default value for new password again text field |   |
 | readOnly  | bool   | Set if component is in read only mode | false |
 | type | string   | Set type of text field component. | 'password' |
-| required | bool  | If true bouth text field will be required | true |
+| required | bool  | If true both text field will be required | true |
+| newPasswordLabel | string  | Label for new password text field | i18n('content.password.change.password') |
+| newPasswordAgainLabel | string  | Label for new password text field | i18n('content.password.change.passwordAgain.label') |
 
 ## Usage
 ### Select

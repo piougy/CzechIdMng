@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 //
-import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
+import * as Basic from '../../basic';
+import DateValue from '../DateValue/DateValue';
 
 /**
  * Parameters in errors. Contain names of not success policies
@@ -39,6 +39,9 @@ const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
 'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
 'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName'];
 
+/**
+ * @author Ondřej Kopr
+ */
 export default class ValidationMessage extends Basic.AbstractFormComponent {
 
   constructor(props) {
@@ -85,7 +88,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           }
           rules += '</ul></span>';
           validationMessage.push(
-            <Basic.Alert level="warning" >
+            <Basic.Alert level="warning" className="no-margin">
               <span dangerouslySetInnerHTML={{
                 __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
               />
@@ -93,10 +96,18 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
         } else if (key !== PASSWORD_POLICIES_NAMES) {
           // validation message with date
           if (key === DATE) {
-            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
+            validationMessage.push(
+              <Basic.Alert level="warning" className="no-margin">
+                {this.i18n('content.passwordPolicies.validation.' + key)} <DateValue value={error.parameters[key]} />
+              </Basic.Alert>
+            );
           } else {
             // other validation messages
-            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
+            validationMessage.push(
+              <Basic.Alert level="warning" className="no-margin">
+                {this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}
+              </Basic.Alert>
+            );
           }
         }
       }
@@ -104,7 +115,10 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     // first message is password policies names, with danger class
     if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
       policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
-      validationMessage.unshift(<Basic.Alert level="danger" >{policies}</Basic.Alert>);
+      validationMessage.unshift(
+        <Basic.Alert level="danger" className="no-margin">
+          {policies}
+        </Basic.Alert>);
     }
 
     return validationMessage;

@@ -7,9 +7,6 @@
     "menu" : {
     }
   },
-  "entity": {
-
-  },
   "content": {
     "dashboard": {
     },
@@ -727,6 +724,10 @@
       "disabledAttribute": {
         "label": "Je deaktivován",
         "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
+      },
+      "cached": {
+        "label": "Hodnota ukládána do mezipaměti",
+        "help": "Hodnota atributu bude ukládána a čtena z mezipaměti. V tuto chvíli je využito pouze <strong>v synchronizaci</strong>. Klíčem je tento atribut a atributy z koncového systému (IcAttribute). Hodnotou je transformovaná hodnota z koncového systému."
       },
       "sendOnPasswordChange": {
         "label": "Zahrnout při změně hesla",

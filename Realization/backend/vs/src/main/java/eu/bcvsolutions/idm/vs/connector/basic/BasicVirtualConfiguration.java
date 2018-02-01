@@ -4,9 +4,9 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
-import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 
 /**
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
  * @author svandav
  *
  */
-public class BasicVirtualConfiguration implements IcConnectorConfigurationClass {
+public class BasicVirtualConfiguration implements ConfigurationClass {
 
 	private static final long serialVersionUID = 1L;
 	public static final String FACE_IDENTITY_SELECT = "IDENTITY-SELECT";
@@ -32,7 +32,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 	private boolean requiredConfirmation = true;
 	private String[] reservedNames = { "uid", "__NAME__", "enable", "__ENABLE__", "__PASSWORD__" };
 
-	@IcConfigurationClassProperty(
+	@ConfigurationClassProperty(
 			order = 5, 
 			displayName = "Required confirmation by the implementer", 
 			helpMessage = "If not checked, then all requests will be solved immediately. No notification will be sent to implementers.")
@@ -44,7 +44,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.requiredConfirmation = requiredConfirmation;
 	}
 
-	@IcConfigurationClassProperty(order = 10, required = true, displayName = "Attributes", helpMessage = "Properties for create EAV model.")
+	@ConfigurationClassProperty(order = 10, required = true, displayName = "Attributes", helpMessage = "Properties for create EAV model.")
 	public String[] getAttributes() {
 		return attributes;
 	}
@@ -53,7 +53,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.attributes = attributes;
 	}
 
-	@IcConfigurationClassProperty(
+	@ConfigurationClassProperty(
 			order = 20, 
 			face = FACE_IDENTITY_SELECT, 
 			displayName = "Implementers",
@@ -66,7 +66,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.implementers = implementers;
 	}
 
-	@IcConfigurationClassProperty(
+	@ConfigurationClassProperty(
 			order = 30, 
 			face = FACE_ROLE_SELECT, 
 			displayName = "Roles of implementers", 
@@ -79,7 +79,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.implementerRoles = realizatorRoles;
 	}
 
-	// Not implemented yet! @IcConfigurationClassProperty(order = 40, displayName = "Supports password reset")
+	// Not implemented yet! @ConfigurationClassProperty(order = 40, displayName = "Supports password reset")
 	public boolean isResetPasswordSupported() {
 		return resetPasswordSupported;
 	}
@@ -88,7 +88,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.resetPasswordSupported = changePasswordSupported;
 	}
 
-	@IcConfigurationClassProperty(order = 35, displayName = "Supports account disable/enable")
+	@ConfigurationClassProperty(order = 35, displayName = "Supports account disable/enable")
 	public boolean isDisableSupported() {
 		return disableSupported;
 	}

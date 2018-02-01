@@ -97,6 +97,7 @@ export default class SecurityManager {
     const userName = decoded.currentUsername;
     // construct logged user context
     const userContext = {
+      id: json.authentication.currentIdentityId,
       isAuthenticated: true,
       username: userName,
       tokenCIDMST: json.token,
@@ -454,9 +455,13 @@ export default class SecurityManager {
   static disconectStompClient() {
     return (dispatch, getState) => {
       if (stompClient) {
-        stompClient.disconnect(() => {
-          getState().logger.debug(`stomp client for messages - websocket successfully closed.`);
-        });
+        try {
+          stompClient.disconnect(() => {
+            getState().logger.debug(`stomp client for messages - websocket successfully closed.`);
+          });
+        } catch (err) {
+          LOGGER.debug(`[SecurityManager]: closing stomp client failed.`, err.message);
+        }
       }
     };
   }

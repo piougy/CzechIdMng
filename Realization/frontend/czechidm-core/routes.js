@@ -249,9 +249,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_CREATE'] } ],
     },
     {
-      path: 'tasks/:entityId',
-      component: require('./src/content/task/TaskInstances'),
-      access: [ { 'type': 'IS_AUTHENTICATED'}]
+      path: 'tasks/',
+      component: require('./src/content/task/TaskRoutes'),
+      access: [ { 'type': 'IS_AUTHENTICATED'}],
+      childRoutes: [
+        {
+          path: 'identity/:entityId',
+          component: require('./src/content/task/TaskInstances'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_READ'] } ]
+        },
+        {
+          path: 'all',
+          component: require('./src/content/task/TaskInstancesView'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['WORKFLOWTASK_ADMIN'] } ]
+        }
+      ]
     },
     {
       path: 'task/:taskID',
@@ -362,9 +374,31 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
-      path: 'scripts/:entityId',
+      path: 'scripts/:entityId/',
+      component: require('./src/content/script/Script'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/script/ScriptContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        },
+        {
+          path: 'authorities',
+          component: require('./src/content/script/ScriptAuthorities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        },
+        {
+          path: 'references',
+          component: require('./src/content/script/ScriptReferences'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'scripts/:entityId/new',
       component: require('./src/content/script/ScriptContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_CREATE'] } ],
     },
     {
       path: 'automatic-role/',

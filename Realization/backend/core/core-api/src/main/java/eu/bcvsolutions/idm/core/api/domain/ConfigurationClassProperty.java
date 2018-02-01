@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.ic.api.annotation;
+package eu.bcvsolutions.idm.core.api.domain;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface IcConfigurationClassProperty {
+public @interface ConfigurationClassProperty {
 
     public int order() default -1;
  

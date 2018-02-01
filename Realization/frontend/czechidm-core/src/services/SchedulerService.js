@@ -14,6 +14,14 @@ export default class SchedulerService extends AbstractService {
     return '/scheduler-tasks';
   }
 
+  supportsAuthorization() {
+    return false;
+  }
+
+  getGroupPermission() {
+    return 'SCHEDULER';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *
@@ -29,9 +37,7 @@ export default class SchedulerService extends AbstractService {
     }
     let label = this.getSimpleTaskType(entity.taskType);
     if (entity.description && showDescription) {
-      const short = Utils.Ui.substringByWord(entity.description, 35);
-      // TODO: improve substringByWord method ...
-      label += ` (${ short }${ short !== entity.description ? '...' : '' })`;
+      label = Utils.Ui.substringByWord(entity.description, 35, '...');
     }
     return label;
   }

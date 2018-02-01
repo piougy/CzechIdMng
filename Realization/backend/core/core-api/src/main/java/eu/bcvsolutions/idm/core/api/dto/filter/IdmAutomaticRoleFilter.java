@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 
 /**
  * Filter for automatic roles
@@ -30,7 +30,7 @@ public class IdmAutomaticRoleFilter extends DataFilter {
 	}
 	
 	public IdmAutomaticRoleFilter(MultiValueMap<String, Object> data) {
-		super(AbstractIdmAutomaticRoleDto.class, data);
+		super(IdmAutomaticRoleAttributeDto.class, data);
 	}
 
 	public UUID getRoleId() {

@@ -42,7 +42,7 @@ public class RoleRequestByWfInvolvedIdentityEvaluator extends AbstractAuthorizat
 	@Override
 	public Set<String> getPermissions(IdmRoleRequest entity, AuthorizationPolicy policy) {
 		Set<String> permissions = super.getPermissions(entity, policy);
-		if (entity == null || !securityService.isAuthenticated()) {
+		if (entity == null || !securityService.isAuthenticated() || entity.getWfProcessId() == null) {
 			return permissions;
 		}
 		//

@@ -48,7 +48,7 @@ public class IdentityContractEnableProcessor
 	 * Identity contracts, that was valid and not excluded - is ecluded now
 	 */
 	@Override
-	protected boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
+	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
 		// Skip HR process
 		if (this.getBooleanProperty(IdmIdentityContractService.SKIP_HR_PROCESSES, event.getProperties())) {
 			return false;

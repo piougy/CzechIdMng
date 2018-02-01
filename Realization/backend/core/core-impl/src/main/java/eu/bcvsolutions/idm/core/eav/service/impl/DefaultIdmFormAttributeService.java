@@ -18,8 +18,10 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
@@ -44,17 +46,21 @@ public class DefaultIdmFormAttributeService
 
 	private final IdmFormAttributeRepository repository;
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
+	private final IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService;
 	
 	@Autowired
 	public DefaultIdmFormAttributeService(
 			IdmFormAttributeRepository repository,
-			List<? extends FormValueService<?>> formValueServices) {
+			List<? extends FormValueService<?>> formValueServices,
+					IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService) {
 		super(repository);
 		//
 		Assert.notNull(formValueServices);
+		Assert.notNull(automaticRoleAttributeService);
 		//
 		this.repository = repository;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
+		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 	
 	@Override
@@ -93,7 +99,16 @@ public class DefaultIdmFormAttributeService
 				formValueService.delete((IdmFormValueDto) formValue);
 			});
 		});*/
+		
 		//
+		// check rules for automatic role attributes
+		IdmAutomaticRoleAttributeRuleFilter automaticRoleRuleFilter = new IdmAutomaticRoleAttributeRuleFilter();
+		automaticRoleRuleFilter.setFormAttributeId(dto.getId());
+		long totalElements = automaticRoleAttributeService.find(automaticRoleRuleFilter, new PageRequest(0, 1)).getTotalElements();
+		if (totalElements > 0) {
+			// some automatic roles use this attribute
+			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED, ImmutableMap.of("formAttribute", dto.getId()));
+		}
 		super.deleteInternal(dto);
 	}
 	

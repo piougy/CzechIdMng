@@ -50,7 +50,6 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		UUID identityId = identityContract.getIdentity();
 		//
 		// resolve automatic role by attribute
-		// resolve automatic role by attribute
 		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNewPassedAutomaticRoleForIdentity(identityId);
 		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNotPassedAutomaticRoleForIdentity(identityId);
 		automaticRoleAttributeService.processAutomaticRolesForIdentity(identityId, allNewPassedAutomaticRoleForIdentity, allNotPassedAutomaticRoleForIdentity);

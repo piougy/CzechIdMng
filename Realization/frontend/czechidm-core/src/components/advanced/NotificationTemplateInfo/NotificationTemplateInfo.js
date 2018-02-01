@@ -1,9 +1,9 @@
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
+import * as Basic from '../../basic';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
-import UiUtils from '../../../utils/UiUtils';
 
 const manager = new NotificationTemplateManager();
 
@@ -63,10 +63,6 @@ export class NotificationTemplateInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    // TODO: improve substringByWord method ...
-    const subject = UiUtils.substringBegin(entity.subject, 30, ' ');
-    const text = UiUtils.substringBegin(entity.bodyText, 30, ' ');
-    //
     return [
       {
         label: this.i18n('entity.NotificationTemplate.name'),
@@ -78,11 +74,11 @@ export class NotificationTemplateInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.NotificationTemplate.subject'),
-        value: subject === entity.subject ? subject : subject + ' ...'
+        value: (<Basic.ShortText value={ entity.subject } maxLength={ 30 } />)
       },
       {
         label: this.i18n('entity.NotificationTemplate.bodyText'),
-        value: text === entity.bodyText ? text : text + ' ...'
+        value: (<Basic.ShortText value={ entity.bodyText } maxLength={ 30 } />)
       }
     ];
   }

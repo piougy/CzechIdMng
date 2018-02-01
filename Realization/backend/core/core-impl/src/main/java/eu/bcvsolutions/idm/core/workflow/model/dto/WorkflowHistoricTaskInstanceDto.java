@@ -7,10 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.IdentityService;
+import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
+/**
+ * 
+ * @author svandav
+ *
+ */
+//TODO: Use in the since version 8.x.x @Relation(collectionRelation = "workflowHistoricTaskInstances")
+@Relation(collectionRelation = "resources")
 public class WorkflowHistoricTaskInstanceDto implements BaseDto {
 
 	private static final long serialVersionUID = 1L;

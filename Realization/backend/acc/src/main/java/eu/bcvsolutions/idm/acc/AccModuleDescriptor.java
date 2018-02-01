@@ -45,6 +45,7 @@ public class AccModuleDescriptor extends PropertyModuleDescriptor {
 		return Arrays.asList(AccGroupPermission.values());
 	}
 	
+	@Override
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		//

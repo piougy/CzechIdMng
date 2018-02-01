@@ -398,6 +398,20 @@
       },
       "Recaptcha": {
         "required": "Check 'you are not a robot' please"
+      },
+      "PasswordField":{
+        "newPassword": {
+          "label": "New password"
+        },
+        "newPasswordAgain": {
+          "label": "Re-enter new password"
+        },
+        "password": {
+          "label": "Password"
+        },
+        "passwordAgain": {
+          "label": "Re-enter password"
+        }
       }
     }
   },
@@ -649,7 +663,7 @@
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
       "ROLECATALOGUE": "Role catalog",
-      "ROLETREENODE": "Automatic roles",
+      "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
@@ -661,7 +675,10 @@
       "ROLEREQUEST": "Role requests",
       "SCHEDULER": "Scheduler",
       "WORKFLOWDEFINITION": "Workflow - definitions",
-      "CONFIDENTIALSTORAGEVALUE": "Confidential storage"
+      "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
+      "WORKFLOWTASK": "Workflow - tasks",
+      "AUTOMATICROLEATTRIBUTE": "Automatic roles (attributes)",
+      "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)"
 
     }
   },
@@ -977,6 +994,16 @@
         }
       }
     },
+    "tasks": {
+      "all": {
+        "title": "All tasks",
+        "label": "All tasks"
+      },
+      "identity": {
+        "title": "My tasks",
+        "label": "My tasks"
+      }
+    },
     "identities": {
       "header": "Users",
       "title": "Users",
@@ -1158,12 +1185,12 @@
       "header": "Automatic roles",
       "tree": {
         "header": "Automatic roles from organizational structure",
-        "title": "Automatic roles from organizational structure"
+        "title": "By organizational structure"
       },
       "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
       "attribute": {
         "header": "Automatic roles based on the attribute",
-        "title": "Automatic roles based on the attribute",
+        "title": "Based on the attribute",
         "create": {
           "header": "New automatic roles based on the attribute",
           "title": "New automatic roles based on the attribute"
@@ -1182,7 +1209,10 @@
         },
         "identities":{
           "header": "Users with assigned role",
-          "title": "Users with role"
+          "title": "Users with role",
+          "filter": {
+            "text": "Name of user or value"
+          }
         },
         "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
         "rule": {
@@ -1204,11 +1234,6 @@
         },
         "filter": {
           "text": "Name of automatic role or role name"
-        },
-        "setOnlyTextField": {
-          "label": "Show a text field",
-          "help": "Displays the value as a simple text field",
-          "back": "Return the original face"
         }
       },
       "recalculate": {
@@ -1280,12 +1305,10 @@
     "scripts": {
       "header": "Script definitions",
       "title": "Script definitions",
-      "label": "Script definitions",
       "edit": {
         "title": "Script detail",
-        "header": "{{name}} rule detail"
+        "header": "{{name}} script detail"
       },
-      "scriptAuthorities": "Script authorities",
       "scriptAuthoritySaveFirst": "You can add script authorities only after saving.",
       "create": {
         "title": "New script",
@@ -1296,17 +1319,28 @@
       },
       "filter": {
         "text": "Code / Name / Description"
-      }
-    },
-    "scriptAuthorities": {
-      "create": {
-        "header": "Create new authority for script <small>{{name}}</small>"
       },
-      "edit": {
-        "header": "Edit authority for script <small>{{name}}</small>"
+      "detail": {
+        "header" : "Basic informations",
+        "title" : "Basic informations"
       },
-      "save": {
-        "success": "Authority for script successfully saved"
+      "authorities": {
+          "header": "Script authorities",
+          "title": "Script authorities",
+          "edit": {
+            "header": "Edit authority for script <small>{{name}}</small>"
+          },
+          "create": {
+            "header": "Create new authority for script <small>{{name}}</small>"
+          },
+          "save": {
+            "header": "Authority for script successfully saved",
+            "success": "Authority for script successfully saved"
+          }
+      },
+      "references": {
+        "header" : "Script usage",
+        "title" : "Script usage"
       }
     },
     "roles": {
@@ -1614,7 +1648,7 @@
           "strength": "Password strength:"
         },
         "permission": {
-          "failed": "You do not have permissions to change password"
+          "failed": "You do not have permissions to change password."
         },
         "changeType": {
           "DISABLED": "Password change is not allowed in this environment.",
@@ -1629,7 +1663,8 @@
           "wrongUser": "Change password to subordinates is not allowed",
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
-          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
+          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited.",
+          "noContent": "You do not have permissions to change password."
         },
         "button": {
           "change": "Change password"
@@ -1866,10 +1901,22 @@
             "parameters": "Task parameters"
           },
           "task-run": {
-            "success": "Task [{{record}}] successfully started."
+            "header": "Run record manually",
+            "header_plural": "Run records manually",
+            "message": "Do you want to run selected record [<strong>{{record}}</strong>] manually?",
+            "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to run <strong>{{count}}</strong> selected records manually?",
+            "error": "An error occurred while running [{{record}}] manually.",
+            "success": "Selected record [{{record}}] successfully ran manually",
+            "success_plural": "Selected records [{{records}}] were successfully run"
           },
           "task-dry-run": {
-            "success": "Task [{{record}}] successfully started as dryRun (demo process)."
+            "header": "Run record as dryRun (demo process)",
+            "header_plural": "Run records as dryRun (demo process)",
+            "message": "Do you want to run selected record [<strong>{{record}}</strong>] as dryRun (demo process)?",
+            "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to run <strong>{{count}}</strong> selected records as dryRun (demo process)?",
+            "error": "An error occurred while running [{{record}}] as dryRun (demo process).",
+            "success": "Selected record [{{record}}] successfully ran as dryRun (demo process)",
+            "success_plural": "Selected records [{{records}}] were successfully run as dryRun (demo process)"
           },
           "task-delete": {
             "header": "Remove task",
@@ -2475,7 +2522,12 @@
     "WorkflowTaskInstance": {
       "taskDescription": "Subject",
       "taskCreated": "Created on",
-      "id": "Task Id"
+      "id": "Task Id",
+      "taskAssignee": "Assigned",
+      "filter": {
+        "createdBefore": "Tasks created before",
+        "createdAfter": "Tasks created after"
+      }
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Process name",
@@ -2924,7 +2976,7 @@
     },
     "FORBIDDEN": {
       "title": "Insufficient permissions",
-      "message": "You do not have insufficient permissions for selected action."
+      "message": "You do not have sufficient permissions for selected action."
     },
     "FORBIDDEN_ENTITY": {
       "title": "Insufficient permissions",
@@ -3262,6 +3314,14 @@
     "DRY_RUN": {
       "title": "Dry run",
       "message": "Demo process."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED": {
+      "title": "Form attribute can not be deleted",
+      "message": "Attribute [{{formAttribute}}] can not be deleted, because is used in the rule/rules by automatic role based on attribute."
+    },
+    "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
+      "title": "Role nelze smazat",
+      "message": "Role [{{role}}] can not be deleted, because is used in the rule/rules by automatic role based on attribute."
     }
   },
   "validationError": {

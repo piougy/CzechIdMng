@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.annotations.Beta;
 
@@ -57,23 +54,32 @@ public interface IdmIdentityService extends
 	 */
 	List<OperationResult> passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto);
 	
-	
 	/**
-	 * Find all identities by assigned role
+	 * Find all identities by assigned role. Returns even identities with invalid roles (future valid and expired) and invalid identities.
 	 * 
 	 * @param roleId
 	 * @return List of identities with assigned role
+	 * @see #findValidByRole(UUID)
 	 */
 	List<IdmIdentityDto> findAllByRole(UUID roleId);
 	
 	/**
-	 * Find all identities by assigned role name
+	 * Find valid identities by assigned currently valid role. Identities with valid identity roles from valid contracts only.
+	 * 
+	 * @param roleId
+	 * @return List of identities with assigned currently valid role
+	 * @see {@link #findAllByRole(UUID)} when you need to return identities with invalid role assigned
+	 * @since 7.7.0
+	 */
+	List<IdmIdentityDto> findValidByRole(UUID roleId);
+	
+	/**
+	 * Find all identities by assigned role name. Returns even identities with invalid roles (future valid and expired) and invalid identities.
 	 * 
 	 * @param roleName
 	 * @return List of identities with assigned role
 	 */
 	List<IdmIdentityDto> findAllByRoleName(String roleName);
-	
 
 	/**
 	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).

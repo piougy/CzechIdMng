@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Default service for script
@@ -13,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 public interface IdmScriptService extends
 		ReadWriteDtoService<IdmScriptDto, IdmScriptFilter>, 
 		Recoverable<IdmScriptDto>,
+		AuthorizableService<IdmScriptDto>,
 		CodeableService<IdmScriptDto> {
 
 	/**

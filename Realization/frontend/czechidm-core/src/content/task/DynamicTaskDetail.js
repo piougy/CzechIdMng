@@ -5,7 +5,7 @@ import Helmet from 'react-helmet';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
+import IdentityInfo from '../../components/advanced/IdentityInfo/IdentityInfo';
 import DecisionButtons from './DecisionButtons';
 
 /**
@@ -100,10 +100,10 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       return (
         <div>
           <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
-            <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
+            <IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
           </Basic.LabelWrapper>
           <Basic.LabelWrapper rendered={task.variables.implementerIdentifier} readOnly ref="implementerIdentifier" label={this.i18n('implementerIdentifier')}>
-            <Advanced.IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
+            <IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
           </Basic.LabelWrapper>
         </div>
       );
@@ -111,6 +111,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   _getFormDataComponents(task) {
+    const { canExecute } = this.props;
     if (!task) {
       return null;
     }
@@ -123,7 +124,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
             <Basic.TextField
               key={formData.id}
               ref={formData.id}
-              readOnly={!formData.writable}
+              readOnly={!formData.writable || !canExecute}
               required={formData.required}
               tooltip={this._getLocalization('tooltip', formData)}
               placeholder={this._getLocalization('placeholder', formData)}
@@ -138,7 +139,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               key={formData.id}
               ref={formData.id}
               mode="date"
-              readOnly={!formData.writable}
+              readOnly={!formData.writable || !canExecute}
               required={formData.required}
               tooltip={this._getLocalization('tooltip', formData)}
               placeholder={this._getLocalization('placeholder', formData)}
@@ -151,7 +152,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
             <Basic.Checkbox
               key={formData.id}
               ref={formData.id}
-              readOnly={!formData.writable}
+              readOnly={!formData.writable || !canExecute}
               required={formData.required}
               tooltip={this._getLocalization('tooltip', formData)}
               placeholder={this._getLocalization('placeholder', formData)}
@@ -164,7 +165,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
             <Basic.TextArea
               key={formData.id}
               ref={formData.id}
-              readOnly={!formData.writable}
+              readOnly={!formData.writable || !canExecute}
               required={formData.required}
               tooltip={this._getLocalization('tooltip', formData)}
               placeholder={this._getLocalization('placeholder', formData)}
@@ -177,7 +178,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
             <Basic.TextField
               key={formData.id}
               ref={formData.id}
-              readOnly={!formData.writable}
+              readOnly={!formData.writable || !canExecute}
               required={formData.required}
               tooltip={this._getLocalization('tooltip', formData)}
               placeholder={this._getLocalization('placeholder', formData)}
@@ -190,7 +191,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const {task, taskManager} = this.props;
+    const {task, taskManager, canExecute} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
@@ -212,8 +213,8 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           <Basic.AbstractForm ref="formData" data={formDataValues} className="panel-body">
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
-          <Basic.PanelFooter>
-            <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)}/>
+          <Basic.PanelFooter rendered={canExecute}>
+            <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)} readOnly={!canExecute}/>
           </Basic.PanelFooter>
         </Basic.Panel>
       </div>
@@ -224,12 +225,14 @@ class DynamicTaskDetail extends Basic.AbstractContent {
 DynamicTaskDetail.propTypes = {
   task: PropTypes.object,
   readOnly: PropTypes.bool,
-  taskManager: PropTypes.object.isRequired
+  taskManager: PropTypes.object.isRequired,
+  canExecute: PropTypes.bool
 };
 
 DynamicTaskDetail.defaultProps = {
   task: null,
-  readOnly: false
+  readOnly: false,
+  canExecute: true
 };
 
 export default DynamicTaskDetail;

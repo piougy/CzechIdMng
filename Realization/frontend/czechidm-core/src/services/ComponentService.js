@@ -93,9 +93,20 @@ export default class ComponentService {
   getEntitySelectBoxComponent(entityType) {
     return this.getComponentByEntityType(ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE, entityType);
   }
+
+  /**
+   * Returns registered password change components sorted by order and remove disabled components
+   *
+   * @param  {string} entityType e.g. identity
+   * @return {object}            component
+   */
+  getPasswordChangeComponents() {
+    return this.getComponentDefinitions(ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE);
+  }
 }
 // reserved component types
 ComponentService.ENTITY_INFO_COMPONENT_TYPE = 'entity-info';
 ComponentService.DASHBOARD_COMPONENT_TYPE = 'dashboard';
 ComponentService.FORM_ATTRIBUTE_RENDERER = 'form-attribute-renderer';
 ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE = 'entity-select-box';
+ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE = 'password-change-component';

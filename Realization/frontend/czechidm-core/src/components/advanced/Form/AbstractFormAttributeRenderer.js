@@ -92,7 +92,10 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     //
     if (formValue === null) {
       formValue = {
-        formAttribute: attribute.id
+        formAttribute: attribute.id,
+        _embedded: {
+          formAttribute: attribute
+        }
       };
     }
     formValue.seq = seq;

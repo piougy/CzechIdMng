@@ -49,6 +49,11 @@ public class TestEntityEventProcessorConfiguration {
 		return new TestProcessorTwo(2);
 	}
 	
+	@Bean
+	public EntityEventProcessor<?> testConditionalProcessor() {
+		return new ConditionalProcessor();
+	}
+	
 	private class TestProcessor extends AbstractEntityEventProcessor<TestContent> {
 		
 		private final Integer order;
@@ -96,5 +101,24 @@ public class TestEntityEventProcessorConfiguration {
 		public int getOrder() {
 			return order;
 		}
+	}
+	
+	private class ConditionalProcessor extends AbstractEntityEventProcessor<ConditionalContent> {
+
+		@Override
+		public EventResult<ConditionalContent> process(EntityEvent<ConditionalContent> event) {
+			return null;
+		}
+		
+		@Override
+		public boolean conditional(EntityEvent<ConditionalContent> event) {
+			return event.getContent().isCondition();
+		}
+
+		@Override
+		public int getOrder() {
+			return 0;
+		}
+		
 	}
 }

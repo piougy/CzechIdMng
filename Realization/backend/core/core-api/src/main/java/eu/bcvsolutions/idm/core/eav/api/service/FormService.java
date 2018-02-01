@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -458,4 +459,13 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 */
 	List<String> getOwnerTypes();
+
+	
+	/**
+	 * Create instance of form definition from the given configuration class
+	 * 
+	 * @param configurationClass
+	 * @return
+	 */
+	IdmFormDefinitionDto convertConfigurationToFormDefinition(Class<? extends ConfigurationClass> configurationClass);
 }

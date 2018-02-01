@@ -421,7 +421,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return null;
     }
     //
-    const { _permissions } = this.props;
+    const { _permissions, canExecute } = this.props;
     return (
       <div>
         <Basic.ContentHeader>
@@ -436,7 +436,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             showLoading={showLoading}
             showLoadingButtonRemove={showLoadingButtonRemove}
             className="vertical-scroll"
-            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions)}
+            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
             identityUsername={request && request.applicant}
             identityRoles={_currentIdentityRoles}
             addedIdentityRoles={addedIdentityRoles}
@@ -563,10 +563,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.description.label')}/>
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>
-              {this._renderRoleConceptTable(request, true,
-                isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
-                changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)}
-                {this._renderRoleConceptChangesTable(request, forceSearchParameters, true)}
+              {
+                this._renderRoleConceptTable(request, true, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)
+              }
+              {
+                this._renderRoleConceptChangesTable(request, forceSearchParameters, true)
+              }
             </div>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
@@ -617,11 +619,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 RoleRequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
   editableInStates: PropTypes.arrayOf(PropTypes.string),
-  showRequestDetail: PropTypes.bool
+  showRequestDetail: PropTypes.bool,
+  canExecute: PropTypes.bool,
 };
 RoleRequestDetail.defaultProps = {
   editableInStates: ['CONCEPT', 'EXCEPTION', 'DUPLICATED'],
-  showRequestDetail: true
+  showRequestDetail: true,
+  canExecute: true
 };
 
 function select(state, component) {

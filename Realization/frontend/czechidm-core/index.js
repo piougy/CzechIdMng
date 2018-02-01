@@ -22,7 +22,7 @@ import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
 import IdentityAttributeEnum from './src/enums/IdentityAttributeEnum';
 import ContractAttributeEnum from './src/enums/ContractAttributeEnum';
 //
-import ValidationMessage from './src/content/identity/ValidationMessage';
+import ValidationMessage from './src/components/advanced/ValidationMessage/ValidationMessage';
 
 const ModuleRoot = {
   Basic,
@@ -52,7 +52,7 @@ const ModuleRoot = {
     ContractAttributeEnum
   },
   Content: {
-    ValidationMessage
+    ValidationMessage // backward compatibility
   }
 };
 ModuleRoot.version = '0.0.1';

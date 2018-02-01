@@ -45,21 +45,17 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	
 	@Override
 	public EventResult<DTO> process(EntityEvent<DTO> event) {
-		if (conditional(event)) {
-			Map<String, Object> variables = new HashMap<>();
-			variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
-			OperationResult result = process(variables);
-			//
-			// wf throws exception
-			if (result.getException() != null) {
-				throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, 
-						ImmutableMap.of("exception", result.getException()),
-						result.getException());
-			}
-			return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
-		}
+		Map<String, Object> variables = new HashMap<>();
+		variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
+		OperationResult result = process(variables);
 		//
-		return new DefaultEventResult<>(event, this);
+		// wf throws exception
+		if (result.getException() != null) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, 
+					ImmutableMap.of("exception", result.getException()),
+					result.getException());
+		}
+		return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 	}
 	
 	/**
@@ -79,16 +75,6 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	 */
 	protected String getDefaultWorkflowDefinitionKey() {
 		return null;
-	}
-	
-	/**
-	 * Execute processor conditionally
-	 * 
-	 * @param event
-	 * @return
-	 */
-	protected boolean conditional(EntityEvent<DTO> event) {
-		return true;
 	}
 	
 	/**
@@ -153,5 +139,13 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 		List<String> properties =  super.getPropertyNames();
 		properties.add(PROPERTY_WF);
 		return properties;		
+	}
+
+	public WorkflowProcessInstanceService getWorkflowService() {
+		return workflowService;
+	}
+
+	public SecurityService getSecurityService() {
+		return securityService;
 	}
 }

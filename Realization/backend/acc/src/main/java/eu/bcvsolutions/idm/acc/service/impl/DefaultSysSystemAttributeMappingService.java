@@ -496,7 +496,6 @@ public class DefaultSysSystemAttributeMappingService
 				icValue = icAttribute.getValue();
 			}
 		}
-
 		Object transformedValue = this.transformValueFromResource(icValue, attribute, icAttributes);
 		return transformedValue;
 	}

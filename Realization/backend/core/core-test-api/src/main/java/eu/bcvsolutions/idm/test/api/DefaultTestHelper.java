@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -47,6 +48,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
  * Creates common test entities
@@ -219,6 +221,21 @@ public class DefaultTestHelper implements TestHelper {
 		dto.setPermissions(permission);
 		return authorizationPolicyService.save(dto);
 	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createAuthorizationPolicy(UUID role, GroupPermission groupPermission,
+			Class<? extends AbstractEntity> authorizableType,
+			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluator,
+			BasePermission... permission) {
+		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
+		dto.setRole(role);
+		dto.setEvaluator(evaluator);
+		dto.setGroupPermission(groupPermission == null ? null : groupPermission.getName());
+		dto.setAuthorizableType(authorizableType == null ? null : authorizableType.getCanonicalName());
+		dto.setPermissions(permission);
+		//
+		return authorizationPolicyService.save(dto);
+	}
 
 	@Override
 	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission) {
@@ -234,17 +251,29 @@ public class DefaultTestHelper implements TestHelper {
 		dto.setPermissions(permission);
 		return authorizationPolicyService.save(dto);
 	}
-
+	
 	@Override
 	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role) {
-		return createIdentityRole(getPrimeContract(identity.getId()), role);
+		return createIdentityRole(identity, role, null, null);
+	}
+
+	@Override
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role, LocalDate validFrom, LocalDate validTill) {
+		return createIdentityRole(getPrimeContract(identity.getId()), role, validFrom, validTill);
 	}
 
 	@Override
 	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role) {
+		return createIdentityRole(identityContract, role, null, null);
+	}
+	
+	@Override
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role, LocalDate validFrom, LocalDate validTill) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(identityContract.getId());
 		identityRole.setRole(role.getId());
+		identityRole.setValidFrom(validFrom);
+		identityRole.setValidTill(validTill);
 		return identityRoleService.save(identityRole);
 	}
 

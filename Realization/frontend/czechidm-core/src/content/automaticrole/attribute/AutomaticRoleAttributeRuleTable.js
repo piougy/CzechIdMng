@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
 //
+import Helmet from 'react-helmet';
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -10,6 +11,9 @@ import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttr
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import IdentityAttributeEnum from '../../../enums/IdentityAttributeEnum';
 import ContractAttributeEnum from '../../../enums/ContractAttributeEnum';
+import { AutomaticRoleAttributeManager } from '../../../redux';
+
+const automaticRoleAttributeManager = new AutomaticRoleAttributeManager();
 
 /**
  * Table with rules for automatic role by attribute
@@ -84,6 +88,12 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     }
   }
 
+  afterDelete() {
+    super.afterDelete();
+    //
+    this.context.store.dispatch(automaticRoleAttributeManager.fetchEntity(this.props.attributeId));
+  }
+
   render() {
     const { uiKey, manager, rendered, attributeId } = this.props;
     const { filterOpened } = this.state;
@@ -99,6 +109,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
+      <Helmet title={this.i18n('content.automaticRoles.attribute.edit.title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"

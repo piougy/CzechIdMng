@@ -33,7 +33,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Returns entity manager
    */
   getManager() {
-    return null;
+    return this.props.manager;
   }
 
   /**
@@ -296,7 +296,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           hover={ false }
           noHeader
           data={ this.getPopoverContent(_entity) }
-          children={this.getTableChildren()}/>
+          children={ this.getTableChildren() }/>
 
         <Basic.PanelFooter rendered={ this.showLink() }>
           <Link to={ this.getLink() }>
@@ -373,7 +373,11 @@ AbstractEntityInfo.propTypes = {
   /**
    * Shows link to full identity detail (if currently logged user has appropriate permission)
    */
-  showLink: PropTypes.bool
+  showLink: PropTypes.bool,
+  /**
+   * Entity manager
+   */
+  manager: PropTypes.object
 };
 AbstractEntityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

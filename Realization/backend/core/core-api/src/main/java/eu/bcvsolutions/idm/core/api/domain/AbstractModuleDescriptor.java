@@ -147,7 +147,7 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	protected UUID getNotificationTemplateId(String code) {
 		Assert.hasLength(code);
 		//
-		IdmNotificationTemplateDto notificationTemplate = notificationTemplateService.getTemplateByCode(code);
+		IdmNotificationTemplateDto notificationTemplate = notificationTemplateService.getByCode(code);
 		if (notificationTemplate == null) {
 			throw new IllegalArgumentException(String.format(
 					"System template with code [%s] for module [%s] not found. Check template's path configuration [%s].", 

@@ -51,7 +51,10 @@ export default class AutomaticRoleAttributeService extends AbstractService {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name', 'asc');
   }
 
-  recalculate(id) {
+  /**
+   * Recalculate given automatic role by attribute
+   */
+  recalculate(id, callback = null) {
     return RestApiService
       .post(this.getApiPath() + '/' + id + REACALCULATE_PATH)
       .then(jsonResponse => {
@@ -61,7 +64,13 @@ export default class AutomaticRoleAttributeService extends AbstractService {
         if (Utils.Response.hasInfo(jsonResponse)) {
           throw Utils.Response.getFirstInfo(jsonResponse);
         }
-        return jsonResponse;
+        return jsonResponse.json();
+      })
+      .then(json => {
+        if (callback !== null) {
+          callback(json);
+        }
+        return json;
       });
   }
 }

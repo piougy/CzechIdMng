@@ -68,7 +68,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		// Log as user without ADMIN rights
 		loginAsNoAdmin(InitTestData.TEST_USER_1);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(instance.getId());;
+		filter.setProcessInstanceId(instance.getId());
 		ResourcesWrapper<WorkflowProcessInstanceDto> processes = processInstanceService.search(filter);
 		
 		assertEquals(PROCESS_KEY, ((List<WorkflowProcessInstanceDto>) processes.getResources()).get(0).getName());
@@ -114,11 +114,13 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		checkTaskHistory(taskId, InitTestData.TEST_USER_1);
 		
 		//Second task is for testUser2 (is candidate) for testUser1 must be null
+		filter.setCandidateOrAssigned(InitTestData.TEST_USER_1);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(0, tasks.size());
 
 		this.logout();
 		this.loginAsAdmin(InitTestData.TEST_USER_2);
+		filter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskSecond", tasks.get(0).getName());

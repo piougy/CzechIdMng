@@ -87,5 +87,23 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     public void setOperation(ConceptRoleRequestOperation operation) {
         this.operation = operation;
     }
+    
+    /**
+     * @deprecated since 7.7.0 use {@link #getAutomaticRole()}
+     * @return
+     */
+    @Deprecated
+    public UUID getRoleTreeNodeId() {
+    	return getAutomaticRole();
+    }
+    
+    /**
+     * @deprecated since 7.7.0 use {@link #setAutomaticRole(UUID)}
+     * @param roleTreeNodeId
+     */
+    @Deprecated
+    public void setRoleTreeNodeId(UUID roleTreeNodeId) {
+    	setAutomaticRole(roleTreeNodeId);
+    }
 
 }

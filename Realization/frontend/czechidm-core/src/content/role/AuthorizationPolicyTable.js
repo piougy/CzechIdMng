@@ -175,13 +175,23 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   /**
-   * TODO: module
+   * Resolve bese permission with module localization
    *
    * @param  {[type]} perrmission [description]
    * @return {[type]}             [description]
    */
   _getBasePermissionNiceLabel(permission) {
-    return this.i18n(`core:permission.base.${permission}`, { defaultValue: permission});
+    let _permission = permission;
+    const { allAuthorities } = this.props;
+    if (!allAuthorities) {
+      // will be refreshed after authorities are loaded
+      return null;
+    }
+    if (!permission.name) {
+      _permission = this._getUniqueBasePermissions(this.props.allAuthorities).get(permission);
+    }
+    //
+    return this.i18n(`${_permission.module ? _permission.module : 'core'}:permission.base.${_permission.name}`, { defaultValue: _permission.name });
   }
 
   _getGroupPermissionNiceLabel(groupPermission) {
@@ -203,6 +213,20 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     //
     const label = this._getGroupPermissionNiceLabel(groupPermission);
     return `${label}${!authorizableType ? '' : (' (' + Utils.Ui.getSimpleJavaType(authorizableType) + ')')}`;
+  }
+
+  _getUniqueBasePermissions(allAuthorities, authorizableType = null) {
+    let _uniqueBasePermissions = new Immutable.Map();
+    if (allAuthorities) {
+      allAuthorities.forEach(groupPermission => {
+        if (!authorizableType || authorizableType.group === groupPermission.name) {
+          groupPermission.permissions.forEach(permission => {
+            _uniqueBasePermissions = _uniqueBasePermissions.set(permission.name, permission);
+          });
+        }
+      });
+    }
+    return _uniqueBasePermissions;
   }
 
   render() {
@@ -248,19 +272,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
         return one.niceLabel.localeCompare(two.niceLabel);
       });
     }
-    let _uniqueBasePermissions = new Immutable.Map();
-    if (allAuthorities) {
-      allAuthorities.forEach(groupPermission => {
-        if (!authorizableType || authorizableType.group === groupPermission.name) {
-          groupPermission.permissions.forEach(permission => {
-            _uniqueBasePermissions = _uniqueBasePermissions.set(permission.name, permission);
-          });
-        }
-      });
-    }
+    const _uniqueBasePermissions = this._getUniqueBasePermissions(allAuthorities, authorizableType);
     const _basePermissions = _uniqueBasePermissions.toArray().map(permission => {
       return {
-        niceLabel: this._getBasePermissionNiceLabel(permission.name),
+        niceLabel: this._getBasePermissionNiceLabel(permission),
         value: permission.name
       };
     }).sort((one, two) => {
@@ -440,6 +455,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       palceholder={ this.i18n('entity.AuthorizationPolicy.basePermissions.placeholder') }
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.basePermissions.help') }
                       readOnly={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? !evaluatorType.supportsPermissions : false }
+                      searchable
                       multiSelect/>
                     <Basic.TextField
                       ref="seq"

@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.workflow.service;
 
 import java.util.Map;
+import java.util.Set;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 /**
@@ -10,7 +12,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
  * @author svandav
  *
  */
-public interface WorkflowTaskInstanceService {
+public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 	
 	public static final String WORKFLOW_DECISION = "decision";
 	public static final String FORM_PROPERTY_TOOLTIP_KEY = "tooltip";
@@ -23,12 +25,6 @@ public interface WorkflowTaskInstanceService {
 	 */
 	void completeTask(String taskId, String decision);
 
-	/**
-	 * Find task instance by ID
-	 * @param taskId
-	 * @return
-	 */
-	WorkflowTaskInstanceDto get(String taskId);
 
 	void completeTask(String taskId, String decision, Map<String, String> map);
 
@@ -37,6 +33,7 @@ public interface WorkflowTaskInstanceService {
 	 * @param filter
 	 * @return
 	 */
+	@Deprecated
 	ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter);
 
 	/**
@@ -47,4 +44,12 @@ public interface WorkflowTaskInstanceService {
 	 * @param variables
 	 */
 	void completeTask(String taskId, String decision, Map<String, String> formData, Map<String, Object> variables);
+	
+	/**
+	 * Get permissions for given {@link WorkflowTaskInstanceDto}
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	Set<String> getPermissions(WorkflowTaskInstanceDto dto);
 }

@@ -8,6 +8,7 @@ import { AutomaticRoleAttributeManager, AutomaticRoleAttributeRuleManager, Secur
 /**
  * Detail automatic role by attribute
  *
+ * @author Ondrej Kopr
  */
 export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent {
 
@@ -125,24 +126,41 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
 
   _recalculate() {
     const { entity } = this.props;
+    //
     // modal window with information about recalculate automatic roles
     this.refs['recalculate-automatic-role'].show(
       this.i18n(`content.automaticRoles.recalculate.message`),
       this.i18n(`content.automaticRoles.recalculate.header`)
     ).then(() => {
-      this.manager.recalculate(entity.id);
-      this.addMessage({ message: this.i18n('save.recalculate', { name: entity.name }), level: 'info' });
+      this.setState({
+        showLoading: true
+      }, () => {
+        this.refs.form.processStarted();
+        this.manager.recalculate(entity.id, (automaticRole) => {
+          // refresh concept state
+          // there must be fetch only init form doesn't enough
+          this.context.store.dispatch(this.manager.receiveEntity(automaticRole.id, automaticRole));
+          this.setState({
+            showLoading: false
+          }, () => this.refs.form.processEnded());
+        });
+        this.addMessage({ message: this.i18n('save.recalculate', { name: entity.name }), level: 'info' });
+      });
     }, () => {
       // reject
+      this.setState({
+        showLoading: false
+      }, this.refs.form.processEnded());
     });
   }
 
   render() {
     const { uiKey, entity} = this.props;
     const { showLoading } = this.state;
+    //
     return (
       <div>
-        <Basic.Confirm ref="recalculate-automatic-role" level="danger"/>
+        <Basic.Confirm ref="recalculate-automatic-role" level="warning"/>
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.automaticRoles.attribute.basic.title')} />
@@ -165,14 +183,17 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               entityType="role"
               required/>
           </Basic.AbstractForm>
-
           {
             this._showConceptWarning()
           }
-
-          <Basic.PanelFooter showLoading={showLoading} >
+          <Basic.PanelFooter showLoading={showLoading} className="noBorder" >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.Button type="button" level="success" onClick={this._recalculate.bind(this)} rendered={entity && entity.concept === true}>{this.i18n('content.automaticRoles.recalculate.label')}</Basic.Button>
+            <Basic.Button type="button"
+              level="warning"
+              onClick={this._recalculate.bind(this)}
+              rendered={entity && entity.concept === true}>
+              { this.i18n('content.automaticRoles.recalculate.label') }
+            </Basic.Button>
             <Basic.SplitButton
               level="success"
               title={ this.i18n('button.saveAndContinue') }
@@ -180,7 +201,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
-              rendered={Utils.Entity.isNew(entity) && SecurityManager.hasAuthority('AUTOMATICROLE_CREATE')}
+              rendered={ entity && Utils.Entity.isNew(entity) && SecurityManager.hasAuthority('AUTOMATICROLE_CREATE') }
               dropup>
               <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
             </Basic.SplitButton>

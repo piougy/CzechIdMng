@@ -335,8 +335,6 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 
-		
-
 		// Create new identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
@@ -423,7 +421,7 @@ public class DefaultIdmRoleRequestService
 		}
 
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
-			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId());
+			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId(), false);
 			// TODO: create trimmed variant in workflow process instance service
 			if (processDto != null) {
 				processDto.setProcessVariables(null);

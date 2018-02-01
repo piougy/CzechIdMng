@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
 /**
- * Provisioning operation result
+ * Common operation state
  *
  * @author Radek Tomiška
  */

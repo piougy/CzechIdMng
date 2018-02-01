@@ -31,6 +31,11 @@ import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
 import EntitySelectBox from './EntitySelectBox/EntitySelectBox';
+import Dropzone from './Dropzone/Dropzone';
+import PasswordChangeComponent from './PasswordChangeComponent/PasswordChangeComponent';
+import ValidationMessage from './ValidationMessage/ValidationMessage';
+import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
+import DecisionButtons from '../../content/task/DecisionButtons';
 
 const Components = {
   Table,
@@ -67,7 +72,12 @@ const Components = {
   Recaptcha,
   IdentitiesInfo,
   SchedulerTaskInfo,
-  EntitySelectBox
+  EntitySelectBox,
+  Dropzone,
+  PasswordChangeComponent,
+  ValidationMessage,
+  DecisionButtons,
+  DynamicTaskDetail
 };
 
 Components.version = '0.0.1';

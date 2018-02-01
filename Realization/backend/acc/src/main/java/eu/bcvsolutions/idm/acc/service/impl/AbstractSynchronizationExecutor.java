@@ -24,6 +24,9 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -48,6 +51,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AttributeValueWrapperDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -133,6 +137,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(AbstractSynchronizationExecutor.class);
+	
+	private static final String CACHE_NAME = "acc-sync-transformed-attribute";
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
@@ -152,7 +158,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
-
+	
+	@Autowired(required = false)
+	private CacheManager cacheManager;
 	//
 	@Autowired
 	public AbstractSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -219,7 +227,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	@Override
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
-
+		// Clear cache
+		this.clearCache();
+		
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
 
@@ -309,6 +319,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			//
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
+			// Clear cache
+			this.clearCache();
 		}
 		return config;
 	}
@@ -1654,7 +1666,54 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
 			SynchronizationContext context) {
-		return systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
+		if(attribute == null || icAttributes == null) {
+			return null;
+		}
+		
+		// If is attribute marked as not "cached", then none cache is using
+		if(!attribute.isCached()) {
+			return systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
+		}
+		
+		AttributeValueWrapperDto key = new AttributeValueWrapperDto(attribute, icAttributes);
+		ValueWrapper value = this.getCachedValue(key);
+		if(value != null) {
+			return value.get();
+		}
+		this.setCachedValue(key, systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes));
+		return this.getCachedValue(key).get();
+		
+	}
+	
+	protected void clearCache() {
+		Cache cache = getCache();
+		if (cache == null) {
+			return;
+		}
+		cache.clear();
+	}
+	
+	protected ValueWrapper getCachedValue(AttributeValueWrapperDto key) {
+		Cache cache = getCache();
+		if (cache == null) {
+			return null;
+		}
+		return cache.get(key);
+	}
+	
+	protected void setCachedValue(AttributeValueWrapperDto key, Object value) {
+		Cache cache = getCache();
+		if (cache == null) {
+			return;
+		}
+		cache.put(key, value);
+	}
+	
+	private Cache getCache() {
+		if (cacheManager == null) {
+			return null;
+		}
+		return cacheManager.getCache(CACHE_NAME);
 	}
 
 	private AccAccountDto findAccount(String uid, SystemEntityType entityType, SysSystemEntityDto systemEntity,

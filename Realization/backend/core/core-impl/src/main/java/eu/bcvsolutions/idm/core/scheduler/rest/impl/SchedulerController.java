@@ -465,4 +465,29 @@ public class SchedulerController implements BaseController {
 
 		return pagedResourcesAssembler.toResource(page);
 	}
+	
+	/**
+	 * Edit scheduled task
+	 * 
+	 * @param task
+	 * @return
+	 */
+	@RequestMapping(value = "/{taskId}", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
+	@ApiOperation(
+			value = "Update scheduled task", 
+			nickname = "updateSchedulerTask", 
+			tags={ SchedulerController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_UPDATE, description = "") })
+					})
+public Task updateTask(
+		@ApiParam(value = "Task identifier.", required = true)
+		@PathVariable String taskId,
+		@Valid @RequestBody Task task) {
+		return schedulerService.updateTask(taskId, task);
+	}
 }

@@ -17,6 +17,14 @@ class WorkflowTaskInstanceService extends AbstractService {
     return task.taskName;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'WORKFLOWTASK';
+  }
+
   completeTask(id, formData) {
     return RestApiService.put(this.getApiPath() + `/${id}/complete`, formData);
   }

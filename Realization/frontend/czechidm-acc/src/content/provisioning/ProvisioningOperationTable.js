@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
 //
-import { Basic, Advanced, Enums, Utils } from 'czechidm-core';
+import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import { SystemManager } from '../../redux';
@@ -50,192 +50,238 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  _cancelAll() {
+    const { uiKey, manager, isArchive } = this.props;
+    if (isArchive) {
+      // not supported for archive
+      return;
+    }
+    //
+    this.useFilter();
+    //
+    this.refs['confirm-cancelAll'].show(
+      this.i18n(`action.cancelAll.message`),
+      this.i18n(`action.cancelAll.header`)
+    ).then(() => {
+      // get filled filter
+      const searchParameters = this.refs.table.getWrappedInstance().getSearchParameters(this.refs.filterForm).setName(null); // prevent to use search url
+      //
+      this.context.store.dispatch(manager.cancelAll(searchParameters, uiKey, (lrt, error) => {
+        if (!error || error.statusCode === 202) {
+          this.addMessage({ level: 'info', message: this.i18n('action.cancelAll.accepted')});
+        } else {
+          this.addError(error);
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
   render() {
     const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns, isArchive } = this.props;
     const { filterOpened } = this.state;
     //
     return (
-      <Advanced.Table
-        ref="table"
-        uiKey={uiKey}
-        manager={manager}
-        showRowSelection={showRowSelection}
-        actions={actions}
-        forceSearchParameters={forceSearchParameters}
-        filterOpened={filterOpened}
-        filter={
-          <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-            <Basic.AbstractForm ref="filterForm">
-              <Basic.Row>
-                <div className="col-lg-4">
-                  <Advanced.Filter.DateTimePicker
-                    mode="date"
-                    ref="from"
-                    placeholder={this.i18n('filter.dateFrom.placeholder')}/>
-                </div>
-                <div className="col-lg-4">
-                  <Advanced.Filter.DateTimePicker
-                    mode="date"
-                    ref="till"
-                    placeholder={this.i18n('filter.dateTill.placeholder')}/>
-                </div>
-                <div className="col-lg-4 text-right">
-                  <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                </div>
-              </Basic.Row>
+      <div>
+        <Basic.Confirm ref="confirm-cancelAll" level="warning"/>
+        <Advanced.Table
+          ref="table"
+          uiKey={uiKey}
+          manager={ manager }
+          showRowSelection={showRowSelection}
+          actions={actions}
+          forceSearchParameters={forceSearchParameters}
+          filterOpened={filterOpened}
+          filter={
+            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="from"
+                      placeholder={this.i18n('filter.dateFrom.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="till"
+                      placeholder={this.i18n('filter.dateTill.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  </Basic.Col>
+                </Basic.Row>
 
-              <Basic.Row className={ classnames({ last: !_.includes(columns, 'entityIdentifier') })}>
-                <div className="col-lg-4">
-                  <Advanced.Filter.EnumSelectBox
-                    ref="resultState"
-                    placeholder={this.i18n('acc:entity.ProvisioningOperation.resultState')}
-                    enum={Enums.OperationStateEnum}/>
-                </div>
-                <div className="col-lg-4">
-                  <Advanced.Filter.EnumSelectBox
-                    ref="operationType"
-                    placeholder={this.i18n('acc:entity.ProvisioningOperation.operationType')}
-                    enum={ProvisioningOperationTypeEnum}/>
-                </div>
-                <div className="col-lg-4">
-                  {
-                    !_.includes(columns, 'system')
-                    ||
-                    <Advanced.Filter.SelectBox
-                      ref="systemId"
-                      placeholder={this.i18n('acc:entity.System._type')}
-                      multiSelect={false}
-                      manager={systemManager}/>
-                  }
-                </div>
-              </Basic.Row>
+                <Basic.Row className={ classnames({ last: !_.includes(columns, 'entityIdentifier') })}>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="resultState"
+                      placeholder={this.i18n('acc:entity.ProvisioningOperation.resultState')}
+                      enum={Enums.OperationStateEnum}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="operationType"
+                      placeholder={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+                      enum={ProvisioningOperationTypeEnum}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    {
+                      !_.includes(columns, 'system')
+                      ||
+                      <Advanced.Filter.SelectBox
+                        ref="systemId"
+                        placeholder={this.i18n('acc:entity.System._type')}
+                        multiSelect={false}
+                        manager={systemManager}/>
+                    }
+                  </Basic.Col>
+                </Basic.Row>
 
-              <Basic.Row className="last" rendered={ _.includes(columns, 'entityIdentifier') }>
-                <div className="col-lg-4">
-                  <Advanced.Filter.EnumSelectBox
-                    ref="entityType"
-                    placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-                    enum={SystemEntityTypeEnum}/>
-                </div>
-                <div className="col-lg-4">
-                  <Advanced.Filter.TextField
-                    ref="entityIdentifier"
-                    placeholder={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}/>
-                </div>
-                <div className="col-lg-4">
-                  <Advanced.Filter.TextField
-                    ref="systemEntityUid"
-                    placeholder={this.i18n('acc:entity.SystemEntity.uid')}/>
-                </div>
-              </Basic.Row>
-            </Basic.AbstractForm>
-          </Advanced.Filter>
-        }
-        _searchParameters={ this.getSearchParameters() }>
-        {
-          !showDetail
-          ||
+                <Basic.Row className="last" rendered={ _.includes(columns, 'entityIdentifier') }>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="entityType"
+                      placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
+                      enum={SystemEntityTypeEnum}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="entityIdentifier"
+                      placeholder={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="systemEntityUid"
+                      placeholder={this.i18n('acc:entity.SystemEntity.uid')}/>
+                  </Basic.Col>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
+          }
+          buttons={
+            [
+              <Basic.Button
+                level="warning"
+                key="cancel-all-button"
+                className="btn-xs"
+                onClick={ this._cancelAll.bind(this) }
+                rendered={ Managers.SecurityManager.hasAnyAuthority('SYSTEM_ADMIN') && !isArchive }
+                title={ this.i18n('action.cancelAll.button.title') }
+                titlePlacement="bottom"
+                icon="fa:ban">
+                { this.i18n('action.cancelAll.button.label') }
+              </Basic.Button>
+            ]
+          }
+          _searchParameters={ this.getSearchParameters() }>
+          {
+            !showDetail
+            ||
+            <Advanced.Column
+              property=""
+              header=""
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={() => showDetail(data[rowIndex], isArchive)}/>
+                  );
+                }
+              }/>
+          }
           <Advanced.Column
-            property=""
-            header=""
-            className="detail-button"
+            property="resultState"
+            width={75}
+            header={this.i18n('acc:entity.ProvisioningOperation.resultState')}
+            face="text"
             cell={
               ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                const content = (<Basic.EnumValue value={entity.resultState} enum={Enums.OperationStateEnum}/>);
+                if (!entity.result || !entity.result.code) {
+                  return content;
+                }
                 return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={() => showDetail(data[rowIndex], isArchive)}/>
+                  <Basic.Tooltip placement="bottom" value={`${this.i18n('detail.resultCode')}: ${entity.result.code}`}>
+                    { <span>{content}</span> }
+                  </Basic.Tooltip>
                 );
               }
-            }/>
-        }
-        <Advanced.Column
-          property="resultState"
-          width={75}
-          header={this.i18n('acc:entity.ProvisioningOperation.resultState')}
-          face="text"
-          cell={
-            ({ rowIndex, data }) => {
-              const entity = data[rowIndex];
-              const content = (<Basic.EnumValue value={entity.resultState} enum={Enums.OperationStateEnum}/>);
-              if (!entity.result || !entity.result.code) {
-                return content;
+            }
+            rendered={_.includes(columns, 'resultState')}/>
+          <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column
+            property="operationType"
+            width={75}
+            header={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+            sort
+            face="enum"
+            enumClass={ProvisioningOperationTypeEnum}
+            rendered={_.includes(columns, 'operationType')}/>
+          <Advanced.Column
+            property="entityType"
+            width={ 75 }
+            header={ this.i18n('acc:entity.SystemEntity.entityType') }
+            sort
+            face="enum"
+            enumClass={ SystemEntityTypeEnum }
+            rendered={ _.includes(columns, 'entityType') } />
+          <Advanced.Column
+            property="entityIdentifier"
+            header={ this.i18n('acc:entity.ProvisioningOperation.entity') }
+            face="text"
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.EntityInfo
+                    entityType={ entity.entityType }
+                    entityIdentifier={ entity.entityIdentifier }
+                    entity={ entity._embedded.entity }
+                    face="popover"/>
+                );
               }
-              return (
-                <Basic.Tooltip placement="bottom" value={`${this.i18n('detail.resultCode')}: ${entity.result.code}`}>
-                  { <span>{content}</span> }
-                </Basic.Tooltip>
-              );
             }
-          }
-          rendered={_.includes(columns, 'resultState')}/>
-        <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" rendered={_.includes(columns, 'created')}/>
-        <Advanced.Column
-          property="operationType"
-          width={75}
-          header={this.i18n('acc:entity.ProvisioningOperation.operationType')}
-          sort
-          face="enum"
-          enumClass={ProvisioningOperationTypeEnum}
-          rendered={_.includes(columns, 'operationType')}/>
-        <Advanced.Column
-          property="entityType"
-          width={ 75 }
-          header={ this.i18n('acc:entity.SystemEntity.entityType') }
-          sort
-          face="enum"
-          enumClass={ SystemEntityTypeEnum }
-          rendered={ _.includes(columns, 'entityType') } />
-        <Advanced.Column
-          property="entityIdentifier"
-          header={ this.i18n('acc:entity.ProvisioningOperation.entity') }
-          face="text"
-          cell={
-            /* eslint-disable react/no-multi-comp */
-            ({ rowIndex, data }) => {
-              const entity = data[rowIndex];
-              return (
-                <Advanced.EntityInfo
-                  entityType={ entity.entityType }
-                  entityIdentifier={ entity.entityIdentifier }
-                  entity={ entity._embedded.entity }
-                  face="popover"/>
-              );
+            rendered={ _.includes(columns, 'entityIdentifier') }/>
+          <Advanced.Column
+            property="system.name"
+            header={ this.i18n('acc:entity.System.name') }
+            sort
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.EntityInfo
+                    entityType="system"
+                    entityIdentifier={ entity.system }
+                    entity={ entity._embedded.system }
+                    face="popover"/>
+                );
+              }
             }
-          }
-          rendered={ _.includes(columns, 'entityIdentifier') }/>
-        <Advanced.Column
-          property="system.name"
-          header={ this.i18n('acc:entity.System.name') }
-          sort
-          cell={
-            ({ rowIndex, data }) => {
-              const entity = data[rowIndex];
-              return (
-                <Advanced.EntityInfo
-                  entityType="system"
-                  entityIdentifier={ entity.system }
-                  entity={ entity._embedded.system }
-                  face="popover"/>
-              );
-            }
-          }
-          rendered={_.includes(columns, 'system')} />
-        <Advanced.Column
-          property="systemEntityUid"
-          header={this.i18n('acc:entity.SystemEntity.uid')}
-          sort
-          sortProperty="systemEntityUid"
-          face="text"
-          rendered={isArchive && _.includes(columns, 'systemEntityUid')}/>
-        <Advanced.Column
-          property="_embedded.systemEntity.uid"
-          header={this.i18n('acc:entity.SystemEntity.uid')}
-          sort
-          sortProperty="systemEntity"
-          face="text"
-          rendered={!isArchive && _.includes(columns, 'systemEntityUid')}/>
-      </Advanced.Table>
+            rendered={_.includes(columns, 'system')} />
+          <Advanced.Column
+            property="systemEntityUid"
+            header={this.i18n('acc:entity.SystemEntity.uid')}
+            sort
+            sortProperty="systemEntityUid"
+            face="text"
+            rendered={isArchive && _.includes(columns, 'systemEntityUid')}/>
+          <Advanced.Column
+            property="_embedded.systemEntity.uid"
+            header={this.i18n('acc:entity.SystemEntity.uid')}
+            sort
+            sortProperty="systemEntity"
+            face="text"
+            rendered={!isArchive && _.includes(columns, 'systemEntityUid')}/>
+        </Advanced.Table>
+      </div>
     );
   }
 }

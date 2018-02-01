@@ -232,7 +232,7 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 
-		String key = connectorInstance.getConnectorKey().getFullName();
+		// String key = connectorInstance.getConnectorKey().getFullName();
 		// Cache is not thread safety
 		// if(this.connectorInstances.containsKey(key)){
 		// IcConnector connector = connectorInstances.get(key);

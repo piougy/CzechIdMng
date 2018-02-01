@@ -20,7 +20,6 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -405,7 +404,7 @@ public class DefaultIdmIdentityService
 				List<Predicate> predicates = new ArrayList<>();
 				//
 				// valid identity
-				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), false));
+				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE));
 				//
 				// valid contract (and not excluded) and role
 				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
@@ -421,7 +420,7 @@ public class DefaultIdmIdentityService
 		                		RepositoryUtils.getValidPredicate(contract, builder),
 		                		//
 		                		// not disabled, not excluded contract
-		                		builder.equal(contract.get(IdmIdentityContract_.disabled), false),
+		                		builder.equal(contract.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 		                		builder.or(
 		                				builder.notEqual(contract.get(IdmIdentityContract_.state), ContractState.EXCLUDED),
 		                				builder.isNull(contract.get(IdmIdentityContract_.state))

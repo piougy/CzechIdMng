@@ -66,17 +66,17 @@ class ScriptReferences extends Basic.AbstractContent {
     //
     return (
       <div>
-
         <Helmet title={ this.i18n('title') } />
         <Basic.Panel className={ 'no-border last' }>
           <Basic.PanelHeader text={ this.i18n('header') } />
-          <Basic.PanelBody style={ { padding: 0 } }>
-            <ScriptTable
-              uiKey={uiKey}
-              scriptManager={scriptManager}
-              forceSearchParameters={scriptManager.getDefaultSearchParameters().setFilter('usedIn', _entity.code)}
-              disableAdd/>
-          </Basic.PanelBody>
+
+          <ScriptTable
+            uiKey={uiKey}
+            scriptManager={scriptManager}
+            forceSearchParameters={scriptManager.getDefaultSearchParameters().setFilter('usedIn', _entity.code)}
+            disableAdd
+            filterOpened={ false }/>
+
         </Basic.Panel>
       </div>
     );

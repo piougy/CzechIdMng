@@ -31,12 +31,13 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  * @author svandav
  *
  */
-public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoService<WorkflowProcessDefinitionDto, WorkflowFilterDto> implements WorkflowProcessDefinitionService {	
-	
+public class DefaultWorkflowProcessDefinitionService
+		extends AbstractBaseDtoService<WorkflowProcessDefinitionDto, WorkflowFilterDto>
+		implements WorkflowProcessDefinitionService {
+
 	@Autowired
 	private RepositoryService repositoryService;
 
-		
 	/**
 	 * Find all last version and active process definitions
 	 */
@@ -72,23 +73,23 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Page<WorkflowProcessDefinitionDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
 		ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
-		
+
 		query.active();
-		
+
 		query.latestVersion();
-		
-		if (filter != null && filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())){
+
+		if (filter != null && filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())) {
 			query.processDefinitionCategoryLike(filter.getCategory() + '%');
 		}
-		
+
 		// Default sort
-		//query.orderByProcessDefinitionId();
-		//query.asc();
+		// query.orderByProcessDefinitionId();
+		// query.asc();
 
 		if (pageable != null && pageable.getSort() != null) {
 			pageable.getSort().forEach(order -> {
@@ -113,17 +114,13 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 			});
 
 		}
-		
+
 		// paginator
 		long count = query.count();
-		
-		List<ProcessDefinition> processInstances = 
-				pageable == null 
-				?
-				query.list() // without pagination
-				:	
-				query.listPage((pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
-		
+
+		List<ProcessDefinition> processInstances = pageable == null ? query.list() // without pagination
+				: query.listPage((pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
+
 		List<WorkflowProcessDefinitionDto> dtos = new ArrayList<>();
 
 		if (processInstances != null) {
@@ -131,10 +128,10 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 				dtos.add(toDto(instance));
 			}
 		}
-		return toPage(dtos, count, pageable.getPageNumber(), pageable.getPageSize());
+		return toPage(dtos, count, pageable != null ? pageable.getPageNumber() : -1,
+				pageable != null ? pageable.getPageSize() : -1);
 	}
-	
-	
+
 	/**
 	 * Find last version process definition by key
 	 */
@@ -150,7 +147,6 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 		}
 		return null;
 	}
-	
 
 	/**
 	 * Find last version of process definition by key and return his ID
@@ -207,14 +203,14 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 
 	}
 
-
-	private Page<WorkflowProcessDefinitionDto> toPage(List<WorkflowProcessDefinitionDto> dtos, long totalElements, int pageNumber, int pageSize) {
+	private Page<WorkflowProcessDefinitionDto> toPage(List<WorkflowProcessDefinitionDto> dtos, long totalElements,
+			int pageNumber, int pageSize) {
 		PageRequest pageRequest = null;
 		if (pageSize > 0) {
 			pageRequest = new PageRequest(pageNumber, pageSize);
+			return new PageImpl<>(dtos, pageRequest, totalElements);
 		}
-		Page<WorkflowProcessDefinitionDto> dtoPage = new PageImpl<>(dtos, pageRequest, totalElements);
-		return dtoPage;
+		return new PageImpl<>(dtos);
 	}
 
 }

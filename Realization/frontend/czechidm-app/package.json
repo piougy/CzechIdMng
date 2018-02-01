@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "7.7.0-snapshot",
+  "version": "8.0.0-snapshot",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {
@@ -68,7 +68,7 @@
     "invariant": "2.2.0",
     "isomorphic-fetch": "2.2.1",
     "joi": "6.10.0",
-    "jquery": "2.2.0",
+    "jquery": "3.3.1",
     "jwt-decode": "2.1.0",
     "lodash": "4.6.1",
     "log4js": "0.6.36",
@@ -157,9 +157,9 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "7.7.0-snapshot",
-    "czechidm-acc": "7.7.0-snapshot",
-    "czechidm-vs": "7.7.0-snapshot",
-    "czechidm-rpt": "7.7.0-snapshot"
+    "czechidm-core": "8.0.0-snapshot",
+    "czechidm-acc": "8.0.0-snapshot",
+    "czechidm-vs": "8.0.0-snapshot",
+    "czechidm-rpt": "8.0.0-snapshot"
   }
 }

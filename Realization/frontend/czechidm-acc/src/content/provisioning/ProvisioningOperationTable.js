@@ -3,12 +3,13 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
 //
-import { Basic, Advanced, Enums, Utils } from 'czechidm-core';
+import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import { SystemManager } from '../../redux';
+import { SystemManager, ProvisioningOperationManager } from '../../redux';
 
 const systemManager = new SystemManager();
+const manager = new ProvisioningOperationManager();
 
 /**
  * Provisioning operation and archive table
@@ -50,11 +51,84 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  _useFilterForm(filterForm) {
+    const filters = {};
+    const filterValues = filterForm.getData();
+    for (const property in filterValues) {
+      if (!filterValues.hasOwnProperty(property)) {
+        continue;
+      }
+      const filterComponent = filterForm.getComponent(property);
+      const field = filterComponent.props.field || property;
+      // if filterComponent uses multiSelect
+      if (filterComponent.props.multiSelect === true) {
+        // if filterEnumSelectBox uses Symbol
+        if (filterComponent.props.useSymbol && filterValues[property] !== null) {
+          const filledValues = [];
+          filterValues.states.forEach(item => {
+            filledValues.push(filterComponent.props.enum.findKeyBySymbol(item));
+          } );
+          filters[field] = filledValues;
+        } else {
+          // if filterComponent does not useSymbol
+          let filledValues;
+          filledValues = filterValues[property];
+          filters[field] = filledValues;
+        }
+      } else {
+        // filterComponent does not use multiSelect
+        // requestData.accounts.push(resourceValue);
+        let filledValue = filterValues[property];
+        if (filterComponent.props.enum) { // enumeration
+          filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
+        }
+        filters[field] = filledValue;
+      }
+    }
+    this._useFilterData(filters);
+  }
+
+  _useFilterData(formData) {
+    let userSearchParameters = this.props._searchParameters ? this.props._searchParameters : manager.getDefaultSearchParameters();
+   //
+    for (const property in formData) {
+      if (!formData.hasOwnProperty(property)) {
+        continue;
+      }
+      userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
+    }
+    manager.cleanAll(userSearchParameters)
+    .then(response => {
+      if (response.status === 202) {
+        this.addMessage({ message: this.i18n('acc:entity.ProvisioningOperation.lrt.start')});
+        return {};
+      }
+      return response.json();
+    }).then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+    });
+  }
+
+  _cleanAll() {
+    this.refs['confirm-cleanAll'].show(
+      this.i18n(`action.cleanAll.message`),
+      this.i18n(`action.cleanAll.header`)
+    ).then(() => {
+      this._useFilterForm(this.refs.filterForm);
+    }, () => {
+      // nothing
+    });
+  }
+
   render() {
-    const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns, isArchive } = this.props;
+    const { uiKey, showRowSelection, actions, showDetail, forceSearchParameters, columns, isArchive } = this.props;
     const { filterOpened } = this.state;
     //
     return (
+      <div>
+      <Basic.Confirm ref="confirm-cleanAll" level="danger"/>
       <Advanced.Table
         ref="table"
         uiKey={uiKey}
@@ -130,6 +204,17 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
               </Basic.Row>
             </Basic.AbstractForm>
           </Advanced.Filter>
+        }
+        buttons={
+          [
+            <Basic.Button level="danger" key="clean_button" className="btn-xs"
+                    onClick={this._cleanAll.bind(this)}
+                    rendered={Managers.SecurityManager.hasAnyAuthority('SYSTEM_ADMIN') && !isArchive}>
+              <Basic.Icon type="fa" icon="minus"/>
+              {' '}
+              {this.i18n('button.clean')}
+            </Basic.Button>
+          ]
         }
         _searchParameters={ this.getSearchParameters() }>
         {
@@ -236,6 +321,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           face="text"
           rendered={!isArchive && _.includes(columns, 'systemEntityUid')}/>
       </Advanced.Table>
+    </div>
     );
   }
 }

@@ -85,7 +85,8 @@
     "saveAndNew": "Save and add another",
     "saving": "Saving",
     "yes": "Yes",
-    "set": "Set"
+    "set": "Set",
+    "clean": "Clean"
   },
   "filter": {
     "dateFrom": {
@@ -200,6 +201,10 @@
       "approve_plural": "Records cancel [{{records}}] have to be approved, tasks successfully created",
       "accepted": "Record cancel [{{record}}] run asynchronously (cancel has to be approved or run as long running task)",
       "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
+    },
+    "cleanAll": {
+      "header": "Remove records",
+      "message": "Do you want to remove all batches of filtered records?"
     }
   },
   "environment": {

@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
-import eu.bcvsolutions.idm.acc.scheduler.task.impl.CleanProvisioningQueueTaskExecutor;
+import eu.bcvsolutions.idm.acc.scheduler.task.impl.CancelProvisioningQueueTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -98,7 +98,7 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		SysProvisioningBatchDto batch = sysProvisioningBatchService.get(batchId);
 		assertNotNull(batch);
 		// create and start LRT to clean
-		CleanProvisioningQueueTaskExecutor lrt = new CleanProvisioningQueueTaskExecutor();
+		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
 		//
 		longRunningTaskManager.executeSync(lrt);
 
@@ -162,7 +162,7 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		SysProvisioningBatchDto batch = sysProvisioningBatchService.get(batchId);
 		assertNotNull(batch);
 		// create and start LRT to clean
-		CleanProvisioningQueueTaskExecutor lrt = new CleanProvisioningQueueTaskExecutor();
+		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
 		//
 		longRunningTaskManager.executeSync(lrt);
 
@@ -228,7 +228,7 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		SysProvisioningBatchDto batch = sysProvisioningBatchService.get(batchId);
 		assertNotNull(batch);
 		// create and start LRT to clean
-		CleanProvisioningQueueTaskExecutor lrt = new CleanProvisioningQueueTaskExecutor();
+		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
 		//
 		SysProvisioningOperationFilter filterLrt = new SysProvisioningOperationFilter();
 		filterLrt.setSystemId(system.getId());

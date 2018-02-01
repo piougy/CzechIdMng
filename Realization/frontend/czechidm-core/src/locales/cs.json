@@ -85,8 +85,7 @@
     "saveAndNew": "Uložit a přidat další",
     "saving": "Ukládám ...",
     "yes": "Ano",
-    "set": "Nastavit",
-    "clean": "Vyčistit"
+    "set": "Nastavit"
   },
   "filter": {
     "dateFrom": {
@@ -223,10 +222,6 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně zrušen",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny"
-    },
-    "cleanAll": {
-      "header": "Odstranit záznamy",
-      "message": "Opravdu chcete odstranit celé dávky všech vyfiltrovaných záznamů?"
     }
   },
   "environment": {

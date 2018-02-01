@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -18,21 +19,23 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
- * LRT will clean queue for provisioning
+ * LRT will cancel queue for provisioning
  * 
  * @author Patrik Stloukal
+ * @author Radek Tomiška
  *
  */
 @Component
-@Description("Clean provisioning queue for given filter.")
-public class CleanProvisioningQueueTaskExecutor
+@Description("Cancel operations in provisioning queue for given filter.")
+public class CancelProvisioningQueueTaskExecutor
 		extends AbstractSchedulableStatefulExecutor<SysProvisioningOperationDto> {
 
-	@Autowired
-	private SysProvisioningBatchService provisioningBatchService;
-	@Autowired
-	private SysProvisioningOperationService provisioningOperationService;
-
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CancelProvisioningQueueTaskExecutor.class);
+	//
+	@Autowired private SysProvisioningBatchService provisioningBatchService;
+	@Autowired private SysProvisioningOperationService provisioningOperationService;
+	@Autowired private ProvisioningExecutor provisioningExecutor;
+	//
 	private SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 
 	public SysProvisioningOperationFilter getFilter() {
@@ -54,14 +57,13 @@ public class CleanProvisioningQueueTaskExecutor
 		SysProvisioningBatchDto batch = provisioningBatchService.get(dto.getBatch());
 		//
 		if (batch != null) {
-			SysProvisioningOperationFilter filterOperation = new SysProvisioningOperationFilter();
-			filterOperation.setBatchId(batch.getId());
-			Page<SysProvisioningOperationDto> page = provisioningOperationService.find(filterOperation, null);
-			for (SysProvisioningOperationDto operation : page) {
-				provisioningOperationService.delete(operation);
-			}
+			provisioningExecutor.cancel(batch);
+			//
+			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
 		//
+		LOG.debug("Batch [{}] not found, cannot be cancelled twice.", dto.getBatch());
+		// TODO: not executed with appropriate code
 		return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 	}
 }

@@ -113,8 +113,8 @@
           }
         },
         "button": {
-            "start": "Start synchronization/reconciliation",
-            "cancel": "Cancel synchronization/reconciliation"
+          "start": "Start synchronization/reconciliation",
+          "cancel": "Cancel synchronization/reconciliation"
         }
       },
       "systemSynchronizationConfigDetail": {
@@ -490,6 +490,15 @@
           "batchMessage_plural": "Do you want to cancel all operations for entity <strong>{{count}}</strong> in queue?",
           "error": "Error while canceling operation {{name}} ",
           "success": "Operations for provisioning were canceled."
+        },
+        "cancelAll": {
+          "button": {
+            "label": "Cancel all operations",
+            "title": "Cancel all operations from provisioning queue of filtered records"
+          },
+          "header": "Cancel operations from provisioning queue",
+          "message": "Do you want to cancel all operations from provisioning queue of filtered records? All operations for filtered entities will be canceled.",
+          "accepted": "Long running task, which will cancel operations from provisioning queue, was started."
         }
       },
       "tabs": {
@@ -910,10 +919,7 @@
       "operationType": "Operation",
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
-      "entity": "IdM entity",
-      "lrt": {
-        "start": "Long running task, which will clean provisioning queue, was started."
-      }
+      "entity": "IdM entity"
     },
     "ProvisioningBreakConfig": {
       "operationType": {

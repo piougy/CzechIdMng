@@ -24,14 +24,32 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   }
 
   /**
-   * Remove all filtered provisioning operation from queue
+   * Cancel all filtered provisioning operation from queue
    *
    * @param  {Object} filter
    * @return {Promise}
    */
-  cleanAll(filter) {
+  cancelAll(searchParameters) {
     return Services.RestApiService
-      .put(Services.RestApiService.getUrl(this.getApiPath() + `/bulk/cleanAll` + filter.toUrl()));
+      .put(Services.RestApiService.getUrl(this.getApiPath() + `/action/bulk/cancel` + searchParameters.toUrl()))
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**

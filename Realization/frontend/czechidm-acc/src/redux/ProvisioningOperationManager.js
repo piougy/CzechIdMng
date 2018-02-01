@@ -31,8 +31,19 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
    * @param  {Object} filter
    * @return {Promise}
    */
-  cleanAll(filter) {
-    return service.cleanAll(filter);
+  cancelAll(searchParameters, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().cancelAll(searchParameters)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
   }
 
   /**

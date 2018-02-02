@@ -515,7 +515,10 @@
         "accountObject": "Attributes in IdM",
         "connectorObject": "Attributes for provisioning",
         "resultCode": "Code",
-        "nextAttempt": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will start <strong>{{nextAttempt}}</strong>"
+        "nextAttempt": {
+          "header": "Next attempt",
+          "label": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will start <strong>{{nextAttempt}}</strong>"
+        }
       },
       "filter": {
         "dateFrom": {

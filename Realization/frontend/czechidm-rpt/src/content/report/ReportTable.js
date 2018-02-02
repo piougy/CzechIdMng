@@ -86,7 +86,9 @@ export class ReportTable extends Advanced.AbstractTableContent {
    */
   loadDetail(entity) {
     // reload Entity
-    if (!Utils.Entity.isNew(entity) && (!entity.result || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.EXECUTED)) {
+    if (!Utils.Entity.isNew(entity) && (!entity.result
+      || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) === Enums.OperationStateEnum.CREATED
+      || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) === Enums.OperationStateEnum.RUNNING)) {
       this.setState({
         detail: {
           show: true,
@@ -356,18 +358,10 @@ export class ReportTable extends Advanced.AbstractTableContent {
                   return null;
                 }
                 const lrt = entity._embedded && entity._embedded.longRunningTask ? entity._embedded.longRunningTask : null;
+                const label = !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING ? null : longRunningTaskManager.getProcessedCount(lrt);
                 //
                 return (
-                  <Basic.EnumValue
-                    value={ entity.result.state }
-                    enum={ Enums.OperationStateEnum }
-                    label={
-                      !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING
-                      ?
-                      null
-                      :
-                      longRunningTaskManager.getProcessedCount(lrt)
-                    } />
+                  <Advanced.OperationResult value={ entity.result } stateLabel={ label } detailLink={ () => this.loadDetail(data[rowIndex]) }/>
                 );
               }
             }/>
@@ -450,7 +444,6 @@ export class ReportTable extends Advanced.AbstractTableContent {
                   !longRunningTask
                   ||
                   <div>
-                    { /* TODO: link to LRT detail after LRT will be merged */}
                     <Basic.Row>
                       <Basic.Col lg={ 6 }>
                         <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
@@ -475,29 +468,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                       </Basic.Col>
                     </Basic.Row>
 
-                    <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
-                    <div style={{ marginBottom: 15 }}>
-                      <Basic.EnumValue value={ longRunningTask.resultState } enum={ Enums.OperationStateEnum }/>
-                      {
-                        (!longRunningTask.result || !longRunningTask.result.code)
-                        ||
-                        <span style={{ marginLeft: 15 }}>
-                          {this.i18n('content.scheduler.all-tasks.detail.resultCode')}: { longRunningTask.result.code }
-                        </span>
-                      }
-                      <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(longRunningTask.result.model)} style={{ marginTop: 15 }}/>
-                    </div>
-                    {
-                      (!longRunningTask.result || !longRunningTask.result.stackTrace)
-                      ||
-                      <div>
-                        <textArea
-                          rows="10"
-                          value={ longRunningTask.result.stackTrace }
-                          readOnly
-                          style={{ width: '100%', marginBottom: 15 }}/>
-                      </div>
-                    }
+                    <Advanced.OperationResult value={ longRunningTask.result } face="full"/>
                   </div>
                 }
               </Basic.AbstractForm>

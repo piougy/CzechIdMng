@@ -130,8 +130,13 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
               header={this.i18n('entity.LongRunningTaskItem.result.state')}
               width={75}
               sort
-              face="enum"
-              enumClass={OperationStateEnum}
+              cell={
+                ({ data, rowIndex }) => {
+                  return (
+                    <Advanced.OperationResult value={ data[rowIndex].operationResult }/>
+                  );
+                }
+              }
             />
             <Advanced.Column
               property="referencedEntityId"

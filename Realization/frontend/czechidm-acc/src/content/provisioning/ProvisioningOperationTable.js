@@ -202,14 +202,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
-                const content = (<Basic.EnumValue value={entity.resultState} enum={Enums.OperationStateEnum}/>);
-                if (!entity.result || !entity.result.code) {
-                  return content;
-                }
                 return (
-                  <Basic.Tooltip placement="bottom" value={`${this.i18n('detail.resultCode')}: ${entity.result.code}`}>
-                    { <span>{content}</span> }
-                  </Basic.Tooltip>
+                  <Advanced.OperationResult value={ entity.result } detailLink={ !showDetail ? null : () => showDetail(data[rowIndex], isArchive) }/>
                 );
               }
             }

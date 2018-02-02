@@ -435,6 +435,20 @@
         "passwordAgain": {
           "label": "Heslo znovu"
         }
+      },
+      "OperationResult": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          },
+          "popover": {
+            "title": "Zobrazit vizitku"
+          }
+        },
+        "result": {
+          "header": "Výsledek",
+          "code": "Kód"
+        }
       }
     }
   },

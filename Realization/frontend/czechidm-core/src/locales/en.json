@@ -412,6 +412,20 @@
         "passwordAgain": {
           "label": "Re-enter password"
         }
+      },
+      "OperationResult": {
+        "link": {
+          "detail": {
+            "label": "Show full detail"
+          },
+          "popover": {
+            "title": "Show info card"
+          }
+        },
+        "result": {
+          "header": "Result",
+          "code": "Code"
+        }
       }
     }
   },

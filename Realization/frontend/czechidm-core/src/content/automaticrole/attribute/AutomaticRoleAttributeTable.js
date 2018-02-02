@@ -16,12 +16,6 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    // default filter status
-    // true - open
-    // false - close
-    this.state = {
-      filterOpened: false
-    };
   }
 
   getManager() {
@@ -63,7 +57,6 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
 
   render() {
     const { uiKey, manager } = this.props;
-    const { filterOpened } = this.state;
     //
     return (
       <div>
@@ -89,7 +82,6 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={ filterOpened }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }

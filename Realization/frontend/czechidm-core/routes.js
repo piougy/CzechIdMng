@@ -418,9 +418,26 @@ module.exports = {
       ]
     },
     {
-      path: 'automatic-role/attributes/:entityId',
-      component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+      path: 'automatic-role/attributes/',
+      component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId',
+          component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+        },
+        {
+          path: ':entityId/rules',
+          component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRules'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
+        },
+        {
+          path: ':entityId/identities',
+          component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeIdentities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+        }
+      ]
     },
     {
       path: 'automatic-role/attributes/:entityId/rule/:ruleId',

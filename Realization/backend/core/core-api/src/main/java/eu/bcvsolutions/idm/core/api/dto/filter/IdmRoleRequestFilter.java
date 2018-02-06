@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -23,11 +24,38 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private RoleRequestState state;
 	private UUID duplicatedToRequestId;
 	private List<RoleRequestState> states;
-	
+	private DateTime createdFrom;
+	private DateTime createdTill;
+	private List<UUID> applicants;
+
+	public List<UUID> getApplicants() {
+		return applicants;
+	}
+
+	public void setApplicants(List<UUID> applicants) {
+		this.applicants = applicants;
+	}
+
+	public DateTime getCreatedFrom() {
+		return createdFrom;
+	}
+
+	public void setCreatedFrom(DateTime createdFrom) {
+		this.createdFrom = createdFrom;
+	}
+
+	public DateTime getCreatedTill() {
+		return createdTill;
+	}
+
+	public void setCreatedTill(DateTime createdTill) {
+		this.createdTill = createdTill;
+	}
+
 	public IdmRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
-	
+
 	public IdmRoleRequestFilter(MultiValueMap<String, Object> data) {
 		super(IdmRoleRequestDto.class, data);
 	}

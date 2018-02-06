@@ -317,6 +317,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
 		filter.setApplicant(getParameterConverter().toString(parameters, "applicant"));
 		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
+		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
+		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
 
 		if (filter.getApplicant() != null) {
 			try {
@@ -343,6 +345,15 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			if(!states.isEmpty()){
 				filter.setStates(states);
 			}
+		}
+		
+		String applicantsStr = getParameterConverter().toString(parameters, "applicants");
+		if (!Strings.isNullOrEmpty(applicantsStr)) {
+			List<UUID> applicants = new ArrayList<>();
+			for( String appliacntsId : applicantsStr.split(",")) {
+				applicants.add(UUID.fromString(appliacntsId));
+			}
+			filter.setApplicants(applicants);
 		}
 		return filter;
 	}

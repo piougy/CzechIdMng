@@ -154,6 +154,19 @@ public class DefaultIdmRoleRequestService
 		if (!states.isEmpty()) {
 			predicates.add(root.get(IdmRoleRequest_.state).in(states));
 		}
+		//
+		List<UUID> applicants = filter.getApplicants();
+		if (applicants != null) {
+			predicates.add(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id).in(applicants));
+		}
+		//
+		if (filter.getCreatedFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedFrom()));
+		}
+		//
+		if (filter.getCreatedTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedTill().plusDays(1)));
+		}
 		return predicates;
 	}
 

@@ -1484,6 +1484,18 @@
       "filter": {
         "applicant":{
           "placeholder": "Vyhledání dle celého uživatelského jména žadatele"
+        },
+        "states":{
+          "placeholder": "Vyhledání podle stavů"
+        },
+        "dateCreatedFrom":{
+          "placeholder": "Vytvořeno od"
+        },
+        "dateCreatedTill":{
+          "placeholder": "Vytvoředo do"
+        },
+        "applicants":{
+          "placeholder": "Vyhledat podle žádajících"
         }
       }
 

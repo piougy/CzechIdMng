@@ -49,7 +49,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/automatic-role/attributes/${uuidId}?new=1`);
+      this.context.router.push(`/automatic-role/attributes/${uuidId}/new?new=1`);
     } else {
       this.context.router.push('/automatic-role/attributes/' + entity.id);
     }

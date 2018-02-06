@@ -34,15 +34,16 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
   render() {
     const { entity} = this.props;
     return (
-      <div>
+      <div className="tab-pane-table-body">
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           {this.i18n('content.automaticRoles.attribute.rules.header')}
         </Basic.ContentHeader>
-        <AutomaticRoleAttributeRuleTable
-          manager={this.automaticRoleAttributeRuleManager}
-          uiKey={entity ? entity.id : null}
-          attributeId={entity ? entity.id : null} />
-
+        <Basic.Panel className="no-border last">
+          <AutomaticRoleAttributeRuleTable
+            manager={this.automaticRoleAttributeRuleManager}
+            uiKey={entity ? entity.id : null}
+            attributeId={entity ? entity.id : null} />
+        </Basic.Panel>
       </div>
     );
   }

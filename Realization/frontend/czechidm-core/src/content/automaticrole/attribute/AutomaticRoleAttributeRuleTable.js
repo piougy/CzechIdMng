@@ -109,7 +109,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
-      <Helmet title={this.i18n('content.automaticRoles.attribute.edit.title')} />
+        <Helmet title={this.i18n('content.automaticRoles.attribute.edit.title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -142,12 +142,14 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
-                      rendered={SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, {})}
+                rendered={SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE')}
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }

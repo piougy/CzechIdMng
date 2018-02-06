@@ -445,6 +445,11 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
     },
     {
+      path: 'automatic-role/attributes/:entityId/new',
+      component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_CREATE'] } ]
+    },
+    {
       path: 'forms',
       component: require('./src/content/form/FormDefinitions'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]

@@ -242,7 +242,7 @@ if(!skip){
     <sequenceFlow id="sid-F6CF4663-29E1-49FB-AD56-EFDE0ECCB694" sourceRef="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" targetRef="scripttask10">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" name="Returned request (from manager)" activiti:assignee=" ${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" name="Returned request (from manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Returned request for change permissions from manager</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -309,7 +309,7 @@ if(!skip){
     <sequenceFlow id="sid-F12630E1-8728-4CCA-8E25-79A44942BD14" sourceRef="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" targetRef="scripttask11">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="sid-12381137-9285-460E-8CCD-BC43D5679026" name="Returned request (from user manager)" activiti:assignee=" ${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="sid-12381137-9285-460E-8CCD-BC43D5679026" name="Returned request (from user manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Returned request for change permissions from user manager</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -533,8 +533,7 @@ def sendNotificationToImplementer = configurationService.getBooleanValue("idm.se
 def applicantUsername = execution.getVariable("applicantUsername");
 def applicantIdentity = identityService.getByUsername(applicantUsername);
 
-def implementerUsername = entityEvent.content.creator;
-def implementerIdentity = identityService.getByUsername(implementerUsername);
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 //send notification
 if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
@@ -609,8 +608,7 @@ def sendNotificationToImplementer = configurationService.getBooleanValue("idm.se
 def applicantUsername = execution.getVariable("applicantUsername");
 def applicantIdentity = identityService.getByUsername(applicantUsername);
 
-def implementerUsername = entityEvent.content.creator;
-def implementerIdentity = identityService.getByUsername(implementerUsername);
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -694,8 +692,7 @@ def sendNotificationToImplementer = configurationService.getBooleanValue("idm.se
 def applicantUsername = execution.getVariable("applicantUsername");
 def applicantIdentity = identityService.getByUsername(applicantUsername);
 
-def implementerUsername = entityEvent.content.creator;
-def implementerIdentity = identityService.getByUsername(implementerUsername);
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -777,8 +774,7 @@ def sendNotificationToImplementer = configurationService.getBooleanValue("idm.se
 def applicantUsername = execution.getVariable("applicantUsername");
 def applicantIdentity = identityService.getByUsername(applicantUsername);
 
-def implementerUsername = entityEvent.content.creator;
-def implementerIdentity = identityService.getByUsername(implementerUsername);
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -860,8 +856,7 @@ def sendNotificationToImplementer = configurationService.getBooleanValue("idm.se
 def applicantUsername = execution.getVariable("applicantUsername");
 def applicantIdentity = identityService.getByUsername(applicantUsername);
 
-def implementerUsername = entityEvent.content.creator;
-def implementerIdentity = identityService.getByUsername(implementerUsername);
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");

@@ -2901,7 +2901,7 @@
         "warning": "Do you want to reject the request?"
       },
       "backToApplicant": {
-        "label" : "Return for edit",
+        "label" : "Return to applicant",
         "tooltip": "Returns request to requester.",
         "warning": "Do you want to return the request?"
       },

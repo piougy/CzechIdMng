@@ -15,6 +15,12 @@ All parameters from AbstractComponent are supported. Added parameters:
 | trigger  | arrayOf(oneOf(['click', 'hover', 'focus']))  | Action or actions trigger popover visibility click ,hover , focus | hover, focus |
 | delayShow  | number   | A millisecond delay amount before showing the Popover once triggered.  |  | |
 
+## Functions
+
+### close()
+
+Closes (hides) popover.
+
 ## Usage
 
 ```html

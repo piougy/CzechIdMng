@@ -18,6 +18,15 @@ export default class BasicPopover extends AbstractComponent {
     super(props);
   }
 
+  /**
+   * Close popover
+   */
+  close() {
+    if (this.refs.popover) {
+      this.refs.popover.hide();
+    }
+  }
+
   render() {
     const { id, rendered, children, value, text, title, placement, showLoading, trigger, delayShow, level, className, icon, rootClose, ...others } = this.props;
     if (!rendered || (!children)) {

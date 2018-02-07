@@ -29,7 +29,7 @@ export default class AuditProvisioningOperations extends Basic.AbstractContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.PageHeader>
 
-        <ProvisioningOperations/>
+        <ProvisioningOperations uiKey="provisioning-operation-audit-table"/>
       </div>
     );
   }

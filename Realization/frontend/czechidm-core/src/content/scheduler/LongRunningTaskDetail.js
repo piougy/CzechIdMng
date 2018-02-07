@@ -6,7 +6,6 @@ import _ from 'lodash';
 import moment from 'moment';
 import { LocalizationService } from '../../services';
 import { LongRunningTaskManager } from '../../redux';
-import OperationStateEnum from '../../enums/OperationStateEnum';
 
 const longRunningTaskManager = new LongRunningTaskManager();
 
@@ -114,30 +113,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                 </Basic.Col>
               </Basic.Row>
 
-              <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
-              <div style={{ marginBottom: 15 }}>
-                <Basic.EnumValue value={ entity.resultState } enum={ OperationStateEnum }/>
-                {
-                  (!entity.result || !entity.result.code)
-                  ||
-                  <span style={{ marginLeft: 15 }}>
-                    {this.i18n('content.scheduler.all-tasks.detail.resultCode')}: { entity.result.code }
-                  </span>
-                }
-                <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(entity.result.model)} style={{ margin: '15px 0 0 0' }}/>
-              </div>
-              {
-                (!entity.result || !entity.result.stackTrace)
-                ||
-                <div>
-                  <textArea
-                    rows="10"
-                    value={ entity.result.stackTrace }
-                    readOnly
-                    style={{ width: '100%', marginBottom: 15 }}/>
-                </div>
-              }
-
+              <Advanced.OperationResult value={ entity.result } face="full" />
 
             </Basic.AbstractForm>
           </Basic.PanelBody>

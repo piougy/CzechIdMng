@@ -412,6 +412,20 @@
         "passwordAgain": {
           "label": "Re-enter password"
         }
+      },
+      "OperationResult": {
+        "link": {
+          "detail": {
+            "label": "Show full detail"
+          },
+          "popover": {
+            "title": "Show info card"
+          }
+        },
+        "result": {
+          "header": "Result",
+          "code": "Code"
+        }
       }
     }
   },
@@ -1199,7 +1213,21 @@
           "header": "Edit automatic roles based on the attribute",
           "title": "Edit automatic roles based on the attribute"
         },
-        "rules": "Rules",
+        "rules": {
+          "header": "Rules",
+          "title": "Rules"
+        },
+        "basic": {
+          "header": "Basic informations",
+          "title": "Basic informations"
+        },
+        "identities":{
+          "header": "Users with assigned role",
+          "title": "Users with role",
+          "filter": {
+            "text": "Name of user or value"
+          }
+        },
         "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
         "rule": {
           "create": {

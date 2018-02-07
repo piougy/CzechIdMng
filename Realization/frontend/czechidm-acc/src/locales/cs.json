@@ -113,8 +113,8 @@
           }
         },
         "button": {
-            "start": "Spustit synchronizaci/rekonciliaci",
-            "cancel": "Zastavit synchronizaci/rekonciliaci"
+          "start": "Spustit synchronizaci/rekonciliaci",
+          "cancel": "Zastavit synchronizaci/rekonciliaci"
         }
       },
       "systemSynchronizationConfigDetail": {
@@ -496,6 +496,15 @@
           "batchMessage_5": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
           "error": "Při rušení operace {{name}} nastala chyba",
           "success": "Operace pro provisioning byly zrušeny."
+        },
+        "cancelAll": {
+          "button": {
+            "label": "Zrušit všechny operace",
+            "title": "Zrušit všechny operace z fronty provisioningu dle aktuálního filtru"
+          },
+          "header": "Zrušit operace z fronty provisioningu",
+          "message": "Opravdu chcete zrušit všechny operace z fronty provisioningu dle aktuálního filtru? Budou zrušeny všechny operace pro danou entitu na koncovém systému",
+          "accepted": "Úloha, která zruší vyfiltrované operace, byla spuštěna."
         }
       },
       "tabs": {
@@ -512,7 +521,10 @@
         "accountObject": "IdM atributy",
         "connectorObject": "Atributy pro provisioning",
         "resultCode": "Kód",
-        "nextAttempt": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
+        "nextAttempt": {
+          "header": "Další pokus",
+          "label": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
+        }
       },
       "filter": {
         "dateFrom": {

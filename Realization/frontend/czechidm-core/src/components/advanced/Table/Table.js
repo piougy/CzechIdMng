@@ -136,6 +136,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   useFilterForm(filterForm) {
+    this.useFilterData(this._getFilterData(filterForm));
+  }
+
+  /**
+   * Returns filled filter values from filter filterForm
+   *
+   * @param  {ref} filterForm reference to filter form
+   * @return {object}
+   */
+  _getFilterData(filterForm) {
     const filters = {};
     const filterValues = filterForm.getData();
     for (const property in filterValues) {
@@ -162,10 +172,20 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       }
       filters[field] = filledValue;
     }
-    this.useFilterData(filters);
+    return filters;
   }
 
   useFilterData(formData) {
+    this.fetchEntities(this._getSearchParameters(formData));
+  }
+
+  /**
+   * Returns search parameters filled from given filter form data
+   *
+   * @param  {object} formData
+   * @return {SearchParameters}
+   */
+  _getSearchParameters(formData) {
     const { _searchParameters } = this.props;
     //
     let userSearchParameters = _searchParameters;
@@ -180,7 +200,17 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
       }
     }
-    this.fetchEntities(userSearchParameters);
+    return userSearchParameters;
+  }
+
+  /**
+   * Returns search parameters filled from given filter form (referernce)
+   *
+   * @param  {ref} filterForm
+   * @return {SearchParameters}
+   */
+  getSearchParameters(filterForm) {
+    return this._getSearchParameters(this._getFilterData(filterForm));
   }
 
   cancelFilter(filterForm) {

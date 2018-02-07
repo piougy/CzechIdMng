@@ -26,6 +26,27 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
   }
 
   /**
+   * Remove all filtered provisioning operation from queue
+   *
+   * @param  {Object} filter
+   * @return {Promise}
+   */
+  cancelAll(searchParameters, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().cancelAll(searchParameters)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
+  }
+
+  /**
    * Retry or cancel provisioning operation
    *
    * @param  {[type]} _ids           [description]

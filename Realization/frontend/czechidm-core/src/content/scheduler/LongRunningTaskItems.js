@@ -98,20 +98,8 @@ export default class LongRunningTaskItems extends Advanced.AbstractTableContent 
             cell={
               ({ data, rowIndex }) => {
                 const entity = data[rowIndex];
-                if (!entity.operationResult || !entity.operationResult.state) {
-                  return null;
-                }
-                //
-                const content = (
-                  <Basic.EnumValue value={ entity.operationResult.state } enum={ OperationStateEnum }/>
-                );
-                if (!entity.operationResult.code) {
-                  return content;
-                }
                 return (
-                  <Basic.Tooltip placement="bottom" value={`${this.i18n('entity.LongRunningTask.result.code')}: ${entity.operationResult.code}`}>
-                    { <span>{content}</span> }
-                  </Basic.Tooltip>
+                  <Advanced.OperationResult value={ entity.operationResult }/>
                 );
               }
             }
@@ -138,7 +126,6 @@ export default class LongRunningTaskItems extends Advanced.AbstractTableContent 
             property="referencedDtoType"
             header={this.i18n('entity.LongRunningTaskItem.referencedDtoType')}
             width={75}
-            sort
             face="text"
           />
           <Advanced.Column

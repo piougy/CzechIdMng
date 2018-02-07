@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
 //
+import Helmet from 'react-helmet';
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -108,6 +109,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     //
     return (
       <div>
+        <Helmet title={this.i18n('content.automaticRoles.attribute.edit.title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -140,12 +142,14 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
-                      rendered={SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, {})}
+                rendered={SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE')}
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -191,10 +195,12 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
 
 AutomaticRoleAttributeRuleTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  manager: PropTypes.object.isRequired
+  manager: PropTypes.object.isRequired,
+  rendered: PropTypes.bool.isRequired
 };
 
 AutomaticRoleAttributeRuleTable.defaultProps = {
+  rendered: true
 };
 
 function select(state, component) {

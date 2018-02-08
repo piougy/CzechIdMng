@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -57,6 +62,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -75,7 +82,7 @@ import io.swagger.annotations.AuthorizationScope;
  * Rest methods for IdmIdentity resource
  * 
  * @author Radek Tomiška
- *
+ * @author Petr Hanák
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
@@ -95,6 +102,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmAuditService auditService; 	
 	private final IdmTreeNodeService treeNodeService;
+	private final AttachmentManager attachmentManager;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -106,7 +114,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
 			IdmAuditService auditService,
-			IdmTreeNodeService treeNodeService) {
+			IdmTreeNodeService treeNodeService,
+			AttachmentManager attachmentManager) {
 		super(identityService);
 		//
 		Assert.notNull(identityService);
@@ -124,6 +133,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		this.identityRoleService = identityRoleService;
 		this.auditService = auditService;
 		this.treeNodeService = treeNodeService;
+		this.attachmentManager = attachmentManager;
 	}
 	
 	@Override
@@ -673,5 +683,78 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
 		filter.setState(getParameterConverter().toEnum(parameters, IdmIdentityFilter.PARAMETER_STATE, IdentityState.class));
 		return filter;
+	}
+	
+	/**
+	 * Upload new profile picture
+	 * TODO: add pre-authorization annotation
+ 	 * TODO: add authorizations, response, tags into @ApiOperation
+	 *
+	 * @param name
+	 * @param fileName
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/upload", method = RequestMethod.POST)
+	@ApiOperation(
+			value = "Update profile picture",
+			nickname = "postProfilePicture",
+			tags = { IdmIdentityController.TAG },
+			notes = "Upload new profile image")
+	public ResponseEntity<?> uploadImage(
+			@ApiParam(value = "Image's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			@RequestParam(required = true, name = "data") MultipartFile data) throws IOException {
+		IdmIdentityDto identity = getDto(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+//		Is it actually an image?
+		System.out.println(data.getContentType());
+		// save image
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+//		TODO generate file name (SQL injection)
+		attachment.setName("Profile-picture-name");
+		attachment.setMimetype("image/*");
+		attachment.setInputData(data.getInputStream());
+//		TODO permission?
+		attachment = attachmentManager.saveAttachment(identity, attachment, IdmBasePermission.ADMIN);
+//		If there is some photo for identity, it will delete the old one
+		if (identity.getImage() != null) {
+			attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()), IdmBasePermission.ADMIN);
+		}
+		identity.setImage(attachment.getId());
+		return new ResponseEntity<>(toResource(putDto(identity)), HttpStatus.OK);
+	}
+	
+	/**
+	 * Returns image attachment from identity
+	 * 
+	 * @param definitionKey
+	 * @return
+	 */
+	@RequestMapping(value = "/{backendId}/image", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	@ResponseBody
+	@ApiOperation(
+			value = "Profile picture", 
+			nickname = "getProfilePicure",
+			tags = { IdmIdentityController.TAG },
+			notes = "Returns input stream to identity detail.")
+	public ResponseEntity<InputStreamResource> getDiagram(
+			@ApiParam(value = "Identity's uuid identifier.", required = true)
+			@PathVariable String backendId) {
+		IdmIdentityDto identity = getDto(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		InputStream is = attachmentManager.getAttachmentData(identity.getImage());
+		try {
+			return ResponseEntity.ok().contentLength(is.available()).contentType(MediaType.IMAGE_JPEG)
+					.body(new InputStreamResource(is));
+		} catch (IOException e) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+		}
 	}
 }

@@ -1547,6 +1547,8 @@
         "username": "$t(entity.Identity.username)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
+        "fileRejected": "$t(entity.Identity.fileRejected)",
+        "fileUploaded": "$t(entity.Identity.fileUploaded)",
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Users e-mail"
@@ -2106,7 +2108,7 @@
         "resourceName": "$t(content.workflow.definition.resourceName)",
         "fileRejected": "Workflow definition file must be of type bpmn20.xml ({{name}})!",
         "filesRejected": "Workflow definition types must be of type bpmn20.xml!",
-        "fileUploded": "Workflow definition ({{name}}) was successfully uploaded.",
+        "fileUploaded": "Workflow definition ({{name}}) was successfully uploaded.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -2236,6 +2238,8 @@
       "externe": "External contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after",
+      "fileRejected": "Profile picture file must be image type ({{name}})!",
+      "fileUploaded": "Profile picture ({{name}}) was successfully uploaded.",
       "state": {
         "label": "State",
         "help": "Identity state"

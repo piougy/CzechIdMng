@@ -93,7 +93,7 @@ const ServiceRoot = {
   ConfidentialStorageValueService,
   AutomaticRoleAttributeService,
   AutomaticRoleAttributeRuleService,
-  LongRunningTaskItemService
+  LongRunningTaskItemService,
 };
 
 ServiceRoot.version = '0.0.1';

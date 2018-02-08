@@ -1584,6 +1584,8 @@
         "username": "$t(entity.Identity.username)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
+        "fileRejected": "$t(entity.Identity.fileRejected)",
+        "fileUploaded": "$t(entity.Identity.fileUploaded)",
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Email uživatele"
@@ -2143,7 +2145,7 @@
         "resourceName": "$t(content.workflow.definition.resourceName)",
         "fileRejected": "Soubor s definicí workflow musí mít příponu bpmn20.xml ({{name}})!",
         "filesRejected": "Soubor/y s definicí workflow musí mít příponu bpmn20.xml!",
-        "fileUploded": "Definice ({{name}}) byla úspěšně nahrána.",
+        "fileUploaded": "Definice ({{name}}) byla úspěšně nahrána.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -2273,6 +2275,8 @@
       "externe": "Externista",
       "titleBefore": "Titul před",
       "titleAfter": "Titul za",
+      "fileRejected": "Soubor profilové fotky musí být formát grafického souboru ({{name}})!",
+      "fileUploaded": "Soubor s profilovou fotkou ({{name}}) byl úspěšně nahrán.",
       "state": {
         "label": "Stav",
         "help": "Stav uživatele."

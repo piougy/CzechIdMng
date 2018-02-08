@@ -37,6 +37,7 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
+import ImageDropzone from './ImageDropzone/ImageDropzone.js';
 
 const Components = {
   Table,
@@ -79,7 +80,8 @@ const Components = {
   ValidationMessage,
   DecisionButtons,
   DynamicTaskDetail,
-  OperationResult
+  OperationResult,
+  ImageDropzone
 };
 
 Components.version = '0.0.1';

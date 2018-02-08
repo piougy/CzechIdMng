@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
 import ApiOperationTypeEnum from '../../enums/ApiOperationTypeEnum';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
@@ -53,6 +54,14 @@ class IdentityDetail extends Basic.AbstractContent {
       // We have to set data to form after is rendered
       this.transformData(this.props.identity, null, ApiOperationTypeEnum.GET);
     }
+    if (!this.state.imageUrl && this.props.identity) {
+      identityManager.download(this.props.identity.id, this.receiveImage.bind(this));
+    }
+  }
+
+  receiveImage(blob) {
+    const objectURL = URL.createObjectURL(blob);
+    this.setState({imageUrl: objectURL});
   }
 
   onSave(event) {
@@ -99,9 +108,64 @@ class IdentityDetail extends Basic.AbstractContent {
     this.refs.form.setData(json, error, operationType);
   }
 
+  /**
+   * Validate extension type and upload image
+   * @param  {file} file File to upload
+   */
+  _upload(file) {
+    const { identity } = this.props;
+    if (!file.name.endsWith('.jpg') && !file.name.endsWith('.jpeg') && !file.name.endsWith('.png') && !file.name.endsWith('.gif')) {
+      this.addMessage({
+        message: this.i18n('content.identity.profile.fileRejected', {name: file.name}),
+        level: 'warning'
+      });
+      return;
+    }
+    this.setState({
+      showLoading: true
+    });
+    const formData = new FormData();
+    formData.append( 'data', file );
+    identityManager.upload(formData, identity.id)
+    .then(() => {
+      this.setState({
+        showLoading: false
+      }, () => {
+        this.addMessage({
+          message: this.i18n('content.identity.profile.fileUploaded', {name: file.name})
+        });
+        // TODO here could be setting new profile picture to the user profile
+        identityManager.download(identity.id, this.receiveImage.bind(this));
+      });
+    })
+    .catch(error => {
+      this.setState({
+        showLoading: false
+      });
+      this.addError(error);
+    });
+  }
+
+  /**
+   * Dropzone component function called after select file
+   * @param file selected file (multiple is not allowed)
+   */
+  _onDrop(files) {
+    if (this.refs.dropzone.state.isDragReject) {
+      this.addMessage({
+        message: this.i18n('content.identity.profile.fileRejected'),
+        level: 'warning'
+      });
+      return;
+    }
+    files.forEach((file) => {
+      this._upload(file);
+    });
+  }
+
   render() {
     const { identity, readOnly, _permissions } = this.props;
-    const { showLoading, showLoadingIdentityTrimmed } = this.state;
+    const { showLoading, showLoadingIdentityTrimmed, imageUrl } = this.state;
     //
     return (
       <div>
@@ -109,16 +173,28 @@ class IdentityDetail extends Basic.AbstractContent {
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
             <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
-              <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
-              <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
-              <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255} />
-
+              <Basic.Row>
+                <div className="col-lg-3" style={{margin: '4px 0px 5px 0'}}>
+                  <Advanced.ImageDropzone
+                  ref="dropzone"
+                  accept="image/*"
+                  multiple={false}
+                  onDrop={this._onDrop.bind(this)}>
+                    <img src={imageUrl ? imageUrl : null} style={{maxWidth: '100%'}}/>
+                  </Advanced.ImageDropzone>
+                </div>
+                <div className="col-lg-9">
+                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255} />
+                  <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
+                  <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255} />
+                </div>
+              </Basic.Row>
               <Basic.Row>
                 <div className="col-lg-6">
                   <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
                 </div>
                 <div className="col-lg-6">
-                  <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
+                  <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100} />
                 </div>
               </Basic.Row>
 

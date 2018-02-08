@@ -9,7 +9,6 @@ import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,12 +16,14 @@ import org.springframework.data.domain.Page;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.CancelProvisioningQueueTaskExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -38,10 +39,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Test for LRT CleanProvisioningQueueTaskExecutor
  * 
+ * If we do not assign filter to CleanProvisioningQueueTaskExecutor, it has its own empty filter,
+ * which would clean all provisioning queue operations/batches,
+ * but in test, it'd clean other test's data.
+ * 
  * @author Patrik Stloukal
  *
  */
-@Ignore
 public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
@@ -60,6 +64,8 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private SysProvisioningArchiveService archiveService;
 
 	@Before
 	public void init() {
@@ -70,116 +76,9 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 	public void logout() {
 		super.logout();
 	}
-
+	
 	@Test
-	public void testLRT() {
-		// create identity
-		IdmIdentityDto person = createIdentity("firstName" + System.currentTimeMillis(),
-				"Surname" + System.currentTimeMillis(), "email" + System.currentTimeMillis() + "@gemail.eu",
-				"000000009", false);
-
-		// create system read only
-		SysSystemDto system = helper.createTestResourceSystem(true);
-		system.setReadonly(true);
-		systemService.save(system);
-
-		// create role, "assign" role to system, "assign" role to identity
-		IdmRoleDto role = helper.createRole();
-		SysRoleSystemDto roleSystemDefault = helper.createRoleSystem(role, system);
-		roleSystemDefault.setSystemMapping(helper.getDefaultMapping(system).getId());
-		roleSystemService.save(roleSystemDefault);
-		helper.createIdentityRole(person, role);
-
-		// find items in provisioning queue
-		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(system.getId());
-		Page<SysProvisioningOperationDto> page = sysProvisioningOperationService.find(filter, null);
-		Assert.assertEquals(1, page.getContent().size());
-
-		UUID batchId = page.getContent().get(0).getBatch();
-		SysProvisioningBatchDto batch = sysProvisioningBatchService.get(batchId);
-		assertNotNull(batch);
-		// create and start LRT to clean
-		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
-		//
-		longRunningTaskManager.executeSync(lrt);
-
-		// items in queue are cleaned
-		filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(system.getId());
-		page = sysProvisioningOperationService.find(filter, null);
-		Assert.assertEquals(0, page.getContent().size());
-
-		batch = sysProvisioningBatchService.get(batchId);
-		assertNull(batch);
-	}
-
-	@Test
-	public void testLrtWithoutFilter() {
-		// create identity
-		IdmIdentityDto person = createIdentity("firstName" + System.currentTimeMillis(),
-				"Surname" + System.currentTimeMillis(), "email" + System.currentTimeMillis() + "@gemail.eu",
-				"000000009", false);
-		IdmIdentityDto personSecond = createIdentity("firstName" + System.currentTimeMillis(),
-				"Surname" + System.currentTimeMillis(), "email" + System.currentTimeMillis() + "@gemail.eu",
-				"000000009", false);
-
-		// create system read only
-		SysSystemDto system = helper.createTestResourceSystem(true);
-		system.setReadonly(true);
-		systemService.save(system);
-
-		// create role, "assign" role to system, "assign" role to identity
-		IdmRoleDto role = helper.createRole();
-		SysRoleSystemDto roleSystemDefault = helper.createRoleSystem(role, system);
-		roleSystemDefault.setSystemMapping(helper.getDefaultMapping(system).getId());
-		roleSystemService.save(roleSystemDefault);
-		helper.createIdentityRole(person, role);
-
-		// create system read only
-		SysSystemDto systemSecond = helper.createTestResourceSystem(true);
-		systemSecond.setReadonly(true);
-		systemService.save(systemSecond);
-
-		// create role, "assign" role to system, "assign" role to identity
-		IdmRoleDto roleSecond = helper.createRole();
-		SysRoleSystemDto roleSystemDefaultSecond = helper.createRoleSystem(roleSecond, systemSecond);
-		roleSystemDefaultSecond.setSystemMapping(helper.getDefaultMapping(systemSecond).getId());
-		roleSystemService.save(roleSystemDefaultSecond);
-		helper.createIdentityRole(personSecond, roleSecond);
-
-		// find items in provisioning queue
-		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(system.getId());
-		Page<SysProvisioningOperationDto> page = sysProvisioningOperationService.find(filter, null);
-		Assert.assertEquals(1, page.getContent().size());
-
-		// find items in provisioning queue// both systems
-		SysProvisioningOperationFilter filterSecond = new SysProvisioningOperationFilter();
-		filterSecond.setSystemId(systemSecond.getId());
-		Page<SysProvisioningOperationDto> pageSecond = sysProvisioningOperationService.find(filterSecond, null);
-		Assert.assertEquals(1, pageSecond.getContent().size());
-
-		UUID batchId = page.getContent().get(0).getBatch();
-		SysProvisioningBatchDto batch = sysProvisioningBatchService.get(batchId);
-		assertNotNull(batch);
-		// create and start LRT to clean
-		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
-		//
-		longRunningTaskManager.executeSync(lrt);
-
-		// items in queue are cleaned
-		filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(system.getId());
-		page = sysProvisioningOperationService.find(filter, null);
-		Assert.assertEquals(0, page.getContent().size());
-
-		batch = sysProvisioningBatchService.get(batchId);
-		assertNull(batch);
-	}
-
-	@Test
-	public void testLrtWithFilter() {
+	public void testLrtWithFilterBatch() {
 		// create identity
 		IdmIdentityDto person = createIdentity("firstName" + System.currentTimeMillis(),
 				"Surname" + System.currentTimeMillis(), "email" + System.currentTimeMillis() + "@gemail.eu",
@@ -214,13 +113,13 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		roleSystemService.save(roleSystemDefaultSecond);
 		helper.createIdentityRole(personSecond, roleSecond);
 
-		// find items in provisioning queue
+		// find items in provisioning queue// first system// 2 provisioning operations, but 1 batch
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setSystemId(system.getId());
 		Page<SysProvisioningOperationDto> page = sysProvisioningOperationService.find(filter, null);
 		Assert.assertEquals(2, page.getContent().size());
 
-		// find items in provisioning queue// both systems
+		// find items in provisioning queue// second system
 		SysProvisioningOperationFilter filterSecond = new SysProvisioningOperationFilter();
 		filterSecond.setSystemId(systemSecond.getId());
 		Page<SysProvisioningOperationDto> pageSecond = sysProvisioningOperationService.find(filterSecond, null);
@@ -229,13 +128,21 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		UUID batchId = page.getContent().get(0).getBatch();
 		SysProvisioningBatchDto batch = sysProvisioningBatchService.get(batchId);
 		assertNotNull(batch);
+		
+		// find items in provisioning queue
+		SysProvisioningOperationFilter filterBatch = new SysProvisioningOperationFilter();
+		filterBatch.setBatchId(batchId);
+		Page<SysProvisioningOperationDto> pageBatch = sysProvisioningOperationService.find(filterBatch, null);
+		Assert.assertEquals(2, pageBatch.getContent().size());
+		
 		// create and start LRT to clean
 		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
 		//
 		SysProvisioningOperationFilter filterLrt = new SysProvisioningOperationFilter();
 		filterLrt.setSystemId(system.getId());
 		filterLrt.setOperationType(ProvisioningEventType.CREATE);
-
+		//
+		// filter will find just 1 provisioning operation of same batch, but clean both
 		page = sysProvisioningOperationService.find(filterLrt, null);
 		Assert.assertEquals(1, page.getContent().size());
 
@@ -255,6 +162,13 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		// find items in provisioning queue// both systems
 		pageSecond = sysProvisioningOperationService.find(filterSecond, null);
 		Assert.assertEquals(1, pageSecond.getContent().size());
+		
+		// archive
+		SysProvisioningOperationFilter filterArchive = new SysProvisioningOperationFilter();
+		filterArchive.setSystemId(system.getId());
+		Page<SysProvisioningArchiveDto> archivePage = archiveService.find(filterArchive, null);
+		// 2 provisioning operation
+		Assert.assertEquals(2, archivePage.getContent().size());
 	}
 
 	private IdmIdentityDto createIdentity(String firstName, String lastName, String email, String phone,

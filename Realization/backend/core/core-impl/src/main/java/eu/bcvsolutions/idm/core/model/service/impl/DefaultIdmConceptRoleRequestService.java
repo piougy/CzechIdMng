@@ -105,22 +105,18 @@ public class DefaultIdmConceptRoleRequestService
 	
 	@Override
 	protected IdmConceptRoleRequestDto toDto(IdmConceptRoleRequest entity, IdmConceptRoleRequestDto dto) {
-		if (entity == null) {
+		dto = super.toDto(entity, dto);
+		if (dto == null) {
 			return null;
 		}
 		//
-		if (dto == null) {
-			dto = modelMapper.map(entity, this.getDtoClass(entity));
-		}
-		modelMapper.map(entity, dto);
-		//
 		// Contract from identity role has higher priority then contract ID in concept role
-		if(entity != null && entity.getIdentityRole() != null){
+		if (entity != null && entity.getIdentityRole() != null){
 			dto.setIdentityContract(entity.getIdentityRole().getIdentityContract().getId());
 		}
 		//
 		// we must set automatic role to role tree node
-		if (dto != null && entity != null && entity.getAutomaticRole() != null) {
+		if (entity != null && entity.getAutomaticRole() != null) {
 			dto.setAutomaticRole(entity.getAutomaticRole().getId());
 			IdmAutomaticRole automaticRole = entity.getAutomaticRole();
 			Map<String, BaseDto> embedded = dto.getEmbedded();

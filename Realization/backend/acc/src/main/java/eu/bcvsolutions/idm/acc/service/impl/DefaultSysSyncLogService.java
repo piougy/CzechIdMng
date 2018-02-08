@@ -36,12 +36,12 @@ public class DefaultSysSyncLogService
 
 	private final SysSyncLogRepository repository;
 	private final SysSyncActionLogService syncActionLogService;
-	private final ModelMapper modelMapper;
 	
 	@Autowired
 	public DefaultSysSyncLogService(
 			SysSyncLogRepository repository,
-			SysSyncActionLogService syncActionLogService, ModelMapper modelMapper) {
+			SysSyncActionLogService syncActionLogService, 
+			ModelMapper modelMapper) { // model mapper: just for backward compatibility (constructor can be used externally)
 		super(repository);
 		//
 		Assert.notNull(syncActionLogService);
@@ -49,7 +49,6 @@ public class DefaultSysSyncLogService
 		//
 		this.repository = repository;
 		this.syncActionLogService = syncActionLogService;
-		this.modelMapper = modelMapper;
 	}
 	
 	@Override
@@ -77,18 +76,6 @@ public class DefaultSysSyncLogService
 		}
 		
 		return logs;
-	}
-	
-	@Override
-	protected SysSyncLogDto toDto(SysSyncLog entity, SysSyncLogDto dto) {
-		if (entity == null) {
-			return null;
-		}
-		if (dto == null) {
-			return modelMapper.map(entity, getDtoClass());
-		}
-		modelMapper.map(entity, dto);
-		return dto;
 	}
 	
 	@Override

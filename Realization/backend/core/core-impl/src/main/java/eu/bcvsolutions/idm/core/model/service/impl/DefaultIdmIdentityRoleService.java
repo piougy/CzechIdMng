@@ -90,14 +90,9 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	protected IdmIdentityRoleDto toDto(IdmIdentityRole entity, IdmIdentityRoleDto dto) {
-		if (entity == null) {
-			return null;
-		}
-		//
+		dto = super.toDto(entity, dto);
 		if (dto == null) {
-			dto = modelMapper.map(entity, this.getDtoClass(entity));
-		} else {
-			modelMapper.map(entity, dto);
+			return null;
 		}
 		//
 		IdmAutomaticRole automaticRole = entity.getAutomaticRole();

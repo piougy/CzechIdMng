@@ -295,7 +295,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             text={ this.i18n('permission.failed') }
             rendered={ _permissions !== undefined && !this._canPasswordChange(_permissions) && passwordChangeType !== IdentityManager.PASSWORD_DISABLED }/>
           <Basic.Alert
-            level="warning"
+            level="info"
             icon="exclamation-sign"
             rendered={ !accountsExits }
             text={ this.i18n('message.noAccounts') }/>

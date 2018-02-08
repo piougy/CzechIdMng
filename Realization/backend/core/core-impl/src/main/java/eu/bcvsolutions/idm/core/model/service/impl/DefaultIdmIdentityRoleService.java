@@ -13,8 +13,6 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -94,20 +92,6 @@ public class DefaultIdmIdentityRoleService
 	protected IdmIdentityRoleDto toDto(IdmIdentityRole entity, IdmIdentityRoleDto dto) {
 		if (entity == null) {
 			return null;
-		}
-		//
-		// field automatic role exists in entity but not in dto
-		TypeMap<IdmIdentityRole, IdmIdentityRoleDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-		if (typeMap == null) {
-			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
-			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-			typeMap.addMappings(new PropertyMap<IdmIdentityRole, IdmIdentityRoleDto>() {
-				
-				@Override
-				protected void configure() {
-					this.skip().setAutomaticRole(this.source.getAutomaticRole() != null);
-				}
-			});
 		}
 		//
 		if (dto == null) {

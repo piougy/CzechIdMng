@@ -109,20 +109,6 @@ public class DefaultIdmConceptRoleRequestService
 			return null;
 		}
 		//
-		// field automatic role exists in entity but not in dto
-		TypeMap<IdmConceptRoleRequest, IdmConceptRoleRequestDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-		if (typeMap == null) {
-			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
-			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-			typeMap.addMappings(new PropertyMap<IdmConceptRoleRequest, IdmConceptRoleRequestDto>() {
-				
-				@Override
-				protected void configure() {
-					this.skip().setAutomaticRole(null);
-				}
-			});
-		}
-		//
 		if (dto == null) {
 			dto = modelMapper.map(entity, this.getDtoClass(entity));
 		}

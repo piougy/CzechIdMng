@@ -261,7 +261,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
           </Advanced.Table>
         </div>
-    </Basic.Row>
+      </Basic.Row>
     );
   }
 }

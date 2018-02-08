@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -154,6 +156,30 @@ public class ParameterConverter {
 	}
 	
 	/**
+	 * Converts parameter to list of {@code UUID} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public List<UUID> toUuids(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+		//
+		List<UUID> results = new ArrayList<>();
+		//
+		List<Object> uuids = parameters.get(parameterName);
+		if (uuids == null) {
+			return results;
+		}
+		//
+		uuids.forEach(uuid -> {
+			results.add(EntityUtils.toUuid(uuid));
+		});
+		
+		return results;
+	}
+	
+	/**
 	 * Converts parameter to {@code UUID} from given parameters.
 	 * 
 	 * @param parameters
@@ -180,6 +206,30 @@ public class ParameterConverter {
 	}
 	
 	/**
+	 * Converts parameter to given list of {@code enumClass} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param enumClass
+	 * @return
+	 */
+	public <T extends Enum<T>> List<T> toEnums(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
+		Assert.notNull(parameters);
+		//
+		List<T> results = new ArrayList<>();
+		List<Object> parameterValues = parameters.get(parameterName);
+		if (parameterValues == null) {
+			return results;
+		}
+		//
+		parameterValues.forEach(parameterValue -> {
+			results.add(toEnum((String) parameterValue, parameterName, enumClass));
+		});
+		//
+		return results;
+	}
+	
+	/**
 	 * Converts parameter to given {@code enumClass} from given parameters.
 	 * 
 	 * @param parameters
@@ -190,14 +240,27 @@ public class ParameterConverter {
 	public <T extends Enum<T>> T toEnum(Map<String, Object> parameters, String parameterName, Class<T> enumClass) {
 		Assert.notNull(enumClass);
 	    //
-	    String valueAsString = toString(parameters, parameterName);
-	    if(StringUtils.isEmpty(valueAsString)) {
+	    return toEnum(toString(parameters, parameterName), parameterName, enumClass);
+	}
+	
+	/**
+	 * Converts parameter to given {@code enumClass} from given parameter value.
+	 * 
+	 * @param parameterValue
+	 * @param parameterName
+	 * @param enumClass
+	 * @return
+	 */
+	public <T extends Enum<T>> T toEnum(String parameterValue, String parameterName, Class<T> enumClass) {
+		Assert.notNull(enumClass);
+	    //
+	    if(StringUtils.isEmpty(parameterValue)) {
 	    	return null;
 	    }
         try {
-            return Enum.valueOf(enumClass, valueAsString.trim().toUpperCase());
+            return Enum.valueOf(enumClass, parameterValue.trim().toUpperCase());
         } catch(IllegalArgumentException ex) {
-        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
+        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, parameterValue), ex);
         }
 	}
 	

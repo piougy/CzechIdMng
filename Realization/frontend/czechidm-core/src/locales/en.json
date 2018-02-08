@@ -1452,6 +1452,18 @@
       "filter": {
         "applicant":{
           "placeholder": "Search by whole username applicant."
+        },
+        "states":{
+          "placeholder": "Search by states"
+        },
+        "dateCreatedFrom":{
+          "placeholder": "Created from"
+        },
+        "dateCreatedTill":{
+          "placeholder": "Created to"
+        },
+        "applicants":{
+          "placeholder": "Search by applicants"
         }
       }
     },

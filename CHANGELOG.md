@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 ## [8.0.0 - unreleased]
 
 
+## [7.8.0]
+
+- [#857](https://redmine.czechidm.com/issues/857) - Filters - added support for multiple filter parameters, `MultiValueMap` is used. 
+
+
 ## [7.7.0]
 
 ### Added

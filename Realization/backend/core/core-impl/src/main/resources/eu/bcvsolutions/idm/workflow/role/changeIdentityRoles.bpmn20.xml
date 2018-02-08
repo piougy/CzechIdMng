@@ -34,7 +34,7 @@ Configuration properties:
     <endEvent id="endByApplicant" name="Canceled by applicant">
       <documentation>Canceled by applicant</documentation>
     </endEvent>
-    <userTask id="applicantReturnedTask" name="Returned request (from helpdesk)" activiti:assignee=" ${applicantIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="applicantReturnedTask" name="Returned request (from helpdesk)" activiti:assignee=" ${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Returned request for change permissions from helpdesk</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -242,7 +242,7 @@ if(!skip){
     <sequenceFlow id="sid-F6CF4663-29E1-49FB-AD56-EFDE0ECCB694" sourceRef="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" targetRef="scripttask10">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" name="Returned request (from manager)" activiti:assignee=" ${applicantIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" name="Returned request (from manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Returned request for change permissions from manager</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -309,7 +309,7 @@ if(!skip){
     <sequenceFlow id="sid-F12630E1-8728-4CCA-8E25-79A44942BD14" sourceRef="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" targetRef="scripttask11">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="sid-12381137-9285-460E-8CCD-BC43D5679026" name="Returned request (from user manager)" activiti:assignee=" ${applicantIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="sid-12381137-9285-460E-8CCD-BC43D5679026" name="Returned request (from user manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Returned request for change permissions from user manager</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -501,8 +501,8 @@ if(!skip){
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-          import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
-          import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -527,22 +527,61 @@ def changedRoles = conceptRoleRequestService.find(conceptFilter, null).getConten
 conceptFilter.setOperation(ConceptRoleRequestOperation.REMOVE);
 def removedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
-def applicantUsername = execution.getVariable("applicantUsername");
-          def identity = identityService.getByUsername(applicantUsername);
+def sendNotificationToApplicant = configurationService.getBooleanValue("idm.sec.core.wf.notification.applicant.enabled", true);
+def sendNotificationToImplementer = configurationService.getBooleanValue("idm.sec.core.wf.notification.implementer.enabled", false);
 
-// send notification
-notificationManager.send(
-	CoreModuleDescriptor.TOPIC_CHANGE_IDENTITY_ROLES,
-          new IdmMessageDto.Builder()
-		.setLevel(NotificationLevel.SUCCESS)
-		.addParameter("addedRoles", addedRoles)
-		.addParameter("changedRoles", changedRoles)
-		.addParameter("removedRoles", removedRoles)
-		.addParameter("identity", identity)
-		.addParameter("from", from)
-	.build(),
-	identity
-);</script>
+def applicantUsername = execution.getVariable("applicantUsername");
+def applicantIdentity = identityService.getByUsername(applicantUsername);
+
+def implementerIdentity = identityService.get(implementerIdentifier);
+
+//send notification
+if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
+  if(sendNotificationToImplementer || sendNotificationToApplicant){
+    notificationManager.send(
+     CoreModuleDescriptor.TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER,
+              new IdmMessageDto.Builder()
+       .setLevel(NotificationLevel.SUCCESS)
+       .addParameter("addedRoles", addedRoles)
+       .addParameter("changedRoles", changedRoles)
+       .addParameter("removedRoles", removedRoles)
+       .addParameter("identity", applicantIdentity)
+       .addParameter("from", from)
+     .build(),
+     applicantIdentity
+    );
+  }
+} else {
+if(sendNotificationToApplicant){
+  notificationManager.send(
+   CoreModuleDescriptor.TOPIC_CHANGE_IDENTITY_ROLES,
+            new IdmMessageDto.Builder()
+     .setLevel(NotificationLevel.SUCCESS)
+     .addParameter("addedRoles", addedRoles)
+     .addParameter("changedRoles", changedRoles)
+     .addParameter("removedRoles", removedRoles)
+     .addParameter("identity", applicantIdentity)
+     .addParameter("from", from)
+   .build(),
+   applicantIdentity
+  );
+}
+  if(sendNotificationToImplementer){
+    notificationManager.send(
+     CoreModuleDescriptor.TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER,
+              new IdmMessageDto.Builder()
+       .setLevel(NotificationLevel.SUCCESS)
+       .addParameter("addedRoles", addedRoles)
+       .addParameter("changedRoles", changedRoles)
+       .addParameter("removedRoles", removedRoles)
+       .addParameter("identity", applicantIdentity)
+       .addParameter("from", from)
+     .build(),
+     implementerIdentity
+    );
+  }
+}
+</script>
     </scriptTask>
     <sequenceFlow id="flow46" sourceRef="scripttask8" targetRef="endevent1"></sequenceFlow>
     <scriptTask id="scripttask9" name="Send notification with result (Disapproved)" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -562,29 +601,69 @@ if (url != null) {
 	url = url.split(",")[0] + "/#/workflow/history/processes/" + execution.getVariable("processInstanceId");
 }
 
+//to whom notification will be send
+def sendNotificationToApplicant = configurationService.getBooleanValue("idm.sec.core.wf.notification.applicant.enabled", true);
+def sendNotificationToImplementer = configurationService.getBooleanValue("idm.sec.core.wf.notification.implementer.enabled", false);
+
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def applicantIdentity = identityService.getByUsername(applicantUsername);
+
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
 def from = dateFormat.print(entityEvent.content.created);
 
 def managerDescription = execution.getVariable("managerDescription");
+
 if (managerDescription == null || managerDescription.isEmpty()) {
 	managerDescription = "";
 }
 
-// send notification
-notificationManager.send(
-	CoreModuleDescriptor.TOPIC_DISAPPROVE_IDENTITY_ROLES,
-	new IdmMessageDto.Builder()
-		.setLevel(NotificationLevel.SUCCESS)
-		.addParameter("managerDescription", managerDescription)
-		.addParameter("url", url)
-		.addParameter("from", from)
-	.build(),
-	identity
-);</script>
+//send notification
+if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
+  if(sendNotificationToImplementer || sendNotificationToApplicant){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_DISAPPROVE_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", applicantIdentity)
+			.build(),
+			applicantIdentity
+		);
+  }
+} else {
+if(sendNotificationToApplicant){
+	notificationManager.send(
+		CoreModuleDescriptor.TOPIC_DISAPPROVE_IDENTITY_ROLES,
+		new IdmMessageDto.Builder()
+			.setLevel(NotificationLevel.SUCCESS)
+			.addParameter("managerDescription", managerDescription)
+			.addParameter("url", url)
+			.addParameter("from", from)
+			.addParameter("implementerIdentity", implementerIdentity)
+		.build(),
+		applicantIdentity
+	);
+}
+  if(sendNotificationToImplementer){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_DISAPPROVE_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", applicantIdentity)
+			.build(),
+			implementerIdentity
+		);
+  }
+}
+</script>
     </scriptTask>
     <endEvent id="endByManager" name="End"></endEvent>
     <sequenceFlow id="flow48" sourceRef="scripttask9" targetRef="endByManager"></sequenceFlow>
@@ -595,6 +674,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+
 // get request ID from event
 def requestId = entityEvent.content.id;
 
@@ -605,8 +685,14 @@ if (url != null) {
 	url = url.split(",")[0] + "/#/workflow/history/processes/" + execution.getVariable("processInstanceId");
 }
 
+//to whom send notification
+def sendNotificationToApplicant = configurationService.getBooleanValue("idm.sec.core.wf.notification.applicant.enabled", true);
+def sendNotificationToImplementer = configurationService.getBooleanValue("idm.sec.core.wf.notification.implementer.enabled", false);
+
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def applicantIdentity = identityService.getByUsername(applicantUsername);
+
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -617,17 +703,50 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 	managerDescription = "";
 }
 
-// send notification
-notificationManager.send(
-	CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
-	new IdmMessageDto.Builder()
-		.setLevel(NotificationLevel.SUCCESS)
-		.addParameter("managerDescription", managerDescription)
-		.addParameter("url", url)
-		.addParameter("from", from)
-	.build(),
-	identity
-);</script>
+//send notification
+if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
+  if(sendNotificationToImplementer || sendNotificationToApplicant){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", null)
+			.build(),
+			applicantIdentity
+		);
+  }
+}else{
+if(sendNotificationToApplicant){
+	notificationManager.send(
+		CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
+		new IdmMessageDto.Builder()
+			.setLevel(NotificationLevel.SUCCESS)
+			.addParameter("managerDescription", managerDescription)
+			.addParameter("url", url)
+			.addParameter("from", from)
+			.addParameter("implementerIdentity", implementerIdentity)
+		.build(),
+		applicantIdentity
+	);
+}
+  if(sendNotificationToImplementer){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", applicantIdentity)
+			.build(),
+			implementerIdentity
+		);
+  }
+}
+</script>
     </scriptTask>
     <sequenceFlow id="flow49" sourceRef="scripttask10" targetRef="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507"></sequenceFlow>
     <scriptTask id="scripttask11" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -637,6 +756,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+
 // get request ID from event
 def requestId = entityEvent.content.id;
 
@@ -647,8 +767,14 @@ if (url != null) {
 	url = url.split(",")[0] + "/#/workflow/history/processes/" + execution.getVariable("processInstanceId");
 }
 
+//to whom send notification
+def sendNotificationToApplicant = configurationService.getBooleanValue("idm.sec.core.wf.notification.applicant.enabled", true);
+def sendNotificationToImplementer = configurationService.getBooleanValue("idm.sec.core.wf.notification.implementer.enabled", false);
+
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def applicantIdentity = identityService.getByUsername(applicantUsername);
+
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -659,17 +785,50 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 	managerDescription = "";
 }
 
-// send notification
-notificationManager.send(
-	CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
-	new IdmMessageDto.Builder()
-		.setLevel(NotificationLevel.SUCCESS)
-		.addParameter("managerDescription", managerDescription)
-		.addParameter("url", url)
-		.addParameter("from", from)
-	.build(),
-	identity
-);</script>
+//send notification
+if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
+  if(sendNotificationToImplementer || sendNotificationToApplicant){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", null)
+			.build(),
+			applicantIdentity
+		);
+  }
+}else{
+if(sendNotificationToApplicant){
+	notificationManager.send(
+		CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
+		new IdmMessageDto.Builder()
+			.setLevel(NotificationLevel.SUCCESS)
+			.addParameter("managerDescription", managerDescription)
+			.addParameter("url", url)
+			.addParameter("from", from)
+			.addParameter("implementerIdentity", implementerIdentity)
+		.build(),
+		applicantIdentity
+	);
+}
+  if(sendNotificationToImplementer){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", applicantIdentity)
+			.build(),
+			implementerIdentity
+		);
+  }
+}
+</script>
     </scriptTask>
     <sequenceFlow id="flow50" sourceRef="scripttask11" targetRef="sid-12381137-9285-460E-8CCD-BC43D5679026"></sequenceFlow>
     <scriptTask id="scripttask12" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -679,6 +838,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+
 // get request ID from event
 def requestId = entityEvent.content.id;
 
@@ -689,8 +849,14 @@ if (url != null) {
 	url = url.split(",")[0] + "/#/workflow/history/processes/" + execution.getVariable("processInstanceId");
 }
 
+//to whom send notification
+def sendNotificationToApplicant = configurationService.getBooleanValue("idm.sec.core.wf.notification.applicant.enabled", true);
+def sendNotificationToImplementer = configurationService.getBooleanValue("idm.sec.core.wf.notification.implementer.enabled", false);
+
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def applicantIdentity = identityService.getByUsername(applicantUsername);
+
+def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -701,17 +867,50 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 	managerDescription = "";
 }
 
-// send notification
-notificationManager.send(
-	CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
-	new IdmMessageDto.Builder()
-		.setLevel(NotificationLevel.SUCCESS)
-		.addParameter("managerDescription", managerDescription)
-		.addParameter("url", url)
-		.addParameter("from", from)
-	.build(),
-	identity
-);</script>
+//send notification
+if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
+  if(sendNotificationToImplementer || sendNotificationToApplicant){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", null)
+			.build(),
+			applicantIdentity
+		);
+  }
+}else{
+if(sendNotificationToApplicant){
+	notificationManager.send(
+		CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
+		new IdmMessageDto.Builder()
+			.setLevel(NotificationLevel.SUCCESS)
+			.addParameter("managerDescription", managerDescription)
+			.addParameter("url", url)
+			.addParameter("from", from)
+			.addParameter("implementerIdentity", implementerIdentity)
+		.build(),
+		applicantIdentity
+	);
+}
+  if(sendNotificationToImplementer){
+		notificationManager.send(
+			CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+			new IdmMessageDto.Builder()
+				.setLevel(NotificationLevel.SUCCESS)
+				.addParameter("managerDescription", managerDescription)
+				.addParameter("url", url)
+				.addParameter("from", from)
+				.addParameter("applicantIdentity", applicantIdentity)
+			.build(),
+			implementerIdentity
+		);
+  }
+}
+</script>
     </scriptTask>
     <sequenceFlow id="flow51" sourceRef="scripttask12" targetRef="applicantReturnedTask"></sequenceFlow>
   </process>

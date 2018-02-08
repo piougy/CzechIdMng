@@ -120,7 +120,8 @@ class PasswordField extends Basic.AbstractFormComponent {
       newPasswordLabel,
       newPasswordAgainLabel,
       hidden,
-      helpBlock
+      helpBlock,
+      disabled
     } = this.props;
     const { passwordForValidation } = this.state;
     //
@@ -140,6 +141,7 @@ class PasswordField extends Basic.AbstractFormComponent {
           required={ required }
           labelSpan={ labelSpan }
           componentSpan={ componentSpan }
+          disabled={disabled}
           style={{ marginBottom: 0 }}/>
         <div className="form-group" style={{ margin: 0 }}>
           {
@@ -165,6 +167,7 @@ class PasswordField extends Basic.AbstractFormComponent {
           required={required}
           labelSpan={ labelSpan }
           componentSpan={ componentSpan }
+          disabled={disabled}
           helpBlock={ helpBlock }/>
       </div>
     );
@@ -180,7 +183,8 @@ PasswordField.propTypes = {
   type: PropTypes.string,
   required: PropTypes.bool,
   newPasswordLabel: PropTypes.string,
-  newPasswordAgainLabel: PropTypes.string
+  newPasswordAgainLabel: PropTypes.string,
+  disabled: PropTypes.bool
 };
 
 PasswordField.defaultProps = {
@@ -190,7 +194,8 @@ PasswordField.defaultProps = {
   type: 'password',
   required: true,
   hidden: false,
-  rendered: true
+  rendered: true,
+  disabled: false
 };
 
 

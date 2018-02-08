@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
@@ -54,22 +55,26 @@ public class PasswordChangeController {
 	private final SecurityService securityService;
 	private final IdmIdentityService identityService;
 	private final AuthenticationManager authenticationManager;
+	private final IdentityConfiguration identityConfiguration;
 	
 	@Autowired
 	public PasswordChangeController(
 			LookupService entityLookupService,
 			SecurityService securityService,
 			IdmIdentityService identityService,
-			AuthenticationManager authenticationManager) {
+			AuthenticationManager authenticationManager,
+			IdentityConfiguration identityConfiguration) {
 		Assert.notNull(entityLookupService);
 		Assert.notNull(securityService);
 		Assert.notNull(identityService);
 		Assert.notNull(authenticationManager);
+		Assert.notNull(identityConfiguration);
 		//
 		this.entityLookupService = entityLookupService;
 		this.securityService = securityService;
 		this.identityService = identityService;
 		this.authenticationManager = authenticationManager;
+		this.identityConfiguration = identityConfiguration;
 	}
 	
 	/**
@@ -107,7 +112,10 @@ public class PasswordChangeController {
 				//
 				// public password change password for all system including idm 
 				passwordChangeDto.setAll(true);
-				passwordChangeDto.setIdm(true);
+				// check if is allowed change password trough IdM, otherwise leave value as it is
+				if (identityConfiguration.isAllowedChangePasswordForIdm()) {
+					passwordChangeDto.setIdm(true);
+				}
 			}
 		} catch(IdmAuthenticationException ex) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM, ex);

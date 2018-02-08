@@ -92,7 +92,7 @@ DynamicTaskRoleDetail.propTypes = {
 DynamicTaskRoleDetail.defaultProps = {
   task: null,
   readOnly: false,
-  canExecute: false
+  canExecute: true
 };
 function select(state, component) {
   const task = component.task;

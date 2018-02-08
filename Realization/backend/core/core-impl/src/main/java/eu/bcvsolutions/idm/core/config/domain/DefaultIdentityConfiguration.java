@@ -38,4 +38,9 @@ public class DefaultIdentityConfiguration extends AbstractConfiguration implemen
 	public boolean isRequireOldPassword() {
 		return getConfigurationService().getBooleanValue(PROPERTY_REQUIRE_OLD_PASSWORD, DEFAULT_REQUIRE_OLD_PASSWORD);
 	}
+
+	@Override
+	public boolean isAllowedChangePasswordForIdm() {
+		return getConfigurationService().getBooleanValue(PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, DEFAULT_ENABLED_CHANGE_PASSWORD_FOR_IDM);
+	}
 }

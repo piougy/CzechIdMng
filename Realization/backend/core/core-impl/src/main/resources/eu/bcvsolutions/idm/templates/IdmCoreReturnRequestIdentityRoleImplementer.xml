@@ -11,16 +11,22 @@ parameters:
 <template
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
-	<code>returnRequestIdentityRole</code>
-	<name>Send result WF - Return request</name>
+	<code>returnRequestIdentityRoleImplementer</code>
+	<name>Send result WF - Return request for implementer</name>
 	<subject>CzechIdM - Vrácení žádosti</subject>
 	<bodyHtml>
 <![CDATA[
 	<html>
-		<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+		<body>
 			Dobrý den,<br />
 			<br />
-			Žádost pro Váš účet ze dne $from byla vrácena k přepracování, žádost byla vrácena uživateli <b>$implementerIdentity.Username</b>.
+			Vámi podaná žádnost ze dne $from byla vrácena k přepracování.
+			#if( $applicantIdentity)
+			Žádost byla podaná pro uživatele <b>$applicantIdentity.Username</b>.
+			#else
+			Žádost byla podaná pro Váš účet.
+			#end
+			
 			#*
 			URL isn't working for now
 			Odkaz žádosti: <a href='$url'>$url</a><br />
@@ -47,7 +53,13 @@ parameters:
 			</div>
 			Hello,<br />
 			<br />
-			Request for your account dated $from was returned for revision. Request was returned to user <b>$implementerIdentity.Username</b>
+			Your request dated $from was returned for revision.
+			#if( $applicantIdentity )
+			Request was made for user <b>$applicantIdentity.Username</b>.
+			#else
+			Request was made for your account.
+			#end
+			
 			#*
 			URL isn't working for now
 			Request url: <a href='$url'>$url</a><br />
@@ -72,7 +84,7 @@ parameters:
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>
-	<parameter>managerDescription, from, url, implementerIdentity</parameter>
+	<parameter>managerDescription, from, url, applicantIdentity</parameter>
 	<systemTemplate>true</systemTemplate>
 	<moduleId>core</moduleId>
 </template>

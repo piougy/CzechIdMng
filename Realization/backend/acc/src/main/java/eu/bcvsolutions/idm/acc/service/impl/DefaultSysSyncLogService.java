@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,18 +83,6 @@ public class DefaultSysSyncLogService
 	protected SysSyncLogDto toDto(SysSyncLog entity, SysSyncLogDto dto) {
 		if (entity == null) {
 			return null;
-		}
-		TypeMap<SysSyncLog, SysSyncLogDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-		if (typeMap == null) {
-			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
-			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-			typeMap.addMappings(new PropertyMap<SysSyncLog, SysSyncLogDto>() {
-				
-				@Override
-				protected void configure() {
-					this.skip().setSyncActionLogs(null);
-				}
-			});
 		}
 		if (dto == null) {
 			return modelMapper.map(entity, getDtoClass());

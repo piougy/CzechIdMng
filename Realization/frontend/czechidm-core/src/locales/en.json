@@ -766,6 +766,7 @@
           "passwordChange": {
             "info": "This form can be used to change the password for your user identity",
             "required": "Required to change password CzechIdM",
+            "idmNotEnabled": "Password change for CzechIdM is not allowed",
             "success": {
               "title": "Changing the password is OK",
               "message": "Your password was successfully changed on all your accounts."
@@ -1690,7 +1691,8 @@
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited.",
-          "noContent": "You do not have permissions to change password."
+          "noContent": "You do not have permissions to change password.",
+          "noAccounts": "There are no accounts where you can change password."
         },
         "button": {
           "change": "Change password"
@@ -2913,7 +2915,7 @@
         "warning": "Do you want to reject the request?"
       },
       "backToApplicant": {
-        "label" : "Return for edit",
+        "label" : "Return to applicant",
         "tooltip": "Returns request to requester.",
         "warning": "Do you want to return the request?"
       },

@@ -5,6 +5,7 @@ import * as Basic from '../../components/basic';
 import PasswordChangeForm from './PasswordChangeForm';
 import ComponentService from '../../services/ComponentService';
 import ConfigLoader from '../../utils/ConfigLoader';
+import { ConfigurationManager } from '../../redux';
 
 const IDM_NAME = ConfigLoader.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
@@ -21,12 +22,13 @@ class PasswordChangeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { passwordChangeType, userContext, requireOldPassword } = this.props;
+    const { passwordChangeType, userContext, requireOldPassword, allowedPasswordChangeForIdm } = this.props;
     const { entityId } = this.props.params;
 
-    const options = [
-      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
-    ];
+    const options = [ ];
+    if (allowedPasswordChangeForIdm) {
+      options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
+    }
 
     return (
       <PasswordChangeForm
@@ -48,7 +50,8 @@ PasswordChangeContent.defaultProps = {
 
 function select(state) {
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    allowedPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled')
   };
 }
 export default connect(select)(PasswordChangeContent);

@@ -9,6 +9,7 @@ import javax.persistence.PersistenceContext;
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MappingContext;
@@ -20,12 +21,16 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToUuidConverter;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 
 /**
@@ -34,9 +39,11 @@ import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
  * @author svandav
  *
  */
-@Configuration
+@Configuration(ModelMapperConfig.NAME)
 @Order(Ordered.HIGHEST_PRECEDENCE + 90)
 public class ModelMapperConfig {
+	
+	public static final String NAME = "modelMapperConfig";
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -116,6 +123,37 @@ public class ModelMapperConfig {
 			TypeMap typeMapUiidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
 			typeMapUiidToEntity.setConverter(uiidToEntity);
 		});
+		
+		// configure default type map for entities
+		// this behavior must be placed in this class, not in toDto methods (getEmbedded use mapper for map entity to dto)
+		
+		// identity role and backward compatibility with automatic role
+		TypeMap<IdmIdentityRole, IdmIdentityRoleDto> typeMapIdentityRole = modeler.getTypeMap(IdmIdentityRole.class, IdmIdentityRoleDto.class);
+		if (typeMapIdentityRole == null) {
+			modeler.createTypeMap(IdmIdentityRole.class, IdmIdentityRoleDto.class);
+			typeMapIdentityRole = modeler.getTypeMap(IdmIdentityRole.class, IdmIdentityRoleDto.class);
+			typeMapIdentityRole.addMappings(new PropertyMap<IdmIdentityRole, IdmIdentityRoleDto>() {
+				
+				@Override
+				protected void configure() {
+					this.skip().setAutomaticRole(this.source.getAutomaticRole() != null);
+				}
+			});
+		}
+		
+		// concept role request and automatic role backward compatibility
+		TypeMap<IdmConceptRoleRequest, IdmConceptRoleRequestDto> typeMapRoleConcept = modeler.getTypeMap(IdmConceptRoleRequest.class, IdmConceptRoleRequestDto.class);
+		if (typeMapRoleConcept == null) {
+			modeler.createTypeMap(IdmConceptRoleRequest.class, IdmConceptRoleRequestDto.class);
+			typeMapRoleConcept = modeler.getTypeMap(IdmConceptRoleRequest.class, IdmConceptRoleRequestDto.class);
+			typeMapRoleConcept.addMappings(new PropertyMap<IdmConceptRoleRequest, IdmConceptRoleRequestDto>() {
+				
+				@Override
+				protected void configure() {
+					this.skip().setAutomaticRole(null);
+				}
+			});
+		}
 
 		return modeler;
 	}

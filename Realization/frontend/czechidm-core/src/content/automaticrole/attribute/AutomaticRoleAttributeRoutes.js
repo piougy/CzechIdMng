@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import AutomaticRoleAttributeDetail from './AutomaticRoleAttributeDetail';
 import { AutomaticRoleAttributeManager } from '../../../redux';
 
 const manager = new AutomaticRoleAttributeManager();

@@ -4,6 +4,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import {SecurityManager, IdentityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
@@ -98,25 +99,27 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
                action: this.onDelete.bind(this), disabled: false }]
           }
           filterOpened
-          filter={showFilter ?
+          filter={
+            !showFilter
+            ||
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="applicant"
                       placeholder={this.i18n('filter.applicant.placeholder')}/>
-                  </div>
-                  <div className="col-lg-3">
+                  </Basic.Col>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.EnumSelectBox
-                        ref="states"
-                        placeholder={ this.i18n('filter.states.placeholder') }
-                        enum={ RoleRequestStateEnum }
-                        multiSelect/>
-                  </div>
-                  <div className="col-lg-3 text-right">
+                      ref="states"
+                      placeholder={ this.i18n('filter.states.placeholder') }
+                      enum={ RoleRequestStateEnum }
+                      multiSelect/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 3 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last">
                   <Basic.Col lg={ 4 }>
@@ -143,7 +146,6 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-            : undefined
           }
           buttons={
             [
@@ -163,7 +165,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
               </Basic.Button>
             ]
           }
-          >
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             property=""
             header=""
@@ -277,11 +279,12 @@ RoleRequestTable.propTypes = {
 RoleRequestTable.defaultProps = {
   _showLoading: false,
   showFilter: true,
-  columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail'],
+  columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail']
 };
 
-function select() {
+function select(state, component) {
   return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 

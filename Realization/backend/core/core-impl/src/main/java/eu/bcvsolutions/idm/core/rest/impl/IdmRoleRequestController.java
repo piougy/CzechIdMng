@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -319,7 +316,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
 		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
 		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
-
+		//
 		if (filter.getApplicant() != null) {
 			try {
 				// Applicant can be UUID (Username vs UUID identification schizma)
@@ -332,29 +329,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		}
 		// TODO: remove redundant state field
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
-		String statesStr = getParameterConverter().toString(parameters, "states");
-		if(!Strings.isNullOrEmpty(statesStr)){
-			List<RoleRequestState> states = new ArrayList<>();
-			for( String state : statesStr.split(",")){
-				String stateTrimmed = state.trim();
-				if(!Strings.isNullOrEmpty(stateTrimmed)){
-					// TODO: try / catch - see getParameterConverter().toEnum
-					states.add(RoleRequestState.valueOf(stateTrimmed));
-				}
-			}
-			if(!states.isEmpty()){
-				filter.setStates(states);
-			}
-		}
-		
-		String applicantsStr = getParameterConverter().toString(parameters, "applicants");
-		if (!Strings.isNullOrEmpty(applicantsStr)) {
-			List<UUID> applicants = new ArrayList<>();
-			for( String appliacntsId : applicantsStr.split(",")) {
-				applicants.add(UUID.fromString(appliacntsId));
-			}
-			filter.setApplicants(applicants);
-		}
+		filter.setStates(getParameterConverter().toEnums(parameters, "states", RoleRequestState.class));	
+		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
 		return filter;
 	}
 	

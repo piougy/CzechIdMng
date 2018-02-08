@@ -29,6 +29,9 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<UUID> applicants;
 
 	public List<UUID> getApplicants() {
+		if (applicants == null) {
+			applicants = new ArrayList<>();
+		}
 		return applicants;
 	}
 

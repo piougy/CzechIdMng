@@ -156,7 +156,7 @@ public class DefaultIdmRoleRequestService
 		}
 		//
 		List<UUID> applicants = filter.getApplicants();
-		if (applicants != null) {
+		if (!applicants.isEmpty()) {
 			predicates.add(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id).in(applicants));
 		}
 		//

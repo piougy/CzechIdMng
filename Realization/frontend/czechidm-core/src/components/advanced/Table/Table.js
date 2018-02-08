@@ -162,12 +162,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // if filterComponent uses multiSelect
       if (filterComponent.props.multiSelect === true) {
         // if filterEnumSelectBox uses Symbol
-        if (filterComponent.props.useSymbol && filterValues[property] !== null) {
+        if (filterComponent.props.enum && filterComponent.props.useSymbol && filterValues[property] !== null) {
           const filledValues = [];
-
-          filterValues.states.forEach(item => {
+          //
+          filterValues[property].forEach(item => {
             filledValues.push(filterComponent.props.enum.findKeyBySymbol(item));
-          } );
+          });
           filters[field] = filledValues;
         } else {
           // if filterComponent does not useSymbol
@@ -176,8 +176,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           filters[field] = filledValues;
         }
       } else {
-      // filterComponent does not use multiSelect
-      // requestData.accounts.push(resourceValue);
+        // filterComponent does not use multiSelect
         let filledValue = filterValues[property];
         if (filterComponent.props.enum) { // enumeration
           filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);

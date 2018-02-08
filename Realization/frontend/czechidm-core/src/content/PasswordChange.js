@@ -66,6 +66,10 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   passwordChange(event) {
+    const {
+      enabledPasswordChangeForIdm
+    } = this.props;
+    //
     if (event) {
       event.preventDefault();
     }
@@ -83,7 +87,8 @@ class PasswordChange extends Basic.AbstractContent {
       oldPassword,
       newPassword: password,
       all: true, // change in idm and in all accounts
-      resources: []
+      resources: [],
+      idm: enabledPasswordChangeForIdm
     }, false)
     .then(response => {
       this.setState({
@@ -122,7 +127,10 @@ class PasswordChange extends Basic.AbstractContent {
           let accountName;
           if (account.idm) {
             accountName = `${IDM_NAME} (${account.uid})`;
-            idm = true;
+            // result code for idm must be 200, otherwise is password change through idm was unsuccessful
+            if (result.model.statusCode === 200) {
+              idm = true;
+            }
           } else {
             accountName = `${account.systemName} (${account.uid})`;
           }
@@ -133,9 +141,12 @@ class PasswordChange extends Basic.AbstractContent {
             failedAccounts.push(accountName);
           }
         });
-        // we want to see messages added after login ... login removes messages for secutiry reason
         if (idm) {
+          // we want to see messages added after login ... login removes messages for secutiry reason
           this.login(username, password);
+        } else {
+          // we cannot login user because password change through idm was unsuccessful, just redirect to main page
+          this._redirectToMainPage();
         }
         if (successAccounts.length > 0) {
           this.addMessage({ message: this.i18n('content.identity.passwordChange.message.success', { accounts: successAccounts.join(', '), username }) });
@@ -157,6 +168,14 @@ class PasswordChange extends Basic.AbstractContent {
       }
       this.refs.passwords.setValue(password);
     });
+  }
+
+  /**
+   * Method used when is not allowed change password for idm.
+   * Method redirects user to main page.
+   */
+  _redirectToMainPage() {
+    this.context.router.replace('/');
   }
 
   login(username, password) {
@@ -185,7 +204,7 @@ class PasswordChange extends Basic.AbstractContent {
 
   render() {
     const { showLoading, validationError } = this.state;
-    const { passwordChangeType } = this.props;
+    const { passwordChangeType, enabledPasswordChangeForIdm } = this.props;
     //
     return (
       <div>
@@ -205,6 +224,8 @@ class PasswordChange extends Basic.AbstractContent {
                 <Basic.AbstractForm ref="form" className="panel-body">
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
+
+                  <Basic.Alert text={this.i18n('message.passwordChange.idmNotEnabled')} className="no-margin" rendered={!enabledPasswordChangeForIdm} level="warning" />
 
                   <Advanced.ValidationMessage error={ validationError } />
 
@@ -251,6 +272,7 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
+    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled', true)
   };
 }
 

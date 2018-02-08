@@ -84,7 +84,10 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { entityId, userContext, passwordChangeType } = this.props;
+    const { entityId,
+      userContext,
+      passwordChangeType,
+      enabledPasswordChangeForIdm } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -115,7 +118,12 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
         }
       });
     }
-
+    //
+    // check if is allowed change password for idm
+    if (!enabledPasswordChangeForIdm) {
+      requestData.idm = false;
+    }
+    //
     identityService.passwordChange(entityId, requestData)
     .then(response => {
       this.setState({
@@ -222,6 +230,8 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       oldPasswordRequired = requireOldPasswordConfig;
     }
     //
+    const accountsExits = accountOptions.length !== 0;
+    //
     const content = [];
     if (this._canPasswordChange(_permissions) && !preload) {
       content.push(
@@ -238,9 +248,10 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
         <Basic.AbstractForm ref="form">
           <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
             hidden={!oldPasswordRequired}
+            disabled={!accountsExits}
             required={oldPasswordRequired}/>
 
-          <PasswordField className="form-control" ref="passwords" />
+          <PasswordField className="form-control" ref="passwords" disabled={!accountsExits}/>
 
           <Basic.EnumSelectBox
             ref="accounts"
@@ -249,7 +260,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             multiSelect
             options={accountOptions}
             required
-            disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
+            disabled={(passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) || !accountsExits}/>
 
           <div className={allOnlyWarningClassNames}>
             <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
@@ -261,6 +272,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           <Basic.Button
             type="submit"
             level="success"
+            disabled={!accountsExits}
             showLoading={this.state.showLoading}>{this.i18n('button.change')}
           </Basic.Button>
         </Basic.PanelFooter>
@@ -282,6 +294,11 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             icon="exclamation-sign"
             text={ this.i18n('permission.failed') }
             rendered={ _permissions !== undefined && !this._canPasswordChange(_permissions) && passwordChangeType !== IdentityManager.PASSWORD_DISABLED }/>
+          <Basic.Alert
+            level="warning"
+            icon="exclamation-sign"
+            rendered={ !accountsExits }
+            text={ this.i18n('message.noAccounts') }/>
           { content }
         </Basic.Panel>
       </form>
@@ -306,7 +323,8 @@ function select(state, component) {
   return {
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
     requireOldPasswordConfig: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.requireOldPassword'),
-    _permissions: identityManager.getPermissions(state, null, component.entityId)
+    _permissions: identityManager.getPermissions(state, null, component.entityId),
+    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled', true)
   };
 }
 

@@ -788,6 +788,7 @@
           "passwordChange": {
             "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity",
             "required": "Vyžadována změna hesla pro CzechIdM",
+            "idmNotEnabled": "Změna hesla pro CzechIdM není povolena",
             "success": {
               "title": "Změna hesla proběhla v pořádku",
               "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech."
@@ -1715,7 +1716,8 @@
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
           "failed": "Heslo nebylo změněno, prosisioning hesla na účty [{{accounts}}] pro uživatele [{{username}}] nebyl úspěšný.",
           "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolně krát.",
-          "noContent": "Nemáte přiděleno oprávnění pro změnu hesla."
+          "noContent": "Nemáte přiděleno oprávnění pro změnu hesla.",
+          "noAccounts": "Neexistují žádné účty na kterých je možné měnit heslo."
         },
         "button": {
           "change": "Změnit heslo"

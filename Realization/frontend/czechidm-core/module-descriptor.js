@@ -197,7 +197,7 @@ module.exports = {
         'order': 1020,
         'iconColor': '#419641',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREETYPE_READ', 'TREENODE_READ'] } ]
+        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREETYPE_AUTOCOMPLETE', 'TREENODE_READ'] } ]
       },
       {
         'id': 'profile-system-separator',

@@ -115,7 +115,7 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./src/content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREENODE_TYPE', 'TREENODE_READ'] } ]
+      access: [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREETYPE_AUTOCOMPLETE', 'TREENODE_READ'] } ]
     },
     {
       path: 'tree',

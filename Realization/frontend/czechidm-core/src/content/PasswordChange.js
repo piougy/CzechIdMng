@@ -145,8 +145,10 @@ class PasswordChange extends Basic.AbstractContent {
           // we want to see messages added after login ... login removes messages for secutiry reason
           this.login(username, password);
         } else {
-          // we cannot login user because password change through idm was unsuccessful, just redirect to main page
-          this._redirectToMainPage();
+          // we cannot login user because password change through idm was unsuccessful, just clear values in form
+          this.refs.passwords.setValue(null);
+          this.refs.username.setValue(null);
+          this.refs.passwordOld.setValue(null);
         }
         if (successAccounts.length > 0) {
           this.addMessage({ message: this.i18n('content.identity.passwordChange.message.success', { accounts: successAccounts.join(', '), username }) });
@@ -168,14 +170,6 @@ class PasswordChange extends Basic.AbstractContent {
       }
       this.refs.passwords.setValue(password);
     });
-  }
-
-  /**
-   * Method used when is not allowed change password for idm.
-   * Method redirects user to main page.
-   */
-  _redirectToMainPage() {
-    this.context.router.replace('/');
   }
 
   login(username, password) {
@@ -225,7 +219,7 @@ class PasswordChange extends Basic.AbstractContent {
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
 
-                  <Basic.Alert text={this.i18n('message.passwordChange.idmNotEnabled')} className="no-margin" rendered={!enabledPasswordChangeForIdm} level="warning" />
+                  <Basic.Alert text={this.i18n('message.passwordChange.idmNotEnabled')} className="no-margin" rendered={!enabledPasswordChangeForIdm} level="info" />
 
                   <Advanced.ValidationMessage error={ validationError } />
 

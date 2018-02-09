@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.Assert;
@@ -20,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
@@ -90,42 +90,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
-			if (filter != null && filter.getDescription() != null && filter.getContentClass() != null &&
-					!filter.getContentClass().isAssignableFrom(processor.getEntityClass())) {
-				continue;
-			}
-			if (filter != null && filter.getName() != null && !processor.getName().contains(filter.getName()) ||
-					processor.getName() == null) {
-				continue;
-			}
-			if (filter != null && filter.getModule() != null && !processor.getModule().contains(filter.getModule()) ||
-					processor.getModule() == null) {
-				continue;
-			}
-			if (filter != null && filter.getDescription() != null && AutowireHelper.getBeanDescription(entry.getKey()) != null
-					&& !AutowireHelper.getBeanDescription(entry.getKey()).contains(filter.getDescription()) ||
-					AutowireHelper.getBeanDescription(entry.getKey()) == null) {
-				continue;
-			}
-			if (filter != null && filter.getEntityType() != null && !processor.getEntityClass().getSimpleName().contains(filter.getEntityType())) {
-				continue;
-			}
-			if (filter != null && filter.getEventType() != null) {
-				ArrayList<String> eventTypes = Lists.newArrayList(processor.getEventTypes());
-				boolean found = false;
-				for (String eventType : eventTypes) {
-					if (eventType.contains(filter.getEventType())) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) continue;
-			}
-
+			//
 			EntityEventProcessorDto dto = new EntityEventProcessorDto();
 			dto.setId(entry.getKey());
 			dto.setName(processor.getName());
 			dto.setModule(processor.getModule());
+			dto.setContentClass(processor.getEntityClass());
 			dto.setEntityType(processor.getEntityClass().getSimpleName());
 			dto.setEventTypes(Lists.newArrayList(processor.getEventTypes()));
 			dto.setClosable(processor.isClosable());
@@ -133,9 +103,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			dto.setDisableable(processor.isDisableable());
 			dto.setOrder(processor.getOrder());
 			// resolve documentation
-			dto.setDescription(AutowireHelper.getBeanDescription(dto.getId()));
+			dto.setDescription(processor.getDescription());
 			dto.setConfigurationProperties(processor.getConfigurationMap());
-			dtos.add(dto);
+			//
+			if (passFilter(dto, filter)) {
+				dtos.add(dto);
+			}
 
 		}
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
@@ -145,5 +118,59 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public void publishEvent(Object event) {
 		publisher.publishEvent(event);
+	}
+	
+	/**
+	 * Returns true, when given processor pass given filter
+	 * 
+	 * @param processor
+	 * @param filter
+	 * @return
+	 */
+	private boolean passFilter(EntityEventProcessorDto processor, EntityEventProcessorFilter filter) {
+		if (filter == null) {
+			// empty filter
+			return true;
+		}
+		// id - not supported
+		if (filter.getId() != null) {
+			throw new UnsupportedOperationException("Filtering event processors by [id] is not supported.");
+		}
+		// text - lowercase like in name, description, content class - canonical name
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			if (!processor.getName().toLowerCase().contains(filter.getText().toLowerCase())
+					&& (processor.getDescription() == null || !processor.getDescription().toLowerCase().contains(filter.getText().toLowerCase()))
+					&& !processor.getContentClass().getCanonicalName().toLowerCase().contains(filter.getText().toLowerCase())) {
+				return false;
+			}
+		}
+		// processors name
+		if (StringUtils.isNotEmpty(filter.getName()) && !processor.getName().equals(filter.getName())) {
+			return false; 
+		}
+		// content ~ entity type - dto type
+		if (filter.getContentClass() != null && !filter.getContentClass().isAssignableFrom(processor.getContentClass())) {
+			return false;
+		}
+		// module id
+		if (StringUtils.isNotEmpty(filter.getModule()) && !filter.getModule().equals(processor.getModule())) {
+			return false;
+		}
+		// description - like
+		if (StringUtils.isNotEmpty(filter.getDescription()) 
+				&& StringUtils.isNotEmpty(processor.getDescription()) 
+				&& !processor.getDescription().contains(filter.getDescription())) {
+			return false;
+		}
+		// entity ~ content type - simple name
+		if (StringUtils.isNotEmpty(filter.getEntityType()) && !processor.getEntityType().equals(filter.getEntityType())) {
+			return false;
+		}
+		// event types
+		if (!filter.getEventTypes().isEmpty() && !processor.getEventTypes().containsAll(filter.getEventTypes())) {
+			return false;
+		}
+		//
+		return true;
 	}
 }

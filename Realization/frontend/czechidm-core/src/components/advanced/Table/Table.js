@@ -136,55 +136,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   useFilterForm(filterForm) {
-    this.useFilterData(this._getFilterData(filterForm));
-  }
-
-  /**
-   * Returns filled filter values from filter filterForm
-   *
-   * @param  {ref} filterForm reference to filter form
-   * @return {object}
-   */
-  _getFilterData(filterForm) {
-    const filters = {};
-    const filterValues = filterForm.getData();
-    for (const property in filterValues) {
-      if (!filterValues.hasOwnProperty(property)) {
-        continue;
-      }
-      const filterComponent = filterForm.getComponent(property);
-      if (!filterComponent) {
-        // filter is not rendered
-        continue;
-      }
-      const field = filterComponent.props.field || property;
-      //
-      // if filterComponent uses multiSelect
-      if (filterComponent.props.multiSelect === true) {
-        // if filterEnumSelectBox uses Symbol
-        if (filterComponent.props.enum && filterComponent.props.useSymbol && filterValues[property] !== null) {
-          const filledValues = [];
-          //
-          filterValues[property].forEach(item => {
-            filledValues.push(filterComponent.props.enum.findKeyBySymbol(item));
-          });
-          filters[field] = filledValues;
-        } else {
-          // if filterComponent does not useSymbol
-          let filledValues;
-          filledValues = filterValues[property];
-          filters[field] = filledValues;
-        }
-      } else {
-        // filterComponent does not use multiSelect
-        let filledValue = filterValues[property];
-        if (filterComponent.props.enum) { // enumeration
-          filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
-        }
-        filters[field] = filledValue;
-      }
-    }
-    return filters;
+    this.useFilterData(SearchParameters.getFilterData(filterForm));
   }
 
   useFilterData(formData) {
@@ -200,19 +152,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   _getSearchParameters(formData) {
     const { _searchParameters } = this.props;
     //
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setPage(0);
-    for (const property in formData) {
-      if (!formData.hasOwnProperty(property)) {
-        continue;
-      }
-      if (!formData[property]) {
-        userSearchParameters = userSearchParameters.clearFilter(property);
-      } else {
-        userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
-      }
-    }
-    return userSearchParameters;
+    return SearchParameters.getSearchParameters(formData, _searchParameters);
   }
 
   /**
@@ -222,7 +162,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
    * @return {SearchParameters}
    */
   getSearchParameters(filterForm) {
-    return this._getSearchParameters(this._getFilterData(filterForm));
+    return this._getSearchParameters(SearchParameters.getFilterData(filterForm));
   }
 
   cancelFilter(filterForm) {

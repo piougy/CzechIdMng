@@ -1,23 +1,36 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.event.EventType;
 import java.io.Serializable;
-import org.hibernate.type.EntityType;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 
 /**
  * Entity event processors filter
  * 
  * @author Radek Tomiška
  */
-public class EntityEventProcessorFilter implements BaseFilter {
+public class EntityEventProcessorFilter extends DataFilter {
 
 	Class<? extends Serializable> contentClass;
-	private String entityType;
-	private String eventType;
-	private String name;
-	private String description;
-	private String module;
+	private String entityType; // equals - simple name
+	private List<String> eventTypes; // and - processor has to support all
+	private String name; // equals
+	private String module; // equals
+	private String description; // like
 
+	public EntityEventProcessorFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public EntityEventProcessorFilter(MultiValueMap<String, Object> data) {
+		super(EntityEventProcessorDto.class, data);
+	}
+	
 	public Class<? extends Serializable> getContentClass() {
 		return contentClass;
 	}
@@ -58,11 +71,14 @@ public class EntityEventProcessorFilter implements BaseFilter {
 		this.entityType = entityType;
 	}
 
-	public String getEventType() {
-		return eventType;
+	public List<String> getEventTypes() {
+		if (eventTypes == null) {
+			eventTypes = new ArrayList<>();
+		}
+		return eventTypes;
 	}
-
-	public void setEventType(String eventType) {
-		this.eventType = eventType;
+	
+	public void setEventTypes(List<String> eventTypes) {
+		this.eventTypes = eventTypes;
 	}
 }

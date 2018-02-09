@@ -320,6 +320,80 @@ export default class SearchParameters {
   static getDefaultSize() {
     return ConfigLoader.getConfig('pagination.size', SearchParameters.DEFAULT_SIZE);
   }
+
+  /**
+   * Returns filled filter values from filter filterForm
+   *
+   * @param  {ref} filterForm reference to filter form
+   * @return {object}
+   */
+  static getFilterData(filterForm) {
+    const filters = {};
+    const filterValues = filterForm.getData();
+    for (const property in filterValues) {
+      if (!filterValues.hasOwnProperty(property)) {
+        continue;
+      }
+      const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
+      const field = filterComponent.props.field || property;
+      //
+      // if filterComponent uses multiSelect
+      if (filterComponent.props.multiSelect === true) {
+        // if filterEnumSelectBox uses Symbol
+        if (filterComponent.props.enum && filterComponent.props.useSymbol && filterValues[property] !== null) {
+          const filledValues = [];
+          //
+          filterValues[property].forEach(item => {
+            filledValues.push(filterComponent.props.enum.findKeyBySymbol(item));
+          });
+          filters[field] = filledValues;
+        } else {
+          // if filterComponent does not useSymbol
+          let filledValues;
+          filledValues = filterValues[property];
+          filters[field] = filledValues;
+        }
+      } else {
+        // filterComponent does not use multiSelect
+        let filledValue = filterValues[property];
+        if (filterComponent.props.enum) { // enumeration
+          filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
+        }
+        filters[field] = filledValue;
+      }
+    }
+    return filters;
+  }
+
+  /**
+   * Returns search parameters filled from given filter form data
+   *
+   * @param  {object} formData
+   * @return {SearchParameters} previosly used search parameters
+   */
+  static getSearchParameters(formData, searchParameters = null) {
+    if (!searchParameters) {
+      // TODO: this is a little dangerous - name is not filled
+      searchParameters = new SearchParameters();
+    }
+    //
+    searchParameters = searchParameters.setPage(0);
+    for (const property in formData) {
+      if (!formData.hasOwnProperty(property)) {
+        continue;
+      }
+      if (!formData[property]) {
+        searchParameters = searchParameters.clearFilter(property);
+      } else {
+        searchParameters = searchParameters.setFilter(property, formData[property]);
+      }
+    }
+    return searchParameters;
+  }
 }
 
 /**

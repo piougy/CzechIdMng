@@ -1911,7 +1911,12 @@
       },
       "entity-event-processors": {
         "header": "Processory",
-        "title": "Processory"
+        "title": "Processory",
+        "filter": {
+          "text": {
+            "placeholder": "Název, popis nebo typ obsahu (typ entity)"
+          }
+        }
       }
     },
     "scheduler": {

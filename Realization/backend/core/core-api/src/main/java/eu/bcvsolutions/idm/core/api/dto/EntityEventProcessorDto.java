@@ -1,9 +1,15 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import org.springframework.hateoas.core.Relation;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 
 /**
  * Event processor dto
@@ -15,7 +21,9 @@ public class EntityEventProcessorDto extends AbstractComponentDto {
 
 	private static final long serialVersionUID = 1L;
 	//
-	private String entityType;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Class<? extends Serializable> contentClass; // dto class
+	private String entityType; // => content simple dto type (refactored ...)
 	private List<String> eventTypes;
 	private int order;
 	private boolean disableable;
@@ -31,6 +39,9 @@ public class EntityEventProcessorDto extends AbstractComponentDto {
 	}
 
 	public List<String> getEventTypes() {
+		if (eventTypes == null) {
+			eventTypes = new ArrayList<>();
+		}
 		return eventTypes;
 	}
 
@@ -68,5 +79,13 @@ public class EntityEventProcessorDto extends AbstractComponentDto {
 	
 	public void setConfigurationProperties(ConfigurationMap configurationProperties) {
 		this.configurationProperties = configurationProperties;
+	}
+	
+	public Class<? extends Serializable> getContentClass() {
+		return contentClass;
+	}
+	
+	public void setContentClass(Class<? extends Serializable> contentClass) {
+		this.contentClass = contentClass;
 	}
 }

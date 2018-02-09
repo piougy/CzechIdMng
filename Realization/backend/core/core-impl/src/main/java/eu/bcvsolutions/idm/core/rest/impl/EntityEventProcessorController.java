@@ -1,14 +1,12 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
-import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import java.util.List;
 
-import org.hibernate.type.EntityType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -30,7 +29,9 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Entity event procesor's administration
+ * Entity event procesor's administration.
+ * 
+ * Look out: page and size is not implemented in find methods
  * 
  * TODO: enable / disable
  * TODO: change processors order
@@ -50,7 +51,8 @@ public class EntityEventProcessorController {
 
 	protected static final String TAG = "Entity event processors";
 	private final EntityEventManager entityEventManager;
-
+	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
+	
 	@Autowired
 	public EntityEventProcessorController(EntityEventManager entityEventManager) {
 		Assert.notNull(entityEventManager, "EntityEventManager is required");
@@ -72,8 +74,22 @@ public class EntityEventProcessorController {
 						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") })
 				},
 			notes = "Returns all registered entity event processors with state properties (disabled, order)")
-	public List<EntityEventProcessorDto> find(
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
-		return entityEventManager.find(null);
+		List<EntityEventProcessorDto> records = entityEventManager.find(toFilter(parameters));
+		PageImpl page = new PageImpl(records, new PageRequest(0, records.size() == 0 ? 10 : records.size()), records.size());
+		if (page.getContent().isEmpty()) {
+			return pagedResourcesAssembler.toEmptyResource(page, EntityEventProcessorDto.class, null);
+		}
+		return pagedResourcesAssembler.toResource(page);
+	}
+	
+	private EntityEventProcessorFilter toFilter(MultiValueMap<String, Object> parameters) {
+		EntityEventProcessorFilter filter = new EntityEventProcessorFilter(parameters); // text is filled automatically
+		//
+		// TODO: fill other params - use FilterConverter
+		//
+		return filter;
 	}
 }

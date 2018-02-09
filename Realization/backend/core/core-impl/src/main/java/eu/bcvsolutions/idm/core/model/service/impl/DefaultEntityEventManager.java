@@ -90,9 +90,38 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
-			if (filter != null && filter.getContentClass() != null && !filter.getContentClass().isAssignableFrom(processor.getEntityClass())) {
+			if (filter != null && filter.getDescription() != null && filter.getContentClass() != null &&
+					!filter.getContentClass().isAssignableFrom(processor.getEntityClass())) {
 				continue;
 			}
+			if (filter != null && filter.getName() != null && !processor.getName().contains(filter.getName()) ||
+					processor.getName() == null) {
+				continue;
+			}
+			if (filter != null && filter.getModule() != null && !processor.getModule().contains(filter.getModule()) ||
+					processor.getModule() == null) {
+				continue;
+			}
+			if (filter != null && filter.getDescription() != null && AutowireHelper.getBeanDescription(entry.getKey()) != null
+					&& !AutowireHelper.getBeanDescription(entry.getKey()).contains(filter.getDescription()) ||
+					AutowireHelper.getBeanDescription(entry.getKey()) == null) {
+				continue;
+			}
+			if (filter != null && filter.getEntityType() != null && !processor.getEntityClass().getSimpleName().contains(filter.getEntityType())) {
+				continue;
+			}
+			if (filter != null && filter.getEventType() != null) {
+				ArrayList<String> eventTypes = Lists.newArrayList(processor.getEventTypes());
+				boolean found = false;
+				for (String eventType : eventTypes) {
+					if (eventType.contains(filter.getEventType())) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) continue;
+			}
+
 			EntityEventProcessorDto dto = new EntityEventProcessorDto();
 			dto.setId(entry.getKey());
 			dto.setName(processor.getName());
@@ -107,11 +136,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			dto.setDescription(AutowireHelper.getBeanDescription(dto.getId()));
 			dto.setConfigurationProperties(processor.getConfigurationMap());
 			dtos.add(dto);
-		};
+
+		}
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
 		return dtos;
-	}	
-	
+	}
+
 	@Override
 	public void publishEvent(Object event) {
 		publisher.publishEvent(event);

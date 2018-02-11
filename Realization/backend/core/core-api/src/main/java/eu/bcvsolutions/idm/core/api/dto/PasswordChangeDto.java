@@ -32,8 +32,8 @@ public class PasswordChangeDto implements Serializable {
     private GuardedString newPassword;
     @ApiModelProperty(notes = "Change IdM password.")
     private boolean idm = false; // change in idm
-    @ApiModelProperty(notes = "Change all identity's passwords - IdM password and on all accounts. (account's system has to support change password)")
-    private boolean all = false; // all - idm and all accounts - has higher priority
+    @ApiModelProperty(notes = "Change all identity's passwords on all target accounts (account's system has to support change password). IdM password is controlled by attribute 'idm' separatelly.")
+    private boolean all = false; // all - all target accounts
     @ApiModelProperty(notes = "Selected AccAccounts uuids.")
     private List<String> accounts; // selected AccAccounts uuids
     @JsonIgnore

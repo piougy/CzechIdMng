@@ -38,11 +38,11 @@ public interface IdentityConfiguration extends Configurable {
 	static final boolean DEFAULT_REQUIRE_OLD_PASSWORD = true;
 	
 	/**
-	 * Change password for IdM, property must be public
+	 * Public change password for IdM, property must be public
 	 */
-	static final String PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM =
-			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.passwordChange.idm.enabled";
-	static final boolean DEFAULT_ENABLED_CHANGE_PASSWORD_FOR_IDM = true;
+	static final String PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED =
+			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.passwordChange.public.idm.enabled";
+	static final boolean DEFAULT_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED = true;
 	
 	/**
 	 * Creates default identity's contract, when new identity is created
@@ -73,6 +73,8 @@ public interface IdentityConfiguration extends Configurable {
 		properties.add(getPropertyName(PROPERTY_IDENTITY_DELETE));
 		properties.add(getPropertyName(PROPERTY_IDENTITY_CHANGE_PASSWORD));
 		properties.add(getPropertyName(PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT));
+		properties.add(getPropertyName(PROPERTY_REQUIRE_OLD_PASSWORD));
+		properties.add(getPropertyName(PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED));
 		return properties;
 	}
 	
@@ -102,5 +104,5 @@ public interface IdentityConfiguration extends Configurable {
 	 * 
 	 * @return true if is allowed, otherwise false
 	 */
-	boolean isAllowedChangePasswordForIdm();
+	boolean isAllowedPublicChangePasswordForIdm();
 }

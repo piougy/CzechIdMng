@@ -1727,6 +1727,7 @@
           "wrongUser": "Změna hesla pro podřízeného není podporována",
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
           "failed": "Heslo nebylo změněno, prosisioning hesla na účty [{{accounts}}] pro uživatele [{{username}}] nebyl úspěšný.",
+          "notChanged": "Heslo nebylo změněno. $t(content.identity.passwordChange.message.noAccounts)",
           "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolně krát.",
           "noContent": "Nemáte přiděleno oprávnění pro změnu hesla.",
           "noAccounts": "Neexistují žádné účty na kterých je možné měnit heslo."

@@ -40,7 +40,7 @@ public class DefaultIdentityConfiguration extends AbstractConfiguration implemen
 	}
 
 	@Override
-	public boolean isAllowedChangePasswordForIdm() {
-		return getConfigurationService().getBooleanValue(PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, DEFAULT_ENABLED_CHANGE_PASSWORD_FOR_IDM);
+	public boolean isAllowedPublicChangePasswordForIdm() {
+		return getConfigurationService().getBooleanValue(PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, DEFAULT_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED);
 	}
 }

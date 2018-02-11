@@ -156,6 +156,9 @@ class PasswordChange extends Basic.AbstractContent {
         if (failedAccounts.length > 0) {
           this.addMessage({ level: 'warning', message: this.i18n('content.identity.passwordChange.message.failed', { accounts: failedAccounts.join(', '), username }) });
         }
+        if (successAccounts.length === 0 && failedAccounts.length === 0) {
+          this.addMessage({ level: 'warning', message: this.i18n('content.identity.passwordChange.message.notChanged', { username }) });
+        }
       });
     })
     .catch(error => {
@@ -266,7 +269,7 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
-    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled', true)
+    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.public.idm.enabled', true)
   };
 }
 

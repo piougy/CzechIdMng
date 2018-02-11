@@ -86,8 +86,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     }
     const { entityId,
       userContext,
-      passwordChangeType,
-      enabledPasswordChangeForIdm } = this.props;
+      passwordChangeType } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -117,11 +116,6 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           requestData.accounts.push(resourceValue);
         }
       });
-    }
-    //
-    // check if is allowed change password for idm
-    if (!enabledPasswordChangeForIdm) {
-      requestData.idm = false;
     }
     //
     identityService.passwordChange(entityId, requestData)
@@ -323,8 +317,7 @@ function select(state, component) {
   return {
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
     requireOldPasswordConfig: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.requireOldPassword'),
-    _permissions: identityManager.getPermissions(state, null, component.entityId),
-    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled', true)
+    _permissions: identityManager.getPermissions(state, null, component.entityId)
   };
 }
 

@@ -1690,6 +1690,7 @@
           "wrongUser": "Change password to subordinates is not allowed",
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
+          "notChanged": "Password was not changed. $t(content.identity.passwordChange.message.noAccounts)",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited.",
           "noContent": "You do not have permissions to change password.",
           "noAccounts": "There are no accounts where you can change password."

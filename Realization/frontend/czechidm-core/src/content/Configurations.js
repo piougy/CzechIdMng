@@ -88,7 +88,11 @@ class Configurations extends Advanced.AbstractTableContent {
       isGuarded,
       isSecured
     }, () => {
-      this.refs.name.focus();
+      if (Utils.Entity.isNew(entity)) {
+        this.refs.name.focus();
+      } else {
+        this.refs.value.focus();
+      }
     });
   }
 

@@ -113,9 +113,7 @@ public class PasswordChangeController {
 				// public password change password for all system including idm 
 				passwordChangeDto.setAll(true);
 				// check if is allowed change password trough IdM, otherwise leave value as it is
-				if (identityConfiguration.isAllowedChangePasswordForIdm()) {
-					passwordChangeDto.setIdm(true);
-				}
+				passwordChangeDto.setIdm(identityConfiguration.isAllowedPublicChangePasswordForIdm());
 			}
 		} catch(IdmAuthenticationException ex) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM, ex);

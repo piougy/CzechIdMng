@@ -49,7 +49,7 @@ public abstract class AbstractIdentityPasswordProcessor
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//
-		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
+		if (passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto);
 			Map<String, Object> parameters = new LinkedHashMap<>();
 			parameters.put("account", new IdmAccountDto(

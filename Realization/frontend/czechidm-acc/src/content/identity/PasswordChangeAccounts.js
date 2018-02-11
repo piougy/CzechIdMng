@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain, Utils, Managers } from 'czechidm-core';
+import { Basic, Domain, Utils } from 'czechidm-core';
 import { AccountManager } from '../../redux';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
 //
@@ -35,16 +35,14 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
 
   _getOptions() {
     const { entityId } = this.props.params;
-    const { accounts, showLoading, enabledPasswordChangeForIdm } = this.props;
+    const { accounts, showLoading } = this.props;
 
     if (showLoading) {
       return null;
     }
 
     const options = [ ];
-    if (enabledPasswordChangeForIdm) {
-      options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
-    }
+    options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
 
     accounts.forEach(acc => {
       const niceLabel = acc._embedded.system.name + ' (' + acc.uid + ')';
@@ -95,8 +93,7 @@ function select(state, component) {
   return {
     userContext: state.security.userContext,
     accounts: accountManager.getEntities(state, `${entityId}-accounts`),
-    showLoading: accountManager.isShowLoading(state, `${entityId}-accounts`),
-    enabledPasswordChangeForIdm: Managers.ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled', true)
+    showLoading: accountManager.isShowLoading(state, `${entityId}-accounts`)
   };
 }
 export default connect(select)(PasswordChangeAccounts);

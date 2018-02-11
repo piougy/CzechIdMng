@@ -111,6 +111,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		policy1 = policyService.save(policy1);
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
 		passwordChangeDto.setNewPassword(new GuardedString("testPassword"));
 		identityService.passwordChange(identity, passwordChangeDto);
 		password = passwordService.findOneByIdentity(identity.getId());

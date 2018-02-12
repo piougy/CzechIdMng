@@ -585,7 +585,7 @@
       "passwordPolicyValidate": "Politika hesel pro validaci",
       "passwordPolicyGenerate": "Politika hesel pro generování",
       "readonly": {
-        "label": "Readonly",
+        "label": "Pouze pro čtení",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
       },
       "queue": {
@@ -632,7 +632,7 @@
       }
     },
     "RoleSystem": {
-      "_type": "Role přiřazuje účet na systému",
+      "_type": "Role přiřazuje účet na systémech",
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",

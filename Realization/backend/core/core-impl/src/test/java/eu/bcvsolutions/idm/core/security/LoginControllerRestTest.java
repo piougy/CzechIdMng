@@ -59,6 +59,8 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		loginController.login(loginDto);
 		//
 		assertEquals(0, passwordService.findOneByIdentity(identity.getUsername()).getUnsuccessfulAttempts());
+		//
+		logout();
 	}
 
 	private ResultActions tryLogin(String username, String password) throws Exception {

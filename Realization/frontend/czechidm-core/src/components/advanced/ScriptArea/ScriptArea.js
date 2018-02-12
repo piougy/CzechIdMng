@@ -6,6 +6,8 @@ import * as Basic from '../../basic';
  * ScriptArea + select script by category.
  * Component with select from available script (select from script category).
  * Select script from agenda is realized as new modal window.
+ *
+ * @author Ondřej Kopr
  */
 class ScriptArea extends Basic.ScriptArea {
 
@@ -125,19 +127,19 @@ class ScriptArea extends Basic.ScriptArea {
                   useFirst clearable={false}
                   onChange={this._chageScript.bind(this)}
                   forceSearchParameters={
-                    scriptManager.getDefaultSearchParameters().setFilter('category', scriptCategory)}
+                    scriptManager.getDefaultSearchParameters().setFilter('inCategory', scriptCategory)}
                   label={this.i18n('entity.Script.select.label')}/>
               </Basic.AbstractForm>
               <Basic.AbstractForm ref="scriptDetail" data={script} >
                 <Basic.Row>
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <Basic.TextField ref="code" readOnly
                       label={this.i18n('entity.Script.code')}/>
-                  </div>
-                  <div className="col-lg-8">
+                  </Basic.Col>
+                  <Basic.Col lg={ 8 }>
                     <Basic.TextField ref="name" readOnly
                       label={this.i18n('entity.Script.name')}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.TextArea ref="description" readOnly
                   label={this.i18n('entity.Script.description')}/>

@@ -43,4 +43,12 @@ public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassw
 	 * @return
 	 */
 	IdmPassword findOneByIdentity_Id(@Param("identityId") UUID identityId);
+
+	/**
+	 * Identity has one password (or any).
+	 *
+	 * @param username
+	 * @return
+	 */
+	IdmPassword findOneByIdentity_username(@Param("username") String username);
 }

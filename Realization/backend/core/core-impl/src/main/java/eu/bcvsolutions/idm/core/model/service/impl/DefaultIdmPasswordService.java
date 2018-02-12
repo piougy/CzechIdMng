@@ -81,6 +81,9 @@ public class DefaultIdmPasswordService
 		// set must change password to false
 		passwordDto.setMustChange(false);
 		//
+		// reset unsuccessful attempts, after password is changed
+		passwordDto.resetUnsuccessfulAttempts();
+		//
 		return save(passwordDto);
 	}
 

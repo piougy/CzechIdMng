@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
@@ -34,6 +35,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
  *
  */
 public interface TestHelper {
+	
+	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
+	String DEFAULT_PASSWORD = "password";
 
 	/**
 	 * Creates random unique name
@@ -43,19 +47,36 @@ public interface TestHelper {
 	String createName();
 
 	/**
-	 * Creates test identity with random username
+	 * Creates test identity with random username  and default "password"
 	 *
 	 * @return
 	 */
 	IdmIdentityDto createIdentity();
 
 	/**
-	 * Creates test identity with given username
+	 * Creates test identity with given username and default "password"
 	 *
 	 * @param username
 	 * @return
 	 */
 	IdmIdentityDto createIdentity(String username);
+	
+	/**
+	 * Creates test identity with random username and given password
+	 *
+	 * @param password optional] when password is not given, then identity password will not be saved - usefull when password is not needed
+	 * @return
+	 */
+	IdmIdentityDto createIdentity(GuardedString password);
+	
+	/**
+	 * Creates test identity given username and given password
+	 *
+	 * @param username
+	 * @param password [optional] when password is not given, then identity password will not be saved - usefull when password is not needed
+	 * @return
+	 */
+	IdmIdentityDto createIdentity(String username, GuardedString password);
 
 	/**
 	 * Creates test RoleCatalogue with random code and name

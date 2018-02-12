@@ -86,6 +86,8 @@ public interface IdmPasswordService
 
 	/**
 	 * If this username exists and the password is correct -> save timestamp of login
+	 * 
+	 * @param username
 	 */
 	void setLastSuccessfulLogin(String username);
 }

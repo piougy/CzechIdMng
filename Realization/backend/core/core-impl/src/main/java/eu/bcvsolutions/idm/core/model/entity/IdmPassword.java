@@ -32,7 +32,6 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 
 	private static final long serialVersionUID = -8101492061266251152L;
 	
-	// @NotEmpty // TODO: ?
 	@Column(name = "password")
 	private String password;
 	
@@ -60,7 +59,7 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	private DateTime lastSuccessfulLogin;
 
 	@Audited
-	@Column(name = "unsuccessful_attempts")
+	@Column(name = "unsuccessful_attempts", nullable = false)
 	private int unsuccessfulAttempts;
 
 	public DateTime getLastSuccessfulLogin() {

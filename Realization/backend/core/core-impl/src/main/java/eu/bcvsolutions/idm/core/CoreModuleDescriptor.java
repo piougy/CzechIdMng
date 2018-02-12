@@ -43,6 +43,7 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_PASSWORD_EXPIRATION_WARNING = String.format("%s:passwordExpirationWarning", MODULE_ID);
 	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
+	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
 	
 	@Override
 	public String getId() {
@@ -149,6 +150,12 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				"This message contains information about changed fields on Identity.", 
 				getNotificationTemplateId(IdentityMonitoredFieldsProcessor.EMAIL_TEMPLATE)));
 		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PASSWORD_CHANGED, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Password has been changed.", 
+				getNotificationTemplateId("passwordChanged")));
 		return configs;
 	}
 	

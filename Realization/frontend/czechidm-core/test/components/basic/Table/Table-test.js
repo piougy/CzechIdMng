@@ -14,7 +14,7 @@ import TableRow from '../../../../src/components/basic/Table/Row';
  *
  * @author Radek Tomiška
  */
-describe('Basic Table', function basicTableTestSuite() {
+describe.skip('Basic Table', function basicTableTestSuite() {
   /**
    * Clean DOM afrer each test
    * @param

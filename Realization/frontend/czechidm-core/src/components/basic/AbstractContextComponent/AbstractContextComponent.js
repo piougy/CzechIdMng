@@ -130,7 +130,10 @@ class AbstractContextComponent extends AbstractComponent {
    * @return {object} logger
    */
   getLogger() {
-    return this.context.store.getState().logger;
+    if (this.context.store) {
+      return this.context.store.getState().logger;
+    }
+    return LOGGER;
   }
 
   /**

@@ -90,6 +90,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * use less variables
 * use `encodeURIComponent` to encode parameters used directly in urls e.g. ``this.context.router.push(`identity/${encodeURIComponent(entity.username)}/profile`)``
 * use `super.componentDidMount();` in all contents (extends `AbstractContent`).
+* use ``LocalizationTester`` to validate locales (see core test package)
 
 ### IDE
 

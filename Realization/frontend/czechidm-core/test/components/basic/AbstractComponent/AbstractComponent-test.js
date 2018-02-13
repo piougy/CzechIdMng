@@ -3,22 +3,74 @@ import TestUtils from 'react-addons-test-utils';
 import chai, { expect } from 'chai';
 import ReactDOM from 'react-dom';
 import dirtyChai from 'dirty-chai';
-
+import _ from 'lodash';
+import ReactPropTypesSecret from 'react/lib/ReactPropTypesSecret';
 chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 import * as Advanced from '../../../../src/components/advanced';
 import RoleTypeEnum from '../../../../src/enums/RoleTypeEnum';
-
-const componentLibraries = [Basic, Advanced];
-
-const componentLibrariesBasic = [Basic];
+import { RoleManager } from '../../../../src/redux';
 
 /**
  * Component common properties test
  *
  * @author Radek Tomiška
  */
+
+const componentLibraries = [Basic, Advanced];
+const componentLibrariesBasic = [Basic];
+const manager = new RoleManager();
+
+/**
+ * Fill some commons properties to ensure more component types will be rendered
+ *
+ * @param  {ReactComponent} ComponentType
+ * @return {object} filled props
+ */
+function getCommonProps(ComponentType) {
+  //
+  // fill some commons properties to ensure more component types will be rendered
+  const commonPropNames = ['title', 'icon', 'label', 'text', 'onDrop', 'onClick', 'onSubmit', 'entityIdentifier', 'value', 'to'];
+  const commonProps = {};
+  for (const typeSpecName in ComponentType.propTypes) {
+    // advanced props
+    if (typeSpecName === 'entityType') {
+      commonProps[typeSpecName] = 'identity';
+      continue;
+    }
+    if (typeSpecName === 'enum') {
+      commonProps[typeSpecName] = RoleTypeEnum;
+      continue;
+    }
+    if (typeSpecName === 'manager') {
+      commonProps[typeSpecName] = manager;
+      continue;
+    }
+    if (ComponentType.name === 'DateTimePicker' && typeSpecName === 'value') {
+      commonProps[typeSpecName] = '2011-01-01';
+      continue;
+    }
+    if (!_.includes(commonPropNames, typeSpecName)) {
+      continue;
+    }
+    //
+    if (ComponentType.propTypes.hasOwnProperty(typeSpecName)) {
+      if (ComponentType.propTypes[typeSpecName]({ [typeSpecName]: 'text' }, typeSpecName, ComponentType.name, '', null, ReactPropTypesSecret) === null) {
+        // string
+        commonProps[typeSpecName] = 'text';
+      } else if (ComponentType.propTypes[typeSpecName]({ [typeSpecName]: {} }, typeSpecName, ComponentType.name, '', null, ReactPropTypesSecret) === null) {
+        // object
+        commonProps[typeSpecName] = {};
+      } else if (ComponentType.propTypes[typeSpecName]({ [typeSpecName]: () => {} }, typeSpecName, ComponentType.name, '', null, ReactPropTypesSecret) === null) {
+        // fuunction
+        commonProps[typeSpecName] = () => {};
+      }
+    }
+  }
+  return commonProps;
+}
+
 describe('Basic AbstractComponent', function abstractComponent() {
   it('- supportsRendered', function test() {
     expect(Basic.AbstractComponent.supportsRendered(Basic.AbstractComponent)).to.be.true();
@@ -33,6 +85,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
 
   describe('- when rendered is false, then component should not be rendered', function test() {
     // all components which supports rendered props
+    let counter = 0;
     for (const componentLibrary of componentLibraries) {
       for (const component in componentLibrary) {
         if (component.startsWith('Abstract')) {
@@ -43,7 +96,9 @@ describe('Basic AbstractComponent', function abstractComponent() {
           it('- ' + component, function testComponent() {
             const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" rendered={false} />);
+            const componentProps = getCommonProps(ComponentType);
+            counter++;
+            shallowRenderer.render(<ComponentType key={ `cmp-${counter}` } rendered={false} {...componentProps}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();
             expect(renderedComponent).to.be.null();
           });
@@ -64,11 +119,10 @@ describe('Basic AbstractComponent', function abstractComponent() {
           it('- ' + component, function testComponent() {
             const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
-            // TODO: supported props form component definition - prevent print mess into logs
-            // fill some commons properties to ensure more component types wil be rendered
-            shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading={false}/>);
+            const componentProps = getCommonProps(ComponentType);
+            shallowRenderer.render(<ComponentType showLoading={false} {...componentProps}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();
-            shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading/>);
+            shallowRenderer.render(<ComponentType showLoading {...componentProps}/>);
             const renderedComponentWithShowLoading = shallowRenderer.getRenderOutput();
             /*
             if(component === 'Label') {
@@ -103,11 +157,12 @@ describe('Basic AbstractComponent', function abstractComponent() {
         if (ComponentType.propTypes && ComponentType.propTypes.readOnly) {
           it('- ' + component, function testComponent() {
             const node = document.createElement('div');
-            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} readOnly={false} />, node);
+            const componentProps = getCommonProps(ComponentType);
+            const comp = ReactDOM.render(<ComponentType readOnly={false} {...componentProps}/>, node);
             if (comp.state.readOnly) {
               expect(comp.state.readOnly).to.be.equal(false);
 
-              ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} readOnly />, node);
+              ReactDOM.render(<ComponentType readOnly {...componentProps} />, node);
               expect(comp.state.readOnly).to.be.equal(true);
             }
           });
@@ -156,7 +211,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
 
             if (component.endsWith('DateTimePicker')) {
               // test with string
-              comp.setValue('11.11. 2000');
+              comp.setValue('2018-02-01');
             } else if (component.endsWith('EnumSelecBox')) {
               comp.setValue('SYSTEM');
             } else if (component.endsWith('Checkbox')) {
@@ -190,7 +245,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
 
             if (component.endsWith('DateTimePicker')) {
               // test with string
-              comp.setValue('11.11. 2000');
+              comp.setValue('2018-02-01');
             } else if (component.endsWith('EnumSelecBox')) {
               comp.setValue('SYSTEM');
             } else if (component.endsWith('Checkbox')) {

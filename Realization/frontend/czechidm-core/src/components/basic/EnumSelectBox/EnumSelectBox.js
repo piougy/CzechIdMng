@@ -310,10 +310,13 @@ EnumSelectBox.propTypes = {
   placeholder: PropTypes.string,
   fieldLabel: PropTypes.string,
   multiSelect: PropTypes.bool,
-  enum: PropTypes.object,
-  options: PropTypes.array,
+  enum: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.func
+  ]),
+  options: PropTypes.arrayOf(PropTypes.object),
   value: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.symbol),
+    PropTypes.arrayOf(PropTypes.func),
     PropTypes.symbol
   ]),
   searchable: PropTypes.bool,

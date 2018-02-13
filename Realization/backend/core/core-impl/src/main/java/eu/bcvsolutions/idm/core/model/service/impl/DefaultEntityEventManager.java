@@ -145,7 +145,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			}
 		}
 		// processors name
-		if (StringUtils.isNotEmpty(filter.getName()) && !processor.getName().equals(filter.getName())) {
+		if (StringUtils.isNotEmpty(filter.getName()) && !processor.getName().contains(filter.getName())) {
 			return false; 
 		}
 		// content ~ entity type - dto type

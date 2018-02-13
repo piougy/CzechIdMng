@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -17,11 +18,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,6 +59,13 @@ public class EntityEventProcessorController {
 	protected static final String TAG = "Entity event processors";
 	private final EntityEventManager entityEventManager;
 	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
+	
+	private FilterConverter filterConverter;
+	@Autowired(required = false)
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
+	@Autowired
+	private LookupService lookupService;
 	
 	@Autowired
 	public EntityEventProcessorController(EntityEventManager entityEventManager) {
@@ -87,9 +101,24 @@ public class EntityEventProcessorController {
 	
 	private EntityEventProcessorFilter toFilter(MultiValueMap<String, Object> parameters) {
 		EntityEventProcessorFilter filter = new EntityEventProcessorFilter(parameters); // text is filled automatically
-		//
-		// TODO: fill other params - use FilterConverter
-		//
+
+		filter.setDescription(getParameterConverter().toString(parameters, "description"));
+		filter.setEntityType(getParameterConverter().toString(parameters, "entityType"));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setName(getParameterConverter().toString(parameters, "name"));
+		
 		return filter;
+	}
+	
+	/**
+	 * Return parameter converter helper
+	 * 
+	 * @return
+	 */
+	protected FilterConverter getParameterConverter() {
+		if (filterConverter == null) {
+			filterConverter = new FilterConverter(lookupService, mapper);
+		}
+		return filterConverter;
 	}
 }

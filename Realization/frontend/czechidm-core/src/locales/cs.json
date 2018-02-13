@@ -1927,6 +1927,12 @@
         "filter": {
           "text": {
             "placeholder": "Název, popis nebo typ obsahu (typ entity)"
+          },
+          "name": {
+            "placeholder": "Název"
+          },
+          "description:": {
+            "placeholder": "Popis"
           }
         }
       }

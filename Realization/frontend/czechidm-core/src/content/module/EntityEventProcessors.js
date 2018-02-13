@@ -6,7 +6,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { EntityEventProcessorManager } from '../../redux';
+import { EntityEventProcessorManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 
@@ -92,6 +92,9 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
         return one > two;
       });
     }
+
+    console.log('types: ' + _entityTypes);
+
     //
     return (
       <div>
@@ -118,15 +121,29 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
             <div>
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <Basic.Col lg={ 8 }>
+                  <Basic.Row>
+                    <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
-                    </Basic.Col>
-                    <Basic.Col lg={ 4 } className="text-right">
+                    </div>
+                    <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </Basic.Col>
+                    </div>
+                  </Basic.Row>
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="name"
+                        placeholder={this.i18n('filter.name.placeholder')}/>
+                    </div>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="description"
+                        placeholder={this.i18n('filter.description.placeholder')}/>
+                    </div>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
@@ -234,6 +251,7 @@ EntityEventProcessors.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
+    // registeredProcessors: DataManager.getData(state, EntityEventProcessorManager.UI_KEY_PROCESSORS),
     registeredProcessors: manager.getEntities(state, UIKEY),
     showLoading: Utils.Ui.isShowLoading(state, UIKEY),
     _searchParameters: Utils.Ui.getSearchParameters(state, UIKEY)

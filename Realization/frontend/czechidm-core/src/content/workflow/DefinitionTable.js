@@ -94,7 +94,7 @@ DefinitionTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   definitionManger: PropTypes.object.isRequired,
   forceSearchParameters: PropTypes.object,
-  showLoading: PropTypes.boolean
+  showLoading: PropTypes.bool
 };
 
 DefinitionTable.defaultProps = {};

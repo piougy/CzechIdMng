@@ -86,7 +86,15 @@ public class DefaultWorkflowProcessDefinitionService
 		if (filter != null && filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())) {
 			query.processDefinitionCategoryLike(filter.getCategory() + '%');
 		}
-
+		
+		if(filter.getProcessDefinitionKey() != null) {
+			query.processDefinitionKeyLike('%' + filter.getProcessDefinitionKey() + '%');
+		}
+		
+		if(filter.getName() != null) {
+			query.processDefinitionNameLike('%' + filter.getName() + '%');
+		}
+		
 		// Default sort
 		// query.orderByProcessDefinitionId();
 		// query.asc();

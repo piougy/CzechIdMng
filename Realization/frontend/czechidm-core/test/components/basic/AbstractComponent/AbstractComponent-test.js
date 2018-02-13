@@ -64,6 +64,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
           it('- ' + component, function testComponent() {
             const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
+            // TODO: supported props form component definition - prevent print mess into logs
             // fill some commons properties to ensure more component types wil be rendered
             shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading={false}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();

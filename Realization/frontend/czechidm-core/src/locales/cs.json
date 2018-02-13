@@ -191,17 +191,21 @@
     },
     "duplicate": {
       "action": "Duplikovat",
+      "header_0": "N/A",
       "header_1": "Duplikování záznamu",
       "header_2": "Duplikování záznamů",
       "header_5": "$t(action.duplicate.header_2)",
+      "message_0": "N/A",
       "message_1": "Opravdu chcete duplikovat vybraný záznam [<strong>{{record}}</strong>]?",
       "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete duplikovat <strong>{{count}}</strong> vybrané záznamy?",
       "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete duplikovat <strong>{{count}}</strong> vybraných záznamů?",
       "error": "Při duplikování záznamu [{{record}}] nastala chyba",
-      "success": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně duplikován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány"
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
+      "failed_1": "Vybraný záznam [{{records}}] se nepodařilo duplikovat",
+      "failed_2": "Vybrané záznamy [{{records}}] se nepodařilo duplikovat",
+      "failed_5": "Vybrané záznamy [{{records}}] se nepodařilo duplikovat"
     },
     "save": {
       "success_0": "N/A",
@@ -221,7 +225,13 @@
       "success_0": "N/A",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně zrušen",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny"
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
+      "approve_1": "Vybraný záznam [{{record}}] je třeba schválit, úkol byl úspěšně vytvořen.",
+      "approve_2": "Vybrané záznamy [{{records}}] je třeba schválit, úkoly byl úspěšně vytvořeny.",
+      "approve_5": "Vybrané záznamy [{{record}}] je třeba schválit, úkoly byl úspěšně vytvořeny.",
+      "accepted_1": "Vybraný záznam [{{record}}] bude zpracováne asynchronně (vyžaduje schválení nebo spouští dlouhotrvající úlohu).",
+      "accepted_2": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu).",
+      "accepted_5": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu)."
     }
   },
   "environment": {
@@ -1507,7 +1517,8 @@
       "conceptHeader": "Požadované změny oprávnění",
       "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
       "save": {
-        "success": "Žádost o změnu oprávnění byla úspěšně uložena"
+        "success": "Žádost o změnu oprávnění byla úspěšně uložena",
+        "start": "Odeslat žádost"
       },
       "button": {
         "createRequest":{
@@ -1526,7 +1537,7 @@
         "title": "Další údaje",
         "save": {
           "success": "Údaje role [{{name}}] byly úspěšně uloženy.",
-          "start": "Execute request"
+          "start": "Odeslat žádost"
         },
         "error" : {
           "notFound": "Definice dalších atributů pro roli nebyla nalezena."

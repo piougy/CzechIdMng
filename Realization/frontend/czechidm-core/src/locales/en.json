@@ -150,6 +150,7 @@
       "success_0": "N/A",
       "success": "N/A",
       "success_plural": "Selected record [{{record}}] were successfully recovered",
+      "failed_0": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
       "failed": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
       "failed_plural": "Selected records [{{records}}] failed recover, XML file don't exist on disk."
     },
@@ -165,6 +166,7 @@
       "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully backup",
       "success_plural": "Selected records [{{records}}] were successfully backup",
+      "failed_0": "Selected record [{{records}}] were not successfully backup",
       "failed": "Selected record [{{records}}] were not successfully backup",
       "failed_plural": "Selected records [{{records}}] were not successfully backup"
     },
@@ -177,7 +179,6 @@
       "message": "Do you want to duplicate selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to duplicate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while duplicating [{{record}}].",
-      "success_0": "N/A",
       "success": "Selected record [{{record}}] successfully duplicated",
       "success_plural": "Selected records [{{records}}] were successfully duplicated",
       "failed": "Selected record [{{records}}] were not successfully duplicated",
@@ -189,11 +190,14 @@
     },
     "cancel": {
       "action": "Cancel",
+      "header_0": "N/A",
       "header": "Cancel record",
       "header_plural": "Cancel records",
+      "message_0": "N/A",
       "message": "Do you want to cancel selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to cancel <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while canceling [{{record}}].",
+      "success_0": "N/A",
       "success": "Selected record [{{record}}] successfully canceled",
       "success_plural": "Selected records [{{records}}] were successfully canceled",
       "approve": "Record cancel [{{record}}] has to be approved, task successfully created",
@@ -1310,7 +1314,8 @@
         "text": "Key / Owner type",
         "ownerId": "Owner Id",
         "key": "Key",
-        "ownerType": "Owner type"
+        "ownerType": "Owner type",
+        "value": "Value"
       },
       "edit": {
         "title": "Detail of storage",
@@ -1492,7 +1497,8 @@
         "header": "More information",
         "title": "More information",
         "save": {
-          "success": "Extended attributes for role [{{name}}] successfully saved."
+          "success": "Extended attributes for role [{{name}}] successfully saved.",
+          "start": "Execute request"
         },
         "error" : {
           "notFound": "Extended attributes definition for role not found."
@@ -2812,7 +2818,6 @@
       "counter": "Processed",
       "started": "Started",
       "notstarted": "Not started yet!",
-      "history": "List of all processed items",
       "result": {
         "state": "State",
         "code": "Code"

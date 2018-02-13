@@ -7,6 +7,8 @@ import SearchParameters from '../../src/domain/SearchParameters';
 
 /**
  * "Blank" AbstractService
+ *
+ * @author Radek Tomiška
  */
 class DefaultAbstractService extends AbstractService {
 

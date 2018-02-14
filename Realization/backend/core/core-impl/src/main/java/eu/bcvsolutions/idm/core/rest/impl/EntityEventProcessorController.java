@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -106,6 +104,8 @@ public class EntityEventProcessorController {
 		filter.setEntityType(getParameterConverter().toString(parameters, "entityType"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setName(getParameterConverter().toString(parameters, "name"));
+		//TODO implement toStrings
+//		filter.setEventTypes(getParameterConverter());
 		
 		return filter;
 	}

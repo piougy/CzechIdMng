@@ -1928,11 +1928,11 @@
           "text": {
             "placeholder": "Název, popis nebo typ obsahu (typ entity)"
           },
-          "name": {
-            "placeholder": "Název"
+          "entity-type": {
+            "placeholder": "Vyberte typ entity"
           },
-          "description:": {
-            "placeholder": "Popis"
+          "event-type": {
+            "placeholder": "Vyberte typ události"
           }
         }
       }

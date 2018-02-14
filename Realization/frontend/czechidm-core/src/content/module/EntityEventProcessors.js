@@ -6,7 +6,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { EntityEventProcessorManager, DataManager } from '../../redux';
+import { EntityEventProcessorManager } from '../../redux';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 
@@ -93,9 +93,20 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
       });
     }
 
-    console.log('types: ' + _entityTypes);
-
-    //
+    const _entityTypesSelectItems = [];
+    let _eventTypesSet = new Immutable.Set();
+    const _eventTypesSelectItems = [];
+    _entityTypes.forEach(type => {
+      _entityTypesSelectItems.push({ value: type, niceLabel: type});
+      _registeredProcessors.get(type).forEach(item => {
+        item.eventTypes.forEach(e => {
+          _eventTypesSet = _eventTypesSet.add(e);
+        });
+      });
+    });
+    _eventTypesSet.map(item => {
+      _eventTypesSelectItems.push({value: item, niceLabel: item});
+    });
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -122,28 +133,29 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
-                    <div className="col-lg-6">
+                    <Basic.Col lg={ 6 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
-                    </div>
+                    </Basic.Col>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                     </div>
                   </Basic.Row>
                   <Basic.Row>
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="name"
-                        placeholder={this.i18n('filter.name.placeholder')}/>
-                    </div>
+                    <Basic.Col lg={ 6 }>
+                      <Advanced.Filter.EnumSelectBox ref="entityType"
+                           placeholder={this.i18n('filter.entity-type.placeholder')}
+                           options={_entityTypesSelectItems}/>
+                    </Basic.Col>
                   </Basic.Row>
                   <Basic.Row className="last">
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="description"
-                        placeholder={this.i18n('filter.description.placeholder')}/>
-                    </div>
+                    <Basic.Col lg={ 6 }>
+                      <Advanced.Filter.EnumSelectBox ref="eventTypes"
+                           placeholder={this.i18n('filter.event-type.placeholder')}
+                           options={_eventTypesSelectItems}
+                           multiSelect/>
+                    </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
@@ -251,7 +263,6 @@ EntityEventProcessors.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
-    // registeredProcessors: DataManager.getData(state, EntityEventProcessorManager.UI_KEY_PROCESSORS),
     registeredProcessors: manager.getEntities(state, UIKEY),
     showLoading: Utils.Ui.isShowLoading(state, UIKEY),
     _searchParameters: Utils.Ui.getSearchParameters(state, UIKEY)

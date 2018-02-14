@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Password pre validation integration test
+ * 
+ * TODO: make DefaultIdmPasswordPolicyService constants protected / or public and use them here instead hard coded strings.
  * 
  * @author Patrik Stloukal
  *
@@ -239,7 +242,8 @@ public class PasswordPreValidationIntegrationTest extends AbstractIntegrationTes
 			assertEquals(policy.getName() + ", " + policyDefault.getName(),
 					ex.getError().getError().getParameters().get("policiesNamesPreValidation"));
 
-			assertEquals(3, ex.getError().getError().getParameters().size());
+			assertFalse(ex.getError().getError().getParameters().get("specialCharacterBase") == null);
+			assertEquals(4, ex.getError().getError().getParameters().size());
 			policyDefault.setDefaultPolicy(false);
 			passwordPolicyService.save(policyDefault);
 		}

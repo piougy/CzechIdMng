@@ -65,6 +65,9 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
    * enum
    */
   _transformAttributeToCheck(identityAttributeCheck) {
+    if (!identityAttributeCheck) {
+      return null;
+    }
     // transform identityAttributeCheck
     return _.split(identityAttributeCheck, ', ');
   }

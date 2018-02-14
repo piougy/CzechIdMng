@@ -859,14 +859,20 @@
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
         "policiesNames": "Heslo neprošlo přes tyto politiky: ",
-        "minRulesToFulfillCount": "Nesplněno minimum povinných pravidel: ",
-        "minRulesToFulfill": "Doplňte minimálně {{count}} z následujících pravidel: ",
+        "policiesNamesPreValidation": "Heslo musí projít přes tyto politiky: ",
+        "minRulesToFulfillCount": "Je požadováno minimum povinných pravidel: ",
+        "minRulesToFulfill": "Je požadováno minimálně {{count}} z následujících pravidel: ",
         "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
         "date": "Heslo není možné nyní změnit, zkuste to znovu: ",
-        "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku."
+        "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
+        "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: ",
+        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu",
+        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu",
+        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu",
+        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení"
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."

@@ -830,15 +830,21 @@
         "prohibited": "Password contains illegal characters: ",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
-        "policiesNames": "Password password does not meet these password policies ",
-        "minRulesToFulfillCount": "Unfulfilled minimum mandatory rules: ",
+        "policiesNames": "Password does not meet these password policies: ",
+        "policiesNamesPreValidation": "Password have to meet these password policies: ",
+        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: ",
         "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
         "passwordSimilarUsername": "Password cannot be similar to login: ",
         "passwordSimilarEmail": "Password cannot be similar to email: ",
         "passwordSimilarFirstName": "Password cannot be similar to first name: ",
         "passwordSimilarLastName": "Password cannot be similar to surname: ",
         "date": "Password can not be change now, try again: ",
-        "advancedControlValidateType": "Enhanced control is available only for validate politics."
+        "advancedControlValidateType": "Enhanced control is available only for validate politics.",
+        "specialCharacterBase": "List of special characters for password policies: ",
+        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
+        "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
+        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",
+        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname"
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."

@@ -181,10 +181,12 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                   label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
 
-                <Basic.EnumSelectBox ref="identityAttributeCheck"
-                  helpBlock={this.i18n('entity.PasswordPolicy.help.identityAttributeCheck')}
-                  enum={PasswordPolicyIdentityAttributeEnum}
-                  multiSelect label={this.i18n('entity.PasswordPolicy.identityAttributeCheck')}
+                <Basic.EnumSelectBox
+                  ref="identityAttributeCheck"
+                  helpBlock={ this.i18n('entity.PasswordPolicy.help.identityAttributeCheck') }
+                  enum={ PasswordPolicyIdentityAttributeEnum }
+                  multiSelect
+                  label={ this.i18n('entity.PasswordPolicy.identityAttributeCheck') }
                   useSymbol={ false }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>

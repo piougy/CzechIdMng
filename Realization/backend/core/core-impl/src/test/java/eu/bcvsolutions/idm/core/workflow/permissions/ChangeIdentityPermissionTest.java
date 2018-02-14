@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.workflow.permissions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -13,6 +14,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
@@ -34,6 +36,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
@@ -603,6 +607,92 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			fail("Some problem: " + e.getLocalizedMessage());
 		}
 	}
+	
+	@Test
+	@Transactional
+	public void testGetTaskByAnotherUser() {
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		//
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = helper.createIdentity();
+		IdmIdentityDto anotherUser = helper.createIdentity();
+		
+		IdmRoleDto role = helper.createRole();
+
+		// helpdesk role and identity
+		IdmRoleDto helpdeskRole = helper.createRole();
+		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		// add role directly
+		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		
+		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		
+		// check task before create request
+		loginAsAdmin(test1.getUsername());
+		
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+		
+		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+		
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+		
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+			
+		// HELPDESK login
+		loginAsAdmin(helpdeskIdentity.getUsername());
+		taskFilter.setCandidateOrAssigned(helpdeskIdentity.getUsername());
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(1, tasks.size());
+		
+		WorkflowTaskInstanceDto taskInstanceDto = tasks.get(0);
+		String id = taskInstanceDto.getId();
+		
+		WorkflowTaskInstanceDto workflowTaskInstanceDto = workflowTaskInstanceService.get(id);
+		assertNotNull(workflowTaskInstanceDto);
+		
+		// check task get by id
+		loginWithout(test1.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		workflowTaskInstanceDto = workflowTaskInstanceService.get(id);
+		assertNull(workflowTaskInstanceDto);
+		
+		loginWithout(anotherUser.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		workflowTaskInstanceDto = workflowTaskInstanceService.get(id);
+		assertNull(workflowTaskInstanceDto);
+		
+		// candidate
+		loginWithout(helpdeskIdentity.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		workflowTaskInstanceDto = workflowTaskInstanceService.get(id);
+		assertNotNull(workflowTaskInstanceDto);
+		
+		// WF admin
+		loginWithout(InitTestData.TEST_ADMIN_USERNAME, IdmGroupPermission.APP_ADMIN);
+		workflowTaskInstanceDto = workflowTaskInstanceService.get(id);
+		assertNotNull(workflowTaskInstanceDto);
+		
+		// Attacker
+		loginWithout(anotherUser.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		taskFilter.setCandidateOrAssigned(helpdeskIdentity.getUsername());
+		try { 
+			tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+			fail();
+		} catch (ResultCodeException ex) {
+			assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
+		} catch (Exception e) {
+			fail();
+		} 
+	}
+
 	
 	/**
 	 * Return {@link WorkflowHistoricProcessInstanceDto} for current logged user

@@ -225,6 +225,20 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return showId;
   }
 
+  _filterOpen(open) {
+    const { filterOpen } = this.props;
+    let result = true;
+    if (filterOpen) {
+      result = filterOpen(open);
+    }
+    //
+    if (result !== false) {
+      this.setState({
+        filterOpened: open
+      });
+    }
+  }
+
   render() {
     const {
       _entities,
@@ -399,7 +413,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 { buttons }
 
                 <Filter.ToogleButton
-                  filterOpen={ (open)=> this.setState({ filterOpened: open }) }
+                  filterOpen={ this._filterOpen.bind(this) }
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
                   style={{ marginLeft: 3 }}
@@ -551,6 +565,10 @@ AdvancedTable.propTypes = {
    * If filter is opened by default
    */
   filterOpened: PropTypes.bool,
+  /**
+   * External filter open function. If false is returned, internal filterOpened is not set.
+   */
+  filterOpen: PropTypes.func,
   /**
    * If filter can be collapsed
    */

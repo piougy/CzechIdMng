@@ -46,9 +46,7 @@ public class CodeableDtoLookup<DTO extends BaseDto> extends AbstractDtoLookup<DT
 
 	@Override
 	public DTO lookup(Serializable id) {
-		if (getService() == null) {
-			throw new IllegalStateException("Service for this lookup is null. Inicialize service for this lookup.");
-		}
+		Assert.notNull(getService(), "Service for this lookup is null. Inicialize service for this lookup.");
 		//
 		DTO dto = null;
 		try {

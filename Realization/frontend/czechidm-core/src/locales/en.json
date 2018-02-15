@@ -11,6 +11,9 @@
       "frontend": "Version",
       "backend": "Backend version",
       "releaseDate": "Release date"
+    },
+    "documentation": {
+      "url": "https://wiki.czechidm.com"
     }
   },
   "format": {
@@ -874,7 +877,7 @@
         "notAllowed": "You do not have permission to edit the system configuration",
         "help": "Public items are accessible without logging. Confidential items can be public."
       },
-      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='https://wiki.czechidm.com/devel/dev/configuration/backend' target='_blank'> app configuration </a>."
+      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>."
     },
     "tasks-summary": {
       "summary": "Tasks list",

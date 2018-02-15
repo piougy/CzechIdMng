@@ -92,7 +92,21 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
         return one > two;
       });
     }
-    //
+
+    const _entityTypesSelectItems = [];
+    let _eventTypesSet = new Immutable.Set();
+    const _eventTypesSelectItems = [];
+    _entityTypes.forEach(type => {
+      _entityTypesSelectItems.push({ value: type, niceLabel: type});
+      _registeredProcessors.get(type).forEach(item => {
+        item.eventTypes.forEach(e => {
+          _eventTypesSet = _eventTypesSet.add(e);
+        });
+      });
+    });
+    _eventTypesSet.map(item => {
+      _eventTypesSelectItems.push({value: item, niceLabel: item});
+    });
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -118,14 +132,29 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
             <div>
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <Basic.Col lg={ 8 }>
+                  <Basic.Row>
+                    <Basic.Col lg={ 6 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
                     </Basic.Col>
-                    <Basic.Col lg={ 4 } className="text-right">
+                    <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                  <Basic.Row>
+                    <Basic.Col lg={ 6 }>
+                      <Advanced.Filter.EnumSelectBox ref="entityType"
+                           placeholder={this.i18n('filter.entity-type.placeholder')}
+                           options={_entityTypesSelectItems}/>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 6 }>
+                      <Advanced.Filter.EnumSelectBox ref="eventTypes"
+                           placeholder={this.i18n('filter.event-type.placeholder')}
+                           options={_eventTypesSelectItems}
+                           multiSelect/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>

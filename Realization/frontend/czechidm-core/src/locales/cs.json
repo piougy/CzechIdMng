@@ -1936,6 +1936,12 @@
         "filter": {
           "text": {
             "placeholder": "Název, popis nebo typ obsahu (typ entity)"
+          },
+          "entity-type": {
+            "placeholder": "Vyberte typ entity"
+          },
+          "event-type": {
+            "placeholder": "Vyberte typ události"
           }
         }
       }

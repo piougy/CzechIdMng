@@ -72,7 +72,6 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
             }
           </Basic.PageHeader>
         }
-
         <Basic.Panel>
           <Basic.Loading isStatic showLoading={showLoading} />
           {

@@ -2,10 +2,12 @@ package eu.bcvsolutions.idm.core.notification.api.service;
 
 import java.util.List;
 
+import org.springframework.core.Ordered;
 import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
@@ -22,9 +24,14 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
  * @see {@link IdmNotificationLogDto}
  *
  */
-public interface NotificationSender<N extends BaseNotification> extends Plugin<String> {
+public interface NotificationSender<N extends BaseNotification> extends Configurable, Plugin<String>, Ordered {
 	
-	static final String DEFAULT_TOPIC = "default";
+	String DEFAULT_TOPIC = "default";
+	
+	@Override
+	default String getConfigurableType() {
+		return "notification-sender";
+	}
 	
 	/**
 	 * Returns this sender's {@link IdmNotificationDto} type.
@@ -32,6 +39,16 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @return
 	 */
 	String getType();
+	
+	/**
+	 * Returns this sender's {@link IdmNotificationDto} type.
+	 * 
+	 * @return
+	 */
+	@Override
+	default String getName() {
+		return getType();
+	}
 	
 	/**
 	 * Returns notification log type (entity class).

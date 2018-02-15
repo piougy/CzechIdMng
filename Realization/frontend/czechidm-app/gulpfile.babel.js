@@ -210,7 +210,6 @@ gulp.task('createComponentAssembler', () => {
   .pipe(gulp.dest(paths.distModule));
 });
 
-
 gulp.task('clean', cb => {
   return rimraf('dist', cb);
 });

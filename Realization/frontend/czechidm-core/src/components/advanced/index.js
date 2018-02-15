@@ -36,6 +36,7 @@ import PasswordChangeComponent from './PasswordChangeComponent/PasswordChangeCom
 import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
+import OperationResult from './OperationResult/OperationResult';
 
 const Components = {
   Table,
@@ -77,7 +78,8 @@ const Components = {
   PasswordChangeComponent,
   ValidationMessage,
   DecisionButtons,
-  DynamicTaskDetail
+  DynamicTaskDetail,
+  OperationResult
 };
 
 Components.version = '0.0.1';

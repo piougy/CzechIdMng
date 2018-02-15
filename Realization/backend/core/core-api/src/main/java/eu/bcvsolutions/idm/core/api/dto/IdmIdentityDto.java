@@ -7,7 +7,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
-import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -194,8 +193,6 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	}
 	
 	public void setState(IdentityState state) {
-		Assert.notNull(state, "Identity state is required");
-		//
 		this.state = state;
 	}
 }

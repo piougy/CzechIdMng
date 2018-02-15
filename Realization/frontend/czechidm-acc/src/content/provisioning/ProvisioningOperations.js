@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
 //
-import { Basic, Advanced, Managers, Enums } from 'czechidm-core';
+import { Basic, Advanced, Managers } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTableComponent, { ProvisioningOperationTable } from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
@@ -250,43 +250,22 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   </Basic.Row>
 
                 </Basic.AbstractForm>
-                <br />
 
-                <Basic.ContentHeader text={ this.i18n('detail.result') }/>
+                <Advanced.OperationResult value={ detail.entity.result } face="full"/>
 
-                <div style={{ marginBottom: 15 }}>
-                  <Basic.EnumValue value={detail.entity.resultState} enum={Enums.OperationStateEnum}/>
-                  {
-                    (!detail.entity.result || !detail.entity.result.code)
-                    ||
-                    <span style={{ marginLeft: 15 }}>
-                      {this.i18n('detail.resultCode')}: {detail.entity.result.code}
-                    </span>
-                  }
-                  <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
-                  {
-                    (!detail.entity.nextAttempt)
-                    ||
-                    <div>
-                      <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt', {
-                        currentAttempt: detail.entity.currentAttempt,
-                        maxAttempts: detail.entity.maxAttempts,
-                        nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
-                      })}}/>
-                    </div>
-                  }
-                </div>
                 {
-                  (!detail.entity.result || !detail.entity.result.stackTrace)
+                  (!detail.entity.nextAttempt)
                   ||
-                  <div>
-                    <textArea
-                      rows="10"
-                      value={detail.entity.result.stackTrace}
-                      readOnly
-                      style={{ width: '100%', marginBottom: 15 }}/>
+                  <div style={{ marginBottom: 15 }}>
+                    <Basic.ContentHeader text={ this.i18n('detail.nextAttempt.header') }/>
+                    <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt.label', {
+                      currentAttempt: detail.entity.currentAttempt,
+                      maxAttempts: detail.entity.maxAttempts,
+                      nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
+                    })}}/>
                   </div>
                 }
+
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Basic.Table

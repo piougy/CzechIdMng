@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Nofification template tests:
- * - init, init from multiple locations
+ * - init from multiple locations
  * - template backup and redeploy
  * 
  * 

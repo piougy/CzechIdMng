@@ -21,19 +21,17 @@ class PasswordChangeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { passwordChangeType, userContext, requireOldPassword } = this.props;
+    const { userContext, requireOldPassword } = this.props;
     const { entityId } = this.props.params;
 
-    const options = [
-      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
-    ];
+    const options = [ ];
+    options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
 
     return (
       <PasswordChangeForm
         userContext={userContext}
         accountOptions={options}
         entityId={entityId}
-        passwordChangeType={passwordChangeType}
         requireOldPassword={requireOldPassword}/>
     );
   }

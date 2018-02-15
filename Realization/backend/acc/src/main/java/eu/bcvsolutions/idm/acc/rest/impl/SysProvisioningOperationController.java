@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.scheduler.task.impl.CancelProvisioningQueueTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -41,6 +42,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
@@ -70,15 +73,17 @@ public class SysProvisioningOperationController
 	protected static final String TAG = "Provisioning - queue";
 	//
 	private final ProvisioningExecutor provisioningExecutor;
+	private final LongRunningTaskManager longRunningTaskManager;
 
 	@Autowired
 	public SysProvisioningOperationController(SysProvisioningOperationService service,
-			ProvisioningExecutor provisioningExecutor) {
+			ProvisioningExecutor provisioningExecutor, LongRunningTaskManager longRunningTaskManager) {
 		super(service);
 		//
 		Assert.notNull(provisioningExecutor);
 		//
 		this.provisioningExecutor = provisioningExecutor;
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
 
 	@Override
@@ -206,5 +211,26 @@ public class SysProvisioningOperationController
 		}
 		provisioningOperation = provisioningExecutor.cancel(provisioningOperation);
 		return new ResponseEntity<>(toResource(provisioningOperation), HttpStatus.OK);
+	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
+	@RequestMapping(value = "/action/bulk/cancel", method = RequestMethod.PUT)
+	@ApiOperation(
+			value = "Cancel provisioning queue", 
+			nickname = "cancelAllProvisioningQueue",
+			tags = { SysProvisioningOperationController.TAG },
+			notes = "Cancel all operations from provisioning queue by given filter")
+	public ResponseEntity<?> cancelAll(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		SysProvisioningOperationFilter filter = toFilter(parameters);
+		//filter.setSystemId(getParameterConverter().toEntityUuid(parameters, "systemId", SysSystem.class));
+		//
+		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
+		lrt.setFilter(filter);
+		//
+		LongRunningFutureTask<Boolean> futureTask = longRunningTaskManager.execute(lrt);
+		//
+		return new ResponseEntity<Object>(longRunningTaskManager.getLongRunningTask(futureTask), HttpStatus.ACCEPTED);
 	}
 }

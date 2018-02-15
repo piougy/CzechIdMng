@@ -48,7 +48,7 @@ RefreshButton.propTypes = {
   /**
    * Buttons tooltip, otherwise default 'button.refresh' will be used
    */
-  title: PropTypes.text
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
 };
 RefreshButton.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps

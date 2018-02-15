@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -119,7 +118,7 @@ public class SysProvisioningBatchController
 	@ApiOperation(
 			value = "Provisioning batch detail", 
 			nickname = "getProvisioningBatch", 
-			response = SysProvisioningBatch.class, 
+			response = SysProvisioningBatchDto.class, 
 			tags = { SysProvisioningBatchController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 

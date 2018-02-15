@@ -24,7 +24,7 @@ public interface IdmPasswordService
 	 * Save password to identity. This method not validate password.
 	 * 
 	 * @param identity
-	 * @param entity
+	 * @param passwordDto
 	 * @return
 	 */
 	IdmPasswordDto save(IdmIdentityDto identity, PasswordChangeDto passwordDto);
@@ -39,11 +39,19 @@ public interface IdmPasswordService
 	/**
 	 * Return password for given identity
 	 * 
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
 	IdmPasswordDto findOneByIdentity(UUID identityId);
-	
+
+	/**
+	 * Return password for given username
+	 *
+	 * @param username
+	 * @return
+	 */
+	IdmPasswordDto findOneByIdentity(String username);
+
 	/**
 	 * Check password matches a passwordToCheck
 	 * 
@@ -68,4 +76,18 @@ public interface IdmPasswordService
 	 * @return
 	 */
 	String getSalt(IdmIdentityDto identity);
+
+	/**
+	 * If this username exists and password is incorrect -> increase count of unsuccessful attempts
+	 *
+	 * @param username
+	 */
+	void increaseUnsuccessfulAttempts(String username);
+
+	/**
+	 * If this username exists and the password is correct -> save timestamp of login
+	 * 
+	 * @param username
+	 */
+	void setLastSuccessfulLogin(String username);
 }

@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
@@ -97,7 +97,7 @@ public class IdentitySetPasswordProcessor
 			// send notification if at least one system success
 			if (!successAccounts.isEmpty()) {
 				notificationManager.send(
-						AccModuleDescriptor.TOPIC_NEW_PASSWORD_ALL_SYSTEMS,
+						CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED,
 						new IdmMessageDto.Builder()
 						.setLevel(NotificationLevel.SUCCESS)
 						.addParameter("successSystemNames", StringUtils.join(systemNames, ", "))

@@ -65,6 +65,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
         this.refs.oldPassword.focus();
       });
     }
+    this._preValidate(accountOptions);
   }
 
   /**
@@ -77,6 +78,58 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     return identityManager.canChangePassword(passwordChangeType, permissions);
   }
 
+  /*
+   * Method shows password rules before applying change of password
+   */
+  _preValidate(options) {
+    const requestData = {
+      accounts: []
+    };
+
+    options.forEach(resourceValue => {
+      if (resourceValue.value === RESOURCE_IDM) {
+        requestData.idm = true;
+      } else {
+        requestData.accounts.push(resourceValue.value);
+      }
+    });
+    identityManager.preValidate(requestData)
+    .then(response => {
+      if (response.status === 204) {
+        const error = undefined;
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return json;
+    })
+    .catch(error => {
+      if (!error) {
+        return {};
+      }
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
+  }
+
   save(event) {
     if (event) {
       event.preventDefault();
@@ -84,7 +137,9 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { entityId, userContext, passwordChangeType } = this.props;
+    const { entityId,
+      userContext,
+      passwordChangeType } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -115,7 +170,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
         }
       });
     }
-
+    //
     identityService.passwordChange(entityId, requestData)
     .then(response => {
       this.setState({
@@ -131,7 +186,8 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
         const error = Utils.Response.getFirstError(json);
 
         this.setState({
-          validationError: error
+          validationError: error,
+          validationDefinition: false
         });
 
         throw error;
@@ -173,6 +229,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           newPassword: null,
           newPasswordAgain: null
         });
+        this._preValidate(this.props.accountOptions);
       });
     })
     .catch(error => {
@@ -180,6 +237,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
         this.addErrorMessage({hidden: true}, error);
       } else {
         this.addError(error);
+        this._preValidate(this.props.accountOptions);
       }
 
       this.refs.form.setData({
@@ -205,7 +263,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       entityId,
       requireOldPasswordConfig
     } = this.props;
-    const { preload, validationError } = this.state;
+    const { preload, validationError, validationDefinition } = this.state;
     //
     if (!rendered && rendered !== undefined) {
       return null;
@@ -222,6 +280,8 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       oldPasswordRequired = requireOldPasswordConfig;
     }
     //
+    const accountsExits = accountOptions.length !== 0;
+    //
     const content = [];
     if (this._canPasswordChange(_permissions) && !preload) {
       content.push(
@@ -232,15 +292,16 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           style={{ margin: '15px 0'}}/>
       );
       content.push(
-        <ValidationMessage error={validationError} />
+        <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
       );
       content.push(
         <Basic.AbstractForm ref="form">
           <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
             hidden={!oldPasswordRequired}
+            disabled={!accountsExits}
             required={oldPasswordRequired}/>
 
-          <PasswordField className="form-control" ref="passwords" />
+          <PasswordField className="form-control" ref="passwords" disabled={!accountsExits}/>
 
           <Basic.EnumSelectBox
             ref="accounts"
@@ -249,7 +310,8 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             multiSelect
             options={accountOptions}
             required
-            disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
+            disabled={(passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) || !accountsExits}
+            onChange={ this._preValidate.bind(this) }/>
 
           <div className={allOnlyWarningClassNames}>
             <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
@@ -261,6 +323,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           <Basic.Button
             type="submit"
             level="success"
+            disabled={!accountsExits}
             showLoading={this.state.showLoading}>{this.i18n('button.change')}
           </Basic.Button>
         </Basic.PanelFooter>
@@ -282,6 +345,11 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             icon="exclamation-sign"
             text={ this.i18n('permission.failed') }
             rendered={ _permissions !== undefined && !this._canPasswordChange(_permissions) && passwordChangeType !== IdentityManager.PASSWORD_DISABLED }/>
+          <Basic.Alert
+            level="info"
+            icon="exclamation-sign"
+            rendered={ !accountsExits }
+            text={ this.i18n('message.noAccounts') }/>
           { content }
         </Basic.Panel>
       </form>

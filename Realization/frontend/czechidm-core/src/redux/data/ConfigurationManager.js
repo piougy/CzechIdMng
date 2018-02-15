@@ -134,14 +134,20 @@ export default class ConfigurationManager extends EntityManager {
   }
 
   /**
-   * Returns setting value as boolean. Return false, when setting is null.
+   * Returns setting value as boolean. Return false, when setting is null,
+   * or given value in third parameter defaultValue.
    *
    * @param  {redux state} state
    * @param  {string} key
+   * @param  {boolean} defautl value
    * @return {boolean}
    */
-  static getPublicValueAsBoolean(state, key) {
-    return ConfigurationManager.getPublicValue(state, key) === 'true';
+  static getPublicValueAsBoolean(state, key, defaultValue = false) {
+    const publicStringValue = ConfigurationManager.getPublicValue(state, key);
+    if (publicStringValue === null || publicStringValue === undefined) {
+      return defaultValue;
+    }
+    return publicStringValue === 'true';
   }
 
   /**

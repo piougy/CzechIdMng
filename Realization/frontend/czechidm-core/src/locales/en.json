@@ -11,6 +11,9 @@
       "frontend": "Version",
       "backend": "Backend version",
       "releaseDate": "Release date"
+    },
+    "documentation": {
+      "url": "https://wiki.czechidm.com"
     }
   },
   "format": {
@@ -150,6 +153,7 @@
       "success_0": "N/A",
       "success": "N/A",
       "success_plural": "Selected record [{{record}}] were successfully recovered",
+      "failed_0": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
       "failed": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
       "failed_plural": "Selected records [{{records}}] failed recover, XML file don't exist on disk."
     },
@@ -165,6 +169,7 @@
       "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully backup",
       "success_plural": "Selected records [{{records}}] were successfully backup",
+      "failed_0": "Selected record [{{records}}] were not successfully backup",
       "failed": "Selected record [{{records}}] were not successfully backup",
       "failed_plural": "Selected records [{{records}}] were not successfully backup"
     },
@@ -177,7 +182,6 @@
       "message": "Do you want to duplicate selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to duplicate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while duplicating [{{record}}].",
-      "success_0": "N/A",
       "success": "Selected record [{{record}}] successfully duplicated",
       "success_plural": "Selected records [{{records}}] were successfully duplicated",
       "failed": "Selected record [{{records}}] were not successfully duplicated",
@@ -189,11 +193,14 @@
     },
     "cancel": {
       "action": "Cancel",
+      "header_0": "N/A",
       "header": "Cancel record",
       "header_plural": "Cancel records",
+      "message_0": "N/A",
       "message": "Do you want to cancel selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to cancel <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while canceling [{{record}}].",
+      "success_0": "N/A",
       "success": "Selected record [{{record}}] successfully canceled",
       "success_plural": "Selected records [{{records}}] were successfully canceled",
       "approve": "Record cancel [{{record}}] has to be approved, task successfully created",
@@ -411,6 +418,20 @@
         },
         "passwordAgain": {
           "label": "Re-enter password"
+        }
+      },
+      "OperationResult": {
+        "link": {
+          "detail": {
+            "label": "Show full detail"
+          },
+          "popover": {
+            "title": "Show info card"
+          }
+        },
+        "result": {
+          "header": "Result",
+          "code": "Code"
         }
       }
     }
@@ -752,6 +773,7 @@
           "passwordChange": {
             "info": "This form can be used to change the password for your user identity",
             "required": "Required to change password CzechIdM",
+            "idmNotEnabled": "Password change for CzechIdM is not allowed",
             "success": {
               "title": "Changing the password is OK",
               "message": "Your password was successfully changed on all your accounts."
@@ -811,15 +833,21 @@
         "prohibited": "Password contains illegal characters: ",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
-        "policiesNames": "Password password does not meet these password policies ",
-        "minRulesToFulfillCount": "Unfulfilled minimum mandatory rules: ",
+        "policiesNames": "Password does not meet these password policies: ",
+        "policiesNamesPreValidation": "Password have to meet these password policies: ",
+        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: ",
         "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
         "passwordSimilarUsername": "Password cannot be similar to login: ",
         "passwordSimilarEmail": "Password cannot be similar to email: ",
         "passwordSimilarFirstName": "Password cannot be similar to first name: ",
         "passwordSimilarLastName": "Password cannot be similar to surname: ",
         "date": "Password can not be change now, try again: ",
-        "advancedControlValidateType": "Enhanced control is available only for validate politics."
+        "advancedControlValidateType": "Enhanced control is available only for validate politics.",
+        "specialCharacterBase": "List of special characters for password policies: ",
+        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
+        "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
+        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",
+        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname"
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."
@@ -849,7 +877,7 @@
         "notAllowed": "You do not have permission to edit the system configuration",
         "help": "Public items are accessible without logging. Confidential items can be public."
       },
-      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='https://wiki.czechidm.com/devel/dev/configuration/backend' target='_blank'> app configuration </a>."
+      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>."
     },
     "tasks-summary": {
       "summary": "Tasks list",
@@ -1199,7 +1227,21 @@
           "header": "Edit automatic roles based on the attribute",
           "title": "Edit automatic roles based on the attribute"
         },
-        "rules": "Rules",
+        "rules": {
+          "header": "Rules",
+          "title": "Rules"
+        },
+        "basic": {
+          "header": "Basic informations",
+          "title": "Basic informations"
+        },
+        "identities":{
+          "header": "Users with assigned role",
+          "title": "Users with role",
+          "filter": {
+            "text": "Name of user or value"
+          }
+        },
         "automaticRoleAttributeSaveFirst": "To add individual rules, you need to save the automatic role first.",
         "rule": {
           "create": {
@@ -1281,7 +1323,8 @@
         "text": "Key / Owner type",
         "ownerId": "Owner Id",
         "key": "Key",
-        "ownerType": "Owner type"
+        "ownerType": "Owner type",
+        "value": "Value"
       },
       "edit": {
         "title": "Detail of storage",
@@ -1423,6 +1466,18 @@
       "filter": {
         "applicant":{
           "placeholder": "Search by whole username applicant."
+        },
+        "states":{
+          "placeholder": "Search by states"
+        },
+        "dateCreatedFrom":{
+          "placeholder": "Created from"
+        },
+        "dateCreatedTill":{
+          "placeholder": "Created to"
+        },
+        "applicants":{
+          "placeholder": "Search by applicants"
         }
       }
     },
@@ -1451,7 +1506,8 @@
         "header": "More information",
         "title": "More information",
         "save": {
-          "success": "Extended attributes for role [{{name}}] successfully saved."
+          "success": "Extended attributes for role [{{name}}] successfully saved.",
+          "start": "Execute request"
         },
         "error" : {
           "notFound": "Extended attributes definition for role not found."
@@ -1649,8 +1705,10 @@
           "wrongUser": "Change password to subordinates is not allowed",
           "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "failed": "Password was not changed, password provisioning on accounts [{{accounts}}] for users [{{username}}] failed.",
+          "notChanged": "Password was not changed. $t(content.identity.passwordChange.message.noAccounts)",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited.",
-          "noContent": "You do not have permissions to change password."
+          "noContent": "You do not have permissions to change password.",
+          "noAccounts": "There are no accounts where you can change password."
         },
         "button": {
           "change": "Change password"
@@ -1832,7 +1890,18 @@
       },
       "entity-event-processors": {
         "header": "Processors",
-        "title": "Processors"
+        "title": "Processors",
+        "filter": {
+          "text": {
+            "placeholder": "Name, description or content type (entity type)"
+          },
+          "entityType": {
+            "placeholder": "Select entity type"
+          },
+          "eventTypes": {
+            "placeholder": "Select event type (processor has to support all of them)"
+          }
+        }
       }
     },
     "scheduler": {
@@ -2764,7 +2833,6 @@
       "counter": "Processed",
       "started": "Started",
       "notstarted": "Not started yet!",
-      "history": "List of all processed items",
       "result": {
         "state": "State",
         "code": "Code"
@@ -2873,7 +2941,7 @@
         "warning": "Do you want to reject the request?"
       },
       "backToApplicant": {
-        "label" : "Return for edit",
+        "label" : "Return to applicant",
         "tooltip": "Returns request to requester.",
         "warning": "Do you want to return the request?"
       },

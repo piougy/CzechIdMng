@@ -14,6 +14,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -28,13 +29,15 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
-import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
+import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
@@ -49,8 +52,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service("notificationConfigurationService")
 public class DefaultIdmNotificationConfigurationService
-	extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, IdmNotificationConfigurationFilter> implements IdmNotificationConfigurationService {
+	extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, IdmNotificationConfigurationFilter> 
+    implements IdmNotificationConfigurationService {
 	
+	@Autowired private ApplicationContext context;
 	private final IdmNotificationConfigurationRepository repository;
 	private final PluginRegistry<NotificationSender<?>, String> notificationSenders;
 	private final ModuleService moduleService;
@@ -108,7 +113,7 @@ public class DefaultIdmNotificationConfigurationService
 	@Override
 	public List<NotificationSender<?>> getDefaultSenders() {
 		List<NotificationSender<?>> senders = new ArrayList<>();
-		senders.add(notificationSenders.getPluginFor("console")); // TODO: logger sender, configuration, nothing?
+		senders.add(notificationSenders.getPluginFor(IdmConsoleLog.NOTIFICATION_TYPE)); // TODO: global configuration
 		return Collections.unmodifiableList(senders);
 	}
 	
@@ -117,29 +122,63 @@ public class DefaultIdmNotificationConfigurationService
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
 		//
+		// default senders for unknown topics
 		String topic = notification.getTopic();
 		if (StringUtils.isEmpty(notification.getTopic())) {
 			return getDefaultSenders();
 		}
 		List<NotificationSender<?>> senders = new ArrayList<>();
 		if (!IdmNotificationLog.NOTIFICATION_TYPE.equals(notification.getType())) {
-			if (notificationSenders.hasPluginFor(notification.getType())) {
-				senders.add(notificationSenders.getPluginFor(notification.getType()));
+			// concrete sender
+			NotificationSender<?> sender = getSender(notification.getType());
+			if (sender != null) {
+				senders.add(sender);
 			}
-		} else {		
+		} else {
+			// notification - find all senders by topic and level
 			final NotificationLevel lvl = notification.getMessage().getLevel();
 			final List<String> types = repository.findTypes(topic, lvl);
 			types.forEach(type -> {
-				if (notificationSenders.hasPluginFor(type)) {
-					senders.add(notificationSenders.getPluginFor(type));
+				NotificationSender<?> sender = getSender(type);
+				if (sender != null) {
+					senders.add(sender);
 				}
 			});
 		}
 		//
 		if (senders.isEmpty()) {
+			// configuration not found - return default senderr
 			return getDefaultSenders();
 		}
 		return senders;
+	}
+	
+	@Override
+	public NotificationSender<?> getSender(String notificationType) {
+		if (!notificationSenders.hasPluginFor(notificationType)) {
+			return null;
+		}
+		//
+		// default plugin by ordered definition
+		NotificationSender<?> sender = notificationSenders.getPluginFor(notificationType);
+		String implName = sender.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
+		if (StringUtils.isBlank(implName)) {
+			// return default sender - configuration is empty
+			return sender;
+		}
+		//
+		try {
+			// returns bean by name from filter configuration
+			return (NotificationSender<?>) context.getBean(implName);
+		} catch (Exception ex) {
+			throw new ResultCodeException(
+					CoreResultCode.NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND, 
+					ImmutableMap.of(
+						"implementation", implName,
+						"notificationType", notificationType,
+						"configurationProperty", sender.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION)
+						), ex);
+		}
 	}
 	
 	@Override

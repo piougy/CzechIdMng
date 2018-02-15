@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -80,6 +81,9 @@ public class DefaultIdmPasswordService
 		// set must change password to false
 		passwordDto.setMustChange(false);
 		//
+		// reset unsuccessful attempts, after password is changed
+		passwordDto.resetUnsuccessfulAttempts();
+		//
 		return save(passwordDto);
 	}
 
@@ -101,6 +105,12 @@ public class DefaultIdmPasswordService
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public IdmPasswordDto findOneByIdentity(String username) {
+		return this.getPasswordByIdentityUsername(username);
+	}
+
+	@Override
 	public boolean checkPassword(GuardedString passwordToCheck, IdmPasswordDto password) {
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
@@ -115,6 +125,25 @@ public class DefaultIdmPasswordService
 		return BCrypt.gensalt(12);
 	}
 
+	@Override
+	public void increaseUnsuccessfulAttempts(String username) {
+		IdmPasswordDto passwordDto = getPasswordByIdentityUsername(username);
+		if (passwordDto != null) {
+			passwordDto.increaseUnsuccessfulAttempts();
+			passwordDto = save(passwordDto);
+		}
+	}
+
+	@Override
+	public void setLastSuccessfulLogin(String username) {
+		IdmPasswordDto passwordDto = getPasswordByIdentityUsername(username);
+		if (passwordDto != null) {
+			passwordDto.setLastSuccessfulLogin(new DateTime());
+			passwordDto.resetUnsuccessfulAttempts();
+			passwordDto = save(passwordDto);
+		}
+	}
+
 	/**
 	 * Method get IdmIdentityPassword by identity.
 	 *
@@ -125,5 +154,17 @@ public class DefaultIdmPasswordService
 		Assert.notNull(identityId);
 		//
 		return toDto(this.repository.findOneByIdentity_Id(identityId));
+	}
+
+	/**
+	 * Method get IdmIdentityPassword by username.
+	 *
+	 * @param username
+	 * @return Object IdmIdentityPassword when password for identity was founded otherwise null.
+	 */
+	private IdmPasswordDto getPasswordByIdentityUsername(String username) {
+		Assert.notNull(username);
+		//
+		return toDto(this.repository.findOneByIdentity_username(username));
 	}
 }

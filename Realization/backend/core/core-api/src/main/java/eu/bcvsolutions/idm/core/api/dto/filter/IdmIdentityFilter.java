@@ -9,6 +9,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Filter for identities
@@ -50,6 +51,10 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Identity state
 	 */
 	public static final String PARAMETER_STATE = "state";
+	/**
+	 * Automatic role (by tree, attribute)
+	 */
+	public static final String PARAMETER_AUTOMATIC_ROLE = "automaticRoleId";
 	
 	/**
 	 * roles - OR
@@ -243,4 +248,13 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	public IdentityState getState() {
 		return (IdentityState) data.getFirst(PARAMETER_STATE);
 	}
+
+	public UUID getAutomaticRoleId() {
+		return EntityUtils.toUuid(data.getFirst(PARAMETER_AUTOMATIC_ROLE));
+	}
+
+	public void setAutomaticRoleId(UUID automaticRoleId) {
+		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
+	}
+	
 }

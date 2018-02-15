@@ -32,7 +32,8 @@ public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor
 	private final IdmPasswordPolicyService passwordPolicyService;
 
 	@Autowired
-	public IdentityPasswordProcessor(IdmPasswordService passwordService,
+	public IdentityPasswordProcessor(
+			IdmPasswordService passwordService,
 			IdmPasswordPolicyService passwordPolicyService) {
 		super(passwordService, IdentityEventType.PASSWORD);
 		//

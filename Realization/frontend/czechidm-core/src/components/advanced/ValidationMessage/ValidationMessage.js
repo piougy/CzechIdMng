@@ -10,6 +10,8 @@ import DateValue from '../DateValue/DateValue';
  */
 const PASSWORD_POLICIES_NAMES = 'policiesNames';
 
+const POLICY_NAME_PREVALIDATION = 'policiesNamesPreValidation';
+
 /**
  * Enchanced control, minimal rules to fulfill.
  * Value of parameter MIN_RULES_TO_FULFILL is map with rules
@@ -22,6 +24,12 @@ const MIN_RULES_TO_FULFILL = 'minRulesToFulfill';
  * @type {String}
  */
 const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
+
+/**
+ * Special character base for each required policies
+ * @type {String}
+ */
+const SPECIAL_CHARACTER_BASE = 'specialCharacterBase';
 
 /**
  * Error message with date, date is format by local
@@ -37,7 +45,8 @@ const DATE = 'date';
 const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
 'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
 'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
-'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName'];
+'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName',
+'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate', 'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate'];
 
 /**
  * @author Ondřej Kopr
@@ -49,32 +58,57 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
   }
 
   componentDidMount() {
-    const { error } = this.props;
-    this._prepareValidationMessage(error);
+    const { error, validationDefinition } = this.props;
+    this._prepareValidationMessage(error, validationDefinition);
   }
 
   componentWillReciveNewProps(nextProps) {
-    const { error } = this.props;
+    const { error, validationDefinition } = this.props;
 
-    if (error !== nextProps.error) {
-      this._prepareValidationMessage(nextProps.error);
+    if (error !== nextProps.error || validationDefinition !== nextProps.validationDefinition) {
+      this._prepareValidationMessage(nextProps.error, nextProps.validationDefinition);
     }
+  }
+
+  _showSpecialCharacterBase(parameter, validationMessage, level) {
+    let rules = '<ul style="padding-left: 20px">';
+    for (const ruleKey in parameter) {
+      if (parameter.hasOwnProperty(ruleKey)) {
+        rules += _.size(parameter) === 1 ? '<span><li>' + parameter[ruleKey] + '</li>' : '<span><li>' + ruleKey + ':  ' + parameter[ruleKey] + '</li>';
+      }
+    }
+    rules += '</ul></span>';
+    validationMessage.push(
+      <Basic.Alert level={level} className="no-margin">
+        <span dangerouslySetInnerHTML={{
+          __html: this.i18n('content.passwordPolicies.validation.specialCharacterBase') + ' ' + rules}}
+        />
+      </Basic.Alert>);
   }
 
   /**
    * Method prepare error from password validation.
    * Only validation message is required, other will be skiped.
    */
-  _prepareValidationMessage(error) {
+  _prepareValidationMessage(error, validationDefinition) {
     if (!error || !error.parameters) {
       return null;
     }
-
+    // For pre validate it shows as info (blue)
+    let levelWarning = `warning`;
+    let levelDanger = `danger`;
+    if (validationDefinition) {
+      levelWarning = `info`;
+      levelDanger = `info`;
+    }
     const validationMessage = [];
     let policies = '';
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
+      if (key === SPECIAL_CHARACTER_BASE) {
+        this._showSpecialCharacterBase(error.parameters[key], validationMessage, levelWarning);
+      }
       // error prameters must contain key and VALIDATION_WARNINGS must also contain key
       if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill
@@ -88,7 +122,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           }
           rules += '</ul></span>';
           validationMessage.push(
-            <Basic.Alert level="warning" className="no-margin">
+            <Basic.Alert level={levelWarning} className="no-margin">
               <span dangerouslySetInnerHTML={{
                 __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
               />
@@ -97,14 +131,14 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           // validation message with date
           if (key === DATE) {
             validationMessage.push(
-              <Basic.Alert level="warning" className="no-margin">
+              <Basic.Alert level={levelWarning} className="no-margin">
                 {this.i18n('content.passwordPolicies.validation.' + key)} <DateValue value={error.parameters[key]} />
               </Basic.Alert>
             );
           } else {
             // other validation messages
             validationMessage.push(
-              <Basic.Alert level="warning" className="no-margin">
+              <Basic.Alert level={levelWarning} className="no-margin">
                 {this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}
               </Basic.Alert>
             );
@@ -113,24 +147,25 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       }
     }
     // first message is password policies names, with danger class
-    if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
-      policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
+    if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) || error.parameters.hasOwnProperty(POLICY_NAME_PREVALIDATION)) {
+      policies = error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) ? this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES] : this.i18n('content.passwordPolicies.validation.' + POLICY_NAME_PREVALIDATION) + error.parameters[POLICY_NAME_PREVALIDATION];
       validationMessage.unshift(
-        <Basic.Alert level="danger" className="no-margin">
+        <Basic.Alert level={levelDanger} className="no-margin">
           {policies}
-        </Basic.Alert>);
+        </Basic.Alert>
+      );
     }
-
+    //
     return validationMessage;
   }
 
   render() {
-    const { rendered, error } = this.props;
+    const { rendered, error, validationDefinition } = this.props;
     if (!rendered || !error) {
       return null;
     }
 
-    const validation = this._prepareValidationMessage(error);
+    const validation = this._prepareValidationMessage(error, validationDefinition);
 
     return (
       <div>
@@ -142,7 +177,8 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
 ValidationMessage.propTypes = {
   ...Basic.AbstractFormComponent.propTypes,
-  error: React.PropTypes.object
+  error: React.PropTypes.object,
+  validationDefinition: React.PropTypes.object
 };
 
 ValidationMessage.defaultProps = {

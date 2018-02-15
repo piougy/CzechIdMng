@@ -20,7 +20,11 @@ export default class EntityEventProcessorManager extends EntityManager {
   }
 
   getEntityType() {
-    return 'Module';
+    return 'EntityEventProcessor';
+  }
+
+  getCollectionType() {
+    return 'entityEventProcessors';
   }
 
   fetchRegisteredProcessors() {
@@ -31,7 +35,7 @@ export default class EntityEventProcessorManager extends EntityManager {
       this.getService().getReqisteredProcessors()
         .then(json => {
           let registeredProcessors = new Immutable.Map();
-          json.forEach(item => {
+          json._embedded.entityEventProcessors.forEach(item => {
             registeredProcessors = registeredProcessors.set(item.id, item);
           });
           dispatch(this.dataManager.receiveData(uiKey, registeredProcessors));

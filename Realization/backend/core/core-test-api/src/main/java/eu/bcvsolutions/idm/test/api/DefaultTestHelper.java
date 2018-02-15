@@ -58,8 +58,6 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
  */
 @Component("testHelper")
 public class DefaultTestHelper implements TestHelper {
-	
-	public static String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
@@ -89,16 +87,26 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmIdentityDto createIdentity() {
-		return createIdentity(null);
+		return createIdentity(null, new GuardedString(DEFAULT_PASSWORD));
 	}
 
 	@Override
-	public IdmIdentityDto createIdentity(String name) {
+	public IdmIdentityDto createIdentity(String username) {
+		return createIdentity(username, new GuardedString(DEFAULT_PASSWORD));
+	}
+	
+	@Override
+	public IdmIdentityDto createIdentity(GuardedString password) {
+		return createIdentity(null, password);
+	}
+	
+	@Override
+	public IdmIdentityDto createIdentity(String name, GuardedString password) {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(name == null ? createName() : name);
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
-		identity.setPassword(new GuardedString("password"));
+		identity.setPassword(password);
 		return identityService.save(identity);
 	}
 

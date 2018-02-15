@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,12 +36,12 @@ public class DefaultSysSyncLogService
 
 	private final SysSyncLogRepository repository;
 	private final SysSyncActionLogService syncActionLogService;
-	private final ModelMapper modelMapper;
 	
 	@Autowired
 	public DefaultSysSyncLogService(
 			SysSyncLogRepository repository,
-			SysSyncActionLogService syncActionLogService, ModelMapper modelMapper) {
+			SysSyncActionLogService syncActionLogService, 
+			ModelMapper modelMapper) { // model mapper: just for backward compatibility (constructor can be used externally)
 		super(repository);
 		//
 		Assert.notNull(syncActionLogService);
@@ -51,7 +49,6 @@ public class DefaultSysSyncLogService
 		//
 		this.repository = repository;
 		this.syncActionLogService = syncActionLogService;
-		this.modelMapper = modelMapper;
 	}
 	
 	@Override
@@ -79,30 +76,6 @@ public class DefaultSysSyncLogService
 		}
 		
 		return logs;
-	}
-	
-	@Override
-	protected SysSyncLogDto toDto(SysSyncLog entity, SysSyncLogDto dto) {
-		if (entity == null) {
-			return null;
-		}
-		TypeMap<SysSyncLog, SysSyncLogDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-		if (typeMap == null) {
-			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
-			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-			typeMap.addMappings(new PropertyMap<SysSyncLog, SysSyncLogDto>() {
-				
-				@Override
-				protected void configure() {
-					this.skip().setSyncActionLogs(null);
-				}
-			});
-		}
-		if (dto == null) {
-			return modelMapper.map(entity, getDtoClass());
-		}
-		modelMapper.map(entity, dto);
-		return dto;
 	}
 	
 	@Override

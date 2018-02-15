@@ -1,0 +1,90 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with result WF with information about returned request
+
+parameters:
+	-	managerDescription
+	-	url
+	-	from
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>returnRequestIdentityRoleImplementer</code>
+	<name>Send result WF - Return request for implementer</name>
+	<subject>CzechIdM - Vrácení žádosti</subject>
+	<bodyHtml>
+<![CDATA[
+	<html>
+		<body>
+			Dobrý den,<br />
+			<br />
+			Vámi podaná žádnost ze dne $from byla vrácena k přepracování.
+			#if( $applicantIdentity)
+			Žádost byla podaná pro uživatele <b>$applicantIdentity.Username</b>.
+			#else
+			Žádost byla podaná pro Váš účet.
+			#end
+			
+			#*
+			URL isn't working for now
+			Odkaz žádosti: <a href='$url'>$url</a><br />
+			*#
+			<br />
+			<div style="display: block; margin: 10px auto; max-width: 600px; background-color: #d9edf7; color: #31708f; padding: 10px;
+    				border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+        		<b>Poznámka vedoucího:</b><br/>
+        		<br/>
+        		#if( $managerDescription== "" )
+				Nebyla uvdena žádná poznámka.
+				#end
+        		$managerDescription        
+    		</div>
+
+			<br />
+			<br />
+			<div style="display: block; margin: 30px auto; max-width: 400px;">
+				CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+			</div>
+
+			<div style="display: block; margin: 30px auto; max-width: 800px;">
+				--------------------------------------------------------------- English version ---------------------------------------------------------------
+			</div>
+			Hello,<br />
+			<br />
+			Your request dated $from was returned for revision.
+			#if( $applicantIdentity )
+			Request was made for user <b>$applicantIdentity.Username</b>.
+			#else
+			Request was made for your account.
+			#end
+			
+			#*
+			URL isn't working for now
+			Request url: <a href='$url'>$url</a><br />
+			*#
+			<br />
+			<div style="display: block; margin: 10px auto; max-width: 600px; background-color: #d9edf7; color: #31708f; padding: 10px;
+    				border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+        		<b>Manager's note:</b><br/>
+        		<br/>
+        		#if( $managerDescription== "" )
+				Manager did not write any note.
+				#end
+        		$managerDescription
+    		</div>
+			<br />
+			<br />
+			<div style="display: block; margin: 30px auto; max-width: 400px;">
+				CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+			</div>
+		</body>
+	</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>managerDescription, from, url, applicantIdentity</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 /**
  * Universal operation result
  * 
+ * @see OperationResultDto
  * @author Radek Tomiška
  */
 @Embeddable
@@ -106,8 +107,7 @@ public class OperationResult implements Serializable {
 	 * {@link OperationResult} builder
 	 * @author Radek Tomiška
 	 * 
-	 * @deprecated (since 7.7.0) - Use {@link OperationResultDto.Builder}
-	 * 
+	 * Use {@link OperationResultDto.Builder}
 	 */
 	public static class Builder {
 		// required

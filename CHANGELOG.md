@@ -1,7 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [7.7.0 - unreleased]
+## [8.0.0 - unreleased]
+
+
+## [7.8.0]
+
+- [#857](https://redmine.czechidm.com/issues/857) - Filters - added support for multiple filter parameters, `MultiValueMap` is used.
+- [#274](https://redmine.czechidm.com/issues/274) - Filters for entity event processors was added. 
+
+
+## [7.7.0]
 
 ### Added
 

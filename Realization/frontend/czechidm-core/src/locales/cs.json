@@ -11,6 +11,9 @@
       "frontend": "Verze",
       "backend": "Verze rozhraní",
       "releaseDate": "Datum vydání"
+    },
+    "documentation": {
+      "url": "https://wiki.czechidm.com"
     }
   },
   "format": {
@@ -191,17 +194,21 @@
     },
     "duplicate": {
       "action": "Duplikovat",
+      "header_0": "N/A",
       "header_1": "Duplikování záznamu",
       "header_2": "Duplikování záznamů",
       "header_5": "$t(action.duplicate.header_2)",
+      "message_0": "N/A",
       "message_1": "Opravdu chcete duplikovat vybraný záznam [<strong>{{record}}</strong>]?",
       "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete duplikovat <strong>{{count}}</strong> vybrané záznamy?",
       "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete duplikovat <strong>{{count}}</strong> vybraných záznamů?",
       "error": "Při duplikování záznamu [{{record}}] nastala chyba",
-      "success": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně duplikován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány"
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
+      "failed_1": "Vybraný záznam [{{records}}] se nepodařilo duplikovat",
+      "failed_2": "Vybrané záznamy [{{records}}] se nepodařilo duplikovat",
+      "failed_5": "Vybrané záznamy [{{records}}] se nepodařilo duplikovat"
     },
     "save": {
       "success_0": "N/A",
@@ -221,7 +228,13 @@
       "success_0": "N/A",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně zrušen",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny"
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
+      "approve_1": "Vybraný záznam [{{record}}] je třeba schválit, úkol byl úspěšně vytvořen.",
+      "approve_2": "Vybrané záznamy [{{records}}] je třeba schválit, úkoly byl úspěšně vytvořeny.",
+      "approve_5": "Vybrané záznamy [{{record}}] je třeba schválit, úkoly byl úspěšně vytvořeny.",
+      "accepted_1": "Vybraný záznam [{{record}}] bude zpracováne asynchronně (vyžaduje schválení nebo spouští dlouhotrvající úlohu).",
+      "accepted_2": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu).",
+      "accepted_5": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu)."
     }
   },
   "environment": {
@@ -434,6 +447,20 @@
         },
         "passwordAgain": {
           "label": "Heslo znovu"
+        }
+      },
+      "OperationResult": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          },
+          "popover": {
+            "title": "Zobrazit vizitku"
+          }
+        },
+        "result": {
+          "header": "Výsledek",
+          "code": "Kód"
         }
       }
     }
@@ -774,6 +801,7 @@
           "passwordChange": {
             "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity",
             "required": "Vyžadována změna hesla pro CzechIdM",
+            "idmNotEnabled": "Změna hesla pro CzechIdM není povolena",
             "success": {
               "title": "Změna hesla proběhla v pořádku",
               "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech."
@@ -834,14 +862,20 @@
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
         "policiesNames": "Heslo neprošlo přes tyto politiky: ",
-        "minRulesToFulfillCount": "Nesplněno minimum povinných pravidel: ",
-        "minRulesToFulfill": "Doplňte minimálně {{count}} z následujících pravidel: ",
+        "policiesNamesPreValidation": "Heslo musí projít přes tyto politiky: ",
+        "minRulesToFulfillCount": "Je požadováno minimum povinných pravidel: ",
+        "minRulesToFulfill": "Je požadováno minimálně {{count}} z následujících pravidel: ",
         "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
         "date": "Heslo není možné nyní změnit, zkuste to znovu: ",
-        "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku."
+        "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
+        "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: ",
+        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu",
+        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu",
+        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu",
+        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení"
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
@@ -871,7 +905,7 @@
         "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
         "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
       },
-      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='https://wiki.czechidm.com/devel/dev/configuration/backend' target='_blank'>konfigurace aplikace</a>."
+      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'>konfigurace aplikace</a>."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -1223,6 +1257,21 @@
       "attribute": {
         "header": "Automatické role na základě atributu",
         "title": "Na základě atributu",
+        "rules": {
+          "header": "Pravidla",
+          "title": "Pravidla"
+        },
+        "basic": {
+          "header": "Základní informace",
+          "title": "Základní informace"
+        },
+        "identities":{
+          "header": "Uživatelé s přiřazenou automatickou rolí",
+          "title": "Uživatelé",
+          "filter": {
+            "text": "Jméno uživatele nebo hodnota"
+          }
+        },
         "create": {
           "header": "Nová automatická role na základě atributu",
           "title": "Nová automatická role na základě atributu"
@@ -1231,7 +1280,6 @@
           "header": "Editace automatické role na základě atributu",
           "title": "Editace automatické role na základě atributu"
         },
-        "rules": "Pravidla",
         "automaticRoleAttributeSaveFirst": "Pro přidání jednotlivých pravidel, je potřeba nejdřívě automatickou roli uložit.",
         "rule": {
           "create": {
@@ -1456,6 +1504,18 @@
       "filter": {
         "applicant":{
           "placeholder": "Vyhledání dle celého uživatelského jména žadatele"
+        },
+        "states":{
+          "placeholder": "Vyhledání podle stavů"
+        },
+        "dateCreatedFrom":{
+          "placeholder": "Vytvořeno od"
+        },
+        "dateCreatedTill":{
+          "placeholder": "Vytvoředo do"
+        },
+        "applicants":{
+          "placeholder": "Vyhledat podle žádajících"
         }
       }
 
@@ -1466,7 +1526,8 @@
       "conceptHeader": "Požadované změny oprávnění",
       "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
       "save": {
-        "success": "Žádost o změnu oprávnění byla úspěšně uložena"
+        "success": "Žádost o změnu oprávnění byla úspěšně uložena",
+        "start": "Odeslat žádost"
       },
       "button": {
         "createRequest":{
@@ -1485,7 +1546,7 @@
         "title": "Další údaje",
         "save": {
           "success": "Údaje role [{{name}}] byly úspěšně uloženy.",
-          "start": "Execute request"
+          "start": "Odeslat žádost"
         },
         "error" : {
           "notFound": "Definice dalších atributů pro roli nebyla nalezena."
@@ -1686,8 +1747,10 @@
           "wrongUser": "Změna hesla pro podřízeného není podporována",
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
           "failed": "Heslo nebylo změněno, prosisioning hesla na účty [{{accounts}}] pro uživatele [{{username}}] nebyl úspěšný.",
+          "notChanged": "Heslo nebylo změněno. $t(content.identity.passwordChange.message.noAccounts)",
           "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolně krát.",
-          "noContent": "Nemáte přiděleno oprávnění pro změnu hesla."
+          "noContent": "Nemáte přiděleno oprávnění pro změnu hesla.",
+          "noAccounts": "Neexistují žádné účty na kterých je možné měnit heslo."
         },
         "button": {
           "change": "Změnit heslo"
@@ -1869,7 +1932,18 @@
       },
       "entity-event-processors": {
         "header": "Processory",
-        "title": "Processory"
+        "title": "Processory",
+        "filter": {
+          "text": {
+            "placeholder": "Název, popis nebo typ obsahu (typ entity)"
+          },
+          "entityType": {
+            "placeholder": "Vyberte typ entity"
+          },
+          "eventTypes": {
+            "placeholder": "Vyberte typ události (processor musí podporovat všechny vybrané)"
+          }
+        }
       }
     },
     "scheduler": {
@@ -2381,9 +2455,9 @@
       },
       "role": {
         "label": "Role",
-        "help": "Vybraná role bude přidělená identitám na základě pravidel."
+        "help": "Vybraná role bude přiřazena uživatelům podle specifických pravidel."
       },
-      "attribute": {
+     "attribute": {
         "type": {
           "label": "Typ kontrolovaného atributu",
           "help": "Pro tento typ atributu bude kontrolována hodnota pravidla"

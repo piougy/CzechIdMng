@@ -3,10 +3,13 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
+import * as Utils from '../../utils';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
+
+const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
 const identityManager = new IdentityManager();
 
@@ -39,6 +42,7 @@ class Create extends Basic.AbstractContent {
    if (generatePassword) {
      this.generatePassword();
    }
+   this._preValidate();
  }
 
   componentDidMount() {
@@ -49,6 +53,46 @@ class Create extends Basic.AbstractContent {
 
   componentDidUpdate() {
     // nothing
+  }
+
+  /*
+   * Method shows password rules before applying change of password
+   */
+  _preValidate() {
+    const requestData = {
+      accounts: []
+    };
+    requestData.idm = true;
+
+    identityManager.preValidate(requestData)
+    .then(response => {
+      if (response.status === 204) {
+        return {};
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return json;
+    })
+    .catch(error => {
+      if (!error) {
+        return {};
+      }
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
   }
 
   save(editContinue = 'CLOSE', event) {
@@ -81,7 +125,8 @@ class Create extends Basic.AbstractContent {
     .then(json => {
       this.setState({
         showLoading: false,
-        validationError: null
+        validationError: null,
+        validationDefinition: false
       }, () => {
         this.refs.form.processEnded();
         this.addMessage({
@@ -106,7 +151,8 @@ class Create extends Basic.AbstractContent {
     }).catch(error => {
       this.setState({
         showLoading: false,
-        validationError: error
+        validationError: error,
+        validationDefinition: false
       }, () => {
         this.refs.form.processEnded();
         this.setState({
@@ -191,7 +237,7 @@ class Create extends Basic.AbstractContent {
       generatePassword,
       generatePasswordShowLoading,
       passwordAgain, password,
-      validationError } = this.state;
+      validationError, validationDefinition} = this.state;
 
     return (
       <Basic.Row>
@@ -252,8 +298,9 @@ class Create extends Basic.AbstractContent {
                     newPassword={password}
                     newPasswordAgain={passwordAgain}/>
                 </div>
+
                 <Basic.Panel className="col-lg-5 no-border">
-                  <Advanced.ValidationMessage error={validationError} />
+                  <Advanced.ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
                 </Basic.Panel>
               </Basic.AbstractForm>
 

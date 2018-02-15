@@ -37,6 +37,7 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	 * 
 	 * @return
 	 */
+	@Override
 	String getName();
 	
 	/**

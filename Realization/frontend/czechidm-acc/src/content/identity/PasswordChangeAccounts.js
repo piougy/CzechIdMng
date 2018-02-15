@@ -41,9 +41,8 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       return null;
     }
 
-    const options = [
-      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
-    ];
+    const options = [ ];
+    options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
 
     accounts.forEach(acc => {
       const niceLabel = acc._embedded.system.name + ' (' + acc.uid + ')';
@@ -91,7 +90,6 @@ PasswordChangeAccounts.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.params;
-
   return {
     userContext: state.security.userContext,
     accounts: accountManager.getEntities(state, `${entityId}-accounts`),

@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -37,9 +38,10 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 
 	@Autowired(required = false)
 	private SecurityService securityService;
-	
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;
+	@Autowired(required = false)
+	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
 	
 	public AbstractNotificationSender() {
 	}
@@ -135,6 +137,16 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		}
 		return sendMessages;
 	}
+	
+	@Override
+	public int getOrder() {
+		return ConfigurationService.DEFAULT_ORDER;
+	}
+	
+	@Override
+	public ConfigurationService getConfigurationService() {
+		return configurationService;
+	}
 
 	/**
 	 * Clone notification message. Method just clone {@link IdmMessageDto}, or if object {@link IdmMessageDto}
@@ -190,5 +202,4 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(),
 			realRecipient);
 	}
-
 }

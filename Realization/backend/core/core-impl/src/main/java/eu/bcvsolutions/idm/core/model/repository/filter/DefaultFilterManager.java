@@ -52,11 +52,13 @@ public class DefaultFilterManager implements FilterManager {
 
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> FilterBuilder<E, DataFilter> getBuilder(Class<E> entityClass, String propertyName) {
-		// default plugin by ordered definition
-		FilterBuilder<?, ?> builder = builders.getPluginFor(new FilterKey(entityClass, propertyName));
-		if (builder == null) {
+		FilterKey key = new FilterKey(entityClass, propertyName);
+		if (!builders.hasPluginFor(key)) {
 			return null;
 		}
+		//
+		// default plugin by ordered definition
+		FilterBuilder<?, ?> builder = builders.getPluginFor(new FilterKey(entityClass, propertyName));
 		String implName = builder.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
 		if (!StringUtils.hasLength(implName)) {
 			// return default builder - configuration is empty
@@ -72,7 +74,7 @@ public class DefaultFilterManager implements FilterManager {
 					ImmutableMap.of(
 						"implementation", implName,
 						"propertyName", propertyName,
-						"configurationProperty", builder.getConfigurationPropertyName(propertyName)
+						"configurationProperty", builder.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION)
 						), ex);
 		}
 	}

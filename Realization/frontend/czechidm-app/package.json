@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "7.7.0",
+  "version": "7.8.0",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {
@@ -140,6 +140,7 @@
     "gulp-uglify": "2.0.1",
     "gulp-util": "3.0.7",
     "jsdom": "8.1.0",
+    "JSONPath": "0.11.2",
     "mocha": "2.3.0",
     "nock": "^8.0.0",
     "path": "0.12.7",
@@ -157,9 +158,9 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "7.7.0",
-    "czechidm-acc": "7.7.0",
-    "czechidm-vs": "7.7.0",
-    "czechidm-rpt": "7.7.0"
+    "czechidm-core": "7.8.0",
+    "czechidm-acc": "7.8.0",
+    "czechidm-vs": "7.8.0",
+    "czechidm-rpt": "7.8.0"
   }
 }

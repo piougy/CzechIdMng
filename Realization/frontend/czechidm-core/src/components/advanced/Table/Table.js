@@ -136,51 +136,33 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   useFilterForm(filterForm) {
-    const filters = {};
-    const filterValues = filterForm.getData();
-    for (const property in filterValues) {
-      if (!filterValues.hasOwnProperty(property)) {
-        continue;
-      }
-      const filterComponent = filterForm.getComponent(property);
-      if (!filterComponent) {
-        // filter is not rendered
-        continue;
-      }
-      const field = filterComponent.props.field || property;
-      // TODO: implement multi value filters
-      /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
-        let filledValues = filterValues[property];
-        if (filterComponent.props.enum) { // enumeration
-          filledValues = filledValues.map(value => { return filterComponent.props.enum.findKeyBySymbol(value); })
-        }
-        filter.values = filledValues;
-      } else {*/
-      let filledValue = filterValues[property];
-      if (filterComponent.props.enum) { // enumeration
-        filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
-      }
-      filters[field] = filledValue;
-    }
-    this.useFilterData(filters);
+    this.useFilterData(SearchParameters.getFilterData(filterForm));
   }
 
   useFilterData(formData) {
+    this.fetchEntities(this._getSearchParameters(formData));
+  }
+
+  /**
+   * Returns search parameters filled from given filter form data
+   *
+   * @param  {object} formData
+   * @return {SearchParameters}
+   */
+  _getSearchParameters(formData) {
     const { _searchParameters } = this.props;
     //
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setPage(0);
-    for (const property in formData) {
-      if (!formData.hasOwnProperty(property)) {
-        continue;
-      }
-      if (!formData[property]) {
-        userSearchParameters = userSearchParameters.clearFilter(property);
-      } else {
-        userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
-      }
-    }
-    this.fetchEntities(userSearchParameters);
+    return SearchParameters.getSearchParameters(formData, _searchParameters);
+  }
+
+  /**
+   * Returns search parameters filled from given filter form (referernce)
+   *
+   * @param  {ref} filterForm
+   * @return {SearchParameters}
+   */
+  getSearchParameters(filterForm) {
+    return this._getSearchParameters(SearchParameters.getFilterData(filterForm));
   }
 
   cancelFilter(filterForm) {
@@ -241,6 +223,20 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return this.isDevelopment();
     }
     return showId;
+  }
+
+  _filterOpen(open) {
+    const { filterOpen } = this.props;
+    let result = true;
+    if (filterOpen) {
+      result = filterOpen(open);
+    }
+    //
+    if (result !== false) {
+      this.setState({
+        filterOpened: open
+      });
+    }
   }
 
   render() {
@@ -417,7 +413,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 { buttons }
 
                 <Filter.ToogleButton
-                  filterOpen={ (open)=> this.setState({ filterOpened: open }) }
+                  filterOpen={ this._filterOpen.bind(this) }
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
                   style={{ marginLeft: 3 }}
@@ -569,6 +565,10 @@ AdvancedTable.propTypes = {
    * If filter is opened by default
    */
   filterOpened: PropTypes.bool,
+  /**
+   * External filter open function. If false is returned, internal filterOpened is not set.
+   */
+  filterOpen: PropTypes.func,
   /**
    * If filter can be collapsed
    */

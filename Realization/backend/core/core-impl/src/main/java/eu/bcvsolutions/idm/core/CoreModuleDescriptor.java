@@ -33,13 +33,17 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 
 	public static final String MODULE_ID = "core";
 	public static final String TOPIC_CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
+	public static final String TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:changeIdentityRoleImplementer", MODULE_ID);
 	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
-	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
+	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:disapproveIdentityRoleImplementer", MODULE_ID);
+	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);		
+	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:returnRequestIdentityRoleImplementer", MODULE_ID);
 	public static final String TOPIC_WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
 	public static final String TOPIC_WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
 	public static final String TOPIC_PASSWORD_EXPIRATION_WARNING = String.format("%s:passwordExpirationWarning", MODULE_ID);
 	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
+	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
 	
 	@Override
 	public String getId() {
@@ -77,6 +81,13 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				getNotificationTemplateId("changeIdentityRole")));
 		//
 		configs.add(new NotificationConfigurationDto(
+				TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about result WF (change identity roles).", 
+				getNotificationTemplateId("changeIdentityRoleImplementer")));
+		//
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_DISAPPROVE_IDENTITY_ROLES, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
@@ -84,11 +95,25 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				getNotificationTemplateId("disapproveIdentityRole")));
 		//
 		configs.add(new NotificationConfigurationDto(
+				TOPIC_DISAPPROVE_IDENTITY_ROLES_IMPLEMENTER, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about disapprove role request.", 
+				getNotificationTemplateId("disapproveIdentityRoleImplementer")));
+		//
+		configs.add(new NotificationConfigurationDto(
 				TOPIC_RETURN_REQUEST_IDENTITY_ROLES, 
 				null, 
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about return role request.", 
 				getNotificationTemplateId("returnRequestIdentityRole")));
+		//		
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about return role request.", 
+				getNotificationTemplateId("returnRequestIdentityRoleImplementer")));
 		//
 		configs.add(new NotificationConfigurationDto(
 				TOPIC_WF_TASK_ASSIGNED, 
@@ -125,6 +150,12 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				"This message contains information about changed fields on Identity.", 
 				getNotificationTemplateId(IdentityMonitoredFieldsProcessor.EMAIL_TEMPLATE)));
 		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PASSWORD_CHANGED, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Password has been changed.", 
+				getNotificationTemplateId("passwordChanged")));
 		return configs;
 	}
 	

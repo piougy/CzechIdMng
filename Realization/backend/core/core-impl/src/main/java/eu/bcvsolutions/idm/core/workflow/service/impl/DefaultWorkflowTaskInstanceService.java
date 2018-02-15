@@ -84,7 +84,7 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		return internalSearch(filter, pageable, true);
+		return internalSearch(filter, pageable);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class DefaultWorkflowTaskInstanceService extends
 	private WorkflowTaskInstanceDto get(String taskId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(taskId));
-		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null, false).getContent();
+		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null).getContent();
 
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
@@ -344,14 +344,18 @@ public class DefaultWorkflowTaskInstanceService extends
 		return false;
 	}
 
-	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable,
-			boolean checkrights) {
-		// user want show all candidates or assigned -> check permissions
-		if (checkrights) {
-			if (filter.getCandidateOrAssigned() == null && !canReadAllTask()) {
+	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable) {
+		
+		// if currently logged user can read all task continue
+		if (!canReadAllTask()) {
+			// if user can't read all task check filter
+			if (filter.getCandidateOrAssigned() == null) {
+				filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+			} else if (!filter.getCandidateOrAssigned().equals(securityService.getCurrentId().toString())) {
 				throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 						"You do not have permission for access to all tasks!");
 			}
+			// else is filled candidate and it is equals currently logged user
 		}
 
 		String processDefinitionId = filter.getProcessDefinitionId();

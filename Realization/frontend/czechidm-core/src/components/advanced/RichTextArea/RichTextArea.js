@@ -203,12 +203,13 @@ class RichTextArea extends Basic.AbstractFormComponent {
 
 RichTextArea.propTypes = {
   ...Basic.AbstractFormComponent.propTypes,
+  value: PropTypes.string,
   placeholder: PropTypes.string,
   min: PropTypes.number,
   max: PropTypes.number,
-  showToolbar: PropTypes.boolean,
+  showToolbar: PropTypes.bool,
   mentions: PropTypes.object,
-  toolbarOptions: PropTypes.object,
+  toolbarOptions: PropTypes.arrayOf(PropTypes.string),
   fontSizeOptions: PropTypes.object,
   fontFamilyOptions: PropTypes.object
 };

@@ -11,9 +11,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 
 /**
- * Generate report
- * 
- * TODO: generalize LRT
+ * Generate report. Report executor implements LRT.
  * 
  * @author Radek Tomiška
  *
@@ -66,4 +64,9 @@ public interface ReportExecutor extends Configurable, Plugin<String>, LongRunnin
 	 * @param event
 	 */
 	void setEvent(EntityEvent<RptReportDto> event);
+
+	@Override
+	default String getDescription() {
+		return Configurable.super.getDescription();
+	}
 }

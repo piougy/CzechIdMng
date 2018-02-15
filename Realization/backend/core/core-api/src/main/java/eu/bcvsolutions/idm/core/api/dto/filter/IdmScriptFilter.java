@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -19,12 +22,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 public class IdmScriptFilter extends DataFilter {
 
     private String description;
-
-    private IdmScriptCategory category;
-    
+    private IdmScriptCategory category;    
     private String code;
-    
     private String usedIn;
+    private List<IdmScriptCategory> inCategory; // or
     
     public IdmScriptFilter() {
         this(new LinkedMultiValueMap<>());
@@ -34,7 +35,18 @@ public class IdmScriptFilter extends DataFilter {
         super(IdmScriptDto.class, data);
     }
 
-    public String getUsedIn() {
+    public List<IdmScriptCategory> getInCategory() {
+    	if (inCategory == null) {
+    		inCategory = new ArrayList<>();
+    	}
+		return inCategory;
+	}
+
+	public void setInCategory(List<IdmScriptCategory> inCategory) {
+		this.inCategory = inCategory;
+	}
+
+	public String getUsedIn() {
 		return usedIn;
 	}
 

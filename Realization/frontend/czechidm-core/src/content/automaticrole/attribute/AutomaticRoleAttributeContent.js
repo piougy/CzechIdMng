@@ -1,6 +1,7 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+//
 import * as Basic from '../../../components/basic';
 import { AutomaticRoleAttributeManager } from '../../../redux';
 import AutomaticRoleAttributeDetail from './AutomaticRoleAttributeDetail';
@@ -24,7 +25,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-attribute']);
+    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-attribute-detail']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
@@ -43,7 +44,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity } = this.props;
+    const { entity} = this.props;
     return (
       <div>
         {
@@ -53,26 +54,8 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
           :
           <Helmet title={this.i18n('edit.title')} />
         }
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:universal-access"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create.header')
-              :
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
 
-        <Basic.Panel>
-          <AutomaticRoleAttributeDetail entity={entity} manager={manager} />
-        </Basic.Panel>
+        <AutomaticRoleAttributeDetail entity={entity} manager={manager} />
 
       </div>
     );
@@ -80,7 +63,6 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 }
 
 AutomaticRoleAttributeContent.propTypes = {
-  showLoading: PropTypes.bool
 };
 AutomaticRoleAttributeContent.defaultProps = {
 };
@@ -89,8 +71,7 @@ function select(state, component) {
   const { entityId } = component.params;
   //
   return {
-    entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    entity: manager.getEntity(state, entityId)
   };
 }
 

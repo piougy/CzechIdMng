@@ -33,18 +33,18 @@ describe('DateTimePicker', function dateTimePickerTest() {
   });
 
   it('- DateTimePicker set value', function test() {
-    dateTimePicker.setValue('11.11. 2000');
+    dateTimePicker.setValue('2000-11-11');
     expect(dateTimePicker.isValid()).to.be.equal(true);
-    dateTimePicker.setValue('13.13. 2000');
+    dateTimePicker.setValue('2000-13-13');
     expect(dateTimePicker.isValid()).to.be.equal(false);
   });
 
   it('- DateTimePicker create two different dateTimePicker', function test() {
     const shallowRenderer = TestUtils.createRenderer();
-    shallowRenderer.render(<Basic.DateTimePicker readOnly/>);
+    shallowRenderer.render(<Basic.DateTimePicker value="2000-11-11" readOnly/>);
     const dateTime1 = shallowRenderer.getRenderOutput();
 
-    shallowRenderer.render(<Basic.DateTimePicker readOnly={false}/>);
+    shallowRenderer.render(<Basic.DateTimePicker value="2000-11-11" readOnly={false}/>);
     const dateTime2 = shallowRenderer.getRenderOutput();
     expect(dateTime1).not.be.equal(dateTime2);
   });
@@ -52,10 +52,10 @@ describe('DateTimePicker', function dateTimePickerTest() {
   // If you rerender the element with different props in the same container node, it will be updated instead of remounted
   it('- DateTimePicker dynamical change props', function test() {
     const node = document.createElement('div');
-    const component = ReactDOM.render(<Basic.DateTimePicker readOnly={false} />, node);
+    const component = ReactDOM.render(<Basic.DateTimePicker value="2000-11-11" readOnly={false} />, node);
     expect(component.state.readOnly).to.be.equal(false);
 
-    ReactDOM.render(<Basic.DateTimePicker readOnly />, node);
+    ReactDOM.render(<Basic.DateTimePicker value="2000-11-11" readOnly />, node);
     expect(component.state.readOnly).to.be.equal(true);
   });
 });

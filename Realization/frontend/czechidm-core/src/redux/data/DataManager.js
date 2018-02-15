@@ -66,7 +66,10 @@ export default class DataManager {
    * @param  {any} data - stored data
    * @return {action} - action
    */
-  receiveData(uiKey, data) {
+  receiveData(uiKey, data, cb = null) {
+    if (cb) {
+      cb(data, null);
+    }
     return {
       type: RECEIVE_DATA,
       uiKey,

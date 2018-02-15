@@ -13,46 +13,66 @@ parameters:
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>returnRequestIdentityRole</code>
 	<name>Send result WF - Return request</name>
-	<subject>CzechIdM - Vrácení žadateli</subject>
+	<subject>CzechIdM - Vrácení žádosti</subject>
 	<bodyHtml>
 <![CDATA[
-<html>
-<body>
-Dobrý den,<br />
-<br />
-Vaše žádnost ze dne $from Vám byla vrácena k přepracování. 
-#*
-URL isn't working for now
-Odkaz žádosti: <a href='$url'>$url</a><br />
-*#
-<br />
-Poznámka vedoucího:<br />
-<b>$managerDescription</b><br />
-<br />
-<br />
-S pozdravem BCV Solutions s.r.o.
-<br />
-<br />
--------------------------------------------------------------------------------------<br />
-Hello,<br />
-<br />
-Your request dated $from was returned for revision.
-#*
-URL isn't working for now
-Request url: <a href='$url'>$url</a><br />
-*#
-<br />
-Manager's note:<br />
-<b>$managerDescription</b><br />
-<br />
-<br />
-Regards BCV Solutions Ltd.
-</body>
-</html>
+	<html>
+		<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+			Dobrý den,<br />
+			<br />
+			Žádost pro Váš účet ze dne $from byla vrácena k přepracování, žádost byla vrácena uživateli <b>$implementerIdentity.Username</b>.
+			#*
+			URL isn't working for now
+			Odkaz žádosti: <a href='$url'>$url</a><br />
+			*#
+			<br />
+			<div style="display: block; margin: 10px auto; max-width: 600px; background-color: #d9edf7; color: #31708f; padding: 10px;
+    				border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+        		<b>Poznámka vedoucího:</b><br/>
+        		<br/>
+        		#if( $managerDescription== "" )
+				Nebyla uvdena žádná poznámka.
+				#end
+        		$managerDescription        
+    		</div>
+
+			<br />
+			<br />
+			<div style="display: block; margin: 30px auto; max-width: 400px;">
+				CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+			</div>
+
+			<div style="display: block; margin: 30px auto; max-width: 800px;">
+				--------------------------------------------------------------- English version ---------------------------------------------------------------
+			</div>
+			Hello,<br />
+			<br />
+			Request for your account dated $from was returned for revision. Request was returned to user <b>$implementerIdentity.Username</b>
+			#*
+			URL isn't working for now
+			Request url: <a href='$url'>$url</a><br />
+			*#
+			<br />
+			<div style="display: block; margin: 10px auto; max-width: 600px; background-color: #d9edf7; color: #31708f; padding: 10px;
+    				border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+        		<b>Manager's note:</b><br/>
+        		<br/>
+        		#if( $managerDescription== "" )
+				Manager did not write any note.
+				#end
+        		$managerDescription
+    		</div>
+			<br />
+			<br />
+			<div style="display: block; margin: 30px auto; max-width: 400px;">
+				CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+			</div>
+		</body>
+	</html>
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>
-	<parameter>managerDescription, from, url</parameter>
+	<parameter>managerDescription, from, url, implementerIdentity</parameter>
 	<systemTemplate>true</systemTemplate>
 	<moduleId>core</moduleId>
 </template>

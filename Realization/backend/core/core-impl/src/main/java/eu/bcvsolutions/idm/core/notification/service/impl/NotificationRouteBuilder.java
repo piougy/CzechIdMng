@@ -23,10 +23,8 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 @Component
 public class NotificationRouteBuilder extends RouteBuilder {
 	
-	@Autowired
-	private IdmNotificationConfigurationService notificationConfigurationService;
-	@Autowired
-	private ApplicationContext context;
+	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
+	@Autowired private ApplicationContext context;
 	
 	@Override
     public void configure() throws Exception {		
@@ -49,7 +47,7 @@ public class NotificationRouteBuilder extends RouteBuilder {
 				.map(this::getRouteForSender)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-
+		//
 	    return routes.isEmpty() ? null : routes;
 	}
 
@@ -60,7 +58,11 @@ public class NotificationRouteBuilder extends RouteBuilder {
 	 * @return
 	 */
 	private String getRouteForSender(final NotificationSender<?> sender) {
-		return context.getBeansOfType(NotificationSender.class).entrySet().stream()
+		//
+		// find spring bean name by given sender instance
+		return context.getBeansOfType(NotificationSender.class)
+				.entrySet()
+				.stream()
 				.filter(entry -> entry.getValue().equals(sender))
 				.map(entry -> String.format("bean:%s?method=send", entry.getKey()))
 				.findFirst()

@@ -1,10 +1,13 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 
+/**
+ * WF buttons
+ *
+ * @author Vít Švanda
+ */
 class DecisionButtons extends Basic.AbstractContent {
 
   constructor(props) {
@@ -18,6 +21,7 @@ class DecisionButtons extends Basic.AbstractContent {
   componentDidMount() {
   }
 
+  // TODO: workaroud - update component from email is not called
   componentWillReceiveProps(nextProps) {
     if (nextProps) {
       this.setState({
@@ -60,7 +64,6 @@ class DecisionButtons extends Basic.AbstractContent {
     const { task } = this.props;
     const { canGoBack } = this.state;
     if (canGoBack) {
-      // nothig, router just can go back
       this.context.router.goBack();
     } else {
       // transmition to /task, history doesnt exist, for now transmition to identity task

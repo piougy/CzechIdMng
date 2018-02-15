@@ -15,111 +15,183 @@ parameters:
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>changeIdentityRole</code>
 	<name>Send result WF - Change identity roles</name>
-	<subject>CzechIdM - změna oprávnění pro účet $identity.Username</subject>
+	<subject>CzechIdM - změna opravnění pro účet $identity.Username</subject>
 	<bodyHtml>
 <![CDATA[
-<html>
-<body>
-<!-- Macros for Apache velocity -->
-#macro( printState $state $loc )
-#if($loc == "cs")
-#if( $state == "CONCEPT" )
-Koncept
-#elseif( $state == "EXECUTED" )
-Provedeno
-#elseif( $state == "CANCELED" )
-Zrušeno
-#elseif($state == "DISAPPROVED" )
-Zamítnuto
-#elseif($state == "APPROVED")
-Schváleno
-#elseif($state == "IN_PROGRESS")
-Zpracovává se
-#elseif($state == "EXCEPTION")
-Chyba
-#elseif($state == "DUPLICATED")
-Duplicitní
-#else
-#end
-#else
-#if( $state == "CONCEPT" )
-Concept
-#elseif( $state == "EXECUTED" )
-Executed
-#elseif( $state == "CANCELED" )
-Canceled
-#elseif($state == "DISAPPROVED" )
-Disapproved
-#elseif($state == "APPROVED")
-Approved
-#elseif($state == "IN_PROGRESS")
-In progress
-#elseif($state == "EXCEPTION")
-Exception
-#elseif($state == "DUPLICATED")
-Duplicated
-#else
-#end
-#end
-#end
 
-#macro( printRole $headline $color $roles $loc )
-#if( !$roles.isEmpty() )
-<h3>$headline</h3>
-#foreach( $role in $roles )
-<li bgcolor='$color' >$role.Embedded["role"].Name - #printState( $role.State $loc )</li>
-#end
-#end
-#end
-Dobrý den,<br />
-<br />
-Vaše žádnost ze dne $from byla vyřízena.<br />
-<br />
-Pro váš účet <b>$identity.Username</b> na systému CzechIdM v7 byla provedena následující změna oprávnění:<br />
-<br />
-<br />
-#set( $loc = "cs" )
-#set( $color = "green" )
-#set( $headline = "Přidělené role" )
-#printRole( $headline $color $addedRoles $loc )
-<br />
-#set( $color = "yellow" )
-#set( $headline = "Změněné role" )
-#printRole( $headline $color $changedRoles $loc )
-<br />
-#set( $color = "red" )
-#set( $headline = "Odebrané role" )
-#printRole( $headline $color $removedRoles $loc )
-<br />
-<br />
-S pozdravem BCV Solutions s.r.o.
-<br />
-<br />
--------------------------------------------------------------------------------------<br />
-Hello,<br />
-<br />
-Your request dated $from was executed.<br />
-<br />
-For your account <b>$identity.Username</b> on system CzechIdM v7 was made following a change permissions:<br />
-<br />
-<br />
-#set( $loc = "en" )
-#set( $color = "green" )
-#set( $headline = "Assigned roles" )
-#printRole( $headline $color $addedRoles $loc )
-<br />
-#set( $color = "yellow" )
-#set( $headline = "Updated roles" )
-#printRole( $headline $color $changedRoles $loc )
-<br />
-#set( $color = "red" )
-#set( $headline = "Removed roles" )
-#printRole( $headline $color $removedRoles $loc )
-<br />
-<br />
-Regards BCV Solutions Ltd.
-</body>
+<html>
+	<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+		<!-- Macros for Apache velocity -->
+		#macro( printState $state $loc )
+			#if($loc == "cs")
+			#if( $state == "CONCEPT" )
+			Koncept
+				#elseif( $state == "EXECUTED" )
+			Provedeno
+				#elseif( $state == "CANCELED" )
+			Zrušeno
+				#elseif($state == "DISAPPROVED" )
+			Zamítnuto
+				#elseif($state == "APPROVED")
+			Schváleno
+				#elseif($state == "IN_PROGRESS")
+			Zpracovává se
+				#elseif($state == "EXCEPTION")
+			Chyba
+				#elseif($state == "DUPLICATED")
+			Duplicitní
+				#else
+				#end
+				#else
+					#if( $state == "CONCEPT" )
+				Concept
+					#elseif( $state == "EXECUTED" )
+				Executed
+					#elseif( $state == "CANCELED" )
+				Canceled
+					#elseif($state == "DISAPPROVED" )
+				Disapproved
+					#elseif($state == "APPROVED")
+				Approved
+					#elseif($state == "IN_PROGRESS")
+				In progress
+					#elseif($state == "EXCEPTION")
+				Exception
+					#elseif($state == "DUPLICATED")
+				Duplicated
+					#else
+				#end
+			#end
+		#end
+
+		#macro( printRole $headline $roles $loc )
+			#if( !$roles.isEmpty() )
+				#foreach( $role in $roles )
+					<tr><td style="padding-left: 5px;  padding-right: 5px;"><strong>$role.Embedded["role"].Name - #printState( $role.State $loc )</strong></td></tr>
+				#end
+			#end
+		#end
+		
+		Dobrý den,<br />
+		žádnost ze dne $from byla vyřízena.<br />
+		<br />
+
+
+		<br />
+		Pro váš účet <b>$identity.Username</b> na systému CzechIdM byla provedena následující změna oprávnění:<br />
+		<br />
+
+		<table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
+			<tr>
+				<td valign="top" style=" background-color: #faf2cc;">
+
+					<table style= "max-width: 500px;">
+						<tr style="height: 15px;">
+							<td style="background-color: #5cb85c; min-width: 200px; padding-left: 5px;">
+								<span style="font-size: 12pt; color: #ffffff;"><strong>Přidělené role</strong></span></td>
+						</tr>
+						#set( $loc = "cs" )
+						#set( $headline = "Přidělené role" )
+						#printRole( $headline $addedRoles $loc )
+					</table>
+
+				</td>
+				<td valign="top" style=" background-color: #faf2cc;">
+
+					<table  style=" max-width: 500px; ">
+						<tr style="height: 15px;">
+							<td style="background-color: #ffa500; min-width: 200px; padding-left: 5px;">
+								<span style="font-size: 12pt; color: #ffffff;"> <strong>Změněné role</strong></span>
+							</td>
+						</tr>
+						#set( $headline = "Změněné role" )
+						#printRole( $headline $changedRoles $loc )
+					</table>
+
+				</td>
+				<td valign="top" style=" background-color: #faf2cc;">
+
+					<table style=" max-width: 500px; ">
+						<tr style="height: 15px; ">
+							<td style="background-color: #F3123D; min-width: 200px; padding-left: 5px;">
+								<span style="font-size: 12pt; color: #ffffff;"><strong>Odebrané role</strong></span>
+							</td>
+						</tr>
+						#set( $headline = "Odebrané role" )
+						#printRole( $headline $removedRoles $loc )
+					</table>
+
+				</td>
+			</tr>
+		</table>
+
+		<br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+
+		<div style="display: block; margin: 30px auto; max-width: 800px; text-align: center;">
+				--------------------------------------------------------------- English version ---------------------------------------------------------------
+		</div>
+
+		Hello,<br />
+		request dated $from was executed.<br />
+		<br />
+
+
+		<br />
+			For your account <b>$identity.Username</b> on system CzechIdM was made following a change of permissions:<br />
+		<br />
+		<table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
+			<tr>
+				<td valign="top" style=" background-color: #faf2cc;">
+
+
+					<table style= "max-width: 500px;">
+						<tr style="height: 15px;">
+							<td style="background-color: #5cb85c; min-width: 200px; padding-left: 5px;">
+								<span style="font-size: 12pt; color: #ffffff;"><strong>Assigned roles</strong></span>
+							</td>
+						</tr>
+						#set( $loc = "en" )
+						#set( $headline = "Assigned roles" )
+						#printRole( $headline $addedRoles $loc )
+					</table>
+
+				</td>
+				<td valign="top" style=" background-color: #faf2cc;">
+					<table  style=" max-width: 500px; ">
+						<tr style="height: 15px;">
+							<td style="background-color: #ffa500; min-width: 200px; padding-left: 5px;">
+								<span style="font-size: 12pt; color: #ffffff;"> <strong>Updated roles</strong></span>
+							</td>
+						</tr>
+						#set( $headline = "Updated roles" )
+						#printRole( $headline $changedRoles $loc )
+					</table>
+					</td>
+				<td valign="top" style=" background-color: #faf2cc;">
+						<table style=" max-width: 500px; ">
+						<tr style="height: 15px; ">
+							<td style="background-color: #F3123D; min-width: 200px; padding-left: 5px;">
+								<span style="font-size: 12pt; color: #ffffff;"><strong>Removed roles</strong></span>
+							</td>
+						</tr>
+						#set( $headline = "Removed roles" )
+						#printRole( $headline $removedRoles $loc )
+					</table>
+					</td>
+			</tr>
+		</table>
+		<br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+	</body>
 </html>
+
 ]]>
 	</bodyHtml>
 	<bodyText></bodyText>

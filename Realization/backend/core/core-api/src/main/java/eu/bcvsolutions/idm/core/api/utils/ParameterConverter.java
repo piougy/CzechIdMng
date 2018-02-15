@@ -64,7 +64,47 @@ public class ParameterConverter {
 		Assert.notNull(parameters);
 	    Assert.notNull(parameterName);
 	    //
-		return (String)parameters.get(parameterName);
+		return toString(parameters.get(parameterName));
+	}
+	
+	/**
+	 * Converts given value to string ("naive" toString)
+	 * 
+	 * @param parameterValue
+	 * @return
+	 */
+	public String toString(Object parameterValue) {
+		if (parameterValue == null) {
+			return null;
+		}
+		if (parameterValue instanceof String) {
+			return (String) parameterValue;
+		}
+		return parameterValue.toString();
+	}
+	
+	/**
+	 * Converts parameter to list of {@code String} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public List<String> toStrings(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+		//
+		List<String> results = new ArrayList<>();
+		//
+		List<Object> strings = parameters.get(parameterName);
+		if (strings == null) {
+			return results;
+		}
+		//
+		strings.forEach(value -> {
+			results.add(toString(value));
+		});
+		//
+		return results;
 	}
 	
 	/**
@@ -223,7 +263,7 @@ public class ParameterConverter {
 		}
 		//
 		parameterValues.forEach(parameterValue -> {
-			results.add(toEnum((String) parameterValue, parameterName, enumClass));
+			results.add(toEnum(toString(parameterValue), parameterName, enumClass));
 		});
 		//
 		return results;

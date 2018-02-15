@@ -99,14 +99,11 @@ public class EntityEventProcessorController {
 	
 	private EntityEventProcessorFilter toFilter(MultiValueMap<String, Object> parameters) {
 		EntityEventProcessorFilter filter = new EntityEventProcessorFilter(parameters); // text is filled automatically
-
 		filter.setDescription(getParameterConverter().toString(parameters, "description"));
 		filter.setEntityType(getParameterConverter().toString(parameters, "entityType"));
-		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setName(getParameterConverter().toString(parameters, "name"));
-		//TODO implement toStrings
-//		filter.setEventTypes(getParameterConverter());
-		
+		filter.setEventTypes(getParameterConverter().toStrings(parameters, "eventTypes"));
+		//
 		return filter;
 	}
 	

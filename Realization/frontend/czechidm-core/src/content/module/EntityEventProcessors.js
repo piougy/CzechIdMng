@@ -6,7 +6,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { EntityEventProcessorManager } from '../../redux';
+import { EntityEventProcessorManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 
@@ -43,6 +43,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this.reload();
+    this.context.store.dispatch(manager.fetchRegisteredProcessors());
     this.refs.text.focus();
   }
 
@@ -72,41 +73,40 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { registeredProcessors, showLoading, _searchParameters } = this.props;
+    const { processors, registeredProcessors, showLoading, _searchParameters } = this.props;
     const { filterOpened } = this.state;
     //
-    let _registeredProcessors = new Immutable.OrderedMap();
-    let _entityTypes = [];
+    // all entity types and event types for select boxes
+    let _registeredEntityTypes = new Immutable.OrderedSet();
+    let _registeredEventTypes = new Immutable.OrderedSet();
     if (registeredProcessors) {
       registeredProcessors.forEach(processor => {
-        if (!_registeredProcessors.has(processor.entityType)) {
-          _registeredProcessors = _registeredProcessors.set(processor.entityType, []);
-        }
-        const entityProcessors = _registeredProcessors.get(processor.entityType);
-        entityProcessors.push(processor);
-        _registeredProcessors = _registeredProcessors.set(processor.entityType, entityProcessors);
+        _registeredEntityTypes = _registeredEntityTypes.add(processor.entityType);
+        processor.eventTypes.forEach(e => {
+          _registeredEventTypes = _registeredEventTypes.add(e);
+        });
       });
-      //
-      _entityTypes = _registeredProcessors.keySeq().toArray();
-      _entityTypes.sort((one, two) => {
+      // sort _entityTypes
+      _registeredEntityTypes = _registeredEntityTypes.sort((one, two) => {
         return one > two;
       });
     }
-
-    const _entityTypesSelectItems = [];
-    let _eventTypesSet = new Immutable.Set();
-    const _eventTypesSelectItems = [];
-    _entityTypes.forEach(type => {
-      _entityTypesSelectItems.push({ value: type, niceLabel: type});
-      _registeredProcessors.get(type).forEach(item => {
-        item.eventTypes.forEach(e => {
-          _eventTypesSet = _eventTypesSet.add(e);
-        });
+    //
+    // filtered processors and entity types
+    let _processors = new Immutable.OrderedMap();
+    let _entityTypes = new Immutable.OrderedSet();
+    if (processors) {
+      processors.forEach(processor => {
+        if (!_processors.has(processor.entityType)) {
+          _processors = _processors.set(processor.entityType, []);
+        }
+        const entityProcessors = _processors.get(processor.entityType);
+        entityProcessors.push(processor);
+        _processors = _processors.set(processor.entityType, entityProcessors);
+        _entityTypes = _entityTypes.add(processor.entityType);
       });
-    });
-    _eventTypesSet.map(item => {
-      _eventTypesSelectItems.push({value: item, niceLabel: item});
-    });
+    }
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -138,23 +138,24 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
                     </Basic.Col>
-                    <div className="col-lg-6 text-right">
+                    <Basic.Col lg={ 6 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <Basic.Col lg={ 6 }>
-                      <Advanced.Filter.EnumSelectBox ref="entityType"
-                           placeholder={this.i18n('filter.entity-type.placeholder')}
-                           options={_entityTypesSelectItems}/>
                     </Basic.Col>
                   </Basic.Row>
                   <Basic.Row className="last">
                     <Basic.Col lg={ 6 }>
-                      <Advanced.Filter.EnumSelectBox ref="eventTypes"
-                           placeholder={this.i18n('filter.event-type.placeholder')}
-                           options={_eventTypesSelectItems}
-                           multiSelect/>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="entityType"
+                        placeholder={ this.i18n('filter.entityType.placeholder') }
+                        options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="eventTypes"
+                        placeholder={ this.i18n('filter.eventTypes.placeholder') }
+                        options={ _registeredEventTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
+                        multiSelect
+                        searchable/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -164,16 +165,16 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
         </Basic.Toolbar>
 
         <Basic.Loading isStatic show={ showLoading }/>
-        <Basic.Alert level="info" text={ this.i18n('component.basic.Table.noData') } style={{ margin: 15 }} rendered={ !showLoading && _registeredProcessors.size === 0 } />
+        <Basic.Alert level="info" text={ this.i18n('component.basic.Table.noData') } style={{ margin: 15 }} rendered={ !showLoading && _processors.size === 0 } />
 
         {
-          showLoading || _registeredProcessors.size === 0
+          showLoading || _processors.size === 0
           ||
           <div>
             {
               _entityTypes.map((entityType) => {
-                const processors = _registeredProcessors.get(entityType);
-                processors.sort((one, two) => {
+                const entityProcessors = _processors.get(entityType);
+                entityProcessors.sort((one, two) => {
                   return one.order > two.order;
                 });
                 return (
@@ -181,9 +182,9 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                     <Basic.ContentHeader text={entityType}/>
 
                     <Basic.Table
-                      data={processors}
-                      showLoading={showLoading}
-                      noData={this.i18n('component.basic.Table.noData')}
+                      data={ entityProcessors }
+                      showLoading={ showLoading }
+                      noData={ this.i18n('component.basic.Table.noData') }
                       rowClass={({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
                       <Basic.Column property="module" header={this.i18n('entity.EntityEventProcessor.module')} width={75} />
                       <Basic.Column property="name" header={this.i18n('entity.EntityEventProcessor.name')} width="30%"/>
@@ -241,7 +242,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                 );
               })
             }
-            <Basic.Pagination total={ registeredProcessors.length } />
+            <Basic.Pagination total={ processors.length } />
           </div>
         }
       </div>
@@ -251,7 +252,8 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
 
 EntityEventProcessors.propTypes = {
   userContext: PropTypes.object,
-  registeredProcessors: PropTypes.object,
+  registeredProcessors: PropTypes.object, // immutable
+  processors: PropTypes.arrayOf(PropTypes.object),
   showLoading: PropTypes.bool
 };
 EntityEventProcessors.defaultProps = {
@@ -263,8 +265,10 @@ EntityEventProcessors.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
-    registeredProcessors: manager.getEntities(state, UIKEY),
-    showLoading: Utils.Ui.isShowLoading(state, UIKEY),
+    registeredProcessors: DataManager.getData(state, EntityEventProcessorManager.UI_KEY_PROCESSORS),
+    processors: manager.getEntities(state, UIKEY),
+    showLoading: Utils.Ui.isShowLoading(state, UIKEY)
+      || Utils.Ui.isShowLoading(state, EntityEventProcessorManager.UI_KEY_PROCESSORS),
     _searchParameters: Utils.Ui.getSearchParameters(state, UIKEY)
   };
 }

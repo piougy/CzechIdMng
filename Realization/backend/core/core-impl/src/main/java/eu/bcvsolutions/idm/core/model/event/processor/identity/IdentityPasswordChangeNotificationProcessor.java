@@ -44,6 +44,11 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 	public IdentityPasswordChangeNotificationProcessor() {
 		super(IdentityEventType.PASSWORD);
 	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
 
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {

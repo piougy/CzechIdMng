@@ -45,7 +45,7 @@ public interface FormService extends ScriptEnabled {
 	/**
 	 * Default definition name for type (if no name is given)
 	 */
-	static final String DEFAULT_DEFINITION_CODE = IdmFormDefinitionService.DEFAULT_DEFINITION_CODE;
+	String DEFAULT_DEFINITION_CODE = IdmFormDefinitionService.DEFAULT_DEFINITION_CODE;
 	
 	/**
 	 * Returns true, when given owner type support eav forms. If {@link AbstractDto} owner type is given, 

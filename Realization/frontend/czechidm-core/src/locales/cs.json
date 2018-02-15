@@ -1937,11 +1937,11 @@
           "text": {
             "placeholder": "Název, popis nebo typ obsahu (typ entity)"
           },
-          "entity-type": {
+          "entityType": {
             "placeholder": "Vyberte typ entity"
           },
-          "event-type": {
-            "placeholder": "Vyberte typ události"
+          "eventTypes": {
+            "placeholder": "Vyberte typ události (processor musí podporovat všechny vybrané)"
           }
         }
       }

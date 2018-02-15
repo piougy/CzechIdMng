@@ -1895,11 +1895,11 @@
           "text": {
             "placeholder": "Name, description or content type (entity type)"
           },
-          "entity-type": {
+          "entityType": {
             "placeholder": "Select entity type"
           },
-          "event-type": {
-            "placeholder": "Select event type"
+          "eventTypes": {
+            "placeholder": "Select event type (processor has to support all of them)"
           }
         }
       }

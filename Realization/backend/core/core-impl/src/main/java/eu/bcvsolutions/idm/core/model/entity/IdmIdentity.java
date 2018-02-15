@@ -112,7 +112,7 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "state", nullable = true, length = 45)
+	@Column(name = "state", nullable = false, length = 45)
 	private IdentityState state = IdentityState.CREATED; // @since 7.6.0
 	
 	public IdmIdentity() {

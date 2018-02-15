@@ -460,7 +460,6 @@ public interface FormService extends ScriptEnabled {
 	 */
 	List<String> getOwnerTypes();
 
-	
 	/**
 	 * Create instance of form definition from the given configuration class
 	 * 

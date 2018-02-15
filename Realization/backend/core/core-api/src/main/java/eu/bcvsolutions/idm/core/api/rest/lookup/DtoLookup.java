@@ -26,7 +26,6 @@ public interface DtoLookup<T extends BaseDto> extends Plugin<Class<?>> {
 
 	/**
 	 * Returns {@link BaseDto} by given identifier.
-	 * If permissions are given, then will be evaluated.
 	 * 
 	 * @param id
 	 * @return {@link BaseDto}

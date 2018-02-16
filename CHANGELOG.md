@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [8.0.0 - unreleased]
 
+- Detail of user - frontend validation that required at least 3 characters for the user name was removed.
 
 ## [7.8.0]
 

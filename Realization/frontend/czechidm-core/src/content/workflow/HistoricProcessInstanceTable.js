@@ -10,6 +10,8 @@ import {WorkflowProcessDefinitionManager} from '../../redux';
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
 * Table of historic processes
+*
+* @author Vít Švanda
 */
 export class HistoricProcessInstanceTable extends Basic.AbstractContent {
 

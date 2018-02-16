@@ -2,13 +2,16 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import * as Services from '../../services';
 import * as Managers from '../../redux/data';
+import DefinitionTable from './DefinitionTable';
 
+const DEFINITION_TABLE_UIKEY = 'workflow-definitions-agenda';
 
 /**
 * Workflow definition list
+*
+* @author Vít Švanda
 */
 class Definitions extends Basic.AbstractContent {
 
@@ -91,10 +94,7 @@ class Definitions extends Basic.AbstractContent {
     const { showLoading } = this.state;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-        <Basic.PageHeader>
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <Basic.Dropzone ref="dropzone"
@@ -104,21 +104,7 @@ class Definitions extends Basic.AbstractContent {
           </Basic.Dropzone>
         </Basic.Panel>
         <Basic.Panel>
-          <Advanced.Table
-            ref="table"
-            uiKey="workflow-definitions-agenda"
-            manager={this.getManager()}
-            showLoading={showLoading}
-            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-            noData={this.i18n('component.basic.Table.noData')}>
-
-            <Advanced.Column property="key" header={this.i18n('key')} width="25%"
-              cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>} sort />
-            <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
-            <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" />
-            <Advanced.Column property="description" header={this.i18n('description')} width="25%" />
-            <Advanced.Column property="version" header={this.i18n('version')} width="5%" />
-          </Advanced.Table>
+          <DefinitionTable ref="table" showLoading={ showLoading } uiKey={ DEFINITION_TABLE_UIKEY }/>
         </Basic.Panel>
       </div>
     );

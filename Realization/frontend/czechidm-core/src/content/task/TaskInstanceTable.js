@@ -69,83 +69,81 @@ export class TaskInstanceTable extends Basic.AbstractContent {
       _searchParameters = searchParameters;
     }
     return (
-      <div>
-        <Advanced.Table
-          ref="table"
-          uiKey={uiKey}
-          manager={taskInstanceManager}
-          forceSearchParameters={_searchParameters}
-          showRowSelection={false}
-          filterOpened={filterOpened}
-          showFilter={showFilter}
-          showToolbar={showToolbar}
-          filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm">
-                <Basic.Row>
-                  <div className="col-lg-6">
-                    <Advanced.Filter.SelectBox
-                      ref="candidateOrAssigned"
-                      rendered={_.includes(columns, 'taskAssignee')}
-                      placeholder={this.i18n('entity.WorkflowTaskInstance.taskAssignee')}
-                      manager={this.identityManager}/>
-                  </div>
-                  <div className="col-lg-6 text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
-                </Basic.Row>
-                <Basic.Row>
-                  <div className="col-lg-12">
-                    <Advanced.Filter.TextField
-                      ref="description"
-                      rendered={_.includes(columns, 'description')}
-                      placeholder={this.i18n('entity.WorkflowTaskInstance.taskDescription')}/>
-                  </div>
-                </Basic.Row>
-                <Basic.Row>
-                  <div className="col-lg-6">
-                    <Advanced.Filter.DateTimePicker
-                      ref="createdBefore"
-                      placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdBefore')}/>
-                  </div>
-                  <div className="col-lg-6">
-                    <Advanced.Filter.DateTimePicker
-                      ref="createdAfter"
-                      placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdAfter')}/>
-                  </div>
-                </Basic.Row>
-              </Basic.AbstractForm>
-            </Advanced.Filter>
-          }>
-          <Advanced.Column
-            header=""
-            className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                );
+      <Advanced.Table
+        ref="table"
+        uiKey={uiKey}
+        manager={taskInstanceManager}
+        forceSearchParameters={_searchParameters}
+        showRowSelection={false}
+        filterOpened={filterOpened}
+        showFilter={showFilter}
+        showToolbar={showToolbar}
+        filter={
+          <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Basic.AbstractForm ref="filterForm">
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Advanced.Filter.SelectBox
+                    ref="candidateOrAssigned"
+                    rendered={_.includes(columns, 'taskAssignee')}
+                    placeholder={this.i18n('entity.WorkflowTaskInstance.taskAssignee')}
+                    manager={this.identityManager}/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 } className="text-right">
+                  <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 12 } >
+                  <Advanced.Filter.TextField
+                    ref="description"
+                    rendered={_.includes(columns, 'description')}
+                    placeholder={this.i18n('entity.WorkflowTaskInstance.taskDescription')}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row className="last">
+                <Basic.Col lg={ 6 }>
+                  <Advanced.Filter.DateTimePicker
+                    ref="createdBefore"
+                    placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdBefore')}/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Advanced.Filter.DateTimePicker
+                    ref="createdAfter"
+                    placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdAfter')}/>
+                </Basic.Col>
+              </Basic.Row>
+            </Basic.AbstractForm>
+          </Advanced.Filter>
+        }>
+        <Advanced.Column
+          header=""
+          className="detail-button"
+          cell={
+            ({ rowIndex, data }) => {
+              return (
+                <Advanced.DetailButton
+                  title={this.i18n('button.detail')}
+                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
+              );
+            }
+          }
+          sort={false}/>
+        <Advanced.ColumnLink property="taskDescription" to="task/:id" sort face="text" rendered={_.includes(columns, 'description')}/>
+        <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+        <Advanced.Column property="taskAssignee" sort face="text" rendered={_.includes(columns, 'taskAssignee')}
+          cell={({rowIndex, data}) => {
+            const identityIds = [];
+            for (const index in data[rowIndex].identityLinks) {
+              if (data[rowIndex].identityLinks.hasOwnProperty(index)) {
+                identityIds.push(data[rowIndex].identityLinks[index].userId);
               }
             }
-            sort={false}/>
-          <Advanced.ColumnLink property="taskDescription" to="task/:id" sort face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
-          <Advanced.Column property="taskAssignee" sort face="text" rendered={_.includes(columns, 'taskAssignee')}
-            cell={({rowIndex, data}) => {
-              const identityIds = [];
-              for (const index in data[rowIndex].identityLinks) {
-                if (data[rowIndex].identityLinks.hasOwnProperty(index)) {
-                  identityIds.push(data[rowIndex].identityLinks[index].userId);
-                }
-              }
-              return (
-                <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
-              );
-            }}/>
-        </Advanced.Table>
-      </div>
+            return (
+              <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
+            );
+          }}/>
+      </Advanced.Table>
     );
   }
 }

@@ -500,6 +500,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		AttributeMapping tokenAttribute = itemContext.getTokenAttribute();
 
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
+		// Synchronization by custom filter not supported DELETE
+		// event
+		IcSyncDeltaTypeEnum type = IcSyncDeltaTypeEnum.CREATE_OR_UPDATE;
+		itemContext.addLogItem(itemLog).addType(type);
+
 		// Find token by token attribute
 		// For Reconciliation can be token attribute null
 		Object tokenObj = null;
@@ -524,10 +529,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		log.setToken(token);
 		config.setToken(token);
 
-		// Synchronization by custom filter not supported DELETE
-		// event
-		IcSyncDeltaTypeEnum type = IcSyncDeltaTypeEnum.CREATE_OR_UPDATE;
-		itemContext.addLogItem(itemLog).addType(type);
 
 		boolean result = startItemSynchronization(itemContext);
 

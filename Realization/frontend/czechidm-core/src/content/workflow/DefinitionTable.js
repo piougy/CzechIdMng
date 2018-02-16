@@ -3,21 +3,27 @@ import { connect } from 'react-redux';
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Managers from '../../redux/data';
+
+const manager = new Managers.WorkflowProcessDefinitionManager();
 
 /**
+ * Table of workflow definitions
+ *
  * @author Roman Kučera
+ * @author Radek Tomiška
  */
 export class DefinitionTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    this.stat = {
+    this.state = {
       filterOpened: false
     };
   }
 
   getManager() {
-    return this.props.definitionManger;
+    return manager;
   }
 
   getContentKey() {
@@ -38,61 +44,77 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  showDetail(entity) {
+    this.context.router.push(`/workflow/definitions/${entity.key}`);
+  }
+
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
   render() {
-    const { showLoading, forceSearchParameters, uiKey, definitionManger } = this.props;
+    const { showLoading, forceSearchParameters, uiKey } = this.props;
     const { filterOpened } = this.state;
     return (
-      <div>
-        <Basic.Panel>
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKey}
-            manager={definitionManger}
-            showLoading={showLoading}
-            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-            noData={this.i18n('component.basic.Table.noData')}
-            forceSearchParameters={forceSearchParameters}
-            filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row>
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="processDefinitionKey"
-                        placeholder={this.i18n('key')}/>
-                    </div>
-                    <div className="col-lg-6 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                  <Basic.Row className="last">
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="name"
-                        placeholder={this.i18n('name')}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
+      <Advanced.Table
+        ref="table"
+        uiKey={uiKey}
+        manager={ this.getManager() }
+        showLoading={showLoading}
+        rowClass={({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); }}
+        noData={this.i18n('component.basic.Table.noData')}
+        forceSearchParameters={forceSearchParameters}
+        filter={
+          <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Basic.AbstractForm ref="filterForm">
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Advanced.Filter.TextField
+                    ref="processDefinitionKey"
+                    placeholder={this.i18n('key')}/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 } className="text-right">
+                  <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row className="last">
+                <Basic.Col lg={ 6 }>
+                  <Advanced.Filter.TextField
+                    ref="name"
+                    placeholder={this.i18n('name')}/>
+                </Basic.Col>
+              </Basic.Row>
+            </Basic.AbstractForm>
+          </Advanced.Filter>
+        }
+        filterOpened={!filterOpened}
+        _searchParameters={ this.getSearchParameters() }>
+        <Advanced.Column
+          header=""
+          className="detail-button"
+          cell={
+            ({ rowIndex, data }) => {
+              return (
+                <Advanced.DetailButton
+                  title={this.i18n('button.detail')}
+                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
+              );
             }
-            filterOpened={!filterOpened}
-            _searchParameters={ this.getSearchParameters() }>
-            <Advanced.Column property="key" header={this.i18n('key')} width="25%"
-              cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>} sort />
-            <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
-            <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" />
-            <Advanced.Column property="description" header={this.i18n('description')} width="25%" />
-            <Advanced.Column property="version" header={this.i18n('version')} width="5%" />
-          </Advanced.Table>
-        </Basic.Panel>
-      </div>
+          }
+          sort={false}/>
+        <Advanced.Column property="key" header={this.i18n('key')} width="25%"
+          cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>} sort />
+        <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
+        <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" />
+        <Advanced.Column property="description" header={this.i18n('description')} width="25%" />
+        <Advanced.Column property="version" header={this.i18n('version')} width="5%" />
+      </Advanced.Table>
     );
   }
 }
 
 DefinitionTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  definitionManger: PropTypes.object.isRequired,
   forceSearchParameters: PropTypes.object,
   showLoading: PropTypes.bool
 };
@@ -105,4 +127,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(DefinitionTable);
+export default connect(select, null, null, { withRef: true})(DefinitionTable);

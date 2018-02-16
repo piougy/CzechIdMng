@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
  * Default implementation of workflow process historic service

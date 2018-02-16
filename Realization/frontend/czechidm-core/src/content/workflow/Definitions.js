@@ -2,7 +2,6 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import * as Services from '../../services';
 import * as Managers from '../../redux/data';
 import DefinitionTable from './DefinitionTable';
@@ -11,6 +10,8 @@ const DEFINITION_TABLE_UIKEY = 'workflow-definitions-agenda';
 
 /**
 * Workflow definition list
+*
+* @author Vít Švanda
 */
 class Definitions extends Basic.AbstractContent {
 
@@ -93,10 +94,7 @@ class Definitions extends Basic.AbstractContent {
     const { showLoading } = this.state;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-        <Basic.PageHeader>
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <Basic.Dropzone ref="dropzone"
@@ -106,7 +104,7 @@ class Definitions extends Basic.AbstractContent {
           </Basic.Dropzone>
         </Basic.Panel>
         <Basic.Panel>
-          <DefinitionTable showLoading={showLoading} definitionManger={this.getManager()} uiKey={DEFINITION_TABLE_UIKEY}/>
+          <DefinitionTable ref="table" showLoading={ showLoading } uiKey={ DEFINITION_TABLE_UIKEY }/>
         </Basic.Panel>
       </div>
     );

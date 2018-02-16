@@ -128,8 +128,6 @@ public class WorkflowDefinitionController extends AbstractReadDtoController<Work
 		return super.find(parameters, pageable);
 	}
 	
-	
-
 	/**
 	 * Search last version process by key
 	 * 

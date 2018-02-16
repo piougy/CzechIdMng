@@ -351,9 +351,12 @@ public class DefaultWorkflowTaskInstanceService extends
 			// if user can't read all task check filter
 			if (filter.getCandidateOrAssigned() == null) {
 				filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
-			} else if (!filter.getCandidateOrAssigned().equals(securityService.getCurrentId().toString())) {
-				throw new ResultCodeException(CoreResultCode.FORBIDDEN,
-						"You do not have permission for access to all tasks!");
+			} else {
+				IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
+				if (!identity.getId().equals(securityService.getCurrentId())) {
+					throw new ResultCodeException(CoreResultCode.FORBIDDEN,
+							"You do not have permission for access to all tasks!");
+				}
 			}
 			// else is filled candidate and it is equals currently logged user
 		}

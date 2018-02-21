@@ -108,6 +108,7 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	 * @param currentRevId
 	 * @param currentEntity
 	 * @return
+	 * @deprecated since 7.8.2 changed columns are solved directly in audit strategy {@link IdmAuditStrategy}
 	 */
 	@Deprecated
 	<T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, Long currentRevId, T currentEntity);

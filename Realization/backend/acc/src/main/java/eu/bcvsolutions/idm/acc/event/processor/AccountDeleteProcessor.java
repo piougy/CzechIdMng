@@ -21,13 +21,11 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
@@ -43,7 +41,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Deletes identity account
@@ -161,15 +158,18 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 		});
 
 		//
-		accountService.deleteInternal(account);
+		AccAccountDto refreshAccount = accountService.get(account.getId());
+		// If account still exists (was not deleted by entity-account), we delete him directly now
+    	if(refreshAccount != null) {
+			accountService.deleteInternal(refreshAccount);			
+		}
 		if (deleteTargetAccount) {
-			SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
-			if (SystemEntityType.CONTRACT == systemEntity.getEntityType()) {
+			if (SystemEntityType.CONTRACT == account.getEntityType()) {
 				LOG.warn(MessageFormat.format("Provisioning is not supported for contract now [{0}]!",
 						account.getUid()));
 				return new DefaultEventResult<>(event, this);
 			}
-			this.provisioningService.doDeleteProvisioning(account, systemEntity.getEntityType(), entityId);
+			this.provisioningService.doDeleteProvisioning(account, account.getEntityType(), entityId);
 		}
 
 		return new DefaultEventResult<>(event, this);

@@ -43,10 +43,10 @@ export default class ValidationMessageSystemMapping extends Basic.AbstractFormCo
     for (const key in error.parameters) {
       if (error.parameters.hasOwnProperty(key)) {
         validationMessage.push(
-            <Basic.Alert level="warning" >
-              <div>{this.i18n(`acc:content.system.mappingDetail.validation.${key}.message`)}</div>
-              <div>{this.i18n(`acc:content.system.mappingDetail.validation.${key}.info`)}</div>
-            </Basic.Alert>);
+          <Basic.Alert level="warning" className="no-margin">
+            <div>{this.i18n(`acc:content.system.mappingDetail.validation.${key}.message`)}</div>
+            <div>{this.i18n(`acc:content.system.mappingDetail.validation.${key}.info`)}</div>
+          </Basic.Alert>);
       }
     }
     return validationMessage;

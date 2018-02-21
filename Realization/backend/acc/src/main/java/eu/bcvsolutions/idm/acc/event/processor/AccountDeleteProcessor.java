@@ -161,7 +161,11 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 		});
 
 		//
-		accountService.deleteInternal(account);
+		AccAccountDto refreshAccount = accountService.get(account.getId());
+		// If account still exists (was not deleted by entity-account), we delete him directly now
+    	if(refreshAccount != null) {
+			accountService.deleteInternal(refreshAccount);			
+		}
 		if (deleteTargetAccount) {
 			SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
 			if (SystemEntityType.CONTRACT == systemEntity.getEntityType()) {

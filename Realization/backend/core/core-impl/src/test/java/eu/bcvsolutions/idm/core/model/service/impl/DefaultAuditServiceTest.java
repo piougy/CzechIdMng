@@ -283,9 +283,17 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
 		assertEquals(2, audits.size());
 		//
-		// TODO: for now isn't possible fill attribute changed columns for one transaction
-		assertEquals(null, audits.get(0).getChangedAttributes());
-		assertEquals(null, audits.get(1).getChangedAttributes());
+		String contractChangedAttribute = audits.get(0).getChangedAttributes();
+		assertTrue(contractChangedAttribute.contains("externe"));
+		assertTrue(contractChangedAttribute.contains("position"));
+		assertTrue(contractChangedAttribute.contains("identity"));
+		assertTrue(contractChangedAttribute.contains("disabled"));
+		assertTrue(contractChangedAttribute.contains("main"));
+		//
+		String identityChangedAttribute = audits.get(1).getChangedAttributes();
+		assertTrue(identityChangedAttribute.contains("state"));
+		assertTrue(identityChangedAttribute.contains("email"));
+		assertTrue(identityChangedAttribute.contains("lastName"));
 	}
 	
 	@Test

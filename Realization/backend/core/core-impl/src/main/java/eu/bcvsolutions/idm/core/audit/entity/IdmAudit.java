@@ -89,7 +89,7 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "type")
 	private String type;
 	
-	@Column(name = "changed_attributes")
+	@Column(name = "changed_attributes", length = DefaultFieldLengths.LOG)
 	private String changedAttributes;
 	
 	@Size(max = DefaultFieldLengths.NAME)
@@ -127,6 +127,12 @@ public class IdmAudit implements BaseEntity {
 	
 	@Column(name = "sub_owner_type")
 	private String subOwnerType;
+	
+	/*
+	 * This attribute is only for transfer changed columns to child revision
+	 */
+	@JsonIgnore
+	private transient String temporaryChangedColumns;
 	
 	@Override
 	public Serializable getId() {
@@ -334,4 +340,13 @@ public class IdmAudit implements BaseEntity {
 	public void setSubOwnerType(String subOwnerType) {
 		this.subOwnerType = subOwnerType;
 	}
+
+	public String getTemporaryChangedColumns() {
+		return temporaryChangedColumns;
+	}
+
+	public void setTemporaryChangedColumns(String temporaryChangedColumns) {
+		this.temporaryChangedColumns = temporaryChangedColumns;
+	}
+	
 }

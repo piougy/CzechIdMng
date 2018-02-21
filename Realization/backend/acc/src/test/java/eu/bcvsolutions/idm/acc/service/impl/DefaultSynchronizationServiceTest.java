@@ -730,6 +730,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME_THREE);
 		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
 		accountOne = accountService.save(accountOne);
 
 		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();

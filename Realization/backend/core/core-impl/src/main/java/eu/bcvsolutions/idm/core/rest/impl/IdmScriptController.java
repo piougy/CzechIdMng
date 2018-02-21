@@ -258,7 +258,7 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	
 	@Override
 	protected IdmScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmScriptFilter filter = new IdmScriptFilter();
+		IdmScriptFilter filter = new IdmScriptFilter(parameters);
 		filter.setDescription(getParameterConverter().toString(parameters, "description"));
 		filter.setCode(getParameterConverter().toString(parameters, "code"));
 		filter.setUsedIn(getParameterConverter().toString(parameters, "usedIn"));

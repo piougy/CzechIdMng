@@ -26,6 +26,8 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -35,6 +37,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
@@ -43,6 +46,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractResource;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -136,6 +141,10 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private SchedulerManager schedulerService;
 	@Autowired
 	private IdmScheduledTaskService scheduledService;
+	@Autowired
+	private AccContractAccountService contractAccountService;
+	@Autowired
+	private AccAccountService accountService;
 
 	private SynchronizationService synchornizationService;
 
@@ -198,6 +207,57 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityContractDto> contractsThree = contractService.find(contractFilter, null).getContent();
 		Assert.assertEquals(1, contractsThree.size());
 		Assert.assertEquals(null, contractsThree.get(0).getState());
+
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+	
+	@Test
+	public void deleteContractAccountTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contracts.size());
+		
+		// Find the account for this contract
+		IdmIdentityContractDto contract = contracts.get(0);
+		AccContractAccountFilter contractAccountFilter = new AccContractAccountFilter();
+		contractAccountFilter.setContractId(contract.getId());
+		contractAccountFilter.setSystemId(system.getId());
+		List<AccContractAccountDto> contractAccounts = contractAccountService.find(contractAccountFilter, null).getContent();
+		Assert.assertEquals(1, contractAccounts.size());
+		AccContractAccountDto contractAccount = contractAccounts.get(0);
+		AccAccountDto account = accountService.get(contractAccount.getAccount());
+		Assert.assertNotNull(account);
+		
+		// Delete this account directly test
+		accountService.delete(account);
+		account = accountService.get(contractAccount.getAccount());
+		Assert.assertNull(account);
 
 		// Delete log
 		syncLogService.delete(log);

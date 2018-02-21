@@ -68,8 +68,10 @@ export class AuditTable extends Advanced.AbstractTableContent {
   * Used for get niceLabel for type entity.
   */
   _getType(name) {
-    const type = name.split('.');
-    return type[type.length - 1];
+    if (name) {
+      const type = name.split('.');
+      return type[type.length - 1];
+    }
   }
 
   /**

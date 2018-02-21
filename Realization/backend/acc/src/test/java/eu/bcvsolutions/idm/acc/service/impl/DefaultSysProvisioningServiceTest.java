@@ -433,6 +433,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		account.setSystem(clonedSystem.getId());
 		account.setUid("y" + IDENTITY_USERNAME);
 		account.setAccountType(AccountType.PERSONAL);
+		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystemEntity(sysEntity.getId());
 		account = accountService.save(account);
 		
@@ -1342,6 +1343,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME);
 		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
 		accountOne = accountService.save(accountOne);
 
 		accountIdentityOne = new AccIdentityAccountDto();
@@ -1361,6 +1363,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountTwo.setSystem(system.getId());
 		accountTwo.setUid("x" + IDENTITY_USERNAME_TWO);
 		accountTwo.setAccountType(AccountType.PERSONAL);
+		accountTwo.setEntityType(SystemEntityType.IDENTITY);
 		accountTwo = accountService.save(accountTwo);
 
 		AccIdentityAccountDto accountIdentityTwo = new AccIdentityAccountDto();
@@ -1438,6 +1441,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(getSystem().getId());
 		accountOne.setUid("x" + identity.getUsername());
 		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
 		accountOne = accountService.save(accountOne);
 		//
 		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();

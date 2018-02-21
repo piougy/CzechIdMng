@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -25,7 +26,10 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "idm_role_request")
+@Table(name = "idm_role_request", indexes = {
+		@Index(name = "idx_idm_role_request_app_id", columnList = "applicant_id"),
+		@Index(name = "idx_idm_role_request_state", columnList = "state")
+})
 public class IdmRoleRequest extends AbstractEntity{
 
 	private static final long serialVersionUID = 1L;

@@ -902,6 +902,12 @@
           "IGNORE": "Unsuccessfully ignored",
           "UNKNOWN": "Unknown state"
         }
+      },
+      "statistic": {
+        "label": "Statistics",
+        "timeDiff": "Duration",
+        "allOperations": "Number of operations",
+        "itemsPerSec": "Number of operations per 1s"
       }
     },
     "SyncActionLog": {

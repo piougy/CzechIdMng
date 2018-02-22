@@ -909,6 +909,12 @@
           "IGNORE": "Neúspěšně ignorováno",
           "UNKNOWN": "Neznámý stav"
         }
+      },
+      "statistic": {
+        "label": "Statistiky",
+        "timeDiff": "Doba běhu",
+        "allOperations": "Celkový počet operací",
+        "itemsPerSec": "Počet operací za 1s"
       }
     },
     "SyncActionLog": {

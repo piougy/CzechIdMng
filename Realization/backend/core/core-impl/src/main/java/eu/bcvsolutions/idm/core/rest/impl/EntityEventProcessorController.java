@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;

@@ -83,7 +83,8 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
       this.context.store.dispatch(this.getManager().setEnabled(entity.id, enable, (patchedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: entity.name }) });
-          window.location.reload();
+          // refresh table with processors
+          this.reload();
         } else {
           this.addError(error);
         }

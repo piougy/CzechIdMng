@@ -2,20 +2,26 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,12 +30,14 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
@@ -106,7 +114,53 @@ public class EntityEventProcessorController {
 		//
 		return filter;
 	}
+
+	/**
+	 * Enable event processor
+	 * @param processorId
+	 */
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
+	@RequestMapping(value = "/{processorId}/enable", method = { RequestMethod.PATCH, RequestMethod.PUT })
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
+	@ApiOperation(
+			value = "Enable processor",
+			nickname = "enableProcessor",
+			tags = { EntityEventProcessorController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
+			})
+	public void enable(
+			@ApiParam(value = "Processor's identifier.", required = true)
+			@PathVariable @NotNull String processorId) {
+		entityEventManager.enable(processorId);
+	}
 	
+	/**
+	 * Disable event processor
+	 * @param processorId
+	 */
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
+	@RequestMapping(value = "/{processorId}/disable", method = { RequestMethod.PATCH, RequestMethod.PUT })
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
+	@ApiOperation(
+			value = "Disable processor",
+			nickname = "disableProcessor",
+			tags = { EntityEventProcessorController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
+			})
+	public void disable(
+			@ApiParam(value = "Processor's identifier.", required = true)
+			@PathVariable @NotNull String processorId) {
+		entityEventManager.disable(processorId);
+	}
+
 	/**
 	 * Return parameter converter helper
 	 * 

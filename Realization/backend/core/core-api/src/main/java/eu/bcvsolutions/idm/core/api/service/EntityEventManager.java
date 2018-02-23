@@ -43,4 +43,26 @@ public interface EntityEventManager {
 	 * @param event
 	 */
 	void publishEvent(Object event);
+	
+	/**
+	 * Enable given processor. Throws {@link IllegalArgumentException} when processorId is not installed.
+	 * 
+	 * @param processorId
+	 */
+	void enable(String processorId);
+
+	/**
+	 * Disable given module. Throws {@link IllegalArgumentException} when processorId is not installed.
+	 * 
+	 * @param processorId
+	 */
+	void disable(String processorId);
+
+	/**
+	 * Enable / disable given processor.
+	 *
+	 * @param processorId
+	 * @param enabled
+	 */
+	void setEnabled(String processorId, boolean enabled);
 }

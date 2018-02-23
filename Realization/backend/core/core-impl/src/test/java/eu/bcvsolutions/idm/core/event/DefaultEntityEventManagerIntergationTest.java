@@ -60,7 +60,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
-		entityEventManager = new DefaultEntityEventManager(context, publisher, enabledEvaluator, lookupService);
+		entityEventManager = new DefaultEntityEventManager(context, publisher, enabledEvaluator, lookupService, configurationService);
 	}
 	
 	@After 

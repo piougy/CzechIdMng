@@ -261,7 +261,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
-		return new DefaultEntityEventManager(context, publisher, enabledEvaluator(), lookupService());
+		return new DefaultEntityEventManager(context, publisher, enabledEvaluator(), lookupService(), configurationService());
 	}
 	
 	/**

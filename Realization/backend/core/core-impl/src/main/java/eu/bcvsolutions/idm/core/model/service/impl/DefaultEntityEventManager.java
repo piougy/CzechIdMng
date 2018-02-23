@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
@@ -36,21 +37,25 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	private final ApplicationEventPublisher publisher;
 	private final EnabledEvaluator enabledEvaluator;
 	private final LookupService lookupService;
-	
+	private final ConfigurationService configurationService;
+
 	public DefaultEntityEventManager(
 			ApplicationContext context, 
 			ApplicationEventPublisher publisher,
 			EnabledEvaluator enabledEvaluator,
-			LookupService lookupService) {
+			LookupService lookupService,
+			ConfigurationService configurationService) {
 		Assert.notNull(context, "Spring context is required");
 		Assert.notNull(publisher, "Event publisher is required");
 		Assert.notNull(enabledEvaluator, "Enabled evaluator is required");
 		Assert.notNull(lookupService, "LookupService is required");
+		Assert.notNull(configurationService, "ConfigurationService is required!");
 		//
 		this.context = context;
 		this.publisher = publisher;
 		this.enabledEvaluator = enabledEvaluator;
 		this.lookupService = lookupService;
+		this.configurationService = configurationService;
 	}
 	
 	@Override
@@ -173,4 +178,22 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		return true;
 	}
+
+	@Override
+	public void enable(String processorId) {
+		setEnabled(processorId, true);
+	}
+
+	@Override
+	public void disable(String processorId) {
+		setEnabled(processorId, false);
+	}
+
+	@Override
+	public void setEnabled(String processorId, boolean enabled) {
+		EntityEventProcessor<?> processor = (EntityEventProcessor<?>) context.getBean(processorId);
+		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
+	}
+
 }

@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,14 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
@@ -23,13 +29,17 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 
 /**
  * Entities on target system
@@ -46,26 +56,32 @@ public class DefaultSysSystemEntityService
 	private final AccAccountRepository accountRepository;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	private final SysSystemService systemService;
+	private final SysSystemMappingService mappingService;
+	private final SysSchemaObjectClassService objectClassService;
 
 	@Autowired
 	public DefaultSysSystemEntityService(SysSystemEntityRepository systemEntityRepository,
-			AccAccountRepository accountRepository, SysProvisioningOperationRepository provisioningOperationRepository,
-			SysSystemService systemService) {
+	                                     AccAccountRepository accountRepository, SysProvisioningOperationRepository provisioningOperationRepository,
+	                                     SysSystemService systemService, DefaultSysSystemMappingService mappingService, SysSchemaObjectClassService objectClassService) {
 		super(systemEntityRepository);
 		//
 		Assert.notNull(accountRepository);
 		Assert.notNull(provisioningOperationRepository);
 		Assert.notNull(systemService);
+		Assert.notNull(mappingService);
+		Assert.notNull(objectClassService);
 		//
 		this.repository = systemEntityRepository;
 		this.accountRepository = accountRepository;
 		this.provisioningOperationRepository = provisioningOperationRepository;
 		this.systemService = systemService;
+		this.mappingService = mappingService;
+		this.objectClassService = objectClassService;
 	}
 
 	@Override
 	protected Page<SysSystemEntity> findEntities(SysSystemEntityFilter filter, Pageable pageable,
-			BasePermission... permission) {
+	                                             BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -84,7 +100,7 @@ public class DefaultSysSystemEntityService
 		if (provisioningOperationRepository.find(filter, null).getTotalElements() > 0) {
 			SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system, SysSystemDto.class);
 			throw new ResultCodeException(AccResultCode.SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS,
-					ImmutableMap.of("uid", systemEntityDto.getUid(), "system", system.getName()));
+				ImmutableMap.of("uid", systemEntityDto.getUid(), "system", system.getName()));
 		}
 		//
 		// clear accounts - only link, can be rebuild
@@ -96,7 +112,7 @@ public class DefaultSysSystemEntityService
 	@Override
 	@Transactional(readOnly = true)
 	public SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType,
-			String uid) {
+	                                                         String uid) {
 		return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(system.getId(), entityType, uid));
 	}
 
@@ -108,7 +124,7 @@ public class DefaultSysSystemEntityService
 		}
 		if (operation instanceof SysProvisioningArchiveDto) {
 			return toDto(repository.findOneBySystem_IdAndEntityTypeAndUid(operation.getSystem(),
-					operation.getEntityType(), ((SysProvisioningArchiveDto) operation).getSystemEntityUid()));
+				operation.getEntityType(), ((SysProvisioningArchiveDto) operation).getSystemEntityUid()));
 		}
 		return null;
 	}
@@ -118,6 +134,47 @@ public class DefaultSysSystemEntityService
 		Assert.notNull(systemEntity, "System entity cannot be null!");
 		this.checkAccess(systemEntity, permissions);
 
-		return this.systemService.readConnectorObject(systemEntity.getSystem(), systemEntity.getUid(), null);
+		return this.systemService.readConnectorObject(systemEntity.getSystem(), systemEntity.getUid(),
+			getObjectClassForSystemEntity(systemEntity, permissions));
 	}
+
+	@Override
+	public IcObjectClass getObjectClassForSystemEntity(SysSystemEntityDto systemEntityDto, BasePermission... permissions) {
+		Assert.notNull(systemEntityDto, "System entity cannot be null!");
+		this.checkAccess(systemEntityDto, permissions);
+		//
+		return Optional.ofNullable(getProvisioningSysSystemMappings(systemEntityDto))
+			.orElseGet(Collections::emptyList)
+			.stream()
+			.findFirst()
+			.map(this::getObjectClassForMapping)
+			.orElseGet(() ->
+				Optional.ofNullable(getSynchronizationSysSystemMappings(systemEntityDto))
+					.orElseGet(Collections::emptyList)
+					.stream()
+					.findAny()
+					.map(this::getObjectClassForMapping)
+					.orElse(null)
+			);
+	}
+
+	private List<SysSystemMappingDto> getProvisioningSysSystemMappings(SysSystemEntityDto systemEntityDto) {
+		return mappingService.findBySystemId(
+				systemEntityDto.getSystem(), SystemOperationType.PROVISIONING, systemEntityDto.getEntityType());
+	}
+
+	private List<SysSystemMappingDto> getSynchronizationSysSystemMappings(SysSystemEntityDto systemEntityDto) {
+		return mappingService.findBySystemId(
+				systemEntityDto.getSystem(), SystemOperationType.SYNCHRONIZATION, systemEntityDto.getEntityType());
+	}
+
+	private IcObjectClass getObjectClassForMapping(SysSystemMappingDto dto) {
+		return Optional.ofNullable(dto)
+			.map(SysSystemMappingDto::getObjectClass)
+			.map(objectClassService::get)
+			.map(SysSchemaObjectClassDto::getObjectClassName)
+			.map(IcObjectClassImpl::new)
+			.orElse(null);
+	}
+
 }

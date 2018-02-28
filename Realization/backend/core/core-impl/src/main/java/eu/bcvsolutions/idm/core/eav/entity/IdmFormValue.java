@@ -20,7 +20,8 @@ import org.hibernate.envers.Audited;
 @Table(name = "idm_form_value", indexes = {
 		@Index(name = "idx_idm_form_value_a", columnList = "owner_id"),
 		@Index(name = "idx_idm_form_value_a_def", columnList = "attribute_id"),
-		@Index(name = "idx_idm_form_value_a_str", columnList = "string_value") })
+		@Index(name = "idx_idm_form_value_stxt", columnList = "short_text_value"),
+		@Index(name = "idx_idm_form_value_uuid", columnList = "uuid_value") })
 public class IdmFormValue extends AbstractFormValue<IdmForm> {
 
 	private static final long serialVersionUID = -6873566385389649927L;

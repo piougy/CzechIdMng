@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -628,6 +627,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 		case UUID: {
 			return AbstractFormValue_.uuidValue;
 		}
+		case SHORTTEXT: {
+			return AbstractFormValue_.shortTextValue;
+		}
 		default:
 			return AbstractFormValue_.stringValue;
 		}
@@ -696,6 +698,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 		}
 		case UUID: {
 			return UUID.fromString(value);
+		}
+		case SHORTTEXT: {
+			return value;
 		}
 		default:
 			return value;

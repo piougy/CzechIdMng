@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 @Table(name = "idm_i_contract_form_value", indexes = {
 		@Index(name = "idx_idm_i_contract_form_a", columnList = "owner_id"),
 		@Index(name = "idx_idm_i_contract_form_a_def", columnList = "attribute_id"),
-		@Index(name = "idx_idm_i_contract_form_a_str", columnList = "string_value") })
+		@Index(name = "idx_idm_i_contract_form_stxt", columnList = "short_text_value"),
+		@Index(name = "idx_idm_i_contract_form_uuid", columnList = "uuid_value") })
 public class IdmIdentityContractFormValue extends AbstractFormValue<IdmIdentityContract> {
 
 	private static final long serialVersionUID = -6873566385389649927L;

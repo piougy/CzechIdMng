@@ -413,6 +413,7 @@
         "faceType": {
           "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
           "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "SHORTTEXT": "$t(enums.PersistentTypeEnum.SHORTTEXT)",
           "INT": "$t(enums.PersistentTypeEnum.INT)",
           "LONG": "$t(enums.PersistentTypeEnum.LONG)",
           "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
@@ -517,6 +518,7 @@
     "PersistentTypeEnum": {
       "CHAR": "Znak",
       "TEXT": "Text",
+      "SHORTTEXT": "Krátký text (2000 znaků)",
       "INT": "Integer (celé číslo)",
       "LONG": "Long (celé číslo)",
       "DOUBLE": "Reálné číslo",

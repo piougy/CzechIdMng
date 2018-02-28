@@ -384,6 +384,7 @@
         "faceType": {
           "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
           "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "SHORTTEXT": "$t(enums.PersistentTypeEnum.SHORTTEXT)",
           "INT": "$t(enums.PersistentTypeEnum.INT)",
           "LONG": "$t(enums.PersistentTypeEnum.LONG)",
           "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
@@ -488,6 +489,7 @@
     "PersistentTypeEnum": {
       "CHAR": "Char",
       "TEXT": "Text",
+      "SHORTTEXT": "Short text (2000 chars)",
       "INT": "Integer",
       "LONG": "Long",
       "DOUBLE": "Double",

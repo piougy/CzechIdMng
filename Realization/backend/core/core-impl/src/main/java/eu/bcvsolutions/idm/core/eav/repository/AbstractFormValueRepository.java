@@ -99,18 +99,36 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	List<E> findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(Serializable ownerId, UUID attributeId);
 	
 	/**
-	 * Finds owners by given attribute and value
+	 * Finds owners by given attribute and value. Use {@link #findOwnersByShortTextValue(UUID, String, Pageable)} instead - it's indexed.
 	 * 
+	 * @see #findOwnersByShortTextValue(UUID, String, Pageable)
 	 * @param attribute
 	 * @param persistentValue
 	 * @return
+	 * @deprecated use {@link #findOwnersByShortTextValue(UUID, String, Pageable)}
 	 */
+	@Deprecated
 	@Query(value = "select distinct e.owner from #{#entityName} e " 
 			+ " where"
 			+ " (e.formAttribute.id = :formAttributeId)"
 			+ "	and"
 			+ " (e.stringValue = :persistentValue)")
 	Page<O> findOwnersByStringValue(@Param("formAttributeId") UUID attributeId, @Param("persistentValue") String persistentValue, Pageable pageable);
+	
+	/**
+	 * Finds owners by given attribute and value
+	 * 
+	 * @param attribute
+	 * @param persistentValue
+	 * @return
+	 * @since 7.8.3
+	 */
+	@Query(value = "select distinct e.owner from #{#entityName} e " 
+			+ " where"
+			+ " (e.formAttribute.id = :formAttributeId)"
+			+ "	and"
+			+ " (e.shortTextValue = :persistentValue)")
+	Page<O> findOwnersByShortTextValue(@Param("formAttributeId") UUID attributeId, @Param("persistentValue") String persistentValue, Pageable pageable);
 	
 	/**
 	 * Finds owners by given attribute and value

@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 @Table(name = "idm_tree_node_form_value", indexes = {
 		@Index(name = "idx_idm_tree_node_form_a", columnList = "owner_id"),
 		@Index(name = "idx_idm_tree_node_form_a_def", columnList = "attribute_id"),
-		@Index(name = "idx_idm_tree_node_form_a_str", columnList = "string_value") })
+		@Index(name = "idx_idm_tree_node_form_stxt", columnList = "short_text_value"),
+		@Index(name = "idx_idm_tree_node_form_uuid", columnList = "uuid_value") })
 public class IdmTreeNodeFormValue extends AbstractFormValue<IdmTreeNode> {
 
 	private static final long serialVersionUID = -6873566385389649927L;

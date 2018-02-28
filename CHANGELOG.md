@@ -5,10 +5,14 @@ All notable changes to this project will be documented in this file.
 
 - Detail of user - frontend validation that required at least 3 characters for the user name was removed.
 
+## [7.8.3]
+
+- [#1000](https://redmine.czechidm.com/issues/1000) - Persistent type ``SHORTTEXT`` was added to eav forms. Change script for all CzechIdM tables for persist eav values is provided  - provide the same change script in your module, if extended attributes was added to custom entity. ``SHORTTEXT`` and ``UUID`` values are indexed now.
+
 ## [7.8.0]
 
 - [#857](https://redmine.czechidm.com/issues/857) - Filters - added support for multiple filter parameters, `MultiValueMap` is used.
-- [#274](https://redmine.czechidm.com/issues/274) - Filters for entity event processors was added. 
+- [#274](https://redmine.czechidm.com/issues/274) - Filters for entity event processors was added.
 
 
 ## [7.7.0]

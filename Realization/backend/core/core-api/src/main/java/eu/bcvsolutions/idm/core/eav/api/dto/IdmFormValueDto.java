@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -52,6 +54,8 @@ public class IdmFormValueDto extends AbstractDto {
 	private PersistentType persistentType;
 	private boolean confidential;
 	private String stringValue;
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	private String shortTextValue;
 	private Boolean booleanValue;
 	private Long longValue;
 	private BigDecimal doubleValue;
@@ -237,6 +241,9 @@ public class IdmFormValueDto extends AbstractDto {
 		case UUID: {
 			return uuidValue;
 		}
+		case SHORTTEXT: {
+			return shortTextValue;
+		}
 		default:
 			return stringValue;
 		}
@@ -267,6 +274,9 @@ public class IdmFormValueDto extends AbstractDto {
 			}
 			case UUID: {
 				return uuidValue == null;
+			}
+			case SHORTTEXT: {
+				return StringUtils.isEmpty(shortTextValue);
 			}
 			default:
 				return StringUtils.isEmpty(stringValue);
@@ -389,6 +399,14 @@ public class IdmFormValueDto extends AbstractDto {
 				}
 				break;
 			}
+			case SHORTTEXT:
+				if (value == null) {
+					setShortTextValue(null);
+				} else if (value instanceof String) {
+					setShortTextValue((String) value);
+				} else {
+					throw wrongType(value, null);
+				}
 			default:
 				if (value == null) {
 					setStringValue(null);
@@ -420,6 +438,7 @@ public class IdmFormValueDto extends AbstractDto {
 	public void clearValues() {
 		this.booleanValue = null;
 		this.stringValue = null;
+		this.shortTextValue = null;
 		this.dateValue = null;
 		this.longValue = null;
 		this.doubleValue = null;
@@ -435,5 +454,13 @@ public class IdmFormValueDto extends AbstractDto {
 	
 	public FormableEntity getOwner() {
 		return owner;
+	}
+	
+	public void setShortTextValue(String shortTextValue) {
+		this.shortTextValue = shortTextValue;
+	}
+	
+	public String getShortTextValue() {
+		return shortTextValue;
 	}
 }

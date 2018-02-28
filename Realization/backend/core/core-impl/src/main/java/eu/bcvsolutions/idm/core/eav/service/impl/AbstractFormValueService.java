@@ -151,6 +151,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			if (formValue != null) {
 				// we need only to know, if value was filled
 				dto.setStringValue(GuardedString.SECRED_PROXY_STRING);
+				dto.setShortTextValue(GuardedString.SECRED_PROXY_STRING);
 			}
 		}
 		Assert.notNull(dto);
@@ -267,6 +268,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	
 	@Override
 	@Transactional(readOnly = true)
+	@SuppressWarnings("deprecation")
 	public Page<O> findOwners(IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
 		Assert.notNull(attribute);
 		IdmFormValueDto value = new IdmFormValueDto(attribute);
@@ -289,6 +291,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			}
 			case UUID: {
 				return repository.findOwnersByUuidValue(attribute.getId(), value.getUuidValue(), pageable);
+			}
+			case SHORTTEXT: {
+				return repository.findOwnersByShortTextValue(attribute.getId(), value.getShortTextValue(), pageable);
 			} 
 			// texts
 			default:

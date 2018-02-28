@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
- * Common eav form
+ * Common eav form => form instance
  * 
  * @author Radek Tomiška
  * @since 7.6.0

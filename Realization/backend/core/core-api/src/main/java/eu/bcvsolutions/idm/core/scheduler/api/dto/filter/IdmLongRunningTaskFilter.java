@@ -22,6 +22,7 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	private DateTime till;
 	private Boolean running;
 	private Boolean stateful;
+	private String instanceId;
 	
 	public IdmLongRunningTaskFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -77,5 +78,13 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	
 	public Boolean getStateful() {
 		return stateful;
+	}
+	
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+	
+	public String getInstanceId() {
+		return instanceId;
 	}
 }

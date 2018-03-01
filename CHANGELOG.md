@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 - Detail of user - frontend validation that required at least 3 characters for the user name was removed.
 
 ## [7.8.3]
-
+- [#1005](https://redmine.czechidm.com/issues/1005) - Dry run is available for long running task which supports it.
 - [#1000](https://redmine.czechidm.com/issues/1000) - Persistent type ``SHORTTEXT`` was added to eav forms. Change script for all CzechIdM tables for persist eav values is provided  - provide the same change script in your module, if extended attributes was added to custom entity. ``SHORTTEXT`` and ``UUID`` values are indexed now.
 
 ## [7.8.0]

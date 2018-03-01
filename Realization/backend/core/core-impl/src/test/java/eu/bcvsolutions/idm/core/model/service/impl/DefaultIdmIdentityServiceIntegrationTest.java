@@ -24,14 +24,18 @@ import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -66,6 +70,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	@Autowired private IdmPasswordService passwordService;
+	@Autowired private IdmConceptRoleRequestService conceptRequestService;
 	//
 	private IdmIdentityService identityService;
 
@@ -133,6 +138,44 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
 		// TODO: transactions?
 		// assertEquals(0, roleGuaranteeRepository.findAllByRole_Id(role.getId()).size());
+	}
+	
+	@Test
+	public void testReferentialRoleRequestIntegrity() {
+		IdmIdentityDto identity = helper.createIdentity();
+		String username = identity.getUsername();
+		
+		// role with guarantee
+		IdmRoleDto role = new IdmRoleDto();
+		String roleName = "test_r_" + System.currentTimeMillis();
+		role.setName(roleName);
+		role = roleService.save(role);
+		// assigned role
+		IdmRoleRequestDto request = helper.assignRoles(helper.getPrimeContract(identity.getId()), false, role);
+		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
+		conceptFilter.setRoleRequestId(request.getId());
+		
+		IdmIdentityRoleFilter identityRolefilter = new IdmIdentityRoleFilter();
+		identityRolefilter.setIdentityId(identity.getId());
+
+		assertNotNull(identityService.getByUsername(username));
+		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
+		assertEquals(1, conceptRequestService.find(conceptFilter, null).getTotalElements());
+		
+		IdmConceptRoleRequestDto concept = conceptRequestService.find(conceptFilter, null).getContent().get(0);
+		concept.setWfProcessId("test_wf_" + System.currentTimeMillis());
+		conceptRequestService.save(concept);
+		//
+		identityService.delete(identity);
+		role = roleService.get(role.getId());
+		//
+		assertNull(identityService.getByUsername(username));
+		assertNull(passwordService.findOneByIdentity(identity.getId()));
+		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
+		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
+		assertEquals(0, conceptRequestService.find(conceptFilter, null).getTotalElements());
+		roleService.delete(role);
+		assertNull(roleService.get(role.getId()));
 	}
 
 	/**

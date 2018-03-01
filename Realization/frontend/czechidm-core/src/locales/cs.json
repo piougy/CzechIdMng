@@ -3424,6 +3424,10 @@
     "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
       "title": "Role nelze smazat",
       "message": "Role [{{role}}] nelze smazat, protože je používána v automatických rolích na základě atributu."
+    },
+    "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
+      "title": "Zkušení běh není podporovaný",
+      "message": "Zkušení běh (dry run) pro úlohu [{{taskType}}] není podporovaný."
     }
   },
   "validationError": {

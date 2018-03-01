@@ -3378,6 +3378,10 @@
     "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
       "title": "Role nelze smazat",
       "message": "Role [{{role}}] can not be deleted, because is used in the rule/rules by automatic role based on attribute."
+    },
+    "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
+      "title": "Dry run is not supported",
+      "message": "Dry run (demo process) is not supported for task type [{{taskType}}]."
     }
   },
   "validationError": {

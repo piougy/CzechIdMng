@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.function.Function;
@@ -30,11 +31,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.exception.DryRunNotSupportedException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.event.LongRunningTaskEvent;
-import eu.bcvsolutions.idm.core.scheduler.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.event.processor.LongRunningTaskExecuteDependentProcessor;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
@@ -242,10 +244,67 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
 	}
 	
+	@Test(expected = DryRunNotSupportedException.class)
+	public void testDryRunNotSupportedException() {
+		Task task = createTask(null);
+		//
+		manager.runTask(task.getId(), true);
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testDependentTaskInDryModeExecution() throws Exception {
+		String resultValue = "dependent-task-initiator-dry-run";
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setOperationState(OperationState.CREATED);
+		filter.setTaskType(TestSchedulableDryRunTask.class.getCanonicalName());
+		filter.setFrom(new DateTime());
+		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, createdLrts.size());
+		//
+		Task task = createDryRunTask(resultValue);
+		DependentTaskTrigger trigger = new DependentTaskTrigger();
+		trigger.setInitiatorTaskId(task.getId());
+		// 
+		// initiator = dependent task => circular execution
+		manager.createTrigger(task.getId(), trigger);
+		manager.runTask(task.getId(), true);
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, createdLrts.size());
+		Assert.assertTrue(createdLrts.get(0).isDryRun());
+		UUID firstTaskId = createdLrts.get(0).getId();
+		// execute first task
+		LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
+		Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
+		//
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
+		Assert.assertTrue(createdLrts.get(0).isDryRun());
+		Assert.assertNotEquals(firstTaskId, createdLrts.get(0).getId());
+		//
+		longRunningTaskManager.cancel(createdLrts.get(0).getId());
+		//
+		longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
+	}
+	
 	private Task createTask(String result) {
 		Task task = new Task();
 		task.setInstanceId(configurationService.getInstanceId());
 		task.setTaskType(TestSchedulableTask.class);
+		task.setDescription("test");
+		task.getParameters().put(RESULT_PROPERTY, result);
+		//
+		return manager.createTask(task);
+	}
+	
+	private Task createDryRunTask(String result) {
+		Task task = new Task();
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(TestSchedulableDryRunTask.class);
 		task.setDescription("test");
 		task.getParameters().put(RESULT_PROPERTY, result);
 		//

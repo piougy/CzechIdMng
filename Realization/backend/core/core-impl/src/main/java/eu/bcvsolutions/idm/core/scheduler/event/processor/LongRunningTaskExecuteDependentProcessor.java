@@ -15,10 +15,10 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.LongRunningTaskProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmDependentTaskTrigger;
-import eu.bcvsolutions.idm.core.scheduler.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 
 /**
@@ -78,10 +78,11 @@ public class LongRunningTaskExecuteDependentProcessor
 		dependentTaskTriggerRepository
 			.findByInitiatorTaskId(scheduledTask.getQuartzTaskName())
 			.forEach(dependentTaskTrigger -> {
-				LOG.info("Scheduled task [{}] ended. Denendent task [{}] will be executed.", 
+				LOG.info("Scheduled task [{}] ended. Dependent task [{}] will be executed in dryRun [{}].", 
 						dependentTaskTrigger.getInitiatorTaskId(), 
-						dependentTaskTrigger.getDependentTaskId());
-				schedulerManager.runTask(dependentTaskTrigger.getDependentTaskId());
+						dependentTaskTrigger.getDependentTaskId(),
+						longRunningTask.isDryRun());
+				schedulerManager.runTask(dependentTaskTrigger.getDependentTaskId(), longRunningTask.isDryRun());
 			});
 
 		return new DefaultEventResult.Builder<IdmLongRunningTaskDto>(event, this)

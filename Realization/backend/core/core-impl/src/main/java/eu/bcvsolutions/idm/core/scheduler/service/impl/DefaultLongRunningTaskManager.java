@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -78,18 +79,19 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public void init() {
 		LOG.info("Cancel unprocessed long running task - tasks was interrupt during instance restart");
 		//
+		// task prepared for run - they can be in running state, but process physically doesn't started yet (running flag is still set to false)
 		String instanceId = configurationService.getInstanceId();
-		service.findAllByInstance(instanceId, OperationState.RUNNING).forEach(task -> {
-			LOG.info("Cancel unprocessed long running task [{}] - tasks was interrupt during instance [{}] restart", task, instanceId);
-			task.setRunning(false);
-			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
-					ImmutableMap.of(
-							"taskId", task.getId(), 
-							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));			
-			task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
-			service.saveInternal(task);
-		});
+		service
+			.findAllByInstance(instanceId, OperationState.RUNNING)
+			.forEach(this::cancelTaskByRestart);
+		//
+		// running tasks - they can be marked as canceled, but they were not killed before server was restarted
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setInstanceId(instanceId);
+		filter.setRunning(Boolean.TRUE);
+		service
+			.find(filter, null)
+			.forEach(this::cancelTaskByRestart);
 	}
 	
 	/**
@@ -392,5 +394,17 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		} else {
 			return taskExecutor;
 		}
+	}
+	
+	private void cancelTaskByRestart(IdmLongRunningTaskDto task) {
+		LOG.info("Cancel unprocessed long running task [{}] - tasks was interrupt during instance [{}] restart", task, task.getInstanceId());
+		task.setRunning(false);
+		ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
+				ImmutableMap.of(
+						"taskId", task.getId(), 
+						"taskType", task.getTaskType(),
+						"instanceId", task.getInstanceId()));			
+		task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
+		service.saveInternal(task);
 	}
 }

@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -47,6 +49,8 @@ public class WorkflowProcessInstanceController extends AbstractReadWriteDtoContr
 
 	protected static final String TAG = "Workflow - process instances";
 	//
+	@Autowired
+	private LookupService entityLookupService;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	
 	@Autowired
@@ -91,6 +95,18 @@ public class WorkflowProcessInstanceController extends AbstractReadWriteDtoContr
 			@PathVariable @NotNull String backendId) {
 		return new ResponseEntity<WorkflowProcessInstanceDto>(
 				workflowProcessInstanceService.delete(backendId, null), HttpStatus.OK);
+	}
+	
+	@Override
+	protected WorkflowFilterDto toFilter(MultiValueMap<String, Object> parameters) {
+		WorkflowFilterDto filter = super.toFilter(parameters);
+		String applicant = getParameterConverter().toString(parameters, "identity");
+		if (applicant != null) {
+				IdmIdentityDto identityDto = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, applicant);
+				filter.getEqualsVariables().put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, identityDto.getId());
+		}
+		
+		return filter;
 	}
 
 }

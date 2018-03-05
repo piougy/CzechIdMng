@@ -169,17 +169,21 @@
           "startOfHrProcesses": {
             "label": "After end, start the HR processes",
             "helpBlock": "After successful synchronization, HR processes will be executed."
+          },
+          "startAutoRoleRecalculation": {
+            "label": "After end, start the automatic role recalculation",
+            "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
           }
         },
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Default role",
             "helpBlock": "If the synchronization creates a link between an identity and an account, this role will be assigned to the identity. This assignment will be linked to the main contractual relationship of the identity."
+          },
+          "startAutoRoleRecalculation": {
+            "label": "After end, start the automatic role recalculation",
+            "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
           }
-        },
-        "startAutoRoleRecalculation": {
-          "label": "After end, start the automatic role recalculation",
-          "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
         }
       },
       "systemSynchronizationLogDetail": {

@@ -82,8 +82,8 @@ class SyncContractConfig extends Basic.AbstractContent {
           helpBlock={this.i18n('contractConfigDetail.startOfHrProcesses.helpBlock')}/>
         <Basic.Checkbox
           ref="startAutoRoleRecalculation"
-          label={this.i18n('startAutoRoleRecalculation.label')}
-          helpBlock={this.i18n('startAutoRoleRecalculation.helpBlock')}/>
+          label={this.i18n('contractConfigDetail.startAutoRoleRecalculation.label')}
+          helpBlock={this.i18n('contractConfigDetail.startAutoRoleRecalculation.helpBlock')}/>
       </Basic.AbstractForm>
     );
   }

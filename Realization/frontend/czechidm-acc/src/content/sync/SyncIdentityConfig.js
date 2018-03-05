@@ -42,8 +42,8 @@ class SyncIdentityConfig extends Basic.AbstractContent {
           helpBlock={this.i18n('identityConfigDetail.defaultRole.helpBlock')}/>
         <Basic.Checkbox
           ref="startAutoRoleRecalculation"
-          label={this.i18n('startAutoRoleRecalculation.label')}
-          helpBlock={this.i18n('startAutoRoleRecalculation.helpBlock')}/>
+          label={this.i18n('identityConfigDetail.startAutoRoleRecalculation.label')}
+          helpBlock={this.i18n('identityConfigDetail.startAutoRoleRecalculation.helpBlock')}/>
       </Basic.AbstractForm>
     );
   }

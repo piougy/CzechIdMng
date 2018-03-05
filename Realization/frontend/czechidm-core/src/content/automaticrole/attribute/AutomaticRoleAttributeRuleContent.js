@@ -68,7 +68,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
               ?
               <span>{ attribute ? attribute.name : ''} <small>{ this.i18n('create.header') }</small></span>
               :
-              <span>{ entity._embedded.automaticRoleAttribute.name } <small>{this.i18n('edit.header')}</small></span>
+              <span>{ entity._embedded.automaticRoleAttribute ? entity._embedded.automaticRoleAttribute.name : null } <small>{this.i18n('edit.header')}</small></span>
             }
           </Basic.PageHeader>
         }

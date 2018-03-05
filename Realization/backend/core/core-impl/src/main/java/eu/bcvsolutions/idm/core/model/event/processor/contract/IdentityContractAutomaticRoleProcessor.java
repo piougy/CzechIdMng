@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -46,13 +47,24 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
+		// skip recalculation
+		if (this.getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties())) {
+			return new DefaultEventResult<>(event, this);
+		}
+		//
 		IdmIdentityContractDto identityContract = event.getContent();
-		UUID identityId = identityContract.getIdentity();
+		UUID contractId = identityContract.getId();
+		//
+		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.CONTRACT_EAV;
+		//
+		if (event.getType() == CoreEventType.CREATE || event.getType() == CoreEventType.UPDATE) {
+			type = AutomaticRoleAttributeRuleType.CONTRACT;
+		}
 		//
 		// resolve automatic role by attribute
-		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNewPassedAutomaticRoleForIdentity(identityId);
-		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNotPassedAutomaticRoleForIdentity(identityId);
-		automaticRoleAttributeService.processAutomaticRolesForIdentity(identityId, allNewPassedAutomaticRoleForIdentity, allNotPassedAutomaticRoleForIdentity);
+		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, type, contractId);
+		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, type, contractId);
+		automaticRoleAttributeService.processAutomaticRolesForContract(contractId, allNewPassedAutomaticRoleForContract, allNotPassedAutomaticRoleForContract);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

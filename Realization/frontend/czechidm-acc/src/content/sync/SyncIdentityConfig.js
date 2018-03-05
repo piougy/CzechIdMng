@@ -40,6 +40,10 @@ class SyncIdentityConfig extends Basic.AbstractContent {
           manager={roleManager}
           label={this.i18n('identityConfigDetail.defaultRole.label')}
           helpBlock={this.i18n('identityConfigDetail.defaultRole.helpBlock')}/>
+        <Basic.Checkbox
+          ref="startAutoRoleRecalculation"
+          label={this.i18n('startAutoRoleRecalculation.label')}
+          helpBlock={this.i18n('startAutoRoleRecalculation.helpBlock')}/>
       </Basic.AbstractForm>
     );
   }

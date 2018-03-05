@@ -20,7 +20,8 @@ public interface IdmAutomaticRoleAttributeRuleService
 		AuthorizableService<IdmAutomaticRoleAttributeRuleDto> {
 
 	/**
-	 * Delete all rules by given attribute id
+	 * Delete all rules by given attribute id.
+	 * The method skip remove identity role for identities.
 	 * 
 	 * @param attributeId
 	 */
@@ -31,10 +32,18 @@ public interface IdmAutomaticRoleAttributeRuleService
 	 * and is equals with given {@link AutomaticRoleAttributeRuleType}.
 	 * 
 	 * @param automaticRole
-	 * @param type
+	 * @param types
 	 * @return
 	 */
-	List<IdmAutomaticRoleAttributeRuleDto> findAllRulesForAutomaticRoleAndType(UUID automaticRole,
-			AutomaticRoleAttributeRuleType type);
+	List<IdmAutomaticRoleAttributeRuleDto> findAllRulesForAutomaticRole(UUID automaticRole);
+	
+	/**
+	 * Method throw delete event for {@link IdmAutomaticRoleAttributeRuleDto}
+	 * If we delete last rule is remove also all identity role and request, in this
+	 * method is behavior with last rule skipped.
+	 *
+	 * @param dto
+	 */
+	void deleteRuleWithSkipCheckLastRule(IdmAutomaticRoleAttributeRuleDto dto);
 	
 }

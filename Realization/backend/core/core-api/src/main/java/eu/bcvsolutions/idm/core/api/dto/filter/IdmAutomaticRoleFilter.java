@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 
@@ -20,6 +21,16 @@ public class IdmAutomaticRoleFilter extends DataFilter {
 
 	private UUID roleId;
 	private String name;
+	/*
+	 * Automatic role attribute has at least one rule with this type
+	 */
+	private AutomaticRoleAttributeRuleType ruleType;
+	/*
+	 * Automatic role attribute has at least one rule
+	 */
+	private Boolean hasRules;
+	
+	private Boolean concept;
 
 	public IdmAutomaticRoleFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -48,5 +59,28 @@ public class IdmAutomaticRoleFilter extends DataFilter {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
+	public Boolean getHasRules() {
+		return hasRules;
+	}
+
+	public void setHasRules(Boolean hasRules) {
+		this.hasRules = hasRules;
+	}
+
+	public AutomaticRoleAttributeRuleType getRuleType() {
+		return ruleType;
+	}
+
+	public void setRuleType(AutomaticRoleAttributeRuleType ruleType) {
+		this.ruleType = ruleType;
+	}
+
+	public Boolean getConcept() {
+		return concept;
+	}
+
+	public void setConcept(Boolean concept) {
+		this.concept = concept;
+	}
 }

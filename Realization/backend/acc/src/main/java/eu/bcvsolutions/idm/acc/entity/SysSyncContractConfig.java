@@ -57,6 +57,11 @@ public class SysSyncContractConfig extends SysSyncConfig{
 	
 	@Audited
 	@NotNull
+	@Column(name = "start_auto_role_rec", nullable = false)
+	private boolean startAutoRoleRecalculation = true;
+	
+	@Audited
+	@NotNull
 	@Column(name = "start_hr_processes", nullable = false)
 	private boolean startOfHrProcesses = true;
 
@@ -90,5 +95,13 @@ public class SysSyncContractConfig extends SysSyncConfig{
 
 	public void setStartOfHrProcesses(boolean startOfHrProcesses) {
 		this.startOfHrProcesses = startOfHrProcesses;
+	}
+
+	public boolean isStartAutoRoleRecalculation() {
+		return startAutoRoleRecalculation;
+	}
+
+	public void setStartAutoRoleRecalculation(boolean startAutoRoleRecalculation) {
+		this.startAutoRoleRecalculation = startAutoRoleRecalculation;
 	}
 }

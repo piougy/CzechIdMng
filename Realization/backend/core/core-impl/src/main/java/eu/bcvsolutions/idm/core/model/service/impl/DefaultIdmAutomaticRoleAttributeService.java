@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,6 +70,8 @@ import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -85,7 +89,7 @@ import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent.AutomaticRoleAttributeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -101,6 +105,11 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmAutomaticRoleAttributeService
 	extends AbstractReadWriteDtoService<IdmAutomaticRoleAttributeDto, IdmAutomaticRoleAttribute, IdmAutomaticRoleFilter>
 	implements IdmAutomaticRoleAttributeService {
+	
+	/*
+	 * Uses in page request
+	 */
+	private int PROCESS_ROLE_SIZE = 10;
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultIdmAutomaticRoleAttributeService.class);
@@ -113,7 +122,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	private final IdmIdentityRoleService identityRoleService;	
 	private final EntityEventManager entityEventManager;
 	private final EntityManager entityManager;
-	private final IdmIdentityRepository identityRepository;
+	private final IdmIdentityContractRepository identityContractRepository;
 	private final LongRunningTaskManager longRunningTaskManager;
 	
 	@Autowired
@@ -127,8 +136,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 			IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService,
 			IdmIdentityRoleService identityRoleService,
 			EntityManager entityManager,
-			IdmIdentityRepository identityRepository,
-			LongRunningTaskManager longRunningTaskManager) {
+			LongRunningTaskManager longRunningTaskManager,
+			IdmIdentityContractRepository identityContractRepository) {
 		super(repository);
 		//
 		Assert.notNull(roleRequestService);
@@ -139,8 +148,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 		Assert.notNull(identityRoleService);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(entityManager);
-		Assert.notNull(identityRepository);
 		Assert.notNull(longRunningTaskManager);
+		Assert.notNull(identityContractRepository);
 		//
 		this.roleRequestService = roleRequestService;
 		this.identityContractService = identityContractService;
@@ -150,8 +159,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 		this.identityRoleService = identityRoleService;
 		this.entityEventManager = entityEventManager;
 		this.entityManager = entityManager;
-		this.identityRepository = identityRepository;
 		this.longRunningTaskManager = longRunningTaskManager;
+		this.identityContractRepository = identityContractRepository;
 	}
 	
 	/**
@@ -219,115 +228,66 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 
 	@Override
-	public void processAutomaticRolesForIdentity(UUID identityId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles) {
+	public void processAutomaticRolesForContract(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles) {
+		// Assign new passed automatic roles (assign to default contract)
+		IdmIdentityContractDto contract = identityContractService.get(contractId);
+		//
+		if (contract == null) {
+			LOG.debug(MessageFormat.format("Prime contract for identity id [{0}] not found.", contractId));
+			return;
+		}
+		//
 		// find all automatic roles for identity
 		IdmIdentityRoleFilter roleIdentityFilter = new IdmIdentityRoleFilter();
-		roleIdentityFilter.setIdentityId(identityId);
+		roleIdentityFilter.setIdentityContractId(contractId);
 		roleIdentityFilter.setAutomaticRole(Boolean.TRUE);
-		List<IdmIdentityRoleDto> allAutomaticRolesByIdentity = identityRoleService.find(roleIdentityFilter, null).getContent();
-		// Assign new passed automatic roles (assign to default contract)
-		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identityId);
-		if (!passedAutomaticRoles.isEmpty()) {
-			IdmRoleRequestDto roleRequest = processAutomaticRoles(primeContract, null, passedAutomaticRoles, ConceptRoleRequestOperation.ADD);
+		List<IdmIdentityRoleDto> allAutomaticRolesByContract = identityRoleService.find(roleIdentityFilter, null).getContent();
+		//
+		if (passedAutomaticRoles != null && !passedAutomaticRoles.isEmpty()) {
+			IdmRoleRequestDto roleRequest = processAutomaticRoles(contract, null, passedAutomaticRoles, ConceptRoleRequestOperation.ADD);
 			roleRequestService.startRequestInternal(roleRequest.getId(), false);
 		}
 		//
-		if (!notPassedAutomaticRoles.isEmpty()) {
+		if (notPassedAutomaticRoles != null && !notPassedAutomaticRoles.isEmpty()) {
 			List<UUID> notPassedAutoRoleIds = notPassedAutomaticRoles.stream().map(AbstractIdmAutomaticRoleDto::getId).collect(Collectors.toList());
-			allAutomaticRolesByIdentity = allAutomaticRolesByIdentity.stream().filter(autoRoleIdentity -> {
+			allAutomaticRolesByContract = allAutomaticRolesByContract.stream().filter(autoRoleIdentity -> {
 				return notPassedAutoRoleIds.contains(autoRoleIdentity.getRoleTreeNode());
 			}).collect(Collectors.toList());
 			// iterate over all identity roles
-			for (IdmIdentityRoleDto identityRole : allAutomaticRolesByIdentity) {
-				IdmIdentityContractDto dto = identityContractService.get(identityRole.getIdentityContract());
-				IdmRoleRequestDto roleRequest = this.processAutomaticRoles(dto, identityRole.getId(), notPassedAutomaticRoles, ConceptRoleRequestOperation.REMOVE);
+			for (IdmIdentityRoleDto identityRole : allAutomaticRolesByContract) {
+				IdmRoleRequestDto roleRequest = this.processAutomaticRoles(contract, identityRole.getId(), notPassedAutomaticRoles, ConceptRoleRequestOperation.REMOVE);
 				roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), false);
 			}
 		}
 	}
 	
 	@Override
-	public Set<AbstractIdmAutomaticRoleDto> getAllNewPassedAutomaticRoleForIdentity(UUID identityId) {
-		Set<AbstractIdmAutomaticRoleDto> automaticRoles = new HashSet<>();
+	public Page<IdmAutomaticRoleAttributeDto> findAllToProcess(AutomaticRoleAttributeRuleType type, Pageable page) {
+		IdmAutomaticRoleFilter filter = new IdmAutomaticRoleFilter();
+		filter.setConcept(Boolean.FALSE);
+		filter.setRuleType(type);
+		filter.setHasRules(Boolean.TRUE);
+		return this.find(filter, page);
+	}
+	
+	@Override
+	public Page<UUID> getContractsForAutomaticRole(UUID automaticRoleId, boolean passed, Pageable pageable) {
+		List<IdmAutomaticRoleAttributeRuleDto> rulesForContracts = automaticRoleAttributeRuleService.findAllRulesForAutomaticRole(automaticRoleId);
 		//
-		// iterate trough all automatic role
-		for (IdmAutomaticRoleAttributeDto automaticRole : this.find(null).getContent()) {
-			if (automaticRole.isConcept()) {
-				LOG.debug("Automatic role id [{}] is in concept state, skip this role.", automaticRole.getId());
-				continue;
-			}
-			//
-			List<IdmAutomaticRoleAttributeRuleDto> allRulesForAutomaticRole = automaticRoleAttributeRuleService.findAllRulesForAutomaticRoleAndType(automaticRole.getId(), null);
-			//
-			// if automatic role hasn't rules skip adding
-			if (allRulesForAutomaticRole.isEmpty()) {
-				LOG.debug("Automatic role id [{}] hasn't rules, skip this role.", automaticRole.getId());
-				continue;
-			}
-			//
-			Specification<IdmIdentity> criteria = this.getCriteriaForRules(automaticRole.getId(), allRulesForAutomaticRole, true, true, identityId);
-			boolean pass = !identityRepository.findAll(criteria).isEmpty();
-			if (pass) {
-				automaticRoles.add(automaticRole);
-			}
+		if (rulesForContracts.isEmpty()) {
+			return new PageImpl<>(Collections.emptyList(), pageable, 0);
 		}
 		//
-		return automaticRoles;
-	}
-	
-	@Override
-	public Set<AbstractIdmAutomaticRoleDto> getAllNotPassedAutomaticRoleForIdentity(UUID identityId) {
-		Set<AbstractIdmAutomaticRoleDto> automaticRoles = new HashSet<>();
+		Specification<IdmIdentityContract> criteria = this.getCriteriaForRulesByContract(automaticRoleId, rulesForContracts, passed, null);
+		Page<IdmIdentityContract> contracts = identityContractRepository.findAll(criteria, pageable);
 		//
-		// iterate trough all automatic role
-		for (IdmAutomaticRoleAttributeDto automaticRole : this.find(null).getContent()) {
-			if (automaticRole.isConcept()) {
-				LOG.debug("Automatic role id [{}] is in concept state and will be skipped.", automaticRole.getId());
-				continue;
-			}
-			//
-			List<IdmAutomaticRoleAttributeRuleDto> allRulesForAutomaticRole = automaticRoleAttributeRuleService.findAllRulesForAutomaticRoleAndType(automaticRole.getId(), null);
-			//
-			// if automatic role hasn't rules skip adding
-			if (allRulesForAutomaticRole.isEmpty()) {
-				LOG.debug("Automatic role id [{}] hasn't rules, skip this role.", automaticRole.getId());
-				continue;
-			}
-			//
-			Specification<IdmIdentity> criteria = this.getCriteriaForRules(automaticRole.getId(), allRulesForAutomaticRole, false, false, identityId);
-			// if identity is in list, is'nt pass by this automatic role
-			boolean notPass = !identityRepository.findAll(criteria).isEmpty();
-			if (notPass) {
-				automaticRoles.add(automaticRole);
-			}
-		}
-		//
-		return automaticRoles;
-	}
-	
-	@Override
-	public Page<UUID> getNewPassedIdentitiesForAutomaticRole(UUID automaticRoleId, Pageable pageable) {
-		return this.getIdentitiesForAutomaticRole(automaticRoleId, true, true, pageable);
-	}
-	
-	@Override
-	public Page<UUID> getNewNotPassedIdentitiesForAutomaticRole(UUID automaticRoleId, Pageable pageable) {
-		return this.getIdentitiesForAutomaticRole(automaticRoleId, false, false, pageable);
-	}
-	
-	@Override
-	public Page<UUID> getIdentitiesForAutomaticRole(UUID automaticRoleId, boolean onlyNew, boolean passed, Pageable pageable) {
-		List<IdmAutomaticRoleAttributeRuleDto> allRulesForAutomaticRole = automaticRoleAttributeRuleService.findAllRulesForAutomaticRoleAndType(automaticRoleId, null);
-		Specification<IdmIdentity> criteria = this.getCriteriaForRules(automaticRoleId, allRulesForAutomaticRole, onlyNew, passed, null);
-		Page<IdmIdentity> identities = identityRepository.findAll(criteria, pageable);
-
 		// transform to page uuid
-		List<UUID> dtos = identities.getContent().stream().map(IdmIdentity::getId).collect(Collectors.toList());
+		List<UUID> dtos = contracts.getContent().stream().map(IdmIdentityContract::getId).collect(Collectors.toList());
 		PageRequest pageRequest = null;
-		if (identities.getSize() > 0) {
-			pageRequest = new PageRequest(identities.getNumber(), identities.getSize(), identities.getSort());
+		if (contracts.getSize() > 0) {
+			pageRequest = new PageRequest(contracts.getNumber(), contracts.getSize(), contracts.getSort());
 		}
-		Page<UUID> dtoPage = new PageImpl<>(dtos, pageRequest, identities.getTotalElements());
+		Page<UUID> dtoPage = new PageImpl<>(dtos, pageRequest, contracts.getTotalElements());
 		return dtoPage;
 	}
 	
@@ -351,6 +311,38 @@ public class DefaultIdmAutomaticRoleAttributeService
 			));
 		}
 		//
+		if (filter.getConcept() != null) {
+			predicates.add(builder.equal(root.get(IdmAutomaticRoleAttribute_.concept), filter.getConcept()));
+		}
+		//
+		if (filter.getHasRules() != null) {
+			Subquery<IdmAutomaticRoleAttributeRule> subquery = query.subquery(IdmAutomaticRoleAttributeRule.class);
+			Root<IdmAutomaticRoleAttributeRule> subRoot = subquery.from(IdmAutomaticRoleAttributeRule.class);
+			subquery.select(subRoot);
+			
+			subquery.where(builder.equal(subRoot.get(IdmAutomaticRoleAttributeRule_.automaticRoleAttribute), root)); // correlation attr only
+			
+			if (BooleanUtils.isTrue(filter.getHasRules())) {
+				predicates.add(builder.exists(subquery));
+			} else {
+				predicates.add(builder.isNull(subquery));
+			}
+		}
+		//
+		if (filter.getRuleType() != null) {
+			Subquery<IdmAutomaticRoleAttributeRule> subquery = query.subquery(IdmAutomaticRoleAttributeRule.class);
+			Root<IdmAutomaticRoleAttributeRule> subRoot = subquery.from(IdmAutomaticRoleAttributeRule.class);
+			subquery.select(subRoot);
+			
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get(IdmAutomaticRoleAttributeRule_.automaticRoleAttribute), root), // correlation attr
+                    		builder.equal(subRoot.get(IdmAutomaticRoleAttributeRule_.type), filter.getRuleType())
+                    		)
+            );
+			predicates.add(builder.exists(subquery));
+		}
+		//
 		return predicates;
 	}
 	
@@ -369,6 +361,34 @@ public class DefaultIdmAutomaticRoleAttributeService
 		longRunningTaskManager.execute(automaticRoleTask);
 		//
 		return automaticRolAttributeDto;
+	}
+	
+	@Override
+	public Set<AbstractIdmAutomaticRoleDto> getRulesForContract(boolean pass, AutomaticRoleAttributeRuleType type, UUID contractId) {
+		Set<AbstractIdmAutomaticRoleDto> automaticRoles = new HashSet<>();
+		//
+		// iterate trough all automatic role that has at least one rule and isn't in concept state
+		Page<IdmAutomaticRoleAttributeDto> automaticRolesToProcess = this.findAllToProcess(type, new PageRequest(0, PROCESS_ROLE_SIZE));
+		while (automaticRolesToProcess.hasContent()) {
+			// all found roles it will has rules and will not be in concept state
+			for (IdmAutomaticRoleAttributeDto automaticRole : automaticRolesToProcess) {
+				List<IdmAutomaticRoleAttributeRuleDto> allRulesForAutomaticRole = automaticRoleAttributeRuleService.findAllRulesForAutomaticRole(automaticRole.getId());
+				//
+				Specification<IdmIdentityContract> criteria = this.getCriteriaForRulesByContract(automaticRole.getId(), allRulesForAutomaticRole, pass, contractId);
+				boolean result = !identityContractRepository.findAll(criteria).isEmpty();
+				if (result) {
+					automaticRoles.add(automaticRole);
+				}
+			}
+			//
+			if (automaticRolesToProcess.hasNext()) {
+				automaticRolesToProcess = this.find(automaticRolesToProcess.nextPageable());
+			} else {
+				break;
+			}
+		}
+		//
+		return automaticRoles;
 	}
 	
 	/**
@@ -416,51 +436,57 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	/**
-	 * Return all criteria for given rules
+	 * Return all criteria for given rules by contract
+	 * Compose all specification for identity/contract and rules
 	 * 
 	 * @param automaticRoleId
 	 * @param rules
 	 * @param onlyNew
 	 * @param passed
 	 * @param identityId
+	 * @param contractId
 	 * @return
 	 */
-	private Specification<IdmIdentity> getCriteriaForRules(UUID automaticRoleId, List<IdmAutomaticRoleAttributeRuleDto> rules, boolean onlyNew, boolean passed, UUID identityId) {
-		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+	private Specification<IdmIdentityContract> getCriteriaForRulesByContract(UUID automaticRoleId, List<IdmAutomaticRoleAttributeRuleDto> rules, boolean passed, UUID contractId) {
+		// Assert.notNull(contractId, "Get criteria for rules by contracts is allowed only with filled contract id.");
+		//
+		Specification<IdmIdentityContract> criteria = new Specification<IdmIdentityContract>() {
 			@Override
-			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+			public Predicate toPredicate(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				List<Predicate> predicates = new ArrayList<>();
 				//
-				if (onlyNew) {
-					// we want only identities that don't already own this automatic role 
-					Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
-					Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
-					subquery.select(subRoot);
-					subquery.where(
-							cb.and(
-									cb.equal(subRoot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity), root), // correlation attr
-									cb.equal(subRoot.get(IdmIdentityRole_.automaticRole).get(IdmAutomaticRole_.id), automaticRoleId)
-									)
-							);			
-					predicates.add(cb.not(cb.exists(subquery)));
+				if (contractId != null) {
+					predicates.add(cb.equal(root.get(AbstractEntity_.id), contractId));
 				}
 				//
-				if (identityId != null) {
-					// we want search only for this identity
-					predicates.add(cb.equal(root.get(IdmIdentity_.id), identityId));
+				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
+				Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
+				subquery.select(subRoot);
+				subquery.where(
+						cb.and(
+								cb.equal(subRoot.get(IdmIdentityRole_.identityContract), root), // correlation attr
+								cb.equal(subRoot.get(IdmIdentityRole_.automaticRole).get(IdmAutomaticRole_.id), automaticRoleId)
+								)
+						);
+				//
+				if (passed) {
+					predicates.add(cb.isNull(subquery));
+				} else {
+					predicates.add(cb.exists(subquery));
 				}
 				//
 				List<Predicate> predicatesFromRules = new ArrayList<>();
 				for (IdmAutomaticRoleAttributeRuleDto rule : rules) {
-					Predicate predicate = DefaultIdmAutomaticRoleAttributeService.this.getPredicateForRule(rule, root,
+					// compose all predicate from rules
+					Predicate predicate = DefaultIdmAutomaticRoleAttributeService.this.getPredicateForRuleByContract(rule, root,
 							query, cb, passed);
 					predicatesFromRules.add(predicate);
 				}
 				//
 				if (!predicatesFromRules.isEmpty()) {
 					if (!passed) {
-						// if we find all rules that not pass is necessary add or between predicates from rules
-						Predicate or = cb.or(predicatesFromRules.toArray(new Predicate[predicates.size()]));
+						// if we find all rules that not pass is necessary add 'or' statement between predicates from rules
+						Predicate or = cb.or(predicatesFromRules.toArray(new Predicate[predicatesFromRules.size()]));
 						predicates.add(or);
 					} else {
 						predicates.addAll(predicatesFromRules);
@@ -473,7 +499,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	/**
-	 * Return predicate for given rule
+	 * Return predicate for given rule by contract
 	 * 
 	 * @param rule
 	 * @param root
@@ -481,77 +507,81 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param cb
 	 * @return
 	 */
-	private Predicate getPredicateForRule(IdmAutomaticRoleAttributeRuleDto rule, Root<IdmIdentity> root,
+	private Predicate getPredicateForRuleByContract(IdmAutomaticRoleAttributeRuleDto rule, Root<IdmIdentityContract> root,
 			CriteriaQuery<?> query, CriteriaBuilder cb, boolean pass) {
 		//
 		Metamodel metamodel = entityManager.getMetamodel();
-		if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY) {
-			SingularAttribute<? super IdmIdentity, ?> singularAttribute = metamodel.entity(IdmIdentity.class)
+		if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT) {
+			SingularAttribute<? super IdmIdentityContract, ?> singularAttribute = metamodel.entity(IdmIdentityContract.class)
 					.getSingularAttribute(rule.getAttributeName());
 			Path<Object> path = root.get(singularAttribute.getName());
 			return getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
 					rule.getComparison(), !pass);
-		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT) {
-			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
-			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
-			subquery.select(subRoot);
-			//
-			SingularAttribute<? super IdmIdentityContract, ?> singularAttribute = metamodel
-					.entity(IdmIdentityContract.class).getSingularAttribute(rule.getAttributeName());
-			Path<Object> path = subRoot.get(singularAttribute.getName());
-			//
-			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
-							rule.getComparison(), !pass)));
-			return cb.exists(subquery);
-		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENITITY_EAV) {
-			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
-			//
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
-			//
-			Subquery<IdmIdentityFormValue> subquery = query.subquery(IdmIdentityFormValue.class);
-			Root<IdmIdentityFormValue> subRoot = subquery.from(IdmIdentityFormValue.class);
-			subquery.select(subRoot);
-			//
-			Path<?> path = subRoot.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
-			subquery.where(
-					cb.and(
-							cb.equal(subRoot.get(IdmIdentityFormValue_.owner), root),
-							cb.equal(subRoot.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, value, cb, rule.getComparison(), !pass)
-							)
-            );
-			return cb.exists(subquery);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			//
 			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
-			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
-			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
+			Subquery<IdmIdentityContractFormValue> subquery = query.subquery(IdmIdentityContractFormValue.class);
+			Root<IdmIdentityContractFormValue> subRoot = subquery.from(IdmIdentityContractFormValue.class);
 			subquery.select(subRoot);
 			//
-			Subquery<IdmIdentityContractFormValue> subQueryContractEav = query.subquery(IdmIdentityContractFormValue.class);
-			Root<IdmIdentityContractFormValue> subRootContractEav = subQueryContractEav.from(IdmIdentityContractFormValue.class);
-			subQueryContractEav.select(subRootContractEav);
-			//
-			Path<?> path = subRootContractEav.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
-			subQueryContractEav.where(
-					cb.and(
-							cb.equal(subRootContractEav.get(IdmIdentityContractFormValue_.owner), subRoot),
-							cb.equal(subRootContractEav.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, value, cb, rule.getComparison(), !pass)
-							));
+			Path<?> path = subRoot.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
 			//
 			subquery.where(
 					cb.and(
-							cb.equal(subRoot.get(IdmIdentityContract_.identity), root),
-							cb.exists(subQueryContractEav))
-							);
+						cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
+						cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+						getPredicateWithComparsion(path, value, cb, rule.getComparison(), !pass)
+						)
+					); 
+			return cb.exists(subquery);
+		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV) {
+			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
+			//
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
+			//
+			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
+			Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
+			subquery.select(subRoot);
+			
+			Subquery<IdmIdentityFormValue> subQueryIdentityEav = query.subquery(IdmIdentityFormValue.class);
+			Root<IdmIdentityFormValue> subRootIdentityEav = subQueryIdentityEav.from(IdmIdentityFormValue.class);
+			subQueryIdentityEav.select(subRootIdentityEav);
+			//
+			Path<?> path = subRootIdentityEav.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
+			subQueryIdentityEav.where(
+					cb.and(
+							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
+							cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
+							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+							getPredicateWithComparsion(path, value, cb, rule.getComparison(), !pass)
+							));
+			//
+			Predicate existsInEav = cb.exists(subQueryIdentityEav);
+			//
+			subquery.where(
+					cb.and(
+							cb.equal(subRoot.get(IdmIdentity_.id), root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id)),
+							existsInEav)
+					);
 			//
 			return cb.exists(subquery);
+		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY) {
+			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
+			Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
+			subquery.select(subRoot);
+			//
+			SingularAttribute<? super IdmIdentity, ?> singularAttribute = metamodel
+					.entity(IdmIdentity.class).getSingularAttribute(rule.getAttributeName());
+			Path<Object> path = subRoot.get(singularAttribute.getName());
+			//
+			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentity_.id), root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id)), // correlation attr
+					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
+							rule.getComparison(), !pass)));
+			return cb.exists(subquery);
 		} else {
-			throw new UnsupportedOperationException("Type: " + rule.getType().name() + ", isn't supported!");
+			throw new UnsupportedOperationException("Type: " + rule.getType().name() + ", isn't supported for contract rules!");
 		}
 	}
 	
@@ -599,7 +629,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			}
 			return cb.equal(path, value);
 		}
-		throw new UnsupportedOperationException("Operation: " + comparsion.name() + ", is not supported.");
+		throw new UnsupportedOperationException("Operation: " + comparsion.name() + ", isn't supported for identity rules.");
 	}
 	
 	/**

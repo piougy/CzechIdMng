@@ -48,6 +48,11 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilte
 @Description("Remove automatic role from IdmRoleTreeNode.")
 public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 	
+	/*
+	 * At the end of the task remove whole entity (this isn't possible set via FE parameters)
+	 */
+	private boolean deleteEntity = true;
+	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveAutomaticRoleTaskExecutor.class);
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
@@ -169,17 +174,28 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			conceptRequestService.save(concept);
 		}
 		//
-		// delete entity
-		if (automaticRole instanceof IdmRoleTreeNodeDto) {
-			roleTreeNodeService.deleteInternalById(automaticRole.getId());
-		} else {
-			// remove all rules
-			automaticRoleAttributeRuleService.deleteAllByAttribute(automaticRole.getId());
-			automaticRoleAttributeService.deleteInternalById(automaticRole.getId());
+		// by default is this allowed
+		if (this.isDeleteEntity()) {
+			// delete entity
+			if (automaticRole instanceof IdmRoleTreeNodeDto) {
+				roleTreeNodeService.deleteInternalById(automaticRole.getId());
+			} else {
+				// remove all rules
+				automaticRoleAttributeRuleService.deleteAllByAttribute(automaticRole.getId());
+				automaticRoleAttributeService.deleteInternalById(automaticRole.getId());
+			}
 		}
 		//
 		LOG.debug("End: Remove role [{}] by automatic role [{}]. Count: [{}/{}]", role.getCode(), automaticRole.getId(), counter, count);
 		//
 		return Boolean.TRUE;
+	}
+
+	public boolean isDeleteEntity() {
+		return deleteEntity;
+	}
+
+	public void setDeleteEntity(boolean deleteEntity) {
+		this.deleteEntity = deleteEntity;
 	}
 }

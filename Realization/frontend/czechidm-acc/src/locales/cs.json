@@ -176,6 +176,10 @@
             "label": "Výchozí role",
             "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
           }
+        },
+        "startAutoRoleRecalculation": {
+          "label": "Po dokončení spustit přepočet automatických rolí",
+          "helpBlock": "Po úspešném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
         }
       },
       "systemSynchronizationLogDetail": {

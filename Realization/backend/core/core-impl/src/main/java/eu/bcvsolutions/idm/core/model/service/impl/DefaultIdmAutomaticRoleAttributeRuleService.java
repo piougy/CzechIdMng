@@ -66,7 +66,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	@Override
 	public IdmAutomaticRoleAttributeRuleDto save(IdmAutomaticRoleAttributeRuleDto dto, BasePermission... permission) {
 		// now isn't possible do equals with string_value (clob), so it is necessary to use only short text
-		if (dto.getFormAttribute() != null) {
+		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == dto.getType() || AutomaticRoleAttributeRuleType.IDENTITY_EAV == dto.getType()) && dto.getFormAttribute() != null) {
 			initFormAttributeService();
 			IdmFormAttributeDto formAttribute = formAttributeService.get(dto.getFormAttribute());
 			if (formAttribute == null) {

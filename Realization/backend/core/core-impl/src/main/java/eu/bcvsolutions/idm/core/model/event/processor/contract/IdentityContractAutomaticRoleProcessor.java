@@ -55,15 +55,9 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		IdmIdentityContractDto identityContract = event.getContent();
 		UUID contractId = identityContract.getId();
 		//
-		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.CONTRACT_EAV;
-		//
-		if (event.getType() == CoreEventType.CREATE || event.getType() == CoreEventType.UPDATE) {
-			type = AutomaticRoleAttributeRuleType.CONTRACT;
-		}
-		//
 		// resolve automatic role by attribute
-		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, type, contractId);
-		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, type, contractId);
+		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, null, contractId);
+		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, null, contractId);
 		automaticRoleAttributeService.processAutomaticRolesForContract(contractId, allNewPassedAutomaticRoleForContract, allNotPassedAutomaticRoleForContract);
 		//
 		return new DefaultEventResult<>(event, this);

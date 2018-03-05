@@ -448,8 +448,6 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	private Specification<IdmIdentityContract> getCriteriaForRulesByContract(UUID automaticRoleId, List<IdmAutomaticRoleAttributeRuleDto> rules, boolean passed, UUID contractId) {
-		// Assert.notNull(contractId, "Get criteria for rules by contracts is allowed only with filled contract id.");
-		//
 		Specification<IdmIdentityContract> criteria = new Specification<IdmIdentityContract>() {
 			@Override
 			public Predicate toPredicate(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

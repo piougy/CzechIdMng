@@ -530,10 +530,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 					cb.and(
 						cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
 						cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-						getPredicateWithComparsion(path, value, cb, rule.getComparison(), !pass)
+						getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
 						)
-					); 
-			return cb.exists(subquery);
+					);
+			//
+			Predicate existsInEav = getPredicateForConnection(subquery, cb, pass);
+			//
+			return existsInEav;
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			//
@@ -553,10 +556,10 @@ public class DefaultIdmAutomaticRoleAttributeService
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
 							cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, value, cb, rule.getComparison(), !pass)
+							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
 							));
 			//
-			Predicate existsInEav = cb.exists(subQueryIdentityEav);
+			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass);
 			//
 			subquery.where(
 					cb.and(
@@ -576,10 +579,29 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentity_.id), root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id)), // correlation attr
 					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
-							rule.getComparison(), !pass)));
-			return cb.exists(subquery);
+							rule.getComparison(), null)));
+			//
+			return getPredicateForConnection(subquery, cb, pass);
 		} else {
 			throw new UnsupportedOperationException("Type: " + rule.getType().name() + ", isn't supported for contract rules!");
+		}
+	}
+	
+	/**
+	 * Method is used for connect {@link Subquery} with outer query.
+	 * In equal return exists otherwise return is null
+	 * The method is used only for identity eav, contract eav and identity attributes.
+	 *
+	 * @param subQuery
+	 * @param cb
+	 * @param pass
+	 * @return
+	 */
+	private Predicate getPredicateForConnection(Subquery<?> subQuery, CriteriaBuilder cb, boolean pass) {
+		if (pass) {
+			return cb.exists(subQuery);
+		} else { 
+			return cb.isNull(subQuery);
 		}
 	}
 	
@@ -595,7 +617,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	private Predicate getPredicateWithComparsion(Path<?> path, Object value, CriteriaBuilder cb,
-			AutomaticRoleAttributeRuleComparison comparsion, boolean negation) {
+			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation) {
 		Assert.notNull(comparsion);
 		Assert.notNull(path);
 		Assert.notNull(cb);
@@ -605,7 +627,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			// is necessary explicit type to as String
 			path.as(String.class);
 			//
-			if (negation) {
+			if (BooleanUtils.isTrue(negation)) {
 				Predicate predicate = null;
 				//
 				if (value instanceof Boolean) {

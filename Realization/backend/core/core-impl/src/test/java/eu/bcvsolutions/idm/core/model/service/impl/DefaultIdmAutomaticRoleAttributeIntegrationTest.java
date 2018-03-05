@@ -1291,6 +1291,80 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 				AutomaticRoleAttributeRuleType.IDENTITY_EAV, null, createEavAttribute.getId(), testValue);
 	}
 	
+	@Test
+	public void testEmptyIdentityEav() {
+		String testDescription = "testDescription-" + System.currentTimeMillis();
+		String eavCode = "eavCode-test-";
+		//
+		IdmIdentityDto identity1 = testHelper.createIdentity();
+		IdmIdentityDto identity2 = testHelper.createIdentity();
+		IdmIdentityDto identity3 = testHelper.createIdentity();
+		
+		IdmIdentityContractDto contract1 = testHelper.getPrimeContract(identity1.getId());
+		IdmIdentityContractDto contract2 = testHelper.getPrimeContract(identity2.getId());
+		IdmIdentityContractDto contract3 = testHelper.getPrimeContract(identity3.getId());
+		
+		contract1.setDescription(testDescription);
+		contract2.setDescription(testDescription);
+		contract3.setDescription(testDescription);
+		
+		contract1 = identityContractService.save(contract1);
+		contract2 = identityContractService.save(contract2);
+		contract3 = identityContractService.save(contract3);
+		
+		IdmFormAttributeDto eavAttribute = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentity.class, PersistentType.BOOLEAN);
+		testHelper.setEavValue(identity1, eavAttribute, IdmIdentity.class, Boolean.TRUE, PersistentType.BOOLEAN);
+		
+		IdmRoleDto role1 = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role1.getId());
+		
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT, IdmIdentityContract_.description.getName(), null, testDescription);
+		
+		List<IdmIdentityRoleDto> roles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		List<IdmIdentityRoleDto> roles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		List<IdmIdentityRoleDto> roles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(0, roles1.size());
+		assertEquals(0, roles2.size());
+		assertEquals(0, roles3.size());
+		
+		this.recalculateSync(automaticRole.getId());
+		
+		roles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		roles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		roles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(1, roles1.size());
+		assertEquals(1, roles2.size());
+		assertEquals(1, roles3.size());
+		
+		IdmAutomaticRoleAttributeRuleDto rule = testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY_EAV, null, eavAttribute.getId(), Boolean.TRUE.toString());
+		
+		this.recalculateSync(automaticRole.getId());
+		
+		roles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		roles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		roles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(1, roles1.size());
+		assertEquals(0, roles2.size());
+		assertEquals(0, roles3.size());
+		
+		automaticRoleAttributeRuleService.delete(rule);
+		
+		this.recalculateSync(automaticRole.getId());
+		
+		roles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		roles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		roles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(1, roles1.size());
+		assertEquals(1, roles2.size());
+		assertEquals(1, roles3.size());
+	}
+	
 	private void waitForTaskWithRecalculation(IdmAutomaticRoleAttributeDto automaticRole) throws InterruptedException {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(RemoveAutomaticRoleTaskExecutor.class.getCanonicalName());

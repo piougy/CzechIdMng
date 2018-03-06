@@ -212,7 +212,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					LocalDateTime.now()));
 		}
 		
-		if (getConfig(context).isStartAutoRoleRecalculation()) {
+		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
 		} else { 
 			log.addToLog(MessageFormat.format(

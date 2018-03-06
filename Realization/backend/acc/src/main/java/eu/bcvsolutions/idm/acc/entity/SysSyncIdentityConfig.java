@@ -36,10 +36,13 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole defaultRole;
 	
+	/*
+	 * Start recalculation after end synchronization for automatic roles by attribute
+	 */
 	@Audited
 	@NotNull
 	@Column(name = "start_auto_role_rec", nullable = false)
-	private boolean startAutoRoleRecalculation = true;
+	private boolean startAutoRoleRec = true;
 
 	public IdmRole getDefaultRole() {
 		return defaultRole;
@@ -49,12 +52,12 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 		this.defaultRole = defaultRole;
 	}
 
-	public boolean isStartAutoRoleRecalculation() {
-		return startAutoRoleRecalculation;
+	public boolean isStartAutoRoleRec() {
+		return startAutoRoleRec;
 	}
 
-	public void setStartAutoRoleRecalculation(boolean startAutoRoleRecalculation) {
-		this.startAutoRoleRecalculation = startAutoRoleRecalculation;
+	public void setStartAutoRoleRec(boolean startAutoRoleRec) {
+		this.startAutoRoleRec = startAutoRoleRec;
 	}
 	
 }

@@ -454,7 +454,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 
-		if (getConfig(context).isStartAutoRoleRecalculation()) {
+		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
 		} else { 
 			log.addToLog(MessageFormat.format(

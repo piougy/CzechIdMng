@@ -434,7 +434,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setStartAutoRoleRecalculation(true); // we want start recalculation after synchronization
+		config.setStartAutoRoleRec(true); // we want start recalculation after synchronization
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 		
 		this.getBean().deleteAllResourceData();
@@ -517,7 +517,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setStartAutoRoleRecalculation(false); // we want start recalculation after synchronization
+		config.setStartAutoRoleRec(false); // we want start recalculation after synchronization
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 		
 		this.getBean().deleteAllResourceData();

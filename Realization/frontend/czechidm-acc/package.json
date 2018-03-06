@@ -1,6 +1,6 @@
 {
   "name": "czechidm-acc",
-  "version": "8.0.0-snapshot",
+  "version": "7.8.3",
   "description": "Module of CzechIdM 2.0 devstack for accounts managment",
   "main": "index.js",
   "scripts": {

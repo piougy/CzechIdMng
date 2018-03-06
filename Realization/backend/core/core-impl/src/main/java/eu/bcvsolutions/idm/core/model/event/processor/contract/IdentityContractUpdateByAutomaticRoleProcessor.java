@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -24,11 +25,14 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
@@ -81,6 +85,18 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 						&& previous.isValidNowOrInFuture() != contract.isValidNowOrInFuture())) {
 			// work positions has some difference or validity changes
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
+			//
+			// remove all automatic roles by attribute
+			if (!assignedRoles.isEmpty()) {
+				assignedRoles = assignedRoles.stream().filter(autoRole -> {
+					AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class);
+					if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
+						return true;
+					}
+					return false;
+				}).collect(Collectors.toList());
+			}
+			//
 			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
 						return identityRole.getRoleTreeNode() != null;
@@ -206,6 +222,12 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	 * @param assignedRoles
 	 */
 	private void changeValidable(IdmIdentityContractDto contract, List<IdmIdentityRoleDto> assignedRoles, IdmRoleRequestDto roleRequest) {
+		if (assignedRoles.isEmpty()) {
+			return;
+		}
+		//
+		final IdmRoleRequestDto roleRequestFinal = checkSavedRequest(roleRequest);
+		//
 		assignedRoles
 			.stream()
 			.filter(identityRole -> {
@@ -213,7 +235,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 				return identityRole.getRoleTreeNode() != null;
 			})
 			.forEach(identityRole -> {
-				createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
+				createConcept(roleRequestFinal, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
 			});
 	}
 	

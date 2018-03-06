@@ -21,7 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -37,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -1093,7 +1096,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmIdentityDto identity = testHelper.createIdentity();
 		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
 		IdmIdentityContractDto contract2 = testHelper.createIdentityContact(identity, null, null, new LocalDate().plusDays(2));
-		IdmIdentityContractDto contract3 = testHelper.createIdentityContact(identity, null, null, new LocalDate().minusDays(2));
+		IdmIdentityContractDto contract3 = testHelper.createIdentityContact(identity, null, new LocalDate().minusDays(5), new LocalDate().plusDays(5));
 		
 		IdmIdentityContractDto primeContractCheck = testHelper.getPrimeContract(identity.getId());
 		assertEquals(primeContract.getId(), primeContractCheck.getId());
@@ -1158,7 +1161,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmIdentityDto identity = testHelper.createIdentity();
 		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
 		IdmIdentityContractDto contract2 = testHelper.createIdentityContact(identity, null, null, new LocalDate().plusDays(2));
-		IdmIdentityContractDto contract3 = testHelper.createIdentityContact(identity, null, null, new LocalDate().minusDays(2));
+		IdmIdentityContractDto contract3 = testHelper.createIdentityContact(identity, null, new LocalDate().minusDays(2), new LocalDate().plusDays(2));
 		
 		IdmIdentityContractDto primeContractCheck = testHelper.getPrimeContract(identity.getId());
 		assertEquals(primeContract.getId(), primeContractCheck.getId());
@@ -1264,11 +1267,13 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 			}
 		}
 		assertFalse(contractCheck1);
-		assertFalse(contractCheck2);
-		assertTrue(contractCheck3);
+		assertTrue(contractCheck2);
+		assertFalse(contractCheck3);
 		
 		IdmIdentityContractDto newNewPrimeContract = testHelper.getPrimeContract(identity.getId());
 		assertNotEquals(newPrimeContract.getId(), newNewPrimeContract.getId());
+		
+		assertEquals(contract2, newNewPrimeContract);
 		
 		identityContractService.delete(newNewPrimeContract);
 		
@@ -1365,14 +1370,175 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, roles3.size());
 	}
 	
+	@Test
+	public void testExpiredContract() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, identity.getUsername());
+		//
+		this.recalculateSync(automaticRole.getId());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		IdmIdentityContractDto expiredContract = testHelper.createIdentityContact(identity, null, new LocalDate().minusDays(10), new LocalDate().minusDays(5));
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		expiredContract.setValidTill(new LocalDate().plusDays(100));
+		expiredContract = identityContractService.save(expiredContract);
+		//
+		identityRoles = identityRoleService.findAllByContract(testHelper.getPrimeContract(identity.getId()).getId());
+		assertEquals(1, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(2, identityRoles.size());
+		//
+		expiredContract.setValidTill(new LocalDate().minusDays(2));
+		expiredContract = identityContractService.save(expiredContract);
+		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		identity = identityService.save(identity);
+		//
+		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testFutureValidContract() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, identity.getUsername());
+		//
+		this.recalculateSync(automaticRole.getId());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		IdmIdentityContractDto expiredContract = testHelper.createIdentityContact(identity, null, new LocalDate().plusDays(10), new LocalDate().plusDays(50));
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(2, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
+		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testDisabledContract() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		IdmIdentityContractDto contract2 = testHelper.createIdentityContact(identity, null, new LocalDate().minusMonths(5), new LocalDate().plusMonths(5));
+		contract2.setState(ContractState.DISABLED);
+		contract2 = identityContractService.save(contract2);
+		//
+		IdmIdentityContractDto contract3 = testHelper.createIdentityContact(identity, null, null, new LocalDate().plusMonths(5));
+		contract3.setState(ContractState.DISABLED);
+		contract3 = identityContractService.save(contract3);
+		//
+		IdmIdentityContractDto contract4 = testHelper.createIdentityContact(identity, null, null, null);
+		contract4.setState(ContractState.DISABLED);
+		contract4 = identityContractService.save(contract4);
+		//
+		IdmIdentityContractDto contract5 = testHelper.createIdentityContact(identity, null, new LocalDate().minusMonths(5), null);
+		contract5.setState(ContractState.DISABLED);
+		contract5 = identityContractService.save(contract5);
+		//
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, identity.getUsername());
+		//
+		this.recalculateSync(automaticRole.getId());
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByContract(contract2.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByContract(contract3.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByContract(contract4.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByContract(contract5.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		contract5.setState(null);
+		contract5 = identityContractService.save(contract5);
+		//
+		identityRoles = identityRoleService.findAllByContract(contract5.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		contract4.setState(null);
+		contract4 = identityContractService.save(contract4);
+		//
+		identityRoles = identityRoleService.findAllByContract(contract4.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		contract3.setState(null);
+		contract3 = identityContractService.save(contract3);
+		//
+		identityRoles = identityRoleService.findAllByContract(contract3.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		contract2.setState(null);
+		contract2 = identityContractService.save(contract2);
+		//
+		identityRoles = identityRoleService.findAllByContract(contract2.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		for (IdmIdentityRoleDto identityRole : identityRoles) {
+			assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
+			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class);
+			assertEquals(automaticRole, embedded);
+			assertEquals(role.getId(), embedded.getRole());
+			assertEquals(role.getId(), identityRole.getRole());
+		}
+		//
+		contract3.setState(ContractState.DISABLED);
+		contract3 = identityContractService.save(contract3);
+		//
+		identityRoles = identityRoleService.findAllByContract(contract3.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
 	private void waitForTaskWithRecalculation(IdmAutomaticRoleAttributeDto automaticRole) throws InterruptedException {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(RemoveAutomaticRoleTaskExecutor.class.getCanonicalName());
 		
 		IdmLongRunningTaskDto taskWithRecalculation = longRunningTaskService.find(filter, null).getContent()
 			.stream() //
-			.filter(lrt -> //
-				lrt.getTaskProperties().get(RemoveAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())
+			.filter(lrt -> {
+					Object parameter = lrt.getTaskProperties().get(RemoveAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
+					if (parameter.equals(automaticRole.getId())) {
+						return true;
+					}
+					return false;
+				}
 				)
 			.findFirst()
 			.orElse(null);

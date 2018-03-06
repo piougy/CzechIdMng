@@ -28,6 +28,11 @@ public interface IdmAutomaticRoleAttributeService
 		AuthorizableService<IdmAutomaticRoleAttributeDto> {
 
 	/**
+	 * For backward compatibility in metamodel doesn't exists attribute roleTreeNode
+	 */
+	static final String ROLE_TREE_NODE_ATTRIBUTE_NAME = "roleTreeNode";
+	
+	/**
 	 * Property in event. If is value TRUE, then will be recalculation skipped.
 	 */
 	static final String SKIP_RECALCULATION = "skip_recalculation";

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -93,6 +94,11 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends StatelessAsy
     	while (canContinue) {
     		for(UUID contractId : newPassedContracts) {
     			IdmIdentityContractDto contract = identityContractService.get(contractId);
+    			//
+    			// check for contract validity
+    			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
+    				continue;
+    			}
     			//
 				IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareAddAutomaticRoles(contract, setWithAutomaticRole);
 				roleRequestService.startRequestInternal(roleRequest.getId(), false);

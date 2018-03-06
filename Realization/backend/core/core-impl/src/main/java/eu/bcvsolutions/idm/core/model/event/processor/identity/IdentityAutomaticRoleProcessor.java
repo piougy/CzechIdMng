@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  */
 
 @Component
-@Description("Recalculate automatic roles after save identity.")
+@Description("Recalculate automatic roles by attribute after save identity.")
 public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityDto> implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-automatic-role-processor";
@@ -79,6 +79,6 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 	@Override
 	public int getOrder() {
 		// after save
-		return super.getOrder() + 100;
+		return super.getOrder() + 500;
 	}
 }

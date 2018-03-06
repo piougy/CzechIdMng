@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
@@ -233,8 +234,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 		IdmIdentityContractDto contract = identityContractService.get(contractId);
 		//
 		if (contract == null) {
-			LOG.debug(MessageFormat.format("Prime contract for identity id [{0}] not found.", contractId));
+			LOG.debug(MessageFormat.format("Contract id [{0}] not found.", contractId));
 			return;
+		}
+		// check contract validity for newly add roles
+		// TODO: this behavior can be optimalized by add it into query
+		if (!contract.isValidNowOrInFuture() || contract.getState() == ContractState.DISABLED) {
+			// null all new passed automatic roles
+			passedAutomaticRoles = null;
 		}
 		//
 		// find all automatic roles for identity

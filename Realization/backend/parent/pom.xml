@@ -566,7 +566,7 @@
 				<artifactId>maven-jgitflow-plugin</artifactId>
 				<version>1.0-m5.1</version>
 				<configuration>
-					<pushReleases>true</pushReleases>
+					<pushReleases>false</pushReleases>
 					<keepBranch>false</keepBranch>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<noTag>true</noTag>
@@ -578,6 +578,7 @@
 						<masterBranchName>master</masterBranchName>
 						<developBranchName>develop</developBranchName>
 					</flowInitContext>
+					<enableSshAgent>true</enableSshAgent>
 				</configuration>
 			</plugin>
 

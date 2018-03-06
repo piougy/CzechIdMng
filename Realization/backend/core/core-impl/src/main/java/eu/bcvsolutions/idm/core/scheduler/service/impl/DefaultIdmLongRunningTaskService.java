@@ -80,6 +80,9 @@ public class DefaultIdmLongRunningTaskService
 					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskDescription)), "%" + filter.getText().toLowerCase() + "%")					
 					));
 		}
+		if (StringUtils.isNotEmpty(filter.getInstanceId())) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.instanceId), filter.getInstanceId()));
+		}
 		if (StringUtils.isNotEmpty(filter.getTaskType())) {
 			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), filter.getTaskType()));
 		}

@@ -384,6 +384,7 @@
         "faceType": {
           "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
           "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "SHORTTEXT": "$t(enums.PersistentTypeEnum.SHORTTEXT)",
           "INT": "$t(enums.PersistentTypeEnum.INT)",
           "LONG": "$t(enums.PersistentTypeEnum.LONG)",
           "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
@@ -488,6 +489,7 @@
     "PersistentTypeEnum": {
       "CHAR": "Char",
       "TEXT": "Text",
+      "SHORTTEXT": "Short text (2000 chars)",
       "INT": "Integer",
       "LONG": "Long",
       "DOUBLE": "Double",
@@ -611,7 +613,7 @@
     },
     "AutomaticRoleAttributeRuleTypeEnum": {
       "IDENTITY": "Identity attribute",
-      "IDENITITY_EAV": "Extended attribute of identity",
+      "IDENTITY_EAV": "Extended attribute of identity",
       "CONTRACT": "Contract attribute",
       "CONTRACT_EAV": "Extended attribute of contract"
     },
@@ -3376,6 +3378,14 @@
     "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
       "title": "Role nelze smazat",
       "message": "Role [{{role}}] can not be deleted, because is used in the rule/rules by automatic role based on attribute."
+    },
+    "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
+      "title": "Dry run is not supported",
+      "message": "Dry run (demo process) is not supported for task type [{{taskType}}]."
+    },
+    "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
+      "title": "Attribute type 'TEXT' is not supported",
+      "message": "Extended attribute type 'TEXT' is not supported."
     }
   },
   "validationError": {

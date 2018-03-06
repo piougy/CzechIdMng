@@ -229,6 +229,13 @@ public class DefaultIdmIdentityRoleService
 					);
 		}
 		//
+		if (filter.getIdentityContractId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.identityContract).get(AbstractEntity_.id), 
+					filter.getIdentityContractId())
+					);
+		}
+		//
 		return predicates;
 	}
 	

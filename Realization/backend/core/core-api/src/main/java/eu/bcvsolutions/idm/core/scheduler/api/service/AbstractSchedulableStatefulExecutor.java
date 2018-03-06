@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.exception.DryRunNotSupportedException;
 
 /**
  * Abstract base class for statefull tasks, which handles common
@@ -112,6 +113,16 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		//
 		removeFromProcessedQueue(dto.getId());
 	}
+	
+	/**
+	 * Returns true, if given task supports dry run mode. Returns {@code true} as default.
+	 * 
+	 * @since 7.8.3
+	 */
+	@Override
+	public boolean supportsDryRun() {
+		return true;
+	}
 
 	private void executeProcess() {
 		Set<UUID> retrievedRefs = new HashSet<>();
@@ -153,6 +164,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		}
 		Optional<OperationResult> result;
 		if (dryRun) {
+			if (!supportsDryRun()) {
+				throw new DryRunNotSupportedException(getName());
+			}
 			// dry run mode - operation is not executed with dry run code (no content)
 			result = Optional.of(new OperationResult
 					.Builder(OperationState.NOT_EXECUTED)
@@ -201,6 +215,5 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	 */
 	protected IdmProcessedTaskItemService getItemService() {
 		return itemService;
-	}
-	
+	}	
 }

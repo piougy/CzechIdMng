@@ -40,6 +40,7 @@ public class Task implements BaseDto {
 	@JsonProperty(access=Access.READ_ONLY)
 	private List<AbstractTaskTrigger> triggers;
 	private Map<String, String> parameters;
+	private boolean supportsDryRun;
 
 	public Task() {
 	}
@@ -118,5 +119,25 @@ public class Task implements BaseDto {
 	
 	public void setInstanceId(String instanceId) {
 		this.instanceId = instanceId;
+	}
+	
+	/**
+	 * Given task supports dry run mode.
+	 * 
+	 * @param supportsDryRun
+	 * @since 7.8.3
+	 */
+	public void setSupportsDryRun(boolean supportsDryRun) {
+		this.supportsDryRun = supportsDryRun;
+	}
+	
+	/**
+	 * Returns true, if given task supports dry run mode.
+	 * 
+	 * @return
+	 * @since 7.8.3
+	 */
+	public boolean isSupportsDryRun() {
+		return supportsDryRun;
 	}
 }

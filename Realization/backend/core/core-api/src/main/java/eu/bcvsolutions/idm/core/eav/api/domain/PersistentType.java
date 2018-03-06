@@ -8,6 +8,7 @@ package eu.bcvsolutions.idm.core.eav.api.domain;
 public enum PersistentType {
 
 	CHAR,
+	SHORTTEXT,
 	TEXT,
 	INT,
 	LONG, 

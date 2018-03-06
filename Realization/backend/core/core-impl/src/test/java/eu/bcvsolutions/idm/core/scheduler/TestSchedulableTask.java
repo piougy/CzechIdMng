@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler;
 
 import java.util.Map;
 
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
  * Test task for {@link DefaultSchedulerManagerIntegrationTest}.

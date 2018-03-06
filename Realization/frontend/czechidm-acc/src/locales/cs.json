@@ -169,12 +169,20 @@
           "startOfHrProcesses": {
             "label": "Po dokončení spustit HR procesy",
             "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy."
+          },
+          "startAutoRoleRec": {
+            "label": "Po dokončení spustit přepočet automatických rolí",
+            "helpBlock": "Po úspešném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
           }
         },
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Výchozí role",
             "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
+          },
+          "startAutoRoleRec": {
+            "label": "Po dokončení spustit přepočet automatických rolí",
+            "helpBlock": "Po úspešném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
           }
         }
       },
@@ -909,6 +917,12 @@
           "IGNORE": "Neúspěšně ignorováno",
           "UNKNOWN": "Neznámý stav"
         }
+      },
+      "statistic": {
+        "label": "Statistiky",
+        "timeDiff": "Doba běhu",
+        "allOperations": "Celkový počet operací",
+        "itemsPerSec": "Počet operací za 1s"
       }
     },
     "SyncActionLog": {

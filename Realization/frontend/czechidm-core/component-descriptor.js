@@ -88,6 +88,14 @@ module.exports = {
       'labelKey': 'core:component.advanced.EavForm.faceType.TEXT'
     },
     {
+      'id': 'short-text-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'SHORTTEXT',
+      'faceType': 'SHORTTEXT',
+      'component': require('./src/components/advanced/Form/ShortTextFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.SHORTTEXT'
+    },
+    {
       'id': 'char-form-value',
       'type': 'form-attribute-renderer',
       'persistentType': 'CHAR',

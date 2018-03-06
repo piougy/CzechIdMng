@@ -19,4 +19,14 @@ public interface SchedulableTaskExecutor<V> extends LongRunningTaskExecutor<V>, 
 	 * @return
 	 */
 	UUID getScheduledTaskId();
+	
+	/**
+	 * Returns true, if given task supports dry run mode. Returns {@code false} as default.
+	 * 
+	 * @return
+	 * @since 7.8.3
+	 */
+	default boolean supportsDryRun() {
+		return false;
+	}
 }

@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
  * Test task executor implementation
@@ -79,4 +79,9 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
 		properties.put(PARAMETER_COUNT, count);
 		return properties;
 	}
+	
+    @Override
+    public boolean supportsDryRun() {
+    	return true;
+    }
 }

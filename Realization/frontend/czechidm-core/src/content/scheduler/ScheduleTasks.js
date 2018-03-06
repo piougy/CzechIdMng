@@ -140,27 +140,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     this.closeDetail();
   }
 
-  onDelete(entity, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs['confirm-delete'].show(
-      this.i18n(`action.delete.message`, { count: 1, record: this.getManager().getNiceLabel(entity) }),
-      this.i18n(`action.delete.header`, { count: 1 })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntity(entity, SchedulerManager.UI_KEY_TASKS, (deletedEntity, error) => {
-        if (!error) {
-          this.addMessage({ message: this.i18n('action.delete.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
-          this.refs.table.getWrappedInstance().reload();
-        } else {
-          this.addError(error);
-        }
-      }));
-    }, () => {
-      // Rejected
-    });
-  }
-
   onRun(entity, event) {
     if (event) {
       event.preventDefault();
@@ -304,6 +283,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           ref="table"
           uiKey="schedule-task-table"
           manager={ manager }
+          showRowSelection={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }
           buttons={
             [
               <Basic.Button
@@ -317,7 +297,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
-          }>
+          }
+          actions={
+            [
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+            ]
+          }
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             className="detail-button"
             cell={
@@ -417,24 +403,15 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   return (
                     <div>
                       <Basic.Button
-                        level="danger"
-                        onClick={this.onDelete.bind(this, data[rowIndex])}
-                        className="btn-xs"
-                        title={this.i18n('button.delete')}
-                        titlePlacement="bottom"
-                        rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }>
-                        <Basic.Icon icon="trash"/>
-                      </Basic.Button>
-                      <Basic.Button
                         level= "info"
                         onClick={this.onDryRun.bind(this, data[rowIndex])}
                         className="btn-xs"
-                        title={this.i18n('button.dryRun')}
+                        title={ data[rowIndex].supportsDryRun ? this.i18n('button.dryRun') : this.i18n('error.SCHEDULER_DRY_RUN_NOT_SUPPORTED.title') }
                         titlePlacement="bottom"
                         style={{ marginLeft: 3 }}
-                        rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }>
-                        <Basic.Icon icon="play"/>
-                      </Basic.Button>
+                        rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+                        disabled={ !data[rowIndex].supportsDryRun }
+                        icon="play"/>
                       <Basic.Button
                         level= "success"
                         onClick={this.onRun.bind(this, data[rowIndex])}
@@ -632,7 +609,8 @@ function select(state) {
     userContext: state.security.userContext,
     supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
     showLoading: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
-    showLoadingDetail: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_TASKS)
+    showLoadingDetail: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_TASKS),
+    _searchParameters: Utils.Ui.getSearchParameters(state, SchedulerManager.UI_KEY_TASKS)
   };
 }
 

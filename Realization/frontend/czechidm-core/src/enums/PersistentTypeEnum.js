@@ -22,6 +22,7 @@ export default class PersistentTypeEnum extends AbstractEnum {
 
 PersistentTypeEnum.CHAR = Symbol('CHAR');
 PersistentTypeEnum.TEXT = Symbol('TEXT');
+PersistentTypeEnum.SHORTTEXT = Symbol('SHORTTEXT');
 PersistentTypeEnum.INT = Symbol('INT');
 PersistentTypeEnum.LONG = Symbol('LONG');
 PersistentTypeEnum.DOUBLE = Symbol('DOUBLE');

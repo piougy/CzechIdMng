@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
@@ -502,6 +503,35 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		//
 		identityService.deleteById(owner.getId());
 		identityService.deleteById(ownerTwo.getId());
+	}
+	
+	@Test
+	@Transactional
+	public void testFindOwnersByShortTextAttributeValue() {
+		IdmIdentityDto owner = helper.createIdentity();
+		IdmIdentityDto ownerTwo = helper.createIdentity();
+		
+		IdmFormAttributeDto shortTextAttr = new IdmFormAttributeDto();
+		String shortTextAttrName = helper.createName();
+		shortTextAttr.setCode(shortTextAttrName);
+		shortTextAttr.setName(shortTextAttrName);
+		shortTextAttr.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormAttributeDto attribute = formService.saveAttribute(owner.getClass(), shortTextAttr);
+		// save values
+		String one = "one";
+		String two = "two";
+		formService.saveValues(owner, attribute, Lists.newArrayList(one));
+		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(two));
+		//
+		Page<? extends Identifiable> owners = formService.findOwners(owner.getClass(), shortTextAttrName, one, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(owner.getId(), owners.getContent().get(0).getId());
+		//
+		owners = formService.findOwners(owner.getClass(), shortTextAttrName, two, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(ownerTwo.getId(), owners.getContent().get(0).getId());
 	}
 	
 	@Test

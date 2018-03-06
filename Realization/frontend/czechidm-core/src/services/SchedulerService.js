@@ -37,7 +37,7 @@ export default class SchedulerService extends AbstractService {
     }
     let label = this.getSimpleTaskType(entity.taskType);
     if (entity.description && showDescription) {
-      label = Utils.Ui.substringByWord(entity.description, 35, '...');
+      label += ` (${Utils.Ui.substringByWord(entity.description, 35, '...')})`;
     }
     return label;
   }

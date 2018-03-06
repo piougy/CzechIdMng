@@ -86,6 +86,4 @@ public class IdmAutomaticRoleAttributeRuleFilter extends DataFilter {
 	public void setComparison(AutomaticRoleAttributeRuleComparison comparison) {
 		this.comparison = comparison;
 	}
-	
-	
 }

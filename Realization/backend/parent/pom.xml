@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.8.2</version>
+	<version>7.8.3</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -439,7 +439,7 @@
 		    <artifactId>opencsv</artifactId>
 		    <version>4.0</version>
 		</dependency>
-		
+
 		<!-- Work with certificate -->
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
@@ -450,7 +450,24 @@
 	</dependencies>
 
 	<build>
-		<plugins>
+		<pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.6</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.wagon</groupId>
+              <artifactId>wagon-ssh</artifactId>
+              <version>2.12</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+		<plugins>		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

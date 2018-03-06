@@ -36,9 +36,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
@@ -284,7 +284,7 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		public Optional<OperationResult> processItem(IdmIdentityDto dto) {
 			IdmProcessedTaskItemFilter f = new IdmProcessedTaskItemFilter();
 			f.setReferencedEntityId(dto.getId());
-			Page<IdmProcessedTaskItemDto> p = itemService.find(f, null);
+			Page<IdmProcessedTaskItemDto> p = getItemService().find(f, null);
 			OperationState s = p.getTotalElements() > 1 ? OperationState.EXECUTED : OperationState.NOT_EXECUTED;
 			return Optional.of(new OperationResult.Builder(s).build());
 		}

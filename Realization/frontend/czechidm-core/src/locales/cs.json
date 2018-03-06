@@ -413,6 +413,7 @@
         "faceType": {
           "CHAR": "$t(enums.PersistentTypeEnum.CHAR)",
           "TEXT": "$t(enums.PersistentTypeEnum.TEXT)",
+          "SHORTTEXT": "$t(enums.PersistentTypeEnum.SHORTTEXT)",
           "INT": "$t(enums.PersistentTypeEnum.INT)",
           "LONG": "$t(enums.PersistentTypeEnum.LONG)",
           "DOUBLE": "$t(enums.PersistentTypeEnum.DOUBLE)",
@@ -517,6 +518,7 @@
     "PersistentTypeEnum": {
       "CHAR": "Znak",
       "TEXT": "Text",
+      "SHORTTEXT": "Krátký text (2000 znaků)",
       "INT": "Integer (celé číslo)",
       "LONG": "Long (celé číslo)",
       "DOUBLE": "Reálné číslo",
@@ -640,7 +642,7 @@
     },
     "AutomaticRoleAttributeRuleTypeEnum": {
       "IDENTITY": "Atribut identity",
-      "IDENITITY_EAV": "Rozšířený atribut identity",
+      "IDENTITY_EAV": "Rozšířený atribut identity",
       "CONTRACT": "Attribut pracovního úvazku",
       "CONTRACT_EAV": "Rozšířený atribut pracovního úvazku"
     },
@@ -3422,6 +3424,14 @@
     "ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED": {
       "title": "Role nelze smazat",
       "message": "Role [{{role}}] nelze smazat, protože je používána v automatických rolích na základě atributu."
+    },
+    "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
+      "title": "Zkušení běh není podporovaný",
+      "message": "Zkušení běh (dry run) pro úlohu [{{taskType}}] není podporovaný."
+    },
+    "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
+      "title": "Typ atributu 'TEXT' není podporován",
+      "message": "Rozšířený atribut typu 'TEXT' není podporován."
     }
   },
   "validationError": {

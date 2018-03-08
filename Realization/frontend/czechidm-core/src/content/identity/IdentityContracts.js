@@ -114,7 +114,10 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                       {
                         data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
                         ?
-                        this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workPosition)
+                        <Advanced.TreeNodeInfo
+                          entity={ data[rowIndex]._embedded.workPosition }
+                          entityIdentifier={ data[rowIndex]._embedded.workPosition.id }
+                          face="popover" />
                         :
                         data[rowIndex].position
                       }
@@ -130,14 +133,13 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <span>
-                      {
                         !data[rowIndex]._embedded || !data[rowIndex]._embedded.workPosition || !data[rowIndex]._embedded.workPosition._embedded
                         ||
-                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workPosition._embedded.treeType)
-                      }
-                    </span>
-                  );
+                        <Advanced.TreeTypeInfo
+                          entity={ data[rowIndex]._embedded.workPosition._embedded.treeType }
+                          entityIdentifier={ data[rowIndex]._embedded.workPosition._embedded.treeType.id }
+                          face="popover" />
+                      );
                 }
               }
             />

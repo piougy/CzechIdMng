@@ -2589,10 +2589,16 @@
       "shortName": "Název",
       "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazený prvek"
+          "name": "Nadřazený prvek",
+          "false": "Nemá předka"
       },
       "treeType": {
         "name": "Typ struktury"
+      },
+      "defaultTreeNode": {
+        "label": "Výchozí prvek struktury",
+        "true": "Ano",
+        "false": "Ne"
       }
     },
     "TreeType": {
@@ -2601,7 +2607,9 @@
       "name": "Název",
       "defaultTreeType": {
         "label": "Výchozí struktura",
-        "help": "Tento typ struktury bude použit jako výchozí organizační struktura."
+        "help": "Tento typ struktury bude použit jako výchozí organizační struktura.",
+        "true": "Ano",
+        "false": "Ne"
       },
       "defaultTreeNode": {
         "label": "Výchozí prvek struktury",

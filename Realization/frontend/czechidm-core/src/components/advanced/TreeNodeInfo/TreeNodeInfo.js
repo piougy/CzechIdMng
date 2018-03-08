@@ -1,12 +1,10 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
-import * as Basic from '../../basic';
-import { TreeNodeManager, SecurityManager } from '../../../redux/';
-import UuidInfo from '../UuidInfo/UuidInfo';
+import { TreeNodeManager, SecurityManager, DataManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import TreeTypeInfo from '../TreeTypeInfo/TreeTypeInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new TreeNodeManager();
 
@@ -16,11 +14,17 @@ const manager = new TreeNodeManager();
  *
  * @author Radek Tomiška (main component)
  * @author Ondrej Kopr
+ * @author Patrik Stloukal
  */
 export class TreeNodeInfo extends AbstractEntityInfo {
 
   constructor(props, context) {
     super(props, context);
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.context.store.dispatch(this.getManager().fetchDefaultTreeNode());
   }
 
   getManager() {
@@ -48,41 +52,63 @@ export class TreeNodeInfo extends AbstractEntityInfo {
     return `/tree/nodes/${entityIdentifier}/detail`;
   }
 
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
-    //
-    if (!rendered) {
-      return null;
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'apple';
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('entity.TreeNode._type');
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    const { defaultTreeNode } = this.props;
+    let id;
+    if (defaultTreeNode !== null) {
+      id = defaultTreeNode.id;
     }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    const classNames = classnames(
-      'tree-node-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+    return [
+      {
+        label: this.i18n('entity.TreeNode.name'),
+        value: entity.name
+      },
+      {
+        label: this.i18n('entity.TreeNode.code'),
+        value: entity.code
+      },
+      {
+        label: this.i18n('entity.TreeNode.parent.name'),
+        value: entity.parent === null ? this.i18n('entity.TreeNode.parent.false') :
+        <EntityInfo entityType="treeNode" entityIdentifier={ entity.parent } face="link" />
+      },
+      {
+        label: this.i18n('entity.TreeNode.treeType.name'),
+        value: !entity._embedded
+        ||
+        <TreeTypeInfo
+          entity={ entity._embedded.treeType }
+          entityIdentifier={ entity._embedded.treeType.id }
+          face="popover" />
+      },
+      {
+        label: this.i18n('entity.TreeNode.defaultTreeNode.label'),
+        value: id === entity.id ? this.i18n('entity.TreeNode.defaultTreeNode.true') : this.i18n('entity.TreeNode.defaultTreeNode.false')
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={ this.getLink() }>{manager.getNiceLabel(_entity)}</Link>
-    );
+    ];
   }
 }
 
@@ -100,17 +126,20 @@ TreeNodeInfo.propTypes = {
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  defaultTreeNode: PropTypes.object
 };
 TreeNodeInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'link',
   _showLoading: true,
+  defaultTreeNode: null
 };
 
 function select(state, component) {
   return {
+    defaultTreeNode: DataManager.getData(state, TreeNodeManager.UI_KEY_DEFAULT_TREE_NODE),
     _entity: manager.getEntity(state, component.entityIdentifier),
     _showLoading: manager.isShowLoading(state, null, component.entityIdentifier)
   };

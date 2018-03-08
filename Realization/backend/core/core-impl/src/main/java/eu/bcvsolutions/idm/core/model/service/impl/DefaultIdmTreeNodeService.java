@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
@@ -71,6 +72,7 @@ public class DefaultIdmTreeNodeService
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
 	private final IdmTreeNodeForestContentService forestContentService;
+	private final TreeConfiguration treeConfiguration;
 
 	@Autowired
 	public DefaultIdmTreeNodeService(
@@ -82,7 +84,8 @@ public class DefaultIdmTreeNodeService
 		EntityEventManager entityEventManager,
 		IdmIdentityContractRepository identityContractRepository,
 		DefaultBaseTreeService<IdmTreeNode> baseTreeService,
-		IdmTreeNodeForestContentService forestContentService) {
+		IdmTreeNodeForestContentService forestContentService,
+		TreeConfiguration treeConfiguration) {
 		super(treeNodeRepository, entityEventManager, formService);
 		//
 		Assert.notNull(treeTypeService);
@@ -99,6 +102,7 @@ public class DefaultIdmTreeNodeService
 		this.identityContractRepository = identityContractRepository;
 		this.baseTreeService = baseTreeService;
 		this.forestContentService = forestContentService;
+		this.treeConfiguration = treeConfiguration;
 	}
 	
 	@Override
@@ -185,7 +189,10 @@ public class DefaultIdmTreeNodeService
 		configurationService.setValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD), longRunningTaskId.toString());
 		return longRunningTaskId;
 	}
-
+	
+	public IdmTreeNodeDto getDefaultTreeNode() {
+		return treeConfiguration.getDefaultNode();
+	}
 
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmTreeNode> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmTreeNodeFilter filter) {

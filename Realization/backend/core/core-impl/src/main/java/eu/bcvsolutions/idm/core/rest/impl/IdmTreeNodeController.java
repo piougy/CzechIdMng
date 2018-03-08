@@ -462,6 +462,36 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
 	}
 	
+	/**
+	 * Returns default tree node or {@code null}, if no default tree node is defined
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value= "/search/default", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_AUTOCOMPLETE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Get default tree node detail", 
+			nickname = "getDefaultTreeNode", 
+			response = IdmTreeNodeDto.class, 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+					})
+	public ResponseEntity<?> getDefaultTreeNode() {
+		IdmTreeNodeDto defaultTreeNode = treeNodeService.getDefaultTreeNode();
+		if (defaultTreeNode == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "default tree type"));
+		}
+		return new ResponseEntity<>(toResource(defaultTreeNode), HttpStatus.OK);
+	}
+	
 	@Override
 	protected IdmTreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter(parameters);

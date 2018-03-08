@@ -17,6 +17,11 @@ class BackendModules extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      detail: {
+        show: false
+      }
+    };
     this.backendModuleManager = new BackendModuleManager();
   }
 
@@ -37,7 +42,8 @@ class BackendModules extends Basic.AbstractContent {
       this.i18n(`action.${enable ? '' : 'de'}activate.message`, { count: 1, record: entity.name }),
       this.i18n(`action.${enable ? '' : 'de'}activate.header`, { count: 1 })
     ).then(() => {
-      this.context.store.dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
+      this.context.store.
+      dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: entity.name }) });
           // reload is needed - rotes could be disabled too
@@ -51,8 +57,33 @@ class BackendModules extends Basic.AbstractContent {
     });
   }
 
+  /**
+  * Show modal window
+  */
+  showReturnCodes(moduleId) {
+    this.backendModuleManager.getReturnCodes(moduleId);
+
+    const { detail } = this.state;
+    detail.show = true;
+    this.setState({
+      ...detail
+    });
+  }
+
+  _closeModal(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const { detail } = this.state;
+    detail.show = false;
+    this.setState({
+      ...detail
+    });
+  }
+
   render() {
     const { installedModules, showLoading } = this.props;
+    const { detail } = this.state;
 
     const _installedModules = [];
     if (installedModules) {
@@ -70,6 +101,15 @@ class BackendModules extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
 
+        <Basic.Modal show={detail.show} showLoading={detail.showLoading} onHide={this._closeModal.bind(this)}>
+          <Basic.Modal.Header text={this.i18n('return-codes.title')} />
+          <Basic.Modal.Body>
+
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
         <Basic.Table
           data={_installedModules}
           showLoading={showLoading}
@@ -106,6 +146,7 @@ class BackendModules extends Basic.AbstractContent {
           <Basic.Column
             property="documentation"
             header={this.i18n('entity.Module.documentation')}
+            width="250px"
             cell={
               /* eslint-disable react/no-multi-comp */
               ({rowIndex, data}) => {
@@ -123,6 +164,14 @@ class BackendModules extends Basic.AbstractContent {
                     <Basic.Link
                       href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` }
                       text="Html"
+                      style={{ marginRight: 5 }}/>
+                  );
+                  links.push(
+                    <Basic.Button
+                      level="success"
+                      className="btn-xs"
+                      onClick={this.showResultCodes.bind(this, moduleDescriptor.id)}
+                      text={'Return Codes'}
                       style={{ marginRight: 5 }}/>
                   );
                 }

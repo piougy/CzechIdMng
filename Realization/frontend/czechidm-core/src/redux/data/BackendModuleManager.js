@@ -78,6 +78,16 @@ export default class BackendModuleManager extends EntityManager {
       });
     };
   }
+
+  getReturnCodes(moduleId) {
+    if (!moduleId) {
+      return null;
+    }
+    this.getService().getReturnCodes(moduleId)
+    .then(json => {
+      console.log(JSON.stringify(json, null, 4));
+    });
+  }
 }
 
 BackendModuleManager.UI_KEY_MODULES = 'installed-modules';

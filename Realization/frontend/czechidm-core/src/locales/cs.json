@@ -1930,7 +1930,10 @@
       },
       "be-modules": {
         "header": "Moduly <small>backend</small>",
-        "title": "Moduly (backend)"
+        "title": "Moduly (backend)",
+        "return-codes": {
+          "title": "Seznam stavových kódů"
+        }
       },
       "entity-event-processors": {
         "header": "Processory",

@@ -24,6 +24,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -239,7 +241,30 @@ public class ModuleController {
 			@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, false);
 	}
-	
+
+	@ResponseBody
+	@RequestMapping(value = "/{moduleId}/result-codes", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_READ + "')")
+	@ApiOperation(
+			value = "Get result codes",
+			nickname = "resultCodes",
+			tags = { ModuleController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") })
+			})
+	public List<DefaultResultModel> resultCodes(
+			@ApiParam(value = "Module's identifier", required = true)
+			@PathVariable @NotNull String moduleId) {
+		//TODO return result codes for module
+		return moduleService.getModule(moduleId).getResultCodes()
+			.stream()
+			.map(resultCode -> new DefaultResultModel(resultCode))
+			.collect(Collectors.toList());
+	}
+
 	/**
 	 * TODO: resource support + self link
 	 * 
@@ -253,4 +278,5 @@ public class ModuleController {
 		dto.setDisabled(!moduleService.isEnabled(moduleDescriptor));
 		return dto;
 	}
+
 }

@@ -1888,7 +1888,10 @@
       },
       "be-modules": {
         "header": "Modules <small>backend</small>",
-        "title": "Modules (backend)"
+        "title": "Modules (backend)",
+        "return-codes": {
+          "title": "List of response codes"
+        }
       },
       "entity-event-processors": {
         "header": "Processors",

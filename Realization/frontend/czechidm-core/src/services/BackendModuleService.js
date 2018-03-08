@@ -61,4 +61,24 @@ export default class BackendModuleService extends AbstractService {
       return json;
     });
   }
+
+  getReturnCodes(moduleId) {
+    return RestApiService
+      .get(this.getApiPath() + `/${moduleId}/result-codes`)
+      .then(response => {
+        if (response.status === 204) {
+          return {
+            id: moduleId
+          };
+        }
+        console.log(JSON.stringify(response, null, 4));
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
 }

@@ -103,6 +103,9 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 				.stream()//
 				.map(IdmIdentityRoleDto::getRole)//
 				.collect(Collectors.toSet());
+		if(roles.isEmpty()) {
+			roles.add(UUID.randomUUID());
+		}
 
 		// System implementer subquery
 		Subquery<VsSystemImplementer> subquery = query.subquery(VsSystemImplementer.class);

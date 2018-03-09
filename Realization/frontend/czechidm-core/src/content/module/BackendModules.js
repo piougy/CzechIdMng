@@ -99,6 +99,7 @@ class BackendModules extends Basic.AbstractContent {
       return one.id > two.id;
     });
 
+    // TODO sort by status number and then by code
     const _resultCodes = [];
     if (resultCodes) {
       resultCodes.forEach(resultCode => {

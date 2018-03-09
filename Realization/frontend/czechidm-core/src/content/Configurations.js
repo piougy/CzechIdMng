@@ -129,17 +129,37 @@ class Configurations extends Advanced.AbstractTableContent {
     }
   }
 
+  _forceSave() {
+    const entity = this.refs.form.getData();
+    this.context.store.dispatch(this.getManager().fetchEntity(entity.name, entity.name, (entityBackend) => {
+      this.refs['confirm-task-save'].show(
+        this.i18n(`content.configuration.forceSave.message`, { name: entityBackend.name, value: entityBackend.value }),
+        this.i18n(`content.configuration.forceSave.header`)
+      ).then(() => {
+        entityBackend.value = entity.value;
+        this.context.store.dispatch(this.getManager().updateEntity(entityBackend, `${uiKey}-detail`, this._afterSave.bind(this)));
+      }, () => {
+        this.closeDetail();
+      });
+    }));
+  }
+
   _afterSave(entity, error) {
     if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
-      return;
+      if (error.statusCode === 409) {
+        this._forceSave();
+      } else {
+        this.refs.form.processEnded();
+        this.addError(error);
+        return;
+      }
+    } else {
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      this.closeDetail();
+      this.refs.table.getWrappedInstance().reload();
+      // reload public configurations
+      this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
     }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
-    this.refs.table.getWrappedInstance().reload();
-    // reload public configurations
-    this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
 
   _changeName(event) {
@@ -230,6 +250,7 @@ class Configurations extends Advanced.AbstractTableContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-task-save" level="danger"/>
 
         <Basic.PageHeader>
           <Basic.Icon value="cog"/>
@@ -383,6 +404,22 @@ class Configurations extends Advanced.AbstractTableContent {
             data={fileConfigurations}
             showLoading={_fileConfigurationsShowLoading}
             noData={this.i18n('component.basic.Table.noData')}>
+            <Basic.Column
+              property=""
+              header=""
+              className="edit-button"
+              width="20px"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Basic.Button
+                      title={this.i18n('button.edit')}
+                      className="btn-xs"
+                      icon={'fa:pencil'}
+                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                  );
+                }
+              }/>
             <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
             <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
             <Basic.Column

@@ -258,7 +258,6 @@ public class ModuleController {
 	public List<DefaultResultModel> resultCodes(
 			@ApiParam(value = "Module's identifier", required = true)
 			@PathVariable @NotNull String moduleId) {
-		//TODO return result codes for module
 		return moduleService.getModule(moduleId).getResultCodes()
 			.stream()
 			.map(resultCode -> new DefaultResultModel(resultCode))

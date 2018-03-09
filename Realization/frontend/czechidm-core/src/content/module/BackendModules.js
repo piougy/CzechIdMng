@@ -60,9 +60,13 @@ class BackendModules extends Basic.AbstractContent {
   /**
   * Show modal window
   */
-  showReturnCodes(moduleId) {
-    this.backendModuleManager.getReturnCodes(moduleId);
-
+  showResultCodes(moduleId) {
+    this.context.store.dispatch(this.backendModuleManager.getResultCodes(moduleId, (error) => {
+      if (error) {
+        this.addError(error);
+      }
+    }));
+    console.log('show modal');
     const { detail } = this.state;
     detail.show = true;
     this.setState({
@@ -82,7 +86,7 @@ class BackendModules extends Basic.AbstractContent {
   }
 
   render() {
-    const { installedModules, showLoading } = this.props;
+    const { installedModules, showLoading, resultCodes } = this.props;
     const { detail } = this.state;
 
     const _installedModules = [];
@@ -95,6 +99,13 @@ class BackendModules extends Basic.AbstractContent {
       return one.id > two.id;
     });
 
+    const _resultCodes = [];
+    if (resultCodes) {
+      resultCodes.forEach(resultCode => {
+        _resultCodes.push(resultCode);
+      });
+    }
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -102,9 +113,16 @@ class BackendModules extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-activate" level="success"/>
 
         <Basic.Modal show={detail.show} showLoading={detail.showLoading} onHide={this._closeModal.bind(this)}>
-          <Basic.Modal.Header text={this.i18n('return-codes.title')} />
+          <Basic.Modal.Header text={this.i18n('result-codes.title')} />
           <Basic.Modal.Body>
-
+            <Basic.Table
+              data={_resultCodes}
+              noData={this.i18n('component.basic.Table.noData')}
+              rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
+              <Basic.Column property="statusCode" header={this.i18n('result-codes.status')}/>
+              <Basic.Column property="status" header={this.i18n('result-codes.code')}/>
+              <Basic.Column property="message" header={this.i18n('result-codes.message')}/>
+            </Basic.Table>
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
@@ -171,7 +189,7 @@ class BackendModules extends Basic.AbstractContent {
                       level="success"
                       className="btn-xs"
                       onClick={this.showResultCodes.bind(this, moduleDescriptor.id)}
-                      text={'Return Codes'}
+                      text={ this.i18n('result-codes.button-show') }
                       style={{ marginRight: 5 }}/>
                   );
                 }
@@ -225,19 +243,22 @@ class BackendModules extends Basic.AbstractContent {
 BackendModules.propTypes = {
   userContext: PropTypes.object,
   installedModules: PropTypes.object,
-  showLoading: PropTypes.bool
+  showLoading: PropTypes.bool,
+  resultCodes: PropTypes.object
 };
 BackendModules.defaultProps = {
   userContext: null,
   installedModules: null,
-  showLoading: true
+  showLoading: true,
+  resultCodes: null
 };
 
 function select(state) {
   return {
     userContext: state.security.userContext,
     installedModules: DataManager.getData(state, BackendModuleManager.UI_KEY_MODULES),
-    showLoading: Utils.Ui.isShowLoading(state, BackendModuleManager.UI_KEY_MODULES)
+    showLoading: Utils.Ui.isShowLoading(state, BackendModuleManager.UI_KEY_MODULES),
+    resultCodes: DataManager.getData(state, BackendModuleManager.UI_KEY_RESULT_CODES)
   };
 }
 

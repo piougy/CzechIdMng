@@ -1931,8 +1931,12 @@
       "be-modules": {
         "header": "Moduly <small>backend</small>",
         "title": "Moduly (backend)",
-        "return-codes": {
-          "title": "Seznam stavových kódů"
+        "result-codes": {
+          "button-show": "Stavové kódy",
+          "title": "Seznam stavových kódů",
+          "status": "Stav",
+          "code": "Kód",
+          "message": "Zpráva"
         }
       },
       "entity-event-processors": {

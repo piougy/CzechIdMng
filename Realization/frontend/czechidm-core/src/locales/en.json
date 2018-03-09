@@ -1889,8 +1889,12 @@
       "be-modules": {
         "header": "Modules <small>backend</small>",
         "title": "Modules (backend)",
-        "return-codes": {
-          "title": "List of response codes"
+        "result-codes": {
+          "button-show": "Result codes",
+          "title": "List of result codes",
+          "status": "Status",
+          "code": "Code",
+          "message": "Message"
         }
       },
       "entity-event-processors": {

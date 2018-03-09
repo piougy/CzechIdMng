@@ -62,7 +62,7 @@ export default class BackendModuleService extends AbstractService {
     });
   }
 
-  getReturnCodes(moduleId) {
+  getResultCodes(moduleId) {
     return RestApiService
       .get(this.getApiPath() + `/${moduleId}/result-codes`)
       .then(response => {
@@ -71,7 +71,6 @@ export default class BackendModuleService extends AbstractService {
             id: moduleId
           };
         }
-        console.log(JSON.stringify(response, null, 4));
         return response.json();
       })
       .then(json => {

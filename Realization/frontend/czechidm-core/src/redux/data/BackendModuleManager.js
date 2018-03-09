@@ -79,17 +79,32 @@ export default class BackendModuleManager extends EntityManager {
     };
   }
 
-  getReturnCodes(moduleId) {
+  /**
+   * Get result codes for module
+   * @param {string} moduleId
+   */
+  getResultCodes(moduleId, cb = null) {
     if (!moduleId) {
       return null;
     }
-    this.getService().getReturnCodes(moduleId)
-    .then(json => {
-      console.log(JSON.stringify(json, null, 4));
-    });
+    const uiKey = BackendModuleManager.UI_KEY_RESULT_CODES;
+    return (dispatch, getState) => {
+      this.getService().getResultCodes(moduleId)
+      .then(json => {
+        let resultCodes = new Immutable.Map();
+        json.forEach(item => {
+          resultCodes = resultCodes.set(item.id, item);
+        });
+        dispatch(this.dataManager.receiveData(uiKey, resultCodes));
+      })
+      .catch(error => {
+        dispatch(this.receiveError({ id: moduleId }, uiKey, error, cb));
+      });
+    };
   }
 }
 
 BackendModuleManager.UI_KEY_MODULES = 'installed-modules';
 BackendModuleManager.CODE_MODULE_ID = 'core';
 BackendModuleManager.APP_MODULE_ID = 'app';
+BackendModuleManager.UI_KEY_RESULT_CODES = 'result-codes';

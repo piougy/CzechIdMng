@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [8.0.0 - unreleased]
 
 - Detail of user - frontend validation that required at least 3 characters for the user name was removed.
+- [#979](https://redmine.czechidm.com/issues/979) - Attribute modified from AbstractEntity isn't audited more. Modified date can be found in IdmAudit as revision timestamp.
 
 ## [7.8.3]
 - [#1005](https://redmine.czechidm.com/issues/1005) - Dry run is available for long running task which supports it.

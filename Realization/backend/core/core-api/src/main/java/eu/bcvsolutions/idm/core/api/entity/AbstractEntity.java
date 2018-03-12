@@ -51,7 +51,6 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@JsonProperty(access = Access.READ_ONLY)
 	private DateTime created;
 
-	@Audited
 	@LastModifiedDate
 	@Column(name = "modified")
 	@JsonProperty(access = Access.READ_ONLY)

@@ -49,7 +49,7 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 						+ "OR "
 						+ "("
 							+ "lower(e.modifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
-							+ "AND "
+							+ "OR "
 							+ "lower(e.originalModifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
 						+ ")"
 					+ ")"

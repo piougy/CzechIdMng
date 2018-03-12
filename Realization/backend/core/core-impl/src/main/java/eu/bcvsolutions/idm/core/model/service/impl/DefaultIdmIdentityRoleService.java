@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -106,7 +107,7 @@ public class DefaultIdmIdentityRoleService
 			} else {
 				baseDto = lookupService.getDtoService(IdmRoleTreeNodeDto.class).get(automaticRole.getId());
 			}
-			embedded.put("roleTreeNode", baseDto);
+			embedded.put(IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, baseDto);
 			dto.setEmbedded(embedded);
 		}
 		//

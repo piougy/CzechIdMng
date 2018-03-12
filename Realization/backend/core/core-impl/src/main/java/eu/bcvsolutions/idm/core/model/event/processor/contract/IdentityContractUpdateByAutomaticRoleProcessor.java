@@ -89,7 +89,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			// remove all automatic roles by attribute
 			if (!assignedRoles.isEmpty()) {
 				assignedRoles = assignedRoles.stream().filter(autoRole -> {
-					AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class);
+					AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class, null);
 					if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
 						return true;
 					}

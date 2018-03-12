@@ -30,6 +30,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -1513,7 +1515,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		for (IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
-			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class);
+			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class, null);
 			assertEquals(automaticRole, embedded);
 			assertEquals(role.getId(), embedded.getRole());
 			assertEquals(role.getId(), identityRole.getRole());
@@ -1524,6 +1526,25 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		identityRoles = identityRoleService.findAllByContract(contract3.getId());
 		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testUpdateWithoutAutomaticRoles() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		
+		IdmRoleDto basicRole = testHelper.createRole();
+		testHelper.assignRoles(primeContract, basicRole);
+		
+		IdmTreeTypeDto type = testHelper.createTreeType();
+		IdmTreeNodeDto node = testHelper.createTreeNode(type, null);
+		
+		primeContract.setWorkPosition(node.getId());
+		identity.setDescription(String.valueOf(System.currentTimeMillis()));
+		
+		identityContractService.save(primeContract);
+		
+		identityService.save(identity);
 	}
 	
 	private void waitForTaskWithRecalculation(IdmAutomaticRoleAttributeDto automaticRole) throws InterruptedException {

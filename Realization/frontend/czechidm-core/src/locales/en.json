@@ -613,7 +613,7 @@
     },
     "AutomaticRoleAttributeRuleTypeEnum": {
       "IDENTITY": "Identity attribute",
-      "IDENITITY_EAV": "Extended attribute of identity",
+      "IDENTITY_EAV": "Extended attribute of identity",
       "CONTRACT": "Contract attribute",
       "CONTRACT_EAV": "Extended attribute of contract"
     },
@@ -3382,6 +3382,10 @@
     "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
       "title": "Dry run is not supported",
       "message": "Dry run (demo process) is not supported for task type [{{taskType}}]."
+    },
+    "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
+      "title": "Attribute type 'TEXT' is not supported",
+      "message": "Extended attribute type 'TEXT' is not supported."
     }
   },
   "validationError": {

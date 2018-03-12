@@ -1,12 +1,18 @@
 package eu.bcvsolutions.idm.test.api;
 
+import java.io.Serializable;
 import java.util.UUID;
 import java.util.function.Function;
 
 import org.joda.time.LocalDate;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -20,6 +26,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -405,4 +413,48 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmScheduledTaskDto createSchedulableTask();
+	
+	/**
+	 * Create eav attribute, wit given code, owner class and type
+	 * 
+	 * @param code
+	 * @param clazz
+	 * @param type
+	 * @return
+	 */
+	IdmFormAttributeDto createEavAttribute(String code, Class<? extends Identifiable> clazz, PersistentType type);
+	
+	/**
+	 * Save value to eav with code
+	 * 
+	 * @param ownerId
+	 * @param code
+	 * @param clazz
+	 * @param value
+	 */
+	void setEavValue(Identifiable owner, IdmFormAttributeDto attribute, Class<? extends Identifiable> clazz, Serializable value, PersistentType type);
+	
+	/**
+	 * Method create new automatic role by attribute for role id
+	 * 
+	 * @param roleId
+	 * @return
+	 */
+	IdmAutomaticRoleAttributeDto createAutomaticRole(UUID roleId);
+	
+	/**
+	 * Create new rule with given informations. See params.
+	 * And remove concept state from automatic role by attribute, without recalculation!
+	 * 
+	 * @param automaticRoleId
+	 * @param comparsion
+	 * @param type
+	 * @param attrName
+	 * @param formAttrId
+	 * @param value
+	 * @return
+	 */
+	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
+			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
+			UUID formAttrId, String value);
 }

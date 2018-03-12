@@ -9,22 +9,21 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
- * Long connector property converter
- * 
- * @author Radek Tomiška
+ * Double connector property converter
+ *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Component
-public class LongFormPropertyConverter extends AbstractFormPropertyConverter {
+public class DoubleFormPropertyConverter extends AbstractFormPropertyConverter {
 
 	@Override
 	public Set<String> getConnectorPropertyTypes() {
-		return Sets.newHashSet("java.lang.Long", "long");
+		return Sets.newHashSet("java.math.BigDecimal", "java.lang.Double", "double");
 	}
 
 	@Override
 	public PersistentType getFormPropertyType() {
-		return PersistentType.LONG;
+		return PersistentType.DOUBLE;
 	}
-
 }

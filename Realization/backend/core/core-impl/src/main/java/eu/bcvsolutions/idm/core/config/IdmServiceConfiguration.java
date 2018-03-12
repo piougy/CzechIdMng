@@ -495,8 +495,8 @@ public class IdmServiceConfiguration {
 				automaticRoleAttributeRuleService,
 				identityRoleService,
 				entityManager,
-				identityRepository,
-				longRunningTaskManager());
+				longRunningTaskManager(),
+				identityContractRepository);
 	}
 	
 	@Bean

@@ -46,13 +46,18 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
+		// skip recalculation
+		if (this.getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties())) {
+			return new DefaultEventResult<>(event, this);
+		}
+		//
 		IdmIdentityContractDto identityContract = event.getContent();
-		UUID identityId = identityContract.getIdentity();
+		UUID contractId = identityContract.getId();
 		//
 		// resolve automatic role by attribute
-		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNewPassedAutomaticRoleForIdentity(identityId);
-		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForIdentity = automaticRoleAttributeService.getAllNotPassedAutomaticRoleForIdentity(identityId);
-		automaticRoleAttributeService.processAutomaticRolesForIdentity(identityId, allNewPassedAutomaticRoleForIdentity, allNotPassedAutomaticRoleForIdentity);
+		Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, null, contractId);
+		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, null, contractId);
+		automaticRoleAttributeService.processAutomaticRolesForContract(contractId, allNewPassedAutomaticRoleForContract, allNotPassedAutomaticRoleForContract);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

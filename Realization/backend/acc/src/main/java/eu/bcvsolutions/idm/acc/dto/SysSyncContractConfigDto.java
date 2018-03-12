@@ -31,6 +31,11 @@ public class SysSyncContractConfigDto extends AbstractSysSyncConfigDto {
 	private UUID defaultLeader;
 	
 	private boolean startOfHrProcesses = true;
+	
+	/*
+	 * Start recalculation after end synchronization for automatic roles by attribute
+	 */
+	private boolean startAutoRoleRec = true;
 
 	public UUID getDefaultTreeType() {
 		return defaultTreeType;
@@ -62,6 +67,14 @@ public class SysSyncContractConfigDto extends AbstractSysSyncConfigDto {
 
 	public void setStartOfHrProcesses(boolean startOfHrProcesses) {
 		this.startOfHrProcesses = startOfHrProcesses;
+	}
+
+	public boolean isStartAutoRoleRec() {
+		return startAutoRoleRec;
+	}
+
+	public void setStartAutoRoleRec(boolean startAutoRoleRec) {
+		this.startAutoRoleRec = startAutoRoleRec;
 	}
 
 }

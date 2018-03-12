@@ -129,10 +129,13 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   _getForceSearchParameters() {
-    const { username } = this.props;
+    const { username, id } = this.props;
     let forceSearchParameters = new SearchParameters('entity').setFilter('entityClass', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity'); // TODO: this isn't best way, hard writen class
     if (username) {
       forceSearchParameters = forceSearchParameters.setFilter('username', username);
+    }
+    if (id) {
+      forceSearchParameters = forceSearchParameters.setFilter('id', id);
     }
     return forceSearchParameters;
   }
@@ -242,7 +245,8 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
 AuditIdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   username: PropTypes.string,
-  singleUserMod: PropTypes.boolean
+  singleUserMod: PropTypes.boolean,
+  id: PropTypes.string
 };
 
 AuditIdentityTable.defaultProps = {

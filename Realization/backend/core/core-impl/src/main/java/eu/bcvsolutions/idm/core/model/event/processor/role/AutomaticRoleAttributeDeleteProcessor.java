@@ -15,6 +15,13 @@ import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent.Automati
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 
+/**
+ * Delete all assigned roles gained by this automatic role and role itself
+ *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 @Component
 @Description("Delete automatic role by attribute.")
 public class AutomaticRoleAttributeDeleteProcessor extends CoreEventProcessor<IdmAutomaticRoleAttributeDto> {

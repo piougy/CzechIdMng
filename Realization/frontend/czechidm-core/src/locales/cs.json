@@ -642,7 +642,7 @@
     },
     "AutomaticRoleAttributeRuleTypeEnum": {
       "IDENTITY": "Atribut identity",
-      "IDENITITY_EAV": "Rozšířený atribut identity",
+      "IDENTITY_EAV": "Rozšířený atribut identity",
       "CONTRACT": "Attribut pracovního úvazku",
       "CONTRACT_EAV": "Rozšířený atribut pracovního úvazku"
     },
@@ -3428,6 +3428,10 @@
     "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
       "title": "Zkušení běh není podporovaný",
       "message": "Zkušení běh (dry run) pro úlohu [{{taskType}}] není podporovaný."
+    },
+    "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
+      "title": "Typ atributu 'TEXT' není podporován",
+      "message": "Rozšířený atribut typu 'TEXT' není podporován."
     }
   },
   "validationError": {

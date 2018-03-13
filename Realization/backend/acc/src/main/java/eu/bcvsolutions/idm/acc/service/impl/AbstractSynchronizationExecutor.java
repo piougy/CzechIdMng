@@ -25,8 +25,8 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -1132,6 +1132,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			initSyncActionLog(SynchronizationActionType.LINK_AND_UPDATE_ACCOUNT, OperationResultType.SUCCESS, logItem,
 					log, actionLogs);
 			return;
+		case LINK_AND_UPDATE_ENTITY:
+			// Create idm account
+			doCreateLink(entity, false, context);
+			doUpdateEntity(context);
+			initSyncActionLog(SynchronizationActionType.LINK_AND_UPDATE_ENTITY, OperationResultType.SUCCESS, logItem,
+					log, actionLogs);
+			return;
 
 		}
 	}
@@ -2007,7 +2014,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Create new entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccount(account, dto, context);
 		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
-
+		context.addAccount(accountService.get(entityAccount.getAccount()));
+		
 		String entityIdentification = dto.getId().toString();
 		if (dto instanceof Codeable) {
 			entityIdentification = ((Codeable) dto).getCode();

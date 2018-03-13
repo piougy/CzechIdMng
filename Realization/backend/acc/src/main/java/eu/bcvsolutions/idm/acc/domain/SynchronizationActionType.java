@@ -12,6 +12,7 @@ public enum SynchronizationActionType {
 	UPDATE_ENTITY, 
 	DELETE_ENTITY,
 	LINK_AND_UPDATE_ACCOUNT, //create link and produce entity save event (call provisioning)
+	LINK_AND_UPDATE_ENTITY, // create link, update entity and update uid
 	LINK,
 	UNLINK,
 	UNLINK_AND_REMOVE_ROLE,

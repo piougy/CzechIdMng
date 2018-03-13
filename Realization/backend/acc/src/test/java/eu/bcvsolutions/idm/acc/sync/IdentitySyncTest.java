@@ -2,10 +2,8 @@ package eu.bcvsolutions.idm.acc.sync;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.fail;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -61,7 +59,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
-import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
@@ -74,7 +71,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -82,9 +78,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -586,6 +579,74 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		assertEquals(0, size);
 		size = testIdentityProcessor.getRolesByUsername(user3).size();
 		assertEquals(0, size);
+	}
+	
+	@Test
+	public void testLinkAndUpdateIdentity() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		this.getBean().deleteAllResourceData();
+		
+		String testLastName = "test-last-name-same-" + System.currentTimeMillis();
+		String testFirstName = "test-first-name-";
+		
+		String user1 = "test-1-" + System.currentTimeMillis();
+		IdmIdentityDto identity1 = helper.createIdentity(user1);
+		this.getBean().setTestData(user1, testFirstName + 1, testLastName);
+		
+		String user2 = "test-2-" + System.currentTimeMillis();
+		IdmIdentityDto identity2 = helper.createIdentity(user2);
+		this.getBean().setTestData(user2, testFirstName + 2, testLastName);
+		
+		String user3 = "test-3-" + System.currentTimeMillis();
+		IdmIdentityDto identity3 = helper.createIdentity(user3);
+		this.getBean().setTestData(user3, testFirstName + 3, testLastName);
+		
+		assertNotEquals(testFirstName + 1, identity1.getFirstName());
+		assertNotEquals(testFirstName + 2, identity2.getFirstName());
+		assertNotEquals(testFirstName + 3, identity3.getFirstName());
+		
+		assertNotEquals(testLastName, identity1.getLastName());
+		assertNotEquals(testLastName, identity2.getLastName());
+		assertNotEquals(testLastName, identity3.getLastName());
+		
+		testIdentityProcessor.enable();
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 3,
+				OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto updatedIdentity1 = identityService.getByUsername(user1);
+		IdmIdentityDto updatedIdentity2 = identityService.getByUsername(user2);
+		IdmIdentityDto updatedIdentity3 = identityService.getByUsername(user3);
+		
+		assertNotEquals(updatedIdentity1.getFirstName(), identity1.getFirstName());
+		assertNotEquals(updatedIdentity2.getFirstName(), identity2.getFirstName());
+		assertNotEquals(updatedIdentity3.getFirstName(), identity3.getFirstName());
+		
+		assertNotEquals(updatedIdentity1.getLastName(), identity1.getLastName());
+		assertNotEquals(updatedIdentity2.getLastName(), identity2.getLastName());
+		assertNotEquals(updatedIdentity3.getLastName(), identity3.getLastName());
+		
+		assertNotEquals(updatedIdentity1.getModified(), identity1.getModified());
+		assertNotEquals(updatedIdentity2.getModified(), identity2.getModified());
+		assertNotEquals(updatedIdentity3.getModified(), identity3.getModified());
+		
+		assertEquals(testFirstName + 1, updatedIdentity1.getFirstName());
+		assertEquals(testFirstName + 2, updatedIdentity2.getFirstName());
+		assertEquals(testFirstName + 3, updatedIdentity3.getFirstName());
+		
+		assertEquals(testLastName, updatedIdentity1.getLastName());
+		assertEquals(testLastName, updatedIdentity2.getLastName());
+		assertEquals(testLastName, updatedIdentity3.getLastName());
 	}
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,

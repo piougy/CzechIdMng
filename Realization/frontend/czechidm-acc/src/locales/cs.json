@@ -361,6 +361,12 @@
         },
         "save": {
           "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        },
+        "filter": {
+          "roleSystem": {
+            "label": "System Role",
+            "placeholder": "Název role nebo systému"
+          }
         }
       },
       "roleSystemDetail": {

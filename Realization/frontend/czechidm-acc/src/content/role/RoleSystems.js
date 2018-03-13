@@ -2,11 +2,10 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { RoleSystemManager, SystemMappingManager } from '../../redux';
+import { RoleSystemManager } from '../../redux';
 import RoleSystemTable from '../role/RoleSystemTable';
 
 const uiKey = 'role-systems-table';
-const manager = new RoleSystemManager();
 const roleManager = new Managers.RoleManager();
 
 
@@ -15,10 +14,6 @@ class RoleSystems extends Advanced.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.roleSystemManager = new RoleSystemManager();
-  }
-
-  getManager() {
-    return manager;
   }
 
   getUiKey() {
@@ -34,7 +29,7 @@ class RoleSystems extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params.entityId;
+    const { entityId } = this.props.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
     return (
       <div className="tab-pane-table-body">
@@ -42,14 +37,13 @@ class RoleSystems extends Advanced.AbstractTableContent {
 
         <Basic.Panel className="no-border last">
           <RoleSystemTable
-            columns={['system', 'entityType', 'mapping', 'add']}
+            columns={['system', 'entityType', 'mapping']}
+            filterColumns={['systemFilter']}
             uiKey={uiKey}
-            identityManager={this.getManager()}
-            filterOpened={false}
+            roleSystemManager={this.roleSystemManager}
             forceSearchParameters={forceSearchParameters}
             showRowSelection
-            roleSystemManager={this.roleSystemManager}
-            entityId = {this.props.params.entityId} />
+            entityId={entityId} />
         </Basic.Panel>
       </div>
     );
@@ -69,6 +63,7 @@ function select(state, component) {
   return {
     role: Utils.Entity.getEntity(state, roleManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _searchParameters: Utils.Ui.getSearchParameters(state, uiKey)
   };
 }
 

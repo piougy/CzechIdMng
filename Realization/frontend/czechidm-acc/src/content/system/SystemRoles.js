@@ -2,14 +2,12 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Domain, Managers } from 'czechidm-core';
-import { RoleSystemManager, SystemMappingManager } from '../../redux';
-// import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import { Basic, Advanced, Domain, Utils } from 'czechidm-core';
+import { RoleSystemManager, SystemManager } from '../../redux';
 import RoleSystemTable from '../role/RoleSystemTable';
 
-const uiKey = 'system-role-table';
-const manager = new RoleSystemManager();
-const systemMappingManager = new SystemMappingManager();
+const uiKey = 'system-roles-table';
+const systemManager = new SystemManager();
 
 /**
  * Table to display roles, assigned to system
@@ -21,10 +19,6 @@ export default class SystemRoles extends Advanced.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.roleSystemManager = new RoleSystemManager();
-  }
-
-  getManager() {
-    return manager;
   }
 
   getUiKey() {
@@ -40,8 +34,8 @@ export default class SystemRoles extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params.entityId;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setSort('created', 'desc');
+    const { entityId } = this.props.params;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     return (
       <div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }
@@ -49,12 +43,13 @@ export default class SystemRoles extends Advanced.AbstractTableContent {
         <Basic.Panel className="no-border last">
           <RoleSystemTable
             columns={['role', 'entityType', 'mapping']}
+            filterColumns={['roleFilter']}
             uiKey={uiKey}
-            identityManager={this.getManager()}
-            filterOpened={false}
-            forceSearchParameters={forceSearchParameters}
             roleSystemManager={this.roleSystemManager}
-            showRowSelection />
+            forceSearchParameters={forceSearchParameters}
+            showRowSelection
+            showAddButton={false}
+            entityId={entityId} />
         </Basic.Panel>
       </div>
     );
@@ -67,8 +62,11 @@ SystemRoles.propTypes = {
 SystemRoles.defaultProps = {
 };
 
-function select() {
+function select(state, component) {
   return {
+    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
+    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _searchParameters: Utils.Ui.getSearchParameters(state, uiKey)
   };
 }
 

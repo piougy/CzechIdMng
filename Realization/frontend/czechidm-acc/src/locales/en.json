@@ -361,6 +361,12 @@
         },
         "save": {
           "success": "System [{{system}}] for role {{role}} successfully saved"
+        },
+        "filter": {
+          "roleSystem": {
+            "label": "System Role",
+            "placeholder": "Name of role or system"
+          }
         }
       },
       "roleSystemDetail": {

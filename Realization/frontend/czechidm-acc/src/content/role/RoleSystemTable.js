@@ -7,10 +7,12 @@ import _ from 'lodash';
 import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
 import { SystemInfo } from '../../components/SystemInfo/SystemInfo.js';
 import SearchParameters from 'czechidm-core/src/domain/SearchParameters';
-import { DataManager, SecurityManager, ConfigurationManager } from 'czechidm-core/src/redux';
-import { SystemMappingManager } from '../../redux';
+import { DataManager, SecurityManager, ConfigurationManager, RoleManager } from 'czechidm-core/src/redux';
+import { SystemMappingManager, SystemManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
+const roleManager = new RoleManager();
+const systemManager = new SystemManager();
 /**
  * Table component to display roles, assigned to system
  *
@@ -59,8 +61,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
   }
 
   addRoleSystemConnection() {
-    // Works only in RoleSystem tab!
-    // TODO make it work in SystemRole!!!
+    // TODO Works only in RoleSystem tab, make it work in SystemRole!!!
     const roleId = this.props.entityId;
     const uuidId = uuid.v1();
     this.context.router.push(`/role/${roleId}/systems/${uuidId}/new?new=1`);
@@ -68,7 +69,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
 
   getDefaultSearchParameters() {
     // TODO make this work!!!
-    return this.getManager().getDefaultSearchParameters().setFilter('disabled', 'false').setFilter('recursively', 'true');
+    return this.getManager().getDefaultSearchParameters();
   }
 
   _getSystemMappingLink(roleSystem) {
@@ -77,21 +78,50 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     );
   }
 
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      text: null,
+      treeNodeId: null
+    }, () => {
+      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    });
+  }
+
+  systemInfoCard({ rowIndex, data }) {
+    return (
+      <SystemInfo
+        entityIdentifier={ data[rowIndex]._embedded.system.id }
+        entity={ data[rowIndex]._embedded.system }
+        face="popover" />
+    );
+  }
+
   render() {
     const {
       uiKey,
-      identityManager,
+      roleSystemManager,
       columns,
       forceSearchParameters,
       showAddButton,
       showDetailButton,
-      showFilter,
       deleteEnabled,
       showRowSelection,
       rendered,
-      treeType
+      treeType,
+      filterOpened,
+      showFilter,
+      filterColumns
     } = this.props;
-    const { filterOpened } = this.state;
     //
     if (!rendered) {
       return null;
@@ -105,9 +135,12 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
-          manager={identityManager}
+          manager={roleSystemManager}
           showRowSelection={showRowSelection && (SecurityManager.hasAuthority('IDENTITY_UPDATE') || SecurityManager.hasAuthority('IDENTITY_DELETE'))}
           forceSearchParameters={_forceSearchParameters}
+          filterOpened={ filterOpened }
+          showFilter={ showFilter }
+          filterColumns={ filterColumns }
           actions={
             Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
             ?
@@ -123,7 +156,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
                 type="submit"
                 className="btn-xs"
                 onClick={this.addRoleSystemConnection.bind(this, {})}
-                rendered={showAddButton && _.includes(columns, 'add') && SecurityManager.hasAuthority('IDENTITY_CREATE')}
+                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE')}
                 icon="fa:plus">
                 {this.i18n('button.add')}
               </Basic.Button>
@@ -133,7 +166,10 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
             <Filter
               ref="filterForm"
               onSubmit={ this.useFilter.bind(this) }
-              onCancel={ this.cancelFilter.bind(this) } />
+              onCancel={ this.cancelFilter.bind(this) }
+              roleSystemManager = { roleSystemManager }
+              filterColumns={ filterColumns }
+              forceSearchParameters={ forceSearchParameters } />
           }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
@@ -155,13 +191,15 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
               header={this.i18n('acc:entity.SystemEntity.entityType')}
               rendered={_.includes(columns, 'entityType')}
               face="enum"
-              // sort
-              enumClass={SystemEntityTypeEnum} />
+              enumClass={SystemEntityTypeEnum}
+              sort
+              sortProperty="systemMapping.entityType" />
             <Advanced.Column
               property="_embedded.role.name"
               header={this.i18n('core:entity.Role._type')}
               rendered={_.includes(columns, 'role')}
-              // sort
+              sort
+              sortProperty="role.name"
               cell={
                 ({ rowIndex, data }) => {
                   return (
@@ -179,17 +217,9 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
               property="_embedded.system.name"
               header={this.i18n('acc:entity.RoleSystem.system')}
               rendered={_.includes(columns, 'system')}
-              // sort
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <SystemInfo
-                      entityIdentifier={ data[rowIndex]._embedded.system.id }
-                      entity={ data[rowIndex]._embedded.system }
-                      face="popover" />
-                  );
-                }
-              } />
+              sort
+              sortProperty="system.name"
+              cell={this.systemInfoCard.bind(this)} />
             <Advanced.Column
               property="systemMapping"
               header={this.i18n('acc:entity.RoleSystem.systemMapping')}
@@ -207,7 +237,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
 
 RoleSystemTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  identityManager: PropTypes.object.isRequired,
+  roleSystemManager: PropTypes.object.isRequired,
   /**
    * Rendered columns - see table columns above
    */
@@ -249,8 +279,8 @@ RoleSystemTable.propTypes = {
 };
 
 RoleSystemTable.defaultProps = {
-  columns: ['entityType', 'role', 'system', 'mapping', 'add'],
-  filterOpened: false,
+  columns: ['entityType', 'role', 'system', 'mapping'],
+  filterOpened: true,
   showAddButton: true,
   showDetailButton: true,
   showFilter: true,
@@ -263,8 +293,8 @@ RoleSystemTable.defaultProps = {
 
 function select(state, component) {
   return {
-    // role: Utils.Entity.getEntity(state, this.roleSystemManager.getEntityType(), component.entity.id),
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null,
+    roleSystem: Utils.Entity.getEntity(state, component.roleSystemManager.getEntityType(), component.entityId),
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete')
   };
 }
@@ -279,24 +309,33 @@ export default connect(select, null, null, { withRef: true })(RoleSystemTable);
 class Filter extends Advanced.Filter {
 
   render() {
-    const { onSubmit, onCancel } = this.props;
+    const {
+      onSubmit,
+      onCancel,
+      filterOpened,
+      filterColumns,
+    } = this.props;
     //
     return (
-      <Advanced.Filter onSubmit={ onSubmit }>
+      <Advanced.Filter
+      onSubmit={ onSubmit }
+      filterOpened={ filterOpened }
+      >
         <Basic.AbstractForm ref="filterForm">
           <Basic.Row className="last">
-            <Basic.Col lg={ 4 }>
-              <Advanced.Filter.EnumSelectBox
-                ref="entityType"
-                placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
-                enum={ SystemEntityTypeEnum }/>
+            <Basic.Col lg={ 4 } rendered={_.includes(filterColumns, 'roleFilter')}>
+            <Advanced.Filter.SelectBox
+                    ref="roleId"
+                    manager={ roleManager }
+                    placeholder={ this.i18n('acc:content.role.systems.filter.roleSystem.placeholder') }/>
             </Basic.Col>
-            <Basic.Col lg={ 4 }>
-              <Advanced.Filter.TextField
-                ref="text"
-                placeholder={ this.i18n('acc:content.system.entities.filter.text.placeholder') }/>
+            <Basic.Col lg={ 4 } rendered={_.includes(filterColumns, 'systemFilter')}>
+            <Advanced.Filter.SelectBox
+                    ref="systemId"
+                    manager={ systemManager }
+                    placeholder={ this.i18n('acc:content.role.systems.filter.roleSystem.placeholder') }/>
             </Basic.Col>
-            <Basic.Col lg={ 4 } className="text-right">
+            <Basic.Col lg={ 8 } className="text-right">
               <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
             </Basic.Col>
           </Basic.Row>
@@ -305,3 +344,7 @@ class Filter extends Advanced.Filter {
     );
   }
 }
+
+Filter.defaultProps = {
+  filterColumns: ['roleFilter', 'systemFilter'],
+};

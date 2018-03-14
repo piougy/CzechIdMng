@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractPublishEntityChangeProcessor;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.AbstractPublishEntityChangeProcessor;
 
 /**
  * Publish identity change event

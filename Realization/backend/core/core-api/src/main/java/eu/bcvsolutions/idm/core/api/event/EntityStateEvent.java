@@ -1,11 +1,9 @@
-package eu.bcvsolutions.idm.core.model.event;
+package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
-import eu.bcvsolutions.idm.core.api.event.EventType;
 
 /**
  * Events for entity states

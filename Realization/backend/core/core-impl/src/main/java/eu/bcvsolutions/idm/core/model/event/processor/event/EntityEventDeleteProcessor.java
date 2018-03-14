@@ -9,8 +9,8 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
-import eu.bcvsolutions.idm.core.model.event.EntityEventEvent.EntityEventType;
 
 /**
  * Deletes entity event - ensures referential integrity.

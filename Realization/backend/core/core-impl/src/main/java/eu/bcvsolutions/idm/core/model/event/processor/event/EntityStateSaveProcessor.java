@@ -9,9 +9,9 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.EntityStateEvent.EntityStateEventType;
 import eu.bcvsolutions.idm.core.api.event.processor.EntityStateProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
-import eu.bcvsolutions.idm.core.model.event.EntityStateEvent.EntityStateEventType;
 
 /**
  * Persists entity state.

@@ -75,7 +75,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEnableProcessor;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;

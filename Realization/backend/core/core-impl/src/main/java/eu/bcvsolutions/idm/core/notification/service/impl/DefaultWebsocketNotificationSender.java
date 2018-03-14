@@ -119,6 +119,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		//
 		IdmWebsocketLogDto log = new IdmWebsocketLogDto();
 		log.setSent(new DateTime());
+		log.setTopic(notification.getTopic());
 		// parent message
 		if (notification.getId() != null) {
 			log.setParent(notification.getId());
@@ -150,6 +151,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		//
 		FlashMessage flashMessage = new FlashMessage();
 		flashMessage.setId(log.getId());
+		flashMessage.setKey(log.getTopic());
 		flashMessage.setTitle(message.getSubject());
 		flashMessage.setMessage(message.getTextMessage()); // default message
 		flashMessage.setDate(log.getCreated());

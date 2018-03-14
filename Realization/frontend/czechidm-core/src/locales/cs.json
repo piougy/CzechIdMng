@@ -682,6 +682,11 @@
       "LEFT": "Odešel(a)",
       "DISABLED": "$t(label.disabled)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
+    },
+    "PriorityTypeEnum": {
+      "IMMEDIATE": "Hned",
+      "HIGH": "Vysoká",
+      "NORMAL": "Normální"
     }
   },
   "dashboard": {
@@ -2289,6 +2294,34 @@
         "modifier": "Upravil",
         "identityId": "Id identity"
       }
+    },
+    "entityEvents": {
+      "header": "Události",
+      "title": "Události",
+      "label": "$t(content.entityEvents.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityEvent.ownerType.label) / $t(entity.EntityEvent.ownerId.label) (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityEvent.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        }
+      },
+      "event": {
+        "header": "Události na entitách",
+        "detail": {
+          "header": "Detail události"
+        }
+      },
+      "state": {
+        "header": "Stavy entity",
+        "detail": {
+          "header": "Detail stavu"
+        }
+      }
     }
   },
   "entity": {
@@ -2863,6 +2896,7 @@
       "module": "Modul",
       "description": "Popis",
       "entityType": "Typ entity",
+      "eventType": "Typ události",
       "eventTypes": "Typy událostí",
       "order": "Pořadí",
       "disabled": "Neaktivní",
@@ -2969,6 +3003,83 @@
       "guarantee": {
         "label": "Garant",
         "help": "Garant na přímo přiřazený k pracovně právnímu vztahu"
+      }
+    },
+    "EntityEvent": {
+      "_type": "Event",
+      "created": {
+        "label": "Datum"
+      },
+      "owner": {
+        "label": "Entita"
+      },
+      "ownerType": {
+        "label": "Typ entity"
+      },
+      "ownerId": {
+        "label": "Identifikátor entity"
+      },
+      "result": {
+        "label": "Výsledek"
+      },
+      "eventType": {
+        "label": "$t(entity.EntityEventProcessor.eventType)",
+        "title": "Typ události, který vyvolal změnu"
+      },
+      "parent": {
+        "label": "Vychází z"
+      },
+      "instanceId": {
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
+        "help": "$t(entity.LongRunningTask.instanceId.help)"
+      },
+      "processedOrder": {
+        "label": "Zpracované pořadí"
+      },
+      "executeDate": {
+        "label": "Čas zpracování",
+        "help": "Událost bude zpracována v zadaný čas."
+      },
+      "priority": {
+        "label": "Priorita",
+        "help": "Zpracování událost s větší prioritou bude spuštěno dříve."
+      }
+    },
+    "EntityState": {
+      "_type": "Stav entity",
+      "created": {
+        "label": "Datum"
+      },
+      "owner": {
+        "label": "Entita"
+      },
+      "ownerType": {
+        "label": "Typ entity"
+      },
+      "ownerId": {
+        "label": "Identifikátor entity"
+      },
+      "result": {
+        "label": "Výsledek"
+      },
+      "event": {
+        "label": "Event"
+      },
+      "instanceId": {
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
+        "help": "$t(entity.LongRunningTask.instanceId.help)"
+      },
+      "processorModule": {
+        "label": "Modul"
+      },
+      "processorId": {
+        "label": "Processor"
+      },
+      "processorName": {
+        "label": "Processor"
+      },
+      "processedOrder": {
+        "label": "Zpracované pořadí"
       }
     }
   },
@@ -3432,6 +3543,42 @@
     "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
       "title": "Typ atributu 'TEXT' není podporován",
       "message": "Rozšířený atribut typu 'TEXT' není podporován."
+    },
+    "EVENT_CANCELED_BY_RESTART": {
+      "title": "Zpracování události bylo přerušeno",
+      "message": "Zpracování události [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
+    },
+    "EVENT_DUPLICATE_CANCELED": {
+      "title": "Událost je duplicitní",
+      "message": "Událost nebude zpracována - byla nalezena duplicitní událost se stejným typem, vlastníkem a vlastnostmi, která bude zpracována."
+    },
+    "EVENT_ALREADY_CLOSED": {
+      "title": "Událost byla již uzavřena",
+      "message": "Událost byla již uzavřena, bude pouze uložena (log)."
+    },
+    "EVENT_ACCEPTED": {
+      "title": "Úlohy spuštěny",
+      "message": "Úlohy budou zpracovány na pozadí:"
+    },
+    "EVENT_EXECUTE_FAILED": {
+      "title": "Událost selhala",
+      "message": "Zpracování události selhalo."
+    },
+    "EVENT_EXECUTE_PROCESSOR_FAILED": {
+      "title": "Událost selhala",
+      "message": "Zpracování události selhalo při vykonávání processoru [{{processor}}]."
+    },
+    "EVENT_CONTENT_DELETED": {
+      "title": "Obsah události byl smazán",
+      "message": "Obsah úlohy byl smazán, úloha již nemůže být vykonána."
+    },
+    "EVENT_NOT_FOUND": {
+      "title": "Nenalezeno",
+      "message": "Událost již neexistuje, zpracované události jsou automaticky mazány."
+    },
+    "EVENT_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Událost nelze smazat",
+      "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
     }
   },
   "validationError": {

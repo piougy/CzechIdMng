@@ -1343,5 +1343,23 @@
       "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
       "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
     }
+  },
+  "processor": {
+    "identity-save-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    },
+    "identity-role-save-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    },
+    "identity-contract-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    },
+    "contract-guarantee-save": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    }
   }
 }

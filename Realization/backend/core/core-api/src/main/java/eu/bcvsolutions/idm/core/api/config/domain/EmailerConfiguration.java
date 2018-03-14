@@ -17,21 +17,21 @@ public interface EmailerConfiguration extends Configurable {
 	/**
 	 * Property keys in configuration
 	 */
-	static final String PROPERTY_PROTOCOL = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.protocol";	
-	static final String DEFAULT_PROTOCOL = "smtp";
+	String PROPERTY_PROTOCOL = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.protocol";	
+	String DEFAULT_PROTOCOL = "smtp";
 	//
-	static final String PROPERTY_HOST = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.host";
-	static final String DEFAULT_HOST = "localhost";
+	String PROPERTY_HOST = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.host";
+	String DEFAULT_HOST = "localhost";
 	//
-	static final String PROPERTY_PORT = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.port";
-	static final String DEFAULT_PORT = "25";
+	String PROPERTY_PORT = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.port";
+	String DEFAULT_PORT = "25";
 	//
-	static final String PROPERTY_USERNAME = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.username";	
-	static final String PROPERTY_PASSWORD = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.password";	
-	static final String PROPERTY_FROM = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.from";
+	String PROPERTY_USERNAME = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.username";	
+	String PROPERTY_PASSWORD = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.password";	
+	String PROPERTY_FROM = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.from";
 	//
-	static final String PROPERTY_TEST_ENABLED = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.test.enabled";	
-	static final boolean DEFAULT_TEST_ENABLED = true;
+	String PROPERTY_TEST_ENABLED = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.emailer.test.enabled";	
+	boolean DEFAULT_TEST_ENABLED = true;
 	
 	@Override
 	default java.lang.String getConfigurableType() {

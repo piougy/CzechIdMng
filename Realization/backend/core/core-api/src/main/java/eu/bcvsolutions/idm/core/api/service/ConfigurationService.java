@@ -21,33 +21,33 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 public interface ConfigurationService {
 	
-	static final String PROPERTY_SEPARATOR = ".";
-	static final String SPLIT_PROPERTY_SEPARATOR = "\\.";
-	static final String IDM_PROPERTY_PREFIX = "idm" + PROPERTY_SEPARATOR;
-	static final String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub" + PROPERTY_SEPARATOR;
-	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec" + PROPERTY_SEPARATOR;
+	String PROPERTY_SEPARATOR = ".";
+	String SPLIT_PROPERTY_SEPARATOR = "\\.";
+	String IDM_PROPERTY_PREFIX = "idm" + PROPERTY_SEPARATOR;
+	String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub" + PROPERTY_SEPARATOR;
+	String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec" + PROPERTY_SEPARATOR;
 	//
 	// instance id - backend server identifier
-	static final String PROPERTY_APP_INSTANCE_ID = IDM_PUBLIC_PROPERTY_PREFIX + "app.instanceId";
-	static final String DEFAULT_APP_INSTANCE_ID = "main";
+	String PROPERTY_APP_INSTANCE_ID = IDM_PUBLIC_PROPERTY_PREFIX + "app.instanceId";
+	String DEFAULT_APP_INSTANCE_ID = "main";
 	//
 	// date format
-	static final String PROPERTY_APP_DATE_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.date";
-	static final String DEFAULT_APP_DATE_FORMAT = "dd.MM.yyyy";
+	String PROPERTY_APP_DATE_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.date";
+	String DEFAULT_APP_DATE_FORMAT = "dd.MM.yyyy";
 	//
 	// datetime format
-	static final String PROPERTY_APP_DATETIME_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.datetime";
-	static final String DEFAULT_APP_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
+	String PROPERTY_APP_DATETIME_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.datetime";
+	String DEFAULT_APP_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
 	//
 	// common properties
-	static final String PROPERTY_ORDER = "order";
-	static final String PROPERTY_ENABLED = "enabled";
-	static final String PROPERTY_IMPLEMENTATION = "impl";
+	String PROPERTY_ORDER = "order";
+	String PROPERTY_ENABLED = "enabled";
+	String PROPERTY_IMPLEMENTATION = "impl";
 	//
 	// common properties default
-	static final int DEFAULT_ORDER = 0;
-	static final boolean DEFAULT_ENABLED = true;
-	static final String PROPERTY_MULTIVALUED_SEPARATOR = ","; // multi value default separator
+	int DEFAULT_ORDER = 0;
+	boolean DEFAULT_ENABLED = true;
+	String PROPERTY_MULTIVALUED_SEPARATOR = ","; // multi value default separator
 
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns {@code null}.

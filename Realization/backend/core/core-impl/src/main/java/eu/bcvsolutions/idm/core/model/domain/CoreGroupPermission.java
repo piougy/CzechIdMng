@@ -188,6 +188,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYCONTRACT_UPDATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYCONTRACT_DELETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String CONTRACTGUARANTEE_AUTOCOMPLETE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CONTRACTGUARANTEE_READ = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "READ";
+	public static final String CONTRACTGUARANTEE_CREATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONTRACTGUARANTEE_UPDATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CONTRACTGUARANTEE_DELETE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String CONFIGURATION_ADMIN = "CONFIGURATION" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String CONFIGURATION_AUTOCOMPLETE = "CONFIGURATION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONFIGURATION_READ = "CONFIGURATION" + BasePermission.SEPARATOR + "READ";

@@ -1336,5 +1336,23 @@
       "title": "Validation of system mapping {{name}} was not successful",
       "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
     }
+  },
+  "processor": {
+    "identity-save-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    },
+    "identity-role-save-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    },
+    "identity-contract-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    },
+    "contract-guarantee-save": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    }
   }
 }

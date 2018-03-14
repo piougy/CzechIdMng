@@ -1,6 +1,11 @@
 import EntityManager from './EntityManager';
 import { ScriptService } from '../../services';
 
+/**
+ * Scripts
+ *
+ * @author Ondřej Kopr
+ */
 export default class ScriptManager extends EntityManager {
 
   constructor() {

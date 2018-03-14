@@ -653,6 +653,11 @@
       "LEFT": "Left",
       "DISABLED": "$t(label.disabled)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manually"
+    },
+    "PriorityTypeEnum": {
+      "IMMEDIATE": "Immediate",
+      "HIGH": "High",
+      "NORMAL": "Normal"
     }
   },
   "dashboard": {
@@ -2247,6 +2252,34 @@
         "modifier": "Modifier",
         "identityId": "Identity Id"
       }
+    },
+    "entityEvents": {
+      "header": "Entity events",
+      "title": "Events",
+      "label": "$t(content.entityEvents.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityEvent.ownerType.label) / $t(entity.EntityEvent.ownerId.label) (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityEvent.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        }
+      },
+      "event": {
+        "header": "Entity events",
+        "detail": {
+          "header": "Event detail"
+        }
+      },
+      "state": {
+        "header": "Entity states",
+        "detail": {
+          "header": "State detail"
+        }
+      }
     }
   },
   "entity": {
@@ -2821,6 +2854,7 @@
       "module": "Module",
       "description": "Description",
       "entityType": "Entity type",
+      "eventType": "Event type",
       "eventTypes": "Event types",
       "order": "Order",
       "disabled": "$t(label.disabled)",
@@ -2927,6 +2961,83 @@
       "guarantee": {
         "label": "Guarantee",
         "help": "Guarantee assigned to contracted position"
+      }
+    },
+    "EntityEvent": {
+      "_type": "Event",
+      "created": {
+        "label": "Event date"
+      },
+      "owner": {
+        "label": "Entity"
+      },
+      "ownerType": {
+        "label": "Entity type"
+      },
+      "ownerId": {
+        "label": "Entity identifier"
+      },
+      "result": {
+        "label": "Result"
+      },
+      "eventType": {
+        "label": "$t(entity.EntityEventProcessor.eventType)",
+        "title": "Event type"
+      },
+      "parent": {
+        "label": "Parent event"
+      },
+      "instanceId": {
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
+        "help": "$t(entity.LongRunningTask.instanceId.help)"
+      },
+      "processedOrder": {
+        "label": "Zpracované pořadí"
+      },
+      "executeDate": {
+        "label": "Execute date",
+        "help": "Event will be processed in given time."
+      },
+      "priority": {
+        "label": "Priority",
+        "help": "Event with the higher priority will be executed earlier."
+      }
+    },
+    "EntityState": {
+      "_type": "Entity state",
+      "created": {
+        "label": "Date"
+      },
+      "owner": {
+        "label": "Entity"
+      },
+      "ownerType": {
+        "label": "Entity type"
+      },
+      "ownerId": {
+        "label": "Entity identifier"
+      },
+      "result": {
+        "label": "Result"
+      },
+      "event": {
+        "label": "Event"
+      },
+      "instanceId": {
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
+        "help": "$t(entity.LongRunningTask.instanceId.help)"
+      },
+      "processorModule": {
+        "label": "Module"
+      },
+      "processorId": {
+        "label": "Processor"
+      },
+      "processorName": {
+        "label": "Processor"
+      },
+      "processedOrder": {
+        "label": "Processed order"
       }
     }
   },
@@ -3386,6 +3497,42 @@
     "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
       "title": "Attribute type 'TEXT' is not supported",
       "message": "Extended attribute type 'TEXT' is not supported."
+    },
+    "EVENT_CANCELED_BY_RESTART": {
+      "title": "Event was canceled",
+      "message": "Event [{{eventType}}] on instance [{{instanceId}}] was interrupted - instance was canceled during processing."
+    },
+    "EVENT_DUPLICATE_CANCELED": {
+      "title": "Event was not executed",
+      "message": "Event was not executed - duplicate event for the same owner, type and with the same properties was found."
+    },
+    "EVENT_ALREADY_CLOSED": {
+      "title": "Event is already closed",
+      "message": "Event is already closed, will be saved only (log)."
+    },
+    "EVENT_ACCEPTED": {
+      "title": "Tasks started",
+      "message": "Tasks will be processed on background:"
+    },
+    "EVENT_EXECUTE_FAILED": {
+      "title": "Event failed",
+      "message": "Event execution failed."
+    },
+    "EVENT_EXECUTE_PROCESSOR_FAILED": {
+      "title": "Event failed",
+      "message": "Event execution failed in processor [{{processor}}]."
+    },
+    "EVENT_CONTENT_DELETED": {
+      "title": "Event content was deleted",
+      "message": "Event content was deleted, event cannot be executed anymore."
+    },
+    "EVENT_NOT_FOUND": {
+      "title": "Not found",
+      "message": "Event does not exist, processed events are deleted automatically."
+    },
+    "EVENT_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Event cannot be deleted",
+      "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
     }
   },
   "validationError": {

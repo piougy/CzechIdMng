@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -12,6 +15,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -95,7 +100,10 @@ public class IdentityDeleteProcessor
 		IdmIdentityDto identity = event.getContent();
 		// contracts
 		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
-			identityContractService.delete(identityContract);
+			// when identity is deleted, then HR processes has to be shipped (prevent to update deleted identity, when contract is removed)
+			Map<String, Serializable> properties = new HashMap<>();
+			properties.put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			identityContractService.publish(new CoreEvent<>(CoreEventType.DELETE, identityContract, properties));
 		});
 		// contract guaratee - set to null
 		// delete contract guarantees

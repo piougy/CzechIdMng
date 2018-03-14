@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  * Single entity event processor
  * <p>
  * Its better to use {@link Ordered} interface instead {@link Order} annotation - does not work with aspects.
+ * Look out processors with the same order is sorted randomly (respectively in the same order, 
+ * when beans were registered into spring context and this cannot be determined, when event is processed / published).
  * 
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
@@ -22,14 +24,29 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  */
 public interface EntityEventProcessor<E extends Serializable> extends Ordered, Configurable {
 	
+	String CONFIGURABLE_TYPE = "processor";
+	
 	/**
 	 * Event types from configuration
 	 */
-	static final String PROPERTY_EVENT_TYPES = "eventTypes";
+	String PROPERTY_EVENT_TYPES = "eventTypes";
 	
+	/**
+	 *  bean name / unique identifier (spring bean name or other unique identifier)
+	 *  Look out: name is not unique (by module or name can be reused for the same configuration)
+	 *  
+	 * @return
+	 */
+	String getId();
+	
+	/**
+	 * Configurable type identifier {@value #CONFIGURABLE_TYPE}
+	 * 
+	 * @return
+	 */
 	@Override
 	default String getConfigurableType() {
-		return "processor";
+		return CONFIGURABLE_TYPE;
 	}
 	
 	/**

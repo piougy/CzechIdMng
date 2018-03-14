@@ -12,10 +12,10 @@ import IdentityStateEnum from '../../enums/IdentityStateEnum';
 import filterHelp from '../../components/advanced/Filter/README_cs.md';
 
 /**
-* Table of users
-*
-* @author Radek Tomiška
-*/
+ * Table of users
+ *
+ * @author Radek Tomiška
+ */
 export class IdentityTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {

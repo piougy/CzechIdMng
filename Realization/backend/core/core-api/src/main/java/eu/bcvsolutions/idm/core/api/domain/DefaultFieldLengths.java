@@ -8,4 +8,5 @@ public interface DefaultFieldLengths {
 	public static final int LOG = 2000;
 	public static final int UID = 1000;
 	public static final int DESCRIPTION = 2000;
+	public static final int ENUMARATION = 45;
 }

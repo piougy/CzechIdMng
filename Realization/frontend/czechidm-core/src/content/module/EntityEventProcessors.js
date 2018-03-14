@@ -147,7 +147,8 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                       <Advanced.Filter.EnumSelectBox
                         ref="entityType"
                         placeholder={ this.i18n('filter.entityType.placeholder') }
-                        options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }/>
+                        options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
+                        searchable/>
                     </Basic.Col>
                     <Basic.Col lg={ 6 }>
                       <Advanced.Filter.EnumSelectBox

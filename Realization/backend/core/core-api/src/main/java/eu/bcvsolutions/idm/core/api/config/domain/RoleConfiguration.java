@@ -16,13 +16,13 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  */
 public interface RoleConfiguration  extends Configurable {
 	
-	static final String PROPERTY_DEFAULT_ROLE = 
+	String PROPERTY_DEFAULT_ROLE = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.default";
-	static final String DEFAULT_DEFAULT_ROLE = "userRole";
+	String DEFAULT_DEFAULT_ROLE = "userRole";
 	
-	static final String PROPERTY_ADMIN_ROLE = 
+	String PROPERTY_ADMIN_ROLE = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.admin";
-	static final String DEFAULT_ADMIN_ROLE = "superAdminRole";
+	String DEFAULT_ADMIN_ROLE = "superAdminRole";
 	
 	@Override
 	default String getConfigurableType() {

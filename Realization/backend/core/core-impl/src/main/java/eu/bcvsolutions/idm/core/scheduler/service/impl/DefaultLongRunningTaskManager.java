@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -98,7 +99,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * Schedule {@link #processCreated()} only
 	 */
 	@Transactional
-	@Scheduled(fixedDelayString = "${scheduler.task.queue.process:60000}")
+	@Scheduled(fixedDelayString = "${" + SchedulerConfiguration.PROPERTY_TASK_QUEUE_PROCESS + ":" + SchedulerConfiguration.DEFAULT_TASK_QUEUE_PROCESS + "}")
 	public void scheduleProcessCreated() {
 		processCreated();
 	}

@@ -20,13 +20,13 @@ public interface TreeConfiguration extends Configurable {
 	/**
 	 * Default tree type
 	 */
-	static final String PROPERTY_DEFAULT_TYPE = 
+	String PROPERTY_DEFAULT_TYPE = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.tree.defaultType";
 	
 	/**
 	 * Default tree node
 	 */
-	static final String PROPERTY_DEFAULT_NODE = 
+	String PROPERTY_DEFAULT_NODE = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.tree.defaultNode";
 	
 	

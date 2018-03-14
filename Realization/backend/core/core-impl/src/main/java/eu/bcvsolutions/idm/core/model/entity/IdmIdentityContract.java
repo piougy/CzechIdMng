@@ -93,7 +93,7 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	@Audited
 	@Enumerated(EnumType.STRING)
-	@Column(name = "state", nullable = true, length = 45)
+	@Column(name = "state", nullable = true, length = DefaultFieldLengths.ENUMARATION)
 	private ContractState state;
 	
 	@JsonIgnore

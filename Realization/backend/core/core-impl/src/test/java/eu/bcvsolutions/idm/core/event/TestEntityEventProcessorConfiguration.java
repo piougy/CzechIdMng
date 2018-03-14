@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.EventType;
 
 /**
  * Test entity event processors init
@@ -18,6 +19,8 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  */
 @Configuration
 public class TestEntityEventProcessorConfiguration {
+	
+	public static final EventType EVENT_TYPE_ORDER =(EventType) () -> "ORDER";
 	
 	@Bean
 	public EntityEventProcessor<?> testEntityEventProcessorOne() {
@@ -54,12 +57,52 @@ public class TestEntityEventProcessorConfiguration {
 		return new ConditionalProcessor();
 	}
 	
+	@Bean
+	public EntityEventProcessor<?> testASameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testBSameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	@Bean
+	public EntityEventProcessor<?> testXSameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testTSameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testESameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testYSameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testZSameOrder() {
+		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
+	}
+	
+	
 	private class TestProcessor extends AbstractEntityEventProcessor<TestContent> {
 		
 		private final Integer order;
 		
 		public TestProcessor(Integer order) {
 			this.order = order;
+		}
+		
+		@Override
+		public boolean conditional(EntityEvent<TestContent> event) {
+			return !event.getType().name().equals(EVENT_TYPE_ORDER.name());
 		}
 		
 		@Override
@@ -118,6 +161,27 @@ public class TestEntityEventProcessorConfiguration {
 		@Override
 		public int getOrder() {
 			return 0;
+		}
+		
+	}
+	
+	private class SameOrderProcessor extends AbstractEntityEventProcessor<TestContent> {
+
+		private Integer order;
+		
+		public SameOrderProcessor(EventType type, Integer order) {
+			super(type);
+			this.order = order;
+		}
+		
+		@Override
+		public EventResult<TestContent> process(EntityEvent<TestContent> event) {
+			return null;
+		}
+
+		@Override
+		public int getOrder() {
+			return order;
 		}
 		
 	}

@@ -1,3 +1,4 @@
+import React from 'react';
 import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
 // import moment from 'moment';
@@ -188,6 +189,22 @@ export default class FlashMessagesManager {
     }
     //
     const message = this.convertFromResultModel(notificationMessage.model);
+    // TODO: registrable message converters
+    if (notificationMessage.key === 'core:event' && notificationMessage.model && notificationMessage.model.parameters && notificationMessage.model.parameters.processors) {
+      message.children = (
+        <div>
+          <ol style={{ listStylePosition: 'inside' }}>
+            {
+              notificationMessage.model.parameters.processors.map(processor => {
+                return (
+                  <li>{ LocalizationService.i18n(`${processor.module}:processor.${processor.name}.title`, { defaultValue: processor.id }) } </li>
+                );
+              })
+            }
+          </ol>
+        </div>
+      );
+    }
     if (notificationMessage.position) {
       message.position = notificationMessage.position;
     }

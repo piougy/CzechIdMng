@@ -28,36 +28,31 @@ export default class OperationResult extends Basic.AbstractContextComponent {
    */
   _renderPopover() {
     const { value, stateLabel } = this.props;
+    const message = this.getFlashManager().convertFromResultModel(value.model);
     //
     return (
-      <div>
-        <div>
-          <Basic.EnumValue
-            value={ value.state }
-            enum={ OperationStateEnum }
-            label={ stateLabel } />
-        </div>
-        {
-          !value.code
-          ||
-          <Basic.Popover
-            ref="popover"
-            trigger={['click']}
-            value={ this._getPopoverContent(value) }
-            className="abstract-entity-info-popover">
-            {
-              <span>
-                <Basic.Button
-                  level="link"
-                  style={{ padding: 0 }}
-                  title={ this.i18n('link.popover.title') }
-                  icon="fa:info-circle">
-                  { this.i18n('result.code') }
-                </Basic.Button>
-              </span>
-            }
-          </Basic.Popover>
-        }
+      <div style={{ whiteSpace: 'nowrap' }}>
+        <Basic.EnumValue
+          level={ message ? message.level : null }
+          value={ value.state }
+          enum={ OperationStateEnum }
+          label={ stateLabel } />
+        <Basic.Popover
+          ref="popover"
+          trigger={['click']}
+          value={ this._getPopoverContent() }
+          className="abstract-entity-info-popover"
+          rendered={ value.code !== null && value.code !== undefined }>
+          {
+            <span>
+              <Basic.Button
+                level="link"
+                style={{ padding: 0, marginLeft: 3 }}
+                title={ this.i18n('link.popover.title') }
+                icon="fa:info-circle"/>
+            </span>
+          }
+        </Basic.Popover>
       </div>
     );
   }
@@ -127,6 +122,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
    */
   _renderFull() {
     const { value, stateLabel } = this.props;
+    const message = this.getFlashManager().convertFromResultModel(value.model);
     //
     return (
       <div>
@@ -134,6 +130,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
 
         <div style={{ marginBottom: 15 }}>
           <Basic.EnumValue
+            level={ message ? message.level : null }
             value={value.state}
             enum={ OperationStateEnum }
             label={ stateLabel }/>
@@ -144,7 +141,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
               { this.i18n('result.code') }: { value.code }
             </span>
           }
-          <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(value.model)} style={{ margin: '15px 0 0 0' }}/>
+          <Basic.FlashMessage message={ message } style={{ margin: '15px 0 0 0' }}/>
         </div>
         {
           (!value || !value.stackTrace)
@@ -204,7 +201,10 @@ OperationResult.propTypes = {
    *
    * @type {[type]}
    */
-  detailLink: PropTypes.oneOf([PropTypes.string, PropTypes.func]),
+  detailLink: PropTypes.oneOf([
+    PropTypes.string,
+    PropTypes.func
+  ]),
 };
 OperationResult.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

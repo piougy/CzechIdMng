@@ -2,24 +2,37 @@ package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
@@ -27,21 +40,24 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  * <p>
  * Types could be {@literal null}, then processor supports all event types
  * <p>
- * TODO: move @Autowire to @Configuration bean post processor
  * 
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
  */
-public abstract class AbstractEntityEventProcessor<E extends Serializable> 
-		implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
+public abstract class AbstractEntityEventProcessor<E extends Serializable> implements 
+		EntityEventProcessor<E>, 
+		ApplicationListener<AbstractEntityEvent<E>>,
+		BeanNameAware {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractEntityEventProcessor.class);
 	private final Class<E> entityClass;
 	private final Set<String> types = new HashSet<>();
-	
+	private String beanName;
+	//
+	@Autowired
+	private EntityEventManager entityEventManager;
 	@Autowired(required = false)
 	private EnabledEvaluator enabledEvaluator; // optional internal dependency - checks for module is enabled
-	
 	@Autowired(required = false)
 	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
 	
@@ -158,7 +174,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		EventContext<E> context = event.getContext();
 		//
 		Integer processedOrder = context.getProcessedOrder();
-		if (processedOrder != null) {	
+		if (processedOrder != null) {
 			// event was processed with this processor
 			if (processedOrder > this.getOrder()) {
 				LOG.debug("Skipping processor [{}]. [{}] was already processed by this processor with order [{}].", getName(), event, getOrder());
@@ -167,7 +183,10 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 			// the same order - only different processor instance can process event
 			if (processedOrder == this.getOrder()) {
 				if (context.getResults().isEmpty()) {
-					// if event was started in the middle manually => results are empty, event could continue with processors with higher order only
+					// TODO: try to find persisted entity states and skip processed processors
+					//
+					// if event was started in the middle manually => results are empty,
+					// event could continue with processors with higher order only.					
 					LOG.debug("Skipping processor [{}]. Processed context for [{}] is empty. Processor's order [{}] is the same as event start.", getName(), event, getOrder());
 					return;
 				}
@@ -188,13 +207,55 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		LOG.info("Processor [{}] start for [{}] with order [{}].", getName(), event, getOrder());
 		// prepare order ... in processing
 		context.setProcessedOrder(this.getOrder());
+		// persist "running" state
+		List<IdmEntityStateDto> runningStates = new ArrayList<>();
+		if (entityEventManager.getEventId(event) != null) {
+			runningStates.addAll(
+					entityEventManager.saveStates(event, null, new DefaultEventResult
+							.Builder<>(event, this)
+							.setResult(new OperationResult
+								.Builder(OperationState.RUNNING)
+								.build())
+							.build())
+					);
+		}	
 		// process event
-		EventResult<E> result = process(event);
-		// add result to history
+		EventResult<E> result = null;
+		try {			
+			result = process(event);
+		} catch(Exception ex) {
+			// persist state if needed
+			UUID eventId = entityEventManager.getEventId(event) ;
+			if (eventId != null) {
+				ResultModel resultModel;
+				if (ex instanceof ResultCodeException) {
+					resultModel = ((ResultCodeException) ex).getError().getError();
+				} else {
+					resultModel = new DefaultResultModel(
+							CoreResultCode.EVENT_EXECUTE_PROCESSOR_FAILED, 
+							ImmutableMap.of(
+									"eventId", eventId,
+									"processor", getName()));
+				}				
+				result = new DefaultEventResult.Builder<>(event, this)
+						.setResult(new OperationResult
+								.Builder(OperationState.EXCEPTION)
+								.setCause(ex)
+								.setModel(resultModel)
+								.build())
+						.build();
+				entityEventManager.saveStates(event, runningStates, result);
+			}
+			throw ex;
+		}
+		// default result
 		if (result == null) {
 			// processor without result is added into history with empty result
 			result = new DefaultEventResult<>(event, this);
 		}
+		// persist state if needed
+		entityEventManager.saveStates(event, runningStates, result);
+		// add result to history
 		context.addResult(result);
 		//
 		LOG.info("Processor [{}] end for [{}] with order [{}].", getName(), event, getOrder());
@@ -212,6 +273,16 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 	
 	public void setConfigurationService(ConfigurationService configurationService) {
 		this.configurationService = configurationService;
+	}
+	
+	@Override
+	public void setBeanName(String name) {
+		this.beanName = name;
+	}
+	
+	@Override
+	public String getId() {
+		return beanName;
 	}
 	
 	/**
@@ -243,5 +314,22 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		}
 
 		return false;
+	}
+	
+	/**
+	 * Return true if event properties contains given property and this property is true.
+	 * If event does not contains this property, then return false.
+	 * 
+	 * TODO: Move to utils
+	 * @param property
+	 * @param properties
+	 * @return
+	 */
+	protected boolean getBooleanProperty(String property, ConfigurationMap properties) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		if (properties == null) {
+			return false;
+		}
+		return properties.getBooleanValue(property);
 	}
 }

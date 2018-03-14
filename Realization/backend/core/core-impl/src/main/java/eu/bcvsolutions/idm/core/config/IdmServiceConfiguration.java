@@ -32,6 +32,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
+import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -71,6 +73,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
@@ -91,6 +95,8 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAutomaticRoleAttrib
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmEntityEventService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmEntityStateService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
@@ -168,6 +174,8 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmAutomaticRoleAttributeRepository automaticRoleAttributeRepository;
 	@Autowired private IdmAutomaticRoleRepository automaticRoleRepository;
 	@Autowired private IdmAutomaticRoleAttributeRuleRepository automaticRoleAttributeRuleRepository;
+	@Autowired private IdmEntityEventRepository entityEventRepository;
+	@Autowired private IdmEntityStateRepository entityStateRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -262,6 +270,28 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
 		return new DefaultEntityEventManager(context, publisher, enabledEvaluator(), lookupService());
+	}
+	
+	/**
+	 * Entity changes
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmEntityEventService.class)
+	public IdmEntityEventService entityEventService() {
+		return new DefaultIdmEntityEventService(entityEventRepository, entityEventManager());
+	}
+	
+	/**
+	 * Entity states
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmEntityStateService.class)
+	public IdmEntityStateService entityStateService() {
+		return new DefaultIdmEntityStateService(entityStateRepository, entityEventManager());
 	}
 	
 	/**

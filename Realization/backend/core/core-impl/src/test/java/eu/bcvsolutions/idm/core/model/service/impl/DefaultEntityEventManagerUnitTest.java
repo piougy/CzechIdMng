@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.event.domain.MockOwner;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
@@ -64,6 +65,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Mock private IdmEntityEventService entityEventService;
 	@Mock private IdmEntityStateService entityStateService;
 	@Mock private EventConfiguration eventConfiguration;
+	@Mock private IdmEntityEventRepository entityEventRepository;
 	//
 	@InjectMocks private DefaultEntityEventManager eventManager;
 	

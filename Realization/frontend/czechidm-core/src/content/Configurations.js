@@ -26,6 +26,7 @@ class Configurations extends Advanced.AbstractTableContent {
       filterOpened: true,
       detail: {
         show: false,
+        addMore: false,
         entity: {}
       },
       isGuarded: false,
@@ -105,6 +106,27 @@ class Configurations extends Advanced.AbstractTableContent {
     }, this.loadFilter);
   }
 
+  showAddMore(entity) {
+    this.setState({
+      detail: {
+        addMore: true,
+        showLoading: false,
+        entity
+      },
+    }, () => {
+      this.refs.area.focus();
+    });
+  }
+
+  closeAddMore() {
+    this.setState({
+      detail: {
+        addMore: false,
+        entity: {}
+      }
+    }, this.loadFilter);
+  }
+
   _filterOpen(filterOpened) {
     this.setState({
       filterOpened
@@ -127,6 +149,30 @@ class Configurations extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
+  }
+
+  saveMore(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.formAddMore.isFormValid()) {
+      return;
+    }
+    const entities = this.refs.area.getValue();
+    this.context.store.dispatch(this.getManager().addMoreEntities(entities, `${uiKey}-detail`, this._afterAddMoreSave.bind(this)));
+  }
+
+  _afterAddMoreSave(error) {
+    if (error.status !== 200) {
+      this.refs.formAddMore.processEnded();
+      this.addError(error);
+      return;
+    }
+    this.addMessage({ message: this.i18n('save.sucessBulk') });
+    this.closeAddMore();
+    this.refs.table.getWrappedInstance().reload();
+    // reload public configurations
+    this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
 
   _forceSave() {
@@ -294,16 +340,32 @@ class Configurations extends Advanced.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { public: true })}
-                  rendered={ manager.canSave() }>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
+                <span>
+                  <span style={{marginRight: '3px'}}>
+                  <Basic.Button
+                    level="success"
+                    key="add_button"
+                    className="btn-xs"
+                    onClick={this.showDetail.bind(this, { public: true })}
+                    rendered={ manager.canSave() }>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.add')}
+                  </Basic.Button>
+                </span>
+                <span>
+                  <Basic.Button
+                    level="success"
+                    key="addMore_button"
+                    className="btn-xs"
+                    onClick={ this.showAddMore.bind(this, { public: true }) }
+                    rendered={ manager.canSave() }>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.addMore')}
+                  </Basic.Button>
+                </span>
+                </span>
               ]
             }
             _searchParameters={ this.getSearchParameters()} >
@@ -388,6 +450,49 @@ class Configurations extends Advanced.AbstractTableContent {
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave(detail.entity, _permissions) }>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
+
+        <Basic.Modal
+          bsSize="large"
+          show={detail.addMore}
+          onHide={this.closeAddMore.bind(this)}
+          backdrop="static"
+          keyboard={!_showLoading}>
+
+          <form onSubmit={this.saveMore.bind(this)}>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('addMore.header')} rendered/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm
+                ref="formAddMore"
+                showLoading={ _showLoading }
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
+                <Basic.TextArea
+                  ref="area"
+                  label={this.i18n('addMore.configurationArea.header')}
+                  required
+                  helpBlock={this.i18n('addMore.configurationArea.helpBlock')}
+                  />
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
+
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={ this.closeAddMore.bind(this) }
+                showLoading={ _showLoading }>
+                {this.i18n('button.close')}
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={ _showLoading }
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ manager.canSave() }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

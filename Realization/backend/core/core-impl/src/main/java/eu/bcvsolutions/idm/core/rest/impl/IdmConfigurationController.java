@@ -283,12 +283,18 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				},
 			notes = "Save configuration properties pasted from configration file (e.q. from application.properties)."
 					+ " Simple text/plain .properties format is accepted.")
-	public void saveProperties(@RequestBody String configuration) throws IOException {
-		Properties p = new Properties();
-	    p.load(new StringReader(configuration));
-	    p.forEach((name, value) -> {
-	    	configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
-	    });
+	public ResponseEntity<?> saveProperties(@RequestBody String configuration) {
+		try {
+			Properties p = new Properties();
+	    	p.load(new StringReader(configuration));
+	    	p.forEach((name, value) -> {
+	    		configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
+	    	});
+		} 
+		catch (IOException ex) {
+			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
 	
 	@Override

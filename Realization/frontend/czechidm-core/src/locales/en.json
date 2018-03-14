@@ -57,6 +57,7 @@
   "button": {
     "activate": "Activate",
     "add": "Add",
+    "addMore": "Add in bulk",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
@@ -865,7 +866,15 @@
         "header": "New configuration item"
       },
       "save": {
-        "success": "Configuration items [{{name}}] successfully saved"
+        "success": "Configuration items [{{name}}] successfully saved",
+        "sucessBulk": "Configuration items were successfully saved"
+      },
+      "addMore":{
+        "header": "Add more configuration items",
+        "configurationArea": {
+          "header": "Configuration items",
+          "helpBlock": "Can be added more configuration items. Comments after character '#' are ignored."
+        }
       },
       "configurable": "Configurable items <small>editable, can override static items</small>",
       "environment": "Static environment configuration items <small>read only</small>",

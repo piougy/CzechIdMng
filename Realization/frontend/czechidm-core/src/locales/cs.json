@@ -57,6 +57,7 @@
   "button": {
     "activate": "Aktivovat",
     "add": "Přidat",
+    "addMore": "Přidat více",
     "back": "Zpět",
     "cancel": "Zrušit",
     "close": "Zavřít",
@@ -893,7 +894,15 @@
         "header": "Nová konfigurační položka"
       },
       "save": {
-        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena",
+        "sucessBulk": "Položky konfigurace byly úspěšně uloženy."
+      },
+      "addMore":{
+        "header": "Přidat více konfiguračních položek",
+        "configurationArea": {
+          "header": "Konfigurační položky",
+          "helpBlock": "Je možné vložení více konfiguračních položek. Komentáře za znakem '#' jsou ignorovány."
+        }
       },
       "configurable": "Konfigurovatelné položky <small>měnitelné, mohou přetěžovat statické položky</small>",
       "environment": "Statické konfigurační položky prostředí <small>pouze pro čtení</small>",

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.config;
 
+import com.google.common.annotations.Beta;
+
 /**
  * Configuration for scheduler and asynchronous processing.
  * 
@@ -25,7 +27,16 @@ public interface SchedulerConfiguration {
 	boolean DEFAULT_SCHEDULER_ENABLED = true;
 	
 	/**
-	 * Task queue processing period
+	 * Asynchronous task execution is enabled. Asynchronous task execution can be disabled for testing or debugging purposes.
+	 * 
+	 * @Beta it's implemented just in process created task phase (improve tests stability), but it's needed to implement it into execute methods (still async).
+	 */
+	@Beta
+	String PROPERTY_TASK_ASYNCHRONOUS_ENABLED = "scheduler.task.asynchronous.enabled";
+	boolean DEFAULT_TASK_ASYNCHRONOUS_ENABLED = true;
+	
+	/**
+	 * Task queue processing period (ms)
 	 */
 	String PROPERTY_TASK_QUEUE_PROCESS = "scheduler.task.queue.process";
 	int DEFAULT_TASK_QUEUE_PROCESS = 1000;
@@ -37,25 +48,25 @@ public interface SchedulerConfiguration {
 	String DEFAULT_PROPERETIES_LOCATION = "/quartz.properties";
 	
 	/**
-	 * Event queue processing period
+	 * Event queue processing period (ms)
 	 */
 	String PROPERTY_EVENT_QUEUE_PROCESS = "scheduler.event.queue.process";
 	int DEFAULT_EVENT_QUEUE_PROCESS = 1000;
 	
 	/**
-	 * Event executor core pool size. Uses CPU count as default.
+	 * Task executor core pool size. Uses CPU count as default.
 	 */
 	String PROPERTY_TASK_EXECUTOR_CORE_POOL_SIZE = "scheduler.task.executor.corePoolSize";
 	
 	/**
-	 * Event executor max pool size. Uses CPU corePoolSize * 2 as default. 
+	 * Task executor max pool size. Uses CPU corePoolSize * 2 as default. 
 	 * maxPoolSize has to be higher than corePoolSize (IllegalArgumentException is thrown otherwise).
 	 * When queueCapacity is full, then new threads are created from corePoolSize to maxPoolSize.
 	 */
 	String PROPERTY_TASK_EXECUTOR_MAX_POOL_SIZE = "scheduler.task.executor.maxPoolSize";
 	
 	/**
-	 * Waiting events to be processed. Uses {@code Integer.MAX_VALUE} as default.
+	 * Waiting tasks to be processed. Uses {@code Integer.MAX_VALUE} as default.
 	 * {@link AbotrPolicy} is set for rejected tasks.	
 	 */
 	String PROPERTY_TASK_EXECUTOR_QUEUE_CAPACITY = "scheduler.task.executor.queueCapacity";

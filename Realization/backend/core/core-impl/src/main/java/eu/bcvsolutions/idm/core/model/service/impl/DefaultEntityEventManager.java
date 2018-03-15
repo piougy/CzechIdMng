@@ -239,6 +239,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Scheduled(fixedDelayString = "${" + SchedulerConfiguration.PROPERTY_EVENT_QUEUE_PROCESS + ":" + SchedulerConfiguration.DEFAULT_EVENT_QUEUE_PROCESS + "}")
 	public void scheduleProcessCreated() {
 		if (!eventConfiguration.isAsynchronous()) {
+			// asynchronous processing is disabled
+			// prevent to debug some messages into log - usable for devs
 			return;
 		}
 		// run as system - called from scheduler internally

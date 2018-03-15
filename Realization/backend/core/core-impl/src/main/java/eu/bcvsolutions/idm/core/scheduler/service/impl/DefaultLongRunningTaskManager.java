@@ -101,6 +101,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Transactional
 	@Scheduled(fixedDelayString = "${" + SchedulerConfiguration.PROPERTY_TASK_QUEUE_PROCESS + ":" + SchedulerConfiguration.DEFAULT_TASK_QUEUE_PROCESS + "}")
 	public void scheduleProcessCreated() {
+		if (!isAsynchronous()) {
+			// asynchronous processing is disabled
+			// prevent to debug some messages into log - usable for devs
+			return;
+		}
 		processCreated();
 	}
 
@@ -407,5 +412,16 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 						"instanceId", task.getInstanceId()));			
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 		service.saveInternal(task);
+	}
+	
+	/**
+	 * Returns true, if asynchronous event processing is enabled
+	 * 
+	 * @return
+	 */
+	private boolean isAsynchronous() {
+		return configurationService.getBooleanValue(
+				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
+				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
 }

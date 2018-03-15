@@ -393,14 +393,29 @@ public class DefaultTestHelper implements TestHelper {
 	public void disable(Class<? extends EntityEventProcessor<?>> processorType) {
 		enableProcessor(processorType, false);
 	}
+	
+	@Override
+	public void setConfigurationValue(String configurationPropertyName, boolean value) {
+		Assert.notNull(configurationPropertyName);
+		//
+		configurationService.setBooleanValue(configurationPropertyName, value);
+	}
 
 	@Override
 	public void waitForResult(Function<String, Boolean> continueFunction) {
+		waitForResult(continueFunction, null, null);
+	}
+	
+	@Override
+	public void waitForResult(Function<String, Boolean> continueFunction, Integer interationWaitMilis, Integer iterationCount) {
+		int maxCounter = iterationCount == null ? 50 : iterationCount;
+		int waitTime = interationWaitMilis == null ? 300 : interationWaitMilis;
+		//
 		int counter = 0;
-		while(continueFunction.apply(null) && (counter < 25)) {
+		while((continueFunction == null ? true : continueFunction.apply(null)) && (counter < maxCounter)) {
 			counter++;
 			try {
-				Thread.sleep(300);
+				Thread.sleep(waitTime);
 			} catch (InterruptedException ex) {
 				throw new CoreException(ex);
 			}

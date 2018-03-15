@@ -43,12 +43,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -61,8 +57,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmIdentityRoleService 
 		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
 		implements IdmIdentityRoleService {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
 	private final IdmIdentityRoleRepository repository;
 	private final LookupService lookupService;
@@ -124,41 +118,7 @@ public class DefaultIdmIdentityRoleService
 			resultEntity.setAutomaticRole(automaticRole);
 		}
 		return resultEntity;
-	}
-	
-	/**
-	 * Publish {@link IdentityRoleEvent} only.
-	 * 
-	 * @see {@link IdentityRoleSaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmIdentityRoleDto save(IdmIdentityRoleDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getRole());
-		Assert.notNull(dto.getIdentityContract());
-		//
-		LOG.debug("Saving role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
-		return super.save(dto, permission);
-	}
-
-	/**
-	 * Publish {@link IdentityRoleEvent} only.
-	 * 
-	 * @see {@link IdentityRoleDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmIdentityRoleDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getRole());
-		Assert.notNull(dto.getIdentityContract());
-		//
-		LOG.debug("Deleting role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
-		super.delete(dto, permission);
-	}
-	
-	
+	}	
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {

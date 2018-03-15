@@ -62,13 +62,13 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
           <Basic.Row>
             <div className="col-lg-4">
               <Advanced.Filter.DateTimePicker
-                mode="date"
+                mode="datetime"
                 ref="from"
                 placeholder={this.i18n('filter.dateFrom.placeholder')}/>
             </div>
             <div className="col-lg-4">
               <Advanced.Filter.DateTimePicker
-                mode="date"
+                mode="datetime"
                 ref="till"
                 placeholder={this.i18n('filter.dateTill.placeholder')}/>
             </div>

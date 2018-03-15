@@ -1,11 +1,8 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -33,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentityAccountDto> {
 
 	private static final String PROCESSOR_NAME = "identity-account-save-processor";
-	private static final Logger LOG = LoggerFactory.getLogger(IdentityAccountSaveProcessor.class);
+//	private static final Logger LOG = LoggerFactory.getLogger(IdentityAccountSaveProcessor.class);
 	private final AccIdentityAccountService service;
 	private final AccAccountService accountService;
 

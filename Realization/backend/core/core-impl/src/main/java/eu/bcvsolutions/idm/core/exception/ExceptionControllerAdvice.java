@@ -117,7 +117,7 @@ public class ExceptionControllerAdvice {
 		//
 		if (ex.getCause() != null && ex.getCause() instanceof ConstraintViolationException){
 			ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
-			// TODO: registrable contstrain error codes
+			// TODO: registrable constraint error codes
 			if (constraintEx.getConstraintName() != null && constraintEx.getConstraintName().contains("name")) {
 				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
 			} else if (constraintEx.getConstraintName() != null && constraintEx.getConstraintName().contains("code")) {

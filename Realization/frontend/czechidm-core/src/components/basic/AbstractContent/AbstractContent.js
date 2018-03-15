@@ -159,10 +159,10 @@ export default class AbstractContent extends AbstractContextComponent {
     //
     return (
       <PageHeader {...props}>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ props.title || this.i18n('title') } />
         <Icon value={props.icon || navigationItem.icon}/>
         {' '}
-        <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
+        <span dangerouslySetInnerHTML={{__html: props.header || this.i18n('header')}}/>
       </PageHeader>
     );
   }
@@ -178,10 +178,10 @@ export default class AbstractContent extends AbstractContextComponent {
     //
     return (
       <ContentHeader {...props}>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ props.title || this.i18n('title') } />
         <Icon value={navigationItem.icon}/>
         {' '}
-        <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
+        <span dangerouslySetInnerHTML={{__html: props.header || this.i18n('header')}}/>
       </ContentHeader>
     );
   }

@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -39,7 +38,6 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestProvisioningProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
-	private AccAccountManagementService accountManagementService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityContractService identityContractService;
 	
@@ -110,12 +108,5 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
-	}
-	
-	private AccAccountManagementService getAccountManagementService() {
-		if (accountManagementService == null) {
-			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
-		}
-		return accountManagementService;
 	}
 }

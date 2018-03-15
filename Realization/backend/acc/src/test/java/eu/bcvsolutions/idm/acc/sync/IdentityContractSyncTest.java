@@ -65,6 +65,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -156,14 +157,14 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
 		synchornizationService = context.getAutowireCapableBeanFactory()
 				.createBean(DefaultSynchronizationService.class);
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
-		super.logout();
 		if (identityService.getByUsername(CONTRACT_OWNER_ONE) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_OWNER_ONE));
 		}
@@ -176,6 +177,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		if (identityService.getByUsername(CONTRACT_LEADER_TWO) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_TWO));
 		}
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+		super.logout();
 	}
 
 	@Test

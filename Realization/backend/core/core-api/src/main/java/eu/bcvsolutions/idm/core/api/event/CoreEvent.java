@@ -23,7 +23,11 @@ public class CoreEvent<E extends Serializable> extends AbstractEntityEvent<E> {
 	public static final int DEFAULT_ORDER = 0;
 	
 	public enum CoreEventType implements EventType {
-		CREATE, UPDATE, DELETE, EAV_SAVE
+		CREATE, // new entity is created
+		UPDATE, // entity is updated
+		DELETE, // entity is removed
+		EAV_SAVE, // some entity extended attribute is modified (CUD)
+		NOTIFY, // notify about entity is changed (CU) (asynchronous)
 	}
 	
 	public CoreEvent(EventType type, E content) {

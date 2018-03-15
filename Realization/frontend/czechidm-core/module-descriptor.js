@@ -129,6 +129,14 @@ module.exports = {
             ]
           },
           {
+            'id': 'profile-events',
+            'type': 'TAB',
+            'labelKey': 'content.entityEvents.label',
+            'order': 550,
+            'path': '/identity/:entityId/events',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          },
+          {
             'id': 'profile-subordinates',
             'type': 'TAB',
             'labelKey': 'content.identity.subordinates.title',
@@ -323,7 +331,16 @@ module.exports = {
                     'authorities': ['AUDIT_READ']
                   }
                 ]
-              }
+              },
+              {
+                'id': 'entity-events',
+                'labelKey': 'content.entityEvents.label',
+                'titleKey': 'content.entityEvents.title',
+                'order': 100,
+                'path': '/audit/entity-events',
+                'type': 'TAB',
+                'icon': ''
+              },
             ]
           },
           {
@@ -350,7 +367,7 @@ module.exports = {
             'path': '/notification/notifications',
             'access': [
               {
-                'type': 'DENY_ALL', // TODO: fix issue with mets menu - collapsing different submenu is broken
+                'type': 'DENY_ALL', // TODO: fix issue with metis menu - collapsing different submenu is broken
                 'authorities': ['NOTIFICATION_READ']
               }
             ],

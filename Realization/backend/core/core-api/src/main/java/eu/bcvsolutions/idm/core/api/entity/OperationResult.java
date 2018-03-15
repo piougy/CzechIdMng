@@ -103,6 +103,15 @@ public class OperationResult implements Serializable {
 		return exception;
 	}
 	
+	public OperationResultDto toDto() {
+		OperationResultDto dto = new OperationResultDto();
+		dto.setCause(cause);
+		dto.setCode(code);
+		dto.setModel(model);
+		dto.setState(state);
+		return dto;
+	}
+	
 	/**
 	 * {@link OperationResult} builder
 	 * @author Radek Tomiška

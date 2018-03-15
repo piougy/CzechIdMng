@@ -1,3 +1,10 @@
+/**
+ * Services register
+ *
+ * import { RestApiService } from './services' can be used in redux managers (managers layer)
+ *
+ * @author Radek Tomiška
+ */
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
 import FormableEntityService from './FormableEntityService';
@@ -45,6 +52,8 @@ import ConfidentialStorageValueService from './ConfidentialStorageValueService';
 import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
 import AutomaticRoleAttributeRuleService from './AutomaticRoleAttributeRuleService';
 import LongRunningTaskItemService from './LongRunningTaskItemService';
+import EntityEventService from './EntityEventService';
+import EntityStateService from './EntityStateService';
 
 const ServiceRoot = {
   RestApiService,
@@ -93,7 +102,9 @@ const ServiceRoot = {
   ConfidentialStorageValueService,
   AutomaticRoleAttributeService,
   AutomaticRoleAttributeRuleService,
-  LongRunningTaskItemService
+  LongRunningTaskItemService,
+  EntityEventService,
+  EntityStateService
 };
 
 ServiceRoot.version = '0.0.1';

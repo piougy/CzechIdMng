@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.contract;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,12 +10,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
 /**
- * Identity Ccontract provisioning super class
+ * Identity contract provisioning super class
  * 
  * @author Radek Tomiška
  */
@@ -22,14 +23,14 @@ public abstract class AbstractIdentityContractProvisioningProcessor
 		extends CoreEventProcessor<IdmIdentityContractDto> 
 		implements IdentityContractProcessor {
 
-	protected static final String PROPERTY_INCLUDE_SUBORDINATES = "includeSubordinates";
-	protected static final String PROPERTY_PREVIOUS_SUBORDINATES = "idm:previous-subordinates"; // contains Set<UUID>
+	protected static final String PROPERTY_INCLUDE_SUBORDINATES = "includeSubordinates"; // configuration property
+	protected static final String PROPERTY_PREVIOUS_SUBORDINATES = "idm:previous-subordinates"; // event property, contains Set<UUID>
 	protected static final boolean DEFAULT_INCLUDE_SUBORDINATES = true;
 	//
 	@Autowired private IdmIdentityService identityService;
 	
-	public AbstractIdentityContractProvisioningProcessor() {
-		super(CoreEventType.CREATE, CoreEventType.UPDATE, CoreEventType.DELETE, CoreEventType.EAV_SAVE);
+	public AbstractIdentityContractProvisioningProcessor(EventType... type) {
+		super(type);
 	}
 	
 	/**
@@ -48,6 +49,10 @@ public abstract class AbstractIdentityContractProvisioningProcessor
 	 * @return
 	 */
 	protected List<IdmIdentityDto> findAllSubordinates(UUID identityId) {
+		if (identityId == null) {
+			// just for sure - processor can be wrong configured (e.g. has to have order after identity is saved)
+			return new ArrayList<>();
+		}
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(identityId);
 		return identityService.find(filter, null).getContent();

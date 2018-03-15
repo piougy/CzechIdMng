@@ -15,10 +15,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 public interface RecaptchaConfiguration extends Configurable {
 	
-	static final String PROPERTY_URL = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "security.recaptcha.url";
-	static final String DEFAULT_URL = "https://www.google.com/recaptcha/api/siteverify";
+	String PROPERTY_URL = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "security.recaptcha.url";
+	String DEFAULT_URL = "https://www.google.com/recaptcha/api/siteverify";
 	//
-	static final String PROPERTY_SECRET_KEY = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "security.recaptcha.secretKey";
+	String PROPERTY_SECRET_KEY = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "security.recaptcha.secretKey";
 	
 	@Override
 	default String getConfigurableType() {

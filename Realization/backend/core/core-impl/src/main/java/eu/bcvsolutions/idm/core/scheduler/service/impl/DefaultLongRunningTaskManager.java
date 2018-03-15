@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
@@ -25,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -36,8 +38,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
- * 
- * TODO: long running task interface only + AOP wrapper for long running task executor
  * 
  * @author Radek Tomiška
  *
@@ -98,8 +98,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * Schedule {@link #processCreated()} only
 	 */
 	@Transactional
-	@Scheduled(fixedDelayString = "${scheduler.task.queue.process:60000}")
+	@Scheduled(fixedDelayString = "${" + SchedulerConfiguration.PROPERTY_TASK_QUEUE_PROCESS + ":" + SchedulerConfiguration.DEFAULT_TASK_QUEUE_PROCESS + "}")
 	public void scheduleProcessCreated() {
+		if (!isAsynchronous()) {
+			// asynchronous processing is disabled
+			// prevent to debug some messages into log - usable for devs
+			return;
+		}
 		processCreated();
 	}
 
@@ -147,8 +152,20 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@Transactional
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
+		if (!isAsynchronous()) {
+			V result = executeSync(taskExecutor);
+			// construct simple task
+			return new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(new Callable<V>() {
+
+				@Override
+				public V call() throws Exception {
+					return result;
+				}
+			}));
+		}
+		//
 		// autowire task properties
-		AutowireHelper.autowire(taskExecutor);
+		AutowireHelper.autowire(taskExecutor);	
 		// persist LRT
 		taskExecutor.validate(persistTask(taskExecutor));
 		//
@@ -406,5 +423,16 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 						"instanceId", task.getInstanceId()));			
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 		service.saveInternal(task);
+	}
+	
+	/**
+	 * Returns true, if asynchronous event processing is enabled
+	 * 
+	 * @return
+	 */
+	private boolean isAsynchronous() {
+		return configurationService.getBooleanValue(
+				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
+				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
 }

@@ -73,6 +73,11 @@ module.exports = {
           component: require('./src/content/identity/IdentityGarantedRoles'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
+        {
+          path: 'events',
+          component: require('./src/content/identity/IdentityEvents'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
+        }
       ]
     },
     {
@@ -551,6 +556,11 @@ module.exports = {
           path: 'identities',
           component: require('./src/content/audit/identity/AuditIdentityContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
+          path: 'entity-events',
+          component: require('./src/content/audit/event/EntityEvents'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]
     },

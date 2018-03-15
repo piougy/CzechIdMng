@@ -5,6 +5,11 @@ import { connect } from 'react-redux';
 import * as Basic from '../components/basic';
 import help from './Messages_cs.md';
 
+/**
+ * Flash messages history
+ *
+ * @author Radek Tomiška
+ */
 class Messages extends Basic.AbstractContent {
 
   constructor(props, context) {

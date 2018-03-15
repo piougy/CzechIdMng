@@ -591,6 +591,14 @@ AdvancedTable.propTypes = {
    * @type {string}
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Shows page size
+   */
+  showPageSize: PropTypes.bool,
+  /**
+   * Shows toolbar.
+   */
+  showToolbar: PropTypes.bool,
 
   //
   // Private properties, which are used internally for async data fetching
@@ -605,9 +613,7 @@ AdvancedTable.propTypes = {
   /**
    * Persisted / used search parameters in redux
    */
-  _searchParameters: PropTypes.object,
-  showPageSize: PropTypes.bool,
-  showToolbar: PropTypes.bool
+  _searchParameters: PropTypes.object
 };
 AdvancedTable.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

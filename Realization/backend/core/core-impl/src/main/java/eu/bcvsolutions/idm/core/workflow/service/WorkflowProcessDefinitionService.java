@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.workflow.service;
 import java.io.InputStream;
 import java.util.List;
 
+import org.activiti.bpmn.model.ValuedDataObject;
+
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
@@ -45,5 +47,12 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	 * Generate diagram for process definition key
 	 */
 	InputStream getDiagramByKey(String definitionKey);
+
+	/**
+	 * Returns data object defined in this process
+	 * @param definitionId
+	 * @return
+	 */
+	List<ValuedDataObject> getDataObjects(String definitionId);
 
 }

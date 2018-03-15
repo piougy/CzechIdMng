@@ -64,7 +64,6 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -165,7 +164,8 @@ public class DefaultIdmRoleRequestService
 		}
 		//
 		if (filter.getCreatedTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedTill().plusDays(1)));
+			predicates.add(
+					builder.lessThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedTill().plusDays(1)));
 		}
 		return predicates;
 	}
@@ -434,7 +434,8 @@ public class DefaultIdmRoleRequestService
 		}
 
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
-			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId(), false);
+			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId(),
+					false);
 			// TODO: create trimmed variant in workflow process instance service
 			if (processDto != null) {
 				processDto.setProcessVariables(null);
@@ -517,8 +518,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	public void delete(IdmRoleRequestDto dto, BasePermission... permission) {
-
+	public void deleteInternal(IdmRoleRequestDto dto) {
 		// Find all request where is this request duplicated and remove relation
 		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
 		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
@@ -540,7 +540,7 @@ public class DefaultIdmRoleRequestService
 		dto.getConceptRoles().forEach(concept -> {
 			conceptRoleRequestService.delete(concept);
 		});
-		super.delete(dto);
+		super.deleteInternal(dto);
 	}
 
 	@Override
@@ -549,7 +549,7 @@ public class DefaultIdmRoleRequestService
 		dto.setState(RoleRequestState.CANCELED);
 		this.save(dto);
 	}
-	
+
 	@Override
 	public IdmRoleRequestDto createRequest(IdmIdentityContractDto contract, IdmRoleDto... roles) {
 		Assert.notNull(contract, "Contract must be filled for create role request!");
@@ -558,8 +558,8 @@ public class DefaultIdmRoleRequestService
 		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
 		roleRequest.setExecuteImmediately(true);
 		roleRequest = this.save(roleRequest);
-		if(roles != null) {
-			for(IdmRoleDto role : roles) {
+		if (roles != null) {
+			for (IdmRoleDto role : roles) {
 				createConcept(roleRequest, contract, role.getId(), ConceptRoleRequestOperation.ADD);
 			}
 		}
@@ -675,18 +675,18 @@ public class DefaultIdmRoleRequestService
 		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
 		return exceptionToLog;
 	}
-	
+
 	/**
 	 * Method create {@link IdmConceptRoleRequestDto}
+	 * 
 	 * @param roleRequest
 	 * @param contract
 	 * @param roleId
 	 * @param operation
 	 * @return
 	 */
-	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest,
-			IdmIdentityContractDto contract, UUID roleId,
-			ConceptRoleRequestOperation operation) {
+	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract,
+			UUID roleId, ConceptRoleRequestOperation operation) {
 		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 		conceptRoleRequest.setRoleRequest(roleRequest.getId());
 		conceptRoleRequest.setIdentityContract(contract.getId());

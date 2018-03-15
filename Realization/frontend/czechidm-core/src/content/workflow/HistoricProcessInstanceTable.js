@@ -118,6 +118,16 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  _getWfProcessCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.id) {
+      return '';
+    }
+    return (
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.id}/>
+    );
+  }
+
   render() {
     const { uiKey, workflowHistoricProcessInstanceManager, columns } = this.props;
     const { filterOpened, forceSearchParameters } = this.state;
@@ -147,8 +157,13 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
                 );
               }
             }
-            sort={false}/>
-          <Advanced.ColumnLink property="name" to="workflow/history/processes/:id" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
+          sort={false}/>
+          <Advanced.Column
+            header=""
+            property="name"
+            cell={this._getWfProcessCell}
+            sort={false}
+            rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="startTime" sort face="datetime" rendered={_.includes(columns, 'startTime')}/>
           <Advanced.Column property="endTime" sort face="datetime" rendered={_.includes(columns, 'endTime')}/>
           <Advanced.Column property="startActivityId" sort={false} face="text" rendered={_.includes(columns, 'startActivityId')}/>

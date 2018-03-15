@@ -18,6 +18,7 @@
     "chai"
   ],
   "scripts": {
+    "product-install": "npm install && gulp install",
     "modules-link": "mkdir ../node_modules && ln -s ../node_modules",
     "modules-link-or-skip": "mkdir -p ../node_modules && test -L node_modules || ln -s ../node_modules",
     "czechidm-modules-link": "test -L ./czechidm-modules/czechidm-core || ln -s ../../czechidm-core ./czechidm-modules/; test -L ./czechidm-modules/czechidm-acc || ln -s ../../czechidm-acc ./czechidm-modules/; test -L ./czechidm-modules/czechidm-vs || ln -s ../../czechidm-vs ./czechidm-modules/; test -L ./czechidm-modules/czechidm-rpt || ln -s ../../czechidm-rpt ./czechidm-modules/",
@@ -105,7 +106,7 @@
     "stompjs": "2.3.3",
     "stringify": "5.1.0",
     "uuid": "2.0.1",
-    "vinyl-fs": "2.4.3",
+    "vinyl-fs": "3.0.2",
     "zxcvbn": "4.4.1"
   },
   "devDependencies": {

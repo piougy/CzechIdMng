@@ -52,6 +52,8 @@ import ConfidentialStorageValueService from './ConfidentialStorageValueService';
 import AutomaticRoleAttributeService from './AutomaticRoleAttributeService';
 import AutomaticRoleAttributeRuleService from './AutomaticRoleAttributeRuleService';
 import LongRunningTaskItemService from './LongRunningTaskItemService';
+import AutomaticRoleRequestService from './AutomaticRoleRequestService';
+import AutomaticRoleAttributeRuleRequestService from './AutomaticRoleAttributeRuleRequestService';
 import EntityEventService from './EntityEventService';
 import EntityStateService from './EntityStateService';
 
@@ -103,6 +105,8 @@ const ServiceRoot = {
   AutomaticRoleAttributeService,
   AutomaticRoleAttributeRuleService,
   LongRunningTaskItemService,
+  AutomaticRoleRequestService,
+  AutomaticRoleAttributeRuleRequestService,
   EntityEventService,
   EntityStateService
 };

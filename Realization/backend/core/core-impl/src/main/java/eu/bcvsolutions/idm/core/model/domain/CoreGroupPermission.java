@@ -67,7 +67,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			IdmBasePermission.AUTOCOMPLETE),
 	TREENODE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.AUTOCOMPLETE,
@@ -122,6 +123,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE, 
 			IdmBasePermission.EXECUTE),
+	AUTOMATICROLEREQUEST(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE, 
+			IdmBasePermission.EXECUTE,
+			IdmBasePermission.AUTOCOMPLETE),
 	FORMDEFINITION(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
@@ -155,8 +164,15 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			IdmBasePermission.AUTOCOMPLETE),
 	AUTOMATICROLEATTRIBUTERULE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	AUTOMATICROLEATTRIBUTERULEREQUEST(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -228,6 +244,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLETREENODE_CREATE = "ROLETREENODE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLETREENODE_UPDATE = "ROLETREENODE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLETREENODE_DELETE = "ROLETREENODE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String ROLETREENODE_AUTOCOMPLETE = "ROLETREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	//
 	public static final String PASSWORDPOLICY_CREATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String PASSWORDPOLICY_UPDATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "UPDATE";
@@ -258,6 +275,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLE_REQUEST_DELETE = "ROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	public static final String ROLE_REQUEST_EXECUTE = "ROLEREQUEST" + BasePermission.SEPARATOR + "EXECUTE";
 	//
+	public static final String AUTOMATIC_ROLE_REQUEST_ADMIN = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String AUTOMATIC_ROLE_REQUEST_READ = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "READ";
+	public static final String AUTOMATIC_ROLE_REQUEST_CREATE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "CREATE";
+	public static final String AUTOMATIC_ROLE_REQUEST_UPDATE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String AUTOMATIC_ROLE_REQUEST_DELETE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
+	public static final String AUTOMATIC_ROLE_REQUEST_AUTOCOMPLETE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	//
 	public static final String FORM_DEFINITION_READ = "FORMDEFINITION" + BasePermission.SEPARATOR + "READ";
 	public static final String FORM_DEFINITION_CREATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String FORM_DEFINITION_UPDATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
@@ -280,11 +304,17 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_CREATE = "AUTOMATICROLEATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_UPDATE = "AUTOMATICROLEATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_DELETE = "AUTOMATICROLEATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String AUTOMATIC_ROLE_ATTRIBUTE_AUTOCOMPLETE = "AUTOMATICROLEATTRIBUTE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	//
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_READ = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "READ";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_CREATE = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_UPDATE = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_DELETE = "AUTOMATICROLEATTRIBUTERULE" + BasePermission.SEPARATOR + "DELETE";
+	// 
+	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_REQUEST_READ = "AUTOMATICROLEATTRIBUTERULEREQUEST" + BasePermission.SEPARATOR + "READ";
+	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_REQUEST_CREATE = "AUTOMATICROLEATTRIBUTERULEREQUEST" + BasePermission.SEPARATOR + "CREATE";
+	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_REQUEST_UPDATE = "AUTOMATICROLEATTRIBUTERULEREQUEST" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String AUTOMATIC_ROLE_ATTRIBUTE_RULE_REQUEST_DELETE = "AUTOMATICROLEATTRIBUTERULEREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	// 
 	public static final String WORKFLOW_TASK_ADMIN = "WORKFLOWTASK" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String WORKFLOW_TASK_READ = "WORKFLOWTASK" + BasePermission.SEPARATOR + "READ";

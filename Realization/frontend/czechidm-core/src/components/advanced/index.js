@@ -24,6 +24,7 @@ import RoleInfo from './RoleInfo/RoleInfo';
 import RoleCatalogueInfo from './RoleCatalogueInfo/RoleCatalogueInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
 import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
+import WorkflowTaskInfo from './WorkflowTaskInfo/WorkflowTaskInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
@@ -79,7 +80,8 @@ const Components = {
   ValidationMessage,
   DecisionButtons,
   DynamicTaskDetail,
-  OperationResult
+  OperationResult,
+  WorkflowTaskInfo
 };
 
 Components.version = '0.0.1';

@@ -1,12 +1,18 @@
 import React, { PropTypes } from 'react';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import { SecurityManager } from '../../../redux';
+import { SecurityManager, AutomaticRoleRequestManager, RoleManager } from '../../../redux';
+import AutomaticRoleRequestTableComponent, { AutomaticRoleRequestTable } from '../../automaticrolerequest/AutomaticRoleRequestTable';
+import SearchParameters from '../../../domain/SearchParameters';
 
+
+const automaticRoleRequestManager = new AutomaticRoleRequestManager();
+const roleManager = new RoleManager();
 /**
  * Table with automatic roles
  *
@@ -47,16 +53,130 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
+    const { forceSearchParameters } = this.props;
+
+    let roleId = null;
+    const entityId = entity.id;
+    if (forceSearchParameters) {
+      if (forceSearchParameters.getFilters().has('roleId')) {
+        roleId = forceSearchParameters.getFilters().get('roleId');
+      }
+    }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/automatic-role/attributes/${uuidId}/new?new=1`);
+      if (roleId) {
+        this.context.router.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/new?new=1`);
+      } else {
+        this.context.router.push(`/automatic-role/attributes/${uuidId}/new?new=1`);
+      }
     } else {
-      this.context.router.push('/automatic-role/attributes/' + entity.id);
+      if (roleId) {
+        this.context.router.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/detail`);
+      } else {
+        this.context.router.push('/automatic-role/attributes/' + entity.id);
+      }
     }
   }
 
+  /**
+   * Bulk delete operation
+   */
+  _onDeleteViaRequest(bulkActionValue, selectedRows) {
+    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().deleteAutomaticRolesViaRequest(selectedEntities, this.getUiKey(), (entity, error) => {
+        if (entity && error) {
+          if (error.statusCode !== 202) {
+            this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+          } else {
+            this.addError(error);
+          }
+        } else {
+          this.afterDelete();
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
+  afterDelete() {
+    super.afterDelete();
+    this.refs['automatic-role-requests-table'].getWrappedInstance().reload();
+  }
+
+  _createNewRequest(event, roleId) {
+    if (event) {
+      event.preventDefault();
+    }
+    const uuidId = uuid.v1();
+    this.context.router.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${roleId}`);
+  }
+
+  _showCreateDetail(event) {
+    const { forceSearchParameters } = this.props;
+
+    let roleId = null;
+    if (forceSearchParameters) {
+      if (forceSearchParameters.getFilters().has('roleId')) {
+        roleId = forceSearchParameters.getFilters().get('roleId');
+      }
+    }
+    if (roleId) {
+      this._createNewRequest(event, roleId);
+    } else {
+      this.setState({
+        detail: {
+          ... this.state.detail,
+          show: true
+        }
+      });
+    }
+  }
+
+  _createNewRequestFromModal(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.modalForm.isFormValid()) {
+      return;
+    }
+    const roleId = this.refs.role.getValue();
+    const uuidId = uuid.v1();
+    this.context.router.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${roleId}`);
+  }
+
+  /**
+   * Close modal dialog
+   */
+  _closeDetail() {
+    this.setState({
+      detail: {
+        ... this.state.detail,
+        show: false
+      }
+    });
+  }
+
   render() {
-    const { uiKey, manager } = this.props;
+    const { uiKey, manager, columns, forceSearchParameters, _showLoading} = this.props;
+    const { showLoading, detail } = this.state;
+    const innerShowLoading = _showLoading || showLoading;
+
+    let roleId = null;
+    if (forceSearchParameters) {
+      if (forceSearchParameters.getFilters().has('roleId')) {
+        roleId = forceSearchParameters.getFilters().get('roleId');
+      }
+    }
+    let requestForceSearch = new SearchParameters();
+    requestForceSearch = requestForceSearch.setFilter('roleId', roleId);
+    requestForceSearch = requestForceSearch.setFilter('requestType', 'ATTRIBUTE');
+    requestForceSearch = requestForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
     //
     return (
       <div>
@@ -84,13 +204,13 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this._onDeleteViaRequest.bind(this), disabled: false }
             ]
           }
           buttons={
             [
               <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
+                      onClick={this._showCreateDetail.bind(this)}
                       rendered={SecurityManager.hasAuthority('AUTOMATIC_ROLE_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
@@ -98,6 +218,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
               </Basic.Button>
             ]
           }
+          forceSearchParameters={forceSearchParameters}
           _searchParameters={ this.getSearchParameters() }
           >
           <Advanced.Column
@@ -116,12 +237,14 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="name"
             width="20%"
+            rendered={_.includes(columns, 'name')}
             header={this.i18n('entity.AutomaticRole.name.label')}
             sort/>
           <Advanced.Column
             property="_embedded.role.name"
             header={this.i18n('entity.AutomaticRole.role.label')}
             width="25%"
+            rendered={_.includes(columns, 'role')}
             sort
             sortProperty="role.name"
             cell={
@@ -152,6 +275,56 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
               }
             }/>
         </Advanced.Table>
+        <div className="tab-pane-table-body"
+          rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ') }>
+          <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
+          <AutomaticRoleRequestTableComponent
+            ref="automatic-role-requests-table"
+            uiKey="role-automatic-role-requests-table"
+            forceSearchParameters={requestForceSearch}
+            columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
+               roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
+                      : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
+            ) }
+            showFilter={false}
+            manager={automaticRoleRequestManager}/>
+        </div>
+        <Basic.Modal
+          bsSize="default"
+          show={detail.show}
+          onHide={this._closeDetail.bind(this)}
+          backdrop="static"
+          keyboard={!innerShowLoading}>
+
+          <form onSubmit={this._createNewRequestFromModal.bind(this)}>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('content.automaticRoleRequests.create.header')}/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm ref="modalForm" showLoading={_showLoading}>
+                <Basic.SelectBox
+                  ref="role"
+                  manager={ roleManager }
+                  label={ this.i18n('content.automaticRoleRequests.role') }
+                  required/>
+
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={this._closeDetail.bind(this)}
+                showLoading={_showLoading}>
+                {this.i18n('button.close')}
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={_showLoading}
+                showLoadingIcon>
+                {this.i18n('content.automaticRoleRequests.button.createRequest')}
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
       </div>
     );
   }
@@ -163,6 +336,7 @@ AutomaticRoleAttributeTable.propTypes = {
 };
 
 AutomaticRoleAttributeTable.defaultProps = {
+  columns: ['name', 'role']
 };
 
 function select(state, component) {

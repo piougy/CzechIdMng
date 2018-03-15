@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor.role;
 
 import java.text.MessageFormat;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -16,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -54,6 +57,7 @@ public class RoleDeleteProcessor
 	private final IdmRoleTreeNodeService roleTreeNodeService;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
+	private final IdmAutomaticRoleRequestService automaticRoleRequestService;
 	
 	@Autowired
 	public RoleDeleteProcessor(
@@ -63,7 +67,8 @@ public class RoleDeleteProcessor
 			IdmRoleRequestService roleRequestService,
 			IdmRoleTreeNodeService roleTreeNodeService,
 			IdmAuthorizationPolicyService authorizationPolicyService,
-			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
+			IdmAutomaticRoleAttributeService automaticRoleAttributeService,
+			IdmAutomaticRoleRequestService automaticRoleRequestService) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -73,6 +78,7 @@ public class RoleDeleteProcessor
 		Assert.notNull(roleTreeNodeService);
 		Assert.notNull(authorizationPolicyService);
 		Assert.notNull(automaticRoleAttributeService);
+		Assert.notNull(automaticRoleRequestService);
 		//
 		this.service = service;
 		this.identityRoleRepository = identityRoleRepository;
@@ -81,6 +87,7 @@ public class RoleDeleteProcessor
 		this.roleTreeNodeService = roleTreeNodeService;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.automaticRoleAttributeService = automaticRoleAttributeService;
+		this.automaticRoleRequestService = automaticRoleRequestService;
 	}
 	
 	@Override
@@ -149,6 +156,17 @@ public class RoleDeleteProcessor
 		authorizationPolicyService.find(policyFilter, null).forEach(dto -> {
 			authorizationPolicyService.delete(dto);
 		});
+		// Find all automatic role requests and remove relation on automatic role
+		UUID roleId = role.getId();
+		if (roleId != null) {
+			IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
+			automaticRoleRequestFilter.setRoleId(roleId);
+			
+			automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
+				request.setRole(null);
+				automaticRoleRequestService.save(request);
+			});
+		}
 		//		
 		// remove role guarantees, sub roles and catalog works automatically by hibenate mapping
 		service.deleteInternal(role);

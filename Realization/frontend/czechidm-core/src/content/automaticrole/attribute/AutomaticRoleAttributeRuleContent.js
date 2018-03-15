@@ -25,7 +25,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
 
   componentDidMount() {
     const { ruleId, entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'automatic-roles']);
+    this.selectNavigationItems(['roles-menu', 'automatic-roles']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(manager.receiveEntity(ruleId, { }));
@@ -77,10 +77,19 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
           {
             !entity
             ||
-            <AutomaticRoleAttributeRuleDetail entity={entity} manager={manager} attributeId={entityId} />
+            <div style={{ padding: '15px 15px 0 15px' }}>
+              <AutomaticRoleAttributeRuleDetail
+                ref="detail"
+                entity={entity}
+                manager={manager}
+                readOnly
+                attributeId={entityId} />
+              <Basic.PanelFooter showLoading={showLoading} >
+                <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              </Basic.PanelFooter>
+            </div>
           }
         </Basic.Panel>
-
       </div>
     );
   }

@@ -279,6 +279,35 @@ export default class UiUtils {
     }
     return Joi.number().integer().allow(null).allow(0).positive().max(UiUtils.MAX_VALUE_INTEGER);
   }
+
+  /**
+   * Parse given text and search localization parameter. This paramaters are wrapped in {{value}}.
+   * @param  {String} text
+   * @return {Ordered array, withs parsed values}
+   */
+  static parseLocalizationParams(text) {
+    if (!text) {
+      return text;
+    }
+    const regex = new RegExp('\{{([^{}])*}}', 'g');
+    let params = text.match(regex);
+
+    if (!params) {
+      params = [];
+    }
+    const results = {};
+    for (let i = 0; i < params.length; i++) {
+      const result = params[i].replace(/{{/g, '').replace(/}}/g, '');
+      if (result.startsWith('context_')) {
+        results.context = result.replace(/context_/g, '');
+      } else {
+        results[i] = result;
+      }
+    }
+    // Set default value (original text without [{{}}])
+    results.defaultValue = text.replace(/{{/g, '').replace(/}}/g, '');
+    return results;
+  }
 }
 
 UiUtils.MAX_VALUE_INTEGER = 2147483647;

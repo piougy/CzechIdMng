@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -20,10 +21,10 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { automaticRoleId } = this.props.params;
     //
     if (!this._getIsNew()) {
-      this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
+      this.context.store.dispatch(manager.fetchEntityIfNeeded(automaticRoleId));
     }
   }
 
@@ -38,8 +39,13 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
     return false;
   }
 
-  render() {
+  _changeAutomaticRole() {
     const { entity} = this.props;
+    const uuidId = uuid.v1();
+    this.context.router.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${entity.role}&automaticRoleId=${entity.id}`);
+  }
+
+  render() {
     //
     return (
       <div>
@@ -47,10 +53,25 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
           <Basic.Icon value="fa:universal-access"/> {this.i18n('content.automaticRoles.attribute.header')}
         </Basic.PageHeader>
 
-        <Basic.Alert
-          level="warning"
-          text={ this.i18n('entity.AutomaticRole.attribute.concept.help') }
-          rendered={ entity && entity.concept }/>
+        <Basic.Row>
+          <Basic.Col lg={ 6 }>
+            <Basic.Alert
+              level="warning"
+              title={ this.i18n('button.change.header') }
+              text={ this.i18n('button.change.text') }
+              className="no-margin"
+              buttons={[
+                <Basic.Button
+                  level="warning"
+                  onClick={ this._changeAutomaticRole.bind(this) }
+                  titlePlacement="bottom">
+                  <Basic.Icon type="fa" icon="key"/>
+                  {' '}
+                  { this.i18n('button.change.label') }
+                </Basic.Button>
+              ]}/>
+            </Basic.Col>
+          </Basic.Row>
         <Advanced.TabPanel position="left" parentId="automatic-role-attribute" params={this.props.params}>
           {this.props.children}
         </Advanced.TabPanel>
@@ -65,10 +86,10 @@ AutomaticRoleAttributeRoutes.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { automaticRoleId } = component.params;
   //
   return {
-    entity: manager.getEntity(state, entityId)
+    entity: manager.getEntity(state, automaticRoleId)
   };
 }
 

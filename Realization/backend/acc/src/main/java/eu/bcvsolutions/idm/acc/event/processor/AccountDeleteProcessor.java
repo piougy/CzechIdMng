@@ -153,7 +153,7 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 		contractAccountFilter.setAccountId(account.getId());
 		List<AccContractAccountDto> contractAccounts = contractAccountService.find(contractAccountFilter, null)
 				.getContent();
-		contractAccounts.forEach(contractAccount -> {
+		contractAccounts.forEach(contractAccount -> { 
 			contractAccountService.delete(contractAccount);
 		});
 

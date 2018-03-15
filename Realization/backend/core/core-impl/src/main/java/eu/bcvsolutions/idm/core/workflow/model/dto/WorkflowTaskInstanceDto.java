@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
- * 
+ * Dto for workflow task instance
  * @author svandav
  *
  */
@@ -41,6 +41,7 @@ public class WorkflowTaskInstanceDto implements BaseDto {
 	private String applicantFullName;
 	private List<IdentityLinkDto> identityLinks;
 	private String processInstanceId;
+	private String processDefinitionKey;
 	/*
 	 * From key defined custom UI component use for rendered detail this task
 	 */
@@ -176,5 +177,13 @@ public class WorkflowTaskInstanceDto implements BaseDto {
 			Assert.isInstanceOf(String.class, id, "WorkflowTaskInstanceDto supports only String identifier.");
 		}
 		this.id = (String) id;
+	}
+
+	public String getProcessDefinitionKey() {
+		return processDefinitionKey;
+	}
+
+	public void setProcessDefinitionKey(String processDefinitionKey) {
+		this.processDefinitionKey = processDefinitionKey;
 	}
 }

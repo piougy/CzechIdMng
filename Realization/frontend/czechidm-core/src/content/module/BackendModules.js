@@ -66,7 +66,6 @@ class BackendModules extends Basic.AbstractContent {
         this.addError(error);
       }
     }));
-    console.log('show modal');
     const { detail } = this.state;
     detail.show = true;
     this.setState({
@@ -99,14 +98,15 @@ class BackendModules extends Basic.AbstractContent {
       return one.id > two.id;
     });
 
-    // TODO sort by status number and then by code
     const _resultCodes = [];
     if (resultCodes) {
       resultCodes.forEach(resultCode => {
         _resultCodes.push(resultCode);
       });
     }
-
+    _resultCodes.sort((one, two) => {
+      return parseInt(one.statusCode, 10) - parseInt(two.statusCode, 10);
+    });
     return (
       <div>
         <Helmet title={this.i18n('title')} />

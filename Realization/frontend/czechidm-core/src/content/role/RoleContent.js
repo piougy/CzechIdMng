@@ -25,7 +25,7 @@ class Content extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['roles', 'role-detail']);
+    this.selectNavigationItems(['roles-menu', 'roles', 'role-detail']);
     if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
     } else {

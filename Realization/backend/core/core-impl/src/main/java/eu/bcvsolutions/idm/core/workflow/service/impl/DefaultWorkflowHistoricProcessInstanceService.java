@@ -401,6 +401,7 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 		dto.setId(instance.getId());
 		dto.setName(instanceName);
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
+		dto.setProcessDefinitionKey(instance.getProcessDefinitionKey());
 		dto.setProcessVariables(instance.getProcessVariables());
 		dto.setDeleteReason(instance.getDeleteReason());
 		dto.setDurationInMillis(instance.getDurationInMillis());

@@ -73,4 +73,26 @@ export default class AutomaticRoleAttributeService extends AbstractService {
         return json;
       });
   }
+
+  /**
+   * Delete automatic role via request
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
+  deleteAutomaticRolesViaRequest(id) {
+    return RestApiService
+      .delete(this.getApiPath() + `/delete-via-request/${encodeURIComponent(id)}`)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
 }

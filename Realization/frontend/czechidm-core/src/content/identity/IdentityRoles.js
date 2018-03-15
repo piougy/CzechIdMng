@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, SecurityManager, RoleRequestManager } from '../../redux';
+import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowTaskInstanceManager, WorkflowProcessInstanceManager, SecurityManager, RoleRequestManager } from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
 
 const uiKey = 'identity-roles';
@@ -20,6 +20,7 @@ const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
 const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
 const roleRequestManager = new RoleRequestManager();
+const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 
 const TEST_ADD_ROLE_DIRECTLY = false;
 
@@ -52,18 +53,6 @@ class Roles extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityRoleManager.fetchRoles(entityId, `${uiKey}-${entityId}`));
     this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`));
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { _addRoleProcessIds } = nextProps;
-    if (_addRoleProcessIds && _addRoleProcessIds !== this.props._addRoleProcessIds) {
-      for (const idProcess of _addRoleProcessIds) {
-        const processEntity = workflowProcessInstanceManager.getEntity(this.context.store.getState(), idProcess);
-        if (processEntity && processEntity.processVariables.conceptRole.role && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.conceptRole.role}`)) {
-          // this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.conceptRole.role, `role-${processEntity.processVariables.conceptRole.role}`));
-        }
-      }
-    }
   }
 
   showDetail(entity) {
@@ -202,9 +191,23 @@ class Roles extends Basic.AbstractContent {
   }
 
   _roleNameCell({ rowIndex, data }) {
+    const roleId = data[rowIndex].processVariables.conceptRole ? data[rowIndex].processVariables.conceptRole.role : data[rowIndex].processVariables.entityEvent.content.role;
     return (<Advanced.RoleInfo
-      entityIdentifier={ data[rowIndex].processVariables.conceptRole.role }
+      entityIdentifier={ roleId}
       face="popover" />);
+  }
+
+  _getWfTaskCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.id) {
+      return '';
+    }
+    entity.taskName = entity.name;
+    entity.taskDescription = entity.description;
+    entity.definition = {id: entity.activityId};
+    return (
+      workflowTaskInstanceManager.localize(entity, 'name')
+    );
   }
 
   _changePermissions() {
@@ -488,8 +491,8 @@ class Roles extends Basic.AbstractContent {
               <Advanced.Column
                 property="currentActivityName"
                 header={this.i18n('content.roles.processRoleChange.currentActivity')}
-                sort={false}
-                face="text"/>
+                cell={this._getWfTaskCell}
+                sort={false}/>
               <Advanced.Column
                 property="processVariables.conceptRole.role"
                 cell={this._roleNameCell.bind(this)}

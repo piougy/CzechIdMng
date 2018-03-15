@@ -35,7 +35,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
   }
 
   render() {
-    const {task, taskManager, canExecute} = this.props;
+    const {task, canExecute, taskManager} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     let force = new SearchParameters();
@@ -43,20 +43,20 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
       force = force.setFilter('username', task.applicant);
     }
     const formDataValues = this._toFormDataValues(task.formData);
+    const taskName = taskManager.localize(task, 'name');
 
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
 
-        <Basic.PageHeader>{task.taskName}
+        <Basic.PageHeader>{taskName}
           <small> {this.i18n('header')}</small>
         </Basic.PageHeader>
 
         <Basic.Panel showLoading = {showLoadingInternal}>
-          <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden"/>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
-            <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
+            {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>

@@ -22,7 +22,7 @@ export default class AutomaticRoleTrees extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-tree']);
+    this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-tree']);
   }
 
   render() {

@@ -104,7 +104,7 @@ export default class VsRequestManager extends Managers.EntityManager {
   * Cancel virtual system request
   */
   cancel(bulkActionValue, ids, detail, callback, event) {
-    if (event) {
+    if (event && event.preventDefault) {
       event.preventDefault();
     }
     const dispatch = detail.context.store.dispatch;

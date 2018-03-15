@@ -20,7 +20,8 @@
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
     "datetime": "DD.MM.YYYY HH:mm:ss",
-    "times": "HH:mm:ss"
+    "times": "HH:mm:ss",
+    "duration": "DD HH:mm:ss"
   },
   "message": {
     "success": {
@@ -479,6 +480,10 @@
       "TECHNICAL": "Technická",
       "LOGIN": "Přihlašovací"
     },
+    "AutomaticRoleRequestTypeEnum": {
+      "TREE": "Role dle stromové struktury",
+      "ATTRIBUTE": "Role dle atributu"
+    },
     "ScriptCategoryEnum": {
       "DEFAULT": "Standardní",
       "TRANSFORM_FROM": "Transformace z",
@@ -735,7 +740,9 @@
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
       "WORKFLOWTASK": "Workflow - úkoly",
       "AUTOMATICROLEATTRIBUTE": "Automatické role (atributy)",
-      "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)"
+      "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)",
+      "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)"
     }
   },
   "content": {
@@ -1313,6 +1320,16 @@
         "label": "Přepočet",
         "header": "Přepočet této automatické role na základě attributu?",
         "message": "<b>Ano:</b> Přiřazení role bude provedeno nyní jako nová dlouho trvajicí úloha.<br /><b>Ne:</b> Tato konfigurace bude uložena jako koncept."
+      },
+      "button": {
+        "change": {
+          "label": "Změnit automatickou roli",
+          "header": "Změna této automatické role",
+          "text": "Vytvoří požadavek na změnu této automatické role. Požadavek může vyžadovat schválení."
+        }
+      },
+      "request":{
+        "header": "Žádosti o změnu automatických rolí"
       }
     },
     "formDefinitions": {
@@ -1449,7 +1466,7 @@
         "roleValidFrom": "Platnost role od",
         "roleValidTill": "Platnost role do",
         "currentActivity": "Stav žádosti",
-        "candicateUsers": "Schvalují",
+        "candicateUsers": "Mohou řešit",
         "wfProcessId": "WF"
       },
       "processPermissionChange": {
@@ -1541,6 +1558,63 @@
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost o změnu oprávnění. Spustí případné schvalovací procesy."
         }
+      }
+    },
+    "automaticRoleRequests": {
+      "header": "Žádosti o automatické role",
+      "title": "Žádosti o automatické role",
+      "role": "Žádost pro roli",
+      "name": "Název",
+      "create": {
+        "header": "Vytvořit novou žádost o automatickou roli"
+      },
+      "button": {
+        "createRequest": "Vytvořit žádost",
+        "start": "Provést žádost"
+      },
+      "action": {
+        "startRequest": {
+          "header": "Opravdu chcete podat tuto žádost",
+          "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
+          "started": "Žádost byla úspěšně podána",
+          "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
+          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+        }
+      },
+      "filter": {
+        "role":{
+          "placeholder": "Vyhledání dle názvu role"
+        },
+        "states":{
+          "placeholder": "Vyhledání podle stavů"
+        }
+      }
+
+    },
+    "automaticRoleRequestDetail": {
+      "header": "Žádost automatickou roli",
+      "title": "Žádost automatickou roli",
+      "conceptHeader": "Požadované změny pravidel",
+      "conceptWithCurrentRulesHeader": "Schválená pravidla (včetně požadovaných změn)",
+      "save": {
+        "success": "Žádost o změnu oprávnění byla úspěšně uložena",
+        "start": "Podat žádost"
+      },
+      "button": {
+        "createRequest":{
+          "label": "Podat žádost",
+          "tooltip": "Zahájí žádost o automatickou roli. Spustí případné schvalovací procesy."
+        }
+      },
+      "create": {
+        "header": "Přidat pravidlo"
+      },
+      "edit": {
+        "header": "Upravit pravidlo"
+      },
+      "rulesIsAnd": {
+        "title": "Všechna pravidla musí být splněna.",
+        "text": "Pro přidělení role, musí entita splnit všechna (níže definovaná) pravidla zároveň."
       }
     },
     "role": {
@@ -2214,6 +2288,7 @@
           "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
+          "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "Úživatelské úkoly procesu",
@@ -2669,6 +2744,7 @@
       "deleteReason": "Důvod smazání",
       "processVariables": "Proměnné procesu",
       "superProcessInstanceId": "ID nadřízeného procesu",
+      "processDefinitionKey": "Kód definice procesu",
       "id": "ID",
       "applicant": "Žádost pro"
     },
@@ -2982,7 +3058,7 @@
       },
       "created": "Vytvořeno",
       "modified": "Upraveno",
-      "candicateUsers": "Schvalují",
+      "candicateUsers": "Mohou řešit",
       "currentActivity": "Stav schvalování",
       "originalRequest": "Žádost v okamžiku podání",
       "wfProcessId": "WF"
@@ -3003,6 +3079,44 @@
       "guarantee": {
         "label": "Garant",
         "help": "Garant na přímo přiřazený k pracovně právnímu vztahu"
+      }
+    },
+    "AutomaticRoleRequest": {
+      "role": "Žádost pro roli",
+      "implementer": "Žadatel",
+      "automaticAttributeRole": "Automatická role (dle atributu)",
+      "automaticTreeRole": "Automatická role (dle stromu)",
+      "requestType": "Typ automatické role",
+      "state": "Stav",
+      "name": "Název automatické role",
+      "operation": "Požadovaná změna",
+      "executeImmediately": "Provést bez schválení",
+      "description": {
+        "label" : "Popis",
+        "placeholder": "Slovní popis požadavku"
+      },
+      "created": "Vytvořeno",
+      "modified": "Upraveno",
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF"
+    },
+    "AutomaticRoleAttributeRuleRequest": {
+      "type": {
+        "label": "$t(entity.AutomaticRole.attribute.type.label)",
+        "help": "$t(entity.AutomaticRole.attribute.type.help)"
+      },
+      "concept": {
+        "label": "$t(entity.AutomaticRole.attribute.concept.label)",
+        "info": "$t(entity.AutomaticRole.attribute.concept.info)",
+        "help": "$t(entity.AutomaticRole.attribute.type.help)"
+      },
+      "attributeName": "$t(entity.AutomaticRole.attribute.attributeName)",
+      "comparison": "$t(entity.AutomaticRole.attribute.comparison)",
+      "formAttribute": "$t(entity.AutomaticRole.attribute.formAttribute)",
+      "value": {
+          "label": "$t(entity.AutomaticRole.attribute.value.label)",
+          "help": "$t(entity.AutomaticRole.attribute.value.help)"
       }
     },
     "EntityEvent": {
@@ -3084,6 +3198,119 @@
     }
   },
   "wf": {
+    "approve-identity-change-permissions" : {
+      "name": "Změna oprávnění pro uživatele '{{0}}'",
+      "task": {
+        "approveByHelpDesk": {
+          "name": "Schválování 'Helpdesk'",
+          "description":"Schválení změny oprávnění pro '{{0}}' (Helpdesk)"
+        },
+        "returnedRequestFromHelpdesk": {
+          "name": "Požadavek vrácen z 'Helpdesk'",
+          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+        },
+        "approveByManager": {
+          "name": "Schvalování vedoucím",
+          "description":"Schválení změny oprávnění vedoucím pro '{{0}}'"
+        },
+        "returnedRequestFromManager": {
+          "name": "Požadavek vrácen vedoucím",
+          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+        },
+        "approveByUserManager": {
+          "name": "Schválení vedoucím uživatele",
+          "description":"Schválení změny oprávnění vedoucím uživatele pro '{{0}}'"
+        },
+        "returnedRequestFromUserManager": {
+          "name": "Požadavek vrácen vedoucím uživatele",
+          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+        },
+        "approvedBySecurity": {
+          "name": "Schválení bezpečnostním oddělením",
+          "description":"Schválení změny oprávnění bezpečnostním oddělením pro '{{0}}'"
+        }
+      }
+    },
+    "change-role-without-approve" : {
+      "name": "Změna v přiřazení (přidání/odebrání/změna) role '{{0}}' pro uživatele '{{1}}'"
+    },
+    "approve-role-by-manager" : {
+      "name": "Schválení změny v přiřazení role '{{0}}' pro uživatele '{{1}}'",
+      "task": {
+        "approveAssignByManager": {
+          "name": "Schválení přiřazení role vedoucím",
+          "description":"Schválení přiřazení role '{{0}}' pro uživatele '{{1}}'"
+        },
+        "approveChangeByManager": {
+          "name": "Schválení změny platnosti role vedoucím",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' pro uživatele '{{1}}'"
+        }
+      }
+    },
+    "approve-remove-role-by-manager" : {
+      "name": "Schválení odebrání přiřazené role '{{0}}' uživateli '{{1}}'",
+      "task": {
+        "approveByManager": {
+          "name": "Schválení odebrání role vedoucím",
+          "description":"Schválení odebrání role '{{0}}' vedoucím uživateli '{{1}}'"
+        }
+      }
+    },
+    "approve-role-by-guarantee" : {
+      "name": "Schválení změny v přiřazení role '{{0}}' garantem pro uživatele '{{1}}'",
+      "name_automaticRole": "Schválení změny v automatickém přiřazování role '{{0}}' jejím garantem",
+      "task": {
+        "approveAssign": {
+          "name": "Schválení přiřazení role garantem",
+          "description":"Schválení přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveChange": {
+          "name": "Schválení změny platnosti role garantem",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveAutomaticRole": {
+          "name": "Schválení úpravy/vytvoření/smazání automatické role",
+          "description":"Schválení úpravy/vytvoření automatické role '{{0}}'"
+        }
+      }
+    },
+    "approve-role-by-guarantee-security" : {
+      "name": "Schválení změny v přiřazení role '{{0}}' garantem a bezpečnostním oddělením pro uživatele '{{1}}'",
+      "name_automaticRole": "Schválení změny v automatickém přiřazování role '{{0}}' jejím garantem a bezpečnostním oddělením",
+      "task": {
+        "approveAssignByGuarantee": {
+          "name": "Schválení přiřazení role garantem",
+          "description":"Schválení přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveChangeByGuarantee": {
+          "name": "Schválení změny platnosti role garantem",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveAssignBySecurity": {
+          "name": "Schválení přiřazení role bezpečnostním oddělením",
+          "description":"Schválení přiřazení role '{{0}}' bezpečnostním oddělením pro uživatele '{{1}}'"
+        },
+        "approveChangeBySecurity": {
+          "name": "Schválení změny platnosti role bezpečnostním oddělením",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' bezpečnostním oddělením pro uživatele '{{1}}'"
+        },
+        "approveAutomaticRole": {
+          "name": "Schválení úpravy/vytvoření/smazání automatické role",
+          "description":"Schválení úpravy/vytvoření/smazání automatické role '{{0}}'"
+        },
+        "approveAutomaticRoleBySecurity": {
+          "name": "Schválení úpravy/vytvoření/smazání automatické role",
+          "description":"Schválení úpravy/vytvoření/smazání automatické role '{{0}}'"
+        }
+      }
+    },
+    "COMMENT":"If you can not find a translation for a specific WF definition, then we'll try to locate the translation in global tasks (by task key only):",
+    "task": {
+      "approveByManager": {
+        "name": "Schválení vedoucím",
+        "description":"Schválení vedoucím"
+      }
+    },
     "decision" : {
       "approve": {
         "label" : "Schválit",
@@ -3543,6 +3770,10 @@
     "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
       "title": "Typ atributu 'TEXT' není podporován",
       "message": "Rozšířený atribut typu 'TEXT' není podporován."
+    },
+    "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
+      "title": "Žádost o automatickou roli, musí mít alespoň jedno pravidlo!",
+      "message": "Žádost o automatickou roli [{{request}}], musí mít alespoň jedno pravidlo!"
     },
     "EVENT_CANCELED_BY_RESTART": {
       "title": "Zpracování události bylo přerušeno",

@@ -10,7 +10,7 @@ Input variables:
 - conceptRole (IdmConceptRoleRequestDto)
 - applicantDescription</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveTask" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
+    <userTask id="approveAssignByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -24,21 +24,21 @@ Input variables:
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow39"></exclusiveGateway>
-    <sequenceFlow id="flow2" sourceRef="approveTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <endEvent id="endevent1" name="End" activiti:async="false"></endEvent>
+    <sequenceFlow id="flow2" sourceRef="approveAssignByManager" targetRef="exclusivegateway1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent2" name="End" activiti:async="false"></endEvent>
-    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;{{${roleService.get(conceptRole.role).name}}}&quot; assignment by manager for &quot;{{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask8"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask9"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow9" sourceRef="exclusivegateway2" targetRef="servicetask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <userTask id="usertask1" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
+    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;{{${roleService.get(conceptRole.role).name}}}&quot; change by manager for &quot;{{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <userTask id="approveChangeByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -53,12 +53,12 @@ Input variables:
         </activiti:formProperty>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="flow19" sourceRef="usertask1" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="approveChangeByManager" targetRef="exclusivegateway3"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow21" name="Disapproved" sourceRef="exclusivegateway3" targetRef="scripttask6">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent4" name="End" activiti:async="false"></endEvent>
+    <endEvent id="endevent4" name="End"></endEvent>
     <sequenceFlow id="flow27" sourceRef="exclusivegateway2" targetRef="servicetask5">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("change")}]]></conditionExpression>
     </sequenceFlow>
@@ -69,7 +69,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole,null) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="false">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -164,7 +164,7 @@ if(!skip){
   execution.setVariable("candidatesApproveByManager", candidatesString);
 }</script>
     </scriptTask>
-    <sequenceFlow id="flow41" sourceRef="scripttask9" targetRef="approveTask"></sequenceFlow>
+    <sequenceFlow id="flow41" sourceRef="scripttask9" targetRef="approveAssignByManager"></sequenceFlow>
     <scriptTask id="scripttask10" name="Find all managers (for applicant) and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>boolean skip = false;
 def candidates = null;
@@ -200,7 +200,7 @@ if(!skip){
   execution.setVariable("candidatesApproveByManager", candidatesString);
 }</script>
     </scriptTask>
-    <sequenceFlow id="flow42" sourceRef="scripttask10" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow42" sourceRef="scripttask10" targetRef="approveChangeByManager"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
@@ -216,6 +216,11 @@ if(!skip){
         <activiti:value>none</activiti:value>
       </extensionElements>
     </dataObject>
+    <dataObject id="supportsAutomaticRole" name="supportsAutomaticRole" itemSubjectRef="xsd:boolean">
+      <extensionElements>
+        <activiti:value>false</activiti:value>
+      </extensionElements>
+    </dataObject>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
     </textAnnotation>
@@ -228,7 +233,7 @@ if(!skip){
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="1.0" y="266.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="approveTask" id="BPMNShape_approveTask">
+      <bpmndi:BPMNShape bpmnElement="approveAssignByManager" id="BPMNShape_approveAssignByManager">
         <omgdc:Bounds height="86.0" width="171.0" x="712.0" y="182.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
@@ -249,7 +254,7 @@ if(!skip){
       <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
         <omgdc:Bounds height="70.0" width="105.0" x="361.0" y="312.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+      <bpmndi:BPMNShape bpmnElement="approveChangeByManager" id="BPMNShape_approveChangeByManager">
         <omgdc:Bounds height="86.0" width="171.0" x="712.0" y="304.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">

@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -50,8 +51,10 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.IdentityLinkDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
@@ -68,18 +71,16 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	@Autowired
 	private SecurityService securityService;
-
 	@Autowired
 	private TaskService taskService;
-
 	@Autowired
 	private FormService formService;
-
 	@Autowired
 	private LookupService lookupService;
-
 	@Autowired
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
+	@Autowired
+	private WorkflowProcessDefinitionService workflowProcessDefinitionService;
 
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
@@ -221,6 +222,14 @@ public class DefaultWorkflowTaskInstanceService extends
 		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(task.getProcessDefinitionId(),
 				task.getTaskDefinitionKey()));
 
+		if (!Strings.isNullOrEmpty(task.getProcessDefinitionId())) {
+			WorkflowProcessDefinitionDto processDefinition = workflowProcessDefinitionService
+					.get(task.getProcessDefinitionId());
+			if (processDefinition != null) {
+				dto.setProcessDefinitionKey(processDefinition.getKey());
+			}
+		}
+
 		TaskFormData taskFormData = formService.getTaskFormData(task.getId());
 
 		// Add form data (it means form properties and value from WF)
@@ -261,7 +270,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		if (formType instanceof DecisionFormType) {
 			// Decision buttons will be add only if logged user can execute/complete this
 			// task
-			if(!canExecute) {
+			if (!canExecute) {
 				return;
 			}
 			DecisionFormTypeDto decisionDto = (DecisionFormTypeDto) ((DecisionFormType) formType)

@@ -49,6 +49,8 @@ import ConfidentialStorageValueManager from './ConfidentialStorageValueManager';
 import AutomaticRoleAttributeManager from './AutomaticRoleAttributeManager';
 import AutomaticRoleAttributeRuleManager from './AutomaticRoleAttributeRuleManager';
 import LongRunningTaskItemManager from './LongRunningTaskItemManager';
+import AutomaticRoleRequestManager from './AutomaticRoleRequestManager';
+import AutomaticRoleAttributeRuleRequestManager from './AutomaticRoleAttributeRuleRequestManager';
 import EntityEventManager from './EntityEventManager';
 import EntityStateManager from './EntityStateManager';
 
@@ -97,6 +99,8 @@ const ManagerRoot = {
   AutomaticRoleAttributeManager,
   AutomaticRoleAttributeRuleManager,
   LongRunningTaskItemManager,
+  AutomaticRoleRequestManager,
+  AutomaticRoleAttributeRuleRequestManager,
   EntityEventManager,
   EntityStateManager
 };

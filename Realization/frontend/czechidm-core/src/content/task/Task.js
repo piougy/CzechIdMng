@@ -10,7 +10,7 @@ const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 const componentService = new ComponentService();
 
 /**
- * Component for render detail of workflow task. Is responsible for choose corect task detil component.
+ * Component for render detail of workflow task. Is responsible for choose correct task detil component.
  * As default is DynamicTaskDetail, when have task secificate custom task detail (in formKey),
  * than is loaded component by name and used it for task detail render.
  */
@@ -60,6 +60,16 @@ class Task extends Basic.AbstractContent {
     }
   }
 
+  _canExecute(task) {
+    if (task) {
+      const decisions = task.decisions;
+      if (decisions && decisions.length > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   render() {
     const { readOnly, task } = this.props;
     const { nonExistentTask } = this.state;
@@ -97,6 +107,7 @@ class Task extends Basic.AbstractContent {
         {task ?
         <DetailComponent
           task={task}
+          canExecute={this._canExecute(task)}
           uiKey="dynamic-task-detail"
           taskManager={workflowTaskInstanceManager}
           readOnly={readOnly}/>

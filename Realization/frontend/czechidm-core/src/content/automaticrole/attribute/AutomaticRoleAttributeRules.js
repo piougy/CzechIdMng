@@ -24,11 +24,15 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-attribute-rules']);
+    const { automaticRoleId, entityId } = this.props.params;
+    if (entityId) {
+      this.selectNavigationItems(['roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-rules']);
+    } else {
+      this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute-rules']);
+    }
 
-    this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
-    this.context.store.dispatch(manager.fetchEntity(entityId));
+    this.getLogger().debug(`[TypeContent] loading entity detail [id:${automaticRoleId}]`);
+    this.context.store.dispatch(manager.fetchEntity(automaticRoleId));
   }
 
   render() {
@@ -56,11 +60,11 @@ AutomaticRoleAttributeRules.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { automaticRoleId } = component.params;
   //
   return {
-    entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    entity: manager.getEntity(state, automaticRoleId),
+    showLoading: manager.isShowLoading(state, null, automaticRoleId)
   };
 }
 

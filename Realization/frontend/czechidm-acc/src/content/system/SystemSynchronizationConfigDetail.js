@@ -309,7 +309,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const itemsPerSec = Math.round((allOperationsCount / timeDiff * 1000) * 100) / 100;
     actions.push(
       <div>
-        <Basic.Label style={{marginRight: '5px'}} level="info" text={timeDiff.format(this.i18n('format.times'))}/>
+        <Basic.Label style={{marginRight: '5px'}} level="info" text={
+            /** Maybe use format.duration (only time is nicely) **/
+            timeDiff.format(this.i18n('format.times'))}/>
         <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.timeDiff`)} </label>
       </div>
     );

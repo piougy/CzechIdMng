@@ -21,7 +21,8 @@ const identityManager = new IdentityManager();
 const identityRoleManager = new IdentityRoleManager();
 
 /**
- * @author VS
+ * Detail of the role request
+ * @author Vít Švanda
  */
 class RoleRequestDetail extends Advanced.AbstractTableContent {
 
@@ -353,6 +354,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data }) => {
                   const role = data[rowIndex]._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
                   return (
                     <Advanced.EntityInfo
                       entityType="role"

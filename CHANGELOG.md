@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [8.0.0 - unreleased]
 
+- [#938](https://redmine.czechidm.com/issues/938) - Requests for automatic assign roles (by tree node or attributes) was implemented.
+ - Creating, updating, deleting of the any automatic role **must use** this requests. Requests are approval by "same" workflows as request for roles uses.
+ - Create, update, delete methods from `IdmAutomaticRoleAttributeController` was **removed**. Method `/delete-via-request/` was **added** to this controller. This method creates request for delete given automatic role.
 - Detail of user - frontend validation that required at least 3 characters for the user name was removed.
 - [#468](https://redmine.czechidm.com/issues/468) - Added asynchronous event processing. Added asynchronous event type ``NOTIFY`` on identities, identity roles and contracts - notify about entity was changed. Processors could listen and process this new event asynchronously. Read more in [documentation](https://redmine.czechidm.com/issues/468). Account management was switched to asynchronous processing by default (instead ``DELETE`` events - removing identity, their role or contact will be still synchronous). Make sure source file **``czechidm-app/src/Index.js``** on frontend is updated.
 - [#979](https://redmine.czechidm.com/issues/979) - Attribute modified from ``AbstractEntity`` isn't audited anymore. Modified date can be found in ``IdmAudit`` as revision ``timestamp``.

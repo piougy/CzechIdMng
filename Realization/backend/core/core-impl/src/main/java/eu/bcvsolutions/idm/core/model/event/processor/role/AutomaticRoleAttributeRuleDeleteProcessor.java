@@ -9,14 +9,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -44,6 +47,8 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 	private final IdmAutomaticRoleAttributeService automaticRoleAttributeRuleService;
 	private final LongRunningTaskManager longRunningTaskManager;
 	private final IdmIdentityService identityService;
+	@Autowired
+	private IdmAutomaticRoleAttributeRuleRequestService ruleRequestService;
 	
 	@Autowired
 	public AutomaticRoleAttributeRuleDeleteProcessor(
@@ -89,6 +94,17 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 					roleAttributeDto = automaticRoleAttributeRuleService.save(roleAttributeDto);
 				}
 			}
+		}
+		UUID automaticRuleId = dto.getId();
+		// Find all automatic role requests and remove relation on rule
+		if (automaticRuleId != null) {
+			IdmAutomaticRoleAttributeRuleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleAttributeRuleRequestFilter();
+			automaticRoleRequestFilter.setRuleId(automaticRuleId);
+
+			ruleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
+				request.setRule(null);
+				ruleRequestService.save(request);
+			});
 		}
 		
 		//

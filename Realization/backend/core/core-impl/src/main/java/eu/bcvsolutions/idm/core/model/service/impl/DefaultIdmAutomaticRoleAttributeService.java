@@ -763,4 +763,5 @@ public class DefaultIdmAutomaticRoleAttributeService
 			return value;
 		}
 	}
+	
 }

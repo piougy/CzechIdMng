@@ -20,7 +20,8 @@
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
     "datetime": "DD.MM.YYYY HH:mm:ss",
-    "times": "HH:mm:ss"
+    "times": "HH:mm:ss",
+    "duration": "DD HH:mm:ss"
   },
   "message": {
     "success": {
@@ -450,6 +451,10 @@
       "TECHNICAL": "Technical",
       "LOGIN": "Login"
     },
+    "AutomaticRoleRequestTypeEnum": {
+      "TREE": "Role by tree structure",
+      "ATTRIBUTE": "Role by attribute"
+    },
     "ScriptCategoryEnum": {
       "DEFAULT": "Standard",
       "TRANSFORM_FROM": "Transformation from",
@@ -706,7 +711,9 @@
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
       "WORKFLOWTASK": "Workflow - tasks",
       "AUTOMATICROLEATTRIBUTE": "Automatic roles (attributes)",
-      "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)"
+      "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)",
+      "AUTOMATICROLEREQUEST": "Requests for automatic roles",
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)"
 
     }
   },
@@ -1275,6 +1282,16 @@
         "label": "Recalculation",
         "header": "Recalculate the automatic role based on attributes?",
         "message": "<b>Yes:</b> Role assignment to users will start now as a new long running task.<br /><b>No:</b> This configuration will be saved as a concept."
+      },
+      "button": {
+        "change": {
+          "label": "Change automatic role",
+          "header": "Change this automatic role",
+          "text": "Creates a request to change this automatic role. The request may require approval."
+        }
+      },
+      "request":{
+        "header": "Request for change the automatic role"
       }
     },
     "formDefinitions": {
@@ -1411,7 +1428,7 @@
         "roleValidFrom": "$t(entity.validFrom)",
         "roleValidTill": "$t(entity.validTill)",
         "currentActivity": "application status",
-        "candicateUsers": "Approvers",
+        "candicateUsers": "Can solve",
         "wfProcessId": "WF"
       },
       "processPermissionChange": {
@@ -1504,6 +1521,63 @@
         }
       }
      },
+     "automaticRoleRequests": {
+       "header": "Requests for automatic roles",
+       "title": "Requests for automatic roles",
+       "role": "Request for role",
+       "name": "Name",
+       "create": {
+         "header": "Create new request for automatic role"
+       },
+       "button": {
+         "createRequest": "Create request",
+         "start": "Execute request"
+       },
+       "action": {
+         "startRequest": {
+           "header": "Do you really want execute this request",
+           "message": "Do you really want execute this request and start approval process?",
+           "started": "Request was started",
+           "exception": "Error occurred during submitting request. Request was not submitted!",
+           "duplicated": "Request was not submitted because it is duplicate with another request created on [{{created}}]."
+         }
+       },
+       "filter": {
+         "role":{
+           "placeholder": "Search by whole username applicant."
+         },
+         "states":{
+           "placeholder": "Search by states"
+         }
+       }
+     },
+     "automaticRoleRequestDetail": {
+       "header": "Request for automatic role",
+       "title": "Change automatic role",
+       "conceptHeader": "Requested change of rules",
+       "conceptWithCurrentRulesHeader": "Approved rules (includes required changes)",
+       "save": {
+         "success": "Request to change automatic role successfully saved",
+         "start": "Execute request"
+       },
+       "button": {
+         "createRequest":{
+           "label": "Submit a request",
+           "tooltip": "Start request for change automatic role"
+         }
+       },
+       "create": {
+         "header": "Create the rule"
+       },
+       "edit": {
+         "header": "Edit the rule"
+       },
+       "rulesIsAnd": {
+         "title": "All rules must be met.",
+         "text": "To assign a role, the entity must meet all the (below defined) rules at the same time."
+       }
+
+      },
     "role": {
       "identities": {
         "header": "Users with assigned role",
@@ -2172,6 +2246,7 @@
           "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
+          "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "User tasks in  process",
@@ -2627,6 +2702,7 @@
       "deleteReason": "Reason for deletion",
       "processVariables": "Process variables",
       "superProcessInstanceId": "Parent process id",
+      "processDefinitionKey": "Code of the process definition",
       "id": "Id",
       "applicant": "Applicant"
     },
@@ -2634,13 +2710,13 @@
       "name": "Task name",
       "startTime": "Creation date",
       "endTime": "Ends on",
-      "assignee": "Assigned by",
+      "assignee": "Assignee",
       "deleteReason": "Completed",
       "id": "Id",
       "priority": "Priority",
       "createTime": "Created on",
       "completeTaskDecision": "Result",
-      "candicateUsers": "Authorizers"
+      "candicateUsers": "Can solve"
     },
     "Notification": {
       "topic": "Topic",
@@ -2940,7 +3016,7 @@
       },
       "created": "Created",
       "modified": "Modified",
-      "candicateUsers": "Approvers",
+      "candicateUsers": "Can solve",
       "currentActivity": "Approval state",
       "originalRequest": "Original request",
       "wfProcessId": "WF identifier"
@@ -2962,6 +3038,44 @@
         "label": "Guarantee",
         "help": "Guarantee assigned to contracted position"
       }
+    },
+    "AutomaticRoleRequest": {
+      "role": "Requested for role",
+      "implementer": "Applicant",
+      "automaticAttributeRole": "Automatic role (by attribute)",
+      "automaticTreeRole": "Automatic role (by tree)",
+      "requestType": "Type of automatic role",
+      "operation": "Requested change",
+      "state": "State",
+      "name": "Name of automatic role",
+      "executeImmediately": "Without approval",
+      "description": {
+        "label" : "Description",
+        "placeholder": "Verbal description of a request"
+      },
+      "created": "Created",
+      "modified": "Modified",
+      "candicateUsers": "Approvers",
+      "currentActivity": "Approval state",
+      "wfProcessId": "WF identifier"
+    },
+    "AutomaticRoleAttributeRuleRequest": {
+      "type": {
+        "label": "$t(entity.AutomaticRole.attribute.type.label)",
+        "help": "$t(entity.AutomaticRole.attribute.type.help)"
+      },
+      "concept": {
+        "label": "$t(entity.AutomaticRole.attribute.concept.label)",
+        "info": "$t(entity.AutomaticRole.attribute.concept.info)",
+        "help": "$t(entity.AutomaticRole.attribute.type.help)"
+      },
+      "attributeName": "$t(entity.AutomaticRole.attribute.attributeName)",
+      "comparison": "$t(entity.AutomaticRole.attribute.comparison)",
+      "formAttribute": "$t(entity.AutomaticRole.attribute.formAttribute)",
+      "value": {
+          "label": "$t(entity.AutomaticRole.attribute.value.label)",
+          "help": "$t(entity.AutomaticRole.attribute.value.help)"
+        }
     },
     "EntityEvent": {
       "_type": "Event",
@@ -3042,6 +3156,119 @@
     }
   },
   "wf": {
+    "approve-identity-change-permissions" : {
+      "name": "Change of permissions for user '{{0}}'",
+      "task": {
+        "approveByHelpDesk": {
+          "name": "Approval by 'Helpdesk'",
+          "description":"Approving a change of permissions for '{{0}}' (Helpdesk)"
+        },
+        "returnedRequestFromHelpdesk": {
+          "name": "The request was returned from 'Helpdesk'",
+          "description":"Returned change of permissions request for '{{0}}'"
+        },
+        "approveByManager": {
+          "name": "Approval by manager",
+          "description":"Approving a change of permissions by manager for '{{0}}'"
+        },
+        "returnedRequestFromManager": {
+          "name": "The request was returned from manager",
+          "description":"Returned change of permissions request for '{{0}}'"
+        },
+        "approveByUserManager": {
+          "name": "Approval by user manager",
+          "description":"Approving a change of permissions by user manager for '{{0}}'"
+        },
+        "returnedRequestFromUserManager": {
+          "name": "The request was returned from user manager",
+          "description":"Returned change of permissions request for '{{0}}'"
+        },
+        "approvedBySecurity": {
+          "name": "Approval by security department",
+          "description":"Approving a change of permissions by security department for '{{0}}'"
+        }
+      }
+    },
+    "change-role-without-approve" : {
+      "name": "Change assignment of the role (add / remove / change) '{{0}}' for user '{{1}}'"
+    },
+    "approve-role-by-manager" : {
+      "name": "Approval change of assignmented role '{{0}}' for user '{{1}}'",
+      "task": {
+        "approveAssignByManager": {
+          "name": "Approval of assignment role by the manager",
+          "description":"Approval of assignment role '{{0}}' by the manager for the user '{{1}}'"
+        },
+        "approveChangeByManager": {
+          "name": "Approval of validity change of the role by the manager",
+          "description":"Approval of validity change of the role '{{0}}' by the manager for the user '{{1}}'"
+        }
+      }
+    },
+    "approve-remove-role-by-manager" : {
+      "name": "Approval remove of assignmented role '{{0}}' for user '{{1}}'",
+      "task": {
+        "approveByManager": {
+          "name": "Approval remove of assignmented role by user's manager",
+          "description":"Approval remove of assignmented role '{{0}}' by user's manager for the user '{{1}}'"
+        }
+      }
+    },
+    "approve-role-by-guarantee" : {
+      "name": "Approval change of assignmented role '{{0}}' for user '{{1}}'",
+      "name_automaticRole": "Approve change in automatic role assignment '{{0}}' by his guarantee",
+      "task": {
+        "approveAssign": {
+          "name": "Approval the role assignment by the guarantee",
+          "description":"Approval the role '{{0}}' assignment by the guarantee for user '{{1}}'"
+        },
+        "approveChange": {
+          "name": "Approval of validity change of the role by the guarantee",
+          "description":"Approval of validity change of role '{{0}}' by the guarantee for user '{{1}}'"
+        },
+        "approveAutomaticRole": {
+          "name": "Approval create/change/remove of automatic role by the guarantee",
+          "description":"Approval create/change/remove of automatic role '{{0}}' by the guarantee"
+        }
+      }
+    },
+    "approve-role-by-guarantee-security" : {
+      "name": "Approval change of assignmented role '{{0}}' by the guarantee and security department for user '{{1}}'",
+      "name_automaticRole": "Approve change in automatic role assignment '{{0}}' by his guarantee and security department",
+      "task": {
+        "approveAssignByGuarantee": {
+          "name": "Approval the role assignment by the guarantee",
+          "description":"Approval the role '{{0}}' assignment by the guarantee for user '{{1}}'"
+        },
+        "approveChangeByGuarantee": {
+          "name": "Approval of validity change of the role by the guarantee",
+          "description":"Approval of validity change of role '{{0}}' by the guarantee for user '{{1}}'"
+        },
+        "approveAssignBySecurity": {
+          "name": "Approval the role assignment by security department",
+          "description":"Approval the role '{{0}}' assignment by security department for user '{{1}}'"
+        },
+        "approveChangeBySecurity": {
+          "name": "Approval of validity change of the role by security department",
+          "description":"Approval of validity change of role '{{0}}' by security department for user '{{1}}'"
+        },
+        "approveAutomaticRole": {
+          "name": "Approval create/change/remove of automatic role",
+          "description":"Approval create/change/remove of automatic role '{{0}}'"
+        },
+        "approveAutomaticRoleBySecurity": {
+          "name": "Approval create/change/remove of automatic role",
+          "description":"Approval create/change/remove of automatic role '{{0}}'"
+        }
+      }
+    },
+    "COMMENT":"If you can not find a translation for a specific WF definition, then we'll try to locate the translation in global tasks (by task key only):",
+    "task": {
+      "approveByManager": {
+        "name": "Approving by manager",
+        "description":"Approving by manager"
+      }
+    },
     "decision" : {
       "approve": {
         "label" : "Accept",
@@ -3497,6 +3724,10 @@
     "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
       "title": "Attribute type 'TEXT' is not supported",
       "message": "Extended attribute type 'TEXT' is not supported."
+    },
+    "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
+      "title": "Request for automatic role must have at least on rule!",
+      "message": "Request for automatic role [{{request}}] must have at least on rule!"
     },
     "EVENT_CANCELED_BY_RESTART": {
       "title": "Event was canceled",

@@ -6,6 +6,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import IdentityInfo from '../../components/advanced/IdentityInfo/IdentityInfo';
+import WorkflowTaskInfo from '../../components/advanced/WorkflowTaskInfo/WorkflowTaskInfo';
 import DecisionButtons from './DecisionButtons';
 
 /**
@@ -112,6 +113,18 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     }
   }
 
+  _getTaskInfo(task) {
+    if (task) {
+      return (
+        <div>
+          <Basic.LabelWrapper readOnly ref="taskDescription" label={this.i18n('description')}>
+            <WorkflowTaskInfo entity={task} showLink={false} showLoading={!task} className="no-margin"/>
+          </Basic.LabelWrapper>
+        </div>
+      );
+    }
+  }
+
   _getFormDataComponents(task) {
     const { canExecute } = this.props;
     if (!task) {
@@ -193,22 +206,22 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const {task, taskManager, canExecute} = this.props;
+    const {task, canExecute, taskManager} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
+    const taskName = taskManager.localize(task, 'name');
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
-        <Basic.PageHeader>{task.taskName}
+        <Basic.PageHeader>{taskName}
           <small> {this.i18n('header')}</small>
         </Basic.PageHeader>
         <Basic.Panel showLoading = {showLoadingInternal}>
-          <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
-          </Basic.PanelHeader>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
-            <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
+            {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>

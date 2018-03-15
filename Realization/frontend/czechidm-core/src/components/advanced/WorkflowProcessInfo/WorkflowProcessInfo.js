@@ -73,13 +73,14 @@ export class WorkflowProcessInfo extends AbstractEntityInfo {
       return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
     }
     //
+    const niceLabel = this.getManager().localize(_entity, 'name');
     if (!this.showLink()) {
       return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
+        <span className={ classNames }>{ niceLabel }</span>
       );
     }
     return (
-      <Link className={ classNames } to={ this.getLink() }>{manager.getNiceLabel(_entity)}</Link>
+      <Link className={ classNames } to={ this.getLink() }>{ niceLabel }</Link>
     );
   }
 }

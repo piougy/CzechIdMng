@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
@@ -37,8 +38,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
- * 
- * TODO: long running task interface only + AOP wrapper for long running task executor
  * 
  * @author Radek Tomiška
  *
@@ -153,8 +152,20 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@Transactional
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
+		if (!isAsynchronous()) {
+			V result = executeSync(taskExecutor);
+			// construct simple task
+			return new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(new Callable<V>() {
+
+				@Override
+				public V call() throws Exception {
+					return result;
+				}
+			}));
+		}
+		//
 		// autowire task properties
-		AutowireHelper.autowire(taskExecutor);
+		AutowireHelper.autowire(taskExecutor);	
 		// persist LRT
 		taskExecutor.validate(persistTask(taskExecutor));
 		//

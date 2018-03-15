@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -44,11 +45,13 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
 		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 	
@@ -84,7 +87,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		//
 		// test LRT - nothing to remove
 		AccountProtectionExpirationTaskExecutor taskExecutor = new AccountProtectionExpirationTaskExecutor();
-		longRunningTaskManager.executeSync(taskExecutor);
+		longRunningTaskManager.execute(taskExecutor);
 		//
 		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
@@ -100,7 +103,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		account = accountService.save(account);
 		
 		taskExecutor = new AccountProtectionExpirationTaskExecutor();
-		longRunningTaskManager.executeSync(taskExecutor);
+		longRunningTaskManager.execute(taskExecutor);
 		
 		AccAccountDto removedAccount = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNull(removedAccount);

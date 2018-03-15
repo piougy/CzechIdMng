@@ -80,7 +80,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
 		//
-		for (IdmLongRunningTaskDto longRunningTask : service.find(filter, null)) {
+		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
 			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY,
 						ImmutableMap.of(
@@ -90,7 +90,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		}
 		//
 		filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
-		for (IdmLongRunningTaskDto longRunningTask : service.find(filter, null)) {
+		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
 			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
 						ImmutableMap.of(

@@ -28,10 +28,7 @@ public interface SchedulerConfiguration {
 	
 	/**
 	 * Asynchronous task execution is enabled. Asynchronous task execution can be disabled for testing or debugging purposes.
-	 * 
-	 * @Beta it's implemented just in process created task phase (improve tests stability), but it's needed to implement it into execute methods (still async).
 	 */
-	@Beta
 	String PROPERTY_TASK_ASYNCHRONOUS_ENABLED = "scheduler.task.asynchronous.enabled";
 	boolean DEFAULT_TASK_ASYNCHRONOUS_ENABLED = true;
 	

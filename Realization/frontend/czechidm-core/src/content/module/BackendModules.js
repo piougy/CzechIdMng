@@ -97,7 +97,7 @@ class BackendModules extends Basic.AbstractContent {
     _installedModules.sort((one, two) => {
       return one.id > two.id;
     });
-
+    // TODO add filter, make modal separete
     const _resultCodes = [];
     if (resultCodes) {
       resultCodes.forEach(resultCode => {
@@ -113,7 +113,7 @@ class BackendModules extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
 
-        <Basic.Modal show={detail.show} showLoading={detail.showLoading} onHide={this._closeModal.bind(this)}>
+        <Basic.Modal bsSize="large" show={detail.show} showLoading={detail.showLoading} onHide={this._closeModal.bind(this)}>
           <Basic.Modal.Header text={this.i18n('result-codes.title')} />
           <Basic.Modal.Body>
             <Basic.Table
@@ -121,8 +121,19 @@ class BackendModules extends Basic.AbstractContent {
               noData={this.i18n('component.basic.Table.noData')}
               rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
               <Basic.Column property="statusCode" header={this.i18n('result-codes.status')}/>
-              <Basic.Column property="status" header={this.i18n('result-codes.code')}/>
-              <Basic.Column property="message" header={this.i18n('result-codes.message')}/>
+              <Basic.Column property="statusEnum" header={this.i18n('result-codes.code')}/>
+              <Basic.Column property="message" header={this.i18n('result-codes.message')}
+                cell={
+                  ({ rowIndex, data }) => {
+                    const message = this.getFlashManager().convertFromResultModel(data[rowIndex]);
+                    const key = 'flash-message-' + message.id;
+                    return (
+                      <Basic.FlashMessage
+                        key={key}
+                        message={message}
+                        showDate={false} />);
+                  }
+                }/>
             </Basic.Table>
           </Basic.Modal.Body>
           <Basic.Modal.Footer>

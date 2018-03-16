@@ -99,6 +99,12 @@
     "dateTill": {
       "label": "To",
       "placeholder": "Date to"
+    },
+    "text": {
+      "help": {
+        "header": "Filtering",
+        "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>"
+      }
     }
   },
   "action": {
@@ -247,7 +253,7 @@
         "label": "Users",
         "title": "List of users"
       },
-      "messages": "Report a problem",
+      "messages": "Messages history",
       "configuration": "Configuration",
       "userLabel": "{{entityId}}",
       "login": "$t(content.login.header)",
@@ -799,6 +805,10 @@
               "message": "Your CzechIdM password was successfully changed."
             }
           }
+        },
+        "help": {
+          "header": "Change password",
+          "body": "<div class=\"alert alert-info\">The change password form is only for external employees. An internal employee can change his password after signing in to his profile.</div>To change your password, fill out the form. In this form, you enter your username, your existing password, the new password you want, and finally your new password for review. You can then confirm the change by clicking the <button class=\"btn btn-xs btn-success\">Change password</button> button."
         }
       },
       "strength" : {
@@ -809,11 +819,15 @@
       }
     },
     "messages": {
-      "header": "User history report",
+      "header": "Messages history",
       "title": "Messages",
       "empty": "No messages found.",
       "button": {
         "removeAll": "Remove all messages."
+      },
+      "help": {
+        "header": "Messages history",
+        "body": "The list shows the history of the messages displayed in the user interface. If the message is closed earlier, it can be found, checked, copied, and so on. <br /> <br /> The list is sorted by date when the message is displayed in descending order and displays the last <strong> 25 </ strong>."
       }
     },
     "passwordPolicies": {
@@ -1759,7 +1773,19 @@
       "authorities": {
         "label": "Permissions",
         "header": "Granted permissions <small>by assigned roles</small>",
-        "title": "Granted permissions"
+        "title": "Granted permissions",
+        "help": {
+          "header": "Granted permissions",
+          "body": {
+            "title": "Base permissions are divided into categories. After associating the active role, the user will get assigned permissions (according to the assignment validity). Persmissions are evaluated in different parts of the application.",
+            "checkbox": {
+              "title": "The checkbox for the category name shows whether some of the basic permissions in that category are assigned:",
+              "none": "No permissions are assigned to the category,",
+              "some": "some of the permissions in the given category are assigned - you can expand the category to view specific assignments,",
+              "all": "all permissions in that category are assigned."
+            }
+          }
+        }
       },
       "passwordChange": {
         "header": "Password",

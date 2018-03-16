@@ -139,6 +139,10 @@
         "button": {
           "saveAndStartSynchronization": "Uložit a spustit synchronizaci"
         },
+        "help": {
+          "header": "Definice vlastního filtru synchronizace.",
+          "body": "Vlastní filtr je možné definovat jednoduše zvolením atributu (<strong>Filtrovat dle atributu</strong>) podle kterého chceme hledat a příslušné operace (<strong>Filtrovací operace</strong>). <br /><br /> Pokud potřebujeme vytvořit složitější filtrovací kritérium, je k tomu možné využít tento skript.<br /> V příkladu níže je uvedena situace, kdy chceme filtrovat dle vybraného atributu a operace (do skriptu vstupuje jako proměnná <strong>filter</strong>), ale zároveň chceme výsledky omezit další podmínkou. V tomto případě tak, že všechny výsledky musí mít atribut \"<strong>lastname</strong>\" rovný hodnotě \"<strong>Doe</strong>\". <br /><br /> <pre> import  eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;<br /> import  eu.bcvsolutions.idm.ic.api.IcAttribute;<br /> import  eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;<br /> <br /> IcAttribute attr = new IcAttributeImpl(\"lastname\", \"Doe\");<br /> <br /> return IcFilterBuilder.and(filter, IcFilterBuilder.equalTo(attr)); </pre> <h2>IcFilterBuilder poskytuje operace</h2> <ul> <li>IcFilterBuilder.equalTo(...)</li> <li>IcFilterBuilder.contains(...)</li> <li>IcFilterBuilder.startsWith(...)</li> <li>IcFilterBuilder.endsWith(...)</li> <li>IcFilterBuilder.or(...)</li> <li>IcFilterBuilder.and(...)</li> <li>IcFilterBuilder.not(...)</li> </ul> <div> Výstupem tohto skriptu musí být objekt typu <strong>IcFilter</strong>. Pokud bude výstup <strong>null</strong>, pak nebude filtr aplikován a synchronizace bude spuštěna nad všemi účty. </div>"
+        },
         "tabs": {
           "basicConfiguration": {
             "label": "Základní konfigurace"

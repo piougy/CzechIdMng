@@ -30,6 +30,11 @@ public interface SynchronizationService extends LongRunningTaskExecutor<Abstract
 	public static final String WF_VARIABLE_KEY_LOG_ITEM = "logItem";
 	public static final String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
 	public static final String RESULT_SYNC_ITEM = "result_sync_item";
+	
+	/**
+	 * Cancels all previously ran synchronizations
+	 */
+	void init();
 
 	/**
 	 * Main method for start synchronization by given configuration.

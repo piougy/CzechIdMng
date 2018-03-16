@@ -46,11 +46,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 
@@ -62,6 +65,8 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 @Service
 public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> implements SynchronizationService {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSynchronizationService.class);
+	//
 	private final SysSystemAttributeMappingService attributeHandlingService;
 	private final SysSyncConfigService synchronizationConfigService;
 	private final SysSyncLogService synchronizationLogService;
@@ -113,6 +118,17 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		this.schemaObjectClassService = schemaObjectClassService;
 		//
 		this.pluginExecutors = OrderAwarePluginRegistry.create(executors);
+	}
+	
+	/**
+	 * Cancel all previously ran synchronizations
+	 */
+	@Override
+	@Transactional
+	public void init() {
+		LOG.info("Cancel unprocessed synchronizations running tasks - tasks was interrupt during instance restart");
+		//
+		// TODO: instance is not resolved 
 	}
 	
 	@Override

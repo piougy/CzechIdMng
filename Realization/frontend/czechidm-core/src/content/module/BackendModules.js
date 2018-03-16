@@ -7,6 +7,7 @@ import * as Advanced from '../../components/advanced';
 import { BackendModuleManager, DataManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
 import ConfigLoader from '../../utils/ConfigLoader';
+import ResultCodesModal from './ResultCodesModal';
 
 /**
  * BE modules administration
@@ -20,6 +21,10 @@ class BackendModules extends Basic.AbstractContent {
     this.state = {
       detail: {
         show: false
+      },
+      module: {
+        id: null,
+        name: ''
       }
     };
     this.backendModuleManager = new BackendModuleManager();
@@ -60,33 +65,23 @@ class BackendModules extends Basic.AbstractContent {
   /**
   * Show modal window
   */
-  showResultCodes(moduleId) {
-    this.context.store.dispatch(this.backendModuleManager.getResultCodes(moduleId, (error) => {
+  showResultCodes(moduleDescriptor) {
+    this.context.store.dispatch(this.backendModuleManager.getResultCodes(moduleDescriptor.id, (error) => {
       if (error) {
         this.addError(error);
       }
     }));
-    const { detail } = this.state;
+    const { detail, module } = this.state;
     detail.show = true;
+    module.id = moduleDescriptor.id;
+    module.name = moduleDescriptor.name;
     this.setState({
-      ...detail
-    });
-  }
-
-  _closeModal(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const { detail } = this.state;
-    detail.show = false;
-    this.setState({
-      ...detail
+      ...detail, ...module
     });
   }
 
   render() {
-    const { installedModules, showLoading, resultCodes } = this.props;
-    const { detail } = this.state;
+    const { installedModules, showLoading } = this.props;
 
     const _installedModules = [];
     if (installedModules) {
@@ -97,49 +92,15 @@ class BackendModules extends Basic.AbstractContent {
     _installedModules.sort((one, two) => {
       return one.id > two.id;
     });
-    // TODO add filter, make modal separete
-    const _resultCodes = [];
-    if (resultCodes) {
-      resultCodes.forEach(resultCode => {
-        _resultCodes.push(resultCode);
-      });
-    }
-    _resultCodes.sort((one, two) => {
-      return parseInt(one.statusCode, 10) - parseInt(two.statusCode, 10);
-    });
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
 
-        <Basic.Modal bsSize="large" show={detail.show} showLoading={detail.showLoading} onHide={this._closeModal.bind(this)}>
-          <Basic.Modal.Header text={this.i18n('result-codes.title')} />
-          <Basic.Modal.Body>
-            <Basic.Table
-              data={_resultCodes}
-              noData={this.i18n('component.basic.Table.noData')}
-              rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
-              <Basic.Column property="statusCode" header={this.i18n('result-codes.status')}/>
-              <Basic.Column property="statusEnum" header={this.i18n('result-codes.code')}/>
-              <Basic.Column property="message" header={this.i18n('result-codes.message')}
-                cell={
-                  ({ rowIndex, data }) => {
-                    const message = this.getFlashManager().convertFromResultModel(data[rowIndex]);
-                    const key = 'flash-message-' + message.id;
-                    return (
-                      <Basic.FlashMessage
-                        key={key}
-                        message={message}
-                        showDate={false} />);
-                  }
-                }/>
-            </Basic.Table>
-          </Basic.Modal.Body>
-          <Basic.Modal.Footer>
-            <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
-          </Basic.Modal.Footer>
-        </Basic.Modal>
+        <ResultCodesModal {...this.state} />
+
         <Basic.Table
           data={_installedModules}
           showLoading={showLoading}
@@ -200,7 +161,7 @@ class BackendModules extends Basic.AbstractContent {
                     <Basic.Button
                       level="success"
                       className="btn-xs"
-                      onClick={this.showResultCodes.bind(this, moduleDescriptor.id)}
+                      onClick={this.showResultCodes.bind(this, moduleDescriptor)}
                       text={ this.i18n('result-codes.button-show') }
                       style={{ marginRight: 5 }}/>
                   );
@@ -256,13 +217,11 @@ BackendModules.propTypes = {
   userContext: PropTypes.object,
   installedModules: PropTypes.object,
   showLoading: PropTypes.bool,
-  resultCodes: PropTypes.object
 };
 BackendModules.defaultProps = {
   userContext: null,
   installedModules: null,
   showLoading: true,
-  resultCodes: null
 };
 
 function select(state) {
@@ -270,7 +229,6 @@ function select(state) {
     userContext: state.security.userContext,
     installedModules: DataManager.getData(state, BackendModuleManager.UI_KEY_MODULES),
     showLoading: Utils.Ui.isShowLoading(state, BackendModuleManager.UI_KEY_MODULES),
-    resultCodes: DataManager.getData(state, BackendModuleManager.UI_KEY_RESULT_CODES)
   };
 }
 

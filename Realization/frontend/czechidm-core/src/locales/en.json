@@ -1891,10 +1891,15 @@
         "title": "Modules (backend)",
         "result-codes": {
           "button-show": "Result codes",
-          "title": "List of result codes",
+          "title": "List of result codes [{{moduleName}}]",
           "status": "Status",
           "code": "Code",
-          "message": "Message"
+          "message": "Message",
+          "filter": {
+            "statusEnum": {
+              "placeholder": "Vyberte kód"
+            }
+          }
         }
       },
       "entity-event-processors": {

@@ -88,7 +88,7 @@ export default class BackendModuleManager extends EntityManager {
       return null;
     }
     const uiKey = BackendModuleManager.UI_KEY_RESULT_CODES;
-    return (dispatch, getState) => {
+    return (dispatch) => {
       this.getService().getResultCodes(moduleId)
       .then(json => {
         let resultCodes = new Immutable.Map();

@@ -1933,10 +1933,15 @@
         "title": "Moduly (backend)",
         "result-codes": {
           "button-show": "Stavové kódy",
-          "title": "Seznam stavových kódů",
+          "title": "Seznam stavových kódů pro modul [{{moduleName}}]",
           "status": "Stav",
           "code": "Kód",
-          "message": "Zpráva"
+          "message": "Zpráva",
+          "filter": {
+            "statusEnum": {
+              "placeholder": "Vyberte kód"
+            }
+          }
         }
       },
       "entity-event-processors": {

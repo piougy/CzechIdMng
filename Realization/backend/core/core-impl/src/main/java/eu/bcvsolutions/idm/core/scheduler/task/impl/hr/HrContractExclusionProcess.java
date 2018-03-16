@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 
 /**
  * HR process - identity's contract exclusion. The processes is started for
@@ -24,13 +23,20 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExec
 @Service
 @Description("HR process - contract exclusion")
 @DisallowConcurrentExecution
-public class HrContractExclusionProcess extends AbstractWorkflowStatefulExecutor<IdmIdentityContractDto> {
+public class HrContractExclusionProcess extends AbstractHrProcess {
 
 	private static final String PROCESS_NAME = "hrContractExclusion";
 
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 
+	public HrContractExclusionProcess() {
+	}
+	
+	public HrContractExclusionProcess(boolean skipAutomaticRoleRecalculation) {
+		super(skipAutomaticRoleRecalculation);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 

@@ -25,16 +25,20 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  */
 public abstract class AbstractWorkflowStatefulExecutor<T extends AbstractDto> extends AbstractSchedulableStatefulExecutor<T> {
 	
+	protected final String SCHEDULED_TASK_ID_WF_PARAM = "scheduledTaskId";
+	protected final String LONG_RUNNING_TASK_ID_WF_PARAM = "longRunningTaskId";
+	protected final String DTO_WF_PARAM = "dto";
+	
 	@Autowired protected WorkflowProcessInstanceService workflowService;
 
 	@Override
 	public Optional<OperationResult> processItem(T dto) {
 		Assert.notNull(dto);
 		//
-		Map<String, Object> variables = new HashMap<>();
-		variables.put("scheduledTaskId", this.getScheduledTaskId());
-		variables.put("longRunningTaskId", this.getLongRunningTaskId());
-		variables.put("dto", dto);
+		Map<String, Object> variables = getVariables();
+		variables.put(SCHEDULED_TASK_ID_WF_PARAM, this.getScheduledTaskId());
+		variables.put(LONG_RUNNING_TASK_ID_WF_PARAM, this.getLongRunningTaskId());
+		variables.put(DTO_WF_PARAM, dto);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		// execute process
 		ProcessInstance pi = workflowService.startProcess(this.getWorkflowName(), null, authentication.getName(), null, variables);
@@ -52,4 +56,16 @@ public abstract class AbstractWorkflowStatefulExecutor<T extends AbstractDto> ex
 	 * @return
 	 */
 	public abstract String getWorkflowName();
+	
+	/**
+	 * Return variables for WF. Variables will be added into process and to variables will be added these attributes:
+	 * - dto (process item),
+	 * - scheduledTaskId,
+	 * - longRunningTaskId.
+	 * 
+	 * @return
+	 */
+	protected Map<String, Object> getVariables() {
+		return new HashMap<>();
+	}
 }

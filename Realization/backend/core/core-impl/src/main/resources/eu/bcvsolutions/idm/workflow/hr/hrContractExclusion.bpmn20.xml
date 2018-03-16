@@ -34,10 +34,13 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrContractExclusion");
 
-LOG.info("Exculded contract dto: [{}]", dto);
+LOG.info("Excluded contract dto: [{}]", dto);
 
 if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!");
@@ -50,7 +53,13 @@ try {
 	//
 	if (identity.getState() != newState) {
 		identity.setState(newState);
-		identityService.save(identity);
+
+		// is neccessary publish new event with skip recalculation automatic roles
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		if (binding.hasVariable('skip_recalculation')) {
+			event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skip_recalculation);
+		}
+		identityService.publish(event);
 	}
 	result = new OperationResult.Builder(OperationState.EXECUTED).build();
 } catch (Exception e) {

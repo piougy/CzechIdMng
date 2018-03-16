@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 
 /**
  * HR process - enable identity's contract process. The processes is started
@@ -24,13 +23,20 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExec
 @Service
 @Description("HR process - enable active contract")
 @DisallowConcurrentExecution
-public class HrEnableContractProcess extends AbstractWorkflowStatefulExecutor<IdmIdentityContractDto> {
+public class HrEnableContractProcess extends AbstractHrProcess {
 
 	private static final String PROCESS_NAME = "hrEnableContract";
 
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 
+	public HrEnableContractProcess() {
+	}
+	
+	public HrEnableContractProcess(boolean skipAutomaticRoleRecalculation) {
+		super(skipAutomaticRoleRecalculation);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 

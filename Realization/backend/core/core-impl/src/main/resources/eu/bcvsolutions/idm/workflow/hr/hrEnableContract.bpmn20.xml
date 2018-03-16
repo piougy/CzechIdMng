@@ -28,6 +28,9 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrEnableContract");
 
@@ -48,7 +51,13 @@ try {
 		if (newState == IdentityState.VALID 
 				&amp;&amp; (identity.isDisabled() || identity.getState() == IdentityState.CREATED)) {
 			identity.setState(IdentityState.VALID);
-			identityService.save(identity);
+
+			// is neccessary publish new event with skip recalculation automatic roles
+			IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+			if (binding.hasVariable('skip_recalculation')) {
+				event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skip_recalculation);
+			}
+	    	identityService.publish(event);
 		}
 	}
 	result = new OperationResult.Builder(OperationState.EXECUTED).build();

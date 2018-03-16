@@ -28,6 +28,14 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     this.roleManager = new RoleManager();
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    if (this.refs.text) {
+      this.refs.text.focus();
+    }
+  }
+
   getContentKey() {
     return 'content.identities';
   }

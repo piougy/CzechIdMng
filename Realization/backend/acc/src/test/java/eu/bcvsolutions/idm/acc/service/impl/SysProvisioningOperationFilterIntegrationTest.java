@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrationTest {
+public class SysProvisioningOperationFilterIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private SysProvisioningOperationService operationService;
 	@Autowired private SysSystemService systemService;
@@ -226,6 +226,8 @@ public class DefaultSysProvisioningOperationServiceTest extends AbstractIntegrat
 
 		createProvisioningOperation(entityType, system);
 
+		helper.waitForResult(null, null, 1);
+		
 		DateTime dateTime = DateTime.now();
 
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);

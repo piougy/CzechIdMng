@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
  */
 public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	
-	static final String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
+	String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
 
 	/**
 	 * Returns task name (task class name by default)

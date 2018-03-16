@@ -19,17 +19,23 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  */
 public interface SynchronizationService extends LongRunningTaskExecutor<AbstractSysSyncConfigDto> {
 
-	public static final String WF_VARIABLE_KEY_UID = "uid";
-	public static final String WF_VARIABLE_KEY_ENTITY_TYPE = "entityType";
-	public static final String WF_VARIABLE_KEY_SYNC_SITUATION = "situation";
-	public static final String WF_VARIABLE_KEY_IC_ATTRIBUTES = "icAttributes";
-	public static final String WF_VARIABLE_KEY_ACTION_TYPE = "actionType";
-	public static final String WF_VARIABLE_KEY_SYNC_CONFIG_ID = "syncConfigId";
-	public static final String WF_VARIABLE_KEY_ENTITY_ID = "entityId";
-	public static final String WF_VARIABLE_KEY_ACC_ACCOUNT_ID = "accountId";
-	public static final String WF_VARIABLE_KEY_LOG_ITEM = "logItem";
-	public static final String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
-	public static final String RESULT_SYNC_ITEM = "result_sync_item";
+	String PARAMETER_SYNCHRONIZATION_ID = "Synchronization uuid";
+	String WF_VARIABLE_KEY_UID = "uid";
+	String WF_VARIABLE_KEY_ENTITY_TYPE = "entityType";
+	String WF_VARIABLE_KEY_SYNC_SITUATION = "situation";
+	String WF_VARIABLE_KEY_IC_ATTRIBUTES = "icAttributes";
+	String WF_VARIABLE_KEY_ACTION_TYPE = "actionType";
+	String WF_VARIABLE_KEY_SYNC_CONFIG_ID = "syncConfigId";
+	String WF_VARIABLE_KEY_ENTITY_ID = "entityId";
+	String WF_VARIABLE_KEY_ACC_ACCOUNT_ID = "accountId";
+	String WF_VARIABLE_KEY_LOG_ITEM = "logItem";
+	String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
+	String RESULT_SYNC_ITEM = "result_sync_item";
+	
+	/**
+	 * Cancels all previously ran synchronizations
+	 */
+	void init();
 
 	/**
 	 * Main method for start synchronization by given configuration.

@@ -316,6 +316,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		if (taskExecutor.getLongRunningTaskId() == null) {
 			task = new IdmLongRunningTaskDto();
 			task.setTaskType(taskExecutor.getName());
+			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());
 			task.setResult(new OperationResult.Builder(OperationState.CREATED).build());

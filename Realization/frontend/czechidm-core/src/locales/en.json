@@ -2681,10 +2681,16 @@
       "shortName": "Name",
       "parentId": "Superior element",
       "parent": {
-        "name": "Superior element"
+        "name": "Superior element",
+        "false": "Does not have parent"
       },
       "treeType": {
         "name": "Structure type"
+      },
+      "defaultTreeNode": {
+        "label": "Default tree element",
+        "true": "Yes",
+        "false": "No"
       }
     },
     "TreeType": {
@@ -2693,7 +2699,9 @@
       "name": "Name",
       "defaultTreeType": {
         "label": "Default tree",
-        "help": "This tree type will be used as default organization structure."
+        "help": "This tree type will be used as default organization structure.",
+        "true": "Yes",
+        "false": "No"
       },
       "defaultTreeNode": {
         "label": "Default tree element",

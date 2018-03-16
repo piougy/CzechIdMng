@@ -106,7 +106,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
             <Basic.Column
               property="workPosition"
               header={this.i18n('entity.IdentityContract.workPosition')}
-              width="175px"
+              width={ 350 }
               cell={
                 ({ rowIndex, data }) => {
                   return (
@@ -114,7 +114,10 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                       {
                         data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
                         ?
-                        this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workPosition)
+                        <Advanced.TreeNodeInfo
+                          entity={ data[rowIndex]._embedded.workPosition }
+                          entityIdentifier={ data[rowIndex].workPosition }
+                          face="popover" />
                         :
                         data[rowIndex].position
                       }
@@ -127,17 +130,17 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               property="treeType"
               header={this.i18n('entity.IdentityContract.treeType')}
               width="175px"
+              rendered={ false }
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <span>
-                      {
                         !data[rowIndex]._embedded || !data[rowIndex]._embedded.workPosition || !data[rowIndex]._embedded.workPosition._embedded
                         ||
-                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workPosition._embedded.treeType)
-                      }
-                    </span>
-                  );
+                        <Advanced.TreeTypeInfo
+                          entity={ data[rowIndex]._embedded.workPosition._embedded.treeType }
+                          entityIdentifier={ data[rowIndex]._embedded.workPosition._embedded.treeType.id }
+                          face="popover" />
+                      );
                 }
               }
             />

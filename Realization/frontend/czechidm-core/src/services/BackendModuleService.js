@@ -1,6 +1,7 @@
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
+import SearchParameters from '../domain/SearchParameters';
 
 export default class BackendModuleService extends AbstractService {
 
@@ -62,9 +63,13 @@ export default class BackendModuleService extends AbstractService {
     });
   }
 
-  getResultCodes(moduleId) {
+  getResultCodes(moduleId, searchParameters) {
+    let url = this.getApiPath() + `/${moduleId}/result-codes`;
+    if (searchParameters instanceof SearchParameters) {
+      url += searchParameters.toUrl();
+    }
     return RestApiService
-      .get(this.getApiPath() + `/${moduleId}/result-codes`)
+      .get(url)
       .then(response => {
         if (response.status === 204) {
           return {

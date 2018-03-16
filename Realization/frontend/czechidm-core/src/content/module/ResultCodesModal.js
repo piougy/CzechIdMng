@@ -58,10 +58,8 @@ class ResultCodesModal extends Basic.AbstractContent {
   }
 
   fetchResultCodes(searchParameters) {
-    console.log('search ' + JSON.stringify(searchParameters, 4));
     const { module } = this.state;
-    // TODO filter items
-    // this.context.store.dispatch(this.backendModuleManager.getResultCodes(module.id));
+    this.context.store.dispatch(this.backendModuleManager.getResultCodes(module.id, searchParameters));
   }
 
   sortByStatusEnum(one, two) {
@@ -129,7 +127,6 @@ class ResultCodesModal extends Basic.AbstractContent {
                         ref="statusEnum"
                         placeholder={this.i18n('result-codes.filter.statusEnum.placeholder')}
                         options={_statusEnum.toArray().map(value => { return {value, niceLabel: value}; })}
-                        multiSelect
                         searchable />
                     </Basic.Col>
                     <Basic.Col lg={6} className="text-right">

@@ -83,13 +83,13 @@ export default class BackendModuleManager extends EntityManager {
    * Get result codes for module
    * @param {string} moduleId
    */
-  getResultCodes(moduleId, cb = null) {
+  getResultCodes(moduleId, searchParameters, cb = null) {
     if (!moduleId) {
       return null;
     }
     const uiKey = BackendModuleManager.UI_KEY_RESULT_CODES;
     return (dispatch) => {
-      this.getService().getResultCodes(moduleId)
+      this.getService().getResultCodes(moduleId, searchParameters)
       .then(json => {
         let resultCodes = new Immutable.Map();
         json.forEach(item => {

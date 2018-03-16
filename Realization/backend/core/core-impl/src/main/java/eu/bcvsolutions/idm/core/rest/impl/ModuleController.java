@@ -12,9 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,13 +26,14 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
-import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,6 +60,9 @@ public class ModuleController {
 	private final ModuleService moduleService;
 	private final RequestResourceResolver requestResourceResolver;
 	private final ModelMapper mapper;
+	@Autowired private LookupService lookupService;
+	private ParameterConverter parameterConverter = null;
+
 
 	@Autowired
 	public ModuleController(ModuleService moduleService, RequestResourceResolver requestResourceResolver, ModelMapper mapper) {
@@ -257,11 +263,25 @@ public class ModuleController {
 			})
 	public List<DefaultResultModel> resultCodes(
 			@ApiParam(value = "Module's identifier", required = true)
-			@PathVariable @NotNull String moduleId) {
-		return moduleService.getModule(moduleId).getResultCodes()
-			.stream()
-			.map(resultCode -> new DefaultResultModel(resultCode))
-			.collect(Collectors.toList());
+			@PathVariable @NotNull String moduleId,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		List<DefaultResultModel> resultModelList = moduleService.getModule(moduleId).getResultCodes()
+				.stream()
+				.map(resultCode -> new DefaultResultModel(resultCode))
+				.collect(Collectors.toList());
+
+		if (parameters.containsKey("statusEnum")) {
+			String statusEnum = getParameterConverter().toString(parameters, "statusEnum");
+			resultModelList = resultModelList.stream().filter(defaultResultModel -> defaultResultModel.getStatusEnum().equals(statusEnum)).collect(Collectors.toList());
+		}
+		return resultModelList;
+	}
+
+	private ParameterConverter getParameterConverter() {
+		if (parameterConverter == null) {
+			parameterConverter = new ParameterConverter(lookupService);
+		}
+		return parameterConverter;
 	}
 
 	/**

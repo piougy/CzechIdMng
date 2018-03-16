@@ -114,8 +114,9 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                       {
                         data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
                         ?
-                        <Advanced.TreeNodeInfo
+                        <Advanced.EntityInfo
                           entity={ data[rowIndex]._embedded.workPosition }
+                          entityType="treeNode"
                           entityIdentifier={ data[rowIndex].workPosition }
                           face="popover" />
                         :
@@ -123,24 +124,6 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                       }
                     </span>
                   );
-                }
-              }
-            />
-            <Basic.Column
-              property="treeType"
-              header={this.i18n('entity.IdentityContract.treeType')}
-              width="175px"
-              rendered={ false }
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                        !data[rowIndex]._embedded || !data[rowIndex]._embedded.workPosition || !data[rowIndex]._embedded.workPosition._embedded
-                        ||
-                        <Advanced.TreeTypeInfo
-                          entity={ data[rowIndex]._embedded.workPosition._embedded.treeType }
-                          entityIdentifier={ data[rowIndex]._embedded.workPosition._embedded.treeType.id }
-                          face="popover" />
-                      );
                 }
               }
             />

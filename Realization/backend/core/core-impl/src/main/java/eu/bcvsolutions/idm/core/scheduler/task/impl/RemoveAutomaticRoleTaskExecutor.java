@@ -10,14 +10,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -27,13 +24,10 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 
@@ -60,7 +54,6 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
 	
 	/**
@@ -122,15 +115,8 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityRoleDto identityRole : list) {
-			IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, Sets.newHashSet(automaticRole));
-			roleRequest = roleRequestService.startRequest(roleRequest.getId(), false);
-			if (roleRequest.getState() != RoleRequestState.EXCEPTION) {
-				counter++;
-			} else {
-				IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
-				IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
-				failedIdentities.add(identity.getUsername());
-			}
+			automaticRoleAttributeService.removeAutomaticRoles(identityRole);
+			counter++;
 			canContinue = updateState();
 			if (!canContinue) {
 				break;

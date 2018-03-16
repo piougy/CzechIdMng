@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -49,6 +50,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -100,15 +102,9 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 				}
 				continue;
 			}
-
-			IdmRoleRequestDto roleRequest = roleTreeNodeService.prepareAssignAutomaticRoles(identityContract, Sets.newHashSet(roleTreeNode));
-			roleRequest = roleRequestService.startRequest(roleRequest.getId(), false);
-			if (roleRequest.getState() != RoleRequestState.EXCEPTION) {
-				counter++;
-			} else {
-				IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
-				failedIdentities.add(identity.getUsername());
-			}
+			
+			// automatic role by tree node is added directly trough identity role
+			automaticRoleAttributeService.addAutomaticRoles(identityContract, Sets.newHashSet(roleTreeNode));
 			canContinue = updateState();
 			if (!canContinue) {
 				break;

@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
@@ -206,6 +207,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		
 		logs.forEach(log -> {
 			log.setRunning(false);
+			log.setEnded(LocalDateTime.now());
 		});
 		synchronizationLogService.saveAll(logs);
 		return config;

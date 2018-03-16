@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Detail of user - frontend validation that required at least 3 characters for the user name was removed.
 - [#468](https://redmine.czechidm.com/issues/468) - Added asynchronous event processing. Added asynchronous event type ``NOTIFY`` on identities, identity roles and contracts - notify about entity was changed. Processors could listen and process this new event asynchronously. Read more in [documentation](https://redmine.czechidm.com/issues/468). Account management was switched to asynchronous processing by default (instead ``DELETE`` events - removing identity, their role or contact will be still synchronous). Make sure source file **``czechidm-app/src/Index.js``** on frontend is updated.
 - [#979](https://redmine.czechidm.com/issues/979) - Attribute modified from ``AbstractEntity`` isn't audited anymore. Modified date can be found in ``IdmAudit`` as revision ``timestamp``.
+- **``Marked``** library was removed from frontend. Use standard localizations for writing inline help and documentation.
 
 ## [7.8.3]
 - [#1005](https://redmine.czechidm.com/issues/1005) - Dry run is available for long running task which supports it.

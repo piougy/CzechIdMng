@@ -99,6 +99,12 @@
     "dateTill": {
       "label": "Do",
       "placeholder": "Datum do"
+    },
+    "text": {
+      "help": {
+        "header": "Filtrování",
+        "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
+      }
     }
   },
   "action": {
@@ -643,7 +649,7 @@
       "SERVICE": "Služba"
     },
     "ContractStateEnum": {
-      "EXCLUDED": "Vyňat z evidenčního počtu",
+      "EXCLUDED": "Vyňat z ev. počtu",
       "DISABLED": "$t(label.disabled)"
     },
     "AutomaticRoleAttributeRuleTypeEnum": {
@@ -828,6 +834,10 @@
               "message": "Vaše heslo do CzechIdM bylo úspěšně změněno."
             }
           }
+        },
+        "help": {
+          "header": "Změna hesla",
+          "body": "<div class=\"alert alert-info\">Formulář pro změnu hesla je určen pouze pro externí zaměstnance. Interní zaměstnanec si může změnit heslo po přihlášení ve svém profilu.</div>Změnu hesla provedete vyplněním formuláře. Do tohoto formuláře zadáte své uživatelské jméno, stávající heslo, požadované nové heslo a nakonec ještě jednou své nové heslo pro kontrolu. Poté můžete změnu potvrdit kliknutím na tlačítko <button class=\"btn btn-xs btn-success\">Změna hesla</button>."
         }
       },
       "strength" : {
@@ -843,6 +853,10 @@
       "empty": "Nenalezena žádná hlášení.",
       "button": {
         "removeAll": "Odebrat všechna hlášení"
+      },
+      "help": {
+        "header": "Historie uživatelských hlášení",
+        "body": "V seznamu je uvedena historie hlášek zobrazených v uživatelském rozhraní. Pokud je hláška zavřena dříve, je možné si ji v historii nalézt, zkontrolovat, zkopírovat a podobně.<br /><br />Seznam je řazen dle data zobrazení hlášení sestupně a zobrazuje posledních <strong>25</strong> hlášení."
       }
     },
     "passwordPolicies": {
@@ -1802,7 +1816,19 @@
       "authorities": {
         "label": "Oprávnění",
         "header": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
-        "title": "Přidělená oprávnění"
+        "title": "Přidělená oprávnění",
+        "help": {
+          "header": "Přidělená oprávnění",
+          "body": {
+            "title": "Základní oprávnění jsou rozdělena do kategorií. Po přiřazení aktivní role získá uživatel přiřazená oprávnění (dle platnosti přiřazení), která jsou vyhodnocována v různých částech aplikace.",
+            "checkbox": {
+              "title": "Checkbox u názvu kategorie znázorňuje, zda-li jsou některé základní oprávnění v dané kategorii přidělena:",
+              "none": "Nejsou přidělena žádná oprávnění v dané kategorii,",
+              "some": "jsou přidělena nekterá z oprávnění v dané kategorii - pro zobrazení konkrétních přidělených oprávnění je možné rozbalit danou kategorii,",
+              "all": "jsou přidělena všechna oprávnění v dané kategorii."
+            }
+          }
+        }
       },
       "passwordChange": {
         "header": "Změna hesla",
@@ -2698,10 +2724,16 @@
       "shortName": "Název",
       "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazený prvek"
+          "name": "Nadřazený prvek",
+          "false": "Nemá předka"
       },
       "treeType": {
         "name": "Typ struktury"
+      },
+      "defaultTreeNode": {
+        "label": "Výchozí prvek struktury",
+        "true": "Ano",
+        "false": "Ne"
       }
     },
     "TreeType": {
@@ -2710,7 +2742,9 @@
       "name": "Název",
       "defaultTreeType": {
         "label": "Výchozí struktura",
-        "help": "Tento typ struktury bude použit jako výchozí organizační struktura."
+        "help": "Tento typ struktury bude použit jako výchozí organizační struktura.",
+        "true": "Ano",
+        "false": "Ne"
       },
       "defaultTreeNode": {
         "label": "Výchozí prvek struktury",

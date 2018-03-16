@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
@@ -155,13 +155,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		if (!isAsynchronous()) {
 			V result = executeSync(taskExecutor);
 			// construct simple task
-			return new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(new Callable<V>() {
-
+			return new LongRunningFutureTask<>(taskExecutor, new FutureTask<V>(() -> { return result; } ) {
 				@Override
-				public V call() throws Exception {
+				public V get() throws InterruptedException, ExecutionException {
 					return result;
 				}
-			}));
+			});
 		}
 		//
 		// autowire task properties

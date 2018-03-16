@@ -38,6 +38,8 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
+import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
+import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 
 const Components = {
   Table,
@@ -81,7 +83,9 @@ const Components = {
   DecisionButtons,
   DynamicTaskDetail,
   OperationResult,
-  WorkflowTaskInfo
+  WorkflowTaskInfo,
+  TreeTypeInfo,
+  TreeNodeInfo
 };
 
 Components.version = '0.0.1';

@@ -8,11 +8,9 @@ import * as FlashReducers from './src/redux/flash/reducer';
 import * as DataReducers from './src/redux/data/reducer';
 import * as SecurityReducers from './src/redux/security/reducer';
 import * as Utils from './src/utils';
+import * as Domain from './src/domain';
 // import Routes from './routes';
 import ComponentService from './src/services/ComponentService';
-//
-import SearchParameters from './src/domain/SearchParameters';
-import FormInstance from './src/domain/FormInstance';
 //
 import AbstractEnum from './src/enums/AbstractEnum';
 import OperationStateEnum from './src/enums/OperationStateEnum';
@@ -38,10 +36,7 @@ const ModuleRoot = {
   },
   ComponentService,
   Utils,
-  Domain: {
-    SearchParameters,
-    FormInstance
-  },
+  Domain,
   Enums: {
     AbstractEnum,
     OperationStateEnum,

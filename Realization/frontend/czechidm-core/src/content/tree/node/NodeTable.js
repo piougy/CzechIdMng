@@ -322,24 +322,25 @@ class NodeTable extends Advanced.AbstractTableContent {
                       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                         <Basic.AbstractForm ref="filterForm">
                           <Basic.Row>
-                            <div className="col-lg-6">
+                            <Basic.Col lg={ 6 }>
                               <Advanced.Filter.TextField
                                 ref="text"
-                                placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }/>
-                            </div>
-                            <div className="col-lg-6 text-right">
+                                placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }
+                                help={ Advanced.Filter.getTextHelp() }/>
+                            </Basic.Col>
+                            <Basic.Col lg={ 6 } className="text-right">
                               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                            </div>
+                            </Basic.Col>
                           </Basic.Row>
                           <Basic.Row className="last">
-                            <div className="col-lg-6">
+                            <Basic.Col lg={ 6 }>
                               <Advanced.Filter.SelectBox
                                 ref="treeNodeId"
                                 placeholder={this.i18n('entity.TreeNode.parentId')}
                                 forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type.id)}
                                 manager={treeNodeManager}/>
-                            </div>
-                            <div className="col-lg-6">
+                            </Basic.Col>
+                            <Basic.Col lg={ 6 }>
                               <Advanced.Filter.BooleanSelectBox
                                 ref="recursively"
                                 placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }
@@ -347,7 +348,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                                   { value: 'true', niceLabel: this.i18n('content.identities.filter.recursively.yes') },
                                   { value: 'false', niceLabel: this.i18n('content.identities.filter.recursively.no') }
                                 ]}/>
-                            </div>
+                            </Basic.Col>
                           </Basic.Row>
                         </Basic.AbstractForm>
                       </Advanced.Filter>

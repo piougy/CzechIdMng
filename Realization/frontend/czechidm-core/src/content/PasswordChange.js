@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
+import { HelpContent } from '../domain';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
-import help from './PasswordChange_cs.md';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
@@ -28,6 +28,10 @@ class PasswordChange extends Basic.AbstractContent {
     };
   }
 
+  getContentKey() {
+    return 'content.password.change';
+  }
+
   componentDidMount() {
     super.componentDidMount();
     //
@@ -45,10 +49,6 @@ class PasswordChange extends Basic.AbstractContent {
 
   hideFooter() {
     return true;
-  }
-
-  getContentKey() {
-    return 'content.password.change';
   }
 
   cancel() {
@@ -245,6 +245,14 @@ class PasswordChange extends Basic.AbstractContent {
     }));
   }
 
+  getHelp() {
+    let helpContent = new HelpContent();
+    helpContent = helpContent.setHeader(this.i18n('help.header'));
+    helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
+    //
+    return helpContent;
+  }
+
   render() {
     const { showLoading, validationError, validationDefinition } = this.state;
     const { passwordChangeType, enabledPasswordChangeForIdm } = this.props;
@@ -262,7 +270,7 @@ class PasswordChange extends Basic.AbstractContent {
 
             <form onSubmit={this.passwordChange.bind(this)} className={ passwordChangeType === IdentityManager.PASSWORD_DISABLED ? 'hidden' : ''}>
               <Basic.Panel showLoading={showLoading}>
-                <Basic.PanelHeader text={this.i18n('header')} help={help}/>
+                <Basic.PanelHeader text={ this.i18n('header') } help={ this.getHelp() }/>
 
                 <Basic.AbstractForm ref="form" className="panel-body">
 

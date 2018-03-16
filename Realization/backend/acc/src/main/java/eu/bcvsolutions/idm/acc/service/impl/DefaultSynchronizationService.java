@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 
@@ -79,6 +81,9 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemService systemService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
+	//
+	@Autowired private ConfigurationService configurationService;
+	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	//
 	private UUID synchronizationConfigId = null;
 
@@ -126,9 +131,31 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	@Override
 	@Transactional
 	public void init() {
-		LOG.info("Cancel unprocessed synchronizations running tasks - tasks was interrupt during instance restart");
+		String instanceId = configurationService.getInstanceId();
+		LOG.info("Cancel unprocessed synchronizations - tasks was interrupt during instance [{}] restart", instanceId);
 		//
-		// TODO: instance is not resolved 
+		// find all running sync on all instances
+		IdmLongRunningTaskFilter lrtFilter = new IdmLongRunningTaskFilter();
+		lrtFilter.setRunning(Boolean.TRUE);
+		lrtFilter.setTaskType(this.getName());
+		List<IdmLongRunningTaskDto> allRunningSynchronizations = longRunningTaskService.find(lrtFilter, null).getContent();
+		// stop logs on the same instance id
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
+		logFilter.setRunning(Boolean.TRUE);
+		synchronizationLogService.find(logFilter, null).forEach(sync -> {
+			boolean runningOnOtherInstance = allRunningSynchronizations
+					.stream()
+					.anyMatch(lrt -> {
+						return !lrt.getInstanceId().equals(instanceId) && sync.getSynchronizationConfig().equals(lrt.getTaskProperties().get(PARAMETER_SYNCHRONIZATION_ID));
+					});
+			if (!runningOnOtherInstance) {
+				LOG.info("Cancel unprocessed synchronization [{}] - tasks was interrupt during instance [{}] restart", sync.getId(), instanceId);
+				sync.setRunning(false);
+				synchronizationLogService.save(sync);
+			}
+		});
+		
+		
 	}
 	
 	@Override
@@ -151,7 +178,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 	
 	/**
-	 * Add transactional only - public method called from long running task manager
+	 * Add @Transactional only - public method called from long running task manager
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
@@ -166,6 +193,21 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			return "Synchronization long running task";
 		}
 		return MessageFormat.format("Run synchronization name: [{0}] - system mapping id: [{1}]", config.getName(), config.getSystemMapping());
+	}
+	
+	@Override
+	public List<String> getPropertyNames() {
+		List<String> params = super.getPropertyNames();
+		params.add(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
+		return params;
+	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> props = super.getProperties();
+		props.put(PARAMETER_SYNCHRONIZATION_ID, synchronizationConfigId);
+		//
+		return props;
 	}
 
 	/**

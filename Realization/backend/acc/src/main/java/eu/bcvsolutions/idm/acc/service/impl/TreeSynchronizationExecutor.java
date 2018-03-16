@@ -105,34 +105,23 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService attributeHandlingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
-	
+
 	@Autowired
-	public TreeSynchronizationExecutor(
-			IcConnectorFacade connectorFacade, 
-			SysSystemService systemService,
+	public TreeSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, 
-			SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, 
-			AccAccountService accountService,
-			SysSystemEntityService systemEntityService, 
-			ConfidentialStorage confidentialStorage,
-			FormService formService, 
-			AccTreeAccountService treeAccountService, 
-			SysSyncItemLogService syncItemLogService,
-			EntityEventManager entityEventManager, 
-			GroovyScriptService groovyScriptService,
-			WorkflowProcessInstanceService workflowProcessInstanceService, 
-			EntityManager entityManager,
-			IdmTreeNodeService treeNodeService,
-			SysSystemMappingService systemMappingService,
-			SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService) {
+			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
+			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
+			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
+			FormService formService, AccTreeAccountService treeAccountService, SysSyncItemLogService syncItemLogService,
+			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
+			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
+			IdmTreeNodeService treeNodeService, SysSystemMappingService systemMappingService,
+			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService,
-				schemaObjectClassService, schemaAttributeService);
+				workflowProcessInstanceService, entityManager, systemMappingService, schemaObjectClassService,
+				schemaAttributeService);
 
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
 		Assert.notNull(treeAccountService, "Tree account service is mandatory!");
@@ -151,19 +140,19 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 		// Clear cache
 		this.clearCache();
-				
+
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
-				
+
 		AbstractSysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
 		SysSystemDto system = context.getSystem();
 		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
-		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();	
+		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		SysSystemMappingDto systemMapping = systemMappingService.get(context.getConfig().getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
-		
+
 		// Load last token
 		Object lastToken = config.isReconciliation() ? null : config.getToken();
 
@@ -184,10 +173,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			log = synchronizationLogService.save(log);
 			List<SysSyncActionLogDto> actionsLog = new ArrayList<>();
 			// Add logs to context
-			context
-			.addLog(log)
-			.addActionLogs(actionsLog);
-			
+			context.addLog(log).addActionLogs(actionsLog);
+
 			boolean export = false;
 
 			if (export) {
@@ -195,7 +182,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				log.addToLog("Exporting entities to resource started...");
 				this.startExport(entityType, config, mappedAttributes, log, actionsLog);
 			} else {
-				
+
 				if (config.getTokenAttribute() == null && !config.isReconciliation()) {
 					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
 				}
@@ -233,7 +220,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		return config;
 	}
-
 
 	/**
 	 * Call provisioning for given account
@@ -277,30 +263,30 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 */
 	@Override
-	protected void callProvisioningForEntity(IdmTreeNodeDto entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
+	protected void callProvisioningForEntity(IdmTreeNodeDto entity, SystemEntityType entityType,
+			SysSyncItemLogDto logItem) {
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Call provisioning (process TreeNodeEventType.SAVE) for treeNode ({0}) with name ({1}).",
 						entity.getId(), entity.getName()));
 		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.UPDATE, entity)).getContent();
 	}
-	
+
 	/**
 	 * Save entity
+	 * 
 	 * @param entity
 	 * @param skipProvisioning
 	 * @return
 	 */
 	@Override
-	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning) {	
+	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning) {
 		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(
-				treeNodeService.isNew(entity) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, 
-				entity, 
+				treeNodeService.isNew(entity) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, entity,
 				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
-		
+
 		return treeNodeService.publish(event).getContent();
 	}
-
 
 	/**
 	 * Create and persist new entity by data from IC attributes
@@ -315,13 +301,14 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
-			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account, SynchronizationContext context) {
+			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account,
+			SynchronizationContext context) {
 		// We will create new TreeNode
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will create a new entity.");
 		IdmTreeNodeDto treeNode = new IdmTreeNodeDto();
 		// Fill entity by mapped attribute
 		treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, true, context);
-		
+
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
 		// Create new Entity
 		treeNode = this.save(treeNode, true);
@@ -361,9 +348,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	@Override
 	protected void doUpdateEntity(SynchronizationContext context) {
-		
+
 		String uid = context.getUid();
-		SysSyncLogDto log = context.getLog(); 
+		SysSyncLogDto log = context.getLog();
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
@@ -371,7 +358,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNodeDto treeNode = null;
-		
+
 		if (entityId != null) {
 			treeNode = treeNodeService.get(entityId);
 		}
@@ -389,7 +376,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			if (logItem != null) {
 				logItem.setDisplayName(treeNode.getName());
 			}
-			
+
 			// Call provisioning for entity
 			this.callProvisioningForEntity(treeNode, context.getEntityType(), logItem);
 
@@ -412,8 +399,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionLogs
 	 */
 	@Override
-	protected void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
-			List<SysSyncActionLogDto> actionLogs) {
+	protected void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 
 		AccTreeAccountFilter treeAccountFilter = new AccTreeAccountFilter();
 		treeAccountFilter.setAccountId(account.getId());
@@ -462,14 +449,15 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					actionLogs);
 			return;
 		}
-		
+
 		logItem.setDisplayName(treeNode.getName());
 		// Delete entity (recursively)
 		deleteChildrenRecursively(treeNode, logItem);
 	}
-	
+
 	/**
 	 * Start export entities to target resource
+	 * 
 	 * @param entityType
 	 * @param config
 	 * @param mappedAttributes
@@ -478,12 +466,13 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	@Override
 	protected void startExport(SystemEntityType entityType, AbstractSysSyncConfigDto config,
-			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
+			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log,
+			List<SysSyncActionLogDto> actionsLog) {
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
-		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes,
-				system);
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
+				SysSystemDto.class);
+		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes, system);
 
 		List<IdmTreeNodeDto> roots = treeNodeService.findRoots(systemMapping.getTreeType(), null).getContent();
 		roots.stream().forEach(root -> {
@@ -499,13 +488,15 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes, SynchronizationContext context) {
-		
+	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
+			SynchronizationContext context) {
+
 		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes, context);
-		
+
 		if (transformedValue != null && PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
 			String parentUid = transformedValue.toString();
-			SysSystemMappingDto systemMapping = systemMappingService.get(((SysSystemAttributeMappingDto)attribute).getSystemMapping());
+			SysSystemMappingDto systemMapping = systemMappingService
+					.get(((SysSystemAttributeMappingDto) attribute).getSystemMapping());
 			SysSchemaObjectClassDto schemaObjectClass = schemaObjectClassService.get(systemMapping.getObjectClass());
 			UUID systemId = schemaObjectClass.getSystem();
 			// Find account by UID from parent field
@@ -520,7 +511,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				AccTreeAccountFilter treeAccountFilter = new AccTreeAccountFilter();
 				treeAccountFilter.setAccountId(parentAccount);
 				List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
-				if(!treeAccounts.isEmpty()){
+				if (!treeAccounts.isEmpty()) {
 					// Find parent tree node by ID
 					// TODO: resolve more treeAccounts situations
 					transformedValue = treeAccounts.get(0).getTreeNode(); // parent uuid - we are working with dtos
@@ -542,7 +533,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		return transformedValue;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected ReadWriteDtoService getEntityAccountService() {
@@ -553,7 +544,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected EntityAccountDto createEntityAccountDto() {
 		return new AccTreeAccountDto();
 	}
-	
+
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
 		return new AccTreeAccountFilter();
@@ -583,15 +574,15 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		}
 	}
-	
+
 	/**
 	 * Execute sync for tree and given accounts.
+	 * 
 	 * @param context
 	 * @param accountsMap
 	 */
-	private void processTreeSync(SynchronizationContext context,
-			Map<String, IcConnectorObject> accountsMap) {
-		
+	private void processTreeSync(SynchronizationContext context, Map<String, IcConnectorObject> accountsMap) {
+
 		AbstractSysSyncConfigDto config = context.getConfig();
 		SystemEntityType entityType = context.getEntityType();
 		SysSystemDto system = context.getSystem();
@@ -600,7 +591,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		List<SysSyncActionLogDto> actionsLog = context.getActionLogs();
 		AttributeMapping tokenAttribute = context.getTokenAttribute();
 		Set<String> accountsUseInTreeList = new HashSet<>();
-		
+
 		// Find UID/PARENT/CODE attribute
 		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes, system);
 		SysSystemAttributeMappingDto parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
@@ -629,11 +620,12 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			IcConnectorObject account = accountsMap.get(root);
 
 			SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
-			itemContext
-					.addUid(root)
-					.addAccount(null)
-					.addIcObject(account)
-					.addTokenAttribute(tokenAttribute);
+			itemContext //
+					.addUid(root) //
+					.addIcObject(account) //
+					.addAccount(null) //
+					.addTokenAttribute(tokenAttribute) //
+					.addGeneratedUid(null); //
 
 			boolean result = handleIcObject(itemContext);
 			if (!result) {
@@ -652,17 +644,17 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			startReconciliation(entityType, accountsUseInTreeList, config, system, log, actionsLog);
 		}
 	}
-	
-	private void exportChildrenRecursively(IdmTreeNodeDto treeNode, SynchronizationContext itemBuilder, SysSystemAttributeMappingDto uidAttribute){
+
+	private void exportChildrenRecursively(IdmTreeNodeDto treeNode, SynchronizationContext itemBuilder,
+			SysSystemAttributeMappingDto uidAttribute) {
 		SysSyncItemLogDto logItem = itemBuilder.getLogItem();
-		
+
 		List<IdmTreeNodeDto> children = treeNodeService.findChildrenByParent(treeNode.getId(), null).getContent();
 		if (children.isEmpty()) {
 			this.exportEntity(itemBuilder, uidAttribute, treeNode);
 		} else {
-			addToItemLog(logItem,
-					MessageFormat.format("Tree node [{0}] has children [count={1}].",
-							treeNode.getName(), children.size()));
+			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] has children [count={1}].", treeNode.getName(),
+					children.size()));
 			this.exportEntity(itemBuilder, uidAttribute, treeNode);
 			children.forEach(child -> {
 				exportChildrenRecursively(child, itemBuilder, uidAttribute);
@@ -686,17 +678,18 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
 		}
 	}
-	
 
 	/**
 	 * Find all roots for this tree (uses groovy script for root definition)
+	 * 
 	 * @param parentAttribute
 	 * @param accountsMap
 	 * @param config
 	 * @return
 	 */
 	private Collection<String> findRoots(SysSystemAttributeMappingDto parentAttribute,
-										 Map<String, IcConnectorObject> accountsMap, AbstractSysSyncConfigDto config, SynchronizationContext context) {
+			Map<String, IcConnectorObject> accountsMap, AbstractSysSyncConfigDto config,
+			SynchronizationContext context) {
 		Set<String> roots = Sets.newHashSet();
 		if (parentAttribute == null) {
 			return roots;
@@ -710,11 +703,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				allowTypes.add(IcAttributeImpl.class);
 				allowTypes.add(IcAttribute.class);
 				allowTypes.add(IcLoginAttributeImpl.class);
-				Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables,
-						allowTypes);
+				Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables, allowTypes);
 				if (isRoot != null && !(isRoot instanceof Boolean)) {
-					throw new ProvisioningException(
-							AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,
 							ImmutableMap.of("type", isRoot.getClass().getName()));
 				}
 				if ((Boolean) isRoot) {
@@ -756,16 +747,18 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 				// Do provisioning for this account
 				SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
-				itemContext
-				.addUid(uid)
-				.addIcObject(account)
-				.addAccount(null);
+				itemContext //
+						.addUid(uid) //
+						.addIcObject(account) //
+						.addAccount(null) //
+						.addGeneratedUid(null); //
 
 				boolean resultChild = handleIcObject(itemContext);
 				if (!resultChild) {
 					return;
 				}
-				Object uidValueParentChilde = super.getValueByMappedAttribute(uidAttribute, account.getAttributes(), context);
+				Object uidValueParentChilde = super.getValueByMappedAttribute(uidAttribute, account.getAttributes(),
+						context);
 				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, accountsMap, accountsUseInTreeList,
 						itemContext, roots);
 
@@ -788,9 +781,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		CorrelationFilter filter = getEntityFilter();
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
-		
+
 		List<IdmTreeNodeDto> entities = treeNodeService.find((IdmTreeNodeFilter) filter, null).getContent();
-		
+
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;
 		}

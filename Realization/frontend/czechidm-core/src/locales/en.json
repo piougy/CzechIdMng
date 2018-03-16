@@ -573,6 +573,7 @@
       "EXECUTED": "Executed",
       "EXCEPTION": "Failed",
       "NOT_EXECUTED": "Not executed",
+      "BLOCKED": "Blocked",
       "CANCELED": "Canceled"
     },
     "TriggerTypeEnum": {

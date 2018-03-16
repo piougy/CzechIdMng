@@ -45,12 +45,15 @@ import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
  *            Log for this item
  * @param actionLogs
  *            Relations between item log and full log and action.
+ * @param generatedUid
+ *            Identification of item on the IdM system. I generated from the main mapped attribute (AccAccount.uid)
  *
  */
 public class SynchronizationContext implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String uid;
+	private String generatedUid;
 	private IcConnectorObject icObject;
 	private IcSyncDeltaTypeEnum type;
 	private AbstractSysSyncConfigDto config;
@@ -74,6 +77,15 @@ public class SynchronizationContext implements Serializable {
 
 	public SynchronizationContext addUid(String uid) {
 		this.uid = uid;
+		return this;
+	}
+	
+	public String getGeneratedUid() {
+		return generatedUid;
+	}
+
+	public SynchronizationContext addGeneratedUid(String uid) {
+		this.generatedUid = uid;
 		return this;
 	}
 
@@ -239,6 +251,7 @@ public class SynchronizationContext implements Serializable {
 		.addType(context.getType())
 		.addSystemEntity(context.getSystemEntity())
 		.addUid(context.getUid())
+		.addGeneratedUid(context.getGeneratedUid())
 		.addActionType(context.getActionType());
 		
 		return newContext;

@@ -602,6 +602,7 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
+    	"BLOCKED": "Blokováno",
     	"CANCELED": "Zrušeno"
     },
     "TriggerTypeEnum": {

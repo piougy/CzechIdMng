@@ -28,6 +28,12 @@ public abstract class AbstractPublishEntityChangeProcessor <DTO extends Abstract
 	}
 	
 	@Override
+	public boolean conditional(EntityEvent<DTO> event) {
+		return super.conditional(event) 
+				&& !getBooleanProperty(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY, event.getProperties());
+	}
+	
+	@Override
 	public EventResult<DTO> process(EntityEvent<DTO> event) {
 		entityEventManager.changedEntity(event.getContent(), event);
 		//

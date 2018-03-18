@@ -41,6 +41,8 @@ public interface EntityEventManager {
 	String EVENT_PROPERTY_EVENT_ID = "idm:event-id"; // persisted event id
 	String EVENT_PROPERTY_EXECUTE_DATE = "idm:execute-date"; // asynchronous event processing time
 	String EVENT_PROPERTY_PRIORITY = "idm:priority"; // event priority
+	//
+	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
 	
 	/**
 	 * Cancel all previously ran events

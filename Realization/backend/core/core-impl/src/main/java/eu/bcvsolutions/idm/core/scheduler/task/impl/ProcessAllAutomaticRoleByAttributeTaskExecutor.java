@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -82,6 +85,8 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	 */
 	private void processAutomaticRoleForContract(IdmAutomaticRoleAttributeDto automaticRolAttributeDto) {
 		UUID automaticRoleId = automaticRolAttributeDto.getId();
+		Set<AbstractIdmAutomaticRoleDto> automaticRoleSet = new HashSet<AbstractIdmAutomaticRoleDto>();
+		automaticRoleSet.add(automaticRolAttributeDto);
 		//
     	// process contracts
     	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES));
@@ -97,7 +102,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     				continue;
     			}
     			//
-    			addRoleToContract(contract, automaticRolAttributeDto);
+    			automaticRoleAttributeService.addAutomaticRoles(contract, automaticRoleSet);
 				canContinue = updateState();
 				if (!canContinue) {
 					break;
@@ -117,9 +122,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			filter.setAutomaticRoleId(automaticRoleId);
     			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
     			for (IdmIdentityRoleDto identityRole : identityRoles) {
-    				IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
-    				event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
-    				identityRoleService.publish(event);
+    				automaticRoleAttributeService.removeAutomaticRoles(identityRole);
     			}
     			canContinue = updateState();
     			if (!canContinue) {
@@ -132,18 +135,5 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			break;
     		}
     	}
-	}
-	
-	private void addRoleToContract(IdmIdentityContractDto contract, IdmAutomaticRoleAttributeDto automaticRolAttributeDto) {
-		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole.setRoleTreeNode(automaticRolAttributeDto.getId());
-		identityRole.setIdentityContract(contract.getId());
-		identityRole.setRole(automaticRolAttributeDto.getRole());
-		identityRole.setValidFrom(contract.getValidFrom());
-		identityRole.setValidTill(contract.getValidTill());
-		
-		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
-		event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
-		identityRoleService.publish(event);
 	}
 }

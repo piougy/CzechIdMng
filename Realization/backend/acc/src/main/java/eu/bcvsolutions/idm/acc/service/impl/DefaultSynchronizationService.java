@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
@@ -149,7 +150,9 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 						return !lrt.getInstanceId().equals(instanceId) && sync.getSynchronizationConfig().equals(lrt.getTaskProperties().get(PARAMETER_SYNCHRONIZATION_ID));
 					});
 			if (!runningOnOtherInstance) {
-				LOG.info("Cancel unprocessed synchronization [{}] - tasks was interrupt during instance [{}] restart", sync.getId(), instanceId);
+				String message = MessageFormat.format("Cancel unprocessed synchronization [{0}] - tasks was interrupt during instance [{1}] restart", sync.getId(), instanceId);
+				LOG.info(message);
+				sync.addToLog(message);
 				sync.setRunning(false);
 				synchronizationLogService.save(sync);
 			}

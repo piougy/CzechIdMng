@@ -14,22 +14,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 
 /**
  * Long running task for add newly added automatic role to users. 
@@ -48,7 +42,6 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 

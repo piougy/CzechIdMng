@@ -25,17 +25,17 @@ public interface IdmIdentityContractService extends
 		AuthorizableService<IdmIdentityContractDto>,
 		ScriptEnabled {
 	
-	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
+	String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
 	
 	/**
 	 * Property in event. If is value TRUE, then will be creation of the default position skipped.
 	 */
-	static final String SKIP_CREATION_OF_DEFAULT_POSITION = "skip_creation_of_default_position";
+	String SKIP_CREATION_OF_DEFAULT_POSITION = "skip_creation_of_default_position";
 	
 	/**
 	 * Property in event - when is true, then all dependent HR processes (hrEnableContract, hrEndContract, hrExclusionContract) will be not executed.
 	 */
-	static final String SKIP_HR_PROCESSES = "skip_hr_processes";
+	String SKIP_HR_PROCESSES = "skip_hr_processes";
 	
 	/**
 	 * Returns working positions for given identity

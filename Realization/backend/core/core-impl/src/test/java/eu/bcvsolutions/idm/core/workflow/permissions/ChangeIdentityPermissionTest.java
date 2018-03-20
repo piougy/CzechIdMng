@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,6 +15,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +28,16 @@ import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -56,6 +61,9 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String APPROVE_ROLE_BY_GUARANTEE_KEY = "approve-role-by-guarantee";
+	private static final String APPROVE_ROLE_BY_SECURITY_KEY = "approve-role-by-guarantee-security";
+	private static final String APPROVE_ROLE_BY_MANAGER_KEY = "approve-role-by-manager";
+	private static final String APPROVE_REMOVE_ROLE_BY_MANAGER_KEY = "approve-remove-role-by-manager";
 	private static final String SECURITY_ROLE_TEST = "securityRoleTest";
 	private static final String APPROVE_BY_HELPDESK_ROLE = "idm.sec.core.wf.approval.helpdesk.role";
 	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
@@ -84,6 +92,9 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private IdmConfigurationService configurationService;
 	@Autowired
 	private SecurityService securityService;
+
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	@Before
 	public void login() {
@@ -707,6 +718,333 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		}
 	}
 
+	@Test
+	@Transactional
+	public void addSuperAdminRoleWithSubprocessSecurityTest() {
+
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		adminRole.setPriority(priority);
+		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+		guarantee.setRole(adminRole.getId());
+		guarantee.setGuarantee(test2.getId());
+		adminRole.getGuarantees().add(guarantee);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_SECURITY_KEY);
+		configurationService.setValue("idm.sec.core.wf.approval.security.enabled", "true");
+
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// Help Desk
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// User Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Role Guarantee - subprocess
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Security - subprocess
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Security
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertNotNull(concept.getWfProcessId());
+	}
+
+	@Test
+	@Transactional
+	public void addSuperAdminRoleWithSubprocessManagerTest() {
+
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		adminRole.setPriority(priority);
+		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+		guarantee.setRole(adminRole.getId());
+		guarantee.setGuarantee(test2.getId());
+		adminRole.getGuarantees().add(guarantee);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_MANAGER_KEY);
+
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// HELPDESK - must be skipped
+		// MANAGER
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// USER MANAGER
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Subprocess - approve by Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+
+		// SECURITY
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertNotNull(concept.getWfProcessId());
+	}
+
+	@Test
+	@Transactional
+	public void addSuperAdminRoleWithSubprocessDisapproveTest() {
+
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		adminRole.setPriority(priority);
+		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+		guarantee.setRole(adminRole.getId());
+		guarantee.setGuarantee(test2.getId());
+		adminRole.getGuarantees().add(guarantee);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_GUARANTEE_KEY);
+
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// HELPDESK - must be skipped
+		// MANAGER
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// USER MANAGER
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Subprocess - approve by GUARANTEE
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "disapprove");
+
+		// SECURITY
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertNotNull(concept.getWfProcessId());
+
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(test1.getId());
+		Page<IdmIdentityRoleDto> page = identityRoleService.find(filter, null);
+		assertEquals(0, page.getSize());
+	}
+
+	@Test
+	@Transactional
+	public void addSuperAdminRoleWithSubprocessRemoveTest() {
+
+		IdmIdentityDto test1 = helper.createIdentity("TestUser" + System.currentTimeMillis());
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmRoleDto adminRole = helper.createRole("testRole" + System.currentTimeMillis());
+		adminRole.setApproveRemove(true);
+		roleService.save(adminRole);
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		// HELPDESK
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
+		// MANAGER
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
+		// USER MANAGER
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
+		// SECURITY
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
+
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertNotNull(concept.getWfProcessId());
+
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(test1.getId());
+		Page<IdmIdentityRoleDto> page = identityRoleService.find(filter, null);
+		assertEquals(1, page.getContent().size());
+
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		// Guarantee
+		int priority = 500;
+		adminRole.setPriority(priority);
+		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+		guarantee.setRole(adminRole.getId());
+		guarantee.setGuarantee(test2.getId());
+		adminRole.getGuarantees().add(guarantee);
+		adminRole = roleService.save(adminRole);
+
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + (priority + priority),
+				APPROVE_REMOVE_ROLE_BY_MANAGER_KEY);
+		IdmRoleRequestDto requestRemove = createRoleRequest(test1);
+		requestRemove = roleRequestService.save(requestRemove);
+
+		IdmConceptRoleRequestDto conceptRemove = createRoleRemoveConcept(page.getContent().get(0).getId(), adminRole,
+				contract, requestRemove);
+		conceptRemove = conceptRoleRequestService.save(conceptRemove);
+
+		roleRequestService.startRequestInternal(requestRemove.getId(), true);
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, requestRemove.getState());
+
+		WorkflowFilterDto taskRemoveFilter = new WorkflowFilterDto();
+
+		// HELPDESK
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskRemoveFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskRemoveFilter, test1.getUsername(), "approve");
+		// MANAGER
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskRemoveFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskRemoveFilter, test1.getUsername(), "approve");
+		// USER MANAGER
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskRemoveFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskRemoveFilter, test1.getUsername(), "approve");
+		// Subprocess - approve by GUARANTEE
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskRemoveFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskRemoveFilter, test1.getUsername(), "approve");
+		// SECURITY
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskRemoveFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskRemoveFilter, test1.getUsername(), "approve");
+
+		requestRemove = roleRequestService.get(requestRemove.getId());
+		assertEquals(RoleRequestState.EXECUTED, requestRemove.getState());
+		assertNotNull(requestRemove.getWfProcessId());
+		conceptRemove = conceptRoleRequestService.get(conceptRemove.getId());
+		assertNotNull(conceptRemove.getWfProcessId());
+
+		IdmIdentityRoleFilter filterRemove = new IdmIdentityRoleFilter();
+		filterRemove.setIdentityId(test1.getId());
+		Page<IdmIdentityRoleDto> pageRemove = identityRoleService.find(filterRemove, null);
+		assertEquals(0, pageRemove.getContent().size());
+	}
+
 	/**
 	 * Return {@link WorkflowHistoricProcessInstanceDto} for current logged user
 	 * 
@@ -724,6 +1062,17 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		concept.setRoleRequest(request.getId());
 		concept.setOperation(ConceptRoleRequestOperation.ADD);
 		concept.setRole(adminRole.getId());
+		concept.setIdentityContract(contract.getId());
+		return concept;
+	}
+
+	private IdmConceptRoleRequestDto createRoleRemoveConcept(UUID identityRole, IdmRoleDto adminRole,
+			IdmIdentityContractDto contract, IdmRoleRequestDto request) {
+		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+		concept.setRoleRequest(request.getId());
+		concept.setOperation(ConceptRoleRequestOperation.REMOVE);
+		concept.setRole(adminRole.getId());
+		concept.setIdentityRole(identityRole);
 		concept.setIdentityContract(contract.getId());
 		return concept;
 	}

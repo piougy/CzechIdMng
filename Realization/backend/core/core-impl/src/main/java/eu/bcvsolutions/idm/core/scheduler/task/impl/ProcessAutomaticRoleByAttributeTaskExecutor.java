@@ -1,15 +1,19 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -34,6 +38,9 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 
 	private static final int PAGE_SIZE = 100;
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(ProcessAutomaticRoleByAttributeTaskExecutor.class);
+	
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	
@@ -51,6 +58,9 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
 		Set<AbstractIdmAutomaticRoleDto> setWithAutomaticRole = Sets.newHashSet(automaticRolAttributeDto);
+		//
+		List<String> failedEntitiesAdd = new ArrayList<>();
+		List<String> failedEntitiesRemove = new ArrayList<>();
 		//
 		// by contract
 		Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, PAGE_SIZE));
@@ -73,12 +83,18 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     				continue;
     			}
     			//
-				automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
-				//
-				counter++;
-				canContinue = updateState();
-				if (!canContinue) {
-					break;
+    			try {
+    				automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
+    				counter++;
+    			} catch (Exception ex) {
+    				LOG.error("Error while add new automatic role id [{}] to contract id [{}] and identity id [{}]", 
+    						automaticRoleId, contractId, contract.getIdentity(), ex);
+    				failedEntitiesAdd.add(contractId.toString());
+    			} finally {
+    				canContinue = updateState();
+    				if (!canContinue) {
+    					break;
+    				}
 				}
     		}
     		if (newPassedContracts.hasNext()) {
@@ -90,19 +106,33 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	//
     	while (canContinue) {
     		for(UUID contractId : newNotPassedContracts) {
-				automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
-    			//
-    			counter++;
-    			canContinue = updateState();
-    			if (!canContinue) {
-    				break;
-    			}
+    			try { 
+    				automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
+    				counter++;
+    			} catch (Exception ex) {
+    				LOG.error("Error while remove automatic role id [{}] from contract id [{}].",
+    								automaticRoleId, contractId, ex);
+    				failedEntitiesRemove.add(contractId.toString());
+    			} finally {
+    				canContinue = updateState();
+    				if (!canContinue) {
+    					break;
+    				}
+				}
     		}
     		if (newNotPassedContracts.hasNext()) {
     			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, newNotPassedContracts.nextPageable());
     		} else {
     			break;
     		}
+    	}
+    	//
+    	if (!failedEntitiesAdd.isEmpty() || !failedEntitiesRemove.isEmpty()) {
+    		throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_PROCESS_TASK_NOT_COMPLETE,
+					ImmutableMap.of(
+							"automaticRole", automaticRoleId,
+							"failedAddEntities", StringUtils.join(failedEntitiesAdd, ","),
+							"failedRemoveEntities", StringUtils.join(failedEntitiesRemove, ",")));
     	}
 		//
 		return Boolean.TRUE;

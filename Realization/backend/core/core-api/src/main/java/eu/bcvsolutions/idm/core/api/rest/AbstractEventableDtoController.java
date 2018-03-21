@@ -51,13 +51,14 @@ public class AbstractEventableDtoController<DTO extends BaseDto, F extends BaseF
 	 * @param dto
 	 * @return
 	 */
+	@Override
 	public DTO saveDto(DTO dto, BasePermission... permission) {
 		Assert.notNull(dto, "DTO is required");
 		// UI actions has higher priority
 		EventType eventType = getService().isNew(dto) ? CoreEventType.CREATE : CoreEventType.UPDATE;
 		Map<String, Serializable> properties = new HashMap<>();
 		properties.put(EntityEventManager.EVENT_PROPERTY_PRIORITY, PriorityType.HIGH);
-		CoreEvent<DTO> event = new CoreEvent<DTO>(eventType, dto, properties);
+		CoreEvent<DTO> event = new CoreEvent<DTO>(eventType, validateDto(dto), properties);
 		//
 		return getService().publish(event, permission).getContent();
 	}

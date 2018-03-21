@@ -2047,7 +2047,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Create new entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccount(account, dto, context);
 		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
-		context.addAccount(accountService.get(entityAccount.getAccount()));
+		context.addAccount(account);
 
 		String entityIdentification = dto.getId().toString();
 		if (dto instanceof Codeable) {

@@ -146,6 +146,11 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               property="uid"
               header={this.i18n('acc:entity.SystemEntity.uid')}
               sort />
+            <Advanced.Column
+              property="wish"
+              header={this.i18n('acc:entity.SystemEntity.wish')}
+              sort
+              face="boolean" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -180,6 +185,9 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   enum={SystemEntityTypeEnum}
                   label={this.i18n('acc:entity.SystemEntity.entityType')}
                   required/>
+                <Basic.Checkbox
+                  ref="wish"
+                  label={this.i18n('acc:entity.SystemEntity.wish')}/>
               </Basic.AbstractForm>
 
               <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>

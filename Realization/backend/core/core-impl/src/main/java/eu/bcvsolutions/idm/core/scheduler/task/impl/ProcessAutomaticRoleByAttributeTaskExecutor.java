@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

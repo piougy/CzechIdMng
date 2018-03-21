@@ -1,11 +1,9 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.security.core.GrantedAuthority;
@@ -76,14 +74,17 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 	public int getOrder() {
 		return Integer.MAX_VALUE;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
+		// check authorities may be skipped
+		return super.conditional(event)
+				&& !getBooleanProperty(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, event.getProperties());
+	}
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
-		// check authorities may be skipped
-		Serializable serializableValue = event.getProperties().get(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES);
-		if (serializableValue != null && BooleanUtils.toBoolean(serializableValue.toString())) {
-			return new DefaultEventResult<>(event, this);
-		}
+		
 		checkRevokedPermissions(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}

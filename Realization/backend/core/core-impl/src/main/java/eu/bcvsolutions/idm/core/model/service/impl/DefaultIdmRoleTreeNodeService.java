@@ -190,6 +190,7 @@ public class DefaultIdmRoleTreeNodeService
 	}
 
 	@Override
+	@Transactional
 	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
 		this.removeAutomaticRoles(identityRole, automaticRoles);
 		return null;

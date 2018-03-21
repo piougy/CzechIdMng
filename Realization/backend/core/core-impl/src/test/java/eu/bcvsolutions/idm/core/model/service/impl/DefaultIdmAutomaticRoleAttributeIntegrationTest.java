@@ -52,6 +52,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -1554,7 +1555,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmLongRunningTaskDto taskWithRecalculation = longRunningTaskService.find(filter, null).getContent()
 			.stream() //
 			.filter(lrt -> {
-					Object parameter = lrt.getTaskProperties().get(RemoveAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
+					Object parameter = lrt.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
 					if (parameter.equals(automaticRole.getId())) {
 						return true;
 					}

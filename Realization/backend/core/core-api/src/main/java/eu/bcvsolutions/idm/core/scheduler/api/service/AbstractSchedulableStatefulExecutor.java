@@ -176,16 +176,17 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			result = this.processItem(candidate);
 		}
 		//
- 		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);
 			if (OperationState.isSuccessful(opResult.getState())) {
+				++counter;
 				this.addToProcessedQueue(candidate, opResult);
 			}
 			LOG.debug("Statefull process [{}] intermediate result: [{}], count: [{}/{}]",
 					getClass().getSimpleName(), opResult, count, counter);
 		} else {
+			++counter;
 			LOG.debug("Statefull process [{}] processed item [{}] without result.",
 					getClass().getSimpleName(), candidate);
 		}

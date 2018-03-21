@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
  * Long running task for automatic roles
  * 
  * @author Radek Tomiška
- *
+ * 
  */
 public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
@@ -39,7 +39,7 @@ public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractSchedula
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties =  super.getProperties();
-		properties.put(PARAMETER_ROLE_TREE_NODE, roleTreeNodeId == null ? null : roleTreeNodeId);
+		properties.put(PARAMETER_ROLE_TREE_NODE, roleTreeNodeId);
 		return properties;
 	}
 	

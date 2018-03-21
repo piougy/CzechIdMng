@@ -199,6 +199,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole,
 			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
 		Assert.notNull(identityRole);
@@ -236,6 +237,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 	
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto prepareAddAutomaticRoles(IdmIdentityContractDto contract,
 			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
 		Assert.notNull(contract);
@@ -246,8 +248,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void addAutomaticRoles(IdmIdentityContractDto contract,
-			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
+	public void addAutomaticRoles(IdmIdentityContractDto contract, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			// create identity role directly
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();

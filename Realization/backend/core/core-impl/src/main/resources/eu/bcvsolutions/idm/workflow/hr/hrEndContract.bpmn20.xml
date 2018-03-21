@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bcvsolutions.eu/testDeployAndRun">
   <process id="hrEndContract" name="HR process - end of contract" isExecutable="true">
-    <documentation>HR process - end of contract
+    <documentation>HR process - end of contract (example)
 The process starts for every identity contract, which is newly not valid at the moment (meaning it was valid in the last
 run of the task, but now it's not). If the processed contract was the last valid contract of the identity, the identity is disabled.
 
 Additionally all added roles, which were assigned to the ended contract, are removed by the process.
 
 Input:
-    dto - IdmIdentityContractDto
-    </documentation>
+    dto - IdmIdentityContractDto</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="scripttask1"></sequenceFlow>
@@ -31,6 +30,9 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrEndContract");
 
@@ -47,7 +49,13 @@ try {
 	def newState = identityService.evaluateState(identity.getId());
 	if (identity.getState() != newState) {
 		identity.setState(newState);
-		identityService.save(identity);
+
+		// is neccessary publish new event with skip recalculation automatic roles
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		if (binding.hasVariable('skip_recalculation')) {
+			event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skip_recalculation);
+		}
+    	identityService.publish(event);
 	}
 	//
 	// remove all contract roles

@@ -138,7 +138,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		//
 		if (withLongRunningTask) {
 			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-			task.setRoleTreeNodeId(roleTreeNode.getId());
+			task.setAutomaticRoleId(roleTreeNode.getId());
 			taskManager.executeSync(task);
 		}
 		//
@@ -147,7 +147,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
-		task.setRoleTreeNodeId(automaticRole.getId());
+		task.setAutomaticRoleId(automaticRole.getId());
 		taskManager.executeSync(task);
 	}
 	

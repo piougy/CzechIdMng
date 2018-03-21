@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.security.evaluator.IdentityAccountByAccountEvaluator;
 import eu.bcvsolutions.idm.acc.security.evaluator.ReadAccountByIdentityEvaluator;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -45,6 +46,7 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private SynchronizationService synchronizationService;
 	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -84,7 +86,10 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 				accountByIdentity = authorizationPolicyService.save(accountByIdentity);
 				//
 				// 
-			}	
+			}
+			//
+			// Cancels all previously ran tasks
+			synchronizationService.init();
 		} catch(Exception ex) {
 			LOG.warn("Init data for ACC module, was not created!", ex);
 		} finally {

@@ -30,6 +30,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -50,6 +52,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -1513,7 +1516,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		for (IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
-			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class);
+			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class, null);
 			assertEquals(automaticRole, embedded);
 			assertEquals(role.getId(), embedded.getRole());
 			assertEquals(role.getId(), identityRole.getRole());
@@ -1526,6 +1529,25 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(0, identityRoles.size());
 	}
 	
+	@Test
+	public void testUpdateWithoutAutomaticRoles() {
+		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		
+		IdmRoleDto basicRole = testHelper.createRole();
+		testHelper.assignRoles(primeContract, basicRole);
+		
+		IdmTreeTypeDto type = testHelper.createTreeType();
+		IdmTreeNodeDto node = testHelper.createTreeNode(type, null);
+		
+		primeContract.setWorkPosition(node.getId());
+		identity.setDescription(String.valueOf(System.currentTimeMillis()));
+		
+		identityContractService.save(primeContract);
+		
+		identityService.save(identity);
+	}
+	
 	private void waitForTaskWithRecalculation(IdmAutomaticRoleAttributeDto automaticRole) throws InterruptedException {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(RemoveAutomaticRoleTaskExecutor.class.getCanonicalName());
@@ -1533,7 +1555,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmLongRunningTaskDto taskWithRecalculation = longRunningTaskService.find(filter, null).getContent()
 			.stream() //
 			.filter(lrt -> {
-					Object parameter = lrt.getTaskProperties().get(RemoveAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
+					Object parameter = lrt.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
 					if (parameter.equals(automaticRole.getId())) {
 						return true;
 					}

@@ -74,9 +74,17 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 	public int getOrder() {
 		return Integer.MAX_VALUE;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
+		// check authorities may be skipped
+		return super.conditional(event)
+				&& !getBooleanProperty(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, event.getProperties());
+	}
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		
 		checkRevokedPermissions(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}

@@ -25,6 +25,8 @@ public interface IdmIdentityRoleService extends
 	AuthorizableService<IdmIdentityRoleDto>,
 	ScriptEnabled {
 	
+	String SKIP_CHECK_AUTHORITIES = "skipCheckAuthorities";
+	
 	/**
 	 * Returns all identity's roles
 	 * 

@@ -6,12 +6,14 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
-//
-import { RoleManager, TreeNodeManager, RoleTreeNodeManager } from '../../redux';
+import { RoleManager, TreeNodeManager, RoleTreeNodeManager, AutomaticRoleRequestManager, SecurityManager} from '../../redux';
+import AutomaticRoleRequestTableComponent, { AutomaticRoleRequestTable } from '../automaticrolerequest/AutomaticRoleRequestTable';
+import SearchParameters from '../../domain/SearchParameters';
 
 const manager = new RoleTreeNodeManager();
 const roleManager = new RoleManager();
 const treeNodeManager = new TreeNodeManager();
+const automaticRoleRequestManager = new AutomaticRoleRequestManager();
 
 /**
 * Table of automatic roles
@@ -80,11 +82,28 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     }
     //
     super.afterSave(entity, error);
+    this.refs['automatic-role-requests-table'].getWrappedInstance().reload();
+  }
+
+  afterDelete() {
+    super.afterDelete();
+    this.refs['automatic-role-requests-table'].getWrappedInstance().reload();
   }
 
   render() {
     const { uiKey, columns, forceSearchParameters, _showLoading, _permissions } = this.props;
     const { detail } = this.state;
+
+    let roleId = null;
+    if (forceSearchParameters) {
+      if (forceSearchParameters.getFilters().has('roleId')) {
+        roleId = forceSearchParameters.getFilters().get('roleId');
+      }
+    }
+    let requestForceSearch = new SearchParameters();
+    requestForceSearch = requestForceSearch.setFilter('roleId', roleId);
+    requestForceSearch = requestForceSearch.setFilter('requestType', 'TREE');
+    requestForceSearch = requestForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
     //
     return (
       <div>
@@ -184,6 +203,20 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             sort
             rendered={_.includes(columns, 'recursionType')}/>
         </Advanced.Table>
+        <div className="tab-pane-table-body"
+          rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ') }>
+          <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
+          <AutomaticRoleRequestTableComponent
+            ref="automatic-role-requests-table"
+            uiKey="role-automatic-role-requests-table"
+            forceSearchParameters={requestForceSearch}
+            columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
+               roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
+                      : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
+            )}
+            showFilter={false}
+            manager={automaticRoleRequestManager}/>
+        </div>
 
         <Basic.Modal
           bsSize="large"

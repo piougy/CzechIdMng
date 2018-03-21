@@ -16,7 +16,7 @@ class EnumValue extends AbstractComponent {
   }
 
   render() {
-    const { rendered, value, style, label } = this.props;
+    const { rendered, value, style, label, level } = this.props;
     const enumClass = this.props.enum;
     //
     if (!rendered || !value) {
@@ -40,10 +40,10 @@ class EnumValue extends AbstractComponent {
           </span>
         );
       }
-      const level = enumClass.getLevel(value);
-      if (level) {
+      const _level = level || enumClass.getLevel(value);
+      if (_level) {
         content = (
-          <Label style={style} level={level} text={content}/>
+          <Label style={ style } level={ _level } text={ content }/>
         );
       }
     }
@@ -65,10 +65,14 @@ EnumValue.propTypes = {
    */
   value: PropTypes.string,
   /**
-   * Custom label - level will be used by enum value, but label will be this one.
+   * Custom label - label will be used by enum value, but label will be this one.
    * If no label is given, then localized label by enum value will be used.
    */
-  label: PropTypes.string
+  label: PropTypes.string,
+  /**
+   * Custom level. If no level is given, then level by enum value will be used.
+   */
+  level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'link', 'primary']),
 };
 
 EnumValue.defaultProps = {

@@ -10,28 +10,27 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.event.AsyncEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
- * Run provisioning after identity was saved.
+ * Run provisioning after identity was changed.
  * 
  * @author Radek Tomiška
- *
  */
 @Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioning after identity is saved.")
+@Description("Executes provisioning after identity was changed.")
 public class IdentitySaveProvisioningProcessor
 		extends CoreEventProcessor<IdmIdentityDto> 
-		implements IdentityProcessor {
+		implements IdentityProcessor, AsyncEntityEventProcessor<IdmIdentityDto> {
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);
@@ -40,7 +39,7 @@ public class IdentitySaveProvisioningProcessor
 	
 	@Autowired
 	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
-		super(IdentityEventType.CREATE, IdentityEventType.UPDATE, CoreEventType.EAV_SAVE);
+		super(CoreEventType.NOTIFY);
 		//
 		Assert.notNull(applicationContext);
 		Assert.notNull(identityRepository);
@@ -52,13 +51,15 @@ public class IdentitySaveProvisioningProcessor
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
+		// Skip provisioning
+		return !this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties());
+	}
 
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
-		// Skip provisioning
-		if(this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties())){
-			return new DefaultEventResult<>(event, this);
-		}
 		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}
@@ -83,6 +84,5 @@ public class IdentitySaveProvisioningProcessor
 			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
-	}
-	
+	}	
 }

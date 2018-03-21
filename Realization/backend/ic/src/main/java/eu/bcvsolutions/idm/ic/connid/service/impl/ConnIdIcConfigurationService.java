@@ -23,7 +23,6 @@ import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -36,13 +35,11 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.exception.IcCantConnectException;
-import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.exception.IcInvalidCredentialException;
 import eu.bcvsolutions.idm.ic.exception.IcRemoteServerException;
 import eu.bcvsolutions.idm.ic.exception.IcServerNotFoundException;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
-import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 @Service
@@ -60,18 +57,6 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	private List<ConnectorInfoManager> managers;
 	@Value("#{'${ic.localconnector.packages}'.split(',')}")
 	private List<String> localConnectorsPackages;
-
-	@Autowired
-	public ConnIdIcConfigurationService(IcConfigurationFacade icConfigurationAggregator) {
-		if (icConfigurationAggregator.getIcConfigs() == null) {
-			throw new IcException("Map of IC implementations is not defined!");
-		}
-		if (icConfigurationAggregator.getIcConfigs().containsKey(IMPLEMENTATION_TYPE)) {
-			throw new IcException(
-					MessageFormat.format("IC implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
-		}
-		icConfigurationAggregator.getIcConfigs().put(IMPLEMENTATION_TYPE, this);
-	}
 
 	final private static String IMPLEMENTATION_TYPE = "connId";
 

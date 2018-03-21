@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { SecurityManager } from '../../redux';
 
 /**
@@ -11,7 +13,7 @@ import { SecurityManager } from '../../redux';
 * @author Ondřej Kopr
 * @author Radek Tomiška
 */
-export default class FormDefinitioTable extends Basic.AbstractContent {
+export class FormDefinitionTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -22,10 +24,17 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
+    this.refs.text.focus();
   }
 
   getContentKey() {
     return 'content.formDefinitions';
+  }
+
+  getManager() {
+    return this.props.definitionManager;
   }
 
   useFilter(event) {
@@ -51,39 +60,6 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
     }
   }
 
-  onDelete(bulkActionValue, selectedRows) {
-    const { uiKey, definitionManager } = this.props;
-    const selectedEntities = definitionManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    // show confirm message for deleting entity or entities
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: definitionManager.getNiceLabel(selectedEntities[0]), records: definitionManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: definitionManager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      // try delete
-      this.context.store.dispatch(definitionManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
-        if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: definitionManager.getNiceLabel(entity) }) }, error);
-        }
-        if (!error && successEntities) {
-          // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    }, () => {
-      //
-    });
-  }
-
-  /**
-  * Method get last string of split string by dot.
-  * Used for get niceLabel for type entity.
-  */
-  _getType(name) {
-    const type = name.split('.');
-    return type[type.length - 1];
-  }
-
   render() {
     const { uiKey, definitionManager } = this.props;
     const { filterOpened } = this.state;
@@ -95,7 +71,7 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
             ref="table"
             uiKey={uiKey}
             manager={definitionManager}
-            showRowSelection={SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE')}
+            showRowSelection={SecurityManager.hasAuthority('FORMDEFINITION_DELETE')}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             actions={
               [
@@ -105,20 +81,15 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row>
-                    <div className="col-lg-6">
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 6 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text')}/>
-                    </div>
-                    <div className="col-lg-6 text-right">
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <div className="col-lg-6">
-
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
@@ -130,14 +101,14 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('FORMDEFINITION_CREATE')}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
+                  rendered={SecurityManager.hasAuthority('FORMDEFINITION_CREATE')}
+                  icon="fa:plus">
+                  { this.i18n('button.add') }
                 </Basic.Button>
               ]
             }
-            filterOpened={!filterOpened}>
+            filterOpened={ filterOpened }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               header=""
               className="detail-button"
@@ -155,7 +126,7 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
               face="text" width="75px"
               cell={
                 ({ rowIndex, data, property }) => {
-                  return this._getType(data[rowIndex][property]);
+                  return Utils.Ui.getSimpleJavaType(data[rowIndex][property]);
                 }}/>
             <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
             <Advanced.Column property="code" sort/>
@@ -168,12 +139,20 @@ export default class FormDefinitioTable extends Basic.AbstractContent {
   }
 }
 
-FormDefinitioTable.propTypes = {
+FormDefinitionTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   definitionManager: PropTypes.object.isRequired,
   filterOpened: PropTypes.bool
 };
 
-FormDefinitioTable.defaultProps = {
+FormDefinitionTable.defaultProps = {
   filterOpened: true
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select, null, null, { withRef: true })(FormDefinitionTable);

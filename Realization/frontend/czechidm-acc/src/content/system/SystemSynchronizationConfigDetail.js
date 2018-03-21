@@ -2,8 +2,9 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment';
 //
-import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
+import { Basic, Domain, Managers, Utils, Advanced, Services} from 'czechidm-core';
 import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
 import ReconciliationMissingAccountActionTypeEnum from '../../domain/ReconciliationMissingAccountActionTypeEnum';
 import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLinkedActionTypeEnum';
@@ -11,7 +12,6 @@ import SynchronizationMissingEntityActionTypeEnum from '../../domain/Synchroniza
 import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationUnlinkedActionTypeEnum';
 import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
-import help from './SyncConfigFilterHelp_cs.md';
 import SyncIdentityConfig from '../sync/SyncIdentityConfig';
 import SyncContractConfig from '../sync/SyncContractConfig';
 
@@ -293,6 +293,49 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     return actions;
   }
 
+  _generateStatisticCell(rowIndex, data) {
+    const actions = [];
+    if (!data[rowIndex].syncActionLogs) {
+      return actions;
+    }
+    const started = data[rowIndex].started;
+    const ended = data[rowIndex].ended ? data[rowIndex].ended : moment().utc().valueOf();
+    const timeDiff = moment.utc(moment.duration(moment(ended).diff(moment(started))).asMilliseconds());
+    const timeDiffHumanized = moment.duration(moment(ended).diff(moment(started))).locale(Services.LocalizationService.getCurrentLanguage()).humanize();
+    let allOperationsCount = 0;
+    for (const action of data[rowIndex].syncActionLogs) {
+      allOperationsCount = allOperationsCount + action.operationCount;
+    }
+    const itemsPerSec = Math.round((allOperationsCount / timeDiff * 1000) * 100) / 100;
+    if (data[rowIndex].running || data[rowIndex].ended) {
+      actions.push(
+        <div>
+          <Basic.Label
+            style={{marginRight: '5px'}}
+            level="info"
+            title={timeDiffHumanized}
+            text={timeDiff.format(this.i18n('format.times'))}/>
+          <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.timeDiff`)} </label>
+        </div>
+      );
+    }
+    actions.push(
+      <div>
+        <Basic.Label style={{marginRight: '5px'}} level="info" text={allOperationsCount}/>
+        <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.allOperations`)} </label>
+      </div>
+    );
+    if (data[rowIndex].running || data[rowIndex].ended) {
+      actions.push(
+        <div>
+          <Basic.Label style={{marginRight: '5px'}} level="info" text={itemsPerSec}/>
+          <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.itemsPerSec`)} </label>
+        </div>
+      );
+    }
+    return actions;
+  }
+
   _onChangeSelectTabs(activeKey) {
     this.setState({activeKey});
   }
@@ -311,6 +354,18 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       return synchronizationConfig._embedded.systemMapping.entityType;
     }
     return null;
+  }
+
+  getHelp() {
+    let helpContent = new Domain.HelpContent();
+    helpContent = helpContent.setHeader(
+      <span>
+        <Basic.Icon value="filter"/> { this.i18n('help.header') }
+      </span>
+    );
+    helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
+    //
+    return helpContent;
   }
 
   render() {
@@ -575,7 +630,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}
-                    help={help}/>
+                    help={ this.getHelp() }/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"
@@ -657,7 +712,16 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                   />
                 <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
                 <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
-              </Advanced.Table>
+                <Advanced.Column
+                  property="statistic"
+                  header={this.i18n('acc:entity.SynchronizationLog.statistic.label')}
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return this._generateStatisticCell(rowIndex, data);
+                    }
+                  }
+                  />
+            </Advanced.Table>
             </Basic.Tab>
           </Basic.Tabs>
         </div>

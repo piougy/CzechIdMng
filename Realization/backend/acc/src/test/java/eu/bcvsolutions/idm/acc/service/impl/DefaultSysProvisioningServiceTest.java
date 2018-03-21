@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -20,16 +22,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -40,6 +46,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
@@ -49,6 +56,8 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -56,8 +65,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
@@ -130,6 +141,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	@Autowired private IdmRoleService roleService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private ProvisioningConfiguration provisioningConfiguration;
+	@Autowired private SysProvisioningArchiveService porvisioningArchiveService;
 	//
 	private List<SysSchemaObjectClassDto> objectClasses = null;
 	private SysSystemDto system = null;
@@ -137,11 +149,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 
@@ -433,6 +447,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		account.setSystem(clonedSystem.getId());
 		account.setUid("y" + IDENTITY_USERNAME);
 		account.setAccountType(AccountType.PERSONAL);
+		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystemEntity(sysEntity.getId());
 		account = accountService.save(account);
 		
@@ -979,6 +994,112 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	public void compileAttributesOverrloadedStrategyMergeWithDuplTest() {
+		String sameValue = "sameValue-" + System.currentTimeMillis();
+		String eavAttribute = "EAV_ATTRIBUTE";
+
+		IdmRoleDto role1 = helper.createRole();
+		IdmRoleDto role2 = helper.createRole();
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, role1);
+		helper.createIdentityRole(identity, role2);
+
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		systemService.generateSchema(system);
+
+		SysSchemaAttributeFilter schemaAttFilter = new SysSchemaAttributeFilter();
+		schemaAttFilter.setSystemId(system.getId());
+		schemaAttFilter.setName(eavAttribute);
+		List<SysSchemaAttributeDto> schemaAttrs = schemaAttributeService.find(schemaAttFilter, null).getContent();
+		assertEquals(1, schemaAttrs.size());
+		SysSchemaAttributeDto schemaAttributeDto = schemaAttrs.get(0);
+		schemaAttributeDto.setMultivalued(true);
+		schemaAttributeDto = schemaAttributeService.save(schemaAttributeDto);
+
+		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+		schemaAttributeFilter.setName(eavAttribute);
+		List<SysSchemaAttributeDto> atts = schemaAttributeService.find(schemaAttributeFilter, null).getContent();
+		assertEquals(1, atts.size());
+		SysSchemaAttributeDto sysSchemaAttributeEav = atts.get(0);
+
+		// create eav attribute with merge
+		SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
+		attributeMapping.setExtendedAttribute(true);
+		attributeMapping.setName(eavAttribute);
+		attributeMapping.setIdmPropertyName(eavAttribute);
+		attributeMapping.setStrategyType(AttributeMappingStrategyType.MERGE);
+		attributeMapping.setSchemaAttribute(sysSchemaAttributeEav.getId());
+		attributeMapping.setSystemMapping(systemMapping.getId());
+		attributeMapping = systemAttributeMappingService.save(attributeMapping);
+
+		SysRoleSystemDto roleSystem1 = helper.createRoleSystem(role1, system);
+
+		SysRoleSystemDto roleSystem2 = helper.createRoleSystem(role2, system);
+
+		SysRoleSystemAttributeDto overloadedRoleOne = new SysRoleSystemAttributeDto();
+		overloadedRoleOne.setSystemAttributeMapping(attributeMapping.getId());
+		overloadedRoleOne.setEntityAttribute(false);
+		overloadedRoleOne.setExtendedAttribute(true);
+		overloadedRoleOne.setStrategyType(AttributeMappingStrategyType.MERGE);
+		overloadedRoleOne.setName(attributeMapping.getName());
+		overloadedRoleOne.setDisabledDefaultAttribute(false);
+		overloadedRoleOne.setIdmPropertyName(eavAttribute);
+		overloadedRoleOne.setRoleSystem(roleSystem1.getId());
+		overloadedRoleOne.setTransformToResourceScript("return '" + sameValue + "';");
+		overloadedRoleOne = roleSystemAttributeService.save(overloadedRoleOne);
+
+		SysRoleSystemAttributeDto overloadedRoleTwo = new SysRoleSystemAttributeDto();
+		overloadedRoleTwo.setSystemAttributeMapping(attributeMapping.getId());
+		overloadedRoleTwo.setEntityAttribute(false);
+		overloadedRoleTwo.setExtendedAttribute(true);
+		overloadedRoleTwo.setStrategyType(AttributeMappingStrategyType.MERGE);
+		overloadedRoleTwo.setName(attributeMapping.getName());
+		overloadedRoleTwo.setDisabledDefaultAttribute(false);
+		overloadedRoleTwo.setIdmPropertyName(eavAttribute);
+		overloadedRoleTwo.setRoleSystem(roleSystem2.getId());
+		overloadedRoleTwo.setTransformToResourceScript("return '" + sameValue + "';");
+		overloadedRoleTwo = roleSystemAttributeService.save(overloadedRoleTwo);
+
+		provisioningService.accountManagement(identity);
+		provisioningService.doProvisioning(identity);
+
+		List<AccAccountDto> accounts = accountService.getAccounts(system.getId(), identity.getId());
+		assertEquals(1, accounts.size());
+
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
+
+		List<SysProvisioningArchiveDto> archives = porvisioningArchiveService.find(filter, null).getContent();
+
+		assertEquals(1, archives.size());
+		SysProvisioningArchiveDto archive = archives.get(0);
+
+		assertEquals(OperationState.EXECUTED, archive.getResultState());
+		ProvisioningContext provisioningContext = archive.getProvisioningContext();
+
+		Object values = null;
+		for (ProvisioningAttributeDto key : provisioningContext.getAccountObject().keySet()) {
+			if (key.getSchemaAttributeName().equals(eavAttribute)) {
+				values = provisioningContext.getAccountObject().get(key);
+				break;
+			}
+		}
+		assertNotNull(values);
+
+		if (values instanceof ArrayList<?>) {
+			ArrayList<?> colleaction = (ArrayList<?>) values;
+			assertEquals(1, colleaction.size());
+			Object object = colleaction.get(0);
+			assertEquals(sameValue, object);
+		} else {
+			fail();
+		}
+	}
+
+	@Test
 	@Transactional
 	public void compileAttributesOverrloadedStrategyMergeAuthoDisableTest() {
 		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
@@ -1342,6 +1463,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME);
 		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
 		accountOne = accountService.save(accountOne);
 
 		accountIdentityOne = new AccIdentityAccountDto();
@@ -1361,6 +1483,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountTwo.setSystem(system.getId());
 		accountTwo.setUid("x" + IDENTITY_USERNAME_TWO);
 		accountTwo.setAccountType(AccountType.PERSONAL);
+		accountTwo.setEntityType(SystemEntityType.IDENTITY);
 		accountTwo = accountService.save(accountTwo);
 
 		AccIdentityAccountDto accountIdentityTwo = new AccIdentityAccountDto();
@@ -1438,6 +1561,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(getSystem().getId());
 		accountOne.setUid("x" + identity.getUsername());
 		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
 		accountOne = accountService.save(accountOne);
 		//
 		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();

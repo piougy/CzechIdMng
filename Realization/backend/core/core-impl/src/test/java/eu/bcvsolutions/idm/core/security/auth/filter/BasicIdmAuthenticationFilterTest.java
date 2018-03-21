@@ -64,7 +64,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 	@After
 	public void after() {
 		// reset to default
-		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, true);
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, true);
 		this.logout();
 	}
 	
@@ -96,7 +96,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String newTestPassword = "newTestPassword";
 		//
 		this.loginAsAdmin(TEST_ADMIN_USERNAME);
-		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, false);
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, false);
 		//
 		// create identity
 		IdmIdentityDto identity = testHelper.createIdentity();
@@ -122,9 +122,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		//
 		assertEquals(1, passwordChangeResults.size());
 		OperationResult operationResult = passwordChangeResults.get(0);
-		assertEquals(OperationState.NOT_EXECUTED, operationResult.getState());
-		assertEquals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name(), operationResult.getModel().getStatusEnum());
-		assertEquals(HttpStatus.CONFLICT, operationResult.getModel().getStatus());
+		assertEquals(OperationState.EXECUTED, operationResult.getState());
 	}
 	
 	@Test
@@ -133,7 +131,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String newTestPassword = "newTestPassword";
 		//
 		this.loginAsAdmin(TEST_ADMIN_USERNAME);
-		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, true);
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, true);
 		//
 		// create identity
 		IdmIdentityDto identity = testHelper.createIdentity();
@@ -176,7 +174,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String newTestPassword = "newTestPassword";
 		//
 		this.loginAsAdmin(TEST_ADMIN_USERNAME);
-		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, false);
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, false);
 		//
 		// create identity
 		IdmIdentityDto identity = createIdentityInTransaction(testPassword);
@@ -197,11 +195,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		passwordChangeDto.setOldPassword(new GuardedString(testPassword));
 		List<OperationResult> passwordChangeResults = passwordChangeController.passwordChange(identity.getUsername(), passwordChangeDto);
 		
-		assertEquals(1, passwordChangeResults.size());
-		OperationResult operationResult = passwordChangeResults.get(0);
-		assertEquals(OperationState.NOT_EXECUTED, operationResult.getState());
-		assertEquals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name(), operationResult.getModel().getStatusEnum());
-		assertEquals(HttpStatus.CONFLICT, operationResult.getModel().getStatus());
+		assertEquals(0, passwordChangeResults.size());
 	}
 	
 	@Test
@@ -210,7 +204,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String newTestPassword = "newTestPassword";
 		//
 		this.loginAsAdmin(TEST_ADMIN_USERNAME);
-		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_ENABLED_CHANGE_PASSWORD_FOR_IDM, true);
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, true);
 		//
 		// create identity
 		IdmIdentityDto identity = createIdentityInTransaction(testPassword);

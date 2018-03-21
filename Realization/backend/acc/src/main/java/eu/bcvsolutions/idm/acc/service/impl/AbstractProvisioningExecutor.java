@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -663,7 +667,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 								system.getName()));
 			}
 
-			List<Object> mergedValues = new ArrayList<>();
+			// we use SET collection because we want collection of merged values without duplicates
+			Set<Object> mergedValues = new LinkedHashSet<>();
 			attributes.stream().filter(attribute -> {
 				SysSchemaAttributeDto schemaAttribute = getSchemaAttribute(attribute);
 				return !accountAttributes.containsKey(attributeParentKey)
@@ -687,7 +692,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				}
 			});
 			if (!accountAttributes.containsKey(attributeParentKey)) {
-				accountAttributes.put(attributeParentKey, mergedValues);
+				// we must put merged values as array list
+				accountAttributes.put(attributeParentKey, new ArrayList<>(mergedValues));
 			}
 		}
 		return accountAttributes;

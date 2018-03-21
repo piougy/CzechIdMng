@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -113,9 +115,7 @@ public class PasswordChangeController {
 				// public password change password for all system including idm 
 				passwordChangeDto.setAll(true);
 				// check if is allowed change password trough IdM, otherwise leave value as it is
-				if (identityConfiguration.isAllowedChangePasswordForIdm()) {
-					passwordChangeDto.setIdm(true);
-				}
+				passwordChangeDto.setIdm(identityConfiguration.isAllowedPublicChangePasswordForIdm());
 			}
 		} catch(IdmAuthenticationException ex) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM, ex);
@@ -125,5 +125,26 @@ public class PasswordChangeController {
 		identityService.checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE);
 		//
 		return identityService.passwordChange(identity, passwordChangeDto);
+	}
+	
+	/**
+	 * Pre validation of password (shows hint  of password policy rules)
+	 * 
+	 * @param identityId
+	 * @param passwordChangeDto
+	 * @return
+	 */
+	@ResponseBody
+	@ResponseStatus(code = HttpStatus.OK)
+	@RequestMapping(value = BaseController.BASE_PATH + "/public/identities/prevalidate", method = RequestMethod.PUT)
+	@ApiOperation(
+			value = "Validation of password before applying", 
+			nickname = "validationOfPasswordBeforeApplying",
+			tags = { PasswordChangeController.TAG })
+	public ResponseEntity<?> validate(
+			@RequestBody PasswordChangeDto passwordChangeDto) {
+		passwordChangeDto.setNewPassword(new GuardedString());
+		identityService.validatePassword(passwordChangeDto);
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 }

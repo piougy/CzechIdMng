@@ -154,7 +154,7 @@ class RoleTable extends Advanced.AbstractTableContent {
         {
           !showTree
           ||
-          <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
+          <Basic.Col lg={ 3 } style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
             <div className="basic-toolbar">
               <div className="pull-left">
                 <h3 style={{ margin: 0 }}>{this.i18n('content.roles.roleCataloguePick')}</h3>
@@ -173,10 +173,10 @@ class RoleTable extends Advanced.AbstractTableContent {
                 manager={this.roleCatalogueManager}
                 />
             </div>
-          </div>
+          </Basic.Col>
         }
 
-        <div className={!showTree ? 'col-lg-12' : 'col-lg-9'}>
+        <Basic.Col lg={!showTree ? 12 : 9 }>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           <Advanced.Table
@@ -196,7 +196,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                     <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('content.roles.filter.text.placeholder')}/>
+                        placeholder={this.i18n('content.roles.filter.text.placeholder')}
+                        help={ Advanced.Filter.getTextHelp() }/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } rendered={ false }>
                       <Advanced.Filter.EnumSelectBox
@@ -260,8 +261,8 @@ class RoleTable extends Advanced.AbstractTableContent {
             <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
             <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
           </Advanced.Table>
-        </div>
-    </Basic.Row>
+        </Basic.Col>
+      </Basic.Row>
     );
   }
 }

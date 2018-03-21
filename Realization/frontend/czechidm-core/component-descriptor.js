@@ -8,6 +8,10 @@ module.exports = {
       'component': require('./src/content/task/identityRole/DynamicTaskRoleDetail')
     },
     {
+      'id': 'dynamicAutomaticRoleTaskDetail',
+      'component': require('./src/content/task/identityRole/DynamicTaskAutomaticRoleDetail')
+    },
+    {
       'id': 'role-tree-node-task-detail',
       'component': require('./src/content/task/roleTreeNode/AutomaticRoleTaskDetail')
     },
@@ -86,6 +90,14 @@ module.exports = {
       'faceType': 'TEXT',
       'component': require('./src/components/advanced/Form/TextFormAttributeRenderer'),
       'labelKey': 'core:component.advanced.EavForm.faceType.TEXT'
+    },
+    {
+      'id': 'short-text-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'SHORTTEXT',
+      'faceType': 'SHORTTEXT',
+      'component': require('./src/components/advanced/Form/ShortTextFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.SHORTTEXT'
     },
     {
       'id': 'char-form-value',

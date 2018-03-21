@@ -129,7 +129,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 	public void delete(AccAccountDto account, BasePermission... permission) {
 		Assert.notNull(account);
 		// delete all identity accounts (call event)
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		 AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
 				.getContent();

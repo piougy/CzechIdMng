@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -92,7 +92,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with identities",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdmIdentityFilter> {
+public class IdmIdentityController extends AbstractEventableDtoController<IdmIdentityDto, IdmIdentityFilter> {
 
 	protected static final String TAG = "Identities";
 	//

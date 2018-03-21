@@ -55,6 +55,7 @@ const paths = {
   distLocale: 'dist/locales',
   distThemes: 'dist/themes',
   distModule: 'dist/modules',
+  distMainNodeModules: '../node_modules',
   src: 'src/**/*.js'
 };
 
@@ -102,8 +103,32 @@ function selectStageAndProfile() {
 }
 
 gulp.task('makeModules', () => {
-  return vfs.src('./czechidm-modules/**', {followSymlinks: false})
-  .pipe(vfs.symlink('./node_modules'));
+  return vfs.src('./czechidm-modules/czechidm-*')
+  .pipe(vfs.symlink('./node_modules', {useJunctions: true}));
+});
+
+gulp.task('makeProductModules', () => {
+  vfs.src(['../czechidm-*']) // Exclusion '!../czechidm-app' not works on linux
+   .pipe(flatmap(function iterateModules(stream, file) {
+     if (!file.path.endsWith('czechidm-app')) {
+       util.log('Product module found:', file.path);
+       vfs.src('./node_modules')
+       .pipe(vfs.symlink(file.path + '/', {useJunctions: true}))
+       .pipe(flatmap(function modules(streamLog, fileLog) {
+         util.log('Created symlink on main "node_modules"', util.colors.magenta(fileLog.path));
+         return streamLog;
+       }))
+       .pipe(shell([
+         'npm install'
+       ], {verbose: true, quiet: false}));
+     }
+     return stream;
+   }))
+  .pipe(vfs.symlink('./czechidm-modules', {useJunctions: true}));
+});
+
+gulp.task('removeAppLink', cb => {
+  return rimraf('./czechidm-modules/czechidm-app', cb);
 });
 
 /**
@@ -209,7 +234,6 @@ gulp.task('createComponentAssembler', () => {
   .pipe(replace(compileMark, componentsAssemblerContent))
   .pipe(gulp.dest(paths.distModule));
 });
-
 
 gulp.task('clean', cb => {
   return rimraf('dist', cb);
@@ -408,11 +432,11 @@ gulp.task('test', () => {
   .usage('Usage (for only one run test): gulp test --profile [name of profile] --stage [development/test/production]\nUsage (for permanent watch on src and test changes): gulp test --watch').argv;
   const watchArg = argv.watch;
   if (watchArg) {
-    runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes');
+    runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes');
     gulp.watch([paths.testSrc, paths.bundle], ['runTest']);
   } else {
     selectStageAndProfile();
-    runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest');
+    runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest');
   }
 });
 
@@ -435,20 +459,25 @@ gulp.task('watchTask', () => {
   gulp.watch(paths.srcLocale, ['loadModuleLocales']);
 });
 
+
+gulp.task('install', cb => {
+  runSequence('clean', 'makeProductModules', 'removeAppLink', cb);
+});
+
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
 });
 
 gulp.task('watch-nosync', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
 });
 
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
+  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

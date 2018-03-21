@@ -13,8 +13,6 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -44,12 +43,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -62,8 +57,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmIdentityRoleService 
 		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
 		implements IdmIdentityRoleService {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
 	private final IdmIdentityRoleRepository repository;
 	private final LookupService lookupService;
@@ -92,28 +85,9 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	protected IdmIdentityRoleDto toDto(IdmIdentityRole entity, IdmIdentityRoleDto dto) {
-		if (entity == null) {
-			return null;
-		}
-		//
-		// field automatic role exists in entity but not in dto
-		TypeMap<IdmIdentityRole, IdmIdentityRoleDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-		if (typeMap == null) {
-			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
-			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-			typeMap.addMappings(new PropertyMap<IdmIdentityRole, IdmIdentityRoleDto>() {
-				
-				@Override
-				protected void configure() {
-					this.skip().setAutomaticRole(this.source.getAutomaticRole() != null);
-				}
-			});
-		}
-		//
+		dto = super.toDto(entity, dto);
 		if (dto == null) {
-			dto = modelMapper.map(entity, this.getDtoClass(entity));
-		} else {
-			modelMapper.map(entity, dto);
+			return null;
 		}
 		//
 		IdmAutomaticRole automaticRole = entity.getAutomaticRole();
@@ -127,7 +101,7 @@ public class DefaultIdmIdentityRoleService
 			} else {
 				baseDto = lookupService.getDtoService(IdmRoleTreeNodeDto.class).get(automaticRole.getId());
 			}
-			embedded.put("roleTreeNode", baseDto);
+			embedded.put(IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, baseDto);
 			dto.setEmbedded(embedded);
 		}
 		//
@@ -144,41 +118,7 @@ public class DefaultIdmIdentityRoleService
 			resultEntity.setAutomaticRole(automaticRole);
 		}
 		return resultEntity;
-	}
-	
-	/**
-	 * Publish {@link IdentityRoleEvent} only.
-	 * 
-	 * @see {@link IdentityRoleSaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmIdentityRoleDto save(IdmIdentityRoleDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getRole());
-		Assert.notNull(dto.getIdentityContract());
-		//
-		LOG.debug("Saving role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
-		return super.save(dto, permission);
-	}
-
-	/**
-	 * Publish {@link IdentityRoleEvent} only.
-	 * 
-	 * @see {@link IdentityRoleDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmIdentityRoleDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getRole());
-		Assert.notNull(dto.getIdentityContract());
-		//
-		LOG.debug("Deleting role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
-		super.delete(dto, permission);
-	}
-	
-	
+	}	
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {
@@ -247,6 +187,13 @@ public class DefaultIdmIdentityRoleService
 			predicates.add(builder.equal(
 					root.get(IdmIdentityRole_.automaticRole).get(IdmAutomaticRole_.id), 
 					filter.getAutomaticRoleId())
+					);
+		}
+		//
+		if (filter.getIdentityContractId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.identityContract).get(AbstractEntity_.id), 
+					filter.getIdentityContractId())
 					);
 		}
 		//

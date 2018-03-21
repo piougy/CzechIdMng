@@ -146,13 +146,8 @@ export default class ConfigurationManager extends EntityManager {
     const publicStringValue = ConfigurationManager.getPublicValue(state, key);
     if (publicStringValue === null || publicStringValue === undefined) {
       return defaultValue;
-    } else if (publicStringValue === 'true') {
-      return true;
-    } else if (publicStringValue === 'false') {
-      return false;
     }
-    //
-    return defaultValue;
+    return publicStringValue === 'true';
   }
 
   /**

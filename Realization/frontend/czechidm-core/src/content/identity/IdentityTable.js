@@ -5,17 +5,15 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import { SearchParameters } from '../../domain';
 import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager, RoleManager } from '../../redux';
-import SearchParameters from '../../domain/SearchParameters';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
-// TODO: LocalizationService.getCurrentLanguage()
-import filterHelp from '../../components/advanced/Filter/README_cs.md';
 
 /**
-* Table of users
-*
-* @author Radek Tomiška
-*/
+ * Table of users
+ *
+ * @author Radek Tomiška
+ */
 export class IdentityTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -26,6 +24,14 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     this.dataManager = new DataManager();
     this.treeNodeManager = new TreeNodeManager();
     this.roleManager = new RoleManager();
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    if (this.refs.text) {
+      this.refs.text.focus();
+    }
   }
 
   getContentKey() {
@@ -154,7 +160,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.name.placeholder')}
-                      help={filterHelp}/>
+                      help={ Advanced.Filter.getTextHelp() }/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 }>
                     <Advanced.Filter.SelectBox
@@ -254,15 +260,15 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 );
               }
             }
-            rendered={_.includes(columns, 'entityInfo')}/>
-          <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
-          <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
-          <Advanced.Column property="lastName" sort face="text" rendered={_.includes(columns, 'lastName')}/>
-          <Advanced.Column property="firstName" width="10%" face="text" rendered={_.includes(columns, 'firstName')}/>
-          <Advanced.Column property="email" width="15%" face="text" sort rendered={_.includes(columns, 'email')}/>
-          <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={_.includes(columns, 'disabled')}/>
-          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={_.includes(columns, 'state')}/>
-          <Advanced.Column property="description" face="text" rendered={_.includes(columns, 'description')} maxLength={ 30 }/>
+            rendered={ _.includes(columns, 'entityInfo') }/>
+          <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
+          <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
+          <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
+          <Advanced.Column property="firstName" width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
+          <Advanced.Column property="email" width="15%" face="text" sort rendered={_ .includes(columns, 'email') }/>
+          <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={ _.includes(columns, 'disabled') }/>
+          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={ _.includes(columns, 'state') }/>
+          <Advanced.Column property="description" face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
         </Advanced.Table>
       </div>
     );

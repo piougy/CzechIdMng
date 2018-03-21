@@ -23,13 +23,13 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
- * Before identity delete - deletes all identity accounts
+ * Before identity delete - deletes all identity accounts.
  * 
  * @author Radek Tomiška
  *
  */
 @Component("accIdentityDeleteProcessor")
-@Description("Ensures referential integrity. Cannot be disabled.")
+@Description("Ensures referential integrity. Cannot be disabled. Removes identity accounts.")
 public class IdentityDeleteProcessor
 		extends CoreEventProcessor<IdmIdentityDto> 
 		implements IdentityProcessor {
@@ -66,10 +66,9 @@ public class IdentityDeleteProcessor
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
 		Assert.notNull(identity);
+		Assert.notNull(identity.getId());
 		
-		if(identity != null && identity.getId() != null) {
-			syncConfigRepository.clearDefaultLeader(identity.getId());
-		}
+		syncConfigRepository.clearDefaultLeader(identity.getId());
 		
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -78,7 +77,7 @@ public class IdentityDeleteProcessor
 		});
 		//
 		// remove all recipients from provisioning break
-		deleteProvisioningRecipient(event.getContent().getId());
+		deleteProvisioningRecipients(identity.getId());
 		//
 		return new DefaultEventResult<>(event, this);
 	}
@@ -99,7 +98,7 @@ public class IdentityDeleteProcessor
 	 * 
 	 * @param identityId
 	 */
-	private void deleteProvisioningRecipient(UUID identityId) {
+	private void deleteProvisioningRecipients(UUID identityId) {
 		SysProvisioningBreakRecipientFilter filter = new SysProvisioningBreakRecipientFilter();
 		filter.setIdentityId(identityId);
 		for (SysProvisioningBreakRecipientDto recipient : provisioningBreakRecipientService.find(filter, null).getContent()) {

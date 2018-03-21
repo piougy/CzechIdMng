@@ -159,6 +159,16 @@ export default class IdentityManager extends FormableEntityManager {
   download(identityId, cb) {
     return this.getService().download(identityId, cb);
   }
+
+  /**
+   * PreValidates password
+   *
+   * @param  {string} requestData
+   * @return
+   */
+  preValidate(requestData) {
+    return this.identityService.preValidate(requestData);
+  }
 }
 
 IdentityManager.PASSWORD_DISABLED = 'DISABLED';

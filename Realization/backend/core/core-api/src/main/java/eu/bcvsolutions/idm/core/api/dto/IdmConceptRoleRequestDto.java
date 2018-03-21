@@ -115,7 +115,9 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
 
     /**
      * Automatic role
+     * 
      * @return
+     * @deprecated since 7.8.0 - use {@link #getAutomaticRole()}
      */
     @Deprecated
     public UUID getRoleTreeNode() {
@@ -126,6 +128,7 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
      * Automatic role
      * 
      * @param roleTreeNode
+     * @deprecated since 7.8.0- use {@link #setAutomaticRole(UUID)}
      */
     @Deprecated
     public void setRoleTreeNode(UUID roleTreeNode) {

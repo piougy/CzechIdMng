@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -50,8 +51,10 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.IdentityLinkDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
@@ -68,23 +71,21 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	@Autowired
 	private SecurityService securityService;
-
 	@Autowired
 	private TaskService taskService;
-
 	@Autowired
 	private FormService formService;
-
 	@Autowired
 	private LookupService lookupService;
-
 	@Autowired
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
+	@Autowired
+	private WorkflowProcessDefinitionService workflowProcessDefinitionService;
 
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		return internalSearch(filter, pageable, true);
+		return internalSearch(filter, pageable);
 	}
 
 	@Override
@@ -112,7 +113,7 @@ public class DefaultWorkflowTaskInstanceService extends
 	private WorkflowTaskInstanceDto get(String taskId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(taskId));
-		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null, false).getContent();
+		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null).getContent();
 
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
@@ -221,6 +222,14 @@ public class DefaultWorkflowTaskInstanceService extends
 		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(task.getProcessDefinitionId(),
 				task.getTaskDefinitionKey()));
 
+		if (!Strings.isNullOrEmpty(task.getProcessDefinitionId())) {
+			WorkflowProcessDefinitionDto processDefinition = workflowProcessDefinitionService
+					.get(task.getProcessDefinitionId());
+			if (processDefinition != null) {
+				dto.setProcessDefinitionKey(processDefinition.getKey());
+			}
+		}
+
 		TaskFormData taskFormData = formService.getTaskFormData(task.getId());
 
 		// Add form data (it means form properties and value from WF)
@@ -261,7 +270,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		if (formType instanceof DecisionFormType) {
 			// Decision buttons will be add only if logged user can execute/complete this
 			// task
-			if(!canExecute) {
+			if (!canExecute) {
 				return;
 			}
 			DecisionFormTypeDto decisionDto = (DecisionFormTypeDto) ((DecisionFormType) formType)
@@ -344,14 +353,21 @@ public class DefaultWorkflowTaskInstanceService extends
 		return false;
 	}
 
-	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable,
-			boolean checkrights) {
-		// user want show all candidates or assigned -> check permissions
-		if (checkrights) {
-			if (filter.getCandidateOrAssigned() == null && !canReadAllTask()) {
-				throw new ResultCodeException(CoreResultCode.FORBIDDEN,
-						"You do not have permission for access to all tasks!");
+	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable) {
+		
+		// if currently logged user can read all task continue
+		if (!canReadAllTask()) {
+			// if user can't read all task check filter
+			if (filter.getCandidateOrAssigned() == null) {
+				filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+			} else {
+				IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
+				if (!identity.getId().equals(securityService.getCurrentId())) {
+					throw new ResultCodeException(CoreResultCode.FORBIDDEN,
+							"You do not have permission for access to all tasks!");
+				}
 			}
+			// else is filled candidate and it is equals currently logged user
 		}
 
 		String processDefinitionId = filter.getProcessDefinitionId();

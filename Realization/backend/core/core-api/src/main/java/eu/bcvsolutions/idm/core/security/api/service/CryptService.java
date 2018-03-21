@@ -10,8 +10,8 @@ import java.util.Base64;
  */
 public interface CryptService {
 	
-	static String APPLICATION_PROPERTIES_KEY = "cipher.crypt.secret.key";
-	static String APPLICATION_PROPERTIES_KEY_PATH = "cipher.crypt.secret.keyPath";
+	String APPLICATION_PROPERTIES_KEY = "cipher.crypt.secret.key";
+	String APPLICATION_PROPERTIES_KEY_PATH = "cipher.crypt.secret.keyPath";
 	
 	/**
 	 * Encrypt string value by {@link Base64} and method encodeBase64String

@@ -1,22 +1,12 @@
 import React, { PropTypes } from 'react';
-import marked from 'marked';
+import _ from 'lodash';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
 import Modal from '../Modal/Modal';
 import Tooltip from '../Tooltip/Tooltip';
-
-marked.setOptions({
-  renderer: new marked.Renderer(),
-  gfm: true,
-  tables: true,
-  breaks: false,
-  pedantic: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false
-});
+import HelpContent from '../../../domain/HelpContent';
 
 /**
  * Help icon opens modal window with user documentation.
@@ -65,8 +55,21 @@ export default class HelpIcon extends AbstractContextComponent {
     if (!rendered || !content) {
       return null;
     }
-    const headerText = this.getHeaderText(content);
-    const markedContent = marked(this.getContentText(content));
+    let _header = null;
+    let _body = null;
+    //
+    if (content instanceof HelpContent) {
+      _header = content.getHeader();
+      _body = content.getBody();
+    } else if (_.isObject(content) && content.body) {
+      _header = content.header;
+      _body = content.body;
+    } else {
+      _body = (<span dangerouslySetInnerHTML={{ __html: content }}/>);
+    }
+    if (!_header) {
+      _header = this.i18n('component.basic.HelpIcon.title');
+    }
 
     return (
       <span className="help-icon-container" {...others}>
@@ -77,10 +80,10 @@ export default class HelpIcon extends AbstractContextComponent {
         </Tooltip>
         <Modal show={this.state.showModal} onHide={this.close.bind(this)} bsSize="large" className="help-icon-modal">
           <Modal.Header closeButton>
-            <h1><span dangerouslySetInnerHTML={{ __html: headerText }}/></h1>
+            <h2>{ _header }</h2>
           </Modal.Header>
           <Modal.Body className="markdown-body">
-            <span dangerouslySetInnerHTML={{ __html: markedContent }}/>
+            { _body }
           </Modal.Body>
           <Modal.Footer>
             <Button level="link" onClick={this.close.bind(this)}>Zavřít</Button>

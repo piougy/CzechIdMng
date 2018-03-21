@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.quartz.JobDataMap;
@@ -9,7 +12,8 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 /**
  * Common configuration properties.
  * <p>
- * JobDataMap from quartz is reused (we want the same functionality)
+ * JobDataMap from quartz is reused (we want the same functionality).
+ * Use {@link Serializable} as values.
  * 
  * @author Radek Tomiška
  */
@@ -27,4 +31,18 @@ public class ConfigurationMap extends JobDataMap {
 	public UUID getUuid(String key) {
         return EntityUtils.toUuid(get(key));
     }
+	
+	/**
+	 * Converts configuration properties to map of Serializable values.
+	 * Use {@link Serializable} as values, throws {@link ClassCastException} otherwise.
+	 * 
+	 * @return
+	 */
+	public Map<String, Serializable> toMap() {
+		Map<String, Serializable> properties = new HashMap<>();
+		this.forEach((k, v) -> {
+			properties.put(k, (Serializable) v);
+		});
+		return properties;
+	}
 }

@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 
 ## [8.0.0 - unreleased]
 
+- [#938](https://redmine.czechidm.com/issues/938) - Requests for automatic assign roles (by tree node or attributes) was implemented.
+ - Creating, updating, deleting of the any automatic role **must use** this requests. Requests are approval by "same" workflows as request for roles uses.
+ - Create, update, delete methods from `IdmAutomaticRoleAttributeController` was **removed**. Method `/delete-via-request/` was **added** to this controller. This method creates request for delete given automatic role.
+- Detail of user - frontend validation that required at least 3 characters for the user name was removed.
+- [#468](https://redmine.czechidm.com/issues/468) - Added asynchronous event processing. Added asynchronous event type ``NOTIFY`` on identities, identity roles and contracts - notify about entity was changed. Processors could listen and process this new event asynchronously. Read more in [documentation](https://redmine.czechidm.com/issues/468). Account management was switched to asynchronous processing by default (instead ``DELETE`` events - removing identity, their role or contact will be still synchronous). Make sure source file **``czechidm-app/src/Index.js``** on frontend is updated.
+- [#979](https://redmine.czechidm.com/issues/979) - Attribute modified from ``AbstractEntity`` isn't audited anymore. Modified date can be found in ``IdmAudit`` as revision ``timestamp``.
+- **``Marked``** library was removed from frontend. Use standard localizations for writing inline help and documentation.
+
+## [7.8.3]
+- [#1005](https://redmine.czechidm.com/issues/1005) - Dry run is available for long running task which supports it.
+- [#1000](https://redmine.czechidm.com/issues/1000) - Persistent type ``SHORTTEXT`` was added to eav forms. Change script for all CzechIdM tables for persist eav values is provided  - provide the same change script in your module, if extended attributes was added to custom entity. ``SHORTTEXT`` and ``UUID`` values are indexed now.
+- [#980](https://redmine.czechidm.com/issues/980) - Improved performance with recalculation automatic roles and skip recalculation during synchronization.
+
+## [7.8.0]
+
+- [#857](https://redmine.czechidm.com/issues/857) - Filters - added support for multiple filter parameters, `MultiValueMap` is used.
+- [#274](https://redmine.czechidm.com/issues/274) - Filters for entity event processors was added.
+
 
 ## [7.7.0]
 

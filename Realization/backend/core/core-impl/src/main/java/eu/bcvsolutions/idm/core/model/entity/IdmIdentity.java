@@ -50,7 +50,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 @Entity
 @Table(name = "idm_identity", indexes = {
 		@Index(name = "ux_idm_identity_username", columnList = "username", unique = true) })
-public class IdmIdentity extends AbstractEntity implements Codeable, FormableEntity, Disableable, AuditSearchable, AttachableEntity {
+public class IdmIdentity extends AbstractEntity
+	implements Codeable, FormableEntity, Disableable, AuditSearchable, AttachableEntity {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
@@ -109,7 +110,7 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityContract> contracts; // only for hibernate mappnig - we dont want lazy lists
+	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we dont want lazy lists
 	
 	@Audited
 	@NotNull
@@ -119,7 +120,7 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "state", nullable = true, length = 45)
+	@Column(name = "state", nullable = false, length = 45)
 	private IdentityState state = IdentityState.CREATED; // @since 7.6.0
 	
 	/**

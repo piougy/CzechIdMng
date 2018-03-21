@@ -12,13 +12,13 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -30,8 +30,8 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
 /**
  * <i>SysSyncConfig</i> is responsible for keep informations about
- * synchronization configuration
- * 
+ * synchronization configuration.
+ *
  * @author svandav
  *
  */
@@ -74,7 +74,7 @@ public class SysSyncConfig extends AbstractEntity {
 	@Column(name = "custom_filter", nullable = false)
 	private boolean customFilter = false;
 
-	@Audited
+	@NotAudited // token isn't audited more
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "token")
 	private String token;

@@ -7,6 +7,8 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -51,11 +53,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -68,6 +70,8 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -88,6 +92,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityContractService identityContractService;
+	private final LongRunningTaskManager longRunningTaskManager;
 
 	@Autowired
 	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -102,7 +107,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			EntityManager entityManager, SysSystemMappingService systemMappingService,
 			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService,
 			IdmRoleRequestService roleRequestService, IdmIdentityContractService identityContractService,
-			IdmConceptRoleRequestService conceptRoleRequestService) {
+			IdmConceptRoleRequestService conceptRoleRequestService, LongRunningTaskManager longRunningTaskManager) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -116,6 +121,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.notNull(formService, "Form service is mandatory!");
 		Assert.notNull(identityContractService, "Identity contract service is mandatory!");
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is mandatory!");
+		Assert.notNull(longRunningTaskManager, "Long running taks manager is mandatory!");
 		//
 		this.identityService = identityService;
 		this.identityAccoutnService = identityAccoutnService;
@@ -123,6 +129,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		this.roleRequestService = roleRequestService;
 		this.identityContractService = identityContractService;
 		this.conceptRoleRequestService = conceptRoleRequestService;
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
 
 	/**
@@ -192,7 +199,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 				MessageFormat.format(
 						"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
 						entity.getId(), entity.getUsername()));
-		identityService.publish(new IdentityEvent(IdentityEventType.UPDATE, entity));
+		//
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, entity);
+		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// Recalculation will be started only once.
+		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+
+		identityService.publish(event);
 	}
 
 	/**
@@ -211,6 +224,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 						ProvisioningService.SKIP_PROVISIONING, skipProvisioning,//
 						// In the identity sync are creation of the default contract skipped.
 						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE));
+		//
+		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// Recalculation will be started only once.
+		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
 		return identityService.publish(event).getContent();
 	}
@@ -431,6 +448,44 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected IdmIdentityDto createEntityDto() {
 		return new IdmIdentityDto();
+	}
+	
+	@Override
+	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		log = super.syncCorrectlyEnded(log, context);
+
+		if (getConfig(context).isStartAutoRoleRec()) {
+			log = executeAutomaticRoleRecalculation(log);
+		} else { 
+			log.addToLog(MessageFormat.format(
+					"Start automatic role recalculation (after sync) isn't allowed [{0}]",
+					LocalDateTime.now()));
+		}
+
+		return log;
+	}
+	
+	/**
+	 * Start automatic role by attribute recalculation synchronously.
+	 *
+	 * @param log
+	 * @return
+	 */
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) { 
+		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
+		
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
+				LocalDateTime.now()));
+		Boolean executed = longRunningTaskManager.executeSync(executor);
+
+		if (BooleanUtils.isTrue(executed)) {
+			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].", LocalDateTime.now()));
+		} else {
+			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
+		}
+
+		return synchronizationLogService.save(log);
 	}
 
 	private SysSyncIdentityConfigDto getConfig(SynchronizationContext context) {

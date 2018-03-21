@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager, SecurityManager } from '../../redux';
+import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager, WorkflowTaskInstanceManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 
@@ -13,11 +13,14 @@ import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 */
 const workflowHistoricProcessInstanceManager = new WorkflowHistoricProcessInstanceManager();
 const workflowHistoricTaskInstanceManager = new WorkflowHistoricTaskInstanceManager();
+const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 
 const MAX_CANDICATES = 3;
 
 /**
- * @author VS
+ * Detail for instance of the workflow process
+ *
+ * @author Vít Švanda
  */
 class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
@@ -72,6 +75,16 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this.setState({showModalDiagram: false});
   }
 
+  _getAssigneCell({ rowIndex, data, property}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity[property]) {
+      return '';
+    }
+    return (
+      <Advanced.IdentityInfo entityIdentifier={entity[property]} face="link"/>
+    );
+  }
+
   _getCandidatesCell({ rowIndex, data, property}) {
     const entity = data[rowIndex];
     if (!entity || !entity[property]) {
@@ -82,16 +95,42 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     );
   }
 
+  _getProcessInfo(process) {
+    if (process) {
+      return (
+        <div>
+          <Basic.LabelWrapper readOnly ref="name" label={this.i18n('name')}>
+            <Advanced.WorkflowProcessInfo entity={process} showLink={false} showLoading={!process} className="no-margin"/>
+          </Basic.LabelWrapper>
+        </div>
+      );
+    }
+  }
+
+  _getWfTaskCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.id) {
+      return '';
+    }
+    entity.taskName = entity.name;
+    entity.taskDescription = entity.description;
+    return (
+      workflowTaskInstanceManager.localize(entity, 'name')
+    );
+  }
+
   render() {
     const {showLoading, diagramUrl, showModalDiagram} = this.state;
     const {_historicProcess} = this.props;
     const { historicProcessInstanceId } = this.props.params;
+
 
     const showLoadingInternal = showLoading || !_historicProcess;
     let force = new SearchParameters();
     force = force.setFilter('processInstanceId', historicProcessInstanceId);
     let forceSubprocess = new SearchParameters();
     forceSubprocess = forceSubprocess.setFilter('superProcessInstanceId', historicProcessInstanceId);
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -101,8 +140,9 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
         <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm ref="form" data={_historicProcess} readOnly style={{ padding: '15px 15px 0 15px' }}>
-            <Basic.TextField ref="name" label={this.i18n('name')}/>
+            {this._getProcessInfo(_historicProcess)}
             <Basic.TextField ref="id" label={this.i18n('id')}/>
+            <Basic.TextField ref="processDefinitionKey" label={this.i18n('processDefinitionKey')}/>
             <Basic.TextField ref="superProcessInstanceId" label={this.i18n('superProcessInstanceId')}/>
             <Basic.DateTimePicker ref="startTime" label={this.i18n('startTime')}/>
             <Basic.DateTimePicker ref="endTime" label={this.i18n('endTime')}/>
@@ -125,10 +165,18 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             pagination={false}
             forceSearchParameters={force}
             manager={workflowHistoricTaskInstanceManager}>
-            <Advanced.Column property="name" sort={false} face="text"/>
-            <Advanced.Column property="assignee" sort={false} face="text"/>
+            <Advanced.Column
+              header=""
+              property="name"
+              cell={this._getWfTaskCell}
+              sort={false}/>
+            <Advanced.Column
+              property="assignee"
+              sort={false}
+              cell={this._getAssigneCell}/>
             <Advanced.Column
                 property="candicateUsers"
+                sort={false}
                 cell={this._getCandidatesCell}/>
             <Advanced.Column property="createTime" sort face="datetime"/>
             <Advanced.Column property="endTime" sort face="datetime"/>

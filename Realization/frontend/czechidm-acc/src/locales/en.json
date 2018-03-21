@@ -139,6 +139,10 @@
         "button": {
           "saveAndStartSynchronization": "Save and run sync"
         },
+        "help": {
+          "header": "Define a custom synchronization filter",
+          "body": "You can define a custom filter simply by selecting the <strong> Filter by attribute </strong> attribute according to which we want to search and the corresponding operations (<strong> Filter operations </strong>). <br /> <br /> If you need to create a more complex filtering criterion, you can use this script. <br /> The example below shows the situation where we want to filter by the selected attribute and operation (it enters the script as <strong > filter </strong>), but we want to limit the results to another condition. In this case, so that all results must have the attribute \"<strong>lastname</strong> \" equal to \"<strong>Doe</strong>\". <br /> <br /> <pre> import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder; <br /> import eu.bcvsolutions.idm.ic.api.IcAttribute; <br /> import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl; <br /> <br /> IcAttribute attr = new IcAttributeImpl (\"lastname\", \"Doe\"); <br /> <br /> return IcFilterBuilder.and ( filter, IcFilterBuilder.equalTo (attr)); </pre> <h2> IcFilterBuilder provides operations </h2> <ul> <li>IcFilterBuilder.equalTo(...)</li> <li>IcFilterBuilder.contains(...)</li> <li>IcFilterBuilder.startsWith(...)</li> <li>IcFilterBuilder.endsWith(...)</li> <li>IcFilterBuilder.or(...)</li> <li>IcFilterBuilder.and(...)</li> <li>IcFilterBuilder.not(...)</li> </ul> <div> The output of this script must be <strong>IcFilter</strong>. If <strong>null</strong> is output, then the filter will not be applied and synchronization will be run over all accounts. </div>"
+        },
         "tabs": {
           "basicConfiguration": {
             "label": "Settings"
@@ -169,12 +173,20 @@
           "startOfHrProcesses": {
             "label": "After end, start the HR processes",
             "helpBlock": "After successful synchronization, HR processes will be executed."
+          },
+          "startAutoRoleRec": {
+            "label": "After end, start the automatic role recalculation",
+            "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
           }
         },
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Default role",
             "helpBlock": "If the synchronization creates a link between an identity and an account, this role will be assigned to the identity. This assignment will be linked to the main contractual relationship of the identity."
+          },
+          "startAutoRoleRec": {
+            "label": "After end, start the automatic role recalculation",
+            "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
           }
         }
       },
@@ -625,7 +637,7 @@
       }
     },
     "RoleSystem": {
-      "_type": "Role assigns account in system",
+      "_type": "Role assigns account in systems",
       "type": "Assign type",
       "role": "Role",
       "system": "System",
@@ -636,6 +648,7 @@
       "entityType": "Entity type",
       "uid": "Identifier in system",
       "system": "Connected system",
+      "wish": "Wish",
       "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {
@@ -821,6 +834,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with role",
           "LINK": "Created links",
@@ -838,6 +852,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
@@ -855,6 +870,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
@@ -872,6 +888,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
@@ -889,6 +906,7 @@
           "CREATE_ENTITY": "Unsuccessfully created entities",
           "UPDATE_ENTITY": "Unsuccessfully updated entities",
           "DELETE_ENTITY": "Unsuccessfully Deleted entities",
+          "LINK_AND_UPDATE_ENTITY": "Unsuccessfully created accounts and updated entities",
           "LINK_AND_UPDATE_ACCOUNT": "Unsuccessfully created and updated accounts",
           "LINK": "Unsuccessfully created links",
           "UNLINK": "Unsuccessfully removed links",
@@ -902,6 +920,12 @@
           "IGNORE": "Unsuccessfully ignored",
           "UNKNOWN": "Unknown state"
         }
+      },
+      "statistic": {
+        "label": "Statistics",
+        "timeDiff": "Duration",
+        "allOperations": "Number of operations",
+        "itemsPerSec": "Number of operations per 1s"
       }
     },
     "SyncActionLog": {
@@ -1006,6 +1030,7 @@
     },
     "SynchronizationUnlinkedActionTypeEnum": {
       "LINK": "Create link",
+      "LINK_AND_UPDATE_ENTITY": "Create link and update entity",
       "LINK_AND_UPDATE_ACCOUNT": "Create link and update account",
       "IGNORE": "Ignore"
     },
@@ -1021,6 +1046,7 @@
       "CREATE_ENTITY": "Create new entity",
       "UPDATE_ENTITY": "Update entity",
       "DELETE_ENTITY": "Remove entity",
+      "LINK_AND_UPDATE_ENTITY": "Create link and update entity",
       "LINK_AND_UPDATE_ACCOUNT": "Link and update account",
       "UNLINK_AND_REMOVE_ROLE": "Remove link and appropriate roles",
       "LINK": "Create link",
@@ -1314,6 +1340,24 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validation of system mapping {{name}} was not successful",
       "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
+    }
+  },
+  "processor": {
+    "identity-save-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    },
+    "identity-role-save-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    },
+    "identity-contract-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    },
+    "contract-guarantee-save": {
+      "title": "Provisioning",
+      "description": "Provisioning - identity accounts will be provisioned to target accounts."
     }
   }
 }

@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -66,6 +68,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "string_value", nullable = true)
 	private String stringValue;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "short_text_value", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
+	private String shortTextValue;
 
 	@Audited
 	@Column(name = "boolean_value", nullable = true)
@@ -232,5 +239,13 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	
 	public void setConfidential(boolean confidential) {
 		this.confidential = confidential;
+	}
+	
+	public String getShortTextValue() {
+		return shortTextValue;
+	}
+	
+	public void setShortTextValue(String shortTextValue) {
+		this.shortTextValue = shortTextValue;
 	}
 }

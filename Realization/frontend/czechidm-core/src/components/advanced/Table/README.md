@@ -14,6 +14,7 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | rowClass | oneOfType([string,func]) | ccs class added for row ||
 | filter | element | Filter definition ||
 | filterOpened | bool | If filter is opened by default | false |
+| filterOpen | func | External filter open function. If false is returned, internal filterOpened is not set. |  |
 | filterCollapsible | bool | If filter can be collapsed |  |
 | actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
 | buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | |

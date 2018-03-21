@@ -21,6 +21,11 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID defaultRole;
+	
+	/*
+	 * Start recalculation after end synchronization for automatic roles by attribute
+	 */
+	private boolean startAutoRoleRec = true;
 
 	public UUID getDefaultRole() {
 		return defaultRole;
@@ -28,5 +33,13 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 
 	public void setDefaultRole(UUID defaultRole) {
 		this.defaultRole = defaultRole;
+	}
+
+	public boolean isStartAutoRoleRec() {
+		return startAutoRoleRec;
+	}
+
+	public void setStartAutoRoleRec(boolean startAutoRoleRec) {
+		this.startAutoRoleRec = startAutoRoleRec;
 	}
 }

@@ -36,12 +36,13 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 	private final IdentityConfiguration identityConfiguration;
 	private final SecurityService securityService;
 
-	public AbstractIdentityPasswordValidateProcessor(IdentityConfiguration identityConfiguration,
-	                                                 IdmPasswordService passwordService,
-	                                                 AuthenticationManager authenticationManager,
-	                                                 IdmPasswordPolicyService passwordPolicyService,
-	                                                 SecurityService securityService, EventType... types
-	) {
+	public AbstractIdentityPasswordValidateProcessor(
+			IdentityConfiguration identityConfiguration,
+			IdmPasswordService passwordService,
+			AuthenticationManager authenticationManager,
+			IdmPasswordPolicyService passwordPolicyService,
+			SecurityService securityService, 
+			EventType... types) {
 		super(types);
 		//
 		Assert.notNull(identityConfiguration);
@@ -56,7 +57,6 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 		this.authenticationManager = authenticationManager;
 		this.passwordPolicyService = passwordPolicyService;
 	}
-
 
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
@@ -90,7 +90,6 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 			}
 		}
 
-
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			// validate password
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
@@ -103,7 +102,6 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 		}
 		return new DefaultEventResult<>(event, this);
 	}
-
 
 	protected abstract boolean requiresOriginalPassword();
 }

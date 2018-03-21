@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.test.api;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -9,10 +11,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -30,6 +37,8 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -41,6 +50,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -58,8 +74,6 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
  */
 @Component("testHelper")
 public class DefaultTestHelper implements TestHelper {
-	
-	public static String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
@@ -76,6 +90,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
+	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
+	@Autowired private FormService formService;
+	@Autowired private IdmFormDefinitionService formDefinitionService;
+	@Autowired private IdmFormAttributeService formAttributeService;
 
 	/**
 	 * Creates random unique name
@@ -89,16 +108,26 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmIdentityDto createIdentity() {
-		return createIdentity(null);
+		return createIdentity(null, new GuardedString(DEFAULT_PASSWORD));
 	}
 
 	@Override
-	public IdmIdentityDto createIdentity(String name) {
+	public IdmIdentityDto createIdentity(String username) {
+		return createIdentity(username, new GuardedString(DEFAULT_PASSWORD));
+	}
+	
+	@Override
+	public IdmIdentityDto createIdentity(GuardedString password) {
+		return createIdentity(null, password);
+	}
+	
+	@Override
+	public IdmIdentityDto createIdentity(String name, GuardedString password) {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(name == null ? createName() : name);
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
-		identity.setPassword(new GuardedString("password"));
+		identity.setPassword(password);
 		return identityService.save(identity);
 	}
 
@@ -364,14 +393,29 @@ public class DefaultTestHelper implements TestHelper {
 	public void disable(Class<? extends EntityEventProcessor<?>> processorType) {
 		enableProcessor(processorType, false);
 	}
+	
+	@Override
+	public void setConfigurationValue(String configurationPropertyName, boolean value) {
+		Assert.notNull(configurationPropertyName);
+		//
+		configurationService.setBooleanValue(configurationPropertyName, value);
+	}
 
 	@Override
 	public void waitForResult(Function<String, Boolean> continueFunction) {
+		waitForResult(continueFunction, null, null);
+	}
+	
+	@Override
+	public void waitForResult(Function<String, Boolean> continueFunction, Integer interationWaitMilis, Integer iterationCount) {
+		int maxCounter = iterationCount == null ? 50 : iterationCount;
+		int waitTime = interationWaitMilis == null ? 300 : interationWaitMilis;
+		//
 		int counter = 0;
-		while(continueFunction.apply(null) && (counter < 25)) {
+		while((continueFunction == null ? true : continueFunction.apply(null)) && (counter < maxCounter)) {
 			counter++;
 			try {
-				Thread.sleep(300);
+				Thread.sleep(waitTime);
 			} catch (InterruptedException ex) {
 				throw new CoreException(ex);
 			}
@@ -421,5 +465,75 @@ public class DefaultTestHelper implements TestHelper {
 		d.setQuartzTaskName(UUID.randomUUID().toString());
 		d = scheduledTaskService.saveInternal(d);
 		return d;
+	}
+
+	@Override
+	public IdmFormAttributeDto createEavAttribute(String code, Class<? extends Identifiable> clazz,
+			PersistentType type) {
+		IdmFormAttributeDto eavAttribute = new IdmFormAttributeDto();
+		eavAttribute.setCode(code);
+		IdmFormDefinitionDto main = formDefinitionService.findOneByMain(clazz.getName());
+		eavAttribute.setFormDefinition(main.getId());
+		eavAttribute.setName(code);
+		eavAttribute.setConfidential(false);
+		eavAttribute.setRequired(false);
+		eavAttribute.setReadonly(false);
+		eavAttribute.setPersistentType(type);
+		return formAttributeService.save(eavAttribute);
+	}
+
+	@Override
+	public void setEavValue(Identifiable owner, IdmFormAttributeDto attribute, Class<? extends Identifiable> clazz,
+			Serializable value, PersistentType type) {
+		UUID ownerId = UUID.fromString(owner.getId().toString());
+		IdmFormDefinitionDto main = formDefinitionService.findOneByMain(clazz.getName());
+		List<IdmFormValueDto> values = formService.getValues(ownerId, clazz, attribute);
+		
+		if (values.isEmpty()) {
+			IdmFormValueDto newValue = new IdmFormValueDto();
+			newValue.setPersistentType(type);
+			newValue.setValue(value);
+			newValue.setFormAttribute(attribute.getId());
+			newValue.setOwnerId(owner.getId());
+			values.add(newValue);
+		} else {
+			values.get(0).setValue(value);
+		}
+		
+		formService.saveFormInstance(owner, main, values);
+		
+	}
+
+	@Override
+	public IdmAutomaticRoleAttributeDto createAutomaticRole(UUID roleId) {
+		String testName = "test-auto-role-" + System.currentTimeMillis();
+		if (roleId == null) {
+			IdmRoleDto role = this.createRole();
+			roleId = role.getId();
+		}
+		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
+		automaticRole.setRole(roleId);
+		automaticRole.setName(testName);
+		return automaticRoleAttributeService.save(automaticRole);
+	}
+
+	@Override
+	public IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
+			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
+			UUID formAttrId, String value) {
+		IdmAutomaticRoleAttributeRuleDto rule = new IdmAutomaticRoleAttributeRuleDto();
+		rule.setComparison(comparsion);
+		rule.setType(type);
+		rule.setAttributeName(attrName);
+		rule.setFormAttribute(formAttrId);
+		rule.setValue(value);
+		rule.setAutomaticRoleAttribute(automaticRoleId);
+		rule = automaticRoleAttributeRuleService.save(rule);
+		// disable concept must be after rule save
+		IdmAutomaticRoleAttributeDto automaticRole = automaticRoleAttributeService.get(automaticRoleId);
+		automaticRole.setConcept(false);
+		automaticRole = automaticRoleAttributeService.save(automaticRole);
+		//
+		return rule;
 	}
 }

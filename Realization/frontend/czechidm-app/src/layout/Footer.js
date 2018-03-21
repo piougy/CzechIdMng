@@ -43,7 +43,7 @@ class Footer extends Basic.AbstractContent {
           <span style={{margin: '0 10px'}} className="hidden">|</span>
           <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="https://wiki.czechidm.com/start" target="_blank">{this.i18n('app.helpDesk')}</a>
+          <a href={ `${ this.i18n('app.documentation.url') }/start`} target="_blank">{this.i18n('app.helpDesk')}</a>
           <span style={{margin: '0 10px'}}>|</span>
           <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.serviceDesk')}</a>
           <span style={{margin: '0 10px'}}>|</span>

@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.TaskTriggerState;
+import eu.bcvsolutions.idm.core.scheduler.api.exception.DryRunNotSupportedException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
@@ -123,14 +124,13 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	
 	@Override
 	public List<Task> getAllTasksByType(Class<?> taskType){
-		List<Task> tasks = this.getAllTasks();
-		if(tasks == null) {
-			return new ArrayList<>();
-		}
-		return tasks.stream().filter(task -> {
-			Class<? extends SchedulableTaskExecutor<?>> type = task.getTaskType();
-			return type.equals(taskType);
-		}).collect(Collectors.toList());
+		return this.getAllTasks()
+				.stream()
+				.filter(task -> {
+					Class<? extends SchedulableTaskExecutor<?>> type = task.getTaskType();
+					return type.equals(taskType);
+				})
+				.collect(Collectors.toList());
 	}
 	
 	@Override
@@ -155,7 +155,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			Task task = new Task();
 			// task setting
 			task.setId(jobKey.getName());
-			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) jobDetail.getJobClass());
+			// AutowireHelper is not needed here
+			SchedulableTaskExecutor<?> taskExecutor = (SchedulableTaskExecutor<?>) jobDetail.getJobClass().newInstance();
+			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
+			task.setSupportsDryRun(taskExecutor.supportsDryRun());
 			task.setDescription(jobDetail.getDescription());
 			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 			task.setTriggers(new ArrayList<>());
@@ -189,7 +192,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 				return null;
 			}
 			throw new CoreException(ex);	
-		} catch (IllegalArgumentException ex) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException ex) {
 			deleteTask(jobKey.getName());
 			LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);
 			return null;
@@ -330,6 +333,13 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	public AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger, boolean dryRun) {
 		Assert.notNull(taskId);
 		Assert.notNull(trigger);
+		//
+		// task has to support dry run mode
+		Task task = getTask(taskId);
+		Assert.notNull(task);
+		if (dryRun && !task.isSupportsDryRun()) {
+			throw new DryRunNotSupportedException(task.getTaskType().getCanonicalName());
+		}
 		//
 		String triggerId = Key.createUniqueName(taskId);
 		trigger.setId(triggerId);

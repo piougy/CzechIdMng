@@ -250,7 +250,13 @@ export default class SearchParameters {
     // filterable
     this.filters.forEach((filter, property) => {
       if (filter !== null && filter !== undefined) {
-        url += `&${property}=${encodeURIComponent(filter)}`;
+        if (_.isArray(filter)) {
+          filter.forEach(singleValue => {
+            url += `&${property}=${encodeURIComponent(singleValue)}`;
+          });
+        } else {
+          url += `&${property}=${encodeURIComponent(filter)}`;
+        }
       }
     });
     return url;
@@ -263,11 +269,30 @@ export default class SearchParameters {
    * @return {bool}
    */
   equals(other) {
-    return this.name === other.getName()
+    const isEquals = this.name === other.getName()
       && this.page === other.getPage()
-      && this.size === other.getSize()
-      && Immutable.is(this.filters, other.getFilters())
-      && Immutable.is(this.sorts, other.getSorts());
+    && this.size === other.getSize()
+    && Immutable.is(this.sorts, other.getSorts());
+    //
+    if (!isEquals) {
+      return false;
+    }
+    // we need to compare filters manually - they can contains arrays - Immutable.is don't works
+    const thisKeys = this.filters.keySeq().toArray();
+    const otherKeys = other.getFilters().keySeq().toArray();
+    // keys - ignoring order
+    if (!_.isEqual(thisKeys.sort(), otherKeys.sort())) {
+      return false;
+    }
+    // for each - check array
+    for (let i = 0; i < thisKeys.length; i++) {
+      const key = thisKeys[i];
+      if (!_.isEqual(this.getFilters().get(key), other.getFilters().get(key))) {
+        return false;
+      }
+    }
+    //
+    return true;
   }
 
   /**
@@ -294,6 +319,80 @@ export default class SearchParameters {
    */
   static getDefaultSize() {
     return ConfigLoader.getConfig('pagination.size', SearchParameters.DEFAULT_SIZE);
+  }
+
+  /**
+   * Returns filled filter values from filter filterForm
+   *
+   * @param  {ref} filterForm reference to filter form
+   * @return {object}
+   */
+  static getFilterData(filterForm) {
+    const filters = {};
+    const filterValues = filterForm.getData();
+    for (const property in filterValues) {
+      if (!filterValues.hasOwnProperty(property)) {
+        continue;
+      }
+      const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
+      const field = filterComponent.props.field || property;
+      //
+      // if filterComponent uses multiSelect
+      if (filterComponent.props.multiSelect === true) {
+        // if filterEnumSelectBox uses Symbol
+        if (filterComponent.props.enum && filterComponent.props.useSymbol && filterValues[property] !== null) {
+          const filledValues = [];
+          //
+          filterValues[property].forEach(item => {
+            filledValues.push(filterComponent.props.enum.findKeyBySymbol(item));
+          });
+          filters[field] = filledValues;
+        } else {
+          // if filterComponent does not useSymbol
+          let filledValues;
+          filledValues = filterValues[property];
+          filters[field] = filledValues;
+        }
+      } else {
+        // filterComponent does not use multiSelect
+        let filledValue = filterValues[property];
+        if (filterComponent.props.enum) { // enumeration
+          filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
+        }
+        filters[field] = filledValue;
+      }
+    }
+    return filters;
+  }
+
+  /**
+   * Returns search parameters filled from given filter form data
+   *
+   * @param  {object} formData
+   * @return {SearchParameters} previosly used search parameters
+   */
+  static getSearchParameters(formData, searchParameters = null) {
+    if (!searchParameters) {
+      // TODO: this is a little dangerous - name is not filled
+      searchParameters = new SearchParameters();
+    }
+    //
+    searchParameters = searchParameters.setPage(0);
+    for (const property in formData) {
+      if (!formData.hasOwnProperty(property)) {
+        continue;
+      }
+      if (!formData[property]) {
+        searchParameters = searchParameters.clearFilter(property);
+      } else {
+        searchParameters = searchParameters.setFilter(property, formData[property]);
+      }
+    }
+    return searchParameters;
   }
 }
 

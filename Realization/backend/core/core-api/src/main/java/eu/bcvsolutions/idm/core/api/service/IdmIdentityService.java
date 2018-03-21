@@ -139,6 +139,13 @@ public interface IdmIdentityService extends
 	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
 	
 	/**
+	 * Method create new IdentityEvent for pre validate password
+	 * 
+	 * @param passwordChange
+	 */
+	void validatePassword(PasswordChangeDto passwordChange);
+
+	/**
 	 * Enable a given identity manually.
 	 * 
 	 * @since 7.6.0

@@ -65,15 +65,11 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
    * enum
    */
   _transformAttributeToCheck(identityAttributeCheck) {
-    // transform identityAttributeCheck
-    const identityAttributeCheckFinal = [];
-    const attrs = _.split(identityAttributeCheck, ', ');
-    for (const attribute in attrs) {
-      if (attrs.hasOwnProperty(attribute)) {
-        identityAttributeCheckFinal.push(PasswordPolicyIdentityAttributeEnum.findSymbolByKey(attrs[attribute]));
-      }
+    if (!identityAttributeCheck) {
+      return null;
     }
-    return identityAttributeCheckFinal;
+    // transform identityAttributeCheck
+    return _.split(identityAttributeCheck, ', ');
   }
 
   /**
@@ -98,14 +94,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     const entity = this.refs.form.getData();
 
     // transform identityAttributeCheck
-    let identityAttributeCheck = [];
-    for (const attribute in entity.identityAttributeCheck) {
-      if (entity.identityAttributeCheck.hasOwnProperty(attribute)) {
-        identityAttributeCheck.push(PasswordPolicyIdentityAttributeEnum.findKeyBySymbol(entity.identityAttributeCheck[attribute]));
-      }
-    }
-    identityAttributeCheck = _.join(identityAttributeCheck, ', ');
-    entity.identityAttributeCheck = identityAttributeCheck;
+    entity.identityAttributeCheck = _.join(entity.identityAttributeCheck, ', ');
 
     this.context.store.dispatch(this.passwordPolicyManager.updateEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
       this._afterSave(entity, error, editContinue);
@@ -195,10 +184,13 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                   label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
 
-                <Basic.EnumSelectBox ref="identityAttributeCheck"
-                  helpBlock={this.i18n('entity.PasswordPolicy.help.identityAttributeCheck')}
-                  enum={PasswordPolicyIdentityAttributeEnum}
-                  multiSelect label={this.i18n('entity.PasswordPolicy.identityAttributeCheck')} />
+                <Basic.EnumSelectBox
+                  ref="identityAttributeCheck"
+                  helpBlock={ this.i18n('entity.PasswordPolicy.help.identityAttributeCheck') }
+                  enum={ PasswordPolicyIdentityAttributeEnum }
+                  multiSelect
+                  label={ this.i18n('entity.PasswordPolicy.identityAttributeCheck') }
+                  useSymbol={ false }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter showLoading={showLoading} rendered={validateType} >

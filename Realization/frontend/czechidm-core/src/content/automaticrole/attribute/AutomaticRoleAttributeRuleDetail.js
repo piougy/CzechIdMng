@@ -2,8 +2,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
-import * as Utils from '../../../utils';
-import { AutomaticRoleAttributeRuleManager, SecurityManager, FormAttributeManager } from '../../../redux';
+import { AutomaticRoleAttributeRuleManager, FormAttributeManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import ContractAttributeEnum from '../../../enums/ContractAttributeEnum';
@@ -59,6 +58,53 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     }
   }
 
+  getForm() {
+    return this.refs.form;
+  }
+
+  getValue() {
+    return this.refs.value;
+  }
+
+  getCompiledData() {
+    const formData = this.getForm().getData();
+    let value = this.getValue().getValue();
+    if (_.isObject(value)) {
+      // eav form value
+      value = this._getValueFromEav(value);
+    }
+    // attribute in backend is String type, we must explicit cast to string
+    formData.value = String(value);
+    // we must transform attribute name with case sensitive letters
+    if (formData.attributeName) {
+      if (formData.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
+        let attributeName = IdentityAttributeEnum.getField(IdentityAttributeEnum.findKeyBySymbol(formData.attributeName));
+        if (!attributeName) {
+          attributeName = IdentityAttributeEnum.getField(formData.attributeName);
+        }
+        formData.attributeName = attributeName;
+      } else {
+        let attributeName = ContractAttributeEnum.getField(ContractAttributeEnum.findKeyBySymbol(formData.attributeName));
+        if (!attributeName) {
+          attributeName = ContractAttributeEnum.getField(formData.attributeName);
+        }
+        formData.attributeName = attributeName;
+      }
+    }
+    if (formData.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)
+     && formData.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
+      formData.formAttribute = null;
+    }
+    const formAttribute = formData.formAttribute;
+    if (formAttribute) {
+      formData.formAttribute = formAttribute.id;
+      if (!formData.attributeName) {
+        formData.attributeName = formAttribute.code;
+      }
+    }
+    return formData;
+  }
+
   /**
    * Method for basic initial form
    */
@@ -72,7 +118,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         entity.attributeName = IdentityAttributeEnum.USERNAME;
         attributeName = IdentityAttributeEnum.USERNAME;
       } else {
-        if (entity.attributeName) {
+        if (entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)
+         && entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
           if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
             entity.attributeName = IdentityAttributeEnum.getEnum(entity.attributeName);
             attributeName = IdentityAttributeEnum.findKeyBySymbol(entity.attributeName);
@@ -91,16 +138,16 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         typeForceSearchParameters: this._getForceSearchParametersForType(entity.type),
         type: entity.type,
         formAttribute,
+        entity,
         attributeName
       });
       this.refs.type.focus();
-      this.refs.form.setData(entity);
     }
   }
 
   _getForceSearchParametersForType(type) {
     let typeForceSearchParameters = this.formAttributeManager.getDefaultSearchParameters();
-    if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENITITY_EAV)) {
+    if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)) {
       typeForceSearchParameters = typeForceSearchParameters.setFilter(DEFINITION_TYPE_FILTER, IDENTITY_EAV_TYPE);
     } else if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
       typeForceSearchParameters = typeForceSearchParameters.setFilter(DEFINITION_TYPE_FILTER, CONTRACT_EAV_TYPE);
@@ -108,82 +155,6 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       typeForceSearchParameters = null;
     }
     return typeForceSearchParameters;
-  }
-
-  /**
-   * Default save method that catch save event from form.
-   */
-  save(afterAction = 'CLOSE', event) {
-    const { uiKey, attributeId } = this.props;
-
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.refs.value.isValid()) {
-      // with eav component doesn't  work validate by form
-      return;
-    }
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    // modal window with information about recalculate automatic roles
-    this.refs['recalculate-automatic-role'].show(
-      this.i18n(`content.automaticRoles.recalculate.message`),
-      this.i18n(`content.automaticRoles.recalculate.header`)
-    ).then(() => {
-      this._saveInternal(true, attributeId, uiKey, afterAction);
-    }, () => {
-      this._saveInternal(false, attributeId, uiKey, afterAction);
-    });
-  }
-
-  _saveInternal(recalculatedRoles, attributeId, uiKey, afterAction) {
-    const { entity } = this.props;
-    this.setState({
-      showLoading: true
-    }, this.refs.form.processStarted());
-
-    const formData = this.refs.form.getData();
-    let value = this.refs.value.getValue();
-    if (_.isObject(value)) {
-      // eav form value
-      value = this._getValueFromEav(value);
-    }
-    // attribute in backend is String type, we must explicit cast to string
-    formData.value = String(value);
-    //
-    formData.automaticRoleAttribute = attributeId;
-    // we must transform attribute name with case sensitive letters
-    if (formData.attributeName) {
-      if (formData.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
-        formData.attributeName = IdentityAttributeEnum.getField(IdentityAttributeEnum.findKeyBySymbol(formData.attributeName));
-      } else {
-        formData.attributeName = ContractAttributeEnum.getField(ContractAttributeEnum.findKeyBySymbol(formData.attributeName));
-      }
-    }
-    //
-    const newSavedEntity = _.merge(entity, formData);
-    if (newSavedEntity.id === undefined) {
-      if (recalculatedRoles) {
-        this.context.store.dispatch(this.manager.createAndRecalculateEntity(newSavedEntity, `${uiKey}-detail`, (createdEntity, error) => {
-          this._afterSave(createdEntity, error, afterAction);
-        }));
-      } else {
-        this.context.store.dispatch(this.manager.createEntity(newSavedEntity, `${uiKey}-detail`, (createdEntity, error) => {
-          this._afterSave(createdEntity, error, afterAction);
-        }));
-      }
-    } else {
-      if (recalculatedRoles) {
-        this.context.store.dispatch(this.manager.updateAndRecalculateEntity(newSavedEntity, `${uiKey}-detail`, (updatedEntity, error) => {
-          this._afterSave(updatedEntity, error, afterAction);
-        }));
-      } else {
-        this.context.store.dispatch(this.manager.updateEntity(newSavedEntity, `${uiKey}-detail`, (updatedEntity, error) => {
-          this._afterSave(updatedEntity, error, afterAction);
-        }));
-      }
-    }
   }
 
   /**
@@ -198,29 +169,6 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     }
   }
 
-  /**
-   * Method set showLoading to false and if is'nt error then show success message
-   */
-  _afterSave(entity, error, afterAction) {
-    if (error) {
-      this.setState({
-        showLoading: false
-      }, this.refs.form.processEnded());
-      this.addError(error);
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (afterAction !== 'CONTINUE') {
-      this.context.router.goBack();
-    } else {
-      this.setState({
-        showLoading: false
-      }, this.refs.form.processEnded());
-      //
-      this.context.router.replace('/automatic-role/attributes/' + entity.automaticRoleAttribute + '/rule/' + entity.id);
-    }
-  }
-
   _typeChange(option) {
     let typeForceSearchParameters = null;
     if (option) {
@@ -231,15 +179,18 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     this.refs.attributeName.setValue(null);
     this.refs.formAttribute.setValue(null);
     //
+    const newEntity = _.merge({}, this.state.entity);
+    newEntity.type = option ? option.value : null;
     this.setState({
       typeForceSearchParameters,
-      type: option.value
+      type: option ? option.value : null,
+      entity: newEntity
     });
   }
 
   _comparsionChange(option) {
     let valueRequired = false;
-    if (option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS)) {
+    if (option && option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS)) {
       valueRequired = true;
     }
     //
@@ -258,7 +209,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   _attributeNameChange(option) {
     // set new attribute name
     this.setState({
-      attributeName: option.value
+      attributeName: option ? option.value : null
     });
   }
 
@@ -306,6 +257,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   }
 
   _getValueFieldForEav(formAttribute, value, valueRequired) {
+    const { readOnly } = this.props;
     const component = this.formAttributeManager.getFormComponent(formAttribute);
     if (!component || !component.component) {
       // when component doesn't exists show default field
@@ -326,6 +278,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         ref="value"
         required={valueRequired}
         attribute={formAttribute}
+        readOnly={readOnly}
         values={[{value}]}/>
     );
   }
@@ -334,11 +287,13 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
    * Return simple text field for value input
    */
   _getDefaultTextField(value) {
+    const { readOnly } = this.props;
     const { valueRequired } = this.state;
     return (
       <Basic.TextField
         ref="value"
         value={value}
+        readOnly={readOnly}
         required={valueRequired}
         label={this.i18n('entity.AutomaticRole.attribute.value.label')}
         helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
@@ -349,9 +304,12 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
    */
   _getDefaultDateTimePicker(value) {
     const { valueRequired } = this.state;
+    const { readOnly } = this.props;
+
     return (<Basic.DateTimePicker
       ref="value"
       mode="date"
+      readOnly={readOnly}
       value={value}
       required={valueRequired}
       label={this.i18n('entity.AutomaticRole.attribute.value.label')}
@@ -363,35 +321,40 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
    */
   _getDefaultBooleanSelectBox(value) {
     const { valueRequired } = this.state;
+    const { readOnly } = this.props;
+
     return (
       <Basic.BooleanSelectBox
         ref="value"
         value={value}
+        readOnly={readOnly}
         required={valueRequired}
         label={this.i18n('entity.AutomaticRole.attribute.value.label')}
         helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
   }
 
   render() {
-    const { uiKey, entity } = this.props;
+    const { uiKey, entity, readOnly} = this.props;
     const {
-      showLoading,
       typeForceSearchParameters,
       type,
       valueRequired,
       formAttribute,
       attributeName
     } = this.state;
+
+    let data = this.state.entity;
+    if (!data) {
+      data = entity;
+    }
     //
     return (
       <div>
-        <Basic.Confirm ref="recalculate-automatic-role" level="success"/>
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.AbstractForm
             ref="form"
             uiKey={uiKey}
-            readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'AUTOMATICROLERULE_CREATE' : 'AUTOMATICROLERULE_UPDATE')}
-            style={{ padding: '15px 15px 0 15px' }}>
+            data={data}
+            readOnly={ readOnly}>
             <Basic.EnumSelectBox
               ref="type"
               required
@@ -411,6 +374,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
               ref="formAttribute"
               useFirst
               clearable={false}
+              returnProperty={null}
               onChange={this._formAttributeChange.bind(this)}
               forceSearchParameters={typeForceSearchParameters}
               label={this.i18n('entity.AutomaticRole.attribute.formAttribute')}
@@ -432,28 +396,6 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
               </div>
             </Basic.Row>
           </Basic.AbstractForm>
-
-          <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.SplitButton
-              level="success"
-              title={ this.i18n('button.saveAndClose') }
-              onClick={ this.save.bind(this, 'CLOSE') }
-              showLoading={ showLoading }
-              showLoadingIcon
-              showLoadingText={ this.i18n('button.saving') }
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'AUTOMATICROLERULE_CREATE' : 'AUTOMATICROLERULE_UPDATE')}
-              dropup>
-              <Basic.MenuItem
-                eventKey="1"
-                onClick={this.save.bind(this, 'CONTINUE')}>
-                {this.i18n('button.saveAndContinue')}
-              </Basic.MenuItem>
-            </Basic.SplitButton>
-          </Basic.PanelFooter>
-          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-          <input type="submit" className="hidden"/>
-        </form>
       </div>
     );
   }
@@ -462,7 +404,9 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
 AutomaticRoleAttributeRuleDetail.propTypes = {
   entity: PropTypes.object,
   uiKey: PropTypes.string.isRequired,
-  attributeId: PropTypes.string
+  attributeId: PropTypes.string,
+  readOnly: PropTypes.bool
 };
 AutomaticRoleAttributeRuleDetail.defaultProps = {
+  readOnly: false
 };

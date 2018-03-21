@@ -18,6 +18,7 @@
     "chai"
   ],
   "scripts": {
+    "product-install": "npm install && gulp install",
     "modules-link": "mkdir ../node_modules && ln -s ../node_modules",
     "modules-link-or-skip": "mkdir -p ../node_modules && test -L node_modules || ln -s ../node_modules",
     "czechidm-modules-link": "test -L ./czechidm-modules/czechidm-core || ln -s ../../czechidm-core ./czechidm-modules/; test -L ./czechidm-modules/czechidm-acc || ln -s ../../czechidm-acc ./czechidm-modules/; test -L ./czechidm-modules/czechidm-vs || ln -s ../../czechidm-vs ./czechidm-modules/; test -L ./czechidm-modules/czechidm-rpt || ln -s ../../czechidm-rpt ./czechidm-modules/",
@@ -74,7 +75,7 @@
     "log4js": "0.6.36",
     "marked": "0.3.9",
     "metismenu": "2.5.0",
-    "moment": "2.13.0",
+    "moment": "2.21.0",
     "normalize.less": "1.0.0",
     "object-assign": "4.0.1",
     "react": "15.4.2",
@@ -87,7 +88,7 @@
     "react-dropzone": "3.5.0",
     "react-google-recaptcha": "0.9.5",
     "react-helmet": "2.3.1",
-    "react-notification-system": "0.2.7",
+    "react-notification-system": "0.2.17",
     "react-overlays": "0.6.3",
     "react-redux": "4.4.5",
     "react-router": "2.3.0",
@@ -105,7 +106,7 @@
     "stompjs": "2.3.3",
     "stringify": "5.1.0",
     "uuid": "2.0.1",
-    "vinyl-fs": "2.4.3",
+    "vinyl-fs": "3.0.2",
     "zxcvbn": "4.4.1"
   },
   "devDependencies": {
@@ -140,6 +141,7 @@
     "gulp-uglify": "2.0.1",
     "gulp-util": "3.0.7",
     "jsdom": "8.1.0",
+    "JSONPath": "0.11.2",
     "mocha": "2.3.0",
     "nock": "^8.0.0",
     "path": "0.12.7",

@@ -27,7 +27,7 @@ public interface IdmFormDefinitionService extends
 	/**
 	 * Default definition name for type (if no name is given)
 	 */
-	static final String DEFAULT_DEFINITION_CODE = "default";
+	String DEFAULT_DEFINITION_CODE = "default";
 	
 	/**
 	 * Returns form definition by given type and code (unique).

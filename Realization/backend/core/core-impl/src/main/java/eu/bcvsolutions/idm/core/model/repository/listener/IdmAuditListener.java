@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository.listener;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -52,15 +51,18 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// autowire services
 		autowireServices();
 
-		if (((IdmAudit) revisionEntity).getEntityId() != null) { // child revision
+		IdmAudit auditEntity = (IdmAudit) revisionEntity;
+		
+		if (auditEntity.getEntityId() != null) { // child revision
 			IdmAuditDto childRevision = new IdmAuditDto();
+			childRevision.setChangedAttributes(auditEntity.getTemporaryChangedColumns());
 			childRevision.setTimestamp(((IdmAudit) revisionEntity).getTimestamp());
 			this.changeRevisionDto((Class<AbstractEntity>) entityClass, entityName, (UUID) entityId, childRevision,
 					revisionType);
 			this.auditService.save(childRevision);
 		} else { // parent revision
 			this.changeRevisionEntity((Class<AbstractEntity>) entityClass, entityName, (UUID) entityId,
-					((IdmAudit) revisionEntity), revisionType);
+					auditEntity, revisionType);
 		}
 	}
 
@@ -104,11 +106,6 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		} else if (currentEntity instanceof Codeable) {
 			revisionEntity.setOwnerCode(((Codeable) currentEntity).getCode());
 		}
-		//
-		if (revisionType == RevisionType.MOD) {
-			 List<String> changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
-			 revisionEntity.addChanged(changedColumns);
-		}
 	}
 	
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId,
@@ -146,11 +143,6 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 			revisionEntity.setSubOwnerType(searchableEntity.getSubOwnerType());
 		} else if (currentEntity instanceof Codeable) {
 			revisionEntity.setOwnerCode(((Codeable) currentEntity).getCode());
-		}
-		//
-		if (revisionType == RevisionType.MOD) {
-			 List<String> changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
-			 revisionEntity.addChanged(changedColumns);
 		}
 	}
 

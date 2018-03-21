@@ -66,7 +66,7 @@ public class DefaultConfigurationService
 	//
 	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
-	private final ConfigurableEnvironment env; // TODO: optional
+	private final ConfigurableEnvironment env;
 	@Autowired(required = false)
 	private CacheManager cacheManager;
 	
@@ -79,7 +79,7 @@ public class DefaultConfigurationService
 		//
 		this.repository = repository;
 		this.confidentialStorage = confidentialStorage;
-		this.env = env; // TODO: optional
+		this.env = env;
 	}
 	
 	@Override
@@ -408,6 +408,9 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional(readOnly = true)
 	public String getInstanceId() {
+		// TODO: This should be returned from env. only => instances should not be reused by DB property
+		// return env.getProperty(PROPERTY_APP_INSTANCE_ID, DEFAULT_APP_INSTANCE_ID);
+		// 
 		return getValue(PROPERTY_APP_INSTANCE_ID, DEFAULT_APP_INSTANCE_ID);
 	}
 	

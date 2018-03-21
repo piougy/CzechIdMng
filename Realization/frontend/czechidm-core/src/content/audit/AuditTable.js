@@ -68,8 +68,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
   * Used for get niceLabel for type entity.
   */
   _getType(name) {
-    const type = name.split('.');
-    return type[type.length - 1];
+    return Utils.Ui.getSimpleJavaType(name);
   }
 
   /**
@@ -92,13 +91,13 @@ export class AuditTable extends Advanced.AbstractTableContent {
           <Basic.Row>
             <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'revisionDate') }>
               <Advanced.Filter.DateTimePicker
-                mode="date"
+                mode="datetime"
                 ref="from"
                 placeholder={this.i18n('filter.dateFrom.placeholder')}/>
             </Basic.Col>
             <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'revisionDate') }>
               <Advanced.Filter.DateTimePicker
-                mode="date"
+                mode="datetime"
                 ref="till"
                 placeholder={this.i18n('filter.dateTill.placeholder')}/>
             </Basic.Col>

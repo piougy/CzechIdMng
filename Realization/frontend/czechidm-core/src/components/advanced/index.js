@@ -24,6 +24,7 @@ import RoleInfo from './RoleInfo/RoleInfo';
 import RoleCatalogueInfo from './RoleCatalogueInfo/RoleCatalogueInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
 import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
+import WorkflowTaskInfo from './WorkflowTaskInfo/WorkflowTaskInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
@@ -38,6 +39,8 @@ import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
 import ImageDropzone from './ImageDropzone/ImageDropzone.js';
+import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
+import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 
 const Components = {
   Table,
@@ -81,7 +84,10 @@ const Components = {
   DecisionButtons,
   DynamicTaskDetail,
   OperationResult,
-  ImageDropzone
+  ImageDropzone,
+  WorkflowTaskInfo,
+  TreeTypeInfo,
+  TreeNodeInfo
 };
 
 Components.version = '0.0.1';

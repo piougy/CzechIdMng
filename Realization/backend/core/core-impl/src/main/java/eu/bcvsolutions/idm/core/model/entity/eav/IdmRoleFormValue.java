@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 @Table(name = "idm_role_form_value", indexes = {
 		@Index(name = "idx_idm_role_form_a", columnList = "owner_id"),
 		@Index(name = "idx_idm_role_form_a_def", columnList = "attribute_id"),
-		@Index(name = "idx_idm_role_form_a_str", columnList = "string_value") })
+		@Index(name = "idx_idm_role_form_stxt", columnList = "short_text_value"),
+		@Index(name = "idx_idm_role_form_uuid", columnList = "uuid_value") })
 public class IdmRoleFormValue extends AbstractFormValue<IdmRole> {
 
 	private static final long serialVersionUID = -6873566385389649927L;

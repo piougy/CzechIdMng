@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 
@@ -52,6 +53,15 @@ public interface Configurable {
 			return null;
 		}
 		return SpinalCase.format(name);
+	}
+	
+	/**
+	 * Configurable object description
+	 *   
+	 * @return Bean description
+	 */
+	default String getDescription() {
+		return AutowireHelper.getBeanDescription(this.getClass());
 	}
 	
 	/**

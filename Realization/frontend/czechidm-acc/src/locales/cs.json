@@ -139,6 +139,10 @@
         "button": {
           "saveAndStartSynchronization": "Uložit a spustit synchronizaci"
         },
+        "help": {
+          "header": "Definice vlastního filtru synchronizace.",
+          "body": "Vlastní filtr je možné definovat jednoduše zvolením atributu (<strong>Filtrovat dle atributu</strong>) podle kterého chceme hledat a příslušné operace (<strong>Filtrovací operace</strong>). <br /><br /> Pokud potřebujeme vytvořit složitější filtrovací kritérium, je k tomu možné využít tento skript.<br /> V příkladu níže je uvedena situace, kdy chceme filtrovat dle vybraného atributu a operace (do skriptu vstupuje jako proměnná <strong>filter</strong>), ale zároveň chceme výsledky omezit další podmínkou. V tomto případě tak, že všechny výsledky musí mít atribut \"<strong>lastname</strong>\" rovný hodnotě \"<strong>Doe</strong>\". <br /><br /> <pre> import  eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;<br /> import  eu.bcvsolutions.idm.ic.api.IcAttribute;<br /> import  eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;<br /> <br /> IcAttribute attr = new IcAttributeImpl(\"lastname\", \"Doe\");<br /> <br /> return IcFilterBuilder.and(filter, IcFilterBuilder.equalTo(attr)); </pre> <h2>IcFilterBuilder poskytuje operace</h2> <ul> <li>IcFilterBuilder.equalTo(...)</li> <li>IcFilterBuilder.contains(...)</li> <li>IcFilterBuilder.startsWith(...)</li> <li>IcFilterBuilder.endsWith(...)</li> <li>IcFilterBuilder.or(...)</li> <li>IcFilterBuilder.and(...)</li> <li>IcFilterBuilder.not(...)</li> </ul> <div> Výstupem tohto skriptu musí být objekt typu <strong>IcFilter</strong>. Pokud bude výstup <strong>null</strong>, pak nebude filtr aplikován a synchronizace bude spuštěna nad všemi účty. </div>"
+        },
         "tabs": {
           "basicConfiguration": {
             "label": "Základní konfigurace"
@@ -169,12 +173,20 @@
           "startOfHrProcesses": {
             "label": "Po dokončení spustit HR procesy",
             "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy."
+          },
+          "startAutoRoleRec": {
+            "label": "Po dokončení spustit přepočet automatických rolí",
+            "helpBlock": "Po úspešném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
           }
         },
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Výchozí role",
             "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
+          },
+          "startAutoRoleRec": {
+            "label": "Po dokončení spustit přepočet automatických rolí",
+            "helpBlock": "Po úspešném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
           }
         }
       },
@@ -585,7 +597,7 @@
       "passwordPolicyValidate": "Politika hesel pro validaci",
       "passwordPolicyGenerate": "Politika hesel pro generování",
       "readonly": {
-        "label": "Readonly",
+        "label": "Pouze pro čtení",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
       },
       "queue": {
@@ -632,7 +644,7 @@
       }
     },
     "RoleSystem": {
-      "_type": "Role přiřazuje účet na systému",
+      "_type": "Role přiřazuje účet na systémech",
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",
@@ -643,6 +655,7 @@
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
       "system": "Napojený systém",
+      "wish": "Přání",
       "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {
@@ -828,6 +841,7 @@
           "CREATE_ENTITY": "Vytvořeno entit",
           "UPDATE_ENTITY": "Aktualizováno entit",
           "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Vytvořeno účtů a aktualizováno entit",
           "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
           "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
           "LINK": "Vytvořeno vazeb",
@@ -845,6 +859,7 @@
           "CREATE_ENTITY": "Vytvořeno entit",
           "UPDATE_ENTITY": "Aktualizováno entit",
           "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Vytvořeno účtů a aktualizováno entit",
           "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
           "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
           "LINK": "Vytvořeno vazeb",
@@ -862,6 +877,7 @@
           "CREATE_ENTITY": "Vytvořeno entit",
           "UPDATE_ENTITY": "Aktualizováno entit",
           "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Vytvořeno účtů a aktualizováno entit",
           "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
           "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
           "LINK": "Vytvořeno vazeb",
@@ -879,6 +895,7 @@
           "CREATE_ENTITY": "Vytvořeno entit",
           "UPDATE_ENTITY": "Aktualizováno entit",
           "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Vytvořeno účtů a aktualizováno entit",
           "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
           "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
           "LINK": "Vytvořeno vazeb",
@@ -896,6 +913,7 @@
           "CREATE_ENTITY": "Neúspěšně vytvořeno entit",
           "UPDATE_ENTITY": "Neúspěšně aktualizováno entit",
           "DELETE_ENTITY": "Neúspěšně smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Neúspěšně vytvořeno účtů a aktualizováno entit",
           "LINK_AND_UPDATE_ACCOUNT": "Neúspěšně vytvořeno a aktualizováno účtů",
           "LINK": "Neúspěšně vytvořeno vazeb",
           "UNLINK": "Neúspěšně odstraněno vazeb",
@@ -909,6 +927,12 @@
           "IGNORE": "Neúspěšně ignorováno",
           "UNKNOWN": "Neznámý stav"
         }
+      },
+      "statistic": {
+        "label": "Statistiky",
+        "timeDiff": "Doba běhu",
+        "allOperations": "Celkový počet operací",
+        "itemsPerSec": "Počet operací za 1s"
       }
     },
     "SyncActionLog": {
@@ -1013,6 +1037,7 @@
     },
     "SynchronizationUnlinkedActionTypeEnum": {
       "LINK": "Vytvořit vazbu",
+      "LINK_AND_UPDATE_ENTITY": "Vytvořit vazbu a aktualizovat entitu",
       "LINK_AND_UPDATE_ACCOUNT": "Vytvořit vazbu a aktualizovat účet",
       "IGNORE": "Ignorovat"
     },
@@ -1028,6 +1053,7 @@
       "CREATE_ENTITY": "Vytvoření nové entity",
       "UPDATE_ENTITY": "Aktualizace entity",
       "DELETE_ENTITY": "Smazání entity",
+      "LINK_AND_UPDATE_ENTITY": "Vytvoření vazby a aktualizování entity",
       "LINK_AND_UPDATE_ACCOUNT": "Vytvoření vazby a aktualizování účtu",
       "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
       "LINK": "Vytvoření vazby",
@@ -1321,6 +1347,24 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
       "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
+    }
+  },
+  "processor": {
+    "identity-save-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    },
+    "identity-role-save-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    },
+    "identity-contract-provisioning-processor": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
+    },
+    "contract-guarantee-save": {
+      "title": "Provisioning",
+      "description": "Provisioning uživatelských účtů na koncové systémy"
     }
   }
 }

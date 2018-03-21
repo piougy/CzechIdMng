@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -69,6 +70,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -94,6 +96,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
@@ -194,21 +197,30 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		log = super.syncCorrectlyEnded(log, context);
 		log = synchronizationLogService.save(log);
 		
-		if(!getConfig(context).isStartOfHrProcesses()){
+		if (getConfig(context).isStartOfHrProcesses()) {
+			// start all HR process with skip automatic role recalculation
+			// Enable contracts task
+			log = executeHrProcess(log, new HrEnableContractProcess(true));
+			
+			// End contracts task
+			log = executeHrProcess(log, new HrEndContractProcess(true));
+			
+			// Exclude contracts task
+			log = executeHrProcess(log, new HrContractExclusionProcess(true));
+		} else {
 			log.addToLog(MessageFormat.format(
 					"Start HR processes contracts (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
-			return log;
 		}
-		// Enable contracts task
-		log = executeHrProcess(log, new HrEnableContractProcess());
 		
-		// End contracts task
-		log = executeHrProcess(log, new HrEndContractProcess());
-	
-		// Exclude contracts task
-		log = executeHrProcess(log, new HrContractExclusionProcess());
-
+		if (getConfig(context).isStartAutoRoleRec()) {
+			log = executeAutomaticRoleRecalculation(log);
+		} else { 
+			log.addToLog(MessageFormat.format(
+					"Start automatic role recalculation (after sync) isn't allowed [{0}]",
+					LocalDateTime.now()));
+		}
+		
 		return log;
 	}
 
@@ -259,6 +271,11 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// For this we skip them now. HR processes must be start after whole
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+		//
+		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// Recalculation will be started only once.
+		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+
 		entityEventManager.process(event);
 	}
 
@@ -575,6 +592,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// For this we skip them now. HR processes must be start after whole
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+		//
+		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// Recalculation will be started only once.
+		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
 		IdmIdentityContractDto contract = contractService.publish(event).getContent();
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
@@ -678,6 +699,29 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			return entities.get(0);
 		}
 		return null;
+	}
+	
+	/**
+	 * Start automatic role by attribute recalculation synchronously.
+	 *
+	 * @param log
+	 * @return
+	 */
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) { 
+		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
+		
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
+				LocalDateTime.now()));
+		Boolean executed = longRunningTaskManager.executeSync(executor);
+
+		if (BooleanUtils.isTrue(executed)) {
+			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].", LocalDateTime.now()));
+		} else {
+			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
+		}
+
+		return synchronizationLogService.save(log);
 	}
 	
 	/**

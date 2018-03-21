@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -13,21 +12,17 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 
 /**
- * Process all identities that passed and not passed given automatic role
+ * Process all contracts that passed and not passed given automatic role
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -41,8 +36,6 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 	
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	@Autowired private IdmIdentityContractService identityContractService;
-	@Autowired private IdmRoleRequestService roleRequestService;
-	@Autowired private IdmIdentityRoleService identityRoleService;
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -59,52 +52,54 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 		}
 		Set<AbstractIdmAutomaticRoleDto> setWithAutomaticRole = Sets.newHashSet(automaticRolAttributeDto);
 		//
-		Page<UUID> newPassedIdentities = automaticRoleAttributeService.getNewPassedIdentitiesForAutomaticRole(automaticRoleId, new PageRequest(0, PAGE_SIZE));
-		//
-		Page<UUID> newNotPassedIdentities = automaticRoleAttributeService.getNewNotPassedIdentitiesForAutomaticRole(automaticRoleId, new PageRequest(0, PAGE_SIZE));
+		// by contract
+		Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, PAGE_SIZE));
+    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, new PageRequest(0, PAGE_SIZE));
 		//
 		counter = 0L;
-		count = Long.valueOf(newPassedIdentities.getTotalElements() + newNotPassedIdentities.getTotalElements());
+		count = Long.valueOf(newNotPassedContracts.getTotalElements() + newNotPassedContracts.getTotalElements());
 		//
 		// assign new passed roles
 		boolean canContinue = true;
+    	//
+    	// process contracts
+    	canContinue = true;
     	while (canContinue) {
-    		for(UUID identityId : newPassedIdentities) {
-    			IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identityId);
-    			IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareAddAutomaticRoles(primeContract, setWithAutomaticRole);
-    			roleRequestService.startRequestInternal(roleRequest.getId(), false);
-    			counter++;
-    			canContinue = updateState();
-    			if (!canContinue) {
-    				break;
+    		for(UUID contractId : newPassedContracts) {
+    			IdmIdentityContractDto contract = identityContractService.get(contractId);
+    			//
+    			// check for contract validity
+    			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
+    				continue;
     			}
+    			//
+				automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
+				//
+				counter++;
+				canContinue = updateState();
+				if (!canContinue) {
+					break;
+				}
     		}
-    		if (newPassedIdentities.hasNext()) {
-    			newPassedIdentities = automaticRoleAttributeService.getNewPassedIdentitiesForAutomaticRole(automaticRoleId, newPassedIdentities.nextPageable());
+    		if (newPassedContracts.hasNext()) {
+    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, newPassedContracts.nextPageable());
     		} else {
     			break;
     		}
     	}
     	//
-    	// remove new not passed roles
     	while (canContinue) {
-    		for(UUID identityId : newNotPassedIdentities) {
-    			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-    			filter.setIdentityId(identityId);
-    			filter.setAutomaticRoleId(automaticRoleId);
-    			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
-    			for (IdmIdentityRoleDto identityRole : identityRoles) {
-    				IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, setWithAutomaticRole);
-    				roleRequestService.startRequestInternal(roleRequest.getId(), false);
-    			}
+    		for(UUID contractId : newNotPassedContracts) {
+				automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
+    			//
     			counter++;
     			canContinue = updateState();
     			if (!canContinue) {
     				break;
     			}
     		}
-    		if (newNotPassedIdentities.hasNext()) {
-    			newNotPassedIdentities = automaticRoleAttributeService.getNewNotPassedIdentitiesForAutomaticRole(automaticRoleId, newNotPassedIdentities.nextPageable());
+    		if (newNotPassedContracts.hasNext()) {
+    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, newNotPassedContracts.nextPageable());
     		} else {
     			break;
     		}

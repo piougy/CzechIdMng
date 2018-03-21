@@ -15,10 +15,12 @@ import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
  * Synchronization start
+ * 
+ * TODO: prevent to execute dependent task before sync ends (fix starting another LRT)
  * 
  * @author Radek Tomiška
  *
@@ -27,7 +29,6 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
 @Description("Synchronization scheduling - publishes start event only")
 public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
-	private static final String PARAMETER_UUID = "Synchronization uuid";
 	@Autowired
 	private SynchronizationService synchronizationService;
 	@Autowired
@@ -39,7 +40,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		synchronizationId = getParameterConverter().toUuid(properties, PARAMETER_UUID);
+		synchronizationId = getParameterConverter().toUuid(properties, SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
 		//
 		// validation only
 		getConfig();
@@ -48,6 +49,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	@Override
 	public Boolean process() {
 		synchronizationService.startSynchronizationEvent(getConfig());	
+		// 
 		return Boolean.TRUE;
 	}
 	
@@ -64,7 +66,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> params = super.getPropertyNames();
-		params.add(PARAMETER_UUID);
+		params.add(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
 		return params;
 	}
 

@@ -47,7 +47,7 @@ class Audit extends Basic.AbstractContent {
             ||
             <AuditIdentityTable
               singleUserMod
-              username={identity.username}
+              id={identity.id}
               uiKey="identity-audit-table"/>
           }
         </Basic.Panel>

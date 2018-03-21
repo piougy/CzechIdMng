@@ -1,5 +1,11 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -26,6 +32,8 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -35,6 +43,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
@@ -43,6 +52,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractResource;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -54,6 +65,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -136,19 +148,23 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private SchedulerManager schedulerService;
 	@Autowired
 	private IdmScheduledTaskService scheduledService;
+	@Autowired
+	private AccContractAccountService contractAccountService;
+	@Autowired
+	private AccAccountService accountService;
 
 	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
 		synchornizationService = context.getAutowireCapableBeanFactory()
 				.createBean(DefaultSynchronizationService.class);
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
-		super.logout();
 		if (identityService.getByUsername(CONTRACT_OWNER_ONE) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_OWNER_ONE));
 		}
@@ -161,6 +177,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		if (identityService.getByUsername(CONTRACT_LEADER_TWO) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_TWO));
 		}
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+		super.logout();
 	}
 
 	@Test
@@ -198,6 +216,57 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityContractDto> contractsThree = contractService.find(contractFilter, null).getContent();
 		Assert.assertEquals(1, contractsThree.size());
 		Assert.assertEquals(null, contractsThree.get(0).getState());
+
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+	
+	@Test
+	public void deleteContractAccountTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contracts.size());
+		
+		// Find the account for this contract
+		IdmIdentityContractDto contract = contracts.get(0);
+		AccContractAccountFilter contractAccountFilter = new AccContractAccountFilter();
+		contractAccountFilter.setContractId(contract.getId());
+		contractAccountFilter.setSystemId(system.getId());
+		List<AccContractAccountDto> contractAccounts = contractAccountService.find(contractAccountFilter, null).getContent();
+		Assert.assertEquals(1, contractAccounts.size());
+		AccContractAccountDto contractAccount = contractAccounts.get(0);
+		AccAccountDto account = accountService.get(contractAccount.getAccount());
+		Assert.assertNotNull(account);
+		
+		// Delete this account directly test
+		accountService.delete(account);
+		account = accountService.get(contractAccount.getAccount());
+		Assert.assertNull(account);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -678,6 +747,111 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
+	
+	@Test
+	public void testLinkAndUpdateContract() {
+		String position1 = "test-link-update-1-" + System.currentTimeMillis();
+		String position2 = "test-link-update-2-" + System.currentTimeMillis();
+		String position3 = "test-link-update-3-" + System.currentTimeMillis();
+		
+		IdmIdentityDto leader = helper.createIdentity();
+		IdmTreeNodeDto workPosition = helper.createTreeNode();
+		
+		SysSystemDto system = initData();
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		
+		this.getBean().deleteAllResourceData();
+		
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		config = (SysSyncContractConfigDto) syncConfigService.save(config);
+		
+		IdmIdentityDto identity1 = helper.createIdentity();
+		IdmIdentityDto identity2 = helper.createIdentity();
+		IdmIdentityDto identity3 = helper.createIdentity();
+		
+		IdmIdentityContractDto contrac1 = helper.getPrimeContract(identity1.getId());
+		IdmIdentityContractDto contrac2 = helper.getPrimeContract(identity2.getId());
+		IdmIdentityContractDto contrac3 = helper.getPrimeContract(identity3.getId());
+		
+		contrac1.setPosition(position1);
+		contrac1.setDescription(position1);
+		contrac2.setPosition(position2);
+		contrac2.setDescription(position2);
+		contrac3.setPosition(position3);
+		contrac3.setDescription(position3);
+
+		contrac1 = contractService.save(contrac1);
+		contrac2 = contractService.save(contrac2);
+		contrac3 = contractService.save(contrac3);
+		
+		// check empty guarantee
+		IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+		guaranteeFilter.setIdentityContractId(contrac1.getId());
+		List<IdmContractGuaranteeDto> gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertTrue(gurantees.isEmpty());
+		
+		guaranteeFilter.setIdentityContractId(contrac2.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertTrue(gurantees.isEmpty());
+		
+		guaranteeFilter.setIdentityContractId(contrac3.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertTrue(gurantees.isEmpty());
+		
+		assertNull(contrac1.getState());
+		assertNull(contrac2.getState());
+		assertNull(contrac3.getState());
+		
+		this.getBean().createContractData(position1, identity1.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
+		this.getBean().createContractData(position2, identity2.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
+		this.getBean().createContractData(position3, identity3.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
+
+		// Start sync
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		contractService.findAllByIdentity(identity1.getId());
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 3);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityContractDto updatedContract1 = helper.getPrimeContract(identity1.getId());
+		IdmIdentityContractDto updatedContract2 = helper.getPrimeContract(identity2.getId());
+		IdmIdentityContractDto updatedContract3 = helper.getPrimeContract(identity3.getId());
+		
+		assertNotEquals(updatedContract1.getModified(), contrac1.getModified());
+		assertNotEquals(updatedContract2.getModified(), contrac2.getModified());
+		assertNotEquals(updatedContract3.getModified(), contrac3.getModified());
+		
+		assertNotEquals(updatedContract1.getState(), contrac1.getState());
+		assertNotEquals(updatedContract2.getState(), contrac2.getState());
+		assertNotEquals(updatedContract3.getState(), contrac3.getState());
+		
+		assertEquals(ContractState.EXCLUDED, updatedContract1.getState());
+		assertEquals(ContractState.EXCLUDED, updatedContract2.getState());
+		assertEquals(ContractState.EXCLUDED, updatedContract3.getState());
+		
+		assertEquals(contrac1.getId(), updatedContract1.getId());
+		assertEquals(contrac2.getId(), updatedContract2.getId());
+		assertEquals(contrac3.getId(), updatedContract3.getId());
+		
+		guaranteeFilter.setIdentityContractId(contrac1.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertFalse(gurantees.isEmpty());
+		assertEquals(leader.getId(), gurantees.get(0).getGuarantee());
+		
+		guaranteeFilter.setIdentityContractId(contrac2.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertFalse(gurantees.isEmpty());
+		assertEquals(leader.getId(), gurantees.get(0).getGuarantee());
+		
+		guaranteeFilter.setIdentityContractId(contrac3.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertFalse(gurantees.isEmpty());
+		assertEquals(leader.getId(), gurantees.get(0).getGuarantee());
+	}
 
 	@Transactional
 	public void initContractDefaultTreeTest() {
@@ -808,6 +982,15 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		return system;
 
 	}
+	
+	@Transactional
+	public void createContractData(String code, String owner, String leader, String main, 
+			String workposition, String state, String disabled) {
+		if (code == null) {
+			code = String.valueOf(System.currentTimeMillis());
+		}
+		entityManager.persist(this.createContract(code, owner, leader, main, workposition, state, disabled));
+	}
 
 	@Transactional
 	public void initContractData() {
@@ -828,10 +1011,11 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 			if ("id".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(false);
+				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
+				attributeHandlingName.setIdmPropertyName(IdmIdentityContract_.description.getName()); // it is for link and update situation
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("name".equalsIgnoreCase(schemaAttr.getName())) {

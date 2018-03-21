@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
+import { HelpContent } from '../../../domain';
+import { i18n } from '../../../services/LocalizationService';
 import FilterToogleButton from './FilterToogleButton';
 import FilterButtons from './FilterButtons';
 import FilterTextField from './FilterTextField';
@@ -53,6 +55,24 @@ export default class Filter extends Basic.AbstractContextComponent {
     );
   }
 
+  /**
+   * Return "like" operator help
+   *
+   * @return {HelpContent} help can be given to input help props or to the help icon itself
+   */
+  static getTextHelp() {
+    let helpContent = new HelpContent();
+    helpContent = helpContent.setHeader(
+      <span>
+        <Basic.Icon value="filter"/> { i18n('filter.text.help.header') }
+      </span>
+    );
+    helpContent = helpContent.setBody((
+      (<span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>)
+    ));
+    //
+    return helpContent;
+  }
 }
 
 Filter.propTypes = {

@@ -88,7 +88,11 @@ class Configurations extends Advanced.AbstractTableContent {
       isGuarded,
       isSecured
     }, () => {
-      this.refs.name.focus();
+      if (Utils.Entity.isNew(entity)) {
+        this.refs.name.focus();
+      } else {
+        this.refs.value.focus();
+      }
     });
   }
 
@@ -98,6 +102,12 @@ class Configurations extends Advanced.AbstractTableContent {
         show: false,
         entity: {}
       }
+    }, this.loadFilter);
+  }
+
+  _filterOpen(filterOpened) {
+    this.setState({
+      filterOpened
     });
   }
 
@@ -113,9 +123,6 @@ class Configurations extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
       }));
     } else {
       this.context.store.dispatch(this.getManager().updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
@@ -130,6 +137,7 @@ class Configurations extends Advanced.AbstractTableContent {
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     this.closeDetail();
+    this.refs.table.getWrappedInstance().reload();
     // reload public configurations
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
@@ -229,35 +237,37 @@ class Configurations extends Advanced.AbstractTableContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
-        <Basic.ContentHeader>
+        <Basic.ContentHeader rendered={ !detail.show }>
           { this.i18n('configurable', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel>
+        <Basic.Panel className={ detail.show ? 'hidden' : '' }>
           <Advanced.Table
             ref="table"
             uiKey={ uiKey }
             manager={ this.getManager()}
             showRowSelection={ manager.canDelete() }
+            rendered={ !detail.show }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
-                    <div className="col-lg-4">
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('entity.Configuration.name')}/>
-                    </div>
-                    <div className="col-lg-4">
-                    </div>
-                    <div className="col-lg-4 text-right">
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
             }
             filterOpened={ filterOpened }
+            filterOpen={ this._filterOpen.bind(this) }
             actions={
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
             }
@@ -363,11 +373,11 @@ class Configurations extends Advanced.AbstractTableContent {
           </form>
         </Basic.Modal>
 
-        <Basic.ContentHeader>
+        <Basic.ContentHeader rendered={ !detail.show }>
           { this.i18n('environment', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel>
+        <Basic.Panel rendered={ !detail.show }>
           <Basic.Table
             header={ this.i18n('fromFile', { escape: false }) }
             data={fileConfigurations}
@@ -391,7 +401,7 @@ class Configurations extends Advanced.AbstractTableContent {
         {
           !SecurityManager.hasAuthority('CONFIGURATION_ADMIN')
           ||
-          <Basic.Panel>
+          <Basic.Panel rendered={ !detail.show }>
             <Basic.Table
               data={ environmentConfigurations }
               header={ this.i18n('fromEnvironment', { escape: false } ) }

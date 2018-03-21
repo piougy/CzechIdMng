@@ -2,9 +2,14 @@ package eu.bcvsolutions.idm.ic.service.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -24,21 +29,35 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
  * Facade for get available connectors configuration
  * 
  * @author svandav
+ * @author Radek Tomiška
  *
  */
 @Service
 public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 
-	private Map<String, IcConfigurationService> icConfigs = new HashMap<>();
-	// Connector infos are cached
-	private Map<String, Set<IcConnectorInfo>> icLocalConnectorInfos;
+	// registered ic configuration services
+	private final PluginRegistry<IcConfigurationService, String> configurationServices;
+	// local connector infos are cached
+	private final Map<String, Set<IcConnectorInfo>> icLocalConnectorInfos  = new HashMap<>();
+	
+	@Autowired
+	public DefaultIcConfigurationFacade(List<? extends IcConfigurationService> configurationServices) {
+		this.configurationServices = OrderAwarePluginRegistry.create(configurationServices);
+		for (IcConfigurationService config : this.configurationServices.getPlugins()) {
+			icLocalConnectorInfos.put(config.getFramework(), config.getAvailableLocalConnectors());
+		}
+	}
 	
 	/**
+	 * 
 	 * @return Configuration services for all ICs
 	 */
 	@Override
 	public Map<String, IcConfigurationService> getIcConfigs() {
-		return icConfigs;
+		return configurationServices
+				.getPlugins()
+				.stream()
+				.collect(Collectors.toMap(service -> service.getFramework(), service -> service));
 	}
 
 	/**
@@ -47,12 +66,6 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	 */
 	@Override
 	public Map<String, Set<IcConnectorInfo>> getAvailableLocalConnectors() {
-		if (icLocalConnectorInfos == null) {
-			icLocalConnectorInfos = new HashMap<>();
-			for (IcConfigurationService config : icConfigs.values()) {
-				icLocalConnectorInfos.put(config.getFramework(), config.getAvailableLocalConnectors());
-			}
-		}
 		return icLocalConnectorInfos;
 	}
 
@@ -60,7 +73,7 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	public Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance) {
 		Set<IcConnectorInfo> remoteConnectors = new HashSet<>();
 		// get service from icConfig, get all available remote connector for service in configs
-		for (IcConfigurationService config : icConfigs.values()) {
+		for (IcConfigurationService config : configurationServices.getPlugins()) {
 			remoteConnectors.addAll(config.getAvailableRemoteConnectors(connectorInstance.getConnectorServer()));
 		}
 		return remoteConnectors;
@@ -70,7 +83,8 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		checkIcType(connectorInstance.getConnectorKey());
-		return icConfigs.get(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance, connectorConfiguration);
+		//
+		return configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance, connectorConfiguration);
 	}
 	
 	@Override
@@ -80,7 +94,7 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 		if (connectorInstance.isRemote()) {
 			Assert.notNull(connectorInstance.getConnectorServer());
 		}
-		icConfigs.get(connectorInstance.getConnectorKey().getFramework()).test(connectorInstance, connectorConfiguration);
+		configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).test(connectorInstance, connectorConfiguration);
 		
 	}
 	
@@ -88,11 +102,11 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		checkIcType(connectorInstance.getConnectorKey());
-		icConfigs.get(connectorInstance.getConnectorKey().getFramework()).validate(connectorInstance, connectorConfiguration);
+		configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).validate(connectorInstance, connectorConfiguration);
 	}
 
 	private boolean checkIcType(IcConnectorKey key) {
-		if (!icConfigs.containsKey(key.getFramework())) {
+		if (!configurationServices.hasPluginFor(key.getFramework())) {
 			throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
 					ImmutableMap.of("ic", key.getFramework()));
 		}
@@ -104,8 +118,8 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorInstance.getConnectorKey().getFramework());
-		checkIcType(connectorInstance.getConnectorKey()); 
-		return this.getIcConfigs()
-			.get(connectorInstance.getConnectorKey().getFramework()).getConnectorConfiguration(connectorInstance);
+		checkIcType(connectorInstance.getConnectorKey());
+		//
+		return configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).getConnectorConfiguration(connectorInstance);
 	}
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
  * 
  * @author Radek Tomiška
  */
-public interface Identifiable {
+public interface Identifiable extends Serializable {
 	
 	/**
 	 * Returns indentifier

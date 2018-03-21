@@ -24,12 +24,17 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent.AutomaticRoleAttributeRuleEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeRuleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -45,6 +50,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 		implements IdmAutomaticRoleAttributeRuleService {
 
 	private final EntityEventManager entityEventManager;
+	private IdmFormAttributeService formAttributeService = null;
 
 	@Autowired
 	public DefaultIdmAutomaticRoleAttributeRuleService(
@@ -59,13 +65,25 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	
 	@Override
 	public IdmAutomaticRoleAttributeRuleDto save(IdmAutomaticRoleAttributeRuleDto dto, BasePermission... permission) {
+		// now isn't possible do equals with string_value (clob), so it is necessary to use only short text
+		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == dto.getType() || AutomaticRoleAttributeRuleType.IDENTITY_EAV == dto.getType()) && dto.getFormAttribute() != null) {
+			initFormAttributeService();
+			IdmFormAttributeDto formAttribute = formAttributeService.get(dto.getFormAttribute());
+			if (formAttribute == null) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of(
+						"attribute", dto.getFormAttribute()));
+			}
+			if (formAttribute.getPersistentType() == PersistentType.TEXT) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT);
+			}
+		}
 		// check if is filled all necessary attribute
 		if ((dto.getType() == AutomaticRoleAttributeRuleType.CONTRACT || dto.getType() == AutomaticRoleAttributeRuleType.IDENTITY) && StringUtils.isEmpty(dto.getAttributeName())) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY, ImmutableMap.of(
 					"automaticRoleId", dto.getId(),
 					"attribute", IdmAutomaticRoleAttributeRule_.attributeName.getName()));
 		}
-		if ((dto.getType() == AutomaticRoleAttributeRuleType.IDENITITY_EAV || dto.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) && dto.getAutomaticRoleAttribute() == null) {
+		if ((dto.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV || dto.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) && dto.getAutomaticRoleAttribute() == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY, ImmutableMap.of(
 					"automaticRoleId", dto.getId(),
 					"attribute", IdmAutomaticRoleAttributeRule_.automaticRoleAttribute.getName()));
@@ -88,11 +106,9 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	}
 
 	@Override
-	public List<IdmAutomaticRoleAttributeRuleDto> findAllRulesForAutomaticRoleAndType(UUID automaticRole,
-			AutomaticRoleAttributeRuleType type) {
+	public List<IdmAutomaticRoleAttributeRuleDto> findAllRulesForAutomaticRole(UUID automaticRole) {
 		IdmAutomaticRoleAttributeRuleFilter filter = new IdmAutomaticRoleAttributeRuleFilter();
 		filter.setAutomaticRoleAttributeId(automaticRole);
-		filter.setType(type);
 		return this.find(filter, null).getContent();
 	}
 
@@ -149,7 +165,23 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	public void deleteAllByAttribute(UUID attributeId) {
 		IdmAutomaticRoleAttributeRuleFilter filter = new IdmAutomaticRoleAttributeRuleFilter();
 		filter.setAutomaticRoleAttributeId(attributeId);
-		this.find(filter, null).forEach(rule -> this.delete(rule));
+		this.find(filter, null).forEach(rule -> this.deleteRuleWithSkipCheckLastRule(rule));
 	}
 
+	@Override
+	public void deleteRuleWithSkipCheckLastRule(IdmAutomaticRoleAttributeRuleDto dto) {
+		AutomaticRoleAttributeRuleEvent automaticRoleAttributeRuleEvent = new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.DELETE, dto);
+		automaticRoleAttributeRuleEvent.getProperties().put(AutomaticRoleAttributeRuleDeleteProcessor.SKIP_CHECK_LAST_RULE, Boolean.TRUE);
+		entityEventManager.process(automaticRoleAttributeRuleEvent);
+	}
+
+	/**
+	 * Init form attribute if needed.
+	 * We must add this bean with autowire helper, because exists connection between two this beans. 
+	 */
+	private void initFormAttributeService() {
+		if (this.formAttributeService == null) {
+			this.formAttributeService = AutowireHelper.getBean(IdmFormAttributeService.class);
+		}
+	}
 }

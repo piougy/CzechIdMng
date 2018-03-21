@@ -11,22 +11,22 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Do provisioning for {@link IdmIdentityDto} that own contract for that will be
  * added new {@link IdmContractGuaranteeDto}. Provisioning is made after
- * contract guarantee will be added
+ * contract guarantee will be added (by identity NOTIFY event). 
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 
 @Component
@@ -39,21 +39,16 @@ public class ContractGuaranteeSaveProvisioningProcessor extends CoreEventProcess
 
 	public static final String PROCESSOR_NAME = "contract-guarantee-save";
 
-	private final ProvisioningService provisioningService;
-	private final IdmIdentityService identityService;
 	private final IdmIdentityContractService identityContractService;
+	//
+	@Autowired private EntityEventManager entityEventManager;	
 
 	@Autowired
-	public ContractGuaranteeSaveProvisioningProcessor(ProvisioningService provisioningService,
-			IdmIdentityService identityService, IdmIdentityContractService identityContractService) {
-		super(ContractGuaranteeEventType.CREATE, ContractGuaranteeEventType.UPDATE);
+	public ContractGuaranteeSaveProvisioningProcessor(IdmIdentityContractService identityContractService) {
+		super(CoreEventType.NOTIFY);
 		//
-		Assert.notNull(provisioningService);
-		Assert.notNull(identityService);
 		Assert.notNull(identityContractService);
 		//
-		this.provisioningService = provisioningService;
-		this.identityService = identityService;
 		this.identityContractService = identityContractService;
 	}
 
@@ -66,11 +61,10 @@ public class ContractGuaranteeSaveProvisioningProcessor extends CoreEventProcess
 		//
 		IdmContractGuaranteeDto contractGuarantee = event.getContent();
 		IdmIdentityContractDto contract = identityContractService.get(contractGuarantee.getIdentityContract());
-		IdmIdentityDto identity = identityService.get(contract.getIdentity());
 		//
-		LOG.debug("Do provisioning for identity [{}], contract guarantee will be added.", identity.getUsername());
+		LOG.debug("Publish change for identity [{}], contract guarantee will be added.", contract.getIdentity());
 		//
-		provisioningService.doProvisioning(identity);
+		entityEventManager.changedEntity(IdmIdentityDto.class, contract.getIdentity(), event);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

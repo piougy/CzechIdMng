@@ -17,8 +17,8 @@ public interface SecurityService {
 	/**
 	 * Name which is used as current/original username
 	 */
-	public static final String SYSTEM_NAME = "[SYSTEM]";
-	public static final String GUEST_NAME = "[GUEST]";
+	String SYSTEM_NAME = "[SYSTEM]";
+	String GUEST_NAME = "[GUEST]";
 	
 	/**
 	 * Changes the currently authenticated principal, or removes the authentication

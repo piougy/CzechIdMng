@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
-import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 /**
@@ -55,7 +54,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CzechIdMIcConfigurationService.class);
-
+	final private static String IMPLEMENTATION_TYPE = "czechidm";
 	// Cached local connectorInfos
 	private Set<IcConnectorInfo> connectorInfos;
 	// Cached local default connector configurations
@@ -67,23 +66,11 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	private ApplicationContext applicationContext;
 
 	@Autowired
-	public CzechIdMIcConfigurationService(IcConfigurationFacade icConfigurationAggregator,
-			ApplicationContext applicationContext) {
-
+	public CzechIdMIcConfigurationService(ApplicationContext applicationContext) {
 		Assert.notNull(applicationContext);
+		//
 		this.applicationContext = applicationContext;
-
-		if (icConfigurationAggregator.getIcConfigs() == null) {
-			throw new IcException("Map of IC implementations is not defined!");
-		}
-		if (icConfigurationAggregator.getIcConfigs().containsKey(IMPLEMENTATION_TYPE)) {
-			throw new IcException(
-					MessageFormat.format("IC implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
-		}
-		icConfigurationAggregator.getIcConfigs().put(IMPLEMENTATION_TYPE, this);
 	}
-
-	final private static String IMPLEMENTATION_TYPE = "czechidm";
 
 	/**
 	 * Return key defined IC implementation

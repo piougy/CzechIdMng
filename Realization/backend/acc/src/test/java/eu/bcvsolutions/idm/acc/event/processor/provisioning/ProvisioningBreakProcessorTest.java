@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -107,11 +108,13 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		testHelper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
 		clearProvisioningBreakConfiguration();
+		testHelper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 
@@ -897,6 +900,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		account.setSystem(system.getId());
 		account.setUid(identity.getUsername());
 		account.setAccountType(AccountType.PERSONAL);
+		account.setEntityType(SystemEntityType.IDENTITY);
 		account = accountService.save(account);
 
 		AccIdentityAccountDto accountIdentity = new AccIdentityAccountDto();

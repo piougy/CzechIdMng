@@ -290,7 +290,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	public <T> Number findLastRevisionNumber(Class<T> entityClass, UUID entityId) {
 		return (Number) this.getAuditReader().createQuery()
 			    .forRevisionsOfEntity(entityClass, false, true)
-			    .addProjection(AuditEntity.revisionNumber().max())
+			    .add(AuditEntity.revisionNumber().maximize().computeAggregationInInstanceContext())
 			    .add(AuditEntity.id().eq(entityId))
 			    .getSingleResult();
 	}
@@ -468,12 +468,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			return null;
 		}
 		
-		List<IdmAudit> results = this.auditRepository.getPreviousVersion(revision.getEntityId(), Long.valueOf(revision.getId().toString()), new PageRequest(0, 1)).getContent();
-		if (!results.isEmpty() && results.size() == 1) {
-			return  this.toDto(results.get(0));
-		} else {
-			return null;
-		}
+		return toDto(this.auditRepository.getPreviousVersion(revision.getEntityId(), revision.getId()));
 	}
 	
 	@Override

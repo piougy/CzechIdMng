@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -85,7 +86,7 @@ public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> ex
 		identity.setFirstName("Test");
 		identity.setLastName("User");
 		identity.setEmail("test.user@example.tl");
-		identity.setDisabled(disabled);
+		identity.setState(disabled ? IdentityState.DISABLED : null);
 		identity = this.identityService.save(identity);
 		// make sure default contract is not created
 		identityContractService.findAllByIdentity(identity.getId())

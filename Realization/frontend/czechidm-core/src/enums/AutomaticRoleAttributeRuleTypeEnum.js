@@ -29,7 +29,7 @@ export default class AutomaticRoleAttributeRuleTypeEnum extends AbstractEnum {
       case this.IDENTITY: {
         return 'success';
       }
-      case this.IDENITITY_EAV: {
+      case this.IDENTITY_EAV: {
         return 'info';
       }
       case this.CONTRACT: {
@@ -46,6 +46,6 @@ export default class AutomaticRoleAttributeRuleTypeEnum extends AbstractEnum {
 }
 
 AutomaticRoleAttributeRuleTypeEnum.IDENTITY = Symbol('IDENTITY');
-AutomaticRoleAttributeRuleTypeEnum.IDENITITY_EAV = Symbol('IDENITITY_EAV');
+AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV = Symbol('IDENTITY_EAV');
 AutomaticRoleAttributeRuleTypeEnum.CONTRACT = Symbol('CONTRACT');
 AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV = Symbol('CONTRACT_EAV');

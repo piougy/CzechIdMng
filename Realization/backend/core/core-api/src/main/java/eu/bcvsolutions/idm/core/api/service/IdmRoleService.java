@@ -20,8 +20,8 @@ public interface IdmRoleService extends
 		CodeableService<IdmRoleDto>, 
 		AuthorizableService<IdmRoleDto>, ScriptEnabled {
 	
-	static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval."; // TODO: rename property ... 
-	static final String PROPERTY_DEFAULT_ROLE = RoleConfiguration.PROPERTY_DEFAULT_ROLE;
+	String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval."; // TODO: rename property ... 
+	String PROPERTY_DEFAULT_ROLE = RoleConfiguration.PROPERTY_DEFAULT_ROLE;
 	
 	/**
 	 * Returns role by name

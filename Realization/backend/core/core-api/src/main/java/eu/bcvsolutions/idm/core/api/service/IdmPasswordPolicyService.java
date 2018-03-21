@@ -55,7 +55,6 @@ public interface IdmPasswordPolicyService extends ReadWriteDtoService<IdmPasswor
 	 */
 	IdmPasswordPolicyDto getDefaultPasswordPolicy(IdmPasswordPolicyType type);
 
-	
 	/**
 	 * Generate password by given password policy
 	 * 
@@ -94,4 +93,20 @@ public interface IdmPasswordPolicyService extends ReadWriteDtoService<IdmPasswor
 	 * @return
 	 */
 	IdmPasswordPolicyDto findOneByName(String name);
+
+	/**
+	 * Method pre-validate default password policy (non-existing password fails all enabled password policy rules)
+	 * Method throw exception with all validation errors.
+	 * 
+	 */
+	void preValidate(IdmPasswordValidationDto passwordValidationDto);
+	
+	/**
+	 * Method pre-validate password policies (non-existing password fails all enabled password policy rules)
+	 * Method throw exception with all validation errors.
+	 * 
+	 * @param passwordValidationDto
+	 * @param passwordPolicyList
+	 */
+	void preValidate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList);
 }

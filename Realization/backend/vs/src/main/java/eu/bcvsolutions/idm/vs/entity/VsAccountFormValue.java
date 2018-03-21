@@ -20,8 +20,11 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
  *
  */
 @Entity
-@Table(name = "vs_account_form_value", indexes = { @Index(name = "idx_vs_account_form_a", columnList = "owner_id"),
-		@Index(name = "idx_vs_account_form_a_def", columnList = "attribute_id") })
+@Table(name = "vs_account_form_value", indexes = { 
+		@Index(name = "idx_vs_account_form_a", columnList = "owner_id"),
+		@Index(name = "idx_vs_account_form_a_def", columnList = "attribute_id"),
+		@Index(name = "idx_vs_account_form_stxt", columnList = "short_text_value"),
+		@Index(name = "idx_vs_account_form_uuid", columnList = "uuid_value") })
 public class VsAccountFormValue extends AbstractFormValue<VsAccount> {
 
 	private static final long serialVersionUID = -6873566385389649927L;

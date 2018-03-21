@@ -128,6 +128,7 @@ public enum CoreResultCode implements ResultCode {
 	SCHEDULER_DELETE_TRIGGER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	SCHEDULER_PAUSE_TRIGGER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	SCHEDULER_RESUME_TRIGGER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
+	SCHEDULER_DRY_RUN_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Task type [%s] does not support dry run mode."),
 	//
 	LONG_RUNNING_TASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "Task type [%s] can not be instantiated"),
 	LONG_RUNNING_TASK_NOT_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is not running - can not be innterrupted or cancelled"),
@@ -142,11 +143,14 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_EXPIRATION_TASK_DAYS_BEFORE(HttpStatus.BAD_REQUEST, "'Days before' parameter is required and has to be number greater than zero, given [%s]."),
 	//
 	AUTOMATIC_ROLE_TASK_EMPTY(HttpStatus.BAD_REQUEST, "Automatic role id is required."),
-	AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not assigned for identities[%s]. Check role request agenda for reason."),
-	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identities[%s]. Check role request agenda for reason."),
+	AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not assigned for identity [%s]."),
+	AUTOMATIC_ROLE_ALREADY_ASSIGNED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is assigned."),
+	AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] for identity [%s] was not assigned, contract is not valid (skip)."),
+	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identity [%s]."),
 	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),
 	AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role [%s] is added in concurent task [%s], wait for task is complete, after removal."),
 	AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY(HttpStatus.BAD_REQUEST, "Rule for automatic role hasn't filled necessary attribute: [%s]."),
+	AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT(HttpStatus.BAD_REQUEST, "Persistent type TEXT isn't allowed."),
 	//
 	// role tree node
 	ROLE_TREE_NODE_TYPE_EXISTS(HttpStatus.CONFLICT, "Role tree node for this role id: [%s], tree node id: [%s] and recursion type [%s] already exists"),
@@ -161,6 +165,7 @@ public enum CoreResultCode implements ResultCode {
 	NOTIFICATION_TEMPLATE_ERROR_XML_SCHEMA(HttpStatus.BAD_REQUEST, "Failed load template [%s], error in xml schema."),
 	NOTIFICATION_TEMPLATE_MORE_CODE_FOUND(HttpStatus.CONFLICT, "More templates in resource found for code: [%s]."),
 	NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "XML file for template code: [%s] not found."),
+	NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND(HttpStatus.CONFLICT, "Sender implementation [%s] for type [%s] not found. Repair configuration property [%s]."),
 	//
 	// scripts
 	SCRIPT_MORE_CODE_FOUND(HttpStatus.CONFLICT, "More scripts in resource found for code: [%s]."),
@@ -199,13 +204,26 @@ public enum CoreResultCode implements ResultCode {
 	// Rest template
 	WRONG_PROXY_CONFIG(HttpStatus.INTERNAL_SERVER_ERROR, "Wrong configuration of http proxy. The required format is '[IP]:[PORT]'. Example: '153.25.16.8:1234'"),
 	//
+	// Automatic role request
+	AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE(HttpStatus.BAD_REQUEST, "Automatic role request must have at least one rule [%s]"),
+	// ECM
+	ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default storage [%s] in temp directory failed."),
+	ATTACHMENT_INIT_DEFAULT_TEMP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default temp storage [%s] in temp directory failed."),
+	ATTACHMENT_CREATE_TEMP_FILE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating temporary file [%s] in temp directory [%s] failed."),
+	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed."),
+	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed."),
+	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found."),
 	//
-	ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default storage [%s] in temp directory failed"),
-	ATTACHMENT_INIT_DEFAULT_TEMP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating directory for default temp storage [%s] in temp directory failed"),
-	ATTACHMENT_CREATE_TEMP_FILE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Creating temporary file [%s] in temp directory [%s] failed"),
-	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed"),
-	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed"),
-	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found.");
+	// Events
+	EVENT_CANCELED_BY_RESTART(HttpStatus.GONE, "Event [%s] type [%s] on instance [%s] was canceled during restart."),
+	EVENT_DUPLICATE_CANCELED(HttpStatus.OK, "Event [%s] type [%s] for owner [%s] on instance [%s] was canceled, it is duplicate to event [%s]."),
+	EVENT_ALREADY_CLOSED(HttpStatus.OK, "Event is already closed, will be logged only."),
+	EVENT_ACCEPTED(HttpStatus.ACCEPTED, "Event type [%s] for owner [%s] on instance [%s] was put into queue and will be processed asynchronously."),
+	EVENT_EXECUTE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Event [%s] type [%s] for owner [%s] on instance [%s] failed."),
+	EVENT_EXECUTE_PROCESSOR_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Event [%s] failed in processor [%s]."),
+	EVENT_CONTENT_DELETED(HttpStatus.CONFLICT, "Content for event [%s] type [%s] for owner [%s] on instance [%s] was deleted. Event cannot be executed and will be canceled."),
+	EVENT_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Event [%s] type [%s] for owner [%s] on instance [%s] cannot be deleted. Delete events at first, where this event is set as parent.");
+
 	
 	private final HttpStatus status;
 	private final String message;

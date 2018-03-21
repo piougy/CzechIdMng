@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
@@ -59,8 +60,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -130,14 +135,16 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private IdmScriptAuthorityService scriptAuthrotityService;
 	@Autowired
 	private IdmScriptService scriptService;
-
+	@Autowired
+	private TestIdentityProcessor testIdentityProcessor;
+	
 	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
-		synchornizationService = context.getAutowireCapableBeanFactory()
-				.createBean(DefaultSynchronizationService.class);
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
@@ -145,6 +152,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		if (identityService.getByUsername(IDENTITY_ONE) != null) {
 			identityService.delete(identityService.getByUsername(IDENTITY_ONE));
 		}
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 
@@ -183,7 +191,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
-
 	}
 
 	@Test
@@ -252,7 +259,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
-
 	}
 
 	@Test
@@ -411,6 +417,237 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmIdentityDto identityTwo = identities.get(1);
 		//
 		assertNotEquals(identityOne.getFirstName(), identityTwo.getFirstName());
+	}
+	
+	@Test
+	public void testEnableAutomaticRoleDuringSynchronization() {
+		// default initialization of system and all necessary things
+		SysSystemDto system = initData();
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		config.setStartAutoRoleRec(true); // we want start recalculation after synchronization
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		this.getBean().deleteAllResourceData();
+		
+		String testLastName = "test-last-name-same-" + System.currentTimeMillis();
+		String testFirstName = "test-first-name";
+		
+		String user1 = "test-1-" + System.currentTimeMillis();
+		this.getBean().setTestData(user1, testFirstName, testLastName);
+		
+		String user2 = "test-2-" + System.currentTimeMillis();
+		this.getBean().setTestData(user2, testFirstName, testLastName);
+		
+		String user3 = "test-3-" + System.currentTimeMillis();
+		this.getBean().setTestData(user3, testFirstName, testLastName);
+		
+		IdmRoleDto role1 = helper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = helper.createAutomaticRole(role1.getId());
+		helper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS, AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, user1);
+		
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3,
+				OperationResultType.WARNING);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto identity1 = identityService.getByUsername(user1);
+		IdmIdentityDto identity2 = identityService.getByUsername(user2);
+		IdmIdentityDto identity3 = identityService.getByUsername(user3);
+		
+		// we must change username, after create contract is also save identity (change state)
+		identity1.setUsername(user1 + System.currentTimeMillis());
+		identity1 = identityService.save(identity1);
+		
+		helper.createIdentityContact(identity1);
+		helper.createIdentityContact(identity2);
+		helper.createIdentityContact(identity3);
+		
+		List<IdmIdentityRoleDto> identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		List<IdmIdentityRoleDto> identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		List<IdmIdentityRoleDto> identityRoles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(0, identityRoles1.size());
+		assertEquals(0, identityRoles2.size());
+		assertEquals(0, identityRoles3.size());
+		
+		// enable test processor
+		testIdentityProcessor.enable();
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		identityRoles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(1, identityRoles1.size());
+		assertEquals(0, identityRoles2.size());
+		assertEquals(0, identityRoles3.size());
+		
+		IdmIdentityRoleDto foundIdentityRole = identityRoles1.get(0);
+		assertEquals(automaticRole.getId(), foundIdentityRole.getRoleTreeNode());
+		
+		// synchronization immediately recalculate is disabled
+		int size = testIdentityProcessor.getRolesByUsername(user1).size();
+		assertEquals(0, size);
+		size = testIdentityProcessor.getRolesByUsername(user2).size();
+		assertEquals(0, size);
+		size = testIdentityProcessor.getRolesByUsername(user3).size();
+		assertEquals(0, size);
+	}
+	
+	@Test
+	public void testDisableAutomaticRoleDuringSynchronization() {
+		// default initialization of system and all necessary things
+		SysSystemDto system = initData();
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		config.setStartAutoRoleRec(false); // we want start recalculation after synchronization
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		this.getBean().deleteAllResourceData();
+		
+		String testLastName = "test-last-name-same-" + System.currentTimeMillis();
+		String testFirstName = "test-first-name";
+		
+		String user1 = "test-1-" + System.currentTimeMillis();
+		this.getBean().setTestData(user1, testFirstName, testLastName);
+		
+		String user2 = "test-2-" + System.currentTimeMillis();
+		this.getBean().setTestData(user2, testFirstName, testLastName);
+		
+		String user3 = "test-3-" + System.currentTimeMillis();
+		this.getBean().setTestData(user3, testFirstName, testLastName);
+		
+		IdmRoleDto role1 = helper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = helper.createAutomaticRole(role1.getId());
+		helper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS, AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, user1);
+		
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3,
+				OperationResultType.WARNING);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto identity1 = identityService.getByUsername(user1);
+		IdmIdentityDto identity2 = identityService.getByUsername(user2);
+		IdmIdentityDto identity3 = identityService.getByUsername(user3);
+		
+		// we must change username, after create contract is also save identity (change state)
+		identity1.setUsername(user1 + System.currentTimeMillis());
+		identity1 = identityService.save(identity1);
+		
+		helper.createIdentityContact(identity1);
+		helper.createIdentityContact(identity2);
+		helper.createIdentityContact(identity3);
+		
+		List<IdmIdentityRoleDto> identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		List<IdmIdentityRoleDto> identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		List<IdmIdentityRoleDto> identityRoles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(0, identityRoles1.size());
+		assertEquals(0, identityRoles2.size());
+		assertEquals(0, identityRoles3.size());
+		
+		// enable test processor
+		testIdentityProcessor.enable();
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
+		identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
+		identityRoles3 = identityRoleService.findAllByIdentity(identity3.getId());
+		
+		assertEquals(0, identityRoles1.size());
+		assertEquals(0, identityRoles2.size());
+		assertEquals(0, identityRoles3.size());
+		
+		// synchronization immediately recalculate is disabled
+		int size = testIdentityProcessor.getRolesByUsername(user1).size();
+		assertEquals(0, size);
+		size = testIdentityProcessor.getRolesByUsername(user2).size();
+		assertEquals(0, size);
+		size = testIdentityProcessor.getRolesByUsername(user3).size();
+		assertEquals(0, size);
+	}
+	
+	@Test
+	public void testLinkAndUpdateIdentity() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		this.getBean().deleteAllResourceData();
+		
+		String testLastName = "test-last-name-same-" + System.currentTimeMillis();
+		String testFirstName = "test-first-name-";
+		
+		String user1 = "test-1-" + System.currentTimeMillis();
+		IdmIdentityDto identity1 = helper.createIdentity(user1);
+		this.getBean().setTestData(user1, testFirstName + 1, testLastName);
+		
+		String user2 = "test-2-" + System.currentTimeMillis();
+		IdmIdentityDto identity2 = helper.createIdentity(user2);
+		this.getBean().setTestData(user2, testFirstName + 2, testLastName);
+		
+		String user3 = "test-3-" + System.currentTimeMillis();
+		IdmIdentityDto identity3 = helper.createIdentity(user3);
+		this.getBean().setTestData(user3, testFirstName + 3, testLastName);
+		
+		assertNotEquals(testFirstName + 1, identity1.getFirstName());
+		assertNotEquals(testFirstName + 2, identity2.getFirstName());
+		assertNotEquals(testFirstName + 3, identity3.getFirstName());
+		
+		assertNotEquals(testLastName, identity1.getLastName());
+		assertNotEquals(testLastName, identity2.getLastName());
+		assertNotEquals(testLastName, identity3.getLastName());
+		
+		testIdentityProcessor.enable();
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 3,
+				OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto updatedIdentity1 = identityService.getByUsername(user1);
+		IdmIdentityDto updatedIdentity2 = identityService.getByUsername(user2);
+		IdmIdentityDto updatedIdentity3 = identityService.getByUsername(user3);
+		
+		assertNotEquals(updatedIdentity1.getFirstName(), identity1.getFirstName());
+		assertNotEquals(updatedIdentity2.getFirstName(), identity2.getFirstName());
+		assertNotEquals(updatedIdentity3.getFirstName(), identity3.getFirstName());
+		
+		assertNotEquals(updatedIdentity1.getLastName(), identity1.getLastName());
+		assertNotEquals(updatedIdentity2.getLastName(), identity2.getLastName());
+		assertNotEquals(updatedIdentity3.getLastName(), identity3.getLastName());
+		
+		assertNotEquals(updatedIdentity1.getModified(), identity1.getModified());
+		assertNotEquals(updatedIdentity2.getModified(), identity2.getModified());
+		assertNotEquals(updatedIdentity3.getModified(), identity3.getModified());
+		
+		assertEquals(testFirstName + 1, updatedIdentity1.getFirstName());
+		assertEquals(testFirstName + 2, updatedIdentity2.getFirstName());
+		assertEquals(testFirstName + 3, updatedIdentity3.getFirstName());
+		
+		assertEquals(testLastName, updatedIdentity1.getLastName());
+		assertEquals(testLastName, updatedIdentity2.getLastName());
+		assertEquals(testLastName, updatedIdentity3.getLastName());
 	}
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,

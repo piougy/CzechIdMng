@@ -85,6 +85,7 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		account.setSystemEntity(systemEntity.getId());
 		account.setUid(systemEntity.getUid());
 		account.setAccountType(AccountType.PERSONAL);
+		account.setEntityType(SystemEntityType.IDENTITY);
 		account = accountService.save(account);
 		
 		AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();  

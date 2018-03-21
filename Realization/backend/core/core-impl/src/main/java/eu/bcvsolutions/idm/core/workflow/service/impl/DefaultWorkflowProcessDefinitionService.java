@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.ValuedDataObject;
 import org.activiti.engine.ActivitiIllegalArgumentException;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -78,18 +80,20 @@ public class DefaultWorkflowProcessDefinitionService
 	public Page<WorkflowProcessDefinitionDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
 		ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
-
 		query.active();
-
 		query.latestVersion();
 
 		if (filter != null && filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())) {
 			query.processDefinitionCategoryLike(filter.getCategory() + '%');
 		}
-
-		// Default sort
-		// query.orderByProcessDefinitionId();
-		// query.asc();
+		
+		if(filter.getProcessDefinitionKey() != null) {
+			query.processDefinitionKeyLike('%' + filter.getProcessDefinitionKey() + '%');
+		}
+		
+		if(filter.getName() != null) {
+			query.processDefinitionNameLike('%' + filter.getName() + '%');
+		}
 
 		if (pageable != null && pageable.getSort() != null) {
 			pageable.getSort().forEach(order -> {
@@ -181,6 +185,16 @@ public class DefaultWorkflowProcessDefinitionService
 		}
 		return getDiagram(this.getProcessDefinitionId(definitionKey));
 	}
+	
+	@Override
+	public List<ValuedDataObject> getDataObjects(String definitionId) {
+		Assert.notNull(definitionId);
+		BpmnModel model = repositoryService.getBpmnModel(definitionId);
+		if (model != null && model.getMainProcess() != null) {
+			return model.getMainProcess().getDataObjects();
+		}
+		return null;
+	}
 
 	private WorkflowProcessDefinitionDto toDto(ProcessDefinition processDefinition) {
 
@@ -198,7 +212,6 @@ public class DefaultWorkflowProcessDefinitionService
 		dto.setSuspended(processDefinition.isSuspended());
 		dto.setTenantId(processDefinition.getTenantId());
 		dto.setVersion(processDefinition.getVersion());
-
 		return dto;
 
 	}

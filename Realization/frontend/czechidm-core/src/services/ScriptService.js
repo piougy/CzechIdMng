@@ -3,6 +3,11 @@ import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
+/**
+ * Scripts
+ *
+ * @author Ondřej Kopr
+ */
 class ScriptService extends AbstractService {
 
   getApiPath() {

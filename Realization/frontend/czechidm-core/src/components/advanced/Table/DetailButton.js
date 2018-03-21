@@ -48,7 +48,7 @@ DetailButton.propTypes = {
   /**
    * Buttons tooltip, otherwise default 'button.detail' will be used
    */
-  title: PropTypes.text
+  title: PropTypes.string
 };
 DetailButton.defaultProps = {
   rendered: true

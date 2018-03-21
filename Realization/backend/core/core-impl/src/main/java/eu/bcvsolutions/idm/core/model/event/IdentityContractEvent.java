@@ -22,7 +22,7 @@ public class IdentityContractEvent extends CoreEvent<IdmIdentityContractDto> {
 	 *
 	 */
 	public enum IdentityContractEventType implements EventType {
-		CREATE, UPDATE, DELETE
+		CREATE, UPDATE, DELETE, EAV_SAVE, NOTIFY
 	}
 	
 	public IdentityContractEvent(IdentityContractEventType operation, IdmIdentityContractDto content) {

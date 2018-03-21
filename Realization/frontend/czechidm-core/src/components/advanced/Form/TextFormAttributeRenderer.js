@@ -134,7 +134,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
   getInputValidation() {
     const { attribute } = this.props;
     //
-    let validation = Joi.string().max(2000);
+    let validation = Joi.string();
     if (!attribute.required) {
       validation = validation.concat(Joi.string().allow(null).allow(''));
     }

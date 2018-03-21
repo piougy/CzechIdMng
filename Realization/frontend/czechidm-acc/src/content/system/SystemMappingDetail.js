@@ -178,7 +178,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
   }
 
   _getBoolColumn(value) {
-    return (<Basic.BooleanCell propertyValue={ value !== null } className="column-face-bool"/>);
+    return (<Basic.BooleanCell propertyValue={ value !== null && value !== '' } className="column-face-bool"/>);
   }
 
   _onChangeEntityType(entity) {
@@ -260,15 +260,13 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
           <Basic.Tab eventKey={1} title={this.i18n('title')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
-                <Basic.Col lg={ 12 } className="no-border last">
-                  <ValidationMessageSystemMapping error={validationError}/>
-                </Basic.Col>
                 <Basic.AbstractForm
                   ref="form"
                   className="panel-body"
                   data={ mapping }
                   showLoading={ _showLoading }
                   readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                  <ValidationMessageSystemMapping error={validationError}/>
                   <Basic.SelectBox
                     ref="system"
                     manager={systemManager}

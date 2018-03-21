@@ -136,43 +136,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   useFilterForm(filterForm) {
-    this.useFilterData(this._getFilterData(filterForm));
-  }
-
-  /**
-   * Returns filled filter values from filter filterForm
-   *
-   * @param  {ref} filterForm reference to filter form
-   * @return {object}
-   */
-  _getFilterData(filterForm) {
-    const filters = {};
-    const filterValues = filterForm.getData();
-    for (const property in filterValues) {
-      if (!filterValues.hasOwnProperty(property)) {
-        continue;
-      }
-      const filterComponent = filterForm.getComponent(property);
-      if (!filterComponent) {
-        // filter is not rendered
-        continue;
-      }
-      const field = filterComponent.props.field || property;
-      // TODO: implement multi value filters
-      /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
-        let filledValues = filterValues[property];
-        if (filterComponent.props.enum) { // enumeration
-          filledValues = filledValues.map(value => { return filterComponent.props.enum.findKeyBySymbol(value); })
-        }
-        filter.values = filledValues;
-      } else {*/
-      let filledValue = filterValues[property];
-      if (filterComponent.props.enum) { // enumeration
-        filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
-      }
-      filters[field] = filledValue;
-    }
-    return filters;
+    this.useFilterData(SearchParameters.getFilterData(filterForm));
   }
 
   useFilterData(formData) {
@@ -188,19 +152,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   _getSearchParameters(formData) {
     const { _searchParameters } = this.props;
     //
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setPage(0);
-    for (const property in formData) {
-      if (!formData.hasOwnProperty(property)) {
-        continue;
-      }
-      if (!formData[property]) {
-        userSearchParameters = userSearchParameters.clearFilter(property);
-      } else {
-        userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
-      }
-    }
-    return userSearchParameters;
+    return SearchParameters.getSearchParameters(formData, _searchParameters);
   }
 
   /**
@@ -210,7 +162,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
    * @return {SearchParameters}
    */
   getSearchParameters(filterForm) {
-    return this._getSearchParameters(this._getFilterData(filterForm));
+    return this._getSearchParameters(SearchParameters.getFilterData(filterForm));
   }
 
   cancelFilter(filterForm) {
@@ -271,6 +223,20 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return this.isDevelopment();
     }
     return showId;
+  }
+
+  _filterOpen(open) {
+    const { filterOpen } = this.props;
+    let result = true;
+    if (filterOpen) {
+      result = filterOpen(open);
+    }
+    //
+    if (result !== false) {
+      this.setState({
+        filterOpened: open
+      });
+    }
   }
 
   render() {
@@ -447,7 +413,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 { buttons }
 
                 <Filter.ToogleButton
-                  filterOpen={ (open)=> this.setState({ filterOpened: open }) }
+                  filterOpen={ this._filterOpen.bind(this) }
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
                   style={{ marginLeft: 3 }}
@@ -600,6 +566,10 @@ AdvancedTable.propTypes = {
    */
   filterOpened: PropTypes.bool,
   /**
+   * External filter open function. If false is returned, internal filterOpened is not set.
+   */
+  filterOpen: PropTypes.func,
+  /**
    * If filter can be collapsed
    */
   filterCollapsible: PropTypes.bool,
@@ -621,6 +591,14 @@ AdvancedTable.propTypes = {
    * @type {string}
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Shows page size
+   */
+  showPageSize: PropTypes.bool,
+  /**
+   * Shows toolbar.
+   */
+  showToolbar: PropTypes.bool,
 
   //
   // Private properties, which are used internally for async data fetching
@@ -635,9 +613,7 @@ AdvancedTable.propTypes = {
   /**
    * Persisted / used search parameters in redux
    */
-  _searchParameters: PropTypes.object,
-  showPageSize: PropTypes.bool,
-  showToolbar: PropTypes.bool
+  _searchParameters: PropTypes.object
 };
 AdvancedTable.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

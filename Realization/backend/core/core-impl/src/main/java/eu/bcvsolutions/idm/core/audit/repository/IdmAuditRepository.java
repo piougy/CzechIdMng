@@ -47,11 +47,9 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 					+ "("
 						+ "?#{[0].modifier} IS null "
 						+ "OR "
-						+ "("
-							+ "lower(e.modifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
-							+ "AND "
-							+ "lower(e.originalModifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
-						+ ")"
+						+ "lower(e.modifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
+						+ "OR "
+						+ "lower(e.originalModifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
 					+ ")"
 					+ " AND "
 					+ "("
@@ -108,7 +106,16 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 					+ ") ")
 	Page<IdmAudit> find(IdmAuditFilter filter, Pageable pageable);
 	
-	// Query get previous version, from entity id and id current revision
+	/**
+	 * Query get previous version, from entity id and id current revision.
+	 * This method is @Deprecated please use {@link #getPreviousVersion(UUID, Long)}.
+	 *
+	 * @param entityId
+	 * @param revId
+	 * @param pageable
+	 * @return
+	 */
+	@Deprecated
 	@Query(value = "SELECT e "
 			+ "FROM "
 				+ "#{#entityName} e "
@@ -123,6 +130,22 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 				+ " ORDER BY e.id DESC " )
 	Page<IdmAudit> getPreviousVersion(@Param(value = "entityId") UUID entityId, @Param(value = "revId") Long revId, Pageable pageable);
 
+	/**
+	 * Query get previous version, from entity id and id current revision.
+	 *
+	 * @param entityId
+	 * @param revId
+	 * @return
+	 */
+	@Query(value = "SELECT e "
+			+ "FROM "
+				+ "#{#entityName} e "
+			+ "WHERE "
+				+ "( "
+					+ "e.id = (SELECT max(z.id) FROM #{#entityName} z where z.entityId = :entityId AND z.id < :revId)"
+				+ ") ")
+	IdmAudit getPreviousVersion(@Param(value = "entityId") UUID entityId, @Param(value = "revId") Long revId);
+	
 	@Query(value = "SELECT DISTINCT(e.ownerId) "
 			+ "FROM "
 				+ "#{#entityName} e "

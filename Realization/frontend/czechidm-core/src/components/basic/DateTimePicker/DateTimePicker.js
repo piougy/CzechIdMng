@@ -14,6 +14,9 @@ const INVALID_DATE = 'Invalid date';
 
 /**
  * Wrapped react-datetime component
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
  */
 class DateTimePicker extends AbstractFormComponent {
 
@@ -154,6 +157,10 @@ class DateTimePicker extends AbstractFormComponent {
     if (!iso8601Value) {
       return null;
     }
+    if (typeof iso8601Value === 'string') {
+      // TODO: deprecated by next moment version
+      return moment(iso8601Value).format(this.getFormat());
+    }
     return moment(iso8601Value).format(this.getFormat());
   }
 
@@ -262,7 +269,7 @@ class DateTimePicker extends AbstractFormComponent {
 DateTimePicker.propTypes = {
   ...AbstractFormComponent.propTypes,
   mode: PropTypes.oneOf(['date', 'time', 'datetime']),
-  locale: PropTypes.oneOf(['cs', 'en']), // TODO: support to other locales needs import
+  locale: PropTypes.oneOf(['cs', 'en']), // TODO: supports other locales needs import
   dateFormat: PropTypes.string,
   timeFormat: PropTypes.string
 };

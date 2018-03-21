@@ -8,7 +8,6 @@ import * as Basic from '../../components/basic';
 
 const componentService = new ComponentService();
 
-
 /**
  * Password change component contains all components defined in component descriptor
  * with type password-change-component

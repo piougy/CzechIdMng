@@ -187,8 +187,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 						parseSerializableToString(result.get(0).getId()),
 						parseSerializableToString(result.get(1).getId()));
 
-				// 3 modification from IdmIdentity and 1 modification (modified date) from AbstractEntity
-				assertEquals(4, diff.size());
+				// 3 modification from IdmIdentity
+				assertEquals(3, diff.size());
 				assertTrue(diff.containsKey("firstName"));
 				assertTrue(diff.containsKey("lastName"));
 				assertTrue(diff.containsKey("email"));
@@ -201,8 +201,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 				diff = auditService.getDiffBetweenVersion(parseSerializableToString(result.get(1).getId()),
 						parseSerializableToString(result.get(2).getId()));
 				
-				// 3 modification from IdmIdentity and 1 from abstract entity (date of modified)
-				assertEquals(4, diff.size());
+				// 3 modification from IdmIdentity
+				assertEquals(3, diff.size());
 				assertTrue(diff.containsKey("firstName"));
 				assertTrue(diff.containsKey("lastName"));
 				assertTrue(diff.containsKey("email"));
@@ -215,7 +215,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 				diff = auditService.getDiffBetweenVersion(parseSerializableToString(result.get(0).getId()),
 						parseSerializableToString(result.get(2).getId()));
 				// all diff values are from AbstractEntity modifier, modified date, modifier id
-				assertEquals(1, diff.size()); // modified only
+				assertEquals(0, diff.size()); // modified only
 
 				return null;
 			}
@@ -283,9 +283,17 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
 		assertEquals(2, audits.size());
 		//
-		// TODO: for now isn't possible fill attribute changed columns for one transaction
-		assertEquals(null, audits.get(0).getChangedAttributes());
-		assertEquals(null, audits.get(1).getChangedAttributes());
+		String contractChangedAttribute = audits.get(0).getChangedAttributes();
+		assertTrue(contractChangedAttribute.contains("externe"));
+		assertTrue(contractChangedAttribute.contains("position"));
+		assertTrue(contractChangedAttribute.contains("identity"));
+		assertTrue(contractChangedAttribute.contains("disabled"));
+		assertTrue(contractChangedAttribute.contains("main"));
+		//
+		String identityChangedAttribute = audits.get(1).getChangedAttributes();
+		assertTrue(identityChangedAttribute.contains("state"));
+		assertTrue(identityChangedAttribute.contains("email"));
+		assertTrue(identityChangedAttribute.contains("lastName"));
 	}
 	
 	@Test

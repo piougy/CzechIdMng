@@ -105,36 +105,18 @@ public class DefaultIdmConceptRoleRequestService
 	
 	@Override
 	protected IdmConceptRoleRequestDto toDto(IdmConceptRoleRequest entity, IdmConceptRoleRequestDto dto) {
-		if (entity == null) {
+		dto = super.toDto(entity, dto);
+		if (dto == null) {
 			return null;
 		}
 		//
-		// field automatic role exists in entity but not in dto
-		TypeMap<IdmConceptRoleRequest, IdmConceptRoleRequestDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-		if (typeMap == null) {
-			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
-			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
-			typeMap.addMappings(new PropertyMap<IdmConceptRoleRequest, IdmConceptRoleRequestDto>() {
-				
-				@Override
-				protected void configure() {
-					this.skip().setAutomaticRole(null);
-				}
-			});
-		}
-		//
-		if (dto == null) {
-			dto = modelMapper.map(entity, this.getDtoClass(entity));
-		}
-		modelMapper.map(entity, dto);
-		//
 		// Contract from identity role has higher priority then contract ID in concept role
-		if(entity != null && entity.getIdentityRole() != null){
+		if (entity != null && entity.getIdentityRole() != null){
 			dto.setIdentityContract(entity.getIdentityRole().getIdentityContract().getId());
 		}
 		//
 		// we must set automatic role to role tree node
-		if (dto != null && entity != null && entity.getAutomaticRole() != null) {
+		if (entity != null && entity.getAutomaticRole() != null) {
 			dto.setAutomaticRole(entity.getAutomaticRole().getId());
 			IdmAutomaticRole automaticRole = entity.getAutomaticRole();
 			Map<String, BaseDto> embedded = dto.getEmbedded();
@@ -209,29 +191,28 @@ public class DefaultIdmConceptRoleRequestService
 	}
 	
 	@Override
-	public void delete(IdmConceptRoleRequestDto dto, BasePermission... permission) {
-		
-		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
+	public void deleteInternal(IdmConceptRoleRequestDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
 			WorkflowFilterDto filter = new WorkflowFilterDto();
 			filter.setProcessInstanceId(dto.getWfProcessId());
-			
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.searchInternal(filter, false).getResources();
-			if(resources.isEmpty()){
-				// Process with this ID not exist ... maybe was ended 
+
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
+					.searchInternal(filter, false).getResources();
+			if (resources.isEmpty()) {
+				// Process with this ID not exist ... maybe was ended
+				this.addToLog(dto, MessageFormat.format(
+						"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
+						dto.getWfProcessId()));
+			} else {
+				workflowProcessInstanceService.delete(dto.getWfProcessId(),
+						"Role concept use this WF, was deleted. This WF was deleted too.");
 				this.addToLog(dto,
 						MessageFormat.format(
-								"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
+								"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
 								dto.getWfProcessId()));
-				return;
 			}
-			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role concept use this WF, was deleted. This WF was deleted too.");
-			this.addToLog(dto,
-					MessageFormat.format(
-							"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
-							dto.getWfProcessId()));
 		}
-			
-		super.delete(dto);
+		super.deleteInternal(dto);
 	}
 	
 	@Override

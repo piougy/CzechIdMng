@@ -6,10 +6,11 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
@@ -28,83 +29,103 @@ public interface IdmAutomaticRoleAttributeService
 		AuthorizableService<IdmAutomaticRoleAttributeDto> {
 
 	/**
-	 * Prepare role request for delete automatic roles by standard role request.
+	 * For backward compatibility in metamodel doesn't exists attribute roleTreeNode
+	 */
+	String ROLE_TREE_NODE_ATTRIBUTE_NAME = "roleTreeNode";
+	
+	/**
+	 * Property in event. If is value TRUE, then will be recalculation skipped.
+	 */
+	String SKIP_RECALCULATION = "skip_recalculation";
+	
+	/**
+	 * Prepare role request for delete automatic roles.
+	 * Beware after was method marked as deprecated, returns null instead role request
 	 * 
 	 * @param identityRole
 	 * @param automaticRoles
 	 * @return
+	 * @deprecated Role request isn't used anymore, please use {@link IdmAutomaticRoleAttributeService#removeAutomaticRoles(IdmIdentityRoleDto)}
 	 */
+	@Deprecated
 	IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
-	 * Return all id's of {@link IdmIdentityDto} that passed or not passed (defined in parameter passed) by given automatic role by attribute
-	 * and don't has already this automatic role (defined in parameter onlyNew).
+	 * Remove identity role (must be automatic role). This method doesn't use standard role request 
+	 * and remove {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleDeleteAuthoritiesProcessor}.
+	 *
+	 * @param contract
+	 */
+	void removeAutomaticRoles(IdmIdentityRoleDto identityRole);
+	
+	/**
+	 * Remove automatic role from contract. This method doesn't use standard role request 
+	 * and remove {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleDeleteAuthoritiesProcessor}.
 	 * 
+	 * @param contractId
+	 * @param automaticRoles
+	 */
+	void removeAutomaticRoles(UUID contractId, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	
+	/**
+	 * Return all rules that pass/not pass (this is controlled by boolean parameter 'pass'),
+	 * automatic role will be search only for contract id.
+	 *
+	 * @param pass
+	 * @param type
+	 * @param identityId
+	 * @param contractId
+	 * @return
+	 */
+	Set<AbstractIdmAutomaticRoleDto> getRulesForContract(boolean pass, AutomaticRoleAttributeRuleType type, UUID contractId);
+	
+	/**
+	 * Return all id's of {@link IdmIdentityContractDto} that passed or not passed (defined in parameter passed) by given automatic role by attribute.
+	 *
 	 * @param automaticRoleId
-	 * @param onlyNew
 	 * @param passed
-	 * @return
-	 */
-	Page<UUID> getIdentitiesForAutomaticRole(UUID automaticRoleId, boolean onlyNew, boolean passed, Pageable pageable);
-	
-	/**
-	 * Return only new and passed identities for this automatic role. Call this role is similiar as call {@link IdmAutomaticRoleAttributeService#getIdentitiesForAutomaticRole}
-	 * with both parameter set as true.
-	 * 
-	 * @param automaticRoleId
 	 * @param pageable
 	 * @return
 	 */
-	Page<UUID> getNewPassedIdentitiesForAutomaticRole(UUID automaticRoleId, Pageable pageable);
-	
+	Page<UUID> getContractsForAutomaticRole(UUID automaticRoleId, boolean passed, Pageable pageable);
+
 	/**
-	 * Return only new and not passed identities for this automatic role. Call this role is similiar as call {@link IdmAutomaticRoleAttributeService#getIdentitiesForAutomaticRole}
-	 * with both parameter set as false.
-	 * 
-	 * @param automaticRoleId
-	 * @param pageable
-	 * @return
-	 */
-	Page<UUID> getNewNotPassedIdentitiesForAutomaticRole(UUID automaticRoleId, Pageable pageable);
-	
-	/**
-	 * Return all new passed automatic role by attribute for given identity id.
-	 * All roles in concept are skipped.
-	 * 
-	 * @param identityId
-	 * @return
-	 */
-	Set<AbstractIdmAutomaticRoleDto> getAllNewPassedAutomaticRoleForIdentity(UUID identityId);
-	
-	/**
-	 * Return current not passed list of automatic roles for given identity id
-	 * All roles in concept are skipped.
-	 * 
-	 * @param identityId
-	 * @return
-	 */
-	Set<AbstractIdmAutomaticRoleDto> getAllNotPassedAutomaticRoleForIdentity(UUID identityId);
-	
-	/**
-	 * Prepare add automatic role to contract. Return {@link IdmRoleRequestDto}
+	 * Prepare add automatic role to contract.
+	 * Beware after was method marked as deprecated, returns null instead role request
 	 * 
 	 * @param contract
 	 * @param automaticRoles
 	 * @return
+	 * @deprecated Role request isn't used anymore, please use {@link IdmAutomaticRoleAttributeService#addAutomaticRoles(IdmIdentityContractDto, Set)
 	 */
+	@Deprecated
 	IdmRoleRequestDto prepareAddAutomaticRoles(IdmIdentityContractDto contract,
 			Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
-	 * Process new automatic roles for identity given in parameter.
-	 * New automatic role in parameter passedAutomaticRoles will be add by request to identity (main contract)
-	 * and not passed automatic role given in parameter notPassedAutomaticRoles will be removed.
+	 * Add automatic role to contract. This method doesn't use standard role request 
+	 * and add {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleAddAuthoritiesProcessor}.
 	 * 
-	 * @param identityId
+	 * @param contract
+	 * @param automaticRoles
+	 */
+	void addAutomaticRoles(IdmIdentityContractDto contract,
+			Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	
+	/**
+	 * Process new automatic roles for contract given in parameter.
+	 * New automatic role in parameter passedAutomaticRoles will be add by request to given identity contract
+	 * and not passed automatic role given in parameter notPassedAutomaticRoles will be removed.
+	 *
+	 * @param contractId
 	 * @param passedAutomaticRoles
 	 * @param notPassedAutomaticRoles
 	 */
-	void processAutomaticRolesForIdentity(UUID identityId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles);
+	void processAutomaticRolesForContract(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles);
+
 	
 	/**
 	 * Recalculate this automatic role and rules and assign new role to identity or remove.
@@ -113,4 +134,13 @@ public interface IdmAutomaticRoleAttributeService
 	 * @return 
 	 */
 	IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId);
+	
+	/**
+	 * Find all automatic role that is not in concept state. {@link AutomaticRoleAttributeRuleType}
+	 *
+	 * @param type
+	 * @param page
+	 * @return
+	 */
+	Page<IdmAutomaticRoleAttributeDto> findAllToProcess(AutomaticRoleAttributeRuleType type, Pageable page);
 }

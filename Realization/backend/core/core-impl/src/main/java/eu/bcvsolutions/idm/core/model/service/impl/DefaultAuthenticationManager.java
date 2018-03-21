@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,18 +29,23 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuthenticationManager.class);
 	
 	private final List<Authenticator> authenticators;
-	
+	private final IdmPasswordService passwordService;
+
 	@Autowired
-	public DefaultAuthenticationManager(List<Authenticator> authenticators) {
+	public DefaultAuthenticationManager(List<Authenticator> authenticators, IdmPasswordService passwordService) {
+
 		Assert.notNull(authenticators);
 		//
 		this.authenticators = authenticators;
+
+		Assert.notNull(passwordService);
+		this.passwordService = passwordService;
 	}
-	
+
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		// authenticate
-		return autneticateOverAuthenticator(loginDto);
+		return authenticateOverAuthenticator(loginDto);
 	}
 	
 	/**
@@ -54,11 +60,12 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 	
 	/**
-	 * Authenticate {@link LoginDto} over all founded {@link Authenticator}
+	 * Authenticate {@link LoginDto} over all found {@link Authenticator}
 	 * 
 	 * @param loginDto
 	 */
-	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
+	private LoginDto authenticateOverAuthenticator(LoginDto loginDto) {
+
 		Assert.notNull(authenticators);
 		//
 		List<LoginDto> resultsList = new LinkedList<>();
@@ -73,6 +80,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 					continue;
 				}
 				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.SUFFICIENT) {
+					passwordService.setLastSuccessfulLogin(loginDto.getUsername());
 					return result;
 				}
 				// if otherwise add result too list and continue
@@ -86,13 +94,15 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 				if (firstFailture == null) {
 					firstFailture = e;
 				}
-			}			
+			}
 		}
 		//
-		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure		
+		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure
 		if (resultsList.isEmpty()) {
+			passwordService.increaseUnsuccessfulAttempts(loginDto.getUsername());
 			throw firstFailture;
 		}
+		passwordService.setLastSuccessfulLogin(loginDto.getUsername());
 		return resultsList.get(0);
 	}
 	

@@ -117,6 +117,7 @@ public interface SchedulerManager {
 
 	/**
 	 * Find all task with given task type
+	 * 
 	 * @param taskType
 	 * @return
 	 */

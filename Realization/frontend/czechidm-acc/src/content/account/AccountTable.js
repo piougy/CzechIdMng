@@ -356,7 +356,7 @@ class Filter extends Advanced.Filter {
             <Basic.Col lg={ 8 }>
               <Advanced.Filter.TextField
                 ref="text"
-                placeholder={this.i18n('filter.text.placeholder')}/>
+                placeholder={this.i18n('acc:content.system.accounts.filter.text.placeholder')}/>
             </Basic.Col>
             <Basic.Col lg={ 4 } className="text-right">
               <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>

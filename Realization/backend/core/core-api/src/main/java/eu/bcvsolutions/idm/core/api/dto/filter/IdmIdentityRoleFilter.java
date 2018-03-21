@@ -22,6 +22,7 @@ public class IdmIdentityRoleFilter extends DataFilter {
     private Boolean valid;
     private Boolean automaticRole;
     private UUID automaticRoleId;
+    private UUID identityContractId;
     
     public IdmIdentityRoleFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -77,6 +78,14 @@ public class IdmIdentityRoleFilter extends DataFilter {
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
 		this.automaticRoleId = automaticRoleId;
+	}
+
+	public UUID getIdentityContractId() {
+		return identityContractId;
+	}
+
+	public void setIdentityContractId(UUID identityContractId) {
+		this.identityContractId = identityContractId;
 	}
 	
 }

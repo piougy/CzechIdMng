@@ -325,7 +325,11 @@ AbstractFormComponent.propTypes = {
   // ref: PropTypes.string.isRequired, VS: ref is mandator property,
   //  but is here problem with warning after first component render
   rendered: PropTypes.bool,
-  value: PropTypes.object,
+  value: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.string,
+    PropTypes.bool
+  ]),
   label: PropTypes.string,
   disabled: PropTypes.bool,
   hidden: PropTypes.bool,
@@ -336,7 +340,8 @@ AbstractFormComponent.propTypes = {
   onChange: PropTypes.func,
   validation: PropTypes.object,
   validate: PropTypes.func, // function for custom validation (input is value and result from previous validations)
-  style: PropTypes.string // form-group element style
+  style: PropTypes.string, // form-group element style
+  notControlled: PropTypes.bool // if true, then is component not controlled by AbstractForm
 };
 
 AbstractFormComponent.defaultProps = {
@@ -346,7 +351,8 @@ AbstractFormComponent.defaultProps = {
   hidden: false,
   readOnly: false,
   disabled: false,
-  rendered: true
+  rendered: true,
+  notControlled: false
 };
 
 export default AbstractFormComponent;

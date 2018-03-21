@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -78,6 +79,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmScriptService scriptService;
 	@Autowired private TreeConfiguration treeConfiguration;
+	@Autowired private EntityEventManager entityEventManager;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -176,6 +178,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// Cancels all previously ran tasks
 			longRunningTaskManager.init();
+			//
+			// Cancels all previously ran events
+			entityEventManager.init();
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

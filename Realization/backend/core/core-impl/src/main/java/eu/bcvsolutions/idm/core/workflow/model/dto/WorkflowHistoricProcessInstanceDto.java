@@ -27,6 +27,7 @@ public class WorkflowHistoricProcessInstanceDto implements BaseDto {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String processDefinitionId;
+	private String processDefinitionKey;
 	private String id;
 	private String name;
 	/** The time the process was started. */
@@ -159,4 +160,11 @@ public class WorkflowHistoricProcessInstanceDto implements BaseDto {
 		this.trimmed = trimmed;
 	}
 
+	public String getProcessDefinitionKey() {
+		return processDefinitionKey;
+	}
+
+	public void setProcessDefinitionKey(String processDefinitionKey) {
+		this.processDefinitionKey = processDefinitionKey;
+	}
 }

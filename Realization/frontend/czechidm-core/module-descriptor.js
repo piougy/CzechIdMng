@@ -129,6 +129,14 @@ module.exports = {
             ]
           },
           {
+            'id': 'profile-events',
+            'type': 'TAB',
+            'labelKey': 'content.entityEvents.label',
+            'order': 550,
+            'path': '/identity/:entityId/events',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          },
+          {
             'id': 'profile-subordinates',
             'type': 'TAB',
             'labelKey': 'content.identity.subordinates.title',
@@ -197,7 +205,7 @@ module.exports = {
         'order': 1020,
         'iconColor': '#419641',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREETYPE_READ', 'TREENODE_READ'] } ]
+        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREETYPE_AUTOCOMPLETE', 'TREENODE_READ'] } ]
       },
       {
         'id': 'profile-system-separator',
@@ -207,7 +215,7 @@ module.exports = {
         'order': 999
       },
       {
-        'id': 'roles',
+        'id': 'roles-menu',
         'type': 'DYNAMIC',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
@@ -218,46 +226,187 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'role-detail',
-            'type': 'TAB',
-            'labelKey': 'content.roles.tabs.basic',
-            'order': 100,
-            'path': '/role/:entityId/detail',
-            'icon': 'fa:newspaper-o'
+            'id': 'roles',
+            'type': 'DYNAMIC',
+            'labelKey': 'content.roles.header',
+            'titleKey': 'content.roles.title',
+            'icon': 'fa:universal-access',
+            'iconColor': '#eb9316',
+            'order': 20,
+            'path': '/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+            'items': [
+              {
+                'id': 'role-detail',
+                'type': 'TAB',
+                'labelKey': 'content.roles.tabs.basic',
+                'order': 100,
+                'path': '/role/:entityId/detail',
+                'icon': 'fa:newspaper-o'
+              },
+              {
+                'id': 'role-eav',
+                'type': 'TAB',
+                'labelKey': 'content.role.eav.title',
+                'order': 110,
+                'priority': 0,
+                'path': '/role/:entityId/eav',
+              },
+              {
+                'id': 'role-authorization-policies',
+                'type': 'TAB',
+                'labelKey': 'content.role.authorization-policies.label',
+                'titleKey': 'content.role.authorization-policies.title',
+                'order': 200,
+                'path': '/role/:entityId/authorization-policies',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
+              },
+              {
+                'id': 'role-automatic-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.tree-nodes.label',
+                'titleKey': 'content.role.tree-nodes.title',
+                'order': 400,
+                'path': '/role/:entityId/automatic-roles/trees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ],
+                'items': [
+                  {
+                    'id': 'role-automatic-role-tree',
+                    'labelKey': 'content.automaticRoles.tree.title',
+                    'order': 10,
+                    'path': '/role/:entityId/automatic-roles/trees',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['ROLETREENODE_READ']
+                      }
+                    ]
+                  },
+                  {
+                    'id': 'role-automatic-role-attribute',
+                    'labelKey': 'content.automaticRoles.attribute.title',
+                    'order': 20,
+                    'path': '/role/:entityId/automatic-roles/attributes',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
+                      }
+                    ],
+                    'items': [
+                      {
+                        'id': 'role-automatic-role-attribute-detail',
+                        'labelKey': 'content.automaticRoles.attribute.basic.title',
+                        'order': 10,
+                        'path': '/role/:entityId/automatic-roles/attributes/:automaticRoleId/detail',
+                        'icon': '',
+                        'type': 'TAB',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                      },
+                      {
+                        'id': 'role-automatic-role-attribute-rules',
+                        'labelKey': 'content.automaticRoles.attribute.rules.title',
+                        'order': 15,
+                        'path': '/role/:entityId/automatic-roles/attributes/:automaticRoleId/rules',
+                        'icon': '',
+                        'type': 'TAB',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
+                      },
+                      {
+                        'id': 'role-automatic-role-attribute-identities',
+                        'labelKey': 'content.automaticRoles.attribute.identities.title',
+                        'order': 20,
+                        'path': '/role/:entityId/automatic-roles/attributes/:automaticRoleId/identities',
+                        'icon': '',
+                        'type': 'TAB',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                'id': 'role-identities',
+                'type': 'TAB',
+                'labelKey': 'content.role.identities.title',
+                'order': 400,
+                'path': '/role/:entityId/identities',
+                'icon': 'fa:group'
+              }
+            ]
           },
           {
-            'id': 'role-eav',
-            'type': 'TAB',
-            'labelKey': 'content.role.eav.title',
-            'order': 110,
-            'priority': 0,
-            'path': '/role/:entityId/eav',
-          },
-          {
-            'id': 'role-authorization-policies',
-            'type': 'TAB',
-            'labelKey': 'content.role.authorization-policies.label',
-            'titleKey': 'content.role.authorization-policies.title',
-            'order': 200,
-            'path': '/role/:entityId/authorization-policies',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
-          },
-          {
-            'id': 'role-tree-nodes',
-            'type': 'TAB',
-            'labelKey': 'content.role.tree-nodes.label',
-            'titleKey': 'content.role.tree-nodes.title',
-            'order': 300,
-            'path': '/role/:entityId/tree-nodes',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
-          },
-          {
-            'id': 'role-identities',
-            'type': 'TAB',
-            'labelKey': 'content.role.identities.title',
-            'order': 400,
-            'path': '/role/:entityId/identities',
-            'icon': 'fa:group'
+            'id': 'automatic-roles',
+            'labelKey': 'content.automaticRoles.header',
+            'titleKey': 'content.automaticRoles.title',
+            'icon': 'fa:universal-access',
+            'order': 70,
+            'iconColor': '#428BCA',
+            'path': '/automatic-role/trees',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+            'items': [
+              {
+                'id': 'automatic-role-tree',
+                'labelKey': 'content.automaticRoles.tree.title',
+                'order': 10,
+                'path': '/automatic-role/trees',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['ROLETREENODE_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'automatic-role-attribute',
+                'labelKey': 'content.automaticRoles.attribute.title',
+                'order': 20,
+                'path': '/automatic-role/attributes',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
+                  }
+                ],
+                'items': [
+                  {
+                    'id': 'automatic-role-attribute-detail',
+                    'labelKey': 'content.automaticRoles.attribute.basic.title',
+                    'order': 10,
+                    'path': '/automatic-role/attributes/:automaticRoleId',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                  },
+                  {
+                    'id': 'automatic-role-attribute-rules',
+                    'labelKey': 'content.automaticRoles.attribute.rules.title',
+                    'order': 15,
+                    'path': '/automatic-role/attributes/:automaticRoleId/rules',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
+                  },
+                  {
+                    'id': 'automatic-role-attribute-identities',
+                    'labelKey': 'content.automaticRoles.attribute.identities.title',
+                    'order': 20,
+                    'path': '/automatic-role/attributes/:automaticRoleId/identities',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -282,6 +431,16 @@ module.exports = {
             'order': 20,
             'path': '/role-requests',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
+          },
+          {
+            'id': 'automatic-role-requests',
+            'labelKey': 'content.automaticRoles.header',
+            'titleKey': 'content.automaticRoles.title',
+            'icon': 'fa:universal-access',
+            'order': 30,
+            'iconColor': '#428BCA',
+            'path': '/automatic-role-requests',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEREQUEST_READ'] } ]
           },
           {
             'id': 'audits',
@@ -323,7 +482,16 @@ module.exports = {
                     'authorities': ['AUDIT_READ']
                   }
                 ]
-              }
+              },
+              {
+                'id': 'entity-events',
+                'labelKey': 'content.entityEvents.label',
+                'titleKey': 'content.entityEvents.title',
+                'order': 100,
+                'path': '/audit/entity-events',
+                'type': 'TAB',
+                'icon': ''
+              },
             ]
           },
           {
@@ -350,7 +518,7 @@ module.exports = {
             'path': '/notification/notifications',
             'access': [
               {
-                'type': 'DENY_ALL', // TODO: fix issue with mets menu - collapsing different submenu is broken
+                'type': 'DENY_ALL', // TODO: fix issue with metis menu - collapsing different submenu is broken
                 'authorities': ['NOTIFICATION_READ']
               }
             ],
@@ -596,75 +764,6 @@ module.exports = {
             'iconColor': '#428BCA',
             'path': '/workflow/definitions',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-          },
-          {
-            'id': 'automatic-roles',
-            'labelKey': 'content.automaticRoles.header',
-            'titleKey': 'content.automaticRoles.title',
-            'icon': 'fa:universal-access',
-            'order': 70,
-            'iconColor': '#428BCA',
-            'path': '/automatic-role/trees',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
-            'items': [
-              {
-                'id': 'automatic-role-tree',
-                'labelKey': 'content.automaticRoles.tree.title',
-                'order': 10,
-                'path': '/automatic-role/trees',
-                'icon': '',
-                'type': 'TAB',
-                'access': [
-                  {
-                    'type': 'HAS_ANY_AUTHORITY',
-                    'authorities': ['ROLETREENODE_READ']
-                  }
-                ]
-              },
-              {
-                'id': 'automatic-role-attribute',
-                'labelKey': 'content.automaticRoles.attribute.title',
-                'order': 20,
-                'path': '/automatic-role/attributes',
-                'icon': '',
-                'type': 'TAB',
-                'access': [
-                  {
-                    'type': 'HAS_ANY_AUTHORITY',
-                    'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
-                  }
-                ],
-                'items': [
-                  {
-                    'id': 'automatic-role-attribute-detail',
-                    'labelKey': 'content.automaticRoles.attribute.basic.title',
-                    'order': 10,
-                    'path': '/automatic-role/attributes/:entityId',
-                    'icon': '',
-                    'type': 'TAB',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
-                  },
-                  {
-                    'id': 'automatic-role-attribute-rules',
-                    'labelKey': 'content.automaticRoles.attribute.rules.title',
-                    'order': 15,
-                    'path': '/automatic-role/attributes/:entityId/rules',
-                    'icon': '',
-                    'type': 'TAB',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
-                  },
-                  {
-                    'id': 'automatic-role-attribute-identities',
-                    'labelKey': 'content.automaticRoles.attribute.identities.title',
-                    'order': 20,
-                    'path': '/automatic-role/attributes/:entityId/identities',
-                    'icon': '',
-                    'type': 'TAB',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
-                  }
-                ]
-              }
-            ]
           },
           {
             'id': 'tree',

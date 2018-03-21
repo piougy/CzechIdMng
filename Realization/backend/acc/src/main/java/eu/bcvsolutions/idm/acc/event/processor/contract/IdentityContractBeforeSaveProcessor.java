@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -33,6 +34,10 @@ public class IdentityContractBeforeSaveProcessor extends AbstractIdentityContrac
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
+	}
+	
+	public IdentityContractBeforeSaveProcessor() {
+		super(CoreEventType.CREATE, CoreEventType.UPDATE, CoreEventType.DELETE, CoreEventType.EAV_SAVE);
 	}
 
 	@Override

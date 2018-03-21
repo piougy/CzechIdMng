@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmScheduledTask;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmScheduledTask_;
 import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmScheduledTaskRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 public class DefaultIdmScheduledTaskService

@@ -45,7 +45,7 @@ public interface FormService extends ScriptEnabled {
 	/**
 	 * Default definition name for type (if no name is given)
 	 */
-	static final String DEFAULT_DEFINITION_CODE = IdmFormDefinitionService.DEFAULT_DEFINITION_CODE;
+	String DEFAULT_DEFINITION_CODE = IdmFormDefinitionService.DEFAULT_DEFINITION_CODE;
 	
 	/**
 	 * Returns true, when given owner type support eav forms. If {@link AbstractDto} owner type is given, 
@@ -454,13 +454,12 @@ public interface FormService extends ScriptEnabled {
 	<O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeCode, Serializable persistentValue, Pageable pageable);
 	
 	/**
-	 * Method return full class name of all entity that implements {@link FormableEntity}
+	 * Method returns full class names of all entities implementing {@link FormableEntity}
 	 * 
 	 * @return
 	 */
 	List<String> getOwnerTypes();
 
-	
 	/**
 	 * Create instance of form definition from the given configuration class
 	 * 

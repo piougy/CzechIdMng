@@ -7,7 +7,9 @@ import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
 import Loading from '../Loading/Loading';
 import _ from 'lodash';
 
-
+/**
+ * @author Vít Švanda
+ */
 class AbstractForm extends AbstractContextComponent {
 
   constructor(props, context) {
@@ -65,7 +67,7 @@ class AbstractForm extends AbstractContextComponent {
       }
      // We will add only AbstractFormComponent
       if (child.type && child.type.prototype instanceof AbstractFormComponent) {
-        if (child.ref) {
+        if (child.ref && (!child.props || !child.props.notControlled)) {
           keys.push(child.ref);
         }
         return null;
@@ -294,8 +296,9 @@ class AbstractForm extends AbstractContextComponent {
 }
 
 AbstractForm.contextTypes = {
-  store: React.PropTypes.object.isRequired,
-  router: React.PropTypes.object.isRequired
+  ...AbstractContextComponent.contextTypes,
+  // TODO: router is not used?
+  router: React.PropTypes.object
 };
 
 AbstractForm.propTypes = {

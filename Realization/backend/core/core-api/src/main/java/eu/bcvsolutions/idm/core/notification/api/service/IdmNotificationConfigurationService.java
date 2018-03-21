@@ -34,6 +34,14 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	List<NotificationSender<?>> getSenders(BaseNotification notification);
 	
 	/**
+	 * Finds configured sender for given notification type
+	 * 
+	 * @param notificationType e.g. email, sms, custom
+	 * @return
+	 */
+	NotificationSender<?> getSender(String notificationType);
+	
+	/**
 	 * Method return {@link NotificationConfigurationDto} by topic, level, notification type.
 	 * All parameters must exits, except notification level. 
 	 * 

@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -67,6 +68,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -158,12 +160,14 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
 		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
+		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 
@@ -730,6 +734,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME_THREE);
 		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne.setEntityType(SystemEntityType.IDENTITY);
 		accountOne = accountService.save(accountOne);
 
 		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();

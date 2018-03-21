@@ -33,4 +33,32 @@ export default class TreeNodeManager extends FormableEntityManager {
   getRootSearchParameters() {
     this.getService().getRootSearchParameters();
   }
+
+  /**
+   * Returns default tree node => organization structure
+   *
+   * @return {action}
+   */
+  fetchDefaultTreeNode() {
+    const uiKey = TreeNodeManager.UI_KEY_DEFAULT_TREE_NODE;
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getDefaultTreeNode()
+        .then(json => {
+          dispatch(this.receiveEntity(json.id, json, uiKey));
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          if (error.statusCode === 404) {
+            dispatch(this.dataManager.receiveData(uiKey, null));
+          } else {
+            // TODO: data uiKey
+            dispatch(this.dataManager.receiveError(null, uiKey, error));
+          }
+        });
+    };
+  }
 }
+
+TreeNodeManager.UI_KEY_DEFAULT_TREE_NODE = 'default-tree-node';

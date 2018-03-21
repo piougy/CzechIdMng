@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.Set;
 
+import org.springframework.plugin.core.Plugin;
+
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -14,10 +16,16 @@ import eu.bcvsolutions.idm.ic.api.IcSchema;
  * @author svandav
  *
  */
-public interface IcConfigurationService {
+public interface IcConfigurationService extends Plugin<String> {
 
+	@Override
+	default boolean supports(String delimiter) {
+		return getFramework().equals(delimiter);
+	}
+	
 	/**
 	 * Return key defined IC implementation
+	 * 
 	 * @return
 	 */
 	String getFramework();

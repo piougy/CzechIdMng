@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
+import { HelpContent } from '../domain';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
-import help from './PasswordChange_cs.md';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
+const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
@@ -27,6 +28,10 @@ class PasswordChange extends Basic.AbstractContent {
     };
   }
 
+  getContentKey() {
+    return 'content.password.change';
+  }
+
   componentDidMount() {
     super.componentDidMount();
     //
@@ -39,14 +44,11 @@ class PasswordChange extends Basic.AbstractContent {
     }
     this.refs.form.setData(data);
     this.refs.username.focus();
+    this._preValidate();
   }
 
   hideFooter() {
     return true;
-  }
-
-  getContentKey() {
-    return 'content.password.change';
   }
 
   cancel() {
@@ -63,6 +65,46 @@ class PasswordChange extends Basic.AbstractContent {
    */
   _initPasswordFields(value) {
     this.refs.passwords.setValue(value);
+  }
+
+  /*
+   * Method shows password rules before applying change of password
+   */
+  _preValidate() {
+    const requestData = {
+      accounts: []
+    };
+    requestData.idm = true;
+
+    identityManager.preValidate(requestData)
+    .then(response => {
+      if (response.status === 204) {
+        return {};
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error,
+          validationDefinition: true
+        });
+
+        throw error;
+      }
+      return json;
+    })
+    .catch(error => {
+      if (!error) {
+        return {};
+      }
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+    });
   }
 
   passwordChange(event) {
@@ -108,7 +150,8 @@ class PasswordChange extends Basic.AbstractContent {
         this._initPasswordFields(password);
         const error = Utils.Response.getFirstError(json);
         this.setState({
-          validationError: error
+          validationError: error,
+          validationDefinition: false
         });
         throw error;
       }
@@ -116,7 +159,8 @@ class PasswordChange extends Basic.AbstractContent {
     })
     .then((json) => {
       this.setState({
-        validationError: null
+        validationError: null,
+        validationDefinition: false
       }, () => {
         const successAccounts = [];
         const failedAccounts = [];
@@ -145,14 +189,20 @@ class PasswordChange extends Basic.AbstractContent {
           // we want to see messages added after login ... login removes messages for secutiry reason
           this.login(username, password);
         } else {
-          // we cannot login user because password change through idm was unsuccessful, just redirect to main page
-          this._redirectToMainPage();
+          // we cannot login user because password change through idm was unsuccessful, just clear values in form
+          this.refs.passwords.setValue(null);
+          this.refs.username.setValue(null);
+          this.refs.passwordOld.setValue(null);
+          this._preValidate();
         }
         if (successAccounts.length > 0) {
           this.addMessage({ message: this.i18n('content.identity.passwordChange.message.success', { accounts: successAccounts.join(', '), username }) });
         }
         if (failedAccounts.length > 0) {
           this.addMessage({ level: 'warning', message: this.i18n('content.identity.passwordChange.message.failed', { accounts: failedAccounts.join(', '), username }) });
+        }
+        if (successAccounts.length === 0 && failedAccounts.length === 0) {
+          this.addMessage({ level: 'warning', message: this.i18n('content.identity.passwordChange.message.notChanged', { username }) });
         }
       });
     })
@@ -163,19 +213,12 @@ class PasswordChange extends Basic.AbstractContent {
           title: this.i18n('error.PASSWORD_CHANGE_FAILED.title'),
           message: this.i18n('error.IDENTITY_NOT_FOUND.message', { identity: username }),
         });
+        this._preValidate();
       } else {
         this.addError(error);
       }
       this.refs.passwords.setValue(password);
     });
-  }
-
-  /**
-   * Method used when is not allowed change password for idm.
-   * Method redirects user to main page.
-   */
-  _redirectToMainPage() {
-    this.context.router.replace('/');
   }
 
   login(username, password) {
@@ -202,8 +245,16 @@ class PasswordChange extends Basic.AbstractContent {
     }));
   }
 
+  getHelp() {
+    let helpContent = new HelpContent();
+    helpContent = helpContent.setHeader(this.i18n('help.header'));
+    helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
+    //
+    return helpContent;
+  }
+
   render() {
-    const { showLoading, validationError } = this.state;
+    const { showLoading, validationError, validationDefinition } = this.state;
     const { passwordChangeType, enabledPasswordChangeForIdm } = this.props;
     //
     return (
@@ -219,15 +270,15 @@ class PasswordChange extends Basic.AbstractContent {
 
             <form onSubmit={this.passwordChange.bind(this)} className={ passwordChangeType === IdentityManager.PASSWORD_DISABLED ? 'hidden' : ''}>
               <Basic.Panel showLoading={showLoading}>
-                <Basic.PanelHeader text={this.i18n('header')} help={help}/>
+                <Basic.PanelHeader text={ this.i18n('header') } help={ this.getHelp() }/>
 
                 <Basic.AbstractForm ref="form" className="panel-body">
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
 
-                  <Basic.Alert text={this.i18n('message.passwordChange.idmNotEnabled')} className="no-margin" rendered={!enabledPasswordChangeForIdm} level="warning" />
+                  <Basic.Alert text={this.i18n('message.passwordChange.idmNotEnabled')} className="no-margin" rendered={!enabledPasswordChangeForIdm} level="info" />
 
-                  <Advanced.ValidationMessage error={ validationError } />
+                  <Advanced.ValidationMessage error={ validationError } validationDefinition={ validationDefinition } />
 
                   <Basic.TextField
                     ref="username"
@@ -272,7 +323,7 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
-    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.idm.enabled', true)
+    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.public.idm.enabled', true)
   };
 }
 

@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventExceptionServic
 import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventPropertyService;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent_;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
  * Long running task for remove old record from event logging tables.

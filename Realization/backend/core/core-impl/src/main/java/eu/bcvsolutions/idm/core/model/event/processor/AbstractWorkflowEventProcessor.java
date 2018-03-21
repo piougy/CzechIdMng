@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  *
  * @param <DTO> {@link BaseDto} content type
  */
-public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> extends AbstractEntityEventProcessor<DTO> {
+public abstract class AbstractWorkflowEventProcessor<DTO extends BaseDto> extends AbstractEntityEventProcessor<DTO> {
 	
 	public static final String PROPERTY_WF = "wf";
 	
@@ -48,6 +48,9 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 		Map<String, Object> variables = new HashMap<>();
 		variables.put(WorkflowProcessInstanceService.VARIABLE_DTO, event.getContent());			
 		OperationResult result = process(variables);
+		if (result == null) {
+			return null;
+		}
 		//
 		// wf throws exception
 		if (result.getException() != null) {
@@ -94,7 +97,10 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 	 * @return
 	 */
 	protected ProcessInstance processInstance(Map<String, Object> variables) {
-		//
+		if (StringUtils.isEmpty(getWorkflowDefinitionKey())) {
+			// wf is not configured
+			return null;
+		}
 		// execute process
 		AbstractAuthentication authentication = securityService.getAuthentication();
 		IdmIdentityDto modifier = authentication == null ? null : authentication.getCurrentIdentity();
@@ -118,17 +124,6 @@ public abstract class AbstractWorkflowEventProcessor <DTO extends BaseDto> exten
 			return (OperationResult) vs.getVariable(WorkflowProcessInstanceService.VARIABLE_OPERATION_RESULT);
 		}
 		return null;
-	}
-	
-	/**
-	 * If wf is not given, then this processor is disabled.
-	 */
-	@Override
-	public boolean isDisabled() {
-		if (super.isDisabled()) {
-			return true;
-		}
-		return StringUtils.isEmpty(getWorkflowDefinitionKey());		
 	}
 	
 	/**

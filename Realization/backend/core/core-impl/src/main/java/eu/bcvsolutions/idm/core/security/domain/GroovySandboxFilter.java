@@ -28,7 +28,6 @@ import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.util.ClassUtils;
 
 import com.google.common.collect.Sets;
 

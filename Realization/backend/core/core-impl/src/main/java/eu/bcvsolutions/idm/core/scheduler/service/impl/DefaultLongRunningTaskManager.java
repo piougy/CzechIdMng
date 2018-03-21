@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
@@ -154,10 +153,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		if (!isAsynchronous()) {
 			V result = executeSync(taskExecutor);
-			// construct simple task
+			// construct simple "sync" task
 			return new LongRunningFutureTask<>(taskExecutor, new FutureTask<V>(() -> { return result; } ) {
 				@Override
-				public V get() throws InterruptedException, ExecutionException {
+				public V get() {
 					return result;
 				}
 			});
@@ -332,6 +331,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		if (taskExecutor.getLongRunningTaskId() == null) {
 			task = new IdmLongRunningTaskDto();
 			task.setTaskType(taskExecutor.getName());
+			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());
 			task.setResult(new OperationResult.Builder(OperationState.CREATED).build());

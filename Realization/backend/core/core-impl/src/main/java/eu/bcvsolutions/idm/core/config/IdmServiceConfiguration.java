@@ -495,7 +495,7 @@ public class IdmServiceConfiguration {
 			IdmRoleRequestService roleRequestService, 
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmAutomaticRoleAttributeService automaticRoleAttributeService) {
-		return new DefaultIdmRoleTreeNodeService(roleTreeNodeRepository, treeNodeRepository, entityEventManager(), roleRequestService, conceptRoleRequestService, automaticRoleAttributeService);
+		return new DefaultIdmRoleTreeNodeService(roleTreeNodeRepository, treeNodeRepository, entityEventManager(), automaticRoleAttributeService, identityRoleService());
 	}
 	
 	/**
@@ -517,9 +517,7 @@ public class IdmServiceConfiguration {
 			IdmIdentityRoleService identityRoleService) {
 		return new DefaultIdmAutomaticRoleAttributeService(
 				automaticRoleAttributeRepository,
-				roleRequestService,
 				identityContractService,
-				conceptRoleRequestService,
 				entityEventManager,
 				formAttributeService,
 				automaticRoleAttributeRuleService,

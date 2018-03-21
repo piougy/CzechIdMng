@@ -201,7 +201,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 		conceptRoleRequest.setIdentityRole(identityRoleId);
 		//
 		conceptRoleRequest.setRole(roleId);
-		conceptRoleRequest.setRoleTreeNode(roleTreeNodeId);
+		conceptRoleRequest.setAutomaticRole(roleTreeNodeId);
 		conceptRoleRequest.setOperation(operation);
 		return conceptRoleRequestService.save(conceptRoleRequest);
 	}

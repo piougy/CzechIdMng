@@ -198,14 +198,15 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		log = synchronizationLogService.save(log);
 		
 		if (getConfig(context).isStartOfHrProcesses()) {
+			// start all HR process with skip automatic role recalculation
 			// Enable contracts task
-			log = executeHrProcess(log, new HrEnableContractProcess());
+			log = executeHrProcess(log, new HrEnableContractProcess(true));
 			
 			// End contracts task
-			log = executeHrProcess(log, new HrEndContractProcess());
+			log = executeHrProcess(log, new HrEndContractProcess(true));
 			
 			// Exclude contracts task
-			log = executeHrProcess(log, new HrContractExclusionProcess());
+			log = executeHrProcess(log, new HrContractExclusionProcess(true));
 		} else {
 			log.addToLog(MessageFormat.format(
 					"Start HR processes contracts (after sync) isn't allowed [{0}]",

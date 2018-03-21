@@ -15,7 +15,6 @@ import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -24,7 +23,6 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleRequestEvent.AutomaticRoleRequestEventType;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 
 /**
@@ -100,9 +98,11 @@ public class AutomaticRoleRequestApprovalProcessor extends CoreEventProcessor<Id
 			ValuedDataObject supportVariable = dataObjects.stream()
 					.filter(dataObject -> SUPPORTS_AUTOMATIC_ROLE_KEY.equals(dataObject.getName())).findFirst()
 					.orElse(null);
-			Object value = supportVariable.getValue();
-			if (supportVariable != null && supportVariable.getValue() instanceof Boolean && (Boolean) value) {
-				return true;
+			if (supportVariable != null) {
+				Object value = supportVariable.getValue();
+				if (value instanceof Boolean && (Boolean) value) {
+					return true;
+				}
 			}
 		}
 		return false;

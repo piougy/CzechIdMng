@@ -29,31 +29,57 @@ public interface IdmRoleTreeNodeService extends
 	Set<IdmRoleTreeNodeDto> getAutomaticRolesByTreeNode(UUID workPosition);
 	
 	/**
-	 * Prepare request to assign automatic roles by standard role request.
-	 * Start of process is defined by parameter .
+	 * Assign automatic roles by standard role request.
+	 * Beware after was method marked as deprecated, returns null instead role request
 	 * 
 	 * @param contract
 	 * @param automaticRoles
 	 * @return
+	 * @deprecated now is added automatic role directly trough {@link IdmIdentityRoleDto}, please use {@link IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)}
 	 */
+	@Deprecated
 	IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
 	
 	/**
-	 * Assign automatic roles by standard role request - with internal start
-	 * Start of process is defined by parameter .
+	 * Assign automatic roles with directly add - create identity role.
+	 * Beware after was method marked as deprecated, returns null instead role request
 	 * 
 	 * @param contract
 	 * @param automaticRoles
 	 * @return
+	 * @deprecated Role request was removed from automatic roles, please use {@link IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)}
 	 */
+	@Deprecated
 	IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
 	
 	/**
-	 * Prepare role request for delete automatic roles by standard role request.
+	 * Add automatic role to contract. This method doesn't use standard role request 
+	 * and add {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleAddAuthoritiesProcessor}.
+	 
+	 * @param contract
+	 * @param automaticRoles
+	 */
+	void addAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
+	/**
+	 * Remove automatic role directly by removing {@link IdmIdentityRoleDto}.
+	 * Beware after was method marked as deprecated, returns null instead role request
 	 * 
 	 * @param identityRole
 	 * @param automaticRoles
 	 * @return
+	 * @deprecated Role request was removed from automatic roles, please use {@link IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)}
 	 */
+	@Deprecated
 	IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles);
+	
+	/**
+	 * Remove identity role (must be automatic role). This method doesn't use standard role request 
+	 * and remove {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleDeleteAuthoritiesProcessor}.
+	 * 
+	 * @param identityRole
+	 * @param automaticRoles
+	 */
+	void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles);
 }

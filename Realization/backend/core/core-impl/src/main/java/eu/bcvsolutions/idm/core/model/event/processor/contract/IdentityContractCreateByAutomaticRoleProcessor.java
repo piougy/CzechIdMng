@@ -47,7 +47,7 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 		if(contract.isValidNowOrInFuture() && contract.getWorkPosition() != null) {
 			Set<IdmRoleTreeNodeDto> automaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition());
 			if (!automaticRoles.isEmpty()) {
-				roleTreeNodeService.assignAutomaticRoles(contract, automaticRoles);
+				roleTreeNodeService.addAutomaticRoles(contract, automaticRoles);
 			}
 		}
 		//

@@ -25,8 +25,6 @@ import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
  * given in data (hash map) and then check changed values and create list
  * of changed columns.
  *
- * TODO: create some behavior with skip auditing when is modified only 'modified' attribute.
- *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
@@ -65,7 +63,6 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 			}
 		}
 		//
-		// TODO: now perform default envers strategy, do some behavior changes with delete audit when is changed only modified
 		performDefaultStrategy(session, entityName, auditCfg, id, data, revision, changedColumns);
 	}
 	

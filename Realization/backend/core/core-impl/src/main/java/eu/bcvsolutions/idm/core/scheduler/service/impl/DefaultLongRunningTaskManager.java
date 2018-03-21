@@ -154,10 +154,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		if (!isAsynchronous()) {
 			V result = executeSync(taskExecutor);
-			// construct simple task
+			// construct simple "sync" task
 			return new LongRunningFutureTask<>(taskExecutor, new FutureTask<V>(() -> { return result; } ) {
 				@Override
-				public V get() throws InterruptedException, ExecutionException {
+				public V get() {
 					return result;
 				}
 			});

@@ -655,6 +655,7 @@
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
       "system": "Napojený systém",
+      "wish": "Přání",
       "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {

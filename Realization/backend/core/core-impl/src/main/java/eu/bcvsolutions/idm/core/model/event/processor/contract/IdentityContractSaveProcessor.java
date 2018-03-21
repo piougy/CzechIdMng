@@ -12,11 +12,14 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
  * Persists identity contract.
@@ -60,7 +63,11 @@ public class IdentityContractSaveProcessor
 			IdentityState newState = identityService.evaluateState(identity.getId());
 			if (newState.isDisabled() && identity.getState() != newState) {
 				identity.setState(newState);
-				identity = identityService.save(identity);
+				
+				// publish new save event for identity with skip recalculation
+				IdentityEvent identityEvent = new IdentityEvent(IdentityEventType.UPDATE, identity);
+				identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, true);
+				identityService.publish(identityEvent);
 			}					
 		}
 		//

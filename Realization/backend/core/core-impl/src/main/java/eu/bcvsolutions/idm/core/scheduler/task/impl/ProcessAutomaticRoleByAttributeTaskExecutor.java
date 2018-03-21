@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -18,14 +17,9 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 
 /**
  * Process all contracts that passed and not passed given automatic role
@@ -42,8 +36,6 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 	
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	@Autowired private IdmIdentityContractService identityContractService;
-	@Autowired private IdmRoleRequestService roleRequestService;
-	@Autowired private IdmIdentityRoleService identityRoleService;
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -81,8 +73,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     				continue;
     			}
     			//
-				IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareAddAutomaticRoles(contract, setWithAutomaticRole);
-				roleRequestService.startRequestInternal(roleRequest.getId(), false);
+				automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
 				//
 				counter++;
 				canContinue = updateState();
@@ -99,14 +90,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	//
     	while (canContinue) {
     		for(UUID contractId : newNotPassedContracts) {
-    			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-    			filter.setIdentityContractId(contractId);
-    			filter.setAutomaticRoleId(automaticRoleId);
-    			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
-    			for (IdmIdentityRoleDto identityRole : identityRoles) {
-    				IdmRoleRequestDto roleRequest = automaticRoleAttributeService.prepareRemoveAutomaticRoles(identityRole, setWithAutomaticRole);
-    				roleRequestService.startRequestInternal(roleRequest.getId(), false);
-    			}
+				automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
     			//
     			counter++;
     			canContinue = updateState();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bcvsolutions.eu/testDeployAndRun">
   <process id="hrEnableContract" name="HR process - enable valid and active contract" isExecutable="true">
-    <documentation>HR process - enable new contracts
+    <documentation>HR process - enable new contracts (example)
 The process starts for every identity contract, which is newly valid at the moment (meaning it was not valid in the
 last run of the task). If the identity, which is the owner of the contract, was originally disabled, the process enables the identity.
 
@@ -28,6 +28,9 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrEnableContract");
 
@@ -48,7 +51,13 @@ try {
 		if (newState == IdentityState.VALID 
 				&amp;&amp; (identity.isDisabled() || identity.getState() == IdentityState.CREATED)) {
 			identity.setState(IdentityState.VALID);
-			identityService.save(identity);
+
+			// is neccessary publish new event with skip recalculation automatic roles
+			IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+			if (binding.hasVariable('skip_recalculation')) {
+				event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skip_recalculation);
+			}
+	    	identityService.publish(event);
 		}
 	}
 	result = new OperationResult.Builder(OperationState.EXECUTED).build();

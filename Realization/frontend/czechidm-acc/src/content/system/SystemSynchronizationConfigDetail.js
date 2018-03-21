@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
 //
-import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
+import { Basic, Domain, Managers, Utils, Advanced, Services} from 'czechidm-core';
 import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
 import ReconciliationMissingAccountActionTypeEnum from '../../domain/ReconciliationMissingAccountActionTypeEnum';
 import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLinkedActionTypeEnum';
@@ -301,31 +301,38 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const started = data[rowIndex].started;
     const ended = data[rowIndex].ended ? data[rowIndex].ended : moment().utc().valueOf();
     const timeDiff = moment.utc(moment.duration(moment(ended).diff(moment(started))).asMilliseconds());
+    const timeDiffHumanized = moment.duration(moment(ended).diff(moment(started))).locale(Services.LocalizationService.getCurrentLanguage()).humanize();
     let allOperationsCount = 0;
     for (const action of data[rowIndex].syncActionLogs) {
       allOperationsCount = allOperationsCount + action.operationCount;
     }
     const itemsPerSec = Math.round((allOperationsCount / timeDiff * 1000) * 100) / 100;
-    actions.push(
-      <div>
-        <Basic.Label style={{marginRight: '5px'}} level="info" text={
-            /** Maybe use format.duration (only time is nicely) **/
-            timeDiff.format(this.i18n('format.times'))}/>
-        <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.timeDiff`)} </label>
-      </div>
-    );
+    if (data[rowIndex].running || data[rowIndex].ended) {
+      actions.push(
+        <div>
+          <Basic.Label
+            style={{marginRight: '5px'}}
+            level="info"
+            title={timeDiffHumanized}
+            text={timeDiff.format(this.i18n('format.times'))}/>
+          <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.timeDiff`)} </label>
+        </div>
+      );
+    }
     actions.push(
       <div>
         <Basic.Label style={{marginRight: '5px'}} level="info" text={allOperationsCount}/>
         <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.allOperations`)} </label>
       </div>
     );
-    actions.push(
-      <div>
-        <Basic.Label style={{marginRight: '5px'}} level="info" text={itemsPerSec}/>
-        <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.itemsPerSec`)} </label>
-      </div>
-    );
+    if (data[rowIndex].running || data[rowIndex].ended) {
+      actions.push(
+        <div>
+          <Basic.Label style={{marginRight: '5px'}} level="info" text={itemsPerSec}/>
+          <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.itemsPerSec`)} </label>
+        </div>
+      );
+    }
     return actions;
   }
 

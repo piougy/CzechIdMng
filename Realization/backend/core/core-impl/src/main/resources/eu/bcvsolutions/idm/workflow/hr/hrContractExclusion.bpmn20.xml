@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bcvsolutions.eu/testDeployAndRun">
   <process id="hrContractExclusion" name="HR process - contract exclusion" isExecutable="true">
-    <documentation>HR process - contract exclusion
+    <documentation>HR process - contract exclusion (example)
 Contract's validity is evaluated by two factors:
         1. current date is between or equal to contract's time validity
         2. contract is enabled
@@ -34,10 +34,13 @@ import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("hrContractExclusion");
 
-LOG.info("Exculded contract dto: [{}]", dto);
+LOG.info("Excluded contract dto: [{}]", dto);
 
 if (dto == null) {
 	throw new IllegalArgumentException("Missing input parameters!");
@@ -50,7 +53,13 @@ try {
 	//
 	if (identity.getState() != newState) {
 		identity.setState(newState);
-		identityService.save(identity);
+
+		// is neccessary publish new event with skip recalculation automatic roles
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		if (binding.hasVariable('skip_recalculation')) {
+			event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skip_recalculation);
+		}
+		identityService.publish(event);
 	}
 	result = new OperationResult.Builder(OperationState.EXECUTED).build();
 } catch (Exception e) {

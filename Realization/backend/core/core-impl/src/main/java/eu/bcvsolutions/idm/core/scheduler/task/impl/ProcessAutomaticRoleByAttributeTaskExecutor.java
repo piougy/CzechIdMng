@@ -88,9 +88,8 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     				automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
     				counter++;
     			} catch (Exception ex) {
-    				LOG.error(
-    						MessageFormat.format("Error while add new automatic role id [{0}] to contract id [{1}] and identity id [{2}]",
-    								automaticRoleId, contractId, contract.getIdentity()), ex);
+    				LOG.error("Error while add new automatic role id [{}] to contract id [{}] and identity id [{}]", 
+    						automaticRoleId, contractId, contract.getIdentity(), ex);
     				failedEntitiesAdd.add(contractId.toString());
     			} finally {
     				canContinue = updateState();
@@ -112,9 +111,8 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     				automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
     				counter++;
     			} catch (Exception ex) {
-    				LOG.error(
-    						MessageFormat.format("Error while remove automatic role id [{0}] from contract id [{1}].",
-    								automaticRoleId, contractId), ex);
+    				LOG.error("Error while remove automatic role id [{}] from contract id [{}].",
+    								automaticRoleId, contractId, ex);
     				failedEntitiesRemove.add(contractId.toString());
     			} finally {
     				canContinue = updateState();

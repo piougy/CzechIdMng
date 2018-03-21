@@ -141,6 +141,9 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+			//
+			LOG.error("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), ex);
+			//
 			return Optional.of(new OperationResult
 					.Builder(OperationState.EXCEPTION)
 					.setModel(new DefaultResultModel(

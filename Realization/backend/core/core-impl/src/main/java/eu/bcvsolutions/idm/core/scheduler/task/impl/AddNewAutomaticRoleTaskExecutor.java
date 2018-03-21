@@ -50,6 +50,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
 		+ "after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityContractDto> {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AddNewAutomaticRoleTaskExecutor.class);
+	//
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -116,6 +118,10 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		} catch(Exception ex) {
 			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 			IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+			//
+			LOG.error("Adding role [{}] by automatic role [{}] for identity [{}] failed",
+					role.getCode(), getRoleTreeNode().getId(), identity.getUsername(), ex);
+			//
 			return Optional.of(new OperationResult
 					.Builder(OperationState.EXCEPTION)
 					.setModel(new DefaultResultModel(

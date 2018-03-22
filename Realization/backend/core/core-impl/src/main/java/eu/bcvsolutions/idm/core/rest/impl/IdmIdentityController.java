@@ -1,11 +1,16 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -70,6 +75,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityImageProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import io.swagger.annotations.Api;
@@ -711,21 +717,27 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-//		Is it actually an image?
-		System.out.println(data.getContentType());
-		// save image
-		IdmAttachmentDto attachment = new IdmAttachmentDto();
+//		Verify image and resize to thumbnail
+		IdentityImageProcessor imageProcessor = new IdentityImageProcessor();
+		if(imageProcessor.verifyImage(data)) {
+	    		BufferedImage image = imageProcessor.processImage(data);
+	    		// save image as attachment to identity
+	    		IdmAttachmentDto attachment = new IdmAttachmentDto();
 //		TODO generate file name (SQL injection)
-		attachment.setName("Profile-picture-name");
-		attachment.setMimetype("image/*");
-		attachment.setInputData(data.getInputStream());
+	    		attachment.setName("Profile-picture-name");
+	    		attachment.setMimetype("image/*");
+	    		attachment.setInputData(imageProcessor.imageToInputStream(image));
 //		TODO permission?
-		attachment = attachmentManager.saveAttachment(identity, attachment, IdmBasePermission.ADMIN);
+	    		attachment = attachmentManager.saveAttachment(identity, attachment, IdmBasePermission.ADMIN);
 //		If there is some photo for identity, it will delete the old one
-		if (identity.getImage() != null) {
-			attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()), IdmBasePermission.ADMIN);
-		}
-		identity.setImage(attachment.getId());
+	    		if (identity.getImage() != null) {
+	    			attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()), IdmBasePermission.ADMIN);
+	    		}
+	    		identity.setImage(attachment.getId());
+	    } else {
+	    		System.out.println("NOT AN IMAGE");
+	    		return null;
+	    }
 		return new ResponseEntity<>(toResource(putDto(identity)), HttpStatus.OK);
 	}
 	

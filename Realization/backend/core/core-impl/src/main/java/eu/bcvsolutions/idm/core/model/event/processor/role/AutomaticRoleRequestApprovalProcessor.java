@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 
@@ -39,24 +38,19 @@ public class AutomaticRoleRequestApprovalProcessor extends CoreEventProcessor<Id
 	private static final Logger LOG = LoggerFactory.getLogger(AutomaticRoleRequestApprovalProcessor.class);
 
 	public static final String PROCESSOR_NAME = "automatic-role-request-approval-processor";
-	public static final String PROPERTY_WF = "wf";
-	public static final String CHECK_RIGHT_PROPERTY = "checkRight";
-	public static final String DEFAULT_WF_PROCESS_NAME = "approve-role-by-guarantee";
-	public static final String SUPPORTS_AUTOMATIC_ROLE_KEY = "supportsAutomaticRole";
+	private static final String CHECK_RIGHT_PROPERTY = "checkRight";
+	protected static final String DEFAULT_WF_PROCESS_NAME = "approve-role-by-guarantee";
+	private static final String SUPPORTS_AUTOMATIC_ROLE_KEY = "supportsAutomaticRole";
 
-	private final IdmAutomaticRoleRequestService service;
+	@Autowired
+	private IdmAutomaticRoleRequestService service;
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
 	private WorkflowProcessDefinitionService processDefinitionService;
 
-	@Autowired
-	public AutomaticRoleRequestApprovalProcessor(IdmAutomaticRoleRequestService service) {
+	public AutomaticRoleRequestApprovalProcessor() {
 		super(AutomaticRoleRequestEventType.EXECUTE);
-		//
-		Assert.notNull(service);
-		//
-		this.service = service;
 	}
 
 	@Override
@@ -73,7 +67,7 @@ public class AutomaticRoleRequestApprovalProcessor extends CoreEventProcessor<Id
 
 		// If none process definition was found, then is request approved;
 		if (Strings.isNullOrEmpty(wfDefinition)) {
-			LOG.info("None approval process definition was found, request {} for automatic role is approved.", dto);
+			LOG.info("None approval process definition was found, request [{}] for automatic role is approved.", dto);
 			return new DefaultEventResult<>(event, this);
 		}
 

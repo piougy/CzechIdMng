@@ -108,9 +108,9 @@ public class IdmAutomaticRoleAttributeController extends AbstractReadWriteDtoCon
 	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_AUTOCOMPLETE + "')")
 	@ApiOperation(
-			value = "Autocomplete roles (selectbox usage)", 
-			nickname = "autocompleteRoles", 
-			tags = { IdmRoleController.TAG }, 
+			value = "Autocomplete automatic roles (selectbox usage)", 
+			nickname = "autocompleteAutomaticRoleAttibutes", 
+			tags = { IdmAutomaticRoleAttributeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_AUTOCOMPLETE, description = "") }),
@@ -193,89 +193,5 @@ public class IdmAutomaticRoleAttributeController extends AbstractReadWriteDtoCon
 			throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED, "Automatic role by attribute update is not supported");
 		}
 		return super.postDto(entity);
-	}
-	
-//	@Override
-//	@ResponseBody
-//	@RequestMapping(method = RequestMethod.POST)
-//	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_CREATE + "')"
-//			+ " or hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE + "')")
-//	@ApiOperation(
-//			value = "Create / update automatic role attribute", 
-//			nickname = "postAutomaticRoleAttribute", 
-//			response = IdmAutomaticRoleAttributeDto.class, 
-//			tags = { IdmAutomaticRoleAttributeController.TAG }, 
-//			authorizations = { 
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_CREATE, description = ""),
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE, description = "")}),
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_CREATE, description = ""),
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE, description = "")})
-//				},
-//			notes = "If role has guarantee assigned, then automatic role has to be approved by him at first (configurable by entity event processor).")
-//	public ResponseEntity<?> post(@Valid @RequestBody IdmAutomaticRoleAttributeDto dto) {
-//		return super.post(dto);
-//	}
-//	
-//	@RequestMapping(value = "/{backendId}/recalculate", method = RequestMethod.POST)
-//	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE + "')")
-//	@ApiOperation(
-//			value = "Recalculate automatic role attribute", 
-//			nickname = "recalculateAutomaticRoleAttribute", 
-//			tags = { IdmAutomaticRoleAttributeController.TAG }, 
-//			authorizations = { 
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE, description = "")}),
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_UPDATE, description = "")})
-//				},
-//			notes = "Recalculate automatic role by attribute for identities in LRT.")
-//	public ResponseEntity<?> post(@ApiParam(value = "Automatic role's uuid identifier.", required = true)
-//	@PathVariable @NotNull String backendId) {
-//		IdmAutomaticRoleAttributeDto automaticRoleAttributeDto = entityService.recalculate(UUID.fromString(backendId));
-//		return new ResponseEntity<>(automaticRoleAttributeDto, HttpStatus.OK);
-//	}
-//	
-//	@Override
-//	@ResponseBody
-//	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-//	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_DELETE + "')")
-//	@ApiOperation(
-//			value = "Delete automatic role by attribute", 
-//			nickname = "deleteAutomaticRoleAttribute", 
-//			tags = { IdmAutomaticRoleAttributeController.TAG }, 
-//			authorizations = { 
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_DELETE, description = "") }),
-//				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-//						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_ATTRIBUTE_DELETE, description = "") })
-//				})
-//	public ResponseEntity<?> delete(
-//			@ApiParam(value = "Automatic role's uuid identifier.", required = true)
-//			@PathVariable @NotNull String backendId) {
-//		LongRunningTaskExecutor<?> asyncTask = new StatelessAsynchronousTask() {
-//			
-//			@Override
-//			public String getName() {
-//				return "RemoveAutomaticRoleTask";
-//			}
-//			
-//			@Override
-//			public String getDescription() {
-//				return String.format("Remove automatic role [%s] asynchronously", backendId);
-//			}
-//			
-//			@Override
-//			public Boolean process() {
-//				IdmAutomaticRoleAttributeController.super.delete(backendId);
-//				return Boolean.TRUE;			
-//			}
-//		};
-//		taskManager.execute(asyncTask);
-//		// TODO: improve status handling on FE
-//		// return new ResponseEntity<Object>(HttpStatus.ACCEPTED);
-//		throw new AcceptedException();
-//	}
-	
+	}	
 }

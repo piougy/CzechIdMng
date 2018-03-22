@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleRequestDto;
 
 /**
  * Filter for automatic rule role request
@@ -25,7 +25,7 @@ public class IdmAutomaticRoleAttributeRuleRequestFilter extends DataFilter {
 	}
 	
 	public IdmAutomaticRoleAttributeRuleRequestFilter(MultiValueMap<String, Object> data) {
-		super(IdmConceptRoleRequestDto.class, data);
+		super(IdmAutomaticRoleAttributeRuleRequestDto.class, data);
 	}
 
     public UUID getRoleRequestId() {

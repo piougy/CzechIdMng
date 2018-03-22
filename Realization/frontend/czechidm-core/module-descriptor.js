@@ -505,7 +505,13 @@ module.exports = {
             'labelKey': 'content.entityEvents.label',
             'titleKey': 'content.entityEvents.title',
             'order': 100,
-            'path': '/audit/entity-events'
+            'path': '/audit/entity-events',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['APP_ADMIN']
+              }
+            ]
           },
           {
             'id': 'audit-notification',

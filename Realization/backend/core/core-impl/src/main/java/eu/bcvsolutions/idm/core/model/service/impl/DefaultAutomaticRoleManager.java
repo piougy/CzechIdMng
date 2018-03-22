@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
  * @author svandav
  *
  */
-@Service
+@Service("automaticRoleManager")
 public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 
 	@Autowired

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;

@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
+import eu.bcvsolutions.idm.core.model.event.AutomaticRoleRequestEvent.AutomaticRoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
@@ -30,7 +31,7 @@ public class AutomaticRoleRequestRealizationProcessor extends CoreEventProcessor
 
 	@Autowired
 	public AutomaticRoleRequestRealizationProcessor(IdmAutomaticRoleRequestService service) {
-		super(RoleRequestEventType.EXCECUTE);
+		super(AutomaticRoleRequestEventType.EXECUTE);
 		//
 		Assert.notNull(service);
 		//

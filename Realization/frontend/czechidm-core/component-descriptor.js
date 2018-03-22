@@ -58,7 +58,7 @@ module.exports = {
     {
       'id': 'tree-node-info',
       'type': 'entity-info',
-      'entityType': ['treeNode', 'IdmTreeNode', 'IdmTreeNodeDto'],
+      'entityType': ['tree', 'treeNode', 'IdmTreeNode', 'IdmTreeNodeDto'],
       'component': require('./src/components/advanced/TreeNodeInfo/TreeNodeInfo').default,
       'manager': require('./src/redux').TreeNodeManager
     },

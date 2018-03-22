@@ -605,13 +605,13 @@ module.exports = {
           path: 'identities',
           component: require('./src/content/audit/identity/AuditIdentityContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
-        },
-        {
-          path: 'entity-events',
-          component: require('./src/content/audit/event/EntityEvents'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]
+    },
+    {
+      path: 'audit/entity-events',
+      component: require('./src/content/audit/event/EntityEvents'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       path: 'notification/',

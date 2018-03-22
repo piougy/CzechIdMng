@@ -12,12 +12,12 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -39,7 +39,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 	@Autowired private LookupService lookupService;
 	
 	public IdentityContractProvisioningProcessor() {
-		super(CoreEventType.DELETE, CoreEventType.NOTIFY);
+		super(IdentityContractEventType.DELETE, IdentityContractEventType.NOTIFY);
 	}
 	
 	@Override
@@ -78,7 +78,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 	}
 	
 	private void doProvisioning(UUID identityId, EntityEvent<IdmIdentityContractDto> event) {
-		if (CoreEventType.NOTIFY.name() != event.getType().name()) {
+		if (!event.hasType(IdentityContractEventType.NOTIFY)) {
 			// sync
 			doProvisioning((IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identityId), event);
 		} else {
@@ -89,7 +89,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 	}
 	
 	private void doProvisioning(IdmIdentityDto identity, EntityEvent<IdmIdentityContractDto> event) {
-		if (CoreEventType.NOTIFY.name() != event.getType().name()) {
+		if (!event.hasType(IdentityContractEventType.NOTIFY)) {
 			LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 			provisioningService.doProvisioning(identity);
 		} else {

@@ -482,16 +482,7 @@ module.exports = {
                     'authorities': ['AUDIT_READ']
                   }
                 ]
-              },
-              {
-                'id': 'entity-events',
-                'labelKey': 'content.entityEvents.label',
-                'titleKey': 'content.entityEvents.title',
-                'order': 100,
-                'path': '/audit/entity-events',
-                'type': 'TAB',
-                'icon': ''
-              },
+              }
             ]
           },
           {
@@ -508,6 +499,13 @@ module.exports = {
                 'authorities': ['AUDIT_READ']
               }
             ]
+          },
+          {
+            'id': 'entity-events',
+            'labelKey': 'content.entityEvents.label',
+            'titleKey': 'content.entityEvents.title',
+            'order': 100,
+            'path': '/audit/entity-events'
           },
           {
             'id': 'audit-notification',

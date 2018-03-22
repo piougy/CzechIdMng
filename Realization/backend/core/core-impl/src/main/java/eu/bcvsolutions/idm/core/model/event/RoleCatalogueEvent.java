@@ -21,7 +21,7 @@ public class RoleCatalogueEvent extends CoreEvent<IdmRoleCatalogueDto> {
 	 * Supported event types
 	 */
 	public enum RoleCatalogueEventType implements EventType {
-		CREATE, UPDATE, DELETE
+		CREATE, UPDATE, DELETE, NOTIFY
 	}
 
 	public RoleCatalogueEvent(RoleCatalogueEventType operation, IdmRoleCatalogueDto content) {

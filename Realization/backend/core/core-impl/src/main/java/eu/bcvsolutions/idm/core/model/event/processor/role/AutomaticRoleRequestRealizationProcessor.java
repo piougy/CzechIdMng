@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleRequestEvent.AutomaticRoleRequestEventType;
-import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
  * Processor realizes of the request for change the automatic role

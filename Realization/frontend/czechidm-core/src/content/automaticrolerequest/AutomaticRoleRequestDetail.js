@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { TreeNodeManager, RoleManager, AutomaticRoleRequestManager, AutomaticRoleAttributeRuleRequestManager, AutomaticRoleAttributeRuleManager, AutomaticRoleAttributeManager } from '../../redux';
+import { TreeNodeManager, RoleTreeNodeManager, RoleManager, AutomaticRoleRequestManager, AutomaticRoleAttributeRuleRequestManager, AutomaticRoleAttributeRuleManager, AutomaticRoleAttributeManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import AutomaticRoleRequestTypeEnum from '../../enums/AutomaticRoleRequestTypeEnum';
@@ -26,6 +26,7 @@ const roleManager = new RoleManager();
 const automaticRoleAttributeRuleManager = new AutomaticRoleAttributeRuleManager();
 const automaticAttributeRoleManager = new AutomaticRoleAttributeManager();
 const treeNodeManager = new TreeNodeManager();
+const roleTreeNodeManager = new RoleTreeNodeManager();
 
 /**
  * Detail for automatic role request
@@ -510,6 +511,12 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       isAttributeRequest = AutomaticRoleRequestTypeEnum.findKeyBySymbol(AutomaticRoleRequestTypeEnum.ATTRIBUTE) === requestType;
     }
 
+    // Use manager for automatic role by type (Attribute / Tree)
+    let automaticRoleManager = roleTreeNodeManager;
+    if (isAttributeRequest) {
+      automaticRoleManager = automaticAttributeRoleManager;
+    }
+
     if (this.state.showLoading || !request) {
       return (<div>
         <Basic.ContentHeader rendered={showRequestDetail}>
@@ -581,7 +588,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
                 ref="automaticRole"
                 readOnly
                 rendered={request.automaticRole ? true : false}
-                manager={automaticAttributeRoleManager}
+                manager={automaticRoleManager}
                 label={this.i18n('entity.AutomaticRoleRequest.automaticAttributeRole')}/>
               <Basic.EnumLabel
                 ref="operation"

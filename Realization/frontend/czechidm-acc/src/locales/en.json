@@ -1328,6 +1328,90 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validation of system mapping {{name}} was not successful",
       "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
+    },
+    "PROVISIONING_NEW_PASSWORD_FOR_ACCOUNT": {
+      "title": "Password was changed",
+      "message": "For object wth UID [{{uid}}] on system [{{system}}] password was set: [{{password}}]."
+    },
+    "AUTHENTICATION_AGAINST_SYSTEM_FAILED": {
+      "title": "Authentication failed",
+      "message": "Authentication of user [{{user}}] on system [{{system}}] failed."
+    },
+    "AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET": {
+      "title": "Authentication failed",
+      "message": "Can not authenticate to system [{{system}}], because authentication attribute is not set."
+    },
+    "AUTHENTICATION_USERNAME_DONT_EXISTS": {
+      "title": "Authentication failed",
+      "message": "User [{{user}}] on system [{{system}}] not found."
+    },
+    "CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Key not found",
+      "message": "Connector key for system [{{system}}] not found."
+    },
+    "CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Schema not found",
+      "message": "Connector schema for system [{{system}}] not found."
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND": {
+      "title": "Schema not found",
+      "message": "Schema attribute [{{attr}}] not found."
+    },
+    "PROVISIONING_SCRIPT_CAN_BE_ACC_CREATED_MUST_RETURN_BOOLEAN": {
+      "title": "Wrong return value",
+      "message": "Script 'Can be account created' on system [{{system}}] must return 'boolean' value."
+    },
+    "SYNCHRONIZATION_CORRELATION_BAD_VALUE": {
+      "title": "Wrong attribute value",
+      "message": "Synchronization - value [{{value}}] for find correlation attribute can't be converted."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL": {
+      "title": "Wrong attribute value",
+      "message": "IDM attribute [{{attr}}] can not be null."
+    },
+    "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
+      "title": "Mapped attribute not exists",
+      "message": "Mapped attribute fo IdM field [{{field}}] must exists in system mapping."
+    },
+    "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Wrong filter value",
+      "message": "Filter value for tree root is null, but it must be Boolean type."
+    },
+    "PROVISIONING_GENERATED_UID_IS_NULL": {
+      "title": "UID can not be null",
+      "message": "Generated UID is null for system [{{system}}]. UID of account must be String type."
+    },
+    "PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "Account for parent tree node [{{node}}] not found."
+    },
+    "PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS": {
+      "title": "Too many accounts for parent node",
+      "message": "Too many accounts for parent node [{{node}}]. Excepted only one for same system."
+    },
+    "SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND": {
+      "title": "Attribute not found",
+      "message": "IDM attribute [{{attr}}] not found."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_GET": {
+      "title": "Can not get attribute",
+      "message": "Can not get IdM attribute [{{attr}}] for entity [{{entity}}]."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_SET": {
+      "title": "Can not set attribute",
+      "message": "Can not set IdM attribute [{{attr}}] for entity [{{entity}}]."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No tree account for parent UID: [{{uid}}] on system [{{system}}] with acc account: [{{account}}] was found."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No parent account for parent UID: [{{uid}}] on system [{{system}}] was found."
+    },
+    "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
+      "title": "More attributes for recipient",
+      "message": "There is setting in role and identity for recipient. Allowed is only single setting."
     }
   }
 }

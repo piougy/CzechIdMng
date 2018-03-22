@@ -194,7 +194,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		Map<String, Serializable> variables = new HashMap<>();
 		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
 		return entityEventManager
-				.process(new AutomaticRoleRequestEvent(AutomaticRoleRequestEventType.EXCECUTE, savedRequest, variables))
+				.process(new AutomaticRoleRequestEvent(AutomaticRoleRequestEventType.EXECUTE, savedRequest, variables))
 				.getContent();
 	}
 

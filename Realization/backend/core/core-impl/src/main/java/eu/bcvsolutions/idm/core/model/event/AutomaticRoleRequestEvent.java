@@ -21,7 +21,7 @@ public class AutomaticRoleRequestEvent extends CoreEvent<IdmAutomaticRoleRequest
 	 *
 	 */
 	public enum AutomaticRoleRequestEventType implements EventType {
-		CREATE, UPDATE, DELETE, EXCECUTE
+		CREATE, UPDATE, DELETE, EXECUTE
 	}
 	
 	public AutomaticRoleRequestEvent(AutomaticRoleRequestEventType operation, IdmAutomaticRoleRequestDto content) {

@@ -30,11 +30,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -67,6 +69,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
+	@Autowired private IdmAutomaticRoleRequestService automaticRoleRequestService;
 	//
 	private boolean deleteEntity = true; // At the end of the task remove whole entity (this isn't possible set via FE parameters)
 	private UUID automaticRoleId = null;
@@ -199,6 +202,16 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 					
 					roleRequestService.save(request);
 					conceptRequestService.save(concept);
+				}
+				// Find all automatic role requests and remove relation on automatic role
+				if (automaticRoleId != null) {
+					IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
+					automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);
+					
+					automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
+						request.setAutomaticRole(null);
+						automaticRoleRequestService.save(request);
+					});
 				}
 				//
 				// by default is this allowed

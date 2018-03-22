@@ -50,7 +50,7 @@ public class AutomaticRoleRequestApprovalProcessor extends CoreEventProcessor<Id
 	private WorkflowProcessDefinitionService processDefinitionService;
 
 	public AutomaticRoleRequestApprovalProcessor() {
-		super(AutomaticRoleRequestEventType.EXCECUTE);
+		super(AutomaticRoleRequestEventType.EXECUTE);
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public class AutomaticRoleRequestApprovalProcessor extends CoreEventProcessor<Id
 
 	@Autowired
 	public AutomaticRoleRequestApprovalProcessor(IdmAutomaticRoleRequestService service) {
-		super(AutomaticRoleRequestEventType.EXCECUTE);
+		super(AutomaticRoleRequestEventType.EXECUTE);
 		//
 		Assert.notNull(service);
 		//

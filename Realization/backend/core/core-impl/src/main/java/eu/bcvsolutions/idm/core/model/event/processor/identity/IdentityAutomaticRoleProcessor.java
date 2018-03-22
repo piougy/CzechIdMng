@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -60,11 +61,16 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 		IdmIdentityDto identity = event.getContent();
 		UUID identityId = identity.getId();
 		//
+		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.IDENTITY;
+		if (event.getType() == CoreEventType.EAV_SAVE) {
+			type = AutomaticRoleAttributeRuleType.IDENTITY_EAV;
+		}
+		//
 		// TODO: one time is possible add this to process queue (like account management)
 		for (IdmIdentityContractDto contract : identityContractService.findAllByIdentity(identityId)) {
 			UUID contractId = contract.getId();
-			Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, null, contractId);
-			Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, null, contractId);
+			Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, type, contractId);
+			Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, type, contractId);
 			automaticRoleAttributeService.processAutomaticRolesForContract(contractId, allNewPassedAutomaticRoleForContract, allNotPassedAutomaticRoleForContract);
 		}
 		//

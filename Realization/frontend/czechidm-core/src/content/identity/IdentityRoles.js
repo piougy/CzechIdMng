@@ -302,7 +302,7 @@ class Roles extends Basic.AbstractContent {
     if (_showLoadingContracts) {
       content = (
         <div>
-          { this.renderContentHeader() }
+          { this.renderContentHeader({ style: {}}) }
           <Basic.Loading isStatic show/>
         </div>
       );

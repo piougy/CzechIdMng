@@ -88,6 +88,44 @@ export class TaskInstanceTable extends Basic.AbstractContent {
           filterOpened={filterOpened}
           showFilter={showFilter}
           showToolbar={showToolbar}
+          filter={
+           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+             <Basic.AbstractForm ref="filterForm">
+               <Basic.Row>
+                 <Basic.Col lg={ 6 }>
+                   <Advanced.Filter.SelectBox
+                     ref="candidateOrAssigned"
+                     rendered={_.includes(columns, 'taskAssignee')}
+                     placeholder={this.i18n('entity.WorkflowTaskInstance.taskAssignee')}
+                     manager={this.identityManager}/>
+                 </Basic.Col>
+                 <Basic.Col lg={ 6 } className="textright">
+                   <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                 </Basic.Col>
+               </Basic.Row>
+               <Basic.Row>
+                 <Basic.Col lg={ 12 } >
+                   <Advanced.Filter.TextField
+                     ref="description"
+                     rendered={_.includes(columns, 'description')}
+                     placeholder={this.i18n('entity.WorkflowTaskInstance.taskDescription')}/>
+                 </Basic.Col>
+               </Basic.Row>
+               <Basic.Row className="last">
+                 <Basic.Col lg={ 6 }>
+                   <Advanced.Filter.DateTimePicker
+                     ref="createdBefore"
+                     placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdBefore')}/>
+                 </Basic.Col>
+                 <Basic.Col lg={ 6 }>
+                   <Advanced.Filter.DateTimePicker
+                     ref="createdAfter"
+                     placeholder={this.i18n('entity.WorkflowTaskInstance.filter.createdAfter')}/>
+                 </Basic.Col>
+               </Basic.Row>
+             </Basic.AbstractForm>
+           </Advanced.Filter>
+         }
         >
           <Advanced.Column
             header=""
@@ -118,9 +156,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
                 }
               }
               return (
-                <Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                 <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
               );
             }
           }/>

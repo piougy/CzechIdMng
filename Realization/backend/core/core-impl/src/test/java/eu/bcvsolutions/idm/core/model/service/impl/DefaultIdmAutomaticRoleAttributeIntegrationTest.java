@@ -1378,6 +1378,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityContractDto expiredContract = testHelper.createIdentityContact(identity, null, new LocalDate().minusDays(10), new LocalDate().minusDays(5));
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
@@ -1387,6 +1389,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		expiredContract.setValidTill(new LocalDate().plusDays(100));
 		expiredContract = identityContractService.save(expiredContract);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByContract(testHelper.getPrimeContract(identity.getId()).getId());
 		assertEquals(1, identityRoles.size());
@@ -1396,6 +1400,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		expiredContract.setValidTill(new LocalDate().minusDays(2));
 		expiredContract = identityContractService.save(expiredContract);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
 		assertEquals(0, identityRoles.size());
 		//
@@ -1425,12 +1431,14 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
 		//
-		IdmIdentityContractDto expiredContract = testHelper.createIdentityContact(identity, null, new LocalDate().plusDays(10), new LocalDate().plusDays(50));
+		IdmIdentityContractDto futureValidContract = testHelper.createIdentityContact(identity, null, new LocalDate().plusDays(10), new LocalDate().plusDays(50));
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(2, identityRoles.size());
 		//
-		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
+		identityRoles = identityRoleService.findAllByContract(futureValidContract.getId());
 		assertEquals(1, identityRoles.size());
 	}
 	
@@ -1481,24 +1489,32 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		contract5.setState(null);
 		contract5 = identityContractService.save(contract5);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByContract(contract5.getId());
 		assertEquals(1, identityRoles.size());
 		//
 		contract4.setState(null);
 		contract4 = identityContractService.save(contract4);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByContract(contract4.getId());
 		assertEquals(1, identityRoles.size());
 		//
 		contract3.setState(null);
 		contract3 = identityContractService.save(contract3);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByContract(contract3.getId());
 		assertEquals(1, identityRoles.size());
 		//
 		contract2.setState(null);
 		contract2 = identityContractService.save(contract2);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByContract(contract2.getId());
 		assertEquals(1, identityRoles.size());
@@ -1514,6 +1530,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		contract3.setState(ContractState.DISABLED);
 		contract3 = identityContractService.save(contract3);
+		// we must save identity, automatic role will be recalculate after identity save
+		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByContract(contract3.getId());
 		assertEquals(0, identityRoles.size());

@@ -416,7 +416,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			}
 			//
 			if (automaticRolesToProcess.hasNext()) {
-				automaticRolesToProcess = this.find(automaticRolesToProcess.nextPageable());
+				automaticRolesToProcess = this.findAllToProcess(type, automaticRolesToProcess.nextPageable());
 			} else {
 				break;
 			}

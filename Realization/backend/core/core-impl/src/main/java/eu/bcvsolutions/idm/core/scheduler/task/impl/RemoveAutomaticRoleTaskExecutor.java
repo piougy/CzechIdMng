@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -167,8 +168,15 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		//
 		if (BooleanUtils.isTrue(ended)) {
 			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
-			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
 			//
+			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), new PageRequest(0, 1)).getTotalElements();
+			if (assignedRoles != 0) {
+				LOG.debug("Remove role [{}] by automatic role [{}] is not complete, some roles [{}] remains assigned to identities.", 
+						role.getCode(), getAutomaticRole().getId(), assignedRoles);
+				return ended;
+			}
+			//
+			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
 			try {
 				//
 				// Find all concepts and remove relation on role tree

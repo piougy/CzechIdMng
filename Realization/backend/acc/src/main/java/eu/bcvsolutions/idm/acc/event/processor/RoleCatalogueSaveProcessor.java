@@ -16,12 +16,13 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent.RoleCatalogueEventType;
 
 /**
- * Persists role catalogue items.
+ * Executes provisioning after role catalogue was changed.
  * 
  * @author Svanda
+ * @author Radek Tomiška
  */
 @Component("accRoleCatalogueSaveProcessor")
-@Description("Persists role catalogue items.")
+@Description("Executes provisioning after role catalogue was changed.")
 public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalogueDto> {
 
 	private static final String PROCESSOR_NAME = "role-catalogue-save-processor";
@@ -31,7 +32,7 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 	
 	@Autowired
 	public RoleCatalogueSaveProcessor(ApplicationContext applicationContext) {
-		super(RoleCatalogueEventType.CREATE, RoleCatalogueEventType.UPDATE);
+		super(RoleCatalogueEventType.NOTIFY);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -42,16 +43,17 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmRoleCatalogueDto> event) {
+		// Skip provisioning
+		return !this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties());
+	}
 
 	@Override
-	public EventResult<IdmRoleCatalogueDto> process(EntityEvent<IdmRoleCatalogueDto> event) {
-		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		
-		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
-			return new DefaultEventResult<>(event, this);
-		}
-		
+	public EventResult<IdmRoleCatalogueDto> process(EntityEvent<IdmRoleCatalogueDto> event) {		
 		doProvisioning(event.getContent());
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 	

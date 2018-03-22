@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -115,9 +114,9 @@ public class IdmAutomaticRoleRequestController extends AbstractReadWriteDtoContr
 	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTOMATIC_ROLE_REQUEST_AUTOCOMPLETE + "')")
 	@ApiOperation(
-			value = "Autocomplete roles (selectbox usage)", 
-			nickname = "autocompleteRoles", 
-			tags = { IdmRoleController.TAG }, 
+			value = "Autocomplete role requests (selectbox usage)", 
+			nickname = "autocompleteRoleRequests", 
+			tags = { IdmAutomaticRoleRequestController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.AUTOMATIC_ROLE_REQUEST_AUTOCOMPLETE, description = "") }),
@@ -285,7 +284,7 @@ public class IdmAutomaticRoleRequestController extends AbstractReadWriteDtoContr
 
 	@Override
 	protected IdmAutomaticRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmAutomaticRoleRequestFilter filter = new IdmAutomaticRoleRequestFilter();
+		IdmAutomaticRoleRequestFilter filter = new IdmAutomaticRoleRequestFilter(parameters);
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setAutomaticRoleId(getParameterConverter().toUuid(parameters, "automaticRole"));
 		filter.setRole(getParameterConverter().toString(parameters, "role"));

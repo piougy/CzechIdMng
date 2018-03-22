@@ -199,7 +199,7 @@ public class IdmAutomaticRoleAttributeRuleRequestController extends
 
 	@Override
 	protected IdmAutomaticRoleAttributeRuleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmAutomaticRoleAttributeRuleRequestFilter filter = new IdmAutomaticRoleAttributeRuleRequestFilter();
+		IdmAutomaticRoleAttributeRuleRequestFilter filter = new IdmAutomaticRoleAttributeRuleRequestFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));

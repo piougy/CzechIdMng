@@ -2357,7 +2357,7 @@
     },
     "entityEvents": {
       "header": "Entity events",
-      "title": "Events",
+      "title": "Entity events",
       "label": "$t(content.entityEvents.title)",
       "filter": {
         "text": {

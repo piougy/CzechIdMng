@@ -518,6 +518,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
+	@Transactional
 	public void deleteInternal(IdmRoleRequestDto dto) {
 		// Find all request where is this request duplicated and remove relation
 		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
@@ -544,6 +545,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
+	@Transactional
 	public void cancel(IdmRoleRequestDto dto) {
 		cancelWF(dto);
 		dto.setState(RoleRequestState.CANCELED);
@@ -655,6 +657,8 @@ public class DefaultIdmRoleRequestService
 	/**
 	 * If exception causal chain contains cause instance of ResultCodeException,
 	 * then is return primary.
+	 * 
+	 * TODO: DRY with DefaultIdmAutomaticRoleRequestService
 	 * 
 	 * @param ex
 	 * @return

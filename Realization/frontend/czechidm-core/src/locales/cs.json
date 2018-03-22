@@ -1537,7 +1537,7 @@
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
           "started": "Žádost byla úspěšně podána",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
-          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {
@@ -1593,7 +1593,7 @@
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
           "started": "Žádost byla úspěšně podána",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
-          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {
@@ -1607,18 +1607,18 @@
 
     },
     "automaticRoleRequestDetail": {
-      "header": "Žádost automatickou roli",
-      "title": "Žádost automatickou roli",
+      "header": "Žádost pro automatickou roli",
+      "title": "Žádost pro automatickou roli",
       "conceptHeader": "Požadované změny pravidel",
       "conceptWithCurrentRulesHeader": "Schválená pravidla (včetně požadovaných změn)",
       "save": {
-        "success": "Žádost o změnu oprávnění byla úspěšně uložena",
+        "success": "Žádost pro automatickou roli byla úspěšně uložena",
         "start": "Podat žádost"
       },
       "button": {
         "createRequest":{
           "label": "Podat žádost",
-          "tooltip": "Zahájí žádost o automatickou roli. Spustí případné schvalovací procesy."
+          "tooltip": "Zahájí žádost pro automatickou roli. Spustí případné schvalovací procesy."
         }
       },
       "create": {
@@ -1629,7 +1629,7 @@
       },
       "rulesIsAnd": {
         "title": "Všechna pravidla musí být splněna.",
-        "text": "Pro přidělení role, musí entita splnit všechna (níže definovaná) pravidla zároveň."
+        "text": "Pro přidělení role dle automatická role, musí entita (identita i úvazek) splnit všechna (níže definovaná) pravidla zároveň."
       }
     },
     "role": {
@@ -3283,11 +3283,11 @@
       }
     },
     "approve-remove-role-by-manager" : {
-      "name": "Schválení odebrání přiřazené role '{{0}}' uživateli '{{1}}'",
+      "name": "Schválení odebrání přiřazené role '{{0}}' pro uživatele '{{1}}'",
       "task": {
         "approveByManager": {
           "name": "Schválení odebrání role vedoucím",
-          "description":"Schválení odebrání role '{{0}}' vedoucím uživateli '{{1}}'"
+          "description":"Schválení odebrání role '{{0}}' vedoucím pro uživatele '{{1}}'"
         }
       }
     },
@@ -3807,8 +3807,8 @@
       "message": "Rozšířený atribut typu 'TEXT' není podporován."
     },
     "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
-      "title": "Žádost o automatickou roli, musí mít alespoň jedno pravidlo!",
-      "message": "Žádost o automatickou roli [{{request}}], musí mít alespoň jedno pravidlo!"
+      "title": "Žádost o automatickou roli musí mít alespoň jedno pravidlo!",
+      "message": "Žádost o automatickou roli [{{request}}] musí mít alespoň jedno pravidlo!"
     },
     "EVENT_CANCELED_BY_RESTART": {
       "title": "Zpracování události bylo přerušeno",

@@ -10,6 +10,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -33,7 +34,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRequestRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -61,8 +61,8 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 	}
 
 	@Override
-	public IdmAutomaticRoleAttributeRuleRequestDto save(IdmAutomaticRoleAttributeRuleRequestDto dto,
-			BasePermission... permission) {
+	@Transactional
+	public IdmAutomaticRoleAttributeRuleRequestDto saveInternal(IdmAutomaticRoleAttributeRuleRequestDto dto) {
 		// now isn't possible do equals with string_value (clob), so it is necessary to
 		// use only short text
 		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == dto.getType()
@@ -88,7 +88,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY,
 					ImmutableMap.of("attribute", IdmAutomaticRoleAttributeRule_.value.getName()));
 		}
-		return super.save(dto, permission);
+		return super.saveInternal(dto);
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -27,7 +26,6 @@ public abstract class AbstractRequestDto extends AbstractDto {
 	@NotNull
 	protected RequestState state = RequestState.CONCEPT;
 	@NotNull
-	@Column(name = "execute_immediately")
 	protected boolean executeImmediately = false;
 	protected String description;
 

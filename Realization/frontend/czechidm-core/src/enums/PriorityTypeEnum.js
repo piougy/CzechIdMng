@@ -51,7 +51,7 @@ export default class PriorityTypeEnum extends AbstractEnum {
         return 'fa:warning';
       }
       case this.HIGH: {
-        return 'fa:angle-up';
+        return 'fa:arrow-up';
       }
       default: {
         return 'fa:circle-o';

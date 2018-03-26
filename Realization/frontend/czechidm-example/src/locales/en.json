@@ -101,5 +101,11 @@
       "title": "Example client error",
       "message": "Example client error, bad value given [{{parameter}}]."
     }
+  },
+  "processor": {
+    "log-identity-update-async-processor": {
+      "title": "Logging - example",
+      "description": "Log identity's username after identity is updated."
+    }
   }
 }

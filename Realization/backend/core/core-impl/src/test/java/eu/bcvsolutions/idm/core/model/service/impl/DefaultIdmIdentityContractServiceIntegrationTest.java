@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
@@ -559,35 +560,45 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testReferentialIntegrityOnRole() {
-		// prepare data
-		IdmRoleDto role = helper.createRole();
-		IdmTreeNodeDto treeNode = helper.createTreeNode();
-		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
-		//
-		assertNotNull(roleTreeNode.getId());
-		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
-		//
-		helper.deleteRole(role.getId());
-		//
-		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		try {
+			// prepare data
+			IdmRoleDto role = helper.createRole();
+			IdmTreeNodeDto treeNode = helper.createTreeNode();
+			// automatic role
+			IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
+			//
+			assertNotNull(roleTreeNode.getId());
+			assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
+			//
+			helper.deleteRole(role.getId());
+			//
+			assertNull(roleTreeNodeService.get(roleTreeNode.getId()));
+		} finally {
+			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		}
 	}
 	
 	@Test
 	public void testReferentialIntegrityOnTreeNode() {
-		// prepare data
-		IdmRoleDto role = helper.createRole();
-		IdmTreeNodeDto treeNode = helper.createTreeNode();
-		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
-		//
-		assertNotNull(roleTreeNode.getId());
-		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
-		//
-		helper.deleteTreeNode(treeNode.getId());
-		//
-		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));	
-	}
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		try {
+			// prepare data
+			IdmRoleDto role = helper.createRole();
+			IdmTreeNodeDto treeNode = helper.createTreeNode();
+			// automatic role
+			IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
+			//
+			assertNotNull(roleTreeNode.getId());
+			assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
+			//
+			helper.deleteTreeNode(treeNode.getId());
+			//
+			assertNull(roleTreeNodeService.get(roleTreeNode.getId()));	
+		} finally {
+			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		}
+}
 	
 	@Test
 	public void testReferentialIntegrityOnIdentityDelete() {

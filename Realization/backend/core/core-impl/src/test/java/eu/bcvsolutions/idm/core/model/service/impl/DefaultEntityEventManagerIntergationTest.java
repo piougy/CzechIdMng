@@ -272,7 +272,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(count, entityEventService.find(filter, new PageRequest(0, 1)).getTotalElements());			
 		} finally {
 			events.forEach(e -> entityEventService.delete(e));
-			helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			helper.enable(EntityEventDeleteExecutedProcessor.class);
 		}
 	}
@@ -317,7 +317,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(1, entityEventService.find(filter, new PageRequest(0, 1)).getTotalElements());			
 		} finally {
 			entityEventService.delete(events.get(9)); // the last one
-			helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			helper.enable(EntityEventDeleteExecutedProcessor.class);
 		}
 	}

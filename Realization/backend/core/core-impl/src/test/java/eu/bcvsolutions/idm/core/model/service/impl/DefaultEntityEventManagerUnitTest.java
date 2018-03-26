@@ -482,6 +482,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		entityEvent.setExecuteDate(new DateTime());
 		entityEvent.setEventType(CoreEventType.NOTIFY.name());
 		entityEvent.getProperties().put("one", "one");
+		entityEvent.setParentEventType(CoreEventType.UPDATE.name());
 		//
 		EntityEvent<Identifiable> event = eventManager.toEvent(entityEvent);
 		//
@@ -490,6 +491,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		Assert.assertEquals(entityEvent.getId(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_EVENT_ID));
 		Assert.assertEquals(entityEvent.getPriority(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PRIORITY));
 		Assert.assertEquals(entityEvent.getExecuteDate(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_EXECUTE_DATE));
+		Assert.assertEquals(CoreEventType.UPDATE.name(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
 		Assert.assertEquals("one", event.getProperties().get("one"));
 	}
 	

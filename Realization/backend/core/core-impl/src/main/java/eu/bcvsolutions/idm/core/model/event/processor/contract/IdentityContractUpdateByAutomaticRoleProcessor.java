@@ -12,27 +12,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
-import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 
 /**
  * Automatic roles recount while identity contract is saved, updated or deleted / disabled.
@@ -51,11 +48,9 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	//
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	@Autowired private IdmRoleRequestService roleRequestService;
-	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	
 	public IdentityContractUpdateByAutomaticRoleProcessor() {
-		super(IdentityContractEventType.UPDATE);
+		super(IdentityContractEventType.NOTIFY);
 	}
 	
 	@Override
@@ -64,14 +59,14 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	}
 
 	@Override
+	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
+		return super.conditional(event)
+				&& IdentityContractEventType.UPDATE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
+	}
+
+	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
-		//
-		// prepare request
-		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
-		roleRequest.setApplicant(contract.getIdentity());
-		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
-		roleRequest.setExecuteImmediately(true); // we can't save immediately, request will be saved in method 'checkSavedRequest'
 		//
 		IdmIdentityContractDto previous = event.getOriginalSource();
 		UUID previousPosition = previous.getWorkPosition();
@@ -127,13 +122,14 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 						// check, if role will be added by new automatic roles and prevent removing
 						IdmRoleTreeNodeDto addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
 						if (addedAutomaticRole == null) {
-							roleRequest = checkSavedRequest(roleRequest);
-							createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), removedAutomaticRole, ConceptRoleRequestOperation.REMOVE);
+							// remove assigned role
+							roleTreeNodeService.removeAutomaticRoles(identityRole, null);
 							iter.remove();
 						} else {
 							// change relation only
 							identityRole.setRoleTreeNode(addedAutomaticRole.getId());
-							identityRoleService.save(identityRole);
+							updateIdentityRole(identityRole);
+							//
 							// new automatic role is not needed
 							addedAutomaticRoles.remove(addedAutomaticRole);
 						}
@@ -143,67 +139,19 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			//
 			// change date - for unchanged assigned roles only
 			if (EntityUtils.validableChanged(previous, contract)) {
-				roleRequest = checkSavedRequest(roleRequest);
-				changeValidable(contract, assignedRoles, roleRequest);
+				changeValidable(contract, assignedRoles);
 			}
-			
-			for (IdmRoleTreeNodeDto addedAutomaticRole : addedAutomaticRoles) {
-				roleRequest = checkSavedRequest(roleRequest);
-				createConcept(roleRequest, null, contract, addedAutomaticRole.getRole(), addedAutomaticRole.getId(), ConceptRoleRequestOperation.ADD);
-			}
+			//
+			// add identity roles
+			roleTreeNodeService.addAutomaticRoles(contract, addedAutomaticRoles);			
 		}
 		//
 		// process validable change
 		else if (EntityUtils.validableChanged(previous, contract)) {
-			roleRequest = checkSavedRequest(roleRequest);
-			changeValidable(contract, identityRoleService.findAllByContract(contract.getId()), roleRequest);
-		}
-		//
-		// role request may not exist
-		if (roleRequest.getId() != null) {
-			roleRequestService.startRequestInternal(roleRequest.getId(), false);
+			changeValidable(contract, identityRoleService.findAllByContract(contract.getId()));
 		}
 		//
 		return new DefaultEventResult<>(event, this);
-	}
-	
-	/**
-	 * Method check if role request is saved, when request isn't saved save them.
-	 * 
-	 * @param roleRequest
-	 * @return
-	 */
-	private IdmRoleRequestDto checkSavedRequest(IdmRoleRequestDto roleRequest) {
-		if (roleRequest.getId() == null) {
-			roleRequest = this.roleRequestService.save(roleRequest);
-		}
-		return roleRequest;
-	}
-	
-	/**
-	 * Method create {@link IdmConceptRoleRequestDto}
-	 * @param roleRequest
-	 * @param contract
-	 * @param roleId
-	 * @param roleTreeNodeId
-	 * @param operation
-	 * @return
-	 */
-	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, UUID identityRoleId,
-			IdmIdentityContractDto contract, UUID roleId, UUID roleTreeNodeId,
-			ConceptRoleRequestOperation operation) {
-		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-		conceptRoleRequest.setRoleRequest(roleRequest.getId());
-		conceptRoleRequest.setIdentityContract(contract.getId());
-		conceptRoleRequest.setValidFrom(contract.getValidFrom());
-		conceptRoleRequest.setValidTill(contract.getValidTill());
-		// identity role can be null (CREATE)
-		conceptRoleRequest.setIdentityRole(identityRoleId);
-		//
-		conceptRoleRequest.setRole(roleId);
-		conceptRoleRequest.setAutomaticRole(roleTreeNodeId);
-		conceptRoleRequest.setOperation(operation);
-		return conceptRoleRequestService.save(conceptRoleRequest);
 	}
 	
 	private IdmRoleTreeNodeDto getByRole(UUID roleId, Set<IdmRoleTreeNodeDto> automaticRoles) {
@@ -220,12 +168,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	 * @param contract
 	 * @param assignedRoles
 	 */
-	private void changeValidable(IdmIdentityContractDto contract, List<IdmIdentityRoleDto> assignedRoles, IdmRoleRequestDto roleRequest) {
+	private void changeValidable(IdmIdentityContractDto contract, List<IdmIdentityRoleDto> assignedRoles) {
 		if (assignedRoles.isEmpty()) {
 			return;
 		}
-		//
-		final IdmRoleRequestDto roleRequestFinal = checkSavedRequest(roleRequest);
 		//
 		assignedRoles
 			.stream()
@@ -233,9 +179,23 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 				// automatic roles only
 				return identityRole.getRoleTreeNode() != null;
 			})
-			.forEach(identityRole -> {
-				createConcept(roleRequestFinal, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
+			.forEach(identityRole -> {				
+				identityRole.setValidFrom(contract.getValidFrom());
+				identityRole.setValidTill(contract.getValidTill());				
+				updateIdentityRole(identityRole);
 			});
+	}
+	
+	/**
+	 * Saves identity role by event - skip authorities check is needed (optimalizations)
+	 * 
+	 * @param identityRole
+	 */
+	private void updateIdentityRole(IdmIdentityRoleDto identityRole) {
+		// skip check granted authorities
+		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole);
+		event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+		identityRoleService.publish(event);
 	}
 	
 	/**
@@ -243,7 +203,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	 */
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 100;
+		return super.getOrder() + 500;
 	}
 
 }

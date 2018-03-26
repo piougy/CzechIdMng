@@ -471,9 +471,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		//
 		Map<String, Serializable> eventProperties = entityEvent.getProperties().toMap();
-		eventProperties.put(EntityEventManager.EVENT_PROPERTY_EVENT_ID, entityEvent.getId());
-		eventProperties.put(EntityEventManager.EVENT_PROPERTY_PRIORITY, entityEvent.getPriority());
-		eventProperties.put(EntityEventManager.EVENT_PROPERTY_EXECUTE_DATE, entityEvent.getExecuteDate());
+		eventProperties.put(EVENT_PROPERTY_EVENT_ID, entityEvent.getId());
+		eventProperties.put(EVENT_PROPERTY_PRIORITY, entityEvent.getPriority());
+		eventProperties.put(EVENT_PROPERTY_EXECUTE_DATE, entityEvent.getExecuteDate());
+		eventProperties.put(EVENT_PROPERTY_PARENT_EVENT_TYPE, entityEvent.getParentEventType());
 		final String type = entityEvent.getEventType();
 		DefaultEventContext<Identifiable> initContext = new DefaultEventContext<>();
 		initContext.setProcessedOrder(entityEvent.getProcessedOrder());

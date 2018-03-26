@@ -13,17 +13,18 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
- * Automatic roles recount while enabled identity cotract is created
+ * Automatic roles recount while enabled identity contract is created
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Automatic roles recount while enabled identity cotract is created.")
+@Description("Automatic roles recount while enabled identity contract is created.")
 public class IdentityContractCreateByAutomaticRoleProcessor
 		extends CoreEventProcessor<IdmIdentityContractDto> 
 		implements IdentityContractProcessor {
@@ -32,12 +33,18 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	
 	public IdentityContractCreateByAutomaticRoleProcessor() {
-		super(IdentityContractEventType.CREATE);
+		super(IdentityContractEventType.NOTIFY);
 	}
 	
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
+	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
+		return super.conditional(event)
+				&& IdentityContractEventType.CREATE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
 	}
 
 	@Override
@@ -54,12 +61,9 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	/**
-	 * before save - wee need to check changes
-	 */
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 100;
+		return super.getOrder() + 500;
 	}
 
 }

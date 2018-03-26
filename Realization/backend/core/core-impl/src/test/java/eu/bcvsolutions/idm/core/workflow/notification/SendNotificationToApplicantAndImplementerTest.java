@@ -101,14 +101,11 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		helper.setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, true);
 		helper.setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
 		helper.setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, true);
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		createStructure();
 	}
 
 	@After
 	public void logout() {
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-		//
 		super.logout();
 	}
 

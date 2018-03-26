@@ -56,6 +56,8 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 		//
+		// TODO: full account management should be moved into NOTIFY on identity => super owner id can be removed then in IdentityRolePublishChangeProcessor
+		// all identity roles are processed now => doesn't support concurrency - duplicate accounts can be created now (ux constraint ex. is thrown)
 		LOG.debug("Call account management for identity [{}]", identity.getUsername());
 		provisioningService.accountManagement(identity);
 		LOG.debug("Register change for identity [{}]", identity.getUsername());

@@ -42,6 +42,7 @@ public interface EntityEventManager {
 	String EVENT_PROPERTY_EXECUTE_DATE = "idm:execute-date"; // asynchronous event processing time
 	String EVENT_PROPERTY_PRIORITY = "idm:priority"; // event priority
 	String EVENT_PROPERTY_PARENT_EVENT_TYPE = "idm:parent-event-type"; // parent event type
+	String EVENT_PROPERTY_SUPER_OWNER_ID = "idm:super-owner-id"; // entity event super owner id (e.g. identity (~super owner) - identityRole (event owner))
 	//
 	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
 	

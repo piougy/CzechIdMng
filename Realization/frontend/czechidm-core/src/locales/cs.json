@@ -696,7 +696,7 @@
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
     },
     "PriorityTypeEnum": {
-      "IMMEDIATE": "Hned",
+      "IMMEDIATE": "Ihned",
       "HIGH": "Vysoká",
       "NORMAL": "Normální"
     }

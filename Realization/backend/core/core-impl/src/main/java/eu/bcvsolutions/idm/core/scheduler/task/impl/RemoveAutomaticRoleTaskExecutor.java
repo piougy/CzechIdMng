@@ -211,7 +211,8 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 					automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
 						request.setAutomaticRole(null);
 						automaticRoleRequestService.save(request);
-						automaticRoleRequestService.cancel(request);
+						// WFs cannot be cancel here, because this method can be called from the same WF
+						// automaticRoleRequestService.cancel(request);
 					});
 				}
 				//

@@ -211,6 +211,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 					automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
 						request.setAutomaticRole(null);
 						automaticRoleRequestService.save(request);
+						automaticRoleRequestService.cancel(request);
 					});
 				}
 				//

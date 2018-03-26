@@ -506,9 +506,9 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
     let requestType = request ? request.requestType : null;
     requestType = this.state.requestType ? this.state.requestType : requestType;
-    let isAttributeRequest = false;
+    let isAttributeRequest = true;
     if (requestType) {
-      isAttributeRequest = AutomaticRoleRequestTypeEnum.findKeyBySymbol(AutomaticRoleRequestTypeEnum.ATTRIBUTE) === requestType;
+      isAttributeRequest = AutomaticRoleRequestTypeEnum.findKeyBySymbol(AutomaticRoleRequestTypeEnum.TREE) !== requestType;
     }
 
     // Use manager for automatic role by type (Attribute / Tree)
@@ -516,7 +516,6 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     if (isAttributeRequest) {
       automaticRoleManager = automaticAttributeRoleManager;
     }
-
     if (this.state.showLoading || !request) {
       return (<div>
         <Basic.ContentHeader rendered={showRequestDetail}>

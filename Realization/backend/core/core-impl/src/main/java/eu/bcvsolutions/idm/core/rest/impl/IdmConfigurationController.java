@@ -29,8 +29,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -292,11 +294,14 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	    	});
 		} 
 		catch (IOException ex) {
-			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+		}
+		catch (IllegalArgumentException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex.getLocalizedMessage());
 		}
 		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
-	
+
 	@Override
 	protected DataFilter toFilter(MultiValueMap<String, Object> parameters) {
 		return new DataFilter(getDtoClass(), parameters);

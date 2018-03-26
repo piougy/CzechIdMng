@@ -126,7 +126,6 @@ export default class ConfigurationManager extends EntityManager {
    *
    * @param  {String} entities - Entities to add
    * @param  {func} cb - function will be called after entity is updated or error occured
-   * @return {object} - action
    */
   addMoreEntities(entities, uiKey = null, cb = null) {
     if (!entities) {

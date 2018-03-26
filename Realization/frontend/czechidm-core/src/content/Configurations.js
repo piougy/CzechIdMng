@@ -291,6 +291,7 @@ class Configurations extends Advanced.AbstractTableContent {
       isSecured,
       showPrefixWarning
     } = this.state;
+    const render = detail.show || detail.addMore ? true : false;
 
     return (
       <div>
@@ -304,11 +305,11 @@ class Configurations extends Advanced.AbstractTableContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
-        <Basic.ContentHeader rendered={ !detail.show }>
+        <Basic.ContentHeader rendered={ !render }>
           { this.i18n('configurable', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel className={ detail.show ? 'hidden' : '' }>
+        <Basic.Panel className={ detail.show || detail.addMore ? 'hidden' : '' }>
           <Advanced.Table
             ref="table"
             uiKey={ uiKey }
@@ -499,11 +500,11 @@ class Configurations extends Advanced.AbstractTableContent {
           </form>
         </Basic.Modal>
 
-        <Basic.ContentHeader rendered={ !detail.show }>
+        <Basic.ContentHeader rendered={ !render }>
           { this.i18n('environment', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel rendered={ !detail.show }>
+        <Basic.Panel rendered={ !render }>
           <Basic.Table
             header={ this.i18n('fromFile', { escape: false }) }
             data={fileConfigurations}
@@ -543,7 +544,7 @@ class Configurations extends Advanced.AbstractTableContent {
         {
           !SecurityManager.hasAuthority('CONFIGURATION_ADMIN')
           ||
-          <Basic.Panel rendered={ !detail.show }>
+          <Basic.Panel rendered={ !render }>
             <Basic.Table
               data={ environmentConfigurations }
               header={ this.i18n('fromEnvironment', { escape: false } ) }

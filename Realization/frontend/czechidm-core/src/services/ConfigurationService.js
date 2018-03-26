@@ -95,6 +95,12 @@ export default class ConfigurationService extends AbstractService {
     });
   }
 
+  /**
+   * Creates more configuration's items
+   *
+   * @param {text}
+   * @return Promise
+   */
   addMoreEntities(text) {
     return PlainTextApi.put(this.getApiPath() + `/bulk/save`, text)
     .then(response => {

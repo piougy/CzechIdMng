@@ -67,7 +67,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, new PageRequest(0, PAGE_SIZE));
 		//
 		counter = 0L;
-		count = Long.valueOf(newNotPassedContracts.getTotalElements() + newNotPassedContracts.getTotalElements());
+		count = Long.valueOf(newPassedContracts.getTotalElements() + newNotPassedContracts.getTotalElements());
 		//
 		// assign new passed roles
 		boolean canContinue = true;

@@ -47,6 +47,9 @@ public class TestSchemaResource {
 
 	@Column(name = "long_value", nullable = true)
 	private Long longValue;
+	
+	@Column(name = "int_value", nullable = true)
+	private Integer intValue;
 
 	@Column(name = "double_value", nullable = true, precision = 38, scale = 4)
 	private BigDecimal doubleValue;
@@ -131,6 +134,14 @@ public class TestSchemaResource {
 
 	public void setUuidValue(UUID uuidValue) {
 		this.uuidValue = uuidValue;
+	}
+
+	public Integer getIntValue() {
+		return intValue;
+	}
+
+	public void setIntValue(Integer intValue) {
+		this.intValue = intValue;
 	}
 
 }

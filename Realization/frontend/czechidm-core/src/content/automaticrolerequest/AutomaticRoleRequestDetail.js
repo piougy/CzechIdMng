@@ -51,10 +51,6 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     return 'content.automaticRoleRequestDetail';
   }
 
-  getNavigationKey() {
-    return 'automatic-role-requests';
-  }
-
   componentWillReceiveProps(nextProps) {
     const { _request } = nextProps;
     const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
@@ -70,6 +66,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
   // Did mount only call initComponent method
   componentDidMount() {
     super.componentDidMount();
+    this.selectNavigationItems(['audit', 'automatic-role-requests']);
     //
     this._initComponent(this.props);
     this._initComponentCurrentRoles(this.props);

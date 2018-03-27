@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file.
 - [#979](https://redmine.czechidm.com/issues/979) - Attribute modified from ``AbstractEntity`` isn't audited anymore. Modified date can be found in ``IdmAudit`` as revision ``timestamp``.
 - **``Marked``** library was removed from frontend. Use standard localizations for writing inline help and documentation.
 
+## [7.8.5]
+
+- [#1037](https://redmine.czechidm.com/issues/1037) - Fix pageable in automatic role recalculation.
+
 ## [7.8.3]
 - [#1005](https://redmine.czechidm.com/issues/1005) - Dry run is available for long running task which supports it.
 - [#1000](https://redmine.czechidm.com/issues/1000) - Persistent type ``SHORTTEXT`` was added to eav forms. Change script for all CzechIdM tables for persist eav values is provided  - provide the same change script in your module, if extended attributes was added to custom entity. ``SHORTTEXT`` and ``UUID`` values are indexed now.

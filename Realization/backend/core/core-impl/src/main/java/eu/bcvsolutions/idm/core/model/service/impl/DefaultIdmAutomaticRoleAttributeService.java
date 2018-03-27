@@ -317,12 +317,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		//
 		// transform to page uuid
 		List<UUID> dtos = contracts.getContent().stream().map(IdmIdentityContract::getId).collect(Collectors.toList());
-		PageRequest pageRequest = null;
-		if (contracts.getSize() > 0) {
-			pageRequest = new PageRequest(contracts.getNumber(), contracts.getSize(), contracts.getSort());
-		}
-		Page<UUID> dtoPage = new PageImpl<>(dtos, pageRequest, contracts.getTotalElements());
-		return dtoPage;
+		return new PageImpl<>(dtos, pageable, contracts.getTotalElements());
 	}
 	
 	@Override
@@ -416,7 +411,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			}
 			//
 			if (automaticRolesToProcess.hasNext()) {
-				automaticRolesToProcess = this.find(automaticRolesToProcess.nextPageable());
+				automaticRolesToProcess = this.findAllToProcess(type, automaticRolesToProcess.nextPageable());
 			} else {
 				break;
 			}

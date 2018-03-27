@@ -1,9 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [8.0.0 - unreleased]
+## [7.8.5]
 
-- Detail of user - frontend validation that required at least 3 characters for the user name was removed.
+- [#1037](https://redmine.czechidm.com/issues/1037) - Fix pageable in automatic role recalculation.
 
 ## [7.8.3]
 - [#1005](https://redmine.czechidm.com/issues/1005) - Dry run is available for long running task which supports it.

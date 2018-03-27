@@ -18,9 +18,10 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
  * Processor recalculate automatic roles by attribute after save identify or identity eav's.
@@ -42,7 +43,7 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 	public IdentityAutomaticRoleProcessor(
 			IdmAutomaticRoleAttributeService automaticRoleAttributeService,
 			IdmIdentityContractService identityContractService) {
-		super(IdentityEventType.UPDATE, IdentityEventType.CREATE, CoreEventType.EAV_SAVE);
+		super(IdentityContractEventType.NOTIFY);
 		//
 		Assert.notNull(automaticRoleAttributeService);
 		Assert.notNull(identityContractService);
@@ -52,21 +53,23 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 	}
 	
 	@Override
-	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
 		// skip recalculation
-		if (this.getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties())) {
-			return new DefaultEventResult<>(event, this);
-		}
+		return super.conditional(event)
+				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties());
+	}
+	
+	@Override
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		//
 		IdmIdentityDto identity = event.getContent();
 		UUID identityId = identity.getId();
 		//
 		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.IDENTITY;
-		if (event.getType() == CoreEventType.EAV_SAVE) {
+		if (CoreEventType.EAV_SAVE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE))) {
 			type = AutomaticRoleAttributeRuleType.IDENTITY_EAV;
 		}
 		//
-		// TODO: one time is possible add this to process queue (like account management)
 		for (IdmIdentityContractDto contract : identityContractService.findAllByIdentity(identityId)) {
 			UUID contractId = contract.getId();
 			Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, type, contractId);

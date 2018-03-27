@@ -26,7 +26,7 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
   componentDidMount() {
     const { entityId } = this.props.params;
     if (entityId) {
-      this.selectNavigationItems(['roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-identities']);
+      this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-identities']);
     } else {
       this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute-identities']);
     }

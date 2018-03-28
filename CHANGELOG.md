@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [8.0.0 - unreleased]
+## [8.0.0]
 
 - [#938](https://redmine.czechidm.com/issues/938) - Requests for automatic assign roles (by tree node or attributes) was implemented.
  - Creating, updating, deleting of the any automatic role **must use** this requests. Requests are approval by "same" workflows as request for roles uses.

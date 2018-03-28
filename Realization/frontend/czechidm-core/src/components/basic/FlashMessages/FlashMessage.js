@@ -7,6 +7,8 @@ import DateValue from '../DateValue/DateValue';
 /**
  * Renders flash message as Alert
  *
+ * TODO: message.children
+ *
  * @author Radek Tomiška
  */
 export default class FlashMessage extends AbstractContextComponent {

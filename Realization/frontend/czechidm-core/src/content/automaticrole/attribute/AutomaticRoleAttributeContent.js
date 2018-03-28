@@ -24,14 +24,19 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'automatic-roles', 'automatic-role-attribute-detail']);
+    super.componentDidMount();
+    const { automaticRoleId, entityId } = this.props.params;
+    if (entityId) { // We are on the role
+      this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-detail']);
+    } else {
+      this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute-detail']);
+    }
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(manager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(manager.receiveEntity(automaticRoleId, { }));
     } else {
-      this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(manager.fetchEntity(entityId));
+      this.getLogger().debug(`[TypeContent] loading entity detail [id:${automaticRoleId}]`);
+      this.context.store.dispatch(manager.fetchEntity(automaticRoleId));
     }
   }
 
@@ -45,8 +50,9 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 
   render() {
     const { entity} = this.props;
+    const { entityId } = this.props.params;
     return (
-      <div>
+      <div className={entityId ? 'panel-body' : ''}>
         {
           this._getIsNew()
           ?
@@ -68,10 +74,10 @@ AutomaticRoleAttributeContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { automaticRoleId } = component.params;
   //
   return {
-    entity: manager.getEntity(state, entityId)
+    entity: manager.getEntity(state, automaticRoleId)
   };
 }
 

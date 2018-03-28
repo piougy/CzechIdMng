@@ -1,11 +1,7 @@
-import React, { PropTypes } from 'react';
-import classnames from 'classnames';
+import { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
-import * as Basic from '../../basic';
-import { TreeTypeManager, SecurityManager } from '../../../redux/';
-import UuidInfo from '../UuidInfo/UuidInfo';
+import { TreeTypeManager, SecurityManager, DataManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new TreeTypeManager();
@@ -16,11 +12,18 @@ const manager = new TreeTypeManager();
  *
  * @author Radek Tomiška (main component)
  * @author Ondrej Kopr
+ * @author Patrik Stloukal
  */
 export class TreeTypeInfo extends AbstractEntityInfo {
 
   constructor(props, context) {
     super(props, context);
+  }
+
+  _onEnter() {
+    super._onEnter();
+    //
+    this.context.store.dispatch(this.getManager().fetchDefaultTreeType());
   }
 
   getManager() {
@@ -43,46 +46,52 @@ export class TreeTypeInfo extends AbstractEntityInfo {
    * @return {string}
    */
   getLink() {
-    const { entityIdentifier } = this.props;
-    //
-    return `/tree/types/${entityIdentifier}/detail`;
+    return `/tree/types/${encodeURIComponent(this.getEntityId())}`;
   }
 
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
-    //
-    if (!rendered) {
-      return null;
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'tree-deciduous';
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('entity.TreeType._type');
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    const { defaultTreeType } = this.props;
+    let id;
+    if (defaultTreeType !== null) {
+      id = defaultTreeType.id;
     }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    const classNames = classnames(
-      'tree-type-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+    return [
+      {
+        label: this.i18n('entity.TreeType.name'),
+        value: entity.name
+      },
+      {
+        label: this.i18n('entity.TreeType.code'),
+        value: entity.code
+      },
+      {
+        label: this.i18n('entity.TreeType.defaultTreeType.label'),
+        value: id === entity.id ? this.i18n('entity.TreeType.defaultTreeType.true') : this.i18n('entity.TreeType.defaultTreeType.false')
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={ this.getLink() }>{manager.getNiceLabel(_entity)}</Link>
-    );
+    ];
   }
 }
 
@@ -100,10 +109,12 @@ TreeTypeInfo.propTypes = {
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  defaultTreeType: PropTypes.object
 };
 TreeTypeInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
+  defaultTreeType: null,
   entity: null,
   face: 'link',
   _showLoading: true,
@@ -111,6 +122,7 @@ TreeTypeInfo.defaultProps = {
 
 function select(state, component) {
   return {
+    defaultTreeType: DataManager.getData(state, TreeTypeManager.UI_KEY_DEFAULT_TREE_TYPE),
     _entity: manager.getEntity(state, component.entityIdentifier),
     _showLoading: manager.isShowLoading(state, null, component.entityIdentifier)
   };

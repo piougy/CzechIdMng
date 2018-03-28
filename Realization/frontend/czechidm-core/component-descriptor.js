@@ -8,6 +8,10 @@ module.exports = {
       'component': require('./src/content/task/identityRole/DynamicTaskRoleDetail')
     },
     {
+      'id': 'dynamicAutomaticRoleTaskDetail',
+      'component': require('./src/content/task/identityRole/DynamicTaskAutomaticRoleDetail')
+    },
+    {
       'id': 'role-tree-node-task-detail',
       'component': require('./src/content/task/roleTreeNode/AutomaticRoleTaskDetail')
     },
@@ -54,7 +58,7 @@ module.exports = {
     {
       'id': 'tree-node-info',
       'type': 'entity-info',
-      'entityType': ['treeNode', 'IdmTreeNode', 'IdmTreeNodeDto'],
+      'entityType': ['tree', 'treeNode', 'IdmTreeNode', 'IdmTreeNodeDto'],
       'component': require('./src/components/advanced/TreeNodeInfo/TreeNodeInfo').default,
       'manager': require('./src/redux').TreeNodeManager
     },

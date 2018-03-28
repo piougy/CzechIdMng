@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
@@ -31,11 +33,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.api.service.StatelessAsynchronousTask;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,15 +59,13 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<IdmRoleTreeNodeDto, IdmRoleTreeNodeFilter> {
 	
 	protected static final String TAG = "Roles - by tree structures";
-	private final LongRunningTaskManager taskManager;
 	
 	@Autowired
-	public IdmRoleTreeNodeController(IdmRoleTreeNodeService service, LongRunningTaskManager taskManager) {
+	private IdmAutomaticRoleRequestService requestService;
+	
+	@Autowired
+	public IdmRoleTreeNodeController(IdmRoleTreeNodeService service) {
 		super(service);
-		//
-		Assert.notNull(taskManager);
-		//
-		this.taskManager = taskManager;
 	}
 	
 	@Override
@@ -108,6 +106,25 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete automatic roles (selectbox usage)", 
+			nickname = "autocompleteRoleTreeNodes", 
+			tags = { IdmRoleTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLETREENODE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLETREENODE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
 
 	@Override
 	@ResponseBody
@@ -129,6 +146,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
+	
 
 	@Override
 	@ResponseBody
@@ -150,7 +168,12 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 				},
 			notes = "If role has guarantee assigned, then automatic role has to be approved by him at first (configurable by entity event processor).")
 	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleTreeNodeDto dto) {
-		return super.post(dto);
+		Assert.notNull(dto);
+		IdmRoleTreeNodeDto result = requestService.createTreeAutomaticRole(dto);
+		if(result == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(toResource(result), HttpStatus.CREATED);
 	}
 	
 	@Override
@@ -158,7 +181,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_DELETE + "')")
 	@ApiOperation(
-			value = "Delete automatic role", 
+			value = "Delete automatic role. Uses request!", 
 			nickname = "deleteRoleTreeNode", 
 			tags = { IdmRoleTreeNodeController.TAG }, 
 			authorizations = { 
@@ -170,27 +193,9 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Automatic role's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		LongRunningTaskExecutor<?> asyncTask = new StatelessAsynchronousTask() {
-			
-			@Override
-			public String getName() {
-				return "RemoveAutomaticRoleTask";
-			}
-			
-			@Override
-			public String getDescription() {
-				return String.format("Remove automatic role [%s] asynchronously", backendId);
-			}
-			
-			@Override
-			public Boolean process() {
-				IdmRoleTreeNodeController.super.delete(backendId);
-				return Boolean.TRUE;			
-			}
-		};
-		taskManager.execute(asyncTask);
-		// TODO: improve status handling on FE
-		// return new ResponseEntity<Object>(HttpStatus.ACCEPTED);
+		IdmRoleTreeNodeDto automaticRole = this.getDto(backendId);
+		Assert.notNull(automaticRole);
+		requestService.deleteAutomaticRole(automaticRole, AutomaticRoleRequestType.TREE);
 		throw new AcceptedException();
 	}
 	

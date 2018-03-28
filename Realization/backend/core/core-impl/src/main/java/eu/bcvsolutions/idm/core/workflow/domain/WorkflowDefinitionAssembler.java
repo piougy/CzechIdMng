@@ -12,9 +12,11 @@ import eu.bcvsolutions.idm.core.workflow.rest.WorkflowDefinitionController;
 
 /**
  * Assembler for add HATEOAS links
+ * 
  * @author svandav
- *
+ * @deprecated not used @since 7.8.0
  */
+@Deprecated
 @SuppressWarnings("rawtypes")
 public class WorkflowDefinitionAssembler
 		extends ResourceAssemblerSupport<WorkflowProcessDefinitionDto, ResourceWrapper> {

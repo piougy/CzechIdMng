@@ -28,6 +28,9 @@ export default class SynchronizationUnlinkedActionTypeEnum extends Enums.Abstrac
       case this.LINK_AND_UPDATE_ACCOUNT: {
         return 'success';
       }
+      case this.LINK_AND_UPDATE_ENTITY: {
+        return 'success';
+      }
       case this.LINK: {
         return 'success';
       }
@@ -41,6 +44,7 @@ export default class SynchronizationUnlinkedActionTypeEnum extends Enums.Abstrac
   }
 }
 
+SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ENTITY = Symbol('LINK_AND_UPDATE_ENTITY');
 SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ACCOUNT = Symbol('LINK_AND_UPDATE_ACCOUNT');
 SynchronizationUnlinkedActionTypeEnum.LINK = Symbol('LINK');
 SynchronizationUnlinkedActionTypeEnum.IGNORE = Symbol('IGNORE');

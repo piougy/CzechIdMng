@@ -115,27 +115,28 @@ export class ScriptTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text')}/>
-                  </div>
-                  <div className="col-lg-6 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last">
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="code"
                       placeholder={this.i18n('entity.Script.code')}/>
-                  </div>
-                  <div className="col-lg-6">
-                    <Basic.EnumSelectBox
-                      ref="category"
-                      placeholder={this.i18n('entity.Script.category')}
-                      enum={ScriptCategoryEnum}/>
-                  </div>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="inCategory"
+                      placeholder={ this.i18n('entity.Script.category') }
+                      enum={ ScriptCategoryEnum }
+                      multiSelect/>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>

@@ -63,19 +63,14 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 
 	@Autowired
 	private RuntimeService runtimeService;
-
 	@Autowired
 	private SecurityService securityService;
-
 	@Autowired
 	private IdmIdentityService identityService;
-
 	@Autowired
 	private RepositoryService repositoryService;
-	
 	@Autowired
 	private HistoryService historyService;
-	
 	@Autowired
 	private TaskService taskService;
 

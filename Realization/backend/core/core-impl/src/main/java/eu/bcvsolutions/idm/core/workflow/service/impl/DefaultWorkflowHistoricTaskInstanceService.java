@@ -23,13 +23,18 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
+
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 
 /**
  * Default implementation of workflow process historic service
@@ -42,9 +47,12 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 
 	@Autowired
 	private HistoryService historyService;
-	
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
+	@Autowired
+	private WorkflowProcessDefinitionService workflowProcessDefinitionService;
 
 	@Override
 	public Page<WorkflowHistoricTaskInstanceDto> find(Pageable pageable, BasePermission... permission) {
@@ -219,6 +227,17 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 				}
 			}
 			dto.setCandicateUsers(candicateUsers);
+		}
+		
+		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(dto.getProcessDefinitionId(),
+				instance.getTaskDefinitionKey()));
+
+		if (!Strings.isNullOrEmpty(dto.getProcessDefinitionId())) {
+			WorkflowProcessDefinitionDto processDefinition = workflowProcessDefinitionService
+					.get(dto.getProcessDefinitionId());
+			if (processDefinition != null) {
+				dto.setProcessDefinitionKey(processDefinition.getKey());
+			}
 		}
 
 		return dto;

@@ -178,7 +178,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
   }
 
   _getBoolColumn(value) {
-    return (<Basic.BooleanCell propertyValue={ value !== null } className="column-face-bool"/>);
+    return (<Basic.BooleanCell propertyValue={ value !== null && value !== '' } className="column-face-bool"/>);
   }
 
   _onChangeEntityType(entity) {

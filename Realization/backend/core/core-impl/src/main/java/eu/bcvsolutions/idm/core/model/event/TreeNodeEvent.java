@@ -21,7 +21,11 @@ public class TreeNodeEvent extends CoreEvent<IdmTreeNodeDto> {
 	 * Supported event types
 	 */
 	public enum TreeNodeEventType implements EventType {
-		CREATE, UPDATE, DELETE
+		CREATE, 
+		UPDATE, 
+		DELETE, 
+		EAV_SAVE,
+		NOTIFY
 	}
 
 	public TreeNodeEvent(TreeNodeEventType operation, IdmTreeNodeDto content) {

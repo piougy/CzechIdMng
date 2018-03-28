@@ -72,7 +72,7 @@ public interface TestHelper {
 	/**
 	 * Creates test identity with random username and given password
 	 *
-	 * @param password optional] when password is not given, then identity password will not be saved - usefull when password is not needed
+	 * @param password [optional] when password is not given, then identity password will not be saved - useful when password is not needed
 	 * @return
 	 */
 	IdmIdentityDto createIdentity(GuardedString password);
@@ -387,6 +387,13 @@ public interface TestHelper {
 	IdmProcessedTaskItemDto prepareProcessedItem(IdmScheduledTaskDto d, OperationState state);
 
 	/**
+	 * Disables / enables given configuration property
+	 *
+	 * @param configurationPropertyName
+	 */
+	void setConfigurationValue(String configurationPropertyName, boolean value);
+
+	/**
 	 * Enables given processor
 	 *
 	 * @param processorType
@@ -406,6 +413,15 @@ public interface TestHelper {
 	 * @param continueFunction
 	 */
 	void waitForResult(Function<String, Boolean> continueFunction);
+	
+	/**
+	 * Wait for result - usable for asynchronous tests
+	 * 
+	 * @param continueFunction
+	 * @param interationWaitMilis [optional] default 300ms
+	 * @param iterationCount [optional] default 50 => max wait 300ms x 50 = 15s
+	 */
+	void waitForResult(Function<String, Boolean> continueFunction, Integer interationWaitMilis, Integer iterationCount);
 
 	/**
 	 * Create schedulable task instance

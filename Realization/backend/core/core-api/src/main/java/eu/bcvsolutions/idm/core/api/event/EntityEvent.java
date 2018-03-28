@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.Configurable;
 
 /**
  * Event state holder (content + metadata)
@@ -63,6 +64,8 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	/**
 	 * Event properties (metadata)
 	 * 
+	 * TODO: ConfigurationMap should be used ... see {@link Configurable}.
+	 * 
 	 * @return
 	 */
 	Map<String, Serializable> getProperties();
@@ -108,7 +111,7 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	default boolean hasType(EventType eventType) {
 		Assert.notNull(eventType);
 		//
-		return eventType.name() == getType().name();
+		return eventType.name().equals(getType().name());
 	}
 
 	/**

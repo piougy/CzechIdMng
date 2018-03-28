@@ -40,6 +40,8 @@ import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Role catalogue controller
+ * 
+ * TODO: use AbstractEventableDtoController - add missing methods, because DefaultReadWriteDtoController is used now :/
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *

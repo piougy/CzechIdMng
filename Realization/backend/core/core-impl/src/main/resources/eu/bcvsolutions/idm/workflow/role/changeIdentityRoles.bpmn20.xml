@@ -16,7 +16,7 @@ Configuration properties:
 - idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
-    <userTask id="managerTask" name="Approve by help desk" activiti:candidateUsers="#{candidatesApproveByHelpDesk}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByHelpDesk}">
+    <userTask id="approveByHelpDesk" name="Approve by help desk" activiti:candidateUsers="#{candidatesApproveByHelpDesk}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByHelpDesk}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -34,8 +34,8 @@ Configuration properties:
     <endEvent id="endByApplicant" name="Canceled by applicant">
       <documentation>Canceled by applicant</documentation>
     </endEvent>
-    <userTask id="applicantReturnedTask" name="Returned request (from helpdesk)" activiti:assignee=" ${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Returned request for change permissions from helpdesk</documentation>
+    <userTask id="returnedRequestFromHelpdesk" name="Returned request (from helpdesk)" activiti:assignee=" ${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
@@ -44,7 +44,7 @@ Configuration properties:
         <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="flow15" sourceRef="applicantReturnedTask" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow15" sourceRef="returnedRequestFromHelpdesk" targetRef="exclusivegateway1"></sequenceFlow>
     <callActivity id="startAddSubWorkflow" name="Approval assign of particular authorizations" calledElement="${roleService.findAssignRoleWorkflowDefinition(conceptRole.role) == null ? &quot;change-role-without-approve&quot; : roleService.findAssignRoleWorkflowDefinition(conceptRole.role) }">
       <extensionElements>
         <activiti:in source="applicantIdentifier" target="applicantIdentifier"></activiti:in>
@@ -60,7 +60,7 @@ Configuration properties:
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow17" sourceRef="startAddSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
-    <sequenceFlow id="flow19" sourceRef="managerTask" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="approveByHelpDesk" targetRef="exclusivegateway2"></sequenceFlow>
     <sequenceFlow id="flow21" sourceRef="scripttask1" targetRef="startAddSubWorkflow"></sequenceFlow>
     <scriptTask id="scripttask1" name="Loading concepts for add new permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
@@ -79,7 +79,7 @@ def addedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getC
 
 execution.setVariable("addedConceptRoles", addedConceptRoles);</script>
     </scriptTask>
-    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Change permissions request for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Change permissions request for {{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Loading concepts for change permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
@@ -154,7 +154,7 @@ execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
     <sequenceFlow id="flow30" sourceRef="parallelgateway1" targetRef="scripttask3"></sequenceFlow>
     <sequenceFlow id="flow31" sourceRef="startRemoveSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
     <sequenceFlow id="flow33" sourceRef="servicetaskCreateProcessName" targetRef="scripttask5"></sequenceFlow>
-    <sequenceFlow id="flow34" sourceRef="exclusivegateway1" targetRef="managerTask">
+    <sequenceFlow id="flow34" sourceRef="exclusivegateway1" targetRef="approveByHelpDesk">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetaskRealization" name="Realization of request (evoke event)" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
@@ -225,9 +225,9 @@ if(!skip){
   execution.setVariable("candidatesApproveByHelpDesk", candidates);
 }</script>
     </scriptTask>
-    <sequenceFlow id="flow38" sourceRef="scripttask5" targetRef="managerTask"></sequenceFlow>
+    <sequenceFlow id="flow38" sourceRef="scripttask5" targetRef="approveByHelpDesk"></sequenceFlow>
     <exclusiveGateway id="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4" name="Exclusive Gateway"></exclusiveGateway>
-    <userTask id="sid-69F3488F-4175-4C5F-A034-77C5B7A378C6" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByManager}">
+    <userTask id="approveByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -242,8 +242,8 @@ if(!skip){
     <sequenceFlow id="sid-F6CF4663-29E1-49FB-AD56-EFDE0ECCB694" sourceRef="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" targetRef="scripttask10">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" name="Returned request (from manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Returned request for change permissions from manager</documentation>
+    <userTask id="returnedRequestFromManager" name="Returned request (from manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
@@ -252,8 +252,8 @@ if(!skip){
         <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
-    <sequenceFlow id="sid-4F213EDC-31DA-4044-87CC-A6DD1247E93C" sourceRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4" targetRef="sid-69F3488F-4175-4C5F-A034-77C5B7A378C6">
+    <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="returnedRequestFromManager" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
+    <sequenceFlow id="sid-4F213EDC-31DA-4044-87CC-A6DD1247E93C" sourceRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4" targetRef="approveByManager">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="sid-8554081E-2846-412C-A612-0F532ADABEDA" name="Find all applicant's managers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -292,9 +292,9 @@ if(!skip){
   execution.setVariable("candidatesApproveByManager", candidates);
 }</script>
     </scriptTask>
-    <sequenceFlow id="sid-044DD704-22AD-434D-B42E-DEDAE03BF3CC" sourceRef="sid-8554081E-2846-412C-A612-0F532ADABEDA" targetRef="sid-69F3488F-4175-4C5F-A034-77C5B7A378C6"></sequenceFlow>
+    <sequenceFlow id="sid-044DD704-22AD-434D-B42E-DEDAE03BF3CC" sourceRef="sid-8554081E-2846-412C-A612-0F532ADABEDA" targetRef="approveByManager"></sequenceFlow>
     <exclusiveGateway id="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E" name="Exclusive Gateway"></exclusiveGateway>
-    <userTask id="sid-44411063-064E-4897-9B31-A9D29DE8DB3C" name="Approve by user manager" activiti:candidateUsers="#{candidatesApproveByUsermanager}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByUsermanager}">
+    <userTask id="approveByUserManager" name="Approve by user manager" activiti:candidateUsers="#{candidatesApproveByUsermanager}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByUsermanager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -309,8 +309,8 @@ if(!skip){
     <sequenceFlow id="sid-F12630E1-8728-4CCA-8E25-79A44942BD14" sourceRef="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" targetRef="scripttask11">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="sid-12381137-9285-460E-8CCD-BC43D5679026" name="Returned request (from user manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Returned request for change permissions from user manager</documentation>
+    <userTask id="returnedRequestFromUserManager" name="Returned request (from user manager)" activiti:assignee="${implementerIdentifier}" activiti:formKey="dynamicRoleTaskDetail">
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
@@ -319,9 +319,9 @@ if(!skip){
         <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="sid-12381137-9285-460E-8CCD-BC43D5679026" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>
-    <sequenceFlow id="sid-585E396A-7CD3-4EEB-A11D-E70EFEBC36FA" sourceRef="sid-44411063-064E-4897-9B31-A9D29DE8DB3C" targetRef="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471"></sequenceFlow>
-    <sequenceFlow id="sid-2CD6BB31-9D9C-4039-B5A8-29F3E0252145" sourceRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E" targetRef="sid-44411063-064E-4897-9B31-A9D29DE8DB3C">
+    <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="returnedRequestFromUserManager" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>
+    <sequenceFlow id="sid-585E396A-7CD3-4EEB-A11D-E70EFEBC36FA" sourceRef="approveByUserManager" targetRef="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471"></sequenceFlow>
+    <sequenceFlow id="sid-2CD6BB31-9D9C-4039-B5A8-29F3E0252145" sourceRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E" targetRef="approveByUserManager">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E" name="Find all user managers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -359,8 +359,8 @@ if(!skip){
   execution.setVariable("candidatesApproveByUsermanager", candidates);
 }</script>
     </scriptTask>
-    <sequenceFlow id="sid-DC0D03B6-CF3F-4073-8044-0CE01CBB7DB5" sourceRef="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E" targetRef="sid-44411063-064E-4897-9B31-A9D29DE8DB3C"></sequenceFlow>
-    <sequenceFlow id="sid-A8901EF0-CE52-4DBA-B810-4E4E1964E8BA" sourceRef="sid-69F3488F-4175-4C5F-A034-77C5B7A378C6" targetRef="sid-CB31E93D-4436-474F-B565-D990B2AC1E64"></sequenceFlow>
+    <sequenceFlow id="sid-DC0D03B6-CF3F-4073-8044-0CE01CBB7DB5" sourceRef="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E" targetRef="approveByUserManager"></sequenceFlow>
+    <sequenceFlow id="sid-A8901EF0-CE52-4DBA-B810-4E4E1964E8BA" sourceRef="approveByManager" targetRef="sid-CB31E93D-4436-474F-B565-D990B2AC1E64"></sequenceFlow>
     <sequenceFlow id="sid-97770AD6-3F73-4833-B2EE-918194BBA074" sourceRef="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" targetRef="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E"></sequenceFlow>
     <sequenceFlow id="sid-62F032AA-0D66-4AC4-9A9E-EC0276A2EEB3" sourceRef="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" targetRef="parallelgateway1"></sequenceFlow>
     <sequenceFlow id="flow10" sourceRef="exclusivegateway1" targetRef="scripttask6">
@@ -406,7 +406,7 @@ roleRequestService.save(requestDto);</script>
     <serviceTask id="servicetask1" name="Realization of request (evoke event)" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <sequenceFlow id="flow39" sourceRef="scripttask6" targetRef="servicetask1"></sequenceFlow>
     <sequenceFlow id="flow40" sourceRef="servicetask1" targetRef="endByApplicant"></sequenceFlow>
-    <userTask id="usertask1" name="Approve by security" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveBySecurity}">
+    <userTask id="approvedBySecurity" name="Approve by security" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveBySecurity}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -452,9 +452,9 @@ if(!skip){
   execution.setVariable("candidatesApproveBySecurity", candidates);
 }</script>
     </scriptTask>
-    <sequenceFlow id="flow41" sourceRef="scripttask7" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow41" sourceRef="scripttask7" targetRef="approvedBySecurity"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway" default="flow43"></exclusiveGateway>
-    <sequenceFlow id="flow42" sourceRef="usertask1" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow42" sourceRef="approvedBySecurity" targetRef="exclusivegateway3"></sequenceFlow>
     <sequenceFlow id="flow43" sourceRef="exclusivegateway3" targetRef="scripttask4"></sequenceFlow>
     <sequenceFlow id="flow44" sourceRef="exclusivegateway3" targetRef="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("disapprove")}]]></conditionExpression>
@@ -748,7 +748,7 @@ if(sendNotificationToApplicant){
 }
 </script>
     </scriptTask>
-    <sequenceFlow id="flow49" sourceRef="scripttask10" targetRef="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507"></sequenceFlow>
+    <sequenceFlow id="flow49" sourceRef="scripttask10" targetRef="returnedRequestFromManager"></sequenceFlow>
     <scriptTask id="scripttask11" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
@@ -830,7 +830,7 @@ if(sendNotificationToApplicant){
 }
 </script>
     </scriptTask>
-    <sequenceFlow id="flow50" sourceRef="scripttask11" targetRef="sid-12381137-9285-460E-8CCD-BC43D5679026"></sequenceFlow>
+    <sequenceFlow id="flow50" sourceRef="scripttask11" targetRef="returnedRequestFromUserManager"></sequenceFlow>
     <scriptTask id="scripttask12" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
@@ -912,7 +912,7 @@ if(sendNotificationToApplicant){
 }
 </script>
     </scriptTask>
-    <sequenceFlow id="flow51" sourceRef="scripttask12" targetRef="applicantReturnedTask"></sequenceFlow>
+    <sequenceFlow id="flow51" sourceRef="scripttask12" targetRef="returnedRequestFromHelpdesk"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_approve-identity-change-permissions">
     <bpmndi:BPMNPlane bpmnElement="approve-identity-change-permissions" id="BPMNPlane_approve-identity-change-permissions">
@@ -922,7 +922,7 @@ if(sendNotificationToApplicant){
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="641.0" y="141.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="managerTask" id="BPMNShape_managerTask">
+      <bpmndi:BPMNShape bpmnElement="approveByHelpDesk" id="BPMNShape_approveByHelpDesk">
         <omgdc:Bounds height="67.0" width="144.0" x="589.0" y="317.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
@@ -931,7 +931,7 @@ if(sendNotificationToApplicant){
       <bpmndi:BPMNShape bpmnElement="endByApplicant" id="BPMNShape_endByApplicant">
         <omgdc:Bounds height="35.0" width="35.0" x="1.0" y="24.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="applicantReturnedTask" id="BPMNShape_applicantReturnedTask">
+      <bpmndi:BPMNShape bpmnElement="returnedRequestFromHelpdesk" id="BPMNShape_returnedRequestFromHelpdesk">
         <omgdc:Bounds height="71.0" width="130.0" x="754.0" y="126.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startAddSubWorkflow" id="BPMNShape_startAddSubWorkflow">
@@ -979,13 +979,13 @@ if(sendNotificationToApplicant){
       <bpmndi:BPMNShape bpmnElement="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4" id="BPMNShape_sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4">
         <omgdc:Bounds height="40.0" width="40.0" x="1188.0" y="143.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-69F3488F-4175-4C5F-A034-77C5B7A378C6" id="BPMNShape_sid-69F3488F-4175-4C5F-A034-77C5B7A378C6">
+      <bpmndi:BPMNShape bpmnElement="approveByManager" id="BPMNShape_approveByManager">
         <omgdc:Bounds height="67.0" width="144.0" x="1136.0" y="319.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" id="BPMNShape_sid-CB31E93D-4436-474F-B565-D990B2AC1E64">
         <omgdc:Bounds height="40.0" width="40.0" x="1345.0" y="332.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" id="BPMNShape_sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507">
+      <bpmndi:BPMNShape bpmnElement="returnedRequestFromManager" id="BPMNShape_returnedRequestFromManager">
         <omgdc:Bounds height="71.0" width="130.0" x="1301.0" y="128.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-8554081E-2846-412C-A612-0F532ADABEDA" id="BPMNShape_sid-8554081E-2846-412C-A612-0F532ADABEDA">
@@ -994,13 +994,13 @@ if(sendNotificationToApplicant){
       <bpmndi:BPMNShape bpmnElement="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E" id="BPMNShape_sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E">
         <omgdc:Bounds height="40.0" width="40.0" x="1738.0" y="94.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-44411063-064E-4897-9B31-A9D29DE8DB3C" id="BPMNShape_sid-44411063-064E-4897-9B31-A9D29DE8DB3C">
+      <bpmndi:BPMNShape bpmnElement="approveByUserManager" id="BPMNShape_approveByUserManager">
         <omgdc:Bounds height="67.0" width="144.0" x="1687.0" y="322.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" id="BPMNShape_sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471">
         <omgdc:Bounds height="40.0" width="40.0" x="1896.0" y="335.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-12381137-9285-460E-8CCD-BC43D5679026" id="BPMNShape_sid-12381137-9285-460E-8CCD-BC43D5679026">
+      <bpmndi:BPMNShape bpmnElement="returnedRequestFromUserManager" id="BPMNShape_returnedRequestFromUserManager">
         <omgdc:Bounds height="71.0" width="130.0" x="1852.0" y="79.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E" id="BPMNShape_sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E">
@@ -1012,7 +1012,7 @@ if(sendNotificationToApplicant){
       <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
         <omgdc:Bounds height="81.0" width="151.0" x="103.0" y="1.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+      <bpmndi:BPMNShape bpmnElement="approvedBySecurity" id="BPMNShape_approvedBySecurity">
         <omgdc:Bounds height="67.0" width="144.0" x="2852.0" y="636.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask7" id="BPMNShape_scripttask7">
@@ -1190,7 +1190,7 @@ if(sendNotificationToApplicant){
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="818.0" y="370.0"></omgdi:waypoint>
-        <omgdi:waypoint x="818.0" y="574.0"></omgdi:waypoint>
+        <omgdi:waypoint x="818.0" y="575.0"></omgdi:waypoint>
         <omgdi:waypoint x="1283.0" y="575.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-1904D1CD-F8B5-4866-87A1-252CDD40546C" id="BPMNEdge_sid-1904D1CD-F8B5-4866-87A1-252CDD40546C">

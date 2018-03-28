@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -94,11 +95,12 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Before
 	public void login() {
 		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		configurationService.setValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, "true");
-		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "true");
-		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "true");
-		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
-		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "true");
+		//
+		helper.setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, true);
+		helper.setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, true);
+		helper.setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, true);
+		helper.setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
+		helper.setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, true);
 		createStructure();
 	}
 

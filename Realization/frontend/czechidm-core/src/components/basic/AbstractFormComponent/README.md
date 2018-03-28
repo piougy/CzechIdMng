@@ -20,4 +20,5 @@ This component is not designed for separate usage. Use children components (etc.
 | validation  | object | joi validation |  |
 | validate  | func | function for custom validation (input is value and result from previous validations) |  |
 | style  | string | element style |  |
-| helpBlock  | string | help under input |  | |
+| helpBlock  | string | help under input |  |
+| notControlled  | bool | If true, then isn't component controlled by the AbstractForm |false | |

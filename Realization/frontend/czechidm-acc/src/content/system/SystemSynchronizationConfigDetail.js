@@ -12,7 +12,6 @@ import SynchronizationMissingEntityActionTypeEnum from '../../domain/Synchroniza
 import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationUnlinkedActionTypeEnum';
 import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
-import help from './SyncConfigFilterHelp_cs.md';
 import SyncIdentityConfig from '../sync/SyncIdentityConfig';
 import SyncContractConfig from '../sync/SyncContractConfig';
 
@@ -357,6 +356,18 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     return null;
   }
 
+  getHelp() {
+    let helpContent = new Domain.HelpContent();
+    helpContent = helpContent.setHeader(
+      <span>
+        <Basic.Icon value="filter"/> { this.i18n('help.header') }
+      </span>
+    );
+    helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
+    //
+    return helpContent;
+  }
+
   render() {
     const { _showLoading, _synchronizationConfig } = this.props;
     const { systemMappingId, showLoading, activeKey, entityType, enabled } = this.state;
@@ -619,7 +630,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}
-                    help={help}/>
+                    help={ this.getHelp() }/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"

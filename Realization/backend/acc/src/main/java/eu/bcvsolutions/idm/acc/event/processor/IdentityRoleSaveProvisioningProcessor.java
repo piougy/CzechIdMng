@@ -5,23 +5,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -37,20 +36,13 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 
 	public static final String PROCESSOR_NAME = "identity-role-save-provisioning-processor";
 	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleSaveProvisioningProcessor.class);
-	private final ProvisioningService provisioningService;
-	private final IdmIdentityContractService identityContractService;
+	//
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private ProvisioningService provisioningService;
+	@Autowired private EntityEventManager entityEventManager;
 
-	@Autowired
-	public IdentityRoleSaveProvisioningProcessor(
-			ProvisioningService provisioningService,
-			IdmIdentityContractService identityContractService) {
-		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
-		//
-		Assert.notNull(provisioningService);
-		Assert.notNull(identityContractService);
-		//
-		this.provisioningService = provisioningService;
-		this.identityContractService = identityContractService;
+	public IdentityRoleSaveProvisioningProcessor() {
+		super(CoreEventType.NOTIFY);
 	}
 	
 	@Override
@@ -64,10 +56,12 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 		//
+		// TODO: full account management should be moved into NOTIFY on identity => super owner id can be removed then in IdentityRolePublishChangeProcessor
+		// all identity roles are processed now => doesn't support concurrency - duplicate accounts can be created now (ux constraint ex. is thrown)
 		LOG.debug("Call account management for identity [{}]", identity.getUsername());
 		provisioningService.accountManagement(identity);
-		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
-		provisioningService.doProvisioning(identity);
+		LOG.debug("Register change for identity [{}]", identity.getUsername());
+		entityEventManager.changedEntity(identity, event);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

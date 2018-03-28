@@ -73,6 +73,11 @@ module.exports = {
           component: require('./src/content/identity/IdentityGarantedRoles'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
+        {
+          path: 'events',
+          component: require('./src/content/identity/IdentityEvents'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
+        }
       ]
     },
     {
@@ -212,6 +217,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_CREATE'] } ]
     },
     {
+      path: 'automatic-role-requests',
+      component: require('./src/content/automaticrolerequest/AutomaticRoleRequests'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEREQUEST_READ'] } ]
+    },
+    {
+      path: 'automatic-role-requests/:entityId/detail',
+      component: require('./src/content/automaticrolerequest/AutomaticRoleRequestDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEREQUEST_READ'] } ]
+    },
+    {
+      path: 'automatic-role-requests/:entityId/new',
+      component: require('./src/content/automaticrolerequest/AutomaticRoleRequestDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEREQUEST_CREATE'] } ]
+    },
+    {
       path: 'role/:entityId/',
       component: require('./src/content/role/Role'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
@@ -235,6 +255,45 @@ module.exports = {
           path: 'tree-nodes',
           component: require('./src/content/role/RoleTreeNodes'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+        },
+        {
+          path: 'automatic-roles',
+          component: require('./src/content/role/RoleAutomaticRoleRoutes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ],
+          childRoutes: [
+            {
+              path: 'attributes',
+              component: require('./src/content/role/RoleAutomaticAttributes'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+            },
+            {
+              path: 'trees',
+              component: require('./src/content/role/RoleTreeNodes'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+            }
+          ]
+        },
+        {
+          path: 'automatic-roles/attributes/:automaticRoleId',
+          component: require('./src/content/role/RoleAutomaticRoleAttributeRoutes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ],
+          childRoutes: [
+            {
+              path: 'rules',
+              component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRules'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
+            },
+            {
+              path: 'identities',
+              component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeIdentities'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+            },
+            {
+              path: 'detail',
+              component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+            },
+          ]
         },
         {
           path: 'authorization-policies',
@@ -423,17 +482,17 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ],
       childRoutes: [
         {
-          path: ':entityId',
+          path: ':automaticRoleId',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
         },
         {
-          path: ':entityId/rules',
+          path: ':automaticRoleId/rules',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRules'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
         },
         {
-          path: ':entityId/identities',
+          path: ':automaticRoleId/identities',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeIdentities'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
         }
@@ -443,11 +502,6 @@ module.exports = {
       path: 'automatic-role/attributes/:entityId/rule/:ruleId',
       component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRuleContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
-    },
-    {
-      path: 'automatic-role/attributes/:entityId/new',
-      component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_CREATE'] } ]
     },
     {
       path: 'forms',
@@ -553,6 +607,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         }
       ]
+    },
+    {
+      path: 'audit/entity-events',
+      component: require('./src/content/audit/event/EntityEvents'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       path: 'notification/',

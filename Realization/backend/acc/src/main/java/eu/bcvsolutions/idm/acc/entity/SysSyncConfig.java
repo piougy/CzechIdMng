@@ -16,8 +16,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.envers.AuditOverride;
-import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -46,9 +44,6 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 		@Index(name = "idx_sys_s_config_filter", columnList = "filter_attribute_id")
 		})
 @Inheritance(strategy = InheritanceType.JOINED)
-@AuditOverrides(value = {
-		@AuditOverride(name = "modified", forClass = AbstractEntity.class, isAudited = false)
-})
 public class SysSyncConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;

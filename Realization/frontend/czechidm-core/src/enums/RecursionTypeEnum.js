@@ -35,6 +35,26 @@ export default class RecursionTypeEnum extends AbstractEnum {
       }
     }
   }
+
+  static getIcon(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.DOWN: {
+        return 'fa:arrow-down';
+      }
+      case this.UP: {
+        return 'fa:arrow-up';
+      }
+      default: {
+        return 'fa:circle-o';
+      }
+    }
+  }
 }
 
 RecursionTypeEnum.NO = Symbol('NO');

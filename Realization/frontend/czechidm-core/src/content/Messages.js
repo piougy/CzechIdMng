@@ -3,8 +3,13 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../components/basic';
-import help from './Messages_cs.md';
+import { HelpContent } from '../domain';
 
+/**
+ * Flash messages history
+ *
+ * @author Radek Tomiška
+ */
 class Messages extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -15,12 +20,28 @@ class Messages extends Basic.AbstractContent {
     this.selectNavigationItem('messages');
   }
 
+  getContentKey() {
+    return 'content.messages';
+  }
+
   removeAllMessages() {
     this.context.store.dispatch(this.getFlashManager().removeAllMessages());
   }
 
   removeMessage(id) {
     this.context.store.dispatch(this.getFlashManager().removeMessage(id));
+  }
+
+  getHelp() {
+    let helpContent = new HelpContent();
+    helpContent = helpContent.setHeader(
+      <span>
+        <Basic.Icon value="envelope"/> { this.i18n('help.header') }
+      </span>
+    );
+    helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
+    //
+    return helpContent;
   }
 
   render() {
@@ -68,7 +89,7 @@ class Messages extends Basic.AbstractContent {
         <div className="col-lg-offset-2 col-lg-8">
           <Helmet title={this.i18n('navigation.menu.messages')} />
           <Basic.Panel>
-            <Basic.PanelHeader text={panelText} help={help}/>
+            <Basic.PanelHeader text={panelText} help={ this.getHelp() }/>
             <Basic.Toolbar viewportOffsetTop={0} container={this} rendered={!isEmpty}>
               <div className="pull-right">
                 <Basic.Button level="warning" className="btn-xs" onClick={this.removeAllMessages.bind(this)}>

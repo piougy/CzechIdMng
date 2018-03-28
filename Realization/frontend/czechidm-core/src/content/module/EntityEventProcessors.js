@@ -147,7 +147,8 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                       <Advanced.Filter.EnumSelectBox
                         ref="entityType"
                         placeholder={ this.i18n('filter.entityType.placeholder') }
-                        options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }/>
+                        options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
+                        searchable/>
                     </Basic.Col>
                     <Basic.Col lg={ 6 }>
                       <Advanced.Filter.EnumSelectBox
@@ -236,7 +237,20 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                         property="disabled"
                         header={<Basic.Cell className="column-face-bool">{this.i18n('entity.EntityEventProcessor.disabled')}</Basic.Cell>}
                         cell={<Basic.BooleanCell className="column-face-bool"/>}
-                        width="100px"/>
+                        width={ 100 }/>
+                      <Basic.Column
+                        header={ this.i18n('entity.id.label') }
+                        property="id"
+                        rendered={ this.isDevelopment() }
+                        className="text-center"
+                        width={ 100 }
+                        cell={
+                          ({rowIndex, data, property}) => {
+                            return (
+                              <Advanced.UuidInfo value={data[rowIndex][property]}/>
+                            );
+                          }
+                        }/>
                     </Basic.Table>
                   </div>
                 );

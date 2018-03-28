@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -158,7 +159,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
 		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
 	}
 

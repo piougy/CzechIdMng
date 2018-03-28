@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -44,6 +45,7 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
 	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
+	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
 	
 	@Override
 	public String getId() {
@@ -156,6 +158,12 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Password has been changed.", 
 				getNotificationTemplateId("passwordChanged")));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_EVENT, 
+				null, 
+				IdmConsoleLog.NOTIFICATION_TYPE,
+				"Events (asynchronous).", 
+				null));
 		return configs;
 	}
 	

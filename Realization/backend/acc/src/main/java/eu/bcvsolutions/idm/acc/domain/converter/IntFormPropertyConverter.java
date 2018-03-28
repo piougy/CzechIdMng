@@ -19,7 +19,7 @@ public class IntFormPropertyConverter extends AbstractFormPropertyConverter {
 
 	@Override
 	public Set<String> getConnectorPropertyTypes() {
-		return Sets.newHashSet("int");
+		return Sets.newHashSet("int", "java.lang.Integer");
 	}
 
 	@Override

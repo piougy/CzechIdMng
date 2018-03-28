@@ -20,7 +20,8 @@
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
     "datetime": "DD.MM.YYYY HH:mm:ss",
-    "times": "HH:mm:ss"
+    "times": "HH:mm:ss",
+    "duration": "DD HH:mm:ss"
   },
   "message": {
     "success": {
@@ -98,6 +99,12 @@
     "dateTill": {
       "label": "Do",
       "placeholder": "Datum do"
+    },
+    "text": {
+      "help": {
+        "header": "Filtrování",
+        "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
+      }
     }
   },
   "action": {
@@ -479,6 +486,10 @@
       "TECHNICAL": "Technická",
       "LOGIN": "Přihlašovací"
     },
+    "AutomaticRoleRequestTypeEnum": {
+      "TREE": "Role dle stromové struktury",
+      "ATTRIBUTE": "Role dle atributu"
+    },
     "ScriptCategoryEnum": {
       "DEFAULT": "Standardní",
       "TRANSFORM_FROM": "Transformace z",
@@ -597,6 +608,7 @@
     	"EXECUTED": "Provedeno",
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
+    	"BLOCKED": "Blokováno",
     	"CANCELED": "Zrušeno"
     },
     "TriggerTypeEnum": {
@@ -637,7 +649,7 @@
       "SERVICE": "Služba"
     },
     "ContractStateEnum": {
-      "EXCLUDED": "Vyňat z evidenčního počtu",
+      "EXCLUDED": "Vyňat z ev. počtu",
       "DISABLED": "$t(label.disabled)"
     },
     "AutomaticRoleAttributeRuleTypeEnum": {
@@ -682,6 +694,11 @@
       "LEFT": "Odešel(a)",
       "DISABLED": "$t(label.disabled)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
+    },
+    "PriorityTypeEnum": {
+      "IMMEDIATE": "Ihned",
+      "HIGH": "Vysoká",
+      "NORMAL": "Normální"
     }
   },
   "dashboard": {
@@ -730,7 +747,9 @@
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
       "WORKFLOWTASK": "Workflow - úkoly",
       "AUTOMATICROLEATTRIBUTE": "Automatické role (atributy)",
-      "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)"
+      "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)",
+      "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)"
     }
   },
   "content": {
@@ -815,6 +834,10 @@
               "message": "Vaše heslo do CzechIdM bylo úspěšně změněno."
             }
           }
+        },
+        "help": {
+          "header": "Změna hesla",
+          "body": "<div class=\"alert alert-info\">Formulář pro změnu hesla je určen pouze pro externí zaměstnance. Interní zaměstnanec si může změnit heslo po přihlášení ve svém profilu.</div>Změnu hesla provedete vyplněním formuláře. Do tohoto formuláře zadáte své uživatelské jméno, stávající heslo, požadované nové heslo a nakonec ještě jednou své nové heslo pro kontrolu. Poté můžete změnu potvrdit kliknutím na tlačítko <button class=\"btn btn-xs btn-success\">Změna hesla</button>."
         }
       },
       "strength" : {
@@ -830,6 +853,10 @@
       "empty": "Nenalezena žádná hlášení.",
       "button": {
         "removeAll": "Odebrat všechna hlášení"
+      },
+      "help": {
+        "header": "Historie uživatelských hlášení",
+        "body": "V seznamu je uvedena historie hlášek zobrazených v uživatelském rozhraní. Pokud je hláška zavřena dříve, je možné si ji v historii nalézt, zkontrolovat, zkopírovat a podobně.<br /><br />Seznam je řazen dle data zobrazení hlášení sestupně a zobrazuje posledních <strong>25</strong> hlášení."
       }
     },
     "passwordPolicies": {
@@ -1308,6 +1335,16 @@
         "label": "Přepočet",
         "header": "Přepočet této automatické role na základě attributu?",
         "message": "<b>Ano:</b> Přiřazení role bude provedeno nyní jako nová dlouho trvajicí úloha.<br /><b>Ne:</b> Tato konfigurace bude uložena jako koncept."
+      },
+      "button": {
+        "change": {
+          "label": "Změnit automatickou roli",
+          "header": "Změna této automatické role",
+          "text": "Vytvoří požadavek na změnu této automatické role. Požadavek může vyžadovat schválení."
+        }
+      },
+      "request":{
+        "header": "Žádosti o změnu automatických rolí"
       }
     },
     "formDefinitions": {
@@ -1444,7 +1481,7 @@
         "roleValidFrom": "Platnost role od",
         "roleValidTill": "Platnost role do",
         "currentActivity": "Stav žádosti",
-        "candicateUsers": "Schvalují",
+        "candicateUsers": "Mohou řešit",
         "wfProcessId": "WF"
       },
       "processPermissionChange": {
@@ -1500,7 +1537,7 @@
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
           "started": "Žádost byla úspěšně podána",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
-          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {
@@ -1536,6 +1573,63 @@
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost o změnu oprávnění. Spustí případné schvalovací procesy."
         }
+      }
+    },
+    "automaticRoleRequests": {
+      "header": "Žádosti o automatické role",
+      "title": "Žádosti o automatické role",
+      "role": "Žádost pro roli",
+      "name": "Název",
+      "create": {
+        "header": "Vytvořit novou žádost o automatickou roli"
+      },
+      "button": {
+        "createRequest": "Vytvořit žádost",
+        "start": "Provést žádost"
+      },
+      "action": {
+        "startRequest": {
+          "header": "Opravdu chcete podat tuto žádost",
+          "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
+          "started": "Žádost byla úspěšně podána",
+          "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+        }
+      },
+      "filter": {
+        "role":{
+          "placeholder": "Vyhledání dle názvu role"
+        },
+        "states":{
+          "placeholder": "Vyhledání podle stavů"
+        }
+      }
+
+    },
+    "automaticRoleRequestDetail": {
+      "header": "Žádost pro automatickou roli",
+      "title": "Žádost pro automatickou roli",
+      "conceptHeader": "Požadované změny pravidel",
+      "conceptWithCurrentRulesHeader": "Schválená pravidla (včetně požadovaných změn)",
+      "save": {
+        "success": "Žádost pro automatickou roli byla úspěšně uložena",
+        "start": "Podat žádost"
+      },
+      "button": {
+        "createRequest":{
+          "label": "Podat žádost",
+          "tooltip": "Zahájí žádost pro automatickou roli. Spustí případné schvalovací procesy."
+        }
+      },
+      "create": {
+        "header": "Přidat pravidlo"
+      },
+      "edit": {
+        "header": "Upravit pravidlo"
+      },
+      "rulesIsAnd": {
+        "title": "Všechna pravidla musí být splněna.",
+        "text": "Pro přidělení role dle automatická role, musí entita (identita i úvazek) splnit všechna (níže definovaná) pravidla zároveň."
       }
     },
     "role": {
@@ -1722,7 +1816,19 @@
       "authorities": {
         "label": "Oprávnění",
         "header": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
-        "title": "Přidělená oprávnění"
+        "title": "Přidělená oprávnění",
+        "help": {
+          "header": "Přidělená oprávnění",
+          "body": {
+            "title": "Základní oprávnění jsou rozdělena do kategorií. Po přiřazení aktivní role získá uživatel přiřazená oprávnění (dle platnosti přiřazení), která jsou vyhodnocována v různých částech aplikace.",
+            "checkbox": {
+              "title": "Checkbox u názvu kategorie znázorňuje, zda-li jsou některé základní oprávnění v dané kategorii přidělena:",
+              "none": "Nejsou přidělena žádná oprávnění v dané kategorii,",
+              "some": "jsou přidělena nekterá z oprávnění v dané kategorii - pro zobrazení konkrétních přidělených oprávnění je možné rozbalit danou kategorii,",
+              "all": "jsou přidělena všechna oprávnění v dané kategorii."
+            }
+          }
+        }
       },
       "passwordChange": {
         "header": "Změna hesla",
@@ -2209,6 +2315,7 @@
           "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
+          "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "Úživatelské úkoly procesu",
@@ -2288,6 +2395,34 @@
         "username": "Uživatelské jméno",
         "modifier": "Upravil",
         "identityId": "Id identity"
+      }
+    },
+    "entityEvents": {
+      "header": "Události",
+      "title": "Události",
+      "label": "$t(content.entityEvents.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityEvent.ownerType.label) / $t(entity.EntityEvent.ownerId.label) (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityEvent.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        }
+      },
+      "event": {
+        "header": "Události na entitách",
+        "detail": {
+          "header": "Detail události"
+        }
+      },
+      "state": {
+        "header": "Stavy entity",
+        "detail": {
+          "header": "Detail stavu"
+        }
       }
     }
   },
@@ -2589,10 +2724,16 @@
       "shortName": "Název",
       "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazený prvek"
+          "name": "Nadřazený prvek",
+          "false": "Nemá předka"
       },
       "treeType": {
         "name": "Typ struktury"
+      },
+      "defaultTreeNode": {
+        "label": "Výchozí prvek struktury",
+        "true": "Ano",
+        "false": "Ne"
       }
     },
     "TreeType": {
@@ -2601,7 +2742,9 @@
       "name": "Název",
       "defaultTreeType": {
         "label": "Výchozí struktura",
-        "help": "Tento typ struktury bude použit jako výchozí organizační struktura."
+        "help": "Tento typ struktury bude použit jako výchozí organizační struktura.",
+        "true": "Ano",
+        "false": "Ne"
       },
       "defaultTreeNode": {
         "label": "Výchozí prvek struktury",
@@ -2636,6 +2779,7 @@
       "deleteReason": "Důvod smazání",
       "processVariables": "Proměnné procesu",
       "superProcessInstanceId": "ID nadřízeného procesu",
+      "processDefinitionKey": "Kód definice procesu",
       "id": "ID",
       "applicant": "Žádost pro"
     },
@@ -2863,6 +3007,7 @@
       "module": "Modul",
       "description": "Popis",
       "entityType": "Typ entity",
+      "eventType": "Typ události",
       "eventTypes": "Typy událostí",
       "order": "Pořadí",
       "disabled": "Neaktivní",
@@ -2948,7 +3093,7 @@
       },
       "created": "Vytvořeno",
       "modified": "Upraveno",
-      "candicateUsers": "Schvalují",
+      "candicateUsers": "Mohou řešit",
       "currentActivity": "Stav schvalování",
       "originalRequest": "Žádost v okamžiku podání",
       "wfProcessId": "WF"
@@ -2970,9 +3115,237 @@
         "label": "Garant",
         "help": "Garant na přímo přiřazený k pracovně právnímu vztahu"
       }
+    },
+    "AutomaticRoleRequest": {
+      "role": "Žádost pro roli",
+      "implementer": "Žadatel",
+      "automaticAttributeRole": "Automatická role (dle atributu)",
+      "automaticTreeRole": "Automatická role (dle stromu)",
+      "requestType": "Typ automatické role",
+      "state": "Stav",
+      "name": "Název automatické role",
+      "operation": "Požadovaná změna",
+      "executeImmediately": "Provést bez schválení",
+      "description": {
+        "label" : "Popis",
+        "placeholder": "Slovní popis požadavku"
+      },
+      "created": "Vytvořeno",
+      "modified": "Upraveno",
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF"
+    },
+    "AutomaticRoleAttributeRuleRequest": {
+      "type": {
+        "label": "$t(entity.AutomaticRole.attribute.type.label)",
+        "help": "$t(entity.AutomaticRole.attribute.type.help)"
+      },
+      "concept": {
+        "label": "$t(entity.AutomaticRole.attribute.concept.label)",
+        "info": "$t(entity.AutomaticRole.attribute.concept.info)",
+        "help": "$t(entity.AutomaticRole.attribute.type.help)"
+      },
+      "attributeName": "$t(entity.AutomaticRole.attribute.attributeName)",
+      "comparison": "$t(entity.AutomaticRole.attribute.comparison)",
+      "formAttribute": "$t(entity.AutomaticRole.attribute.formAttribute)",
+      "value": {
+          "label": "$t(entity.AutomaticRole.attribute.value.label)",
+          "help": "$t(entity.AutomaticRole.attribute.value.help)"
+      }
+    },
+    "EntityEvent": {
+      "_type": "Event",
+      "created": {
+        "label": "Datum"
+      },
+      "owner": {
+        "label": "Entita"
+      },
+      "ownerType": {
+        "label": "Typ entity"
+      },
+      "ownerId": {
+        "label": "Identifikátor entity"
+      },
+      "result": {
+        "label": "Výsledek"
+      },
+      "eventType": {
+        "label": "$t(entity.EntityEventProcessor.eventType)",
+        "title": "Typ události, který vyvolal změnu"
+      },
+      "parent": {
+        "label": "Vychází z"
+      },
+      "instanceId": {
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
+        "help": "$t(entity.LongRunningTask.instanceId.help)"
+      },
+      "processedOrder": {
+        "label": "Zpracované pořadí"
+      },
+      "executeDate": {
+        "label": "Čas zpracování",
+        "help": "Událost bude zpracována v zadaný čas."
+      },
+      "priority": {
+        "label": "Priorita",
+        "help": "Zpracování událost s větší prioritou bude spuštěno dříve."
+      }
+    },
+    "EntityState": {
+      "_type": "Stav entity",
+      "created": {
+        "label": "Datum"
+      },
+      "owner": {
+        "label": "Entita"
+      },
+      "ownerType": {
+        "label": "Typ entity"
+      },
+      "ownerId": {
+        "label": "Identifikátor entity"
+      },
+      "result": {
+        "label": "Výsledek"
+      },
+      "event": {
+        "label": "Event"
+      },
+      "instanceId": {
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
+        "help": "$t(entity.LongRunningTask.instanceId.help)"
+      },
+      "processorModule": {
+        "label": "Modul"
+      },
+      "processorId": {
+        "label": "Processor"
+      },
+      "processorName": {
+        "label": "Processor"
+      },
+      "processedOrder": {
+        "label": "Zpracované pořadí"
+      }
     }
   },
   "wf": {
+    "approve-identity-change-permissions" : {
+      "name": "Změna oprávnění pro uživatele '{{0}}'",
+      "task": {
+        "approveByHelpDesk": {
+          "name": "Schválování 'Helpdesk'",
+          "description":"Schválení změny oprávnění pro '{{0}}' (Helpdesk)"
+        },
+        "returnedRequestFromHelpdesk": {
+          "name": "Požadavek vrácen z 'Helpdesk'",
+          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+        },
+        "approveByManager": {
+          "name": "Schvalování vedoucím",
+          "description":"Schválení změny oprávnění vedoucím pro '{{0}}'"
+        },
+        "returnedRequestFromManager": {
+          "name": "Požadavek vrácen vedoucím",
+          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+        },
+        "approveByUserManager": {
+          "name": "Schválení vedoucím uživatele",
+          "description":"Schválení změny oprávnění vedoucím uživatele pro '{{0}}'"
+        },
+        "returnedRequestFromUserManager": {
+          "name": "Požadavek vrácen vedoucím uživatele",
+          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+        },
+        "approvedBySecurity": {
+          "name": "Schválení bezpečnostním oddělením",
+          "description":"Schválení změny oprávnění bezpečnostním oddělením pro '{{0}}'"
+        }
+      }
+    },
+    "change-role-without-approve" : {
+      "name": "Změna v přiřazení (přidání/odebrání/změna) role '{{0}}' pro uživatele '{{1}}'"
+    },
+    "approve-role-by-manager" : {
+      "name": "Schválení změny v přiřazení role '{{0}}' pro uživatele '{{1}}'",
+      "task": {
+        "approveAssignByManager": {
+          "name": "Schválení přiřazení role vedoucím",
+          "description":"Schválení přiřazení role '{{0}}' pro uživatele '{{1}}'"
+        },
+        "approveChangeByManager": {
+          "name": "Schválení změny platnosti role vedoucím",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' pro uživatele '{{1}}'"
+        }
+      }
+    },
+    "approve-remove-role-by-manager" : {
+      "name": "Schválení odebrání přiřazené role '{{0}}' pro uživatele '{{1}}'",
+      "task": {
+        "approveByManager": {
+          "name": "Schválení odebrání role vedoucím",
+          "description":"Schválení odebrání role '{{0}}' vedoucím pro uživatele '{{1}}'"
+        }
+      }
+    },
+    "approve-role-by-guarantee" : {
+      "name": "Schválení změny v přiřazení role '{{0}}' garantem pro uživatele '{{1}}'",
+      "name_automaticRole": "Schválení změny v automatickém přiřazování role '{{0}}' jejím garantem",
+      "task": {
+        "approveAssign": {
+          "name": "Schválení přiřazení role garantem",
+          "description":"Schválení přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveChange": {
+          "name": "Schválení změny platnosti role garantem",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveAutomaticRole": {
+          "name": "Schválení úpravy/vytvoření/smazání automatické role",
+          "description":"Schválení úpravy/vytvoření automatické role '{{0}}'"
+        }
+      }
+    },
+    "approve-role-by-guarantee-security" : {
+      "name": "Schválení změny v přiřazení role '{{0}}' garantem a bezpečnostním oddělením pro uživatele '{{1}}'",
+      "name_automaticRole": "Schválení změny v automatickém přiřazování role '{{0}}' jejím garantem a bezpečnostním oddělením",
+      "task": {
+        "approveAssignByGuarantee": {
+          "name": "Schválení přiřazení role garantem",
+          "description":"Schválení přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveChangeByGuarantee": {
+          "name": "Schválení změny platnosti role garantem",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' jejím garantem pro uživatele '{{1}}'"
+        },
+        "approveAssignBySecurity": {
+          "name": "Schválení přiřazení role bezpečnostním oddělením",
+          "description":"Schválení přiřazení role '{{0}}' bezpečnostním oddělením pro uživatele '{{1}}'"
+        },
+        "approveChangeBySecurity": {
+          "name": "Schválení změny platnosti role bezpečnostním oddělením",
+          "description":"Schválení změny platnosti v přiřazení role '{{0}}' bezpečnostním oddělením pro uživatele '{{1}}'"
+        },
+        "approveAutomaticRole": {
+          "name": "Schválení úpravy/vytvoření/smazání automatické role",
+          "description":"Schválení úpravy/vytvoření/smazání automatické role '{{0}}'"
+        },
+        "approveAutomaticRoleBySecurity": {
+          "name": "Schválení úpravy/vytvoření/smazání automatické role",
+          "description":"Schválení úpravy/vytvoření/smazání automatické role '{{0}}'"
+        }
+      }
+    },
+    "COMMENT":"If you can not find a translation for a specific WF definition, then we'll try to locate the translation in global tasks (by task key only):",
+    "task": {
+      "approveByManager": {
+        "name": "Schválení vedoucím",
+        "description":"Schválení vedoucím"
+      }
+    },
     "decision" : {
       "approve": {
         "label" : "Schválit",
@@ -3432,6 +3805,46 @@
     "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
       "title": "Typ atributu 'TEXT' není podporován",
       "message": "Rozšířený atribut typu 'TEXT' není podporován."
+    },
+    "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
+      "title": "Žádost o automatickou roli musí mít alespoň jedno pravidlo!",
+      "message": "Žádost o automatickou roli [{{request}}] musí mít alespoň jedno pravidlo!"
+    },
+    "EVENT_CANCELED_BY_RESTART": {
+      "title": "Zpracování události bylo přerušeno",
+      "message": "Zpracování události [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
+    },
+    "EVENT_DUPLICATE_CANCELED": {
+      "title": "Událost je duplicitní",
+      "message": "Událost nebude zpracována - byla nalezena duplicitní událost se stejným typem, vlastníkem a vlastnostmi, která bude zpracována."
+    },
+    "EVENT_ALREADY_CLOSED": {
+      "title": "Událost byla již uzavřena",
+      "message": "Událost byla již uzavřena, bude pouze uložena (log)."
+    },
+    "EVENT_ACCEPTED": {
+      "title": "Úlohy spuštěny",
+      "message": "Úlohy budou zpracovány na pozadí:"
+    },
+    "EVENT_EXECUTE_FAILED": {
+      "title": "Událost selhala",
+      "message": "Zpracování události selhalo."
+    },
+    "EVENT_EXECUTE_PROCESSOR_FAILED": {
+      "title": "Událost selhala",
+      "message": "Zpracování události selhalo při vykonávání processoru [{{processor}}]."
+    },
+    "EVENT_CONTENT_DELETED": {
+      "title": "Obsah události byl smazán",
+      "message": "Obsah úlohy byl smazán, úloha již nemůže být vykonána."
+    },
+    "EVENT_NOT_FOUND": {
+      "title": "Nenalezeno",
+      "message": "Událost již neexistuje, zpracované události jsou automaticky mazány."
+    },
+    "EVENT_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Událost nelze smazat",
+      "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
     }
   },
   "validationError": {

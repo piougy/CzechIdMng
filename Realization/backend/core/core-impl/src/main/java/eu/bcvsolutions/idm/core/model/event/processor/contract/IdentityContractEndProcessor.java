@@ -70,7 +70,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		if (this.getBooleanProperty(IdmIdentityContractService.SKIP_HR_PROCESSES, event.getProperties())) {
 			return false;
 		}
-		
+		//
 		IdmIdentityContractDto current = event.getContent();
 		IdmIdentityContractDto previous = event.getOriginalSource();
 		//

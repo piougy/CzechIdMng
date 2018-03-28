@@ -130,6 +130,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	/**
 	 * Validates task before start e.q. if task already running or to prevent run task concurrently.
 	 * 
+	 * Look out: override this method additively 
+	 * 
 	 * @param task persisted task to validate
 	 */
 	@Override

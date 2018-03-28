@@ -19,7 +19,7 @@ public class LongFormPropertyConverter extends AbstractFormPropertyConverter {
 
 	@Override
 	public Set<String> getConnectorPropertyTypes() {
-		return Sets.newHashSet("long");
+		return Sets.newHashSet("java.lang.Long", "long");
 	}
 
 	@Override

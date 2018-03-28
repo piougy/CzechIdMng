@@ -78,6 +78,11 @@ function adapter(storage) {
       try {
         //
         value.messages.messages = value.messages.messages.toArray();
+        value.messages.messages.forEach(message => {
+          // prevent to persist react elements
+          // FIXME: restore react fragment from text
+          message.children = null;
+        });
         callback(null, storage.setItem(key, JSON.stringify(value)));
       } catch (e) {
         callback(e);

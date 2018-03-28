@@ -42,55 +42,23 @@ This module will start whole application.
 
 `cd czechidm-app`
 
-Run script **modules-link** defined in package.json. This script will create directory **node_modules** in parent directory and create symlink on him in **czechidm-app**. This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html). The goal is to have only one node_modules directory (for all ours modules) with React.
-
-**IMPORTANT!** Module-link script does not work on Windows. If are you Windows user, then you have to create symlink on node_modules (in parent directory) manually (use command 'mklink /D').
-
-`npm run modules-link`
-
 Install basic dependencies for application module (will be common for all submodules ).
 
 `npm install`
 
-## Install the dependencies for core module
+This creates directory 'node_modules' in the 'czechidm-app' directory.
 
-Now we need to install mandatory core module. Go to core directory. You can use symlink in czechidm-modules.
+## Install product modules
 
-`cd czechidm-modules/czechidm-core`
+For install product modules, you need to execute task 'install' in the gulp.
 
-Install NPM dependencies. Most of dependency are installed within czechidm-core module. It is important for prevent problem with multiple copies of React.  In this module is React present only in peer dependency. Peer dependency warnings are OK.
+`gulp install`
 
-`npm install`
+This installs all product modules that are in the parent folder and begin with 'czechidm-' (core, acc, vs, ...).
+All this modules will have symlinks on main 'node_modules' directory in the 'czechidm-app'. For all thes modules will be automaticaly call command 'npm install'.
+On all thes modules will be created symlinks from the 'czechidm-app/czechidm-modules' too.
 
-Go to app module.
-
-`cd ../../`
-
-## (Optional) Install the dependencies for other sub modules
-
-We can install other application modules. We will install optional example module **czechidm-example**.
-
-All application modules are in **czechidm-modules** directory (in czechidm-app). Go to him and create symlink on example module.
-
-`cd czechidm-modules`
-
-`ln -s ../../czechidm-example`
-
-**IMPORTANT!** If are you Windows user, then you have to create symlink with command 'mklink /D' e.g.
-
-`mklink /D d:\Projekty\BCV\CzechIdMng\Realization\frontend\czechidm-app\czechidm-modules\czechidm-acc d:\Projekty\BCV\CzechIdMng\Realization\frontend\czechidm-acc`
-
-Go to the example module. You can use symlink in czechidm-modules.
-
-`cd czechidm-example`
-
-Install NPM dependencies.
-
-`npm install`
-
-Go to app module.
-
-`cd ../../`
+If you hasn't installed GIT on your system, you will need install [this service](https://git-scm.com/downloads). Gulp doesn't works well without GIT.
 
 ## (Optional) Install the dependencies for **external** module
 If you are developing a custom module (for example named as "czechidm-ext") that is not part of our product, you need to do the following:
@@ -110,7 +78,7 @@ The goal is to have only one node_modules directory (for all modules) with React
 
 `cd ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
 
-`ln -s ../../../../CzechIdM/Realization/frontend/node_modules`
+`ln -s ../../../../CzechIdM/Realization/frontend/czechidm-app/node_modules`
 
 ## Make all modules together
 After when we have installed all required modules, we have to copy them together. Its means create symlinks from czechidm-modules to app node_modules.

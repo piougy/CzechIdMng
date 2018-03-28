@@ -59,4 +59,11 @@ public interface IdmTreeNodeService extends
 	 * @return long running task id
 	 */
 	UUID rebuildIndexes(UUID treeType);
+	
+	/**
+	 * Returns default tree node or {@code null}, if no default tree node is defined
+	 * 
+	 * @return
+	 */
+	IdmTreeNodeDto getDefaultTreeNode();
 }

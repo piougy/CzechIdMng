@@ -22,7 +22,7 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-tree-nodes';
+    return 'role-automatic-role-tree';
   }
 
   render() {
@@ -31,18 +31,10 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('header')}
-        </Basic.ContentHeader>
-
-        <Basic.Panel className="no-border last">
           <RoleTreeNodeTableComponent
             uiKey="role-tree-nodes-table"
             forceSearchParameters={ forceSearchParameters }
             columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'role') }/>
-        </Basic.Panel>
-
       </div>
     );
   }

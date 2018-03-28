@@ -23,6 +23,15 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
     return this.identityManager;
   }
 
+  componentDidMount() {
+    const { entityId } = this.props.params;
+    if (entityId) {
+      this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-identities']);
+    } else {
+      this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute-identities']);
+    }
+  }
+
   getContentKey() {
     return 'content.automaticRoles.attribute';
   }
@@ -32,8 +41,8 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
   }
 
   render() {
-    const { entityId } = this.props.params;
-    const forceSearchParameters = new SearchParameters().setFilter('automaticRoleId', entityId);
+    const { automaticRoleId } = this.props.params;
+    const forceSearchParameters = new SearchParameters().setFilter('automaticRoleId', automaticRoleId);
     //
     return (
       <div className="tab-pane-table-body">

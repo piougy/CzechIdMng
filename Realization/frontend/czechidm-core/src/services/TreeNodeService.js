@@ -1,6 +1,8 @@
 import FormableEntityService from './FormableEntityService';
 import SearchParameters from '../domain/SearchParameters';
 import TreeTypeService from './TreeTypeService';
+import RestApiService from './RestApiService';
+import * as Utils from '../utils';
 
 class TreeNodeService extends FormableEntityService {
 
@@ -49,6 +51,25 @@ class TreeNodeService extends FormableEntityService {
    */
   getRootSearchParameters() {
     return this.getDefaultSearchParameters().setName(TreeNodeService.ROOT_SEARCH).setSize(20);
+  }
+
+  /**
+   * Returns dafult tree node
+   *
+   * @return {promise}
+   */
+  getDefaultTreeNode() {
+    return RestApiService
+    .get(this.getApiPath() + '/search/default')
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
   }
 }
 

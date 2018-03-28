@@ -98,7 +98,8 @@ export class FlashMessages extends AbstractContextComponent {
       onRemove: (n) => this._onRemove(n),
       dismissible: message.dismissible,
       autoDismiss: this._getAutoDismiss(message),
-      action: message.action
+      action: message.action,
+      children: message.children
     });
   }
 

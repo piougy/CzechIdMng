@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.8.5</version>
+	<version>8.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -467,7 +467,7 @@
       </plugins>
     </pluginManagement>
 
-		<plugins>		
+		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -564,20 +564,21 @@
 			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
 				<artifactId>maven-jgitflow-plugin</artifactId>
-				<version>1.0-m4.3</version>
+				<version>1.0-m5.1</version>
 				<configuration>
-					<pushReleases>true</pushReleases>
+					<pushReleases>false</pushReleases>
 					<keepBranch>false</keepBranch>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<noTag>true</noTag>
 					<allowUntracked>true</allowUntracked>
-					<pullDevelop>true</pullDevelop>
-					<pullMaster>true</pullMaster>
+					<pullDevelop>false</pullDevelop>
+					<pullMaster>false</pullMaster>
 					<allowSnapshots>true</allowSnapshots>
 					<flowInitContext>
 						<masterBranchName>master</masterBranchName>
 						<developBranchName>develop</developBranchName>
 					</flowInitContext>
+					<enableSshAgent>true</enableSshAgent>
 				</configuration>
 			</plugin>
 

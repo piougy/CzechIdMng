@@ -10,24 +10,23 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
- * Run provisioning after role was saved.
+ * Run provisioning after role was changed.
  * 
  * @author Svanda
- *
+ * @author Radek Tomiška
  */
 @Component("accRoleSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioning after role is saved.")
+@Description("Executes provisioning after role was changed.")
 public class RoleSaveProcessor
 		extends CoreEventProcessor<IdmRoleDto> 
 		implements RoleProcessor {
@@ -39,7 +38,7 @@ public class RoleSaveProcessor
 
 	@Autowired
 	public RoleSaveProcessor(ApplicationContext applicationContext) {
-		super(RoleEventType.CREATE, RoleEventType.UPDATE, CoreEventType.EAV_SAVE);
+		super(RoleEventType.NOTIFY);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -50,15 +49,17 @@ public class RoleSaveProcessor
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmRoleDto> event) {
+		// Skip provisioning
+		return !this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties());
+	}
 
 	@Override
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
-		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		
-		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
-			return new DefaultEventResult<>(event, this);
-		}
 		doProvisioning(event.getContent());
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 

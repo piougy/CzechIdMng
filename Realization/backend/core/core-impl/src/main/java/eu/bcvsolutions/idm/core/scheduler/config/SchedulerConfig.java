@@ -20,6 +20,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AutowiringSpringBeanJobFactory;
@@ -34,9 +35,9 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 @Order(0)
 @Configuration
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
-public class SchedulerConfig {
+public class SchedulerConfig implements SchedulerConfiguration {
 	
-	@Value("${scheduler.properties.location:/quartz.properties}")
+	@Value("${" + PROPERTY_PROPERETIES_LOCATION + ":" + DEFAULT_PROPERETIES_LOCATION + "}")
     private String propertiesLocation;
 
 	@Bean

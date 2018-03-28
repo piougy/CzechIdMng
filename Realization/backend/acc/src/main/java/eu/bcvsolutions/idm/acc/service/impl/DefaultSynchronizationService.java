@@ -267,6 +267,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		
 		logs.forEach(log -> {
 			log.setRunning(false);
+			log.setEnded(LocalDateTime.now());
 		});
 		synchronizationLogService.saveAll(logs);
 		return config;

@@ -15,14 +15,14 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
- * Currently logged user can work with role requests, whed identity was involved to approving.
+ * Currently logged user can work with role requests, when identity was involved to approving.
  * 
  * Search ({@link #getPermissions(IdmRoleRequest, AuthorizationPolicy)}) is not implemented.
  * 
  * @author Radek Tomiška
  */
 @Component
-@Description("Currently logged user can work with role requests, whed identity was involved to approving.")
+@Description("Currently logged user can work with role requests, when identity was involved to approving.")
 public class RoleRequestByWfInvolvedIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmRoleRequest> {
 	
 	private final WorkflowProcessInstanceService processService;

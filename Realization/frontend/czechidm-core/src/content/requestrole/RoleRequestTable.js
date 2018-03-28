@@ -5,11 +5,13 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import {SecurityManager, IdentityManager} from '../../redux';
+import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
+const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 /**
- * @author VS
+ * Role request table
+ * @author Vít Švanda
  */
 class RoleRequestTable extends Advanced.AbstractTableContent {
 
@@ -66,8 +68,13 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
     if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
       return '';
     }
+
+    const task = {};
+    task.definition = {id: entity._embedded.wfProcessId.activityId};
+    task.processDefinitionKey = entity._embedded.wfProcessId.processDefinitionKey;
+    task.taskName = entity._embedded.wfProcessId.currentActivityName;
     return (
-      entity._embedded.wfProcessId.currentActivityName
+      workflowTaskInstanceManager.localize(task, 'name')
     );
   }
 

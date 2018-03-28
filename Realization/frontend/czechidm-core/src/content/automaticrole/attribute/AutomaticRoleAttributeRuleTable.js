@@ -135,24 +135,6 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
             </Advanced.Filter>
           }
           filterOpened={filterOpened}
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-            ]
-          }
-          buttons={
-            [
-              <Basic.Button
-                level="success"
-                key="add_button"
-                className="btn-xs"
-                onClick={this.showDetail.bind(this, {})}
-                rendered={SecurityManager.hasAuthority('AUTOMATICROLERULE_CREATE')}
-                icon="fa:plus">
-                { this.i18n('button.add') }
-              </Basic.Button>
-            ]
-          }
           _searchParameters={ this.getSearchParameters() }
           >
           <Advanced.Column

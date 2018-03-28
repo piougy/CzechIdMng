@@ -1,5 +1,11 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -150,14 +156,13 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
 		synchornizationService = context.getAutowireCapableBeanFactory()
 				.createBean(DefaultSynchronizationService.class);
 	}
 
 	@After
 	public void logout() {
-		super.logout();
 		if (identityService.getByUsername(CONTRACT_OWNER_ONE) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_OWNER_ONE));
 		}
@@ -170,6 +175,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		if (identityService.getByUsername(CONTRACT_LEADER_TWO) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_TWO));
 		}
+		super.logout();
 	}
 
 	@Test
@@ -738,6 +744,111 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
+	
+	@Test
+	public void testLinkAndUpdateContract() {
+		String position1 = "test-link-update-1-" + System.currentTimeMillis();
+		String position2 = "test-link-update-2-" + System.currentTimeMillis();
+		String position3 = "test-link-update-3-" + System.currentTimeMillis();
+		
+		IdmIdentityDto leader = helper.createIdentity();
+		IdmTreeNodeDto workPosition = helper.createTreeNode();
+		
+		SysSystemDto system = initData();
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		
+		this.getBean().deleteAllResourceData();
+		
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		config = (SysSyncContractConfigDto) syncConfigService.save(config);
+		
+		IdmIdentityDto identity1 = helper.createIdentity();
+		IdmIdentityDto identity2 = helper.createIdentity();
+		IdmIdentityDto identity3 = helper.createIdentity();
+		
+		IdmIdentityContractDto contrac1 = helper.getPrimeContract(identity1.getId());
+		IdmIdentityContractDto contrac2 = helper.getPrimeContract(identity2.getId());
+		IdmIdentityContractDto contrac3 = helper.getPrimeContract(identity3.getId());
+		
+		contrac1.setPosition(position1);
+		contrac1.setDescription(position1);
+		contrac2.setPosition(position2);
+		contrac2.setDescription(position2);
+		contrac3.setPosition(position3);
+		contrac3.setDescription(position3);
+
+		contrac1 = contractService.save(contrac1);
+		contrac2 = contractService.save(contrac2);
+		contrac3 = contractService.save(contrac3);
+		
+		// check empty guarantee
+		IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+		guaranteeFilter.setIdentityContractId(contrac1.getId());
+		List<IdmContractGuaranteeDto> gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertTrue(gurantees.isEmpty());
+		
+		guaranteeFilter.setIdentityContractId(contrac2.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertTrue(gurantees.isEmpty());
+		
+		guaranteeFilter.setIdentityContractId(contrac3.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertTrue(gurantees.isEmpty());
+		
+		assertNull(contrac1.getState());
+		assertNull(contrac2.getState());
+		assertNull(contrac3.getState());
+		
+		this.getBean().createContractData(position1, identity1.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
+		this.getBean().createContractData(position2, identity2.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
+		this.getBean().createContractData(position3, identity3.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
+
+		// Start sync
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+		
+		contractService.findAllByIdentity(identity1.getId());
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 3);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityContractDto updatedContract1 = helper.getPrimeContract(identity1.getId());
+		IdmIdentityContractDto updatedContract2 = helper.getPrimeContract(identity2.getId());
+		IdmIdentityContractDto updatedContract3 = helper.getPrimeContract(identity3.getId());
+		
+		assertNotEquals(updatedContract1.getModified(), contrac1.getModified());
+		assertNotEquals(updatedContract2.getModified(), contrac2.getModified());
+		assertNotEquals(updatedContract3.getModified(), contrac3.getModified());
+		
+		assertNotEquals(updatedContract1.getState(), contrac1.getState());
+		assertNotEquals(updatedContract2.getState(), contrac2.getState());
+		assertNotEquals(updatedContract3.getState(), contrac3.getState());
+		
+		assertEquals(ContractState.EXCLUDED, updatedContract1.getState());
+		assertEquals(ContractState.EXCLUDED, updatedContract2.getState());
+		assertEquals(ContractState.EXCLUDED, updatedContract3.getState());
+		
+		assertEquals(contrac1.getId(), updatedContract1.getId());
+		assertEquals(contrac2.getId(), updatedContract2.getId());
+		assertEquals(contrac3.getId(), updatedContract3.getId());
+		
+		guaranteeFilter.setIdentityContractId(contrac1.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertFalse(gurantees.isEmpty());
+		assertEquals(leader.getId(), gurantees.get(0).getGuarantee());
+		
+		guaranteeFilter.setIdentityContractId(contrac2.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertFalse(gurantees.isEmpty());
+		assertEquals(leader.getId(), gurantees.get(0).getGuarantee());
+		
+		guaranteeFilter.setIdentityContractId(contrac3.getId());
+		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		assertFalse(gurantees.isEmpty());
+		assertEquals(leader.getId(), gurantees.get(0).getGuarantee());
+	}
 
 	@Transactional
 	public void initContractDefaultTreeTest() {
@@ -868,6 +979,15 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		return system;
 
 	}
+	
+	@Transactional
+	public void createContractData(String code, String owner, String leader, String main, 
+			String workposition, String state, String disabled) {
+		if (code == null) {
+			code = String.valueOf(System.currentTimeMillis());
+		}
+		entityManager.persist(this.createContract(code, owner, leader, main, workposition, state, disabled));
+	}
 
 	@Transactional
 	public void initContractData() {
@@ -888,10 +1008,11 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 			if ("id".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(false);
+				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
+				attributeHandlingName.setIdmPropertyName(IdmIdentityContract_.description.getName()); // it is for link and update situation
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("name".equalsIgnoreCase(schemaAttr.getName())) {

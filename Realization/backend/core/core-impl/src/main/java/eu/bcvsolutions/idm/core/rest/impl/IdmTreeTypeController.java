@@ -304,6 +304,10 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 		if (defaultTreeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "default tree type"));
 		}
+		Set<String> permissions = getService().getPermissions(defaultTreeType.getId());
+		if (!PermissionUtils.hasAnyPermission(permissions, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ)) {
+			throw new ForbiddenEntityException(defaultTreeType.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		}
 		return new ResponseEntity<>(toResource(defaultTreeType), HttpStatus.OK);
 	}
 	

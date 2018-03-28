@@ -18,9 +18,12 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
@@ -47,6 +50,8 @@ public class DefaultIdmFormAttributeService
 	private final IdmFormAttributeRepository repository;
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
 	private final IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService;
+	@Autowired
+	private IdmAutomaticRoleAttributeRuleRequestService automaticRoleAttributeRequestService;
 	
 	@Autowired
 	public DefaultIdmFormAttributeService(
@@ -109,6 +114,16 @@ public class DefaultIdmFormAttributeService
 			// some automatic roles use this attribute
 			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED, ImmutableMap.of("formAttribute", dto.getId()));
 		}
+		//
+		// Check rules requests for automatic role attributes. Deletes relation on this form attribute.
+		IdmAutomaticRoleAttributeRuleRequestFilter automaticRoleRuleRequestFilter = new IdmAutomaticRoleAttributeRuleRequestFilter();
+		automaticRoleRuleRequestFilter.setFormAttributeId(dto.getId());
+		List<IdmAutomaticRoleAttributeRuleRequestDto> ruleRequests = automaticRoleAttributeRequestService.find(automaticRoleRuleRequestFilter, null).getContent();
+		ruleRequests.forEach(rule -> {
+			rule.setFormAttribute(null);
+			automaticRoleAttributeRequestService.save(rule);
+		});
+		//
 		super.deleteInternal(dto);
 	}
 	

@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -22,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * Run provisioning after tree node was saved.
  * 
  * @author Svanda
- *
+ * @author Radek Tomiška
  */
 @Component("accTreeNodeSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
@@ -36,7 +35,7 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	
 	@Autowired
 	public TreeNodeSaveProcessor(ApplicationContext applicationContext) {
-		super(TreeNodeEventType.CREATE, TreeNodeEventType.UPDATE, CoreEventType.EAV_SAVE);
+		super(TreeNodeEventType.NOTIFY);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -47,15 +46,17 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmTreeNodeDto> event) {
+		// Skip provisioning
+		return !this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties());
+	}
 
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
-		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		
-		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
-			return new DefaultEventResult<>(event, this);
-		}
 		doProvisioning(event.getContent());
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 	

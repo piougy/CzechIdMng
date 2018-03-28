@@ -82,10 +82,10 @@ public class IdentitySaveProcessor
 		
 		if (!skipCreationDefaultContract && IdentityEventType.CREATE.name() == event.getType().name()
 				&& identityConfiguration.isCreateDefaultContractEnabled()) {
+			// TODO: skip publish event? But contract is created properly ... 
 			identityContractService.save(identityContractService.prepareMainContract(identity.getId()));
 		}
 		//
-		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);
 	}
 }

@@ -21,7 +21,7 @@ public class VsRequestEvent extends CoreEvent<VsRequestDto> {
 	 *
 	 */
 	public enum VsRequestEventType implements EventType {
-		REALIZE_CREATE, REALIZE_UPDATE, REALIZE_DELETE, EXCECUTE
+		EXCECUTE
 	}
 	
 	public VsRequestEvent(VsRequestEventType operation, VsRequestDto content) {

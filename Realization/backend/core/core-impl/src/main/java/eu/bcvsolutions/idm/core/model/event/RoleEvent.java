@@ -21,7 +21,11 @@ public class RoleEvent extends CoreEvent<IdmRoleDto> {
 	 * Supported event types
 	 */
 	public enum RoleEventType implements EventType {
-		CREATE, UPDATE, DELETE
+		CREATE, 
+		UPDATE, 
+		DELETE, 
+		EAV_SAVE,
+		NOTIFY
 	}
 
 	public RoleEvent(RoleEventType operation, IdmRoleDto content) {

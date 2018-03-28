@@ -6,15 +6,17 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
+
 /**
  * Service for control workflow historic process instances.
  * @author svandav
  *
  */
-public interface WorkflowHistoricProcessInstanceService  extends ReadDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> {
-	public static final String SORT_BY_START_TIME = "startTime";
-	public static final String SORT_BY_END_TIME = "endTime";
-	public static final String PROCESS_INSTANCE_NAME = "processInstanceName";
+public interface WorkflowHistoricProcessInstanceService extends ReadDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> {
+	
+	String SORT_BY_START_TIME = "startTime";
+	String SORT_BY_END_TIME = "endTime";
+	String PROCESS_INSTANCE_NAME = "processInstanceName";
 
 	/**
 	 * Search process history. Process variables will be included only for get specific process history. 

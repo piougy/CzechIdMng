@@ -38,8 +38,9 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
@@ -49,6 +50,8 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -71,7 +74,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operation with tree nodes",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTreeNodeDto, IdmTreeNodeFilter> {
+public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTreeNodeDto, IdmTreeNodeFilter> {
 	
 	protected static final String TAG = "Tree structure - nodes";
 	private final IdmTreeNodeService treeNodeService;
@@ -460,6 +463,40 @@ public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTre
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
 		//
 		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
+	}
+	
+	/**
+	 * Returns default tree node or {@code null}, if no default tree node is defined
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value= "/search/default", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_AUTOCOMPLETE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Get default tree node detail", 
+			nickname = "getDefaultTreeNode", 
+			response = IdmTreeNodeDto.class, 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+					})
+	public ResponseEntity<?> getDefaultTreeNode() {
+		IdmTreeNodeDto defaultTreeNode = treeNodeService.getDefaultTreeNode();
+		if (defaultTreeNode == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "default tree type"));
+		}
+		Set<String> permissions = getService().getPermissions(defaultTreeNode.getId());
+		if (!PermissionUtils.hasAnyPermission(permissions, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ)) {
+			throw new ForbiddenEntityException(defaultTreeNode.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		}
+		return new ResponseEntity<>(toResource(defaultTreeNode), HttpStatus.OK);
 	}
 	
 	@Override

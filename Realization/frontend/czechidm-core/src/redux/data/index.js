@@ -1,3 +1,10 @@
+/**
+ * Data managers register
+ *
+ * import { IdentityManager } from './redux/data' can be used in react components (ui layer)
+ *
+ * @author Radek Tomiška
+ */
 import EntityManager from './EntityManager';
 import FormableEntityManager from './FormableEntityManager';
 import DataManager from './DataManager';
@@ -42,6 +49,10 @@ import ConfidentialStorageValueManager from './ConfidentialStorageValueManager';
 import AutomaticRoleAttributeManager from './AutomaticRoleAttributeManager';
 import AutomaticRoleAttributeRuleManager from './AutomaticRoleAttributeRuleManager';
 import LongRunningTaskItemManager from './LongRunningTaskItemManager';
+import AutomaticRoleRequestManager from './AutomaticRoleRequestManager';
+import AutomaticRoleAttributeRuleRequestManager from './AutomaticRoleAttributeRuleRequestManager';
+import EntityEventManager from './EntityEventManager';
+import EntityStateManager from './EntityStateManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -87,7 +98,11 @@ const ManagerRoot = {
   ConfidentialStorageValueManager,
   AutomaticRoleAttributeManager,
   AutomaticRoleAttributeRuleManager,
-  LongRunningTaskItemManager
+  LongRunningTaskItemManager,
+  AutomaticRoleRequestManager,
+  AutomaticRoleAttributeRuleRequestManager,
+  EntityEventManager,
+  EntityStateManager
 };
 
 ManagerRoot.version = '0.0.1';

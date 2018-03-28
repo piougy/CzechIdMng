@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -64,7 +64,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmIdentityContractController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityContractController extends AbstractReadWriteDtoController<IdmIdentityContractDto, IdmIdentityContractFilter> {
+public class IdmIdentityContractController extends AbstractEventableDtoController<IdmIdentityContractDto, IdmIdentityContractFilter> {
 	
 	protected static final String TAG = "Contracts";
 	private final IdmFormDefinitionController formDefinitionController;

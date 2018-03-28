@@ -23,7 +23,7 @@ class RoleIdentities extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['roles', 'role-identities']);
+    this.selectNavigationItems(['roles-menu', 'roles', 'role-identities']);
   }
 
   render() {

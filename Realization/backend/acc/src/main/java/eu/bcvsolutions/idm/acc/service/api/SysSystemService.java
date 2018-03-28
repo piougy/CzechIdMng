@@ -26,8 +26,8 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 public interface SysSystemService extends EventableDtoService<SysSystemDto, SysSystemFilter>,
 		CodeableService<SysSystemDto>, CloneableService<SysSystemDto>, AuthorizableService<SysSystemDto> {
 
-	static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
-	static final String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
+	String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
+	String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 
 	/**
 	 * Generate and persist schema to system. Use connector info and connector

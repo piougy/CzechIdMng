@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
@@ -75,7 +75,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with roles",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto, IdmRoleFilter> {
+public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto, IdmRoleFilter> {
 	
 	protected static final String TAG = "Roles";
 	//

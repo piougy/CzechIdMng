@@ -15,7 +15,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -31,9 +33,14 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 
 	public static final String PROCESSOR_NAME = "identity-contract-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityContractProvisioningProcessor.class);
-	//
+	//	
+	@Autowired private EntityEventManager entityEventManager;	
 	@Autowired private ProvisioningService provisioningService;
-	@Autowired private LookupService lookupService;	
+	@Autowired private LookupService lookupService;
+	
+	public IdentityContractProvisioningProcessor() {
+		super(IdentityContractEventType.DELETE, IdentityContractEventType.NOTIFY);
+	}
 	
 	@Override
 	public String getName() {
@@ -43,33 +50,53 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 	@Override
 	@SuppressWarnings("unchecked")
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
-		// TODO: embedded?
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, event.getContent().getIdentity());
-		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
-		provisioningService.doProvisioning(identity);
+		UUID identityId = event.getContent().getIdentity();
+		//
+		// register change => provisioning will be executed for manager
+		doProvisioning(identityId, event);
 		//
 		// execute provisioning for all subordinates by given contract
-		// TODO: LRT
 		if (isIncludeSubordinates()) {
 			Set<UUID> originalSubordinates = (Set<UUID>) event.getProperties().get(PROPERTY_PREVIOUS_SUBORDINATES);
-			findAllSubordinates(identity.getId())
+			findAllSubordinates(identityId)
 				.forEach(subordinate -> {
 					if (originalSubordinates != null && originalSubordinates.contains(subordinate.getId())) {
 						originalSubordinates.remove(subordinate.getId());
 					} else {
-						LOG.debug("Call provisioning for identity's [{}] newly assigned subordinate [{}]", identity.getUsername(), subordinate.getUsername());
-						provisioningService.doProvisioning(subordinate);
+						// provisioning will be executed for new subordinate
+						doProvisioning(subordinate, event);
 					}
 				});
 			if (originalSubordinates != null) {
 				originalSubordinates.forEach(originalSubordinateId -> {
-					IdmIdentityDto originalSubordinate = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, originalSubordinateId);
-					LOG.debug("Call provisioning for identity's [{}] previous subordinate [{}]", identity.getUsername(), originalSubordinate.getUsername());
-					provisioningService.doProvisioning(originalSubordinate);
+					// provisioning will be executed for new subordinate
+					doProvisioning(originalSubordinateId, event);
 				});
 			}
 		}
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	private void doProvisioning(UUID identityId, EntityEvent<IdmIdentityContractDto> event) {
+		if (!event.hasType(IdentityContractEventType.NOTIFY)) {
+			// sync
+			doProvisioning((IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identityId), event);
+		} else {
+			// async
+			LOG.debug("Register change for identity [{}]", identityId);
+			entityEventManager.changedEntity(IdmIdentityDto.class, identityId, event);
+		}
+	}
+	
+	private void doProvisioning(IdmIdentityDto identity, EntityEvent<IdmIdentityContractDto> event) {
+		if (!event.hasType(IdentityContractEventType.NOTIFY)) {
+			LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
+			provisioningService.doProvisioning(identity);
+		} else {
+			// async
+			LOG.debug("Register change for identity [{}]", identity.getId());
+			entityEventManager.changedEntity(identity, event);
+		}
 	}
 	
 	@Override

@@ -24,18 +24,17 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 public interface AccAccountService extends//
 		EventableDtoService<AccAccountDto, AccAccountFilter>, //
 		ScriptEnabled, //
-		AuthorizableService<AccAccountDto>//
-{
+		AuthorizableService<AccAccountDto> {
 
 	/**
 	 * DeleteTargetAccount If is true, then will be call provisioning
 	 */
-	public static final String DELETE_TARGET_ACCOUNT_PROPERTY = "DELETE_TARGET_ACCOUNT";
+	String DELETE_TARGET_ACCOUNT_PROPERTY = "DELETE_TARGET_ACCOUNT";
 	/**
 	 * Id of entity connected to the account. Can be null, but provisioning archive
 	 * will not have correct information.
 	 */
-	public static final String ENTITY_ID_PROPERTY = "ENTITY_ID";
+	String ENTITY_ID_PROPERTY = "ENTITY_ID";
 
 	/**
 	 * Get accounts for identity on system.

@@ -14,7 +14,6 @@ import java.io.InputStream;
 import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,12 +119,5 @@ public class IdentityImageProcessor {
 		ImageIO.write(image,"png", os);
 		InputStream fis = new ByteArrayInputStream(os.toByteArray());
 		return fis;
-	}
-	
-	private void saveImage(BufferedImage img, File file, String formatName) throws IOException {
-		String fileNameWithOutExt = FilenameUtils.removeExtension(file.getName());
-		String thumbName = fileNameWithOutExt + "_thumb." + formatName;
-		File thumbnail = new File(file.getParentFile() + "/" + thumbName);
-		ImageIO.write(img, formatName, thumbnail);
 	}
 }

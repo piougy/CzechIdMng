@@ -160,6 +160,10 @@ export default class IdentityManager extends FormableEntityManager {
     return this.getService().download(identityId, cb);
   }
 
+  deleteImage(identityId) {
+    this.getService().deleteImage(identityId);
+  }
+
   /**
    * PreValidates password
    *

@@ -242,9 +242,12 @@ class IdentityService extends FormableEntityService {
     });
   }
 
+  /**
+   * Upload image to BE
+   */
   upload(formData, identityId) {
     return RestApiService
-      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/upload`, formData)
+      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/image`, formData)
       .then(response => {
         return response.json();
       })
@@ -276,6 +279,26 @@ class IdentityService extends FormableEntityService {
       })
       .then(blob => {
         cb(blob);
+      });
+  }
+
+  /**
+   * Delete image from BE
+   */
+  deleteImage(identityId) {
+    return RestApiService
+      .delete(this.getApiPath() + `/${identityId}/image`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
       });
   }
 }

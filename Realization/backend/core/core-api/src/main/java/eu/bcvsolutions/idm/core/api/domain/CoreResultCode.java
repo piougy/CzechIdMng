@@ -223,7 +223,8 @@ public enum CoreResultCode implements ResultCode {
 	EVENT_EXECUTE_PROCESSOR_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Event [%s] failed in processor [%s]."),
 	EVENT_CONTENT_DELETED(HttpStatus.CONFLICT, "Content for event [%s] type [%s] for owner [%s] on instance [%s] was deleted. Event cannot be executed and will be canceled."),
 	EVENT_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Event [%s] type [%s] for owner [%s] on instance [%s] cannot be deleted. Delete events at first, where this event is set as parent.");
-
+	// Images
+	
 	
 	private final HttpStatus status;
 	private final String message;

@@ -60,7 +60,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
                 entity={ identity }
                 entityIdentifier={ identity.username }
                 face="popover"
-                style={{ marginRight: 7 }}/>
+                style={{ marginRight: 0 }}/>
             );
           })
         }

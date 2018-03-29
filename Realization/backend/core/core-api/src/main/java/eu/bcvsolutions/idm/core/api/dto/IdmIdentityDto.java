@@ -65,6 +65,7 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private boolean disabled;
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
+	@JsonProperty(access = Access.READ_ONLY)
 	@Embedded(dtoClass = IdmAttachmentDto.class)
 	private UUID image;
 	

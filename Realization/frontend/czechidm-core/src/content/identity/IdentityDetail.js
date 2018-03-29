@@ -134,7 +134,6 @@ class IdentityDetail extends Basic.AbstractContent {
         this.addMessage({
           message: this.i18n('content.identity.profile.fileUploaded', {name: file.name})
         });
-        // TODO here could be setting new profile picture to the user profile
         identityManager.download(identity.id, this.receiveImage.bind(this));
       });
     })
@@ -163,6 +162,10 @@ class IdentityDetail extends Basic.AbstractContent {
     });
   }
 
+  deleteImage() {
+    identityManager.deleteImage(this.props.identity.id);
+  }
+
   render() {
     const { identity, readOnly, _permissions } = this.props;
     const { showLoading, showLoadingIdentityTrimmed, imageUrl } = this.state;
@@ -175,12 +178,23 @@ class IdentityDetail extends Basic.AbstractContent {
             <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.Row>
                 <div className="col-lg-3" style={{margin: '4px 0px 5px 0'}}>
+                  <Basic.Button
+                  ref="cancelButton"
+                  type="button"
+                  level="danger"
+                  style={{position: 'absolute', right: '25px', top: '10px'}}
+                  title={this.i18n('vs:content.vs-request.detail.button.request.cancel')}
+                  titlePlacement="bottom"
+                  onClick={this.deleteImage.bind(this)}
+                  className="btn-xs">
+                  <Basic.Icon type="fa" icon="remove"/>
+                  </Basic.Button>
                   <Advanced.ImageDropzone
                   ref="dropzone"
                   accept="image/*"
                   multiple={false}
                   onDrop={this._onDrop.bind(this)}>
-                    <img src={imageUrl ? imageUrl : null} style={{maxWidth: '100%'}}/>
+                      <img src={imageUrl ? imageUrl : null} style={{maxWidth: '100%'}}/>
                   </Advanced.ImageDropzone>
                 </div>
                 <div className="col-lg-9">

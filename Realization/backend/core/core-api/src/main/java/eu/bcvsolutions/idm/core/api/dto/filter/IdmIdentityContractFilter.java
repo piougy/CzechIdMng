@@ -26,6 +26,10 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	private Boolean main;
 	private Boolean validNowOrInFuture;
 	private ContractState state;
+	private UUID excludeContract; // For choose the parent contract I want to exclude itself contract.
+	private Boolean withoutParent; // Returns contract without filled the parent field.
+	private UUID parent;
+	
 	/**
 	 * Little dynamic search by role property and value
 	 */
@@ -131,4 +135,29 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	public UUID getExcludeContract() {
+		return excludeContract;
+	}
+
+	public void setExcludeContract(UUID excludeContract) {
+		this.excludeContract = excludeContract;
+	}
+
+	public Boolean getWithoutParent() {
+		return withoutParent;
+	}
+
+	public void setWithoutParent(Boolean withoutParent) {
+		this.withoutParent = withoutParent;
+	}
+
+	public UUID getParent() {
+		return parent;
+	}
+
+	public void setParent(UUID parent) {
+		this.parent = parent;
+	}
+	
 }

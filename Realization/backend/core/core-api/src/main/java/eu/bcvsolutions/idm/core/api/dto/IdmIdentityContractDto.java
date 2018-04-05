@@ -31,6 +31,8 @@ public class IdmIdentityContractDto extends AbstractDto implements ValidableEnti
     @Embedded(dtoClass = IdmTreeNodeDto.class)
     private UUID workPosition;
     private String description;
+    @Embedded(dtoClass = IdmIdentityContractDto.class)
+    private UUID parent;
     
     public IdmIdentityContractDto() {
 	}
@@ -121,7 +123,15 @@ public class IdmIdentityContractDto extends AbstractDto implements ValidableEnti
 		return state;
 	}
     
-    @Override
+    public UUID getParent() {
+		return parent;
+	}
+
+	public void setParent(UUID parent) {
+		this.parent = parent;
+	}
+
+	@Override
     public boolean isValid(LocalDate targetDate) {
     	return ValidableEntity.super.isValid(targetDate) && !isDisabled();
     }

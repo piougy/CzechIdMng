@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
@@ -168,6 +169,15 @@ public class DefaultIdmIdentityContractService
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getState()));
 		}
+		if (filter.getWithoutParent() != null && filter.getWithoutParent()) {
+			predicates.add(builder.isNull(root.get(IdmIdentityContract_.parent)));
+		}
+		if (filter.getExcludeContract() != null) {
+			predicates.add(builder.notEqual(root.get(IdmIdentityContract_.id), filter.getExcludeContract()));
+		}
+		if (filter.getParent() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.parent), filter.getParent()));
+		}
 		// property, if is property filled and it isn't find in defined properties return disjunction
 		boolean exitsProperty = filter.getProperty() == null ? true : false;
 		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
@@ -297,6 +307,64 @@ public class DefaultIdmIdentityContractService
 		return toDtos(this.repository.findAllValidContracts(identityId, date, onlyExterne), false);
 	}
 	
+	/**
+	 * Returns contract contains validity (and current slice) for whole contract
+	 * (all time slices).
+	 * 
+	 * @param identityContractId
+	 *            - Id of any contract slice. Slices for one contract have same
+	 *            parent id.
+	 */
+	@Override
+	@Transactional
+	public IdmContractDto getFullContract(UUID identityContractId) {
+		Assert.notNull(identityContractId);
+		IdmIdentityContractDto slice = this.get(identityContractId);
+		Assert.notNull(slice);
+		UUID parent = slice.getParent() != null ? slice.getParent() : slice.getId();
+		List<IdmIdentityContractDto> slices = this.getAllSlices(parent);
+		IdmIdentityContractDto currentSlice = this.getCurrentSliceForDate(slices, LocalDate.now());
+
+		LocalDate minValidFrom = slices.stream().filter(s -> s.getValidFrom() != null)
+				.map(IdmIdentityContractDto::getValidFrom).min(LocalDate::compareTo).orElse(null);
+		LocalDate maxValidTill = slices.stream().filter(s -> s.getValidTill() != null)
+				.map(IdmIdentityContractDto::getValidTill).max(LocalDate::compareTo).orElse(null);
+		return new IdmContractDto(currentSlice, minValidFrom, maxValidTill);
+
+	}
+	
+	/**
+	 * Find first valid slice for given date
+	 * @param slices
+	 * @param date
+	 * @return
+	 */
+	private IdmIdentityContractDto getCurrentSliceForDate(List<IdmIdentityContractDto> slices, LocalDate date) {
+		if(slices == null) {
+			return null;
+		}
+		return slices.stream().filter(s -> s.isValid(date)).findFirst().orElse(null);
+	}
+
+	/**
+	 * Get all contract time slices by parent id. Result includes parent contract too.
+	 * @param parent - Id of parent slice 
+	 * @return All slices for one contract.
+	 */
+	private List<IdmIdentityContractDto> getAllSlices(UUID parent) {
+		if (parent == null) {
+			return null;
+		}
+		
+		IdmIdentityContractDto parentSlice = this.get(parent);
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setParent(parent);
+		
+		List<IdmIdentityContractDto> slices = this.find(filter, null).getContent();
+		slices.add(parentSlice);
+		return slices;
+	}
+
 	/**
 	 * Returns contracts sorted by priority:
 	 * - 1. main

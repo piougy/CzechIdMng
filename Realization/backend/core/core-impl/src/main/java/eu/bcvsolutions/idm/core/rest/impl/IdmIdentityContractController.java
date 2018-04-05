@@ -354,6 +354,8 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
 		filter.setMain(getParameterConverter().toBoolean(parameters, "main"));
 		filter.setValidNowOrInFuture(getParameterConverter().toBoolean(parameters, "validNowOrInFuture"));
+		filter.setWithoutParent(getParameterConverter().toBoolean(parameters, "withoutParent"));
+		filter.setExcludeContract(getParameterConverter().toEntityUuid(parameters, "excludeContract", IdmIdentityContract.class));
 		// TODO: localdate converters
 		return filter;
 	}

@@ -293,7 +293,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 			password.setPassword("1234567890");
 			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
-			fail("Password validation length.");
+			fail("Password validation length. Error message: " + e.getMessage());
 		}
 		
 		

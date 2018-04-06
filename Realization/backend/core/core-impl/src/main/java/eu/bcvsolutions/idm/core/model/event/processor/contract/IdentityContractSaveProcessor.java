@@ -66,7 +66,7 @@ public class IdentityContractSaveProcessor
 				
 				// publish new save event for identity with skip recalculation
 				IdentityEvent identityEvent = new IdentityEvent(IdentityEventType.UPDATE, identity);
-				identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, true);
+				identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 				identityService.publish(identityEvent);
 			}					
 		}

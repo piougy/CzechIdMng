@@ -25,9 +25,9 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  */
 public abstract class AbstractWorkflowStatefulExecutor<T extends AbstractDto> extends AbstractSchedulableStatefulExecutor<T> {
 	
-	protected final String SCHEDULED_TASK_ID_WF_PARAM = "scheduledTaskId";
-	protected final String LONG_RUNNING_TASK_ID_WF_PARAM = "longRunningTaskId";
-	protected final String DTO_WF_PARAM = "dto";
+	protected static final String SCHEDULED_TASK_ID_WF_PARAM = "scheduledTaskId";
+	protected static final String LONG_RUNNING_TASK_ID_WF_PARAM = "longRunningTaskId";
+	protected static final String DTO_WF_PARAM = "dto";
 	
 	@Autowired protected WorkflowProcessInstanceService workflowService;
 

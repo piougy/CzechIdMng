@@ -433,13 +433,15 @@ public class DefaultIdmPasswordPolicyService
 		
 		// password history. Skip for administrators, when doesn't exists settings, or identity isn't saved
 		// in some case (tests) are save identity in one transaction and id doesn't exist
-		Integer maxHistorySimilar = defaultPolicy.getMaxHistorySimilar();
-		IdmIdentityDto identity = passwordValidationDto.getIdentity();
-		if (defaultPolicy != null && maxHistorySimilar != null && identity != null && identity.getId() != null && !securityService.isAdmin()) {
-			boolean checkHistory = passwordHistoryService.checkHistory(passwordValidationDto.getIdentity().getId(), maxHistorySimilar, passwordValidationDto.getPassword());
-			
-			if (checkHistory) {
-				errors.put(MAX_HISTORY_SIMILAR, maxHistorySimilar);
+		if (defaultPolicy != null && !securityService.isAdmin()) {
+			Integer maxHistorySimilar = defaultPolicy.getMaxHistorySimilar();
+			IdmIdentityDto identity = passwordValidationDto.getIdentity();
+			if (maxHistorySimilar != null && identity != null && identity.getId() != null) {
+				boolean checkHistory = passwordHistoryService.checkHistory(passwordValidationDto.getIdentity().getId(), maxHistorySimilar, passwordValidationDto.getPassword());
+				
+				if (checkHistory) {
+					errors.put(MAX_HISTORY_SIMILAR, maxHistorySimilar);
+				}
 			}
 		}
 

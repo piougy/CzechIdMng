@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -11,12 +13,20 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Basic test for validation and generate password by IdmPasswordPolicyService
@@ -30,7 +40,11 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
-	
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private TestHelper testHelper;
+
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
@@ -647,5 +661,113 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		assertEquals(policyNew.getId(), defaultValidatePolicy.getId());
 		assertEquals(policyNew.getName(), defaultValidatePolicy.getName());
 		assertEquals(policyNew.getType(), defaultValidatePolicy.getType());
+	}
+	
+	@Test
+	public void testHistoryPassword() {
+		String firstPassword = "test-password-first-" + System.currentTimeMillis();
+		String secondPassword = "test-password-second-" + System.currentTimeMillis();
+		String thridPassword = "test-password-third" + System.currentTimeMillis();
+		IdmIdentityDto identity = testHelper.createIdentity();
+		
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_default_policy_" + System.currentTimeMillis());
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setDefaultPolicy(true);
+		policy.setMaxHistorySimilar(2);
+		policy = passwordPolicyService.save(policy);
+		
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setIdm(true);
+		passwordChange.setAll(true);
+		passwordChange.setNewPassword(new GuardedString(firstPassword));
+		
+
+		identityService.passwordChange(identity, passwordChange);
+
+		// we must login as no admin
+		loginAsNoAdmin(identity.getUsername());
+		try {
+			// same password as before
+			passwordChange.setNewPassword(new GuardedString(firstPassword));
+			passwordChange.setOldPassword(new GuardedString(firstPassword));
+			identityService.passwordChange(identity, passwordChange);
+		} catch (ResultCodeException e) {
+			checkMaxHistorySimilarError(e, 2);
+		} catch (Exception ex) {
+			fail("Bad exception: " + ex.toString());
+		}
+		
+		// new password
+		passwordChange.setNewPassword(new GuardedString(secondPassword));
+		passwordChange.setOldPassword(new GuardedString(firstPassword));
+		identityService.passwordChange(identity, passwordChange);
+		
+		try {
+			// same password as first
+			passwordChange.setNewPassword(new GuardedString(firstPassword));
+			passwordChange.setOldPassword(new GuardedString(secondPassword));
+			identityService.passwordChange(identity, passwordChange);
+		} catch (ResultCodeException e) {
+			checkMaxHistorySimilarError(e, 2);
+		} catch (Exception ex) {
+			fail("Bad exception: " + ex.toString());
+		}
+		
+		
+		try {
+			// same password as the second
+			passwordChange.setNewPassword(new GuardedString(secondPassword));
+			passwordChange.setOldPassword(new GuardedString(secondPassword));
+			identityService.passwordChange(identity, passwordChange);
+		} catch (ResultCodeException e) {
+			checkMaxHistorySimilarError(e, 2);
+		} catch (Exception ex) {
+			fail("Bad exception: " + ex.toString());
+		}
+		
+		// new password
+		passwordChange.setNewPassword(new GuardedString(thridPassword));
+		passwordChange.setOldPassword(new GuardedString(secondPassword));
+		identityService.passwordChange(identity, passwordChange);
+		
+		try {
+			// same password as the second
+			passwordChange.setNewPassword(new GuardedString(secondPassword));
+			passwordChange.setOldPassword(new GuardedString(thridPassword));
+			identityService.passwordChange(identity, passwordChange);
+		} catch (ResultCodeException e) {
+			checkMaxHistorySimilarError(e, 2);
+		} catch (Exception ex) {
+			fail("Bad exception: " + ex.toString());
+		}
+		
+		try {
+			// same password as the second
+			passwordChange.setNewPassword(new GuardedString(thridPassword));
+			passwordChange.setOldPassword(new GuardedString(thridPassword));
+			identityService.passwordChange(identity, passwordChange);
+		} catch (ResultCodeException e) {
+			checkMaxHistorySimilarError(e, 2);
+		} catch (Exception ex) {
+			fail("Bad exception: " + ex.toString());
+		}
+		
+		// new password (the first one)
+		passwordChange.setNewPassword(new GuardedString(firstPassword));
+		passwordChange.setOldPassword(new GuardedString(thridPassword));
+		identityService.passwordChange(identity, passwordChange);
+	}
+	
+	private void checkMaxHistorySimilarError(ResultCodeException exception, int maxHistorySettingOriginal) {
+		ErrorModel error = exception.getError().getError();
+		assertTrue(error.getMessage().contains("Password does not match password policy"));
+		assertEquals(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY.getCode(), error.getStatusEnum());
+		Map<String, Object> parameters = error.getParameters();
+		assertEquals(1, parameters.size());
+		assertTrue(parameters.containsKey("maxHistorySimilar"));
+		Object parameterAsObject = parameters.get("maxHistorySimilar");
+		int maxHistorySetting = Integer.valueOf(parameterAsObject.toString());
+		assertEquals(maxHistorySettingOriginal, maxHistorySetting);
 	}
 }

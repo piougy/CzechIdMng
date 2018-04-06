@@ -178,12 +178,6 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   helpBlock={this.i18n('entity.PasswordPolicy.help.minRulesToFulfill')}
                   label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
-                <Basic.TextField ref="maxHistorySimilar" hidden
-                  type="number"
-                  validation={ Utils.Ui.getIntegerValidation() }
-                  helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
-                  label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
-
                 <Basic.EnumSelectBox
                   ref="identityAttributeCheck"
                   helpBlock={ this.i18n('entity.PasswordPolicy.help.identityAttributeCheck') }

@@ -13,9 +13,11 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordHistoryDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
@@ -35,13 +37,16 @@ public class DefaultIdmPasswordService
 		implements IdmPasswordService {
 
 	private final IdmPasswordRepository repository;
+	private final IdmPasswordHistoryService passwordHistoryService;
 
 	@Autowired
 	public DefaultIdmPasswordService(IdmPasswordRepository repository,
-									 IdmPasswordPolicyRepository policyRepository) {
+									 IdmPasswordPolicyRepository policyRepository,
+									 IdmPasswordHistoryService passwordHistoryService) {
 		super(repository);
 		//
 		this.repository = repository;
+		this.passwordHistoryService = passwordHistoryService;
 	}
 	
 	@Override
@@ -83,6 +88,9 @@ public class DefaultIdmPasswordService
 		//
 		// reset unsuccessful attempts, after password is changed
 		passwordDto.resetUnsuccessfulAttempts();
+		//
+		// create new password history with currently changed password
+		createPasswordHistory(passwordDto);
 		//
 		return save(passwordDto);
 	}
@@ -166,5 +174,18 @@ public class DefaultIdmPasswordService
 		Assert.notNull(username);
 		//
 		return toDto(this.repository.findOneByIdentity_username(username));
+	}
+	
+	/**
+	 * Create new password history. This is done after success password change in IdM.
+	 *
+	 * @param passwordDto
+	 */
+	private void createPasswordHistory(IdmPasswordDto passwordDto) {
+		IdmPasswordHistoryDto passwordHistory = new IdmPasswordHistoryDto();
+		passwordHistory.setIdentity(passwordDto.getIdentity());
+		passwordHistory.setPassword(passwordDto.getPassword());
+		
+		passwordHistoryService.save(passwordHistory);
 	}
 }

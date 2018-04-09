@@ -92,6 +92,7 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization root filter result must be instance of Boolean, but value is type %s!"), 
 	SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] and acc account: [{}] was not found tree account!"),
 	SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] was not found parent's account!"),
+	SYNCHRONIZATION_TREE_PARENT_NODE_IS_NOT_FROM_SAME_TREE_TYPE(HttpStatus.NOT_FOUND, "Node [%s] is not in the tree type sets in the mapping!"),
 	SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM attribute %s not found!"),
 	SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL(HttpStatus.BAD_REQUEST, "IDM attribute [%s] cannot be null!"),
 	SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST(HttpStatus.BAD_REQUEST, "Mapped attribute for IdM field [%s] must exist in system mapping!"),

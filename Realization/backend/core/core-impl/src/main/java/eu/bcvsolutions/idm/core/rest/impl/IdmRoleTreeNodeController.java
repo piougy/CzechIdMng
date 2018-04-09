@@ -111,9 +111,9 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_AUTOCOMPLETE + "')")
 	@ApiOperation(
-			value = "Autocomplete roles (selectbox usage)", 
-			nickname = "autocompleteRoles", 
-			tags = { IdmRoleController.TAG }, 
+			value = "Autocomplete automatic roles (selectbox usage)", 
+			nickname = "autocompleteRoleTreeNodes", 
+			tags = { IdmRoleTreeNodeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.ROLETREENODE_AUTOCOMPLETE, description = "") }),

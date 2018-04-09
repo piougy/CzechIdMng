@@ -315,7 +315,7 @@ public class DefaultIdmIdentityService
 				if (result.getModel() != null) {
 					boolean success = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
 					boolean failure = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name());
-					if (success || failure) {				
+					if (success || failure) {
 						IdmAccountDto resultAccount = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
 						if (!passwordChangeResults.containsKey(resultAccount.getId())) {
 							passwordChangeResults.put(resultAccount.getId(), result);

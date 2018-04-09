@@ -4,8 +4,11 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,7 +34,7 @@ import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 @Configurable
 public class IdmAuditStrategy extends DefaultAuditStrategy {
 	
-	private List<String> auditedFieldsFromAbstractEntity;
+	private Set<String> auditedFieldsFromAbstractEntity;
 	
 	@Override
 	public void perform(Session session, String entityName, AuditConfiguration auditCfg, Serializable id, Object data,
@@ -51,11 +54,11 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 			// iterate over all audit data and search mod fields with boolean
 			// we create new audit row when is changed some attribute except modified
 			// in this case is classic for each faster than stream
-			for (String key : dataMap.keySet()) {
+			for (Entry<String, Object> entry : dataMap.entrySet()) {
+				String key = entry.getKey();
 				if (key.endsWith(modifiedFlagSuffix)) {
-					//
 					// fill changed columns, except attributes from abstract entity
-					Boolean modValue = BooleanUtils.toBoolean(dataMap.get(key).toString());
+					Boolean modValue = BooleanUtils.toBoolean(entry.getValue().toString());
 					if (!this.auditedFieldsFromAbstractEntity.contains(key) && BooleanUtils.isTrue(modValue)) {
 						changedColumns.add(StringUtils.remove(key, modifiedFlagSuffix));
 					}
@@ -106,7 +109,7 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 		if (auditedFieldsFromAbstractEntity == null) {
 			String modifiedFlagSuffix = auditCfg.getGlobalCfg().getModifiedFlagSuffix();
 			//
-			auditedFieldsFromAbstractEntity = new ArrayList<>();
+			auditedFieldsFromAbstractEntity = new LinkedHashSet<>();
 			//
 			for (Field field : AbstractEntity.class.getDeclaredFields()) {
 				Audited annotation = field.getAnnotation(Audited.class);

@@ -57,7 +57,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;

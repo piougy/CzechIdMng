@@ -221,8 +221,15 @@ public class DefaultIdmIdentityRoleService
 	}
 	
 	@Override
+	@Deprecated
 	@Transactional(readOnly = true)
 	public Page<IdmIdentityRoleDto> findValidRole(UUID identityId, Pageable pageable) {
+		return this.findValidRoles(identityId, pageable);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityRoleDto> findValidRoles(UUID identityId, Pageable pageable) {
 		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 		identityRoleFilter.setValid(Boolean.TRUE);
 		identityRoleFilter.setIdentityId(identityId);

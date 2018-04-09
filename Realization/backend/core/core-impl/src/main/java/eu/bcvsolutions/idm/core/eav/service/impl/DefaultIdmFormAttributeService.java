@@ -114,7 +114,7 @@ public class DefaultIdmFormAttributeService
 			// some automatic roles use this attribute
 			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED, ImmutableMap.of("formAttribute", dto.getId()));
 		}
-		
+		//
 		// Check rules requests for automatic role attributes. Deletes relation on this form attribute.
 		IdmAutomaticRoleAttributeRuleRequestFilter automaticRoleRuleRequestFilter = new IdmAutomaticRoleAttributeRuleRequestFilter();
 		automaticRoleRuleRequestFilter.setFormAttributeId(dto.getId());
@@ -123,6 +123,7 @@ public class DefaultIdmFormAttributeService
 			rule.setFormAttribute(null);
 			automaticRoleAttributeRequestService.save(rule);
 		});
+		//
 		super.deleteInternal(dto);
 	}
 	

@@ -33,6 +33,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -51,9 +52,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.AsyncEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
-import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -343,9 +344,20 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		if (runningOwnerEvents.putIfAbsent(event.getOwnerId(), event.getId()) != null) {
 			LOG.debug("Previous event [{}] for owner with id [{}] is currently processed.", 
 					runningOwnerEvents.get(event.getOwnerId()), event.getOwnerId());
-			// event will be processed in another scheduling
+			// event will be processed in another scheduling			
 			return;
-		}			
+		}
+		// check super owner is not processed
+		UUID superOwnerId = event.getProperties().getUuid(EntityEventManager.EVENT_PROPERTY_SUPER_OWNER_ID);
+		if (superOwnerId != null && !superOwnerId.equals(event.getOwnerId())) {			
+			if (runningOwnerEvents.putIfAbsent(superOwnerId, event.getId()) != null) {
+				LOG.debug("Previous event [{}] for super owner with id [{}] is currently processed.", 
+						runningOwnerEvents.get(superOwnerId), superOwnerId);
+				runningOwnerEvents.remove(event.getOwnerId());
+				// event will be processed in another scheduling		
+				return;
+			}
+		}
 		// execute event in new thread asynchronously
 		try {
 			eventConfiguration.getExecutor().execute(new Runnable() {
@@ -377,7 +389,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 						LOG.error(resultModel.toString(), ex);
 					} finally {
 						LOG.trace("Event [{}] ends for owner with id [{}].", event.getId(), event.getOwnerId());
-						runningOwnerEvents.remove(event.getOwnerId());
+						removeRunningEvent(event);
 					}
 				}
 			});
@@ -386,7 +398,15 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		} catch (RejectedExecutionException ex) {
 			// thread pool is full - wait for another try
 			// TODO: Thread.wait(300) ?
-			runningOwnerEvents.remove(event.getOwnerId());
+			removeRunningEvent(event);
+		}
+	}
+	
+	private void removeRunningEvent(IdmEntityEventDto event) {
+		runningOwnerEvents.remove(event.getOwnerId());
+		UUID superOwnerId = event.getProperties().getUuid(EntityEventManager.EVENT_PROPERTY_SUPER_OWNER_ID);
+		if (superOwnerId != null) {
+			runningOwnerEvents.remove(superOwnerId);
 		}
 	}
 	
@@ -471,9 +491,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		//
 		Map<String, Serializable> eventProperties = entityEvent.getProperties().toMap();
-		eventProperties.put(EntityEventManager.EVENT_PROPERTY_EVENT_ID, entityEvent.getId());
-		eventProperties.put(EntityEventManager.EVENT_PROPERTY_PRIORITY, entityEvent.getPriority());
-		eventProperties.put(EntityEventManager.EVENT_PROPERTY_EXECUTE_DATE, entityEvent.getExecuteDate());
+		eventProperties.put(EVENT_PROPERTY_EVENT_ID, entityEvent.getId());
+		eventProperties.put(EVENT_PROPERTY_PRIORITY, entityEvent.getPriority());
+		eventProperties.put(EVENT_PROPERTY_EXECUTE_DATE, entityEvent.getExecuteDate());
+		eventProperties.put(EVENT_PROPERTY_PARENT_EVENT_TYPE, entityEvent.getParentEventType());
 		final String type = entityEvent.getEventType();
 		DefaultEventContext<Identifiable> initContext = new DefaultEventContext<>();
 		initContext.setProcessedOrder(entityEvent.getProcessedOrder());
@@ -651,8 +672,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			} else {
 				// cancel duplicate older event 
 				IdmEntityEventDto olderEvent = distinctEvents.get(event.getOwnerId());
-				if (Objects.equal(olderEvent.getEventType(), event.getEventType())
-						&& Objects.equal(olderEvent.getProperties(), event.getProperties())) {
+				if (isDuplicate(olderEvent, event)) {
 					// try to set higher priority
 					if (olderEvent.getPriority() == PriorityType.HIGH) {
 						event.setPriority(PriorityType.HIGH);
@@ -704,6 +724,39 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		//
 		return prioritizedEvents;
+	}
+	
+	/**
+	 * Returns true, when events are duplicates
+	 * 
+	 * @param olderEvent
+	 * @param event
+	 * @return
+	 */
+	private boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
+		return Objects.equal(olderEvent.getEventType(), event.getEventType())
+				&& Objects.equal(getProperties(olderEvent), getProperties(event));
+	}
+	
+	/**
+	 * Remove internal event properties needed for processing
+	 * 
+	 * @param event
+	 * @return
+	 */
+	private ConfigurationMap getProperties(IdmEntityEventDto event) {
+		ConfigurationMap copiedProperies = new ConfigurationMap();
+		copiedProperies.putAll(event.getProperties());
+		//
+		// remove internal event properties needed for processing
+		copiedProperies.remove(EVENT_PROPERTY_EVENT_ID);
+		copiedProperies.remove(EVENT_PROPERTY_EXECUTE_DATE);
+		copiedProperies.remove(EVENT_PROPERTY_PARENT_EVENT_TYPE);
+		copiedProperies.remove(EVENT_PROPERTY_PRIORITY);
+		copiedProperies.remove(EVENT_PROPERTY_SKIP_NOTIFY);
+		copiedProperies.remove(EVENT_PROPERTY_SUPER_OWNER_ID);
+		//
+		return copiedProperies;
 	}
 	
 	private <E extends Serializable> IdmEntityStateDto createState(

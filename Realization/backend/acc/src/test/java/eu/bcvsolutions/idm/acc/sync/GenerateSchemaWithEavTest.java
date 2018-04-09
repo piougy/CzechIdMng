@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -59,8 +58,6 @@ public class GenerateSchemaWithEavTest extends AbstractIntegrationTest {
 	private IdmFormAttributeService formAttributeService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private IdmFormDefinitionService formDefinitionService;
 	
 	@Before
 	public void init() {
@@ -83,8 +80,8 @@ public class GenerateSchemaWithEavTest extends AbstractIntegrationTest {
 		//
 		long totalFormAttributesSecond = formAttributeService.find(filter, null).getTotalElements();
 		//
-		// 8 new eav attribute
-		assertEquals(8, totalFormAttributesSecond);
+		// 9 new eav attribute
+		assertEquals(9, totalFormAttributesSecond);
 		//
 		for (IdmFormAttributeDto attribute : formAttributeService.find(filter, null)) {
 			if (attribute.getCode().toLowerCase().equals("boolean_value")) {
@@ -96,6 +93,8 @@ public class GenerateSchemaWithEavTest extends AbstractIntegrationTest {
 				assertEquals(PersistentType.TEXT, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("double_value")) {
 				assertEquals(PersistentType.DOUBLE, attribute.getPersistentType());
+			} else if (attribute.getCode().toLowerCase().equals("int_value")) {
+					assertEquals(PersistentType.INT, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("long_value")) {
 				assertEquals(PersistentType.LONG, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("short_text_value")) {

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +30,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -66,6 +69,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeRuleService;
+	@Autowired private IdmAutomaticRoleRequestService automaticRoleRequestService;
 	//
 	private boolean deleteEntity = true; // At the end of the task remove whole entity (this isn't possible set via FE parameters)
 	private UUID automaticRoleId = null;
@@ -141,6 +145,9 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+			//
+			LOG.error("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), ex);
+			//
 			return Optional.of(new OperationResult
 					.Builder(OperationState.EXCEPTION)
 					.setModel(new DefaultResultModel(
@@ -160,8 +167,15 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		//
 		if (BooleanUtils.isTrue(ended)) {
 			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
-			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
 			//
+			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), new PageRequest(0, 1)).getTotalElements();
+			if (assignedRoles != 0) {
+				LOG.debug("Remove role [{}] by automatic role [{}] is not complete, some roles [{}] remains assigned to identities.", 
+						role.getCode(), getAutomaticRole().getId(), assignedRoles);
+				return ended;
+			}
+			//
+			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
 			try {
 				//
 				// Find all concepts and remove relation on role tree
@@ -188,6 +202,18 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 					
 					roleRequestService.save(request);
 					conceptRequestService.save(concept);
+				}
+				// Find all automatic role requests and remove relation on automatic role
+				if (automaticRoleId != null) {
+					IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
+					automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);
+					
+					automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
+						request.setAutomaticRole(null);
+						automaticRoleRequestService.save(request);
+						// WFs cannot be cancel here, because this method can be called from the same WF
+						// automaticRoleRequestService.cancel(request);
+					});
 				}
 				//
 				// by default is this allowed

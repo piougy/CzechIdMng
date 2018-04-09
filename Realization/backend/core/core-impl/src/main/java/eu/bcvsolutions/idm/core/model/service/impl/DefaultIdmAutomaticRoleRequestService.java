@@ -194,7 +194,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		Map<String, Serializable> variables = new HashMap<>();
 		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
 		return entityEventManager
-				.process(new AutomaticRoleRequestEvent(AutomaticRoleRequestEventType.EXCECUTE, savedRequest, variables))
+				.process(new AutomaticRoleRequestEvent(AutomaticRoleRequestEventType.EXECUTE, savedRequest, variables))
 				.getContent();
 	}
 
@@ -341,6 +341,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	}
 
 	@Override
+	@Transactional
 	public void deleteInternal(IdmAutomaticRoleRequestDto dto) {
 		// Stop connected WF process
 		cancelWF(dto);
@@ -359,6 +360,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	}
 
 	@Override
+	@Transactional
 	public void cancel(IdmAutomaticRoleRequestDto dto) {
 		cancelWF(dto);
 		dto.setState(RequestState.CANCELED);
@@ -397,12 +399,6 @@ public class DefaultIdmAutomaticRoleRequestService extends
 			}
 		}
 		return requestEntity;
-	}
-
-	@Override
-	protected IdmAutomaticRoleRequestDto toDto(IdmAutomaticRoleRequest entity) {
-		IdmAutomaticRoleRequestDto dto = super.toDto(entity);
-		return dto;
 	}
 	
 	@Override
@@ -614,6 +610,8 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	/**
 	 * If exception causal chain contains cause instance of ResultCodeException,
 	 * then is return primary.
+	 * 
+	 * TODO: nice util method
 	 * 
 	 * @param ex
 	 * @return

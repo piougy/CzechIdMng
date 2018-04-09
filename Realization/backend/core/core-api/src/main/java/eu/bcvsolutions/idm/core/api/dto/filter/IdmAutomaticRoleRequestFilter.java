@@ -9,7 +9,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleRequestDto;
 
 /**
  * Filter for automatic role request
@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
  * @author svandav
  */
 public class IdmAutomaticRoleRequestFilter extends DataFilter {
+	
 	private UUID roleId;
 	private List<RequestState> states;
 	private UUID automaticRoleId;
@@ -28,7 +29,7 @@ public class IdmAutomaticRoleRequestFilter extends DataFilter {
 	}
 
 	public IdmAutomaticRoleRequestFilter(MultiValueMap<String, Object> data) {
-		super(IdmRoleRequestDto.class, data);
+		super(IdmAutomaticRoleRequestDto.class, data);
 	}
 
 	public UUID getRoleId() {

@@ -45,8 +45,10 @@ const DATE = 'date';
 const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
 'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
 'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
-'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName',
-'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate', 'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate'];
+'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName',
+'passwordSimilarLastName', 'maxHistorySimilar',
+'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate',
+'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate'];
 
 /**
  * @author Ondřej Kopr
@@ -128,18 +130,19 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
               />
             </Basic.Alert>);
         } else if (key !== PASSWORD_POLICIES_NAMES) {
+          // set all attributes as parameter zero
           // validation message with date
           if (key === DATE) {
             validationMessage.push(
               <Basic.Alert level={levelWarning} className="no-margin">
-                {this.i18n('content.passwordPolicies.validation.' + key)} <DateValue value={error.parameters[key]} />
+                {this.i18n('content.passwordPolicies.validation.' + key, { 0: <DateValue value={error.parameters[key]}/> } )}
               </Basic.Alert>
             );
           } else {
             // other validation messages
             validationMessage.push(
               <Basic.Alert level={levelWarning} className="no-margin">
-                {this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}
+                {this.i18n('content.passwordPolicies.validation.' + key, { 0: error.parameters[key] })}
               </Basic.Alert>
             );
           }

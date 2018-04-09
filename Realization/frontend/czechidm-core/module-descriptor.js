@@ -482,16 +482,7 @@ module.exports = {
                     'authorities': ['AUDIT_READ']
                   }
                 ]
-              },
-              {
-                'id': 'entity-events',
-                'labelKey': 'content.entityEvents.label',
-                'titleKey': 'content.entityEvents.title',
-                'order': 100,
-                'path': '/audit/entity-events',
-                'type': 'TAB',
-                'icon': ''
-              },
+              }
             ]
           },
           {
@@ -506,6 +497,19 @@ module.exports = {
               {
                 'type': 'HAS_ANY_AUTHORITY',
                 'authorities': ['AUDIT_READ']
+              }
+            ]
+          },
+          {
+            'id': 'entity-events',
+            'labelKey': 'content.entityEvents.label',
+            'titleKey': 'content.entityEvents.title',
+            'order': 100,
+            'path': '/audit/entity-events',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['APP_ADMIN']
               }
             ]
           },

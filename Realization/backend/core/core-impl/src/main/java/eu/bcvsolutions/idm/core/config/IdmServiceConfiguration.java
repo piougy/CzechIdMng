@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
@@ -78,6 +79,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmPasswordHistoryRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
@@ -100,6 +102,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmEntityStateService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
@@ -176,6 +179,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmAutomaticRoleAttributeRuleRepository automaticRoleAttributeRuleRepository;
 	@Autowired private IdmEntityEventRepository entityEventRepository;
 	@Autowired private IdmEntityStateRepository entityStateRepository;
+	@Autowired private IdmPasswordHistoryRepository passwordHistoryRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -453,13 +457,13 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmPasswordService.class)
 	public IdmPasswordService passwordService() {
-		return new DefaultIdmPasswordService(passwordRepository, passwordPolicyRepository);
+		return new DefaultIdmPasswordService(passwordRepository, passwordPolicyRepository, passwordHistoryService());
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(IdmPasswordPolicyService.class)
 	public IdmPasswordPolicyService passwordPolicyService(IdmPasswordService passwordService) {
-		return new DefaultIdmPasswordPolicyService(passwordPolicyRepository, entityEventManager(), securityService(), passwordService);
+		return new DefaultIdmPasswordPolicyService(passwordPolicyRepository, entityEventManager(), securityService(), passwordService, passwordHistoryService());
 	}
 	
 	/**
@@ -649,4 +653,14 @@ public class IdmServiceConfiguration {
 		return new DefaultAttachmentManager(attachmentRepository, attachmentConfiguration(), lookupService());
 	}
 	
+	/**
+	 * Password history service
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmPasswordHistoryService.class)
+	public IdmPasswordHistoryService passwordHistoryService() {
+		return new DefaultIdmPasswordHistoryService(passwordHistoryRepository);
+	}
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
 import EntityEventTable from './EntityEventTable';
@@ -26,8 +25,11 @@ export default class EntityEvents extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        <Helmet title={ this.i18n('title') } />
-        <EntityEventTable uiKey="entity-event-table" filterOpened />
+        {this.renderPageHeader()}
+
+        <Basic.Panel>
+          <EntityEventTable uiKey="entity-event-table" filterOpened />
+        </Basic.Panel>
       </div>
     );
   }

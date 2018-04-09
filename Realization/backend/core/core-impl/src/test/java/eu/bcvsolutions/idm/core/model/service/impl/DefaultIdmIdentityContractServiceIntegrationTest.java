@@ -598,7 +598,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		} finally {
 			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		}
-	}
+}
 	
 	@Test
 	public void testReferentialIntegrityOnIdentityDelete() {

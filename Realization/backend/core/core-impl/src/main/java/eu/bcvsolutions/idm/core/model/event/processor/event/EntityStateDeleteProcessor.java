@@ -39,9 +39,9 @@ public class EntityStateDeleteProcessor
 
 	@Override
 	public EventResult<IdmEntityStateDto> process(EntityEvent<IdmEntityStateDto> event) {
-		IdmEntityStateDto role = event.getContent();
+		IdmEntityStateDto entityState = event.getContent();
 		//		
-		service.deleteInternal(role);
+		service.deleteInternal(entityState);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

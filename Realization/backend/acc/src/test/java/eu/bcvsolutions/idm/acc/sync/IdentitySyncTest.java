@@ -60,7 +60,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
-import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
@@ -144,7 +143,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	public void init() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
 		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
@@ -152,7 +150,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		if (identityService.getByUsername(IDENTITY_ONE) != null) {
 			identityService.delete(identityService.getByUsername(IDENTITY_ONE));
 		}
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 

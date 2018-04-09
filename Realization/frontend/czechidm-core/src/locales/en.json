@@ -859,24 +859,25 @@
         "minLength": "Minimum password length: {{0}}",
         "minNumber": "Minimum number of digits: {{0}}",
         "minUpperChar": "Minimum number uppercase characters: {{0}}",
-        "prohibited": "Password contains illegal characters: ",
+        "prohibited": "Password contains illegal characters: {{0}}",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
-        "policiesNames": "Password does not meet these password policies: ",
-        "policiesNamesPreValidation": "Password have to meet these password policies: ",
-        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: ",
-        "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
-        "passwordSimilarUsername": "Password cannot be similar to login: ",
-        "passwordSimilarEmail": "Password cannot be similar to email: ",
-        "passwordSimilarFirstName": "Password cannot be similar to first name: ",
-        "passwordSimilarLastName": "Password cannot be similar to surname: ",
-        "date": "Password can not be change now, try again: ",
+        "policiesNames": "Password does not meet these password policies: {{0}}",
+        "policiesNamesPreValidation": "Password have to meet these password policies: {{0}}",
+        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: {{0}}",
+        "minRulesToFulfill": "Fill in at least {{count}} the following rules: {{0}}",
+        "passwordSimilarUsername": "Password cannot be similar to login: {{0}}",
+        "passwordSimilarEmail": "Password cannot be similar to email: {{0}}",
+        "passwordSimilarFirstName": "Password cannot be similar to first name: {{0}}",
+        "passwordSimilarLastName": "Password cannot be similar to surname: {{0}}",
+        "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
         "specialCharacterBase": "List of special characters for password policies: ",
         "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
         "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
         "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",
-        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname"
+        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname",
+        "maxHistorySimilar": "The password must be different from the last {{0}} passwords"
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."
@@ -2359,7 +2360,7 @@
     },
     "entityEvents": {
       "header": "Entity events",
-      "title": "Events",
+      "title": "Entity events",
       "label": "$t(content.entityEvents.title)",
       "filter": {
         "text": {

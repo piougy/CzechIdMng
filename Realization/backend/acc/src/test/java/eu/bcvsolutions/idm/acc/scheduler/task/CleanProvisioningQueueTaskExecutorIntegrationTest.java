@@ -28,7 +28,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -71,12 +70,10 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 	

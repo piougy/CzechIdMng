@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -17,9 +18,10 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
  * Processor recalculate automatic roles by attribute after save identify or identity eav's.
@@ -41,7 +43,7 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 	public IdentityAutomaticRoleProcessor(
 			IdmAutomaticRoleAttributeService automaticRoleAttributeService,
 			IdmIdentityContractService identityContractService) {
-		super(IdentityEventType.UPDATE, IdentityEventType.CREATE, CoreEventType.EAV_SAVE);
+		super(IdentityContractEventType.NOTIFY);
 		//
 		Assert.notNull(automaticRoleAttributeService);
 		Assert.notNull(identityContractService);
@@ -51,20 +53,27 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 	}
 	
 	@Override
-	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
 		// skip recalculation
-		if (this.getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties())) {
-			return new DefaultEventResult<>(event, this);
-		}
+		return super.conditional(event)
+				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties());
+	}
+	
+	@Override
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		//
 		IdmIdentityDto identity = event.getContent();
 		UUID identityId = identity.getId();
 		//
-		// TODO: one time is possible add this to process queue (like account management)
+		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.IDENTITY;
+		if (CoreEventType.EAV_SAVE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE))) {
+			type = AutomaticRoleAttributeRuleType.IDENTITY_EAV;
+		}
+		//
 		for (IdmIdentityContractDto contract : identityContractService.findAllByIdentity(identityId)) {
 			UUID contractId = contract.getId();
-			Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, null, contractId);
-			Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, null, contractId);
+			Set<AbstractIdmAutomaticRoleDto> allNewPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(true, type, contractId);
+			Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService.getRulesForContract(false, type, contractId);
 			automaticRoleAttributeService.processAutomaticRolesForContract(contractId, allNewPassedAutomaticRoleForContract, allNotPassedAutomaticRoleForContract);
 		}
 		//

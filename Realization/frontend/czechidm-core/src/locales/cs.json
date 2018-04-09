@@ -696,7 +696,7 @@
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
     },
     "PriorityTypeEnum": {
-      "IMMEDIATE": "Hned",
+      "IMMEDIATE": "Ihned",
       "HIGH": "Vysoká",
       "NORMAL": "Normální"
     }
@@ -887,24 +887,25 @@
         "minLength": "Minimální délka hesla: {{0}}",
         "minNumber": "Minimální počet číslic: {{0}}",
         "minUpperChar": "Minimální počet velkých znaků: {{0}}",
-        "prohibited": "Heslo obsahuje zakázané znaky: ",
+        "prohibited": "Heslo obsahuje zakázané znaky: {{0}}",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo přes tyto politiky: ",
-        "policiesNamesPreValidation": "Heslo musí projít přes tyto politiky: ",
-        "minRulesToFulfillCount": "Je požadováno minimum povinných pravidel: ",
-        "minRulesToFulfill": "Je požadováno minimálně {{count}} z následujících pravidel: ",
-        "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
-        "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
-        "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
-        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
-        "date": "Heslo není možné nyní změnit, zkuste to znovu: ",
+        "policiesNames": "Heslo neprošlo přes tyto politiky: {{0}}",
+        "policiesNamesPreValidation": "Heslo musí projít přes tyto politiky: {{0}}",
+        "minRulesToFulfillCount": "Je požadováno minimum povinných pravidel: {{0}}",
+        "minRulesToFulfill": "Je požadováno minimálně {{count}} z následujících pravidel: {{0}}",
+        "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: {{0}}",
+        "passwordSimilarEmail": "Heslo je příliš podobné emailu: {{0}}",
+        "passwordSimilarFirstName": "Heslo je příliš podobné jménu: {{0}}",
+        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: {{0}}",
+        "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
-        "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: ",
+        "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
         "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu",
         "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu",
         "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu",
-        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení"
+        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení",
+        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel"
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
@@ -1537,7 +1538,7 @@
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
           "started": "Žádost byla úspěšně podána",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
-          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {
@@ -1593,7 +1594,7 @@
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
           "started": "Žádost byla úspěšně podána",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
-          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {
@@ -1607,18 +1608,18 @@
 
     },
     "automaticRoleRequestDetail": {
-      "header": "Žádost automatickou roli",
-      "title": "Žádost automatickou roli",
+      "header": "Žádost pro automatickou roli",
+      "title": "Žádost pro automatickou roli",
       "conceptHeader": "Požadované změny pravidel",
       "conceptWithCurrentRulesHeader": "Schválená pravidla (včetně požadovaných změn)",
       "save": {
-        "success": "Žádost o změnu oprávnění byla úspěšně uložena",
+        "success": "Žádost pro automatickou roli byla úspěšně uložena",
         "start": "Podat žádost"
       },
       "button": {
         "createRequest":{
           "label": "Podat žádost",
-          "tooltip": "Zahájí žádost o automatickou roli. Spustí případné schvalovací procesy."
+          "tooltip": "Zahájí žádost pro automatickou roli. Spustí případné schvalovací procesy."
         }
       },
       "create": {
@@ -1629,7 +1630,7 @@
       },
       "rulesIsAnd": {
         "title": "Všechna pravidla musí být splněna.",
-        "text": "Pro přidělení role, musí entita splnit všechna (níže definovaná) pravidla zároveň."
+        "text": "Pro přidělení role dle automatická role, musí entita (identita i úvazek) splnit všechna (níže definovaná) pravidla zároveň."
       }
     },
     "role": {
@@ -3287,11 +3288,11 @@
       }
     },
     "approve-remove-role-by-manager" : {
-      "name": "Schválení odebrání přiřazené role '{{0}}' uživateli '{{1}}'",
+      "name": "Schválení odebrání přiřazené role '{{0}}' pro uživatele '{{1}}'",
       "task": {
         "approveByManager": {
           "name": "Schválení odebrání role vedoucím",
-          "description":"Schválení odebrání role '{{0}}' vedoucím uživateli '{{1}}'"
+          "description":"Schválení odebrání role '{{0}}' vedoucím pro uživatele '{{1}}'"
         }
       }
     },
@@ -3811,8 +3812,8 @@
       "message": "Rozšířený atribut typu 'TEXT' není podporován."
     },
     "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
-      "title": "Žádost o automatickou roli, musí mít alespoň jedno pravidlo!",
-      "message": "Žádost o automatickou roli [{{request}}], musí mít alespoň jedno pravidlo!"
+      "title": "Žádost o automatickou roli musí mít alespoň jedno pravidlo!",
+      "message": "Žádost o automatickou roli [{{request}}] musí mít alespoň jedno pravidlo!"
     },
     "EVENT_CANCELED_BY_RESTART": {
       "title": "Zpracování události bylo přerušeno",

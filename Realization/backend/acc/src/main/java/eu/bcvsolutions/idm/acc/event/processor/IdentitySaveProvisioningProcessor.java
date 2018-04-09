@@ -11,12 +11,12 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AsyncEntityEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
@@ -39,7 +39,7 @@ public class IdentitySaveProvisioningProcessor
 	
 	@Autowired
 	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
-		super(CoreEventType.NOTIFY);
+		super(IdentityEventType.NOTIFY);
 		//
 		Assert.notNull(applicationContext);
 		Assert.notNull(identityRepository);

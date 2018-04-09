@@ -69,8 +69,8 @@ class RoleAutomaticRoleAttributeRoutes extends Basic.AbstractContent {
                   { this.i18n('button.change.label') }
                 </Basic.Button>
               ]}/>
-            </Basic.Col>
-          </Basic.Row>
+          </Basic.Col>
+        </Basic.Row>
         <Advanced.TabPanel position="top" parentId="role-automatic-role-attribute" params={this.props.params}>
           {this.props.children}
         </Advanced.TabPanel>

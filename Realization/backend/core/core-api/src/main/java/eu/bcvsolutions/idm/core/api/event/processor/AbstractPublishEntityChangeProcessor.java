@@ -35,9 +35,21 @@ public abstract class AbstractPublishEntityChangeProcessor <DTO extends Abstract
 	
 	@Override
 	public EventResult<DTO> process(EntityEvent<DTO> event) {
+		// set additional props to event
+		event = setAdditionalEventProperties(event);
+		// publish notify event
 		entityEventManager.changedEntity(event.getContent(), event);
 		//
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	/**
+	 * Construct additional event properties for NOTIFY event.
+	 * 
+	 * @return
+	 */
+	protected EntityEvent<DTO> setAdditionalEventProperties(EntityEvent<DTO> event) {
+		return event;
 	}
 
 	@Override

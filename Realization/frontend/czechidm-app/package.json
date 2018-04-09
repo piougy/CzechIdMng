@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "8.0.0-snapshot",
+  "version": "8.0.1-snapshot",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {
@@ -143,7 +143,7 @@
     "jsdom": "8.1.0",
     "JSONPath": "0.11.2",
     "mocha": "2.3.0",
-    "nock": "^8.0.0",
+    "nock": "^8.0.1-snapshot",
     "path": "0.12.7",
     "pathmodify": "^0.5.0",
     "react-addons-test-utils": "15.4.1",
@@ -159,9 +159,9 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "8.0.0-snapshot",
-    "czechidm-acc": "8.0.0-snapshot",
-    "czechidm-vs": "8.0.0-snapshot",
-    "czechidm-rpt": "8.0.0-snapshot"
+    "czechidm-core": "8.0.1-snapshot",
+    "czechidm-acc": "8.0.1-snapshot",
+    "czechidm-vs": "8.0.1-snapshot",
+    "czechidm-rpt": "8.0.1-snapshot"
   }
 }

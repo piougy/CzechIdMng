@@ -165,6 +165,7 @@ public class RoleDeleteProcessor
 			automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
 				request.setRole(null);
 				automaticRoleRequestService.save(request);
+				automaticRoleRequestService.cancel(request);
 			});
 		}
 		//		

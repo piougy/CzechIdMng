@@ -6,18 +6,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -45,20 +45,21 @@ public class ContractGuaranteeSaveProvisioningProcessor extends CoreEventProcess
 
 	@Autowired
 	public ContractGuaranteeSaveProvisioningProcessor(IdmIdentityContractService identityContractService) {
-		super(CoreEventType.NOTIFY);
+		super(ContractGuaranteeEventType.NOTIFY);
 		//
 		Assert.notNull(identityContractService);
 		//
 		this.identityContractService = identityContractService;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmContractGuaranteeDto> event) {
+		// Skip provisioning
+		return !this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties());
+	}
 
 	@Override
 	public EventResult<IdmContractGuaranteeDto> process(EntityEvent<IdmContractGuaranteeDto> event) {
-		// Skip provisioning
-		if(this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties())){
-			return new DefaultEventResult<>(event, this);
-		}
-		//
 		IdmContractGuaranteeDto contractGuarantee = event.getContent();
 		IdmIdentityContractDto contract = identityContractService.get(contractGuarantee.getIdentityContract());
 		//
@@ -76,6 +77,6 @@ public class ContractGuaranteeSaveProvisioningProcessor extends CoreEventProcess
 
 	@Override
 	public int getOrder() {
-		return CoreEvent.DEFAULT_ORDER + 100;
+		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
 	}
 }

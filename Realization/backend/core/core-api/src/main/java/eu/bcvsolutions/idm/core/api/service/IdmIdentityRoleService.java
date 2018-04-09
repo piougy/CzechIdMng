@@ -65,6 +65,17 @@ public interface IdmIdentityRoleService extends
 	 * @param identityId
 	 * @param pageable
 	 * @return
+	 * @deprecated @since 8.0.0 - use {@link #findValidRoles(UUID, Pageable)}
 	 */
+	@Deprecated
 	Page<IdmIdentityRoleDto> findValidRole(UUID identityId, Pageable pageable);
+	
+	/**
+	 * Find valid identity-roles in this moment. Includes check on contract validity. 
+	 * 
+	 * @param identityId
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmIdentityRoleDto> findValidRoles(UUID identityId, Pageable pageable);
 }

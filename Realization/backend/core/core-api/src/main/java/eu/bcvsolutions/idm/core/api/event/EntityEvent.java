@@ -111,7 +111,7 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	default boolean hasType(EventType eventType) {
 		Assert.notNull(eventType);
 		//
-		return eventType.name() == getType().name();
+		return eventType.name().equals(getType().name());
 	}
 
 	/**

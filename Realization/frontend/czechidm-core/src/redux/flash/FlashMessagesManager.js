@@ -133,10 +133,15 @@ export default class FlashMessagesManager {
     if (levelStatusCode >= 500) {
       level = 'error';
     } else if (levelStatusCode >= 200 && levelStatusCode < 300) {
-      level = 'success';
+      if (levelStatusCode === 202) {
+        // accepted - info
+        level = 'info';
+      } else {
+        level = 'success';
+      }
     } else {
       level = 'warning';
-      // TODO: info level
+      // TODO: info level?
     }
     //
     return this.createMessage({

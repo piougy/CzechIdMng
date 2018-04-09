@@ -23,7 +23,7 @@ public class ContractGuaranteeEvent extends CoreEvent<IdmContractGuaranteeDto> {
 	 *
 	 */
 	public enum ContractGuaranteeEventType implements EventType {
-		CREATE, UPDATE, DELETE
+		CREATE, UPDATE, DELETE, NOTIFY
 	}
 	
 	public ContractGuaranteeEvent(ContractGuaranteeEventType type, IdmContractGuaranteeDto content) {

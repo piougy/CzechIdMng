@@ -386,7 +386,7 @@ automaticRoleRequestService.save(requestDto);</script>
         <omgdc:Bounds height="40.0" width="40.0" x="61.0" y="263.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask11" id="BPMNShape_scripttask11">
-        <omgdc:Bounds height="67.0" width="160.0" x="151.0" y="606.0"></omgdc:Bounds>
+        <omgdc:Bounds height="67.0" width="160.0" x="153.0" y="607.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
         <omgdc:Bounds height="70.0" width="125.0" x="377.0" y="605.0"></omgdc:Bounds>
@@ -520,10 +520,10 @@ automaticRoleRequestService.save(requestDto);</script>
       <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
         <omgdi:waypoint x="81.0" y="303.0"></omgdi:waypoint>
         <omgdi:waypoint x="81.0" y="638.0"></omgdi:waypoint>
-        <omgdi:waypoint x="151.0" y="639.0"></omgdi:waypoint>
+        <omgdi:waypoint x="153.0" y="640.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
-        <omgdi:waypoint x="311.0" y="639.0"></omgdi:waypoint>
+        <omgdi:waypoint x="313.0" y="640.0"></omgdi:waypoint>
         <omgdi:waypoint x="377.0" y="640.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow46" id="BPMNEdge_flow46">

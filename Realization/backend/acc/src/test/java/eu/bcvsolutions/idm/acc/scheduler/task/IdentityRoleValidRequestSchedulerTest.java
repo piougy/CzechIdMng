@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -92,13 +91,11 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Before
 	public void loginAndInit() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		createAndSaveSystemWithMapping();
 	}
 	
 	@After
 	public void logout() {
-		helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 	

@@ -5,7 +5,6 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.envers.Audited;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
@@ -37,7 +36,6 @@ public class IdmAutomaticRoleAttributeRuleRequestDto extends AbstractDto {
 	@Size(max = DefaultFieldLengths.NAME)
 	private String attributeName;
 	private AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.IDENTITY;
-	@Audited
 	@Size(max = DefaultFieldLengths.LOG)
 	private String value;
 	private AutomaticRoleAttributeRuleComparison comparison = AutomaticRoleAttributeRuleComparison.EQUALS;

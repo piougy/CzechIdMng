@@ -204,11 +204,11 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_UPDATE = "IDENTITY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String IDENTITYIMAGE_ADMIN = "IDENTITY" + BasePermission.SEPARATOR + "ADMIN";
-	public static final String IDENTITYIMAGE_READ = "IDENTITY" + BasePermission.SEPARATOR + "READ";
-	public static final String IDENTITYIMAGE_CREATE = "IDENTITY" + BasePermission.SEPARATOR + "CREATE";
-	public static final String IDENTITYIMAGE_UPDATE = "IDENTITY" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String IDENTITYIMAGE_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
+	public static final String IDENTITYIMAGE_ADMIN = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String IDENTITYIMAGE_READ = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "READ";
+	public static final String IDENTITYIMAGE_CREATE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String IDENTITYIMAGE_UPDATE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String IDENTITYIMAGE_DELETE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String IDENTITYCONTRACT_READ = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "READ";

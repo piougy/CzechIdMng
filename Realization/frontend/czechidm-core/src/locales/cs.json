@@ -727,6 +727,7 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "IDENTITYIMAGE": "Profilová fotka identity",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
@@ -1715,6 +1716,10 @@
         "firstName": "$t(entity.Identity.firstName)",
         "fileRejected": "$t(entity.Identity.fileRejected)",
         "fileUploaded": "$t(entity.Identity.fileUploaded)",
+        "deleteImage": {
+          "title": "Smazat fotku",
+          "message": "Opravdu chcete smazat profilovou fotku?"
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Email uživatele"
@@ -3850,6 +3855,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Událost nelze smazat",
       "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    },
+    "IDENTITYIMAGE_WRONG_FORMAT": {
+      "title": "Neplatný formát",
+      "message": "Soubor má správnou příponu, ale není to obrázek."
     }
   },
   "validationError": {

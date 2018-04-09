@@ -54,6 +54,7 @@ public enum CoreResultCode implements ResultCode {
 	// identity
 	IDENTITY_ALREADY_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is already disabled manually, cannot be disable twice."),
 	IDENTITY_NOT_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is not disabled manually [%s], cannot be enabled."),
+	IDENTITYIMAGE_WRONG_FORMAT(HttpStatus.BAD_REQUEST, "Uploaded file is not an image!"),
 	// password change
 	PASSWORD_CHANGE_NO_SYSTEM(HttpStatus.BAD_REQUEST, "No system selected."),
 	PASSWORD_CHANGE_CURRENT_FAILED_IDM(HttpStatus.BAD_REQUEST, "Given current password doesn't match to current idm password."),
@@ -224,7 +225,6 @@ public enum CoreResultCode implements ResultCode {
 	EVENT_EXECUTE_PROCESSOR_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Event [%s] failed in processor [%s]."),
 	EVENT_CONTENT_DELETED(HttpStatus.CONFLICT, "Content for event [%s] type [%s] for owner [%s] on instance [%s] was deleted. Event cannot be executed and will be canceled."),
 	EVENT_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Event [%s] type [%s] for owner [%s] on instance [%s] cannot be deleted. Delete events at first, where this event is set as parent.");
-	// Images
 	
 	
 	private final HttpStatus status;

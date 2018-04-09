@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Joi from 'joi';
 import { connect } from 'react-redux';
+import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -22,7 +23,8 @@ class IdentityDetail extends Basic.AbstractContent {
     this.state = {
       showLoading: false,
       showLoadingIdentityTrimmed: false,
-      setDataToForm: false
+      setDataToForm: false,
+      deleteButton: false
     };
   }
 
@@ -45,6 +47,7 @@ class IdentityDetail extends Basic.AbstractContent {
       if (nextProps.identity !== this.props.identity) {
         // after receive new Identity we will hide showLoading on form
         this.setState({showLoading: false, setDataToForm: true});
+        identityManager.download(nextProps.identity.id, this.receiveImage.bind(this));
       }
     }
   }
@@ -54,14 +57,14 @@ class IdentityDetail extends Basic.AbstractContent {
       // We have to set data to form after is rendered
       this.transformData(this.props.identity, null, ApiOperationTypeEnum.GET);
     }
-    if (!this.state.imageUrl && this.props.identity) {
-      identityManager.download(this.props.identity.id, this.receiveImage.bind(this));
-    }
   }
 
   receiveImage(blob) {
     const objectURL = URL.createObjectURL(blob);
-    this.setState({imageUrl: objectURL});
+    this.setState({
+      imageUrl: objectURL,
+      hasImage: true
+    });
   }
 
   onSave(event) {
@@ -116,7 +119,7 @@ class IdentityDetail extends Basic.AbstractContent {
     const { identity } = this.props;
     if (!file.name.endsWith('.jpg') && !file.name.endsWith('.jpeg') && !file.name.endsWith('.png') && !file.name.endsWith('.gif')) {
       this.addMessage({
-        message: this.i18n('content.identity.profile.fileRejected', {name: file.name}),
+        message: this.i18n('fileRejected', {name: file.name}),
         level: 'warning'
       });
       return;
@@ -132,7 +135,7 @@ class IdentityDetail extends Basic.AbstractContent {
         showLoading: false
       }, () => {
         this.addMessage({
-          message: this.i18n('content.identity.profile.fileUploaded', {name: file.name})
+          message: this.i18n('fileUploaded', {name: file.name})
         });
         identityManager.download(identity.id, this.receiveImage.bind(this));
       });
@@ -152,7 +155,7 @@ class IdentityDetail extends Basic.AbstractContent {
   _onDrop(files) {
     if (this.refs.dropzone.state.isDragReject) {
       this.addMessage({
-        message: this.i18n('content.identity.profile.fileRejected'),
+        message: this.i18n('fileRejected'),
         level: 'warning'
       });
       return;
@@ -162,16 +165,52 @@ class IdentityDetail extends Basic.AbstractContent {
     });
   }
 
+
   deleteImage() {
-    identityManager.deleteImage(this.props.identity.id);
+    this.refs['confirm-delete'].show(
+      this.i18n(`deleteImage.message`),
+      this.i18n(`deleteImage.title`)
+    ).then(() => {
+      identityManager.deleteImage(this.props.identity.id)
+      .then(() => {
+        this.setState({
+          showLoading: false,
+          imageUrl: undefined,
+          hasImage: false
+        }, () => {
+
+        });
+      });
+    }, () => {
+      // Rejected
+    });
+  }
+
+  showDelete() {
+    if (this.state.imageUrl !== undefined) {
+      return true;
+    }
+    return false;
+  }
+
+  mouseEnter() {
+    if (this.state.imageUrl !== undefined) {
+      this.setState({ deleteButton: true });
+    }
+  }
+  mouseLeave() {
+    this.setState({ deleteButton: false });
   }
 
   render() {
     const { identity, readOnly, _permissions } = this.props;
-    const { showLoading, showLoadingIdentityTrimmed, imageUrl } = this.state;
+    const { showLoading, showLoadingIdentityTrimmed, imageUrl, deleteButton } = this.state;
+    const imgSrc = imageUrl ? imageUrl : null;
     //
     return (
       <div>
+      <Basic.Confirm ref="confirm-delete" level="danger"/>
+      <Helmet title={this.i18n('title')} />
         <form onSubmit={this.onSave.bind(this)}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
@@ -182,25 +221,28 @@ class IdentityDetail extends Basic.AbstractContent {
                   ref="cancelButton"
                   type="button"
                   level="danger"
+                  rendered={this.showDelete()}
                   style={{position: 'absolute', right: '25px', top: '10px'}}
-                  title={this.i18n('vs:content.vs-request.detail.button.request.cancel')}
-                  titlePlacement="bottom"
+                  titlePlacement="left"
                   onClick={this.deleteImage.bind(this)}
                   className="btn-xs">
-                  <Basic.Icon type="fa" icon="remove"/>
+                    <Basic.Icon type="fa" icon="remove"/>
                   </Basic.Button>
                   <Advanced.ImageDropzone
                   ref="dropzone"
                   accept="image/*"
                   multiple={false}
                   onDrop={this._onDrop.bind(this)}>
-                      <img src={imageUrl ? imageUrl : null} style={{maxWidth: '100%'}}/>
+                    <img
+                    className="img-thumbnail"
+                    src={imgSrc}
+                    style={{width: '100%'}} />
                   </Advanced.ImageDropzone>
                 </div>
                 <div className="col-lg-9">
-                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255} />
-                  <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
-                  <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255} />
+                  <Basic.TextField ref="username" label={this.i18n('username')} required min={3} max={255} />
+                  <Basic.TextField ref="firstName" label={this.i18n('firstName')} max={255} />
+                  <Basic.TextField ref="lastName" label={this.i18n('lastName')} max={255} />
                 </div>
               </Basic.Row>
               <Basic.Row>
@@ -216,14 +258,14 @@ class IdentityDetail extends Basic.AbstractContent {
                 <div className="col-lg-6">
                   <Basic.TextField
                     ref="email"
-                    label={this.i18n('content.identity.profile.email.label')}
+                    label={this.i18n('email.label')}
                     placeholder={this.i18n('email.placeholder')}
                     validation={Joi.string().allow(null).email()}/>
                 </div>
                 <div className="col-lg-6">
                   <Basic.TextField
                     ref="phone"
-                    label={this.i18n('content.identity.profile.phone.label')}
+                    label={this.i18n('phone.label')}
                     placeholder={this.i18n('phone.placeholder')}
                     max={30} />
                 </div>
@@ -231,7 +273,7 @@ class IdentityDetail extends Basic.AbstractContent {
 
               <Basic.TextArea
                 ref="description"
-                label={this.i18n('content.identity.profile.description.label')}
+                label={this.i18n('description.label')}
                 placeholder={this.i18n('description.placeholder')}
                 rows={4}
                 max={1000}/>

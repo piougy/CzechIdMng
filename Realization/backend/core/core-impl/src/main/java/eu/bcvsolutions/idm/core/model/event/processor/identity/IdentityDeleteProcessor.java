@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
@@ -57,6 +58,7 @@ public class IdentityDeleteProcessor
 	private final IdmContractGuaranteeService contractGuaranteeService;
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final IdmPasswordHistoryService passwordHistoryService;
+	private final AttachmentManager attachmentManager;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
@@ -69,7 +71,8 @@ public class IdentityDeleteProcessor
 			IdmIdentityRoleValidRequestService identityRoleValidRequestService,
 			IdmAuthorityChangeRepository authChangeRepository,
 			IdmContractGuaranteeService contractGuaranteeService,
-			IdmPasswordHistoryService passwordHistoryService) {
+			IdmPasswordHistoryService passwordHistoryService,
+			AttachmentManager attachmentManager) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -82,6 +85,7 @@ public class IdentityDeleteProcessor
 		Assert.notNull(contractGuaranteeService);
 		Assert.notNull(authChangeRepository);
 		Assert.notNull(passwordHistoryService);
+		Assert.notNull(attachmentManager);
 		//
 		this.service = service;
 		this.passwordProcessor = passwordProcessor;
@@ -93,6 +97,7 @@ public class IdentityDeleteProcessor
 		this.contractGuaranteeService = contractGuaranteeService;
 		this.authChangeRepository = authChangeRepository;
 		this.passwordHistoryService = passwordHistoryService;
+		this.attachmentManager = attachmentManager;
 	}
 	
 	@Override
@@ -138,6 +143,8 @@ public class IdentityDeleteProcessor
 		roleRequestService.find(roleRequestFilter, null).forEach(request ->{
 			roleRequestService.delete(request);
 		});
+		// remove image attachment for this identity
+		attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()));
 		// remove all IdentityRoleValidRequest for this identity
 		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);

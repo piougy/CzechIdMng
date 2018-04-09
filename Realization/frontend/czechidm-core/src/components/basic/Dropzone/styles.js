@@ -1,12 +1,12 @@
 export default {
   style: {
-    height: 'auto',
+    height: '200px',
     width: 'auto',
     textAlign: 'center',
     borderWidth: '2px',
     borderStyle: 'dashed',
     borderRadius: '4px',
-    padding: '30px'
+    padding: '40px'
   },
   styleActive: {
     borderColor: '#3d8b3d',

@@ -696,6 +696,7 @@
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
       "IDENTITY": "Users",
+      "IDENTITYIMAGE": "Profile picture",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
@@ -721,7 +722,6 @@
       "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)",
       "AUTOMATICROLEREQUEST": "Requests for automatic roles",
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)"
-
     }
   },
   "content": {
@@ -1673,6 +1673,10 @@
         "firstName": "$t(entity.Identity.firstName)",
         "fileRejected": "$t(entity.Identity.fileRejected)",
         "fileUploaded": "$t(entity.Identity.fileUploaded)",
+        "deleteImage": {
+          "title": "Delete profile image",
+          "message": "Do you really want to delete profile image?"
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Users e-mail"
@@ -3804,6 +3808,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Event cannot be deleted",
       "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    },
+    "IDENTITYIMAGE_WRONG_FORMAT": {
+      "title": "Wrong format",
+      "message": "File has got image suffix but It's not an image."
     }
   },
   "validationError": {

@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 
 import org.springframework.context.annotation.Description;
@@ -19,17 +18,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Control image and create thumbnail
+ * Control image and create thumb-nail
  * 
  * @author Petr Hanák
  *
  */
 @Component
-@Description("Control image and create thumbnail")
-public class IdentityImageProcessor {
+@Description("Verify image suffix and create square thumbnail")
+public class ImageUtils {
 	
-	public IdentityImageProcessor () {
-		
+	public ImageUtils () {
 	}
 	
 	public boolean verifyImage(MultipartFile data) throws IllegalStateException, IOException {
@@ -42,13 +40,11 @@ public class IdentityImageProcessor {
 		int newWidth = 100;
 		BufferedImage source = ImageIO.read(file);
 		double ratio = (double)source.getWidth() / newWidth;
-//		BufferedImage scaled = scale(source, ratio);
-//		saveImage(scaled, file, "png");
-		System.out.println("Source width: " + source.getWidth());
-		System.out.println("Source height: " + source.getHeight());
 		BufferedImage scaled = resizeImage(source);
-		System.out.println("Scaled width: " + scaled.getWidth());
-		System.out.println("Scaled height: " + scaled.getHeight());
+		// System.out.println("Source width: " + source.getWidth());
+		// System.out.println("Source height: " + source.getHeight());
+		// System.out.println("Scaled width: " + scaled.getWidth());
+		// System.out.println("Scaled height: " + scaled.getHeight());
 		return scaled;
 	}
 	
@@ -68,49 +64,45 @@ public class IdentityImageProcessor {
 	}
 	
 	public boolean isImage(File file) {
-		String mimetype = new MimetypesFileTypeMap().getContentType(file);
-		String type = mimetype.split("/")[0];
-		if(type.equals("image")) {
-//			System.out.println("It's an image");
-			return true;
+		try {
+		    BufferedImage image = ImageIO.read(file);
+		    if (image == null) {
+		        return false;
+		    }
+		} catch(IOException ex) {
+		    return false;
 		}
-		else {
-//			System.out.println("It's NOT an image");
-			return false;
-		}
+		return true;
 	}
 
 	private BufferedImage resizeImage(BufferedImage originalBufferedImage) {
 		int thumbnailWidth = 300;
 		int widthToScale, heightToScale, transferX, transferY;
 		if (originalBufferedImage.getHeight() >= originalBufferedImage.getWidth()) {		 
-		    widthToScale = (int)(1 * thumbnailWidth);
-		    heightToScale = (int)((widthToScale * 1.0) / originalBufferedImage.getWidth() 
-		                    * originalBufferedImage.getHeight());
+		    widthToScale = (int)(thumbnailWidth);
+		    heightToScale = (int)((thumbnailWidth * 1.0) / originalBufferedImage.getWidth() * originalBufferedImage.getHeight());
 		} else {
-		    heightToScale = (int)(1 * thumbnailWidth);
-		    widthToScale = (int)((heightToScale * 1.0) / originalBufferedImage.getHeight() 
-		                    * originalBufferedImage.getWidth());
+		    heightToScale = (int)(thumbnailWidth);
+		    widthToScale = (int)((thumbnailWidth * 1.0) / originalBufferedImage.getHeight() * originalBufferedImage.getWidth());
 		}
-		BufferedImage resizedImage = new BufferedImage(thumbnailWidth, 
-				thumbnailWidth, originalBufferedImage.getType());
-		Graphics2D g = resizedImage.createGraphics();
-		g.setComposite(AlphaComposite.Src);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		BufferedImage resizedImage = new BufferedImage(thumbnailWidth, thumbnailWidth, originalBufferedImage.getType());
+		Graphics2D graphics = resizedImage.createGraphics();
+		graphics.setComposite(AlphaComposite.Src);
+		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if(heightToScale > widthToScale) {
 			transferX = 0;
 			transferY = (thumbnailWidth - heightToScale) / 2;
-		} else if(heightToScale < widthToScale) {
+		} else if(widthToScale > heightToScale) {
 			transferX = (thumbnailWidth - widthToScale) / 2;
 			transferY = 0;
 		} else {
 			transferX = 0;
 			transferY = 0;
 		}
-		g.drawImage(originalBufferedImage, transferX, transferY, widthToScale, heightToScale, null);
-		g.dispose();
+		graphics.drawImage(originalBufferedImage, transferX, transferY, widthToScale, heightToScale, null);
+		graphics.dispose();
 		return resizedImage;
 	}
 	

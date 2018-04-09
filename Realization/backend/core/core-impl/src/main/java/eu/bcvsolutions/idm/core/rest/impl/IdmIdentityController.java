@@ -29,6 +29,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.ImmutableMap;
@@ -71,7 +73,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityImageProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.ImageUtils;
 import eu.bcvsolutions.idm.core.rest.lookup.IdmIdentityDtoLookup;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
@@ -702,54 +704,45 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/image", method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_UPDATE + "')")
-	@ApiOperation(
-			value = "Update profile picture",
-			nickname = "postProfilePicture",
-			tags = { IdmIdentityController.TAG },
-			notes = "Upload new profile image",
-			authorizations = { 
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_UPDATE + "')" +
+			" or hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_CREATE + "')")
+	@ApiOperation(value = "Update profile picture", nickname = "postProfilePicture", tags = {
+			IdmIdentityController.TAG }, notes = "Upload new profile image", authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_CREATE, description = ""),
-							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_UPDATE, description = ""),
-							}),
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_UPDATE, description = ""), }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_CREATE, description = ""),
-							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_UPDATE, description = ""),
-							})
-					})
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_UPDATE, description = ""), }) })
 	public ResponseEntity<?> uploadImage(
-			@ApiParam(value = "Image's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Image's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
 			@RequestParam(required = true, name = "data") MultipartFile data) throws IOException {
 		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-//		Verify image and resize to thumbnail
-		IdentityImageProcessor imageProcessor = new IdentityImageProcessor();
-		if(imageProcessor.verifyImage(data)) {
-	    		BufferedImage image = imageProcessor.processImage(data);
-	    		// save image as attachment to identity
-	    		IdmAttachmentDto attachment = new IdmAttachmentDto();
-//		TODO generate file name (SQL injection)
-	    		attachment.setName("Profile-picture-name");
-	    		attachment.setMimetype("image/*");
-	    		attachment.setInputData(imageProcessor.imageToInputStream(image));
-	    		attachment = attachmentManager.saveAttachment(identity, attachment);
-//		If there is some photo for identity, it will delete the old one
-	    		if (identity.getImage() != null) {
-	    			attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()));
-	    			identity.setImage(null);
-	    			identityService.save(identity);
-	    		}
-	    		identity.setImage(attachment.getId());
-	    		identityService.save(identity);
-	    } else {
-//	    		not an image
-	    		return null;
-	    }
-		return new ResponseEntity<>(toResource(putDto(identity)), HttpStatus.OK);
+		// Verify image and resize to thumbnail
+		ImageUtils imageUtils = new ImageUtils();
+		if (imageUtils.verifyImage(data)) {
+			BufferedImage image = imageUtils.processImage(data);
+			// save image as attachment to identity
+			IdmAttachmentDto attachment = new IdmAttachmentDto();
+			// TODO generate file name (SQL injection)
+			attachment.setName("Profile-picture-name");
+			attachment.setMimetype("image/*");
+			attachment.setInputData(imageUtils.imageToInputStream(image));
+			attachment = attachmentManager.saveAttachment(identity, attachment);
+			// If there is some photo for identity, it will delete the old one
+			if (identity.getImage() != null) {
+				attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()));
+				identity.setImage(null);
+			}
+			identity.setImage(attachment.getId());
+		} else {
+			// not an image
+			throw new ResultCodeException(CoreResultCode.IDENTITYIMAGE_WRONG_FORMAT, ImmutableMap.of("entity", backendId));
+		}
+		return new ResponseEntity<>(toResource(identityService.save(identity)), HttpStatus.OK);
 	}
 	
 	/**
@@ -759,7 +752,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 */
 	@RequestMapping(value = "/{backendId}/image", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	@ApiOperation(
 			value = "Profile picture", 
 			nickname = "getProfilePicure",

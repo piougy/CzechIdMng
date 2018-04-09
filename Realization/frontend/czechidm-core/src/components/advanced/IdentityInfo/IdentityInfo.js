@@ -104,6 +104,38 @@ export class IdentityInfo extends AbstractEntityInfo {
     return '';
   }
 
+  renderImage() {
+    const imageUrl = this.state.imageUrl;
+    const style = {
+      height: '100px',
+      width: '100px',
+      borderRadius: '50%',
+      marginTop: '5px',
+      marginBottom: '10px',
+      border: '2px solid white',
+      backgroundColor: 'white',
+    };
+    if (imageUrl) {
+      style.boxShadow = '0px 2px 10px rgba(0, 0, 0, 0.2)';
+      return (
+        <img
+        src={imageUrl}
+        className="center-block"
+        style={ style } />
+      );
+    }
+    return (
+        <div
+        className="center-block"
+        style={ style }>
+          <Basic.Icon
+          className=""
+          value={ "fa:user-circle" }
+          color="#D6EEF8"
+          style={{ fontSize: '92px', margin: '2px', height: '100px'}}/>
+        </div>
+      );
+  }
 
   /**
    * Returns popover info content
@@ -113,20 +145,32 @@ export class IdentityInfo extends AbstractEntityInfo {
   getPopoverContent(entity) {
     return [
       {
-        label: this.i18n('entity.Identity.email'),
-        value: entity.email
+        value: '.'
       },
       {
-        label: this.i18n('entity.Identity.phone'),
-        value: entity.phone
-      }
+        value: (
+          <div>
+            <Basic.Icon value="fa:envelope" style={{ marginRight: 5 }}/>
+            {' '}
+            { entity.email }
+          </div>
+        )
+      },
+      {
+        value: (
+          <div>
+            <Basic.Icon value="fa:phone" style={{ marginRight: 3 }}/>
+            {' '}
+            { entity.phone }
+          </div>
+        )
+      },
     ];
   }
 
   _renderFull() {
     const { className, style } = this.props;
     const _entity = this.getEntity();
-    const imageUrl = this.state.imageUrl;
     //
     const panelClassNames = classNames(
       'abstract-entity-info',
@@ -137,34 +181,48 @@ export class IdentityInfo extends AbstractEntityInfo {
     //
     return (
       <Basic.Panel className={panelClassNames} style={style}>
-        <Basic.PanelHeader>
-          <div className="pull-left">
-            <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-            { this.getPopoverTitle(_entity) }
-          </div>
-          {
-            !this.isDisabled(_entity)
-            ||
-            <div className="pull-right">
-              <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
-            </div>
-          }
-          <div className="clearfix"/>
+        <Basic.PanelHeader className="text-center" style={{ padding: '8px 0' }}>
+            { this.renderImage() }
+
+              <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
+              { this.getPopoverTitle(_entity) }
+            {
+              !this.isDisabled(_entity)
+              ||
+              <div className="pull-right">
+                <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
+              </div>
+            }
+            <div className="clearfix"/>
         </Basic.PanelHeader>
 
-        <Basic.Table
-          condensed
-          hover={ false }
-          noHeader
-          data={ this.getPopoverContent(_entity) }
-          children={ this.getTableChildren() }/>
-          <img src={imageUrl ? imageUrl : null} className="center-block" style={{width: '100%', float: 'none'}}/>
+          <table className="table table-condensed text-center" style={{ marginBottom: 0 }}>
+            <tbody>
+              <tr>
+                <td>
+                  <Basic.Icon value="fa:envelope" style={{ marginRight: 5 }}/>
+                  {' '}
+                  { _entity.email }
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <Basic.Icon value="fa:phone" style={{ marginRight: 5 }}/>
+                  {' '}
+                  { _entity.phone }
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
         <Basic.PanelFooter rendered={ this.showLink() }>
-          <Link to={ this.getLink() }>
-            <Basic.Icon value="fa:angle-double-right"/>
-            {' '}
-            {this.i18n('component.advanced.EntityInfo.link.detail.label')}
-          </Link>
+          <div className="text-center">
+            <Link to={ this.getLink() }>
+              <Basic.Icon value="fa:angle-double-right"/>
+              {' '}
+              {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+            </Link>
+          </div>
         </Basic.PanelFooter>
       </Basic.Panel>
     );

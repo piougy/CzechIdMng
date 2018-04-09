@@ -161,7 +161,7 @@ export default class IdentityManager extends FormableEntityManager {
   }
 
   deleteImage(identityId) {
-    this.getService().deleteImage(identityId);
+    return this.getService().deleteImage(identityId);
   }
 
   /**

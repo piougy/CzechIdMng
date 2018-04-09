@@ -287,8 +287,11 @@ class IdentityService extends FormableEntityService {
    */
   deleteImage(identityId) {
     return RestApiService
-      .delete(this.getApiPath() + `/${identityId}/image`)
+      .delete(this.getApiPath() + `/${encodeURIComponent(identityId)}/image`)
       .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
         return response.json();
       })
       .then(json => {

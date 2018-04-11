@@ -73,7 +73,7 @@
 		<guava.version>18.0</guava.version> <!-- swagger need at least 18 -->
 		<forest.index.version>0.2.1</forest.index.version>
 		<sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
- 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
+ 		<sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
   		<sonar.language>java</sonar.language>
 
 		<!--

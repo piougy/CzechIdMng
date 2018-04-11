@@ -76,7 +76,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 			}
 
 		}
-		request = roleRequestService.startRequest(request.getId(), true);
+		request = roleRequestService.startRequestInternal(request.getId(), true);
 		if (RequestState.EXECUTED == request.getState()) {
 			UUID createdAutomaticRoleId = request.getAutomaticRole();
 			Assert.notNull(createdAutomaticRoleId);
@@ -175,7 +175,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		request.setName(automaticRole.getName());
 		request.setRole(automaticRole.getRole());
 		request = roleRequestService.save(request);
-		request = roleRequestService.startRequest(request.getId(), true);
+		request = roleRequestService.startRequestInternal(request.getId(), true);
 		if (RequestState.EXECUTED == request.getState()) {
 			return;
 		}
@@ -197,7 +197,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		request.setRole(automaticRole.getRole());
 		request.setTreeNode(automaticRole.getTreeNode());
 		request = roleRequestService.save(request);
-		request = roleRequestService.startRequest(request.getId(), true);
+		request = roleRequestService.startRequestInternal(request.getId(), true);
 		if (RequestState.EXECUTED == request.getState()) {
 			UUID createdAutomaticRoleId = request.getAutomaticRole();
 			Assert.notNull(createdAutomaticRoleId);

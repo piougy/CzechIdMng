@@ -727,6 +727,7 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
@@ -1877,6 +1878,16 @@
           "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
         }
       },
+      "contractSlices": {
+        "header": "Časové řezy pracovně právních vztahů",
+        "title": "$t(content.identity.contractSlices.header)",
+        "contractSlices": {
+          "empty": "Nenalezeny žádné časové řezy pracovně právních vztahů."
+        },
+        "delete": {
+          "success": "Pozice (časový řez) [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
+        }
+      },
       "approve": {
         "header": "Schvalovatel pro role",
         "title": "$t(content.identity.approve.header)"
@@ -1943,6 +1954,63 @@
       }
     },
     "identity-contract": {
+      "detail": {
+        "header": "Detail pracovně právního vztahu",
+        "title": "Detail PPV",
+        "label": "Základní údaje",
+        "invalidContract":"Detail neplatného PPV",
+        "validContract":"Detail PPV",
+        "edit": {
+          "title": "Detail PPV",
+          "header": "{{position}} <small>detail přiřazené pozice</small>",
+          "success": "Pozice [{{position}}] byla úspěšně upravena."
+        },
+        "create": {
+          "title": "Přiřazení nové pozice",
+          "header": "Přiřazení nové pozice",
+          "success": "Pozice [{{position}}] byla úspěšně přidána.",
+          "accepted": "Pozice [{{position}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
+        },
+        "save": {
+          "success": "PPV [{{name}}] byl úspěšně uložen"
+        }
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "label": "Další údaje",
+        "save": {
+          "success": "Údaje PPV [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
+        }
+      },
+      "guarantees": {
+        "header": "Vedoucí a garanti",
+        "title": "Vedoucí",
+        "label": "Vedoucí",
+        "guarantees": {
+          "direct": "Nastavení garanti <small>přímo pro tento vztah</small>",
+          "byTree": "Vedoucí <small>dle stromových struktur</small>"
+        },
+        "edit": {
+          "title": "Detail garanta",
+          "header": "Detail garanta"
+        },
+        "create": {
+          "title": "Nový garant",
+          "header": "Nový garant"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
+          }
+        }
+      }
+    },
+    "contract-slice": {
       "detail": {
         "header": "Detail pracovně právního vztahu",
         "title": "Detail PPV",
@@ -2713,6 +2781,35 @@
       "state": {
         "label": "Stav",
         "help": "Stav pracovní pozice."
+      }
+    },
+    "ContractSlice": {
+      "_type": "Časové řezy",
+      "id": "$t(entity.IdentityContract.id)",
+      "treeType": "$t(entity.IdentityContract.treeType)",
+      "workPosition": "$t(entity.IdentityContract.workPosition)",
+      "position": "$t(entity.IdentityContract.position)",
+      "identity": "$t(entity.IdentityContract.identity)",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
+      "guarantee": "$t(entity.IdentityContract.guarantee)",
+      "externe": "$t(entity.IdentityContract.externe)",
+      "managers": {
+        "label": "$t(entity.IdentityContract.managers.label)",
+        "title": "$t(entity.IdentityContract.managers.title)"
+      },
+      "disabled": {
+        "label": "$t(entity.IdentityContract.disabled.label)",
+        "help": "$t(entity.IdentityContract.disabled.help)"
+      },
+      "description": "$t(entity.IdentityContract.description)",
+      "main": {
+        "label": "$t(entity.IdentityContract.main.label)",
+        "help": "$t(entity.IdentityContract.main.help)"
+      },
+      "state": {
+        "label": "$t(entity.IdentityContract.state.label)",
+        "help": "$t(entity.IdentityContract.state.help)"
       }
     },
     "TreeNode": {

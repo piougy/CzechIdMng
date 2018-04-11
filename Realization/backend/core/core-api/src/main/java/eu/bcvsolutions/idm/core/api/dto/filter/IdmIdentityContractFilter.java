@@ -7,6 +7,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
@@ -42,6 +43,10 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 
 	public IdmIdentityContractFilter(MultiValueMap<String, Object> data) {
 		super(IdmIdentityContractDto.class, data);
+	}
+	
+	public IdmIdentityContractFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {
+		super(dtoClass, data);
 	}
 
 	public UUID getIdentity() {

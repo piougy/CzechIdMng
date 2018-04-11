@@ -6,18 +6,18 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { IdentityContractManager, IdentityManager, TreeNodeManager, TreeTypeManager } from '../../../redux';
+import { ContractSliceManager, IdentityManager, TreeNodeManager, TreeTypeManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import ContractStateEnum from '../../../enums/ContractStateEnum';
 
-const identityContractManager = new IdentityContractManager();
+const contractSliceManager = new ContractSliceManager();
 
 /**
  * Identity contract form
  *
  * @author Radek Tomiška
  */
-class IdentityContractDetail extends Basic.AbstractContent {
+class ContractSliceDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -32,11 +32,11 @@ class IdentityContractDetail extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.identity-contract.detail';
+    return 'content.contract-slice.detail';
   }
 
   getManager() {
-    return identityContractManager;
+    return contractSliceManager;
   }
 
   componentDidMount() {
@@ -119,7 +119,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
         this.context.router.goBack();
       } else {
         const { identityId } = this.props.params;
-        this.context.router.replace(`identity/${encodeURIComponent(identityId)}/identity-contract/${entity.id}/detail`);
+        this.context.router.replace(`identity/${encodeURIComponent(identityId)}/contract-slice/${entity.id}/detail`);
       }
     });
   }
@@ -158,24 +158,24 @@ class IdentityContractDetail extends Basic.AbstractContent {
                 data={entityFormData}
                 showLoading={ _showLoading || showLoading }
                 uiKey={uiKey}
-                readOnly={ !identityContractManager.canSave(entity, _permissions) }>
-                <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.IdentityContract.identity')}>
+                readOnly={ !contractSliceManager.canSave(entity, _permissions) }>
+                <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
 
                 <Basic.TextField
                   ref="position"
-                  label={this.i18n('entity.IdentityContract.position')}/>
+                  label={this.i18n('entity.ContractSlice.position')}/>
                 <Basic.SelectBox
                   ref="treeTypeId" useFirst={Utils.Entity.isNew(entity)}
                   manager={this.treeTypeManager}
-                  label={this.i18n('entity.IdentityContract.treeType')}
+                  label={this.i18n('entity.ContractSlice.treeType')}
                   onChange={this.onChangeTreeType.bind(this)}/>
 
                 <Basic.SelectBox
                   ref="workPosition"
                   manager={this.treeNodeManager}
-                  label={this.i18n('entity.IdentityContract.workPosition')}
+                  label={this.i18n('entity.ContractSlice.workPosition')}
                   forceSearchParameters={forceSearchParameters}
                   hidden={treeTypeId === null}/>
 
@@ -191,30 +191,30 @@ class IdentityContractDetail extends Basic.AbstractContent {
 
                 <Basic.Checkbox
                   ref="main"
-                  label={this.i18n('entity.IdentityContract.main.label')}
-                  helpBlock={this.i18n('entity.IdentityContract.main.help')}/>
+                  label={this.i18n('entity.ContractSlice.main.label')}
+                  helpBlock={this.i18n('entity.ContractSlice.main.help')}/>
 
                 <Basic.Checkbox
                   ref="externe"
-                  label={this.i18n('entity.IdentityContract.externe')}/>
+                  label={this.i18n('entity.ContractSlice.externe')}/>
 
                 <Basic.EnumSelectBox
                   ref="state"
                   enum={ ContractStateEnum }
                   useSymbol={ false }
-                  label={ this.i18n('entity.IdentityContract.state.label') }
-                  helpBlock={ this.i18n('entity.IdentityContract.state.help') }
+                  label={ this.i18n('entity.ContractSlice.state.label') }
+                  helpBlock={ this.i18n('entity.ContractSlice.state.help') }
                   onChange={ this.onChangeState.bind(this) }/>
 
                 <Basic.Checkbox
                   ref="disabled"
-                  label={this.i18n('entity.IdentityContract.disabled.label')}
-                  helpBlock={this.i18n('entity.IdentityContract.disabled.help')}
+                  label={this.i18n('entity.ContractSlice.disabled.label')}
+                  helpBlock={this.i18n('entity.ContractSlice.disabled.help')}
                   readOnly />
 
                 <Basic.TextArea
                   ref="description"
-                  label={this.i18n('entity.IdentityContract.description')}
+                  label={this.i18n('entity.ContractSlice.description')}
                   rows={4}
                   max={1000}/>
               </Basic.AbstractForm>
@@ -230,7 +230,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
                 showLoading={ _showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={ identityContractManager.canSave(entity, _permissions) }
+                rendered={ contractSliceManager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
@@ -245,20 +245,20 @@ class IdentityContractDetail extends Basic.AbstractContent {
   }
 }
 
-IdentityContractDetail.propTypes = {
+ContractSliceDetail.propTypes = {
   entity: PropTypes.object,
   type: PropTypes.string,
   uiKey: PropTypes.string.isRequired,
   _permissions: PropTypes.arrayOf(PropTypes.string)
 };
-IdentityContractDetail.defaultProps = {
+ContractSliceDetail.defaultProps = {
   _permissions: null
 };
 
 function select(state, component) {
   return {
     userContext: state.security.userContext,
-    _permissions: identityContractManager.getPermissions(state, null, component.params.entityId)
+    _permissions: contractSliceManager.getPermissions(state, null, component.params.entityId)
   };
 }
-export default connect(select)(IdentityContractDetail);
+export default connect(select)(ContractSliceDetail);

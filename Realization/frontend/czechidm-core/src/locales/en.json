@@ -698,6 +698,7 @@
       "IDENTITY": "Users",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
+      "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
@@ -1835,6 +1836,16 @@
           "success": "Contracted position [{{position}}] for user [{{username}}] successfully removed."
         }
       },
+      "contractSlices": {
+        "header": "Contracted positions (time slices)",
+        "title": "$t(content.identity.contractSlices.header)",
+        "contractSlices": {
+          "empty": "Contracted positions (time slices) not found."
+        },
+        "delete": {
+          "success": "Contracted position [{{position}}] (time slice) for user [{{username}}] successfully removed."
+        }
+      },
       "approve": {
         "header": "Role approver",
         "title": "$t(content.identity.approve.header)"
@@ -1954,6 +1965,40 @@
             "success_0": "N/A",
             "success_1": "For contracted position was successfully saved authorizer [{{record}}]"
           }
+        }
+      }
+    },
+    "contract-slice": {
+      "detail": {
+        "header": "Time slice of contracted position detail",
+        "title": "Time slice of contracted position detail",
+        "label": "Basic information",
+        "invalidContract":"Invalid time slice of contracted position detail",
+        "validContract":"Time slice of contracted position detail",
+        "edit": {
+          "title": "Time slice of contracted position detail",
+          "header": "{{position}} <small>time slice of contracted position detail</small>",
+          "success": "Time slice of contracted position [{{position}}] successfully saved."
+        },
+        "create": {
+          "title": "New time slice of contracted position",
+          "header": "New time slice of contracted position",
+          "success": "Time slice of contracted position [{{position}}] successfully saved.",
+          "accepted": "Time slice of contracted position [{{position}}] was accepted. Time slice of contracted position has to be approved at first."
+        },
+        "save": {
+          "success": "Time slice of contracted position [{{name}}] successfully saved."
+        }
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "label": "More information",
+        "save": {
+          "success": "Extended attributes for time slice of contracted position [{{name}}] successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for time slice of contracted position not found."
         }
       }
     },
@@ -2671,6 +2716,35 @@
       "state": {
         "label": "State",
         "help": "Contract's state"
+      }
+    },
+    "ContractSlice": {
+      "_type": "Time slices",
+      "id": "$t(entity.IdentityContract.id)",
+      "treeType": "$t(entity.IdentityContract.treeType)",
+      "workPosition": "$t(entity.IdentityContract.workPosition)",
+      "position": "$t(entity.IdentityContract.position)",
+      "identity": "$t(entity.IdentityContract.identity)",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
+      "guarantee": "$t(entity.IdentityContract.guarantee)",
+      "externe": "$t(entity.IdentityContract.externe)",
+      "managers": {
+        "label": "$t(entity.IdentityContract.managers.label)",
+        "title": "$t(entity.IdentityContract.managers.title)"
+      },
+      "disabled": {
+        "label": "$t(entity.IdentityContract.disabled.label)",
+        "help": "$t(entity.IdentityContract.disabled.help)"
+      },
+      "description": "$t(entity.IdentityContract.description)",
+      "main": {
+        "label": "$t(entity.IdentityContract.main.label)",
+        "help": "$t(entity.IdentityContract.main.help)"
+      },
+      "state": {
+        "label": "$t(entity.IdentityContract.state.label)",
+        "help": "$t(entity.IdentityContract.state.help)"
       }
     },
     "TreeNode": {

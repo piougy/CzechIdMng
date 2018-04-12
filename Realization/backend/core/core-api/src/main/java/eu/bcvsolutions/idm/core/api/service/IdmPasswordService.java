@@ -80,12 +80,24 @@ public interface IdmPasswordService
 	String generateHash(GuardedString password, String salt);
 	
 	/**
-	 * Get salt for identity
+	 * Get salt
+	 * Identity isn't needed anymore for generate salt
+	 * 
+	 * @param identity
+	 * @return
+	 * @deprecated please use {@link IdmPasswordService#getSalt()}
+	 */
+	@Deprecated
+	String getSalt(IdmIdentityDto identity);
+	
+	/**
+	 * Get salt
+	 * Identity isn't needed anymore for generate salt
 	 * 
 	 * @param identity
 	 * @return
 	 */
-	String getSalt(IdmIdentityDto identity);
+	String getSalt();
 
 	/**
 	 * If this username exists and password is incorrect -> increase count of unsuccessful attempts

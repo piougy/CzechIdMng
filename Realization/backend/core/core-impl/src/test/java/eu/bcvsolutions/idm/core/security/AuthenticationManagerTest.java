@@ -238,6 +238,38 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertTrue(message.getHtmlMessage().contains(identity.getUsername()));
 	}
 	
+	@Test
+	public void testNonExistingPassword() {
+		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
+		passwordPolicy.setName(testHelper.createName());
+		passwordPolicy.setDefaultPolicy(true);
+		passwordPolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		passwordPolicy.setBlockLoginTime(2);
+		passwordPolicy.setMaxUnsuccessfulAttempts(2);
+		passwordPolicy = passwordPolicyService.save(passwordPolicy);
+
+		IdmIdentityDto identity = testHelper.createIdentity(null, null);
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
+
+		assertNull(passwordDto);
+		
+		String wrongPassword = "badPassword" + System.currentTimeMillis();
+		tryLoginExceptFail(identity.getUsername(), wrongPassword);
+		
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto); // password was created
+		assertNull(passwordDto.getPassword());
+		assertNull(passwordDto.getBlockLoginDate());
+		
+		tryLoginExceptFail(identity.getUsername(), wrongPassword);
+		tryLoginExceptFail(identity.getUsername(), wrongPassword); // block
+		
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getPassword());
+		assertNotNull(passwordDto.getBlockLoginDate());
+	}
+	
 	private LoginDto tryLogin(String username, String password) {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);

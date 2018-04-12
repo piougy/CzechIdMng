@@ -88,7 +88,7 @@ public class DefaultIdmPasswordService
 		// set valid from now
 		passwordDto.setValidFrom(new LocalDate());
 		//
-		passwordDto.setPassword(this.generateHash(password, getSalt(identity)));
+		passwordDto.setPassword(this.generateHash(password, getSalt()));
 		//
 		// set must change password to false
 		passwordDto.setMustChange(false);
@@ -127,6 +127,10 @@ public class DefaultIdmPasswordService
 
 	@Override
 	public boolean checkPassword(GuardedString passwordToCheck, IdmPasswordDto password) {
+		// with null password cannot be identity authenticate
+		if (password.getPassword() == null) {
+			return false;
+		}
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
 
@@ -137,6 +141,11 @@ public class DefaultIdmPasswordService
 
 	@Override
 	public String getSalt(IdmIdentityDto identity) {
+		return this.getSalt();
+	}
+	
+	@Override
+	public String getSalt() {
 		return BCrypt.gensalt(12);
 	}
 

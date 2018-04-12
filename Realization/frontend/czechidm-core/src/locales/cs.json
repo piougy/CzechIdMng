@@ -1726,6 +1726,7 @@
           "placeholder": "Poznámka k uživateli"
           },
         "active": "Aktivní",
+        "blockLoginDate": "Identita má blokované příhlášení do aplikace z důvodů překročení neúspěšných pokusů o přihlášení. Přihlášení bude možné po {{date}}.",
         "button": {
 
         },
@@ -2970,6 +2971,8 @@
       "enchancedControl": "Rozšířená kontrola",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
       "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
+      "blockLoginTime": "Doba blokace přihlášení (vteřiny)",
+      "maxUnsuccessfulAttempts": "Maximální počet neúspěšných pokusů o přihlášení",
       "lowerCharBase": "Povolené malé znaky",
       "upperCharBase": "Povolené velké znaky",
       "numberBase": "Povolené číslice",
@@ -2983,6 +2986,8 @@
         "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
         "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
         "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na podobnost.",
+        "blockLoginTime": "Po zadaní X neúspěšných pokusů bude uživateli blokováno přihlášení.",
+        "maxUnsuccessfulAttempts": "Počet neúspěšných pokusů o přihlášení. Po překročení bude uživateli blokováno přihlášení do aplikace.",
         "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
         "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
         "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",

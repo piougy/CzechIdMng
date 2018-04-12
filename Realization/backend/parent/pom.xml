@@ -73,7 +73,7 @@
 		<guava.version>18.0</guava.version> <!-- swagger need at least 18 -->
 		<forest.index.version>0.2.1</forest.index.version>
 		
-		<!-- Sonar-JaCoCo properties - not works now, may be wrong place? -->
+		<!-- Sonar-JaCoCo properties-->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>

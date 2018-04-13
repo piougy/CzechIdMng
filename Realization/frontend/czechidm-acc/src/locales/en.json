@@ -999,7 +999,8 @@
       "ROLE": "Role",
       "TREE": "Tree",
       "ROLE_CATALOGUE": "Role catalogue",
-      "CONTRACT": "Identity contract"
+      "CONTRACT": "Identity contract",
+      "CONTRACT_SLICE": "Time slices of identity contracts"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1340,6 +1341,10 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validation of system mapping {{name}} was not successful",
       "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
+    },
+    "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
+      "title": "Provisioning does not supports this type",
+      "message": "Provisioning does not supports this entity type [{{entityType}}]"
     }
   },
   "processor": {

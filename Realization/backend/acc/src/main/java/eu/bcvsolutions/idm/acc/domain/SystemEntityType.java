@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.domain;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
@@ -16,16 +17,19 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
  */
 public enum SystemEntityType {
 
-	IDENTITY(IdmIdentityDto.class),
-	ROLE(IdmRoleDto.class),
-	TREE(IdmTreeNodeDto.class),
-	ROLE_CATALOGUE(IdmRoleCatalogueDto.class),
-	CONTRACT(IdmIdentityContractDto.class);
+	IDENTITY(IdmIdentityDto.class, true),
+	ROLE(IdmRoleDto.class,true),
+	TREE(IdmTreeNodeDto.class, true),
+	ROLE_CATALOGUE(IdmRoleCatalogueDto.class, true),
+	CONTRACT(IdmIdentityContractDto.class, false),
+	CONTRACT_SLICE(IdmContractSliceDto.class, false);
 
 	private Class<? extends AbstractDto> entityType;
+	private boolean supportsProvisioning;
 
-	private SystemEntityType(Class<? extends AbstractDto> entityType) {
+	private SystemEntityType(Class<? extends AbstractDto> entityType, boolean supportsProvisioning) {
 		this.entityType = entityType;
+		this.supportsProvisioning = supportsProvisioning;
 	}
 
 	public Class<? extends AbstractDto> getEntityType() {
@@ -42,4 +46,8 @@ public enum SystemEntityType {
 		return null;
 	}
 
+	public boolean isSupportsProvisioning() {
+		return supportsProvisioning;
+	}
+	
 }

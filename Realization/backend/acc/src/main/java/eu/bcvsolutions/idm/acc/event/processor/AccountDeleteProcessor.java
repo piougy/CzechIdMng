@@ -164,9 +164,10 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 			accountService.deleteInternal(refreshAccount);			
 		}
 		if (deleteTargetAccount) {
-			if (SystemEntityType.CONTRACT == account.getEntityType()) {
-				LOG.warn(MessageFormat.format("Provisioning is not supported for contract now [{0}]!",
-						account.getUid()));
+			SystemEntityType entityType = account.getEntityType();
+			if (!entityType.isSupportsProvisioning()) {
+				LOG.warn(MessageFormat.format("Provisioning is not supported for [{1}] now [{0}]!",
+						account.getUid(), entityType));
 				return new DefaultEventResult<>(event, this);
 			}
 			this.provisioningService.doDeleteProvisioning(account, account.getEntityType(), entityId);

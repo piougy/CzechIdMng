@@ -1006,7 +1006,8 @@
       "ROLE": "Role",
       "TREE": "Strom",
       "ROLE_CATALOGUE": "Katalog rolí",
-      "CONTRACT": "Vztah identity"
+      "CONTRACT": "Pracovní pozice",
+      "CONTRACT_SLICE": "Časové řezy pracovních pozic"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1347,6 +1348,10 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
       "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
+    },
+    "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
+      "title": "Provisioning není podporován",
+      "message": "Provisioning není podporován pro type entity [{{entityType}}]"
     }
   },
   "processor": {

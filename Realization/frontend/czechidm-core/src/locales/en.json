@@ -656,6 +656,19 @@
       "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)"
     },
+    "ContractSliceAttributeEnum": {
+      "IDENTITY": "Owner (IdmIdentity - Id or username)",
+      "VALID_FROM": "Valid from (LocalDate)",
+      "VALID_TILL": "Valid till (LocalDate)",
+      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
+      "POSITION": "Name of position (String)",
+      "EXTERNE": "Externe (boolean)",
+      "MAIN": "Main relation (boolean)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)",
+      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "STATE": "State (ContractState - String)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Created",
       "NO_CONTRACT": "No contract",

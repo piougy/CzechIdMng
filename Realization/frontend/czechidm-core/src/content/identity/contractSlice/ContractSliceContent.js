@@ -7,7 +7,7 @@ import ContractSliceDetail from './ContractSliceDetail';
 const manager = new ContractSliceManager();
 
 /**
- * Identity contract's content with detail form
+ * Contract's slice content with detail form
  *
  * @author Radek Tomiška
  */
@@ -18,15 +18,18 @@ class ContractSliceContent extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.identity-contract.detail';
+    return 'content.contract-slice.detail';
   }
 
   componentDidMount() {
     this.selectSidebarItem('identity-contract-detail');
     //
     const { entityId } = this.props.params;
+    const { query } = this.props.location;
+    const contractId = (query) ? query.contractId : null;
+
     if (this._isNew()) {
-      this.context.store.dispatch(manager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, {'parentContract': contractId }));
     } else {
       this.context.store.dispatch(manager.fetchEntity(entityId));
     }

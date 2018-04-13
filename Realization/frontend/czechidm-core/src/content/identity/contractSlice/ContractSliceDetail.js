@@ -144,7 +144,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity, showLoading, params, _permissions } = this.props;
     const { _showLoading, forceSearchParameters, treeTypeId, entityFormData } = this.state;
-    const { identityId } = this.props.params;
+    const { identityId} = this.props.params;
 
     const parentForceSearchParameters = new SearchParameters()
       .setFilter('identity', identityId ? identityId : SearchParameters.BLANK_UUID);

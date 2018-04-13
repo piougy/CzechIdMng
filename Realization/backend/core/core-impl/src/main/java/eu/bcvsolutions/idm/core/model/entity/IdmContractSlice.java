@@ -111,6 +111,11 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	@Column(name = "code", length = DefaultFieldLengths.NAME)
 	private String code; // Identifier of that slice on the source system
 	
+	@Audited
+	@NotNull
+	@Column(name = "using_as_contract", nullable = false)
+	private boolean usingAsContract; // Is this slice actually using as the contract?
+	
 	public IdmContractSlice() {
 	}
 	
@@ -280,4 +285,14 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	public void setCode(String code) {
 		this.code = code;
 	}
+
+	public boolean isUsingAsContract() {
+		return usingAsContract;
+	}
+
+	public void setUsingAsContract(boolean usingAsContract) {
+		this.usingAsContract = usingAsContract;
+	}
+	
+	
 }

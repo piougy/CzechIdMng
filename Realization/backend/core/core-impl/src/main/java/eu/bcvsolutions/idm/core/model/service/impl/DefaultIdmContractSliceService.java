@@ -60,6 +60,7 @@ public class DefaultIdmContractSliceService
 		return new AuthorizableType(CoreGroupPermission.CONTRACTSLICE, getEntityClass());
 	}
 	
+	// !!! I want to remove disable from the slice ... confirm if is this OK
 	@Override
 	protected IdmContractSlice toEntity(IdmContractSliceDto dto, IdmContractSlice entity) {
 		IdmContractSlice contract = super.toEntity(dto, entity);

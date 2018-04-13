@@ -49,14 +49,23 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
     //
     const { entityId, identityId } = this.props.params;
     let identityLocalId = identityId;
+    let contractLocalId = null;
+    let isOnContractDetail = false;
 
-    if (!identityLocalId) {
+    if (identityLocalId) {
+      contractLocalId = entityId;
+      isOnContractDetail = true;
+    } else {
       identityLocalId = entityId;
     }
 
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1`);
+      if (isOnContractDetail) {
+        this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1&contractId=${contractLocalId}`);
+      } else {
+        this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1`);
+      }
     } else {
       this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${entity.id}/detail`);
     }
@@ -89,7 +98,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
             manager={ this.contractSliceManager }
             forceSearchParameters={ new SearchParameters().setFilter('identity', identityLocalId).setFilter('parentContract', contractLocalId) }
             rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
-            showRowSelection={ SecurityManager.hasAuthority('IDENTITYCONTRACT_DELETE') }
+            showRowSelection={ SecurityManager.hasAuthority('CONTRACTSLICE_DELETE') }
             actions={
               [
                 { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this) },
@@ -97,7 +106,11 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={ SecurityManager.hasAuthority('IDENTITYCONTRACT_CREATE') }>
+                <Basic.Button
+                  level="success"
+                  className="btn-xs"
+                  onClick={this.showDetail.bind(this, {})}
+                  rendered={ SecurityManager.hasAuthority('CONTRACTSLICE_CREATE') }>
                   <Basic.Icon value="fa:plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -115,6 +128,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
               }/>
             <Advanced.Column
               property="contractCode"
+              rendered={!isOnContractDetail}
               header={this.i18n('entity.ContractSlice.contractCode')}
               sort/>
             <Advanced.Column

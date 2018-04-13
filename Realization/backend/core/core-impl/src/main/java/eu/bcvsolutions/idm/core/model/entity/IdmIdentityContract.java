@@ -108,14 +108,6 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmContractGuarantee> guarantees; // only for hibernate mappnig - we dont want lazy lists (many roles)
 	
-	@Audited
-	@ManyToOne
-	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
-	private IdmIdentityContract parent;
-	
 	public IdmIdentityContract() {
 	}
 	
@@ -259,13 +251,5 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	public ContractState getState() {
 		return state;
-	}
-
-	public IdmIdentityContract getParent() {
-		return parent;
-	}
-
-	public void setParent(IdmIdentityContract parent) {
-		this.parent = parent;
 	}
 }

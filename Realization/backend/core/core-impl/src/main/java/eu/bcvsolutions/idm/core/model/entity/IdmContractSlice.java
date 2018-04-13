@@ -20,6 +20,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
@@ -36,7 +37,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_contract_slice", indexes = {
 		@Index(name = "idx_idm_contract_slice_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_contract_slice_wp", columnList = "work_position_id")})
-public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable {
+public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, Codeable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -91,6 +92,24 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	@Enumerated(EnumType.STRING)
 	@Column(name = "state", nullable = true, length = DefaultFieldLengths.ENUMARATION)
 	private ContractState state;
+	
+	@Audited
+	@ManyToOne
+	@JoinColumn(name = "parent_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private IdmIdentityContract parentContract;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "contract_code", length = DefaultFieldLengths.NAME)
+	private String contractCode; // Identifier of the main contract on the source system
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "code", length = DefaultFieldLengths.NAME)
+	private String code; // Identifier of that slice on the source system
 	
 	public IdmContractSlice() {
 	}
@@ -235,5 +254,30 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	
 	public ContractState getState() {
 		return state;
+	}
+
+	public IdmIdentityContract getParentContract() {
+		return parentContract;
+	}
+
+	public void setParentContract(IdmIdentityContract parentContract) {
+		this.parentContract = parentContract;
+	}
+
+	public String getContractCode() {
+		return contractCode;
+	}
+
+	public void setContractCode(String contractCode) {
+		this.contractCode = contractCode;
+	}
+
+	@Override
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 }

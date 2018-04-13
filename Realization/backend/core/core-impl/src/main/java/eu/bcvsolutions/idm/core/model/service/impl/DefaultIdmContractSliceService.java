@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractSliceRepository;
@@ -147,6 +148,16 @@ public class DefaultIdmContractSliceService
 		if (filter.getExcludeContract() != null) {
 			predicates.add(builder.notEqual(root.get(IdmContractSlice_.id), filter.getExcludeContract()));
 		}
+		if (filter.getParentContract() != null) {
+			predicates.add(builder.equal(root.get(IdmContractSlice_.parentContract).get(IdmIdentityContract_.id), filter.getParentContract()));
+		}
+		if (filter.getContractCode() != null) {
+			predicates.add(builder.equal(root.get(IdmContractSlice_.contractCode), filter.getContractCode()));
+		}
+		if (filter.getCode() != null) {
+			predicates.add(builder.equal(root.get(IdmContractSlice_.code), filter.getCode()));
+		}
+		
 		// property, if is property filled and it isn't find in defined properties return disjunction
 		boolean exitsProperty = filter.getProperty() == null ? true : false;
 		if (StringUtils.equals(IdmContractSlice_.position.getName(), filter.getProperty())) {

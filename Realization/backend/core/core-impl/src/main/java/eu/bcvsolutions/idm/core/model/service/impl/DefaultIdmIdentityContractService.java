@@ -169,15 +169,6 @@ public class DefaultIdmIdentityContractService
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getState()));
 		}
-		if (filter.getWithoutParent() != null && filter.getWithoutParent()) {
-			predicates.add(builder.isNull(root.get(IdmIdentityContract_.parent)));
-		}
-		if (filter.getExcludeContract() != null) {
-			predicates.add(builder.notEqual(root.get(IdmIdentityContract_.id), filter.getExcludeContract()));
-		}
-		if (filter.getParent() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.parent), filter.getParent()));
-		}
 		// property, if is property filled and it isn't find in defined properties return disjunction
 		boolean exitsProperty = filter.getProperty() == null ? true : false;
 		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
@@ -318,19 +309,19 @@ public class DefaultIdmIdentityContractService
 	@Override
 	@Transactional
 	public IdmContractDto getFullContract(UUID identityContractId) {
-		Assert.notNull(identityContractId);
-		IdmIdentityContractDto slice = this.get(identityContractId);
-		Assert.notNull(slice);
-		UUID parent = slice.getParent() != null ? slice.getParent() : slice.getId();
-		List<IdmIdentityContractDto> slices = this.getAllSlices(parent);
-		IdmIdentityContractDto currentSlice = this.getCurrentSliceForDate(slices, LocalDate.now());
-
-		LocalDate minValidFrom = slices.stream().filter(s -> s.getValidFrom() != null)
-				.map(IdmIdentityContractDto::getValidFrom).min(LocalDate::compareTo).orElse(null);
-		LocalDate maxValidTill = slices.stream().filter(s -> s.getValidTill() != null)
-				.map(IdmIdentityContractDto::getValidTill).max(LocalDate::compareTo).orElse(null);
-		return new IdmContractDto(currentSlice, minValidFrom, maxValidTill);
-
+//		Assert.notNull(identityContractId);
+//		IdmIdentityContractDto slice = this.get(identityContractId);
+//		Assert.notNull(slice);
+//		UUID parent = slice.getParent() != null ? slice.getParent() : slice.getId();
+//		List<IdmIdentityContractDto> slices = this.getAllSlices(parent);
+//		IdmIdentityContractDto currentSlice = this.getCurrentSliceForDate(slices, LocalDate.now());
+//
+//		LocalDate minValidFrom = slices.stream().filter(s -> s.getValidFrom() != null)
+//				.map(IdmIdentityContractDto::getValidFrom).min(LocalDate::compareTo).orElse(null);
+//		LocalDate maxValidTill = slices.stream().filter(s -> s.getValidTill() != null)
+//				.map(IdmIdentityContractDto::getValidTill).max(LocalDate::compareTo).orElse(null);
+//		return new IdmContractDto(currentSlice, minValidFrom, maxValidTill);
+		return null;
 	}
 	
 	/**
@@ -358,7 +349,7 @@ public class DefaultIdmIdentityContractService
 		
 		IdmIdentityContractDto parentSlice = this.get(parent);
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
-		filter.setParent(parent);
+		//filter.setParent(parent);
 		
 		List<IdmIdentityContractDto> slices = this.find(filter, null).getContent();
 		slices.add(parentSlice);

@@ -6,11 +6,12 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { ContractSliceManager, IdentityManager, TreeNodeManager, TreeTypeManager } from '../../../redux';
+import { ContractSliceManager, IdentityManager, TreeNodeManager, TreeTypeManager, IdentityContractManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import ContractStateEnum from '../../../enums/ContractStateEnum';
 
 const contractSliceManager = new ContractSliceManager();
+const identityContractManager = new IdentityContractManager();
 
 /**
  * Identity contract form
@@ -143,6 +144,10 @@ class ContractSliceDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity, showLoading, params, _permissions } = this.props;
     const { _showLoading, forceSearchParameters, treeTypeId, entityFormData } = this.state;
+    const { identityId } = this.props.params;
+
+    const parentForceSearchParameters = new SearchParameters()
+      .setFilter('identity', identityId ? identityId : SearchParameters.BLANK_UUID);
 
     return (
       <div>
@@ -162,7 +167,17 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
-
+                <Basic.TextField
+                  ref="contractCode"
+                  label={this.i18n('entity.ContractSlice.contractCode')}/>
+                <Basic.SelectBox
+                  ref="parentContract" useFirst={Utils.Entity.isNew(entity)}
+                  manager={identityContractManager}
+                  forceSearchParameters={parentForceSearchParameters}
+                  label={this.i18n('entity.ContractSlice.parentContract')}/>
+                <Basic.TextField
+                  ref="code"
+                  label={this.i18n('entity.ContractSlice.code')}/>
                 <Basic.TextField
                   ref="position"
                   label={this.i18n('entity.ContractSlice.position')}/>

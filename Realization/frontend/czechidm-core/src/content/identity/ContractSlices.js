@@ -6,7 +6,6 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { ContractSliceManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
-import ManagersInfo from './ManagersInfo';
 import ContractStateEnum from '../../enums/ContractStateEnum';
 
 const uiKey = 'contract-slices';
@@ -48,17 +47,34 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     //
-    const { entityId } = this.props.params;
+    const { entityId, identityId } = this.props.params;
+    let identityLocalId = identityId;
+
+    if (!identityLocalId) {
+      identityLocalId = entityId;
+    }
+
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/identity/${encodeURIComponent(entityId)}/contract-slice/${uuidId}/new?new=1`);
+      this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/identity/${encodeURIComponent(entityId)}/contract-slice/${entity.id}/detail`);
+      this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${entity.id}/detail`);
     }
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId, identityId } = this.props.params;
+    let identityLocalId = identityId;
+    let contractLocalId = null;
+    let isOnContractDetail = false;
+
+    if (identityLocalId) {
+      contractLocalId = entityId;
+      isOnContractDetail = true;
+    } else {
+      identityLocalId = entityId;
+    }
+
     //
     return (
       <div>
@@ -71,7 +87,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={ this.getUiKey() }
             manager={ this.contractSliceManager }
-            forceSearchParameters={ new SearchParameters().setFilter('identity', entityId) }
+            forceSearchParameters={ new SearchParameters().setFilter('identity', identityLocalId).setFilter('parentContract', contractLocalId) }
             rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
             showRowSelection={ SecurityManager.hasAuthority('IDENTITYCONTRACT_DELETE') }
             actions={
@@ -94,6 +110,30 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                 ({rowIndex, data}) => {
                   return (
                     <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                  );
+                }
+              }/>
+            <Advanced.Column
+              property="contractCode"
+              header={this.i18n('entity.ContractSlice.contractCode')}
+              sort/>
+            <Advanced.Column
+              property="parent"
+              rendered={!isOnContractDetail}
+              header={this.i18n('entity.ContractSlice.parentContract')}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const parentContract = data[rowIndex]._embedded.parentContract;
+                  if (!parentContract) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.IdentityContractInfo
+                      entityIdentifier={ parentContract.id }
+                      entity={ parentContract }
+                      showIdentity={ false }
+                      face="popover" />
                   );
                 }
               }/>
@@ -127,17 +167,6 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                 }
               }
             />
-            <Basic.Column
-              property="guarantee"
-              header={<span title={this.i18n('entity.ContractSlice.managers.title')}>{this.i18n('entity.ContractSlice.managers.label')}</span>}
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <ManagersInfo managersFor={entityId} contractSliceId={data[rowIndex].id}/>
-                  );
-                }
-              }
-            />
             <Advanced.Column
               property="validFrom"
               header={this.i18n('entity.ContractSlice.validFrom')}
@@ -160,12 +189,6 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
               header={this.i18n('entity.ContractSlice.state.label')}
               face="enum"
               enumClass={ ContractStateEnum }
-              width={100}
-              sort/>
-            <Advanced.Column
-              property="externe"
-              header={this.i18n('entity.ContractSlice.externe')}
-              face="bool"
               width={100}
               sort/>
           </Advanced.Table>

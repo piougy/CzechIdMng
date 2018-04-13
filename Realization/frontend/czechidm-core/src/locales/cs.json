@@ -2042,29 +2042,6 @@
         "error" : {
           "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
         }
-      },
-      "guarantees": {
-        "header": "Vedoucí a garanti",
-        "title": "Vedoucí",
-        "label": "Vedoucí",
-        "guarantees": {
-          "direct": "Nastavení garanti <small>přímo pro tento vztah</small>",
-          "byTree": "Vedoucí <small>dle stromových struktur</small>"
-        },
-        "edit": {
-          "title": "Detail garanta",
-          "header": "Detail garanta"
-        },
-        "create": {
-          "title": "Nový garant",
-          "header": "Nový garant"
-        },
-        "action": {
-          "save": {
-            "success_0": "N/A",
-            "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
-          }
-        }
       }
     },
     "organizations": {
@@ -2785,6 +2762,9 @@
     },
     "ContractSlice": {
       "_type": "Časové řezy",
+      "parentContract": "Nadřízený smluvní vztah",
+      "contractCode": "Kód smluvního vztahu",
+      "code": "Kód řezu",
       "id": "$t(entity.IdentityContract.id)",
       "treeType": "$t(entity.IdentityContract.treeType)",
       "workPosition": "$t(entity.IdentityContract.workPosition)",

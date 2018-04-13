@@ -109,7 +109,12 @@ module.exports = {
           path: 'guarantees',
           component: require('./src/content/identity/contract/IdentityContractGuarantees'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
-        }
+        },
+        {
+          path: 'contract-slices',
+          component: require('./src/content/identity/ContractSlices'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        },
       ]
     },
     {

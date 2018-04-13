@@ -2720,6 +2720,9 @@
     },
     "ContractSlice": {
       "_type": "Time slices",
+      "parentContract": "Parent contract relationship",
+      "contractCode": "Code of contract relationship",
+      "code": "Code of slice",
       "id": "$t(entity.IdentityContract.id)",
       "treeType": "$t(entity.IdentityContract.treeType)",
       "workPosition": "$t(entity.IdentityContract.workPosition)",

@@ -696,7 +696,8 @@
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
       "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
-      "STATE": "Stav (ContractState - String)"
+      "STATE": "Stav (ContractState - String)",
+      "CONTRACT_CODE": "Kód nadřazeného kontraktu (String - stejný pro všechny řezy)"
     },
     "IdentityStateEnum": {
       "CREATED": "Vytvořen(a)",
@@ -2025,8 +2026,8 @@
     },
     "contract-slice": {
       "detail": {
-        "header": "Detail pracovně právního vztahu",
-        "title": "Detail PPV",
+        "header": "Detail časového řezu (PPV)",
+        "title": "Detail časového řezu PPV",
         "label": "Základní údaje",
         "invalidContract":"Detail neplatného PPV",
         "validContract":"Detail PPV",

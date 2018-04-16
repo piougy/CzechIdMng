@@ -155,12 +155,10 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
               property="main"
               header={this.i18n('entity.ContractSlice.main.label')}
               face="bool"
-              width={75}
               sort/>
             <Basic.Column
               property="workPosition"
               header={this.i18n('entity.ContractSlice.workPosition')}
-              width={ 350 }
               cell={
                 ({ rowIndex, data }) => {
                   return (
@@ -196,14 +194,12 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
               property="disabled"
               header={this.i18n('entity.ContractSlice.disabled.label')}
               face="bool"
-              width={100}
               sort/>
             <Advanced.Column
               property="state"
               header={this.i18n('entity.ContractSlice.state.label')}
               face="enum"
               enumClass={ ContractStateEnum }
-              width={100}
               sort/>
           </Advanced.Table>
         </Basic.Panel>

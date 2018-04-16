@@ -667,7 +667,8 @@
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)",
       "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
-      "STATE": "State (ContractState - String)"
+      "STATE": "State (ContractState - String)",
+      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)"
     },
     "IdentityStateEnum": {
       "CREATED": "Created",

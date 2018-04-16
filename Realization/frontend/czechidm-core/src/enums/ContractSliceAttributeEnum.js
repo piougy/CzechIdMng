@@ -1,7 +1,9 @@
 import AbstractEnum from '../enums/AbstractEnum';
 
 /**
- * Keys of contract fields
+ * Keys of contract slice fields
+ *
+ * @author Vít Švanda
  */
 export default class ContractSliceAttributeEnum extends AbstractEnum {
 
@@ -55,6 +57,9 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case this.STATE: {
         return 'state';
       }
+      case this.CONTRACT_CODE: {
+        return 'contractCode';
+      }
       default: {
         return null;
       }
@@ -100,6 +105,9 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case 'state': {
         return this.STATE;
       }
+      case 'contractCode': {
+        return this.CONTRACT_CODE;
+      }
       default: {
         return null;
       }
@@ -131,3 +139,4 @@ ContractSliceAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
 ContractSliceAttributeEnum.EXTERNE = Symbol('EXTERNE');
 ContractSliceAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 ContractSliceAttributeEnum.GUARANTESS = Symbol('GUARANTESS');
+ContractSliceAttributeEnum.CONTRACT_CODE = Symbol('CONTRACT_CODE');

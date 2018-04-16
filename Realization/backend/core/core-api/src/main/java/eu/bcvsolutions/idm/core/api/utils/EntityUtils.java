@@ -290,4 +290,20 @@ public class EntityUtils {
 		auditable.setOriginalModifierId(null);
 		auditable.setTransactionId(null);
 	}
+	
+	public static void copyAuditFields(Auditable auditableSource, Auditable auditableTarget) {
+		Asserts.notNull(auditableTarget, "Entity must be not null!");
+		Asserts.notNull(auditableSource, "Entity must be not null!");
+		//
+		auditableTarget.setCreated(auditableSource.getCreated());
+		auditableTarget.setCreator(auditableSource.getCreator());
+		auditableTarget.setCreatorId(auditableSource.getCreatorId());
+		auditableTarget.setModified(auditableSource.getModified());
+		auditableTarget.setModifier(auditableSource.getModifier());
+		auditableTarget.setModifierId(auditableSource.getModifierId());
+		auditableTarget.setOriginalCreator(auditableSource.getOriginalCreator());
+		auditableTarget.setOriginalCreatorId(auditableSource.getOriginalCreatorId());
+		auditableTarget.setOriginalModifier(auditableSource.getModifier());
+		auditableTarget.setOriginalModifierId(auditableSource.getOriginalModifierId());
+	}
 }

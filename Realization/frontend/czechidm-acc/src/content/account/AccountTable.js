@@ -348,7 +348,7 @@ AccountTable.propTypes = {
   _showLoading: PropTypes.bool
 };
 AccountTable.defaultProps = {
-  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity', 'targetEntity'],
+  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity', 'targetEntityOff'],
   showAddButton: true,
   _showLoading: false,
 };

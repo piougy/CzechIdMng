@@ -468,6 +468,27 @@
         }
       }
     },
+    "contract-slice": {
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifier",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
     "provisioningOperations": {
       "label": "Provisioning",
       "title" : "Provisioning - operations log",
@@ -1113,7 +1134,8 @@
       "SYNCHRONIZATION": "Synchronization",
       "TREEACCOUNT": "Tree accounts",
       "IDENTITYACCOUNT": "Identity accounts",
-      "CONTRACTACCOUNT": "Contractual relationships",
+      "CONTRACTACCOUNT": "Accounts for contractual relationships",
+      "CONTRACTSLICEACCOUNT": "Accounts for time slices of contractual relationships",
       "PROVISIONINGBREAK": "Provisioning brake"
     }
   },

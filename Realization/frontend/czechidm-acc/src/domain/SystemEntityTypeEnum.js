@@ -72,10 +72,10 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
         return RoleCatalogueAttributeEnum;
       }
       case this.CONTRACT: {
-        return Enums.ContractSliceAttributeEnum;
+        return Enums.ContractAttributeEnum;
       }
       case this.CONTRACT_SLICE: {
-        return Enums.ContractAttributeEnum;
+        return Enums.ContractSliceAttributeEnum;
       }
       default: {
         return null;

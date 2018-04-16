@@ -81,6 +81,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
@@ -118,10 +119,11 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	private final IdmScheduledTaskService scheduledTaskService;
 	private final IdmConfigurationService configurationService;
 
-	public final static String CONTRACT_STATE_FIELD = "state";
+	public final static String CONTRACT_STATE_FIELD = IdmContractSlice_.state.getName();
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
-	public final static String CONTRACT_IDENTITY_FIELD = "identity";
-	public final static String CONTRACT_WORK_POSITION_FIELD = "workPosition";
+	public final static String CONTRACT_IDENTITY_FIELD = IdmContractSlice_.identity.getName();
+	public final static String CONTRACT_WORK_POSITION_FIELD = IdmContractSlice_.workPosition.getName();
+	public final static String CONTRACT_SLICE_CONTRACT_CODE_FIELD = IdmContractSlice_.contractCode.getName();
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 	public final static String DEFAULT_TASK = "Default";
 
@@ -346,7 +348,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
 			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes, context);
-			// Guarantees will be set no to the dto (we does not have field for
+			// Guarantees will be set no to the DTO (we does not have field for
 			// they), but to the embedded map.
 			if (CONTRACT_GUARANTEES_FIELD.equals(attributeProperty)) {
 				if (transformedValue instanceof SyncIdentityContractDto) {

@@ -55,7 +55,7 @@ public class DefaultAccContractSliceAccountService extends
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.CONTRACTACCOUNT, getEntityClass());
+		return new AuthorizableType(AccGroupPermission.CONTRACTSLICEACCOUNT, getEntityClass());
 	}
 	
 	@Override

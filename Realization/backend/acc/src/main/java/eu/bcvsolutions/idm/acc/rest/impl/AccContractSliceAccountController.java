@@ -207,7 +207,7 @@ public class AccContractSliceAccountController extends AbstractReadWriteDtoContr
 	protected AccContractSliceAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AccContractSliceAccountFilter filter = new AccContractSliceAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
-		filter.setSliceId(getParameterConverter().toUuid(parameters, "contract"));
+		filter.setSliceId(getParameterConverter().toUuid(parameters, "sliceId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;

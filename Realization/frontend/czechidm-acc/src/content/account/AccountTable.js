@@ -93,6 +93,25 @@ export class AccountTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().reload();
   }
 
+  /**
+  * Method get last string of split string by dot.
+  * Used for get niceLabel for type entity.
+  */
+  _getType(name) {
+    return Utils.Ui.getSimpleJavaType(name);
+  }
+
+  _generateTargetEntityCell({rowIndex, data}) {
+    return (
+      <Advanced.EntityInfo
+        entityType={ this._getType(data[rowIndex].targetEntityType) }
+        entityIdentifier={ data[rowIndex].targetEntityId}
+        face="popover"
+        showEntityType/>
+    );
+  }
+
+
   render() {
     const {
       _showLoading,
@@ -201,6 +220,12 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Advanced.Column
+            property="targetEntity"
+            header={ this.i18n('acc:entity.Account.targetEntity') }
+            rendered={_.includes(columns, 'targetEntity')}
+            cell={this._generateTargetEntityCell.bind(this)}
+            />
           <Advanced.Column
             property="inProtection"
             header={this.i18n('acc:entity.Account.inProtection')}
@@ -323,7 +348,7 @@ AccountTable.propTypes = {
   _showLoading: PropTypes.bool
 };
 AccountTable.defaultProps = {
-  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity'],
+  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity', 'targetEntity'],
   showAddButton: true,
   _showLoading: false,
 };

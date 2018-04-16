@@ -7,6 +7,7 @@ import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.google.common.annotations.Beta;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -36,6 +37,10 @@ public class AccAccountDto extends AbstractDto {
 	private DateTime endOfProtection;
 	private String realUid;
 	private SystemEntityType entityType;
+	@Beta
+	private UUID targetEntityId;
+	@Beta
+	private String targetEntityType;
 
 	public String getUid() {
 		return uid;
@@ -118,5 +123,25 @@ public class AccAccountDto extends AbstractDto {
 	
 	public void setEntityType(SystemEntityType entityType) {
 		this.entityType = entityType;
+	}
+
+	@Beta
+	public UUID getTargetEntityId() {
+		return targetEntityId;
+	}
+
+	@Beta
+	public void setTargetEntityId(UUID targetEntityId) {
+		this.targetEntityId = targetEntityId;
+	}
+
+	@Beta
+	public String getTargetEntityType() {
+		return targetEntityType;
+	}
+
+	@Beta
+	public void setTargetEntityType(String targetEntityType) {
+		this.targetEntityType = targetEntityType;
 	}
 }

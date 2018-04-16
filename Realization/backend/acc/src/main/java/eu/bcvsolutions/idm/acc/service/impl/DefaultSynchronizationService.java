@@ -157,8 +157,6 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 				synchronizationLogService.save(sync);
 			}
 		});
-		
-		
 	}
 	
 	@Override

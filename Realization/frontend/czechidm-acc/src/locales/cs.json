@@ -782,7 +782,8 @@
       "systemEntity": "Navázaná entita na systému",
       "uid": "Identifikátor účtu",
       "inProtection": "Je chráněn před smazáním",
-      "endOfProtection": "Chráněn do"
+      "endOfProtection": "Chráněn do",
+      "targetEntity": "Cílová entita"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",

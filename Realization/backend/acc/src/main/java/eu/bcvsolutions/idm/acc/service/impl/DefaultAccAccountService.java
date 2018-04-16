@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -15,6 +16,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -22,13 +25,16 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccContractSliceAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccContractSliceAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
@@ -47,11 +53,14 @@ import eu.bcvsolutions.idm.acc.event.AccountEvent;
 import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -79,6 +88,9 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 	private final SysSystemService systemService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private List<SynchronizationEntityExecutor>  executors;
+	private PluginRegistry<SynchronizationEntityExecutor, SystemEntityType> pluginExecutors; 
 
 	@Autowired
 	public DefaultAccAccountService(AccAccountRepository accountRepository,
@@ -119,6 +131,14 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 			} else {
 				// If system entity do not exist, then return uid from account.
 				newDto.setRealUid(newDto.getUid());
+			}
+			// Load and set target entity. For loading a target entity is using sync executor.
+			SystemEntityType entityType = newDto.getEntityType();
+			if (entityType != null) {
+				SynchronizationEntityExecutor executor = this.getSyncExecutor(entityType);
+				UUID targetEntity = executor.getEntityByAccount(newDto.getId());
+				newDto.setTargetEntityType(entityType.getEntityType().getName());
+				newDto.setTargetEntityId(targetEntity);
 			}
 		}
 		return newDto;
@@ -322,6 +342,24 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 		//
 		return predicates;
 
+	}
+	
+	/**
+	 * Find executor for synchronization given entity type
+	 * @param entityType
+	 * @return
+	 */
+	private SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType){
+		
+		if(this.pluginExecutors == null) {
+			this.pluginExecutors = OrderAwarePluginRegistry.create(executors);
+		}
+		SynchronizationEntityExecutor executor =  this.pluginExecutors.getPluginFor(entityType);
+		if (executor == null) {
+			throw new UnsupportedOperationException(
+					MessageFormat.format("Synchronization executor for SystemEntityType {0} is not supported!", entityType));
+		}
+		return executor;
 	}
 
 }

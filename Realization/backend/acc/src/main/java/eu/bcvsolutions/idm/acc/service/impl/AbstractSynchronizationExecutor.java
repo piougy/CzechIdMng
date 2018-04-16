@@ -1967,7 +1967,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionLogs
 	 * @return
 	 */
-	protected UUID getEntityByAccount(UUID accountId) {
+	@Override
+	public UUID getEntityByAccount(UUID accountId) {
 		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
 		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);

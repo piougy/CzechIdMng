@@ -2034,7 +2034,8 @@
         "edit": {
           "title": "Detail PPV",
           "header": "{{position}} <small>detail přiřazené pozice</small>",
-          "success": "Pozice [{{position}}] byla úspěšně upravena."
+          "success": "Pozice [{{position}}] byla úspěšně upravena.",
+          "notEditable": "Časové řezy není možné ručně upravovat ani přidávat!"
         },
         "create": {
           "title": "Přiřazení nové pozice",

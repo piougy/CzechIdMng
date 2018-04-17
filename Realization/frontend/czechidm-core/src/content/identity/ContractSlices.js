@@ -39,7 +39,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
   }
 
   getNavigationKey() {
-    return 'profile-contract-slices';
+    return 'identity-contract-slices';
   }
 
   showDetail(entity, event) {
@@ -72,7 +72,9 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId, identityId } = this.props.params;
+    const { entityId, identityId} = this.props.params;
+    const {rendered} = this.props;
+
     let identityLocalId = identityId;
     let contractLocalId = null;
     let isOnContractDetail = false;
@@ -82,6 +84,10 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
       isOnContractDetail = true;
     } else {
       identityLocalId = entityId;
+    }
+
+    if (rendered === false) {
+      return null;
     }
 
     //
@@ -110,7 +116,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                   level="success"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, {})}
-                  rendered={ SecurityManager.hasAuthority('CONTRACTSLICE_CREATE') }>
+                  rendered={ false && SecurityManager.hasAuthority('CONTRACTSLICE_CREATE') }> // We do not want to create slice manually
                   <Basic.Icon value="fa:plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -151,11 +157,6 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column
-              property="main"
-              header={this.i18n('entity.ContractSlice.main.label')}
-              face="bool"
-              sort/>
             <Basic.Column
               property="workPosition"
               header={this.i18n('entity.ContractSlice.workPosition')}
@@ -189,11 +190,6 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
               property="validTill"
               header={this.i18n('entity.ContractSlice.validTill')}
               face="date"
-              sort/>
-            <Advanced.Column
-              property="disabled"
-              header={this.i18n('entity.ContractSlice.disabled.label')}
-              face="bool"
               sort/>
             <Advanced.Column
               property="state"

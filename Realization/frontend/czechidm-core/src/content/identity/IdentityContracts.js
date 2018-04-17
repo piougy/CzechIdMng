@@ -8,6 +8,7 @@ import { IdentityContractManager, TreeTypeManager, TreeNodeManager, SecurityMana
 import SearchParameters from '../../domain/SearchParameters';
 import ManagersInfo from './ManagersInfo';
 import ContractStateEnum from '../../enums/ContractStateEnum';
+import ContractSlices from './ContractSlices';
 
 const uiKey = 'identity-contracts';
 
@@ -170,6 +171,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               sort/>
           </Advanced.Table>
         </Basic.Panel>
+        <ContractSlices rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')} params={{entityId}}/>
       </div>
     );
   }

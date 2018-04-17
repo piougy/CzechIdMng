@@ -46,7 +46,7 @@ class ContractSlice extends Basic.AbstractContent {
 
         <OrganizationPosition identity={ params.identityId }/>
 
-        <Advanced.TabPanel parentId="profile-contract-slices" params={this.props.params}>
+        <Advanced.TabPanel parentId="identity-contract-slices" params={this.props.params}>
           {this.props.children}
         </Advanced.TabPanel>
       </div>

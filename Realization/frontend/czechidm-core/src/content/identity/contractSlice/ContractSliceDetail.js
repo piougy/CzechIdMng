@@ -148,14 +148,15 @@ class ContractSliceDetail extends Basic.AbstractContent {
 
     const parentForceSearchParameters = new SearchParameters()
       .setFilter('identity', identityId ? identityId : SearchParameters.BLANK_UUID);
+    const canSave = contractSliceManager.canSave(entity, _permissions);
 
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
-
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
+            <Basic.Alert level="warning" rendered={canSave} text={this.i18n('edit.notEditable')}/>
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
               <Basic.AbstractForm
@@ -163,7 +164,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 data={entityFormData}
                 showLoading={ _showLoading || showLoading }
                 uiKey={uiKey}
-                readOnly={ !contractSliceManager.canSave(entity, _permissions) }>
+                readOnly>
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
@@ -245,7 +246,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 showLoading={ _showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={ contractSliceManager.canSave(entity, _permissions) }
+                rendered={false}
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

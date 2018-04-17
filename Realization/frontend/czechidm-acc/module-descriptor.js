@@ -137,7 +137,7 @@ module.exports = {
       },
       {
         'id': 'contract-slice-accounts',
-        'parentId': 'profile-contract-slices',
+        'parentId': 'identity-contract-slices',
         'type': 'TAB',
         'labelKey': 'acc:content.contract-slice.accounts.title',
         'order': 100,

@@ -11,6 +11,9 @@
     "Virtual",
     "IdM"
   ],
+  "publishConfig": {
+    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  },
   "author": "BCV solutions s.r.o",
   "license": "MIT"
 }

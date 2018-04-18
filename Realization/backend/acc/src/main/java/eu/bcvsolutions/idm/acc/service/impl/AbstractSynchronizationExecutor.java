@@ -118,6 +118,7 @@ import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.filter.impl.IcAndFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;
+import eu.bcvsolutions.idm.ic.filter.impl.IcNotFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcOrFilter;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;

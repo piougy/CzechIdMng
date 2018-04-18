@@ -48,12 +48,18 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contract.setRealmId(currentSlice.getRealmId());
 		contract.setState(currentSlice.getState());
 		contract.setTrimmed(currentSlice.isTrimmed());
-		contract.setValidFrom(currentSlice.getValidFrom());
-		contract.setValidTill(currentSlice.getValidTill());
+		contract.setValidFrom(minValidFrom);
+		contract.setValidTill(maxValidTill);
 		contract.setExterne(currentSlice.isExterne());
 		contract.setDescription(currentSlice.getDescription());
 		// Create contract
 		return contractService.save(contract);
+	}
+
+	@Override
+	public IdmIdentityContractDto updateContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

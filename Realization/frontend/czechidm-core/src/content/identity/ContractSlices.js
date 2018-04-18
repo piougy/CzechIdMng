@@ -157,6 +157,11 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
+            <Advanced.Column
+              property="usingAsContract"
+              header={this.i18n('entity.ContractSlice.usingAsContract.label')}
+              face="bool"
+              sort/>
             <Basic.Column
               property="workPosition"
               header={this.i18n('entity.ContractSlice.workPosition')}

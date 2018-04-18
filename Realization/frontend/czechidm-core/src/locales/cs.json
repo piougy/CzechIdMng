@@ -2779,6 +2779,9 @@
       "_type": "Časové řezy",
       "parentContract": "Nadřízený smluvní vztah",
       "contractCode": "Kód smluvního vztahu",
+      "usingAsContract": {
+        "label": "Aktuálně používaný"
+      },
       "code": "Kód řezu",
       "id": "$t(entity.IdentityContract.id)",
       "treeType": "$t(entity.IdentityContract.treeType)",

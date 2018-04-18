@@ -15,6 +15,8 @@ public interface ContractSliceManager {
 
 	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices);
 
+	IdmIdentityContractDto updateContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices);
+
 	
 	
 }

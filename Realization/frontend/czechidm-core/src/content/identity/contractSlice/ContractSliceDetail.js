@@ -157,7 +157,6 @@ class ContractSliceDetail extends Basic.AbstractContent {
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
             <Basic.Alert level="warning" rendered={canSave} text={this.i18n('edit.notEditable')}/>
-
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
               <Basic.AbstractForm
                 ref="form"

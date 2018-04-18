@@ -2780,7 +2780,8 @@
       "parentContract": "Nadřízený smluvní vztah",
       "contractCode": "Kód smluvního vztahu",
       "usingAsContract": {
-        "label": "Aktuálně používaný"
+        "label": "Aktuálně používaný",
+        "help": "Pokud je zaškrtnuto, tak je tento časový řez aktuálně používaný, jako zdroj dat nadřazeného smluvního vztahu (hodnoty vztahu jsou zkopírované z tohoto řezu)."
       },
       "code": "Kód řezu",
       "id": "$t(entity.IdentityContract.id)",

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.joda.time.LocalDate;
@@ -26,41 +27,87 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	private IdmIdentityContractService contractService;
 
 	@Override
-	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto currentSlice, List<IdmContractSliceDto> slices) {
+	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto currentSlice,
+			List<IdmContractSliceDto> slices) {
 		Assert.notNull(currentSlice, "Contract slice cannot be null!");
 		Assert.notNull(currentSlice.getIdentity());
 		Assert.notNull(slices);
-		
+
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		// Contract reuses audit fields from slice
 		EntityUtils.copyAuditFields(currentSlice, contract);
-		
-		// Get valid interval of whole contract
-		LocalDate minValidFrom = slices.stream().filter(s -> s.getValidFrom() != null)
-				.map(IdmIdentityContractDto::getValidFrom).min(LocalDate::compareTo).orElse(null);
-		LocalDate maxValidTill = slices.stream().filter(s -> s.getValidTill() != null)
-				.map(IdmIdentityContractDto::getValidTill).max(LocalDate::compareTo).orElse(null);
 
-		contract.setIdentity(currentSlice.getIdentity());
-		contract.setMain(currentSlice.isMain());
-		contract.setPosition(currentSlice.getPosition());
-		contract.setWorkPosition(currentSlice.getWorkPosition());
-		contract.setRealmId(currentSlice.getRealmId());
-		contract.setState(currentSlice.getState());
-		contract.setTrimmed(currentSlice.isTrimmed());
-		contract.setValidFrom(minValidFrom);
-		contract.setValidTill(maxValidTill);
-		contract.setExterne(currentSlice.isExterne());
-		contract.setDescription(currentSlice.getDescription());
+		// Get valid interval of whole contract
+		recalculateContractValidity(contract, slices);
+
+		convertSliceToContract(currentSlice, contract);
 		// Create contract
 		return contractService.save(contract);
 	}
 
 	@Override
-	public IdmIdentityContractDto updateContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
-		// TODO Auto-generated method stub
-		return null;
+	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
+			List<IdmContractSliceDto> slices) {
+		Assert.notNull(slice, "Contract slice cannot be null!");
+		Assert.notNull(slice.getIdentity());
+		Assert.notNull(slice.getId(), "Contract slice have to be created!");
+		Assert.notNull(slices);
+
+		// Get valid interval of whole contract (update on change of any contract's slice)
+		recalculateContractValidity(contract, slices);
+		
+		// Slice is sets as 'is using as contract', we will update all attributes
+		if (slice.isUsingAsContract()) {
+			convertSliceToContract(slice, contract);
+		}
+		// Create contract
+		return contractService.save(contract);
 	}
-	
+
+	/**
+	 * Recalculate time validity for whole contract (from all given slices)
+	 * 
+	 * @param contract
+	 * @param slices
+	 */
+	@Override
+	public void recalculateContractValidity(IdmIdentityContractDto contract, List<IdmContractSliceDto> slices) {
+		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
+
+		IdmContractSliceDto minValidFromSlice = slices.stream().filter(s -> s.getValidFrom() != null)
+				.min(comparatorValidFrom).orElse(null);
+		IdmContractSliceDto maxValidFromSlice = slices.stream().filter(s -> s.getValidFrom() != null)
+				.max(comparatorValidFrom).orElse(null);
+
+		// Contract is valid from minimum of all 'validFrom' slices
+		LocalDate validFrom = minValidFromSlice != null ? minValidFromSlice.getValidFrom() : null;
+		// Contract is valid till date getting from the slice (validTill) with max of
+		// 'validFrom' (last slice)
+		LocalDate validTill = maxValidFromSlice != null ? maxValidFromSlice.getValidTill() : null;
+		contract.setValidFrom(validFrom);
+		contract.setValidTill(validTill);
+	}
+
+	/**
+	 * Convert slice to the contract (does not save changes)
+	 * 
+	 * @param slice
+	 * @param contract
+	 * @param validFrom
+	 *            of whole contract
+	 * @param validTill
+	 *            of whole contract
+	 */
+	private void convertSliceToContract(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
+		contract.setIdentity(slice.getIdentity());
+		contract.setMain(slice.isMain());
+		contract.setPosition(slice.getPosition());
+		contract.setWorkPosition(slice.getWorkPosition());
+		contract.setRealmId(slice.getRealmId());
+		contract.setState(slice.getState());
+		contract.setTrimmed(slice.isTrimmed());
+		contract.setExterne(slice.isExterne());
+		contract.setDescription(slice.getDescription());
+	}
 
 }

@@ -20,6 +20,8 @@ public interface IdmContractSliceService extends
 		ScriptEnabled {
 	
 
+	public final String SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT = "skip-create-or-update-parent-contract";
+
 	/**
 	 * Returns working positions for given identity
 	 * 

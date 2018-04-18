@@ -1992,7 +1992,8 @@
         "edit": {
           "title": "Time slice of contracted position detail",
           "header": "{{position}} <small>time slice of contracted position detail</small>",
-          "success": "Time slice of contracted position [{{position}}] successfully saved."
+          "success": "Time slice of contracted position [{{position}}] successfully saved.",
+          "notEditable": "Time slices cannot be editing or adding manually."
         },
         "create": {
           "title": "New time slice of contracted position",
@@ -2738,7 +2739,8 @@
       "contractCode": "Code of contract relationship",
       "code": "Code of slice",
       "usingAsContract": {
-        "label": "Currently used"
+        "label": "Currently used",
+        "help": "If checked, this time slot is currently used as the source of the parent contract (the values on the parent contract are copied from this slice)."
       },
       "id": "$t(entity.IdentityContract.id)",
       "treeType": "$t(entity.IdentityContract.treeType)",

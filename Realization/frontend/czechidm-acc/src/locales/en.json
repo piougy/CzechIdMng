@@ -796,7 +796,8 @@
     "systemEntity": "Linked entity in system",
     "uid": "Account identifier",
     "inProtection": "Is protected from delete",
-    "endOfProtection": "Protected until"
+    "endOfProtection": "Protected until",
+    "targetEntity": "Target entity"
   },
     "IdentityAccount": {
       "_type": "Identity account in system",

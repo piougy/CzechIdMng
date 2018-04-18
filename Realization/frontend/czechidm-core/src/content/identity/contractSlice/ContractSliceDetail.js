@@ -163,13 +163,17 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 data={entityFormData}
                 showLoading={ _showLoading || showLoading }
                 uiKey={uiKey}
-                readOnly>
+                readOnly={!canSave}>
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
                 <Basic.TextField
                   ref="contractCode"
                   label={this.i18n('entity.ContractSlice.contractCode')}/>
+                <Basic.Checkbox
+                  ref="usingAsContract"
+                  label={this.i18n('entity.ContractSlice.usingAsContract.label')}
+                  helpBlock={this.i18n('entity.ContractSlice.usingAsContract.help')}/>
                 <Basic.SelectBox
                   ref="parentContract" useFirst={Utils.Entity.isNew(entity)}
                   manager={identityContractManager}
@@ -245,7 +249,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 showLoading={ _showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={false}
+                rendered={canSave}
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

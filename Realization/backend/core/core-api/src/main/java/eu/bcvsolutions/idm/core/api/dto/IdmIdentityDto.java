@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -63,7 +64,9 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private boolean disabled;
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
-	
+	@JsonProperty(access = Access.READ_ONLY)
+	private DateTime blockLoginDate = null;
+
 	public IdmIdentityDto() {
 	}
 	
@@ -194,5 +197,13 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	
 	public void setState(IdentityState state) {
 		this.state = state;
+	}
+
+	public DateTime getBlockLoginDate() {
+		return blockLoginDate;
+	}
+
+	public void setBlockLoginDate(DateTime blockLoginDate) {
+		this.blockLoginDate = blockLoginDate;
 	}
 }

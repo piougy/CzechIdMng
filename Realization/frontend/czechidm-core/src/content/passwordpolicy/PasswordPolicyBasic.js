@@ -26,7 +26,8 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     };
     if (this._getIsNew()) {
       this.state = {
-        validateType: true
+        validateType: true,
+        defaultPolicy: false
       };
     }
   }
@@ -46,8 +47,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         passwordLengthRequired: true,
         upperCharRequired: true,
         lowerCharRequired: true,
-        numberRequired: true,
-        defaultPolicy: false
+        numberRequired: true
       }));
     } else {
       this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
@@ -82,6 +82,10 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
 
       this.refs.form.setData(loadedEntity);
       this.refs.name.focus();
+
+      this.setState({
+        defaultPolicy: loadedEntity.defaultPolicy
+      });
     }
   }
 
@@ -183,19 +187,21 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     }
   }
 
-  _changeDefaultPolicy(value, event) {
-    if (event) {
-      event.preventDefault();
+  _changeDefaultPolicy(event) {
+    if (event && event.currentTarget) {
+      const checked = event.currentTarget.checked;
+      this.setState({
+        defaultPolicy: checked
+      });
     }
-    const entity = this.refs.form.getData();
-    this.setState({
-      defaultPolicy: entity.defaultPolicy
-    });
   }
 
   render() {
     const { uiKey, entity, isNew } = this.props;
     const { showLoading, validateType, defaultPolicy } = this.state;
+    //
+    const showDefaultAdvanced = validateType && defaultPolicy;
+    //
     return (
       <form onSubmit={this.save.bind(this, 'SAVE')}>
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
@@ -305,10 +311,26 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
               <Basic.TextField
                 ref="maxHistorySimilar"
                 type="number"
-                hidden={(validateType && defaultPolicy)}
+                hidden={!showDefaultAdvanced}
                 validation={ Utils.Ui.getIntegerValidation() }
                 helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                 label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
+
+              <Basic.TextField
+                ref="blockLoginTime"
+                type="number"
+                hidden={!showDefaultAdvanced}
+                validation={ Utils.Ui.getIntegerValidation() }
+                helpBlock={this.i18n('entity.PasswordPolicy.help.blockLoginTime')}
+                label={this.i18n('entity.PasswordPolicy.blockLoginTime')} />
+
+              <Basic.TextField
+                ref="maxUnsuccessfulAttempts"
+                type="number"
+                hidden={!showDefaultAdvanced}
+                validation={ Utils.Ui.getIntegerValidation() }
+                helpBlock={this.i18n('entity.PasswordPolicy.help.maxUnsuccessfulAttempts')}
+                label={this.i18n('entity.PasswordPolicy.maxUnsuccessfulAttempts')} />
             </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} className="noBorder">

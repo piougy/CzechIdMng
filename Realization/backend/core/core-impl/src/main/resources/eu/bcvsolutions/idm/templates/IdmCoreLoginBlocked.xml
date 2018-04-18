@@ -1,0 +1,43 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Password expiration warning message
+
+parameters:
+	-	username
+	-	after
+	-	unsuccessfulAttempts
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>loginBlocked</code>
+	<name>Login is blocked</name>
+	<subject>CzechIdM - login blocked</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>Dobrý den,<br />
+pro vaše uživatelské jméno <b>$username</b> byl překročen počet neúspěšných pokusů o přihlášení. Aktuální počet neúspěšných pokusů o přihlášení: <b>$unsuccessfulAttempts</b><br />
+Zkuste se přihlásit znovu po <b>$after</b>.
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+Hello,<br />
+for your username <b>$username</b> has been exceeded the number of unsuccessful logon attempts. Current number of unsuccessful login attempts: <b>$unsuccessfulAttempts</b><br />
+Try signing up after <b>$after</b>.
+<br />
+<br />
+Regards BCV Solutions Ltd.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>username, after, unsuccessfulAttempts</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

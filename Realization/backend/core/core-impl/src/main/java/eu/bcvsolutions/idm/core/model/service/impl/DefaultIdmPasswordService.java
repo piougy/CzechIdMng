@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -11,14 +12,17 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordHistoryDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
@@ -38,15 +42,18 @@ public class DefaultIdmPasswordService
 
 	private final IdmPasswordRepository repository;
 	private final IdmPasswordHistoryService passwordHistoryService;
+	private final LookupService lookupService;
 
 	@Autowired
 	public DefaultIdmPasswordService(IdmPasswordRepository repository,
 									 IdmPasswordPolicyRepository policyRepository,
-									 IdmPasswordHistoryService passwordHistoryService) {
+									 IdmPasswordHistoryService passwordHistoryService,
+									 LookupService lookupService) {
 		super(repository);
 		//
 		this.repository = repository;
 		this.passwordHistoryService = passwordHistoryService;
+		this.lookupService = lookupService;
 	}
 	
 	@Override
@@ -81,7 +88,7 @@ public class DefaultIdmPasswordService
 		// set valid from now
 		passwordDto.setValidFrom(new LocalDate());
 		//
-		passwordDto.setPassword(this.generateHash(password, getSalt(identity)));
+		passwordDto.setPassword(this.generateHash(password, getSalt()));
 		//
 		// set must change password to false
 		passwordDto.setMustChange(false);
@@ -120,6 +127,10 @@ public class DefaultIdmPasswordService
 
 	@Override
 	public boolean checkPassword(GuardedString passwordToCheck, IdmPasswordDto password) {
+		// with null password cannot be identity authenticate
+		if (password.getPassword() == null) {
+			return false;
+		}
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
 
@@ -130,6 +141,11 @@ public class DefaultIdmPasswordService
 
 	@Override
 	public String getSalt(IdmIdentityDto identity) {
+		return this.getSalt();
+	}
+	
+	@Override
+	public String getSalt() {
 		return BCrypt.gensalt(12);
 	}
 
@@ -137,8 +153,7 @@ public class DefaultIdmPasswordService
 	public void increaseUnsuccessfulAttempts(String username) {
 		IdmPasswordDto passwordDto = getPasswordByIdentityUsername(username);
 		if (passwordDto != null) {
-			passwordDto.increaseUnsuccessfulAttempts();
-			passwordDto = save(passwordDto);
+			passwordDto = increaseUnsuccessfulAttempts(passwordDto);
 		}
 	}
 
@@ -146,11 +161,49 @@ public class DefaultIdmPasswordService
 	public void setLastSuccessfulLogin(String username) {
 		IdmPasswordDto passwordDto = getPasswordByIdentityUsername(username);
 		if (passwordDto != null) {
-			passwordDto.setLastSuccessfulLogin(new DateTime());
-			passwordDto.resetUnsuccessfulAttempts();
-			passwordDto = save(passwordDto);
+			passwordDto = setLastSuccessfulLogin(passwordDto);
 		}
 	}
+	
+	@Override
+	public IdmPasswordDto increaseUnsuccessfulAttempts(IdmPasswordDto passwordDto) {
+		Assert.notNull(passwordDto, "Password DTO cannot be null!");
+		passwordDto.increaseUnsuccessfulAttempts();
+		return save(passwordDto);
+	}
+
+	@Override
+	public IdmPasswordDto setLastSuccessfulLogin(IdmPasswordDto passwordDto) {
+		Assert.notNull(passwordDto, "Password DTO cannot be null!");
+		passwordDto.setLastSuccessfulLogin(new DateTime());
+		passwordDto.resetUnsuccessfulAttempts();
+		passwordDto.setBlockLoginDate(null);
+		return save(passwordDto);
+	}
+	
+	@Override
+	public IdmPasswordDto findOrCreateByIdentity(Serializable identificator) {
+		IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identificator);
+		//
+		if (identityDto == null) {
+			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
+		}
+		//
+		UUID identityId = identityDto.getId();
+		IdmPasswordDto passwordDto = this.findOneByIdentity(identityId);
+		//
+		if (passwordDto != null) {
+			return passwordDto;
+		}
+		//
+		passwordDto = new IdmPasswordDto();
+		passwordDto.setIdentity(identityId);
+		passwordDto.setMustChange(false);
+		passwordDto.setValidFrom(new LocalDate());
+		//
+		return passwordDto;
+	}
+
 
 	/**
 	 * Method get IdmIdentityPassword by identity.

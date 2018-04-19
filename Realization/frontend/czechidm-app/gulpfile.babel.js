@@ -127,10 +127,19 @@ gulp.task('makeProductModules', () => {
   .pipe(vfs.symlink('./czechidm-modules', {useJunctions: true}));
 });
 
+/**
+ * Function print stdout to util.log
+ */
 function printCommandLineOutput(err, stdout) {
   util.log(stdout);
 }
 
+/**
+ * Gulp task for relase module.
+ * Has two parameters:
+ * --releaseVersion (may not be defined)
+ * --developmentVersion
+ */
 gulp.task('release', () => {
   // prepare arguments from comand line
   const argv = yargs.argv;

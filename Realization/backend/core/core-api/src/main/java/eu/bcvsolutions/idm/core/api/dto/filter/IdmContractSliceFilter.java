@@ -19,6 +19,8 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 	private UUID parentContract; // Internal relation on the main identity-contract
 	private String contractCode; // Identifier for the main contract.
 	private String code; // Identifier of the slice
+	private Boolean shouldBeUsingAsContract; // Return slices if are valid (for now). Checks only time validity.
+	private Boolean usingAsContract; // Slice is use as contract (boolean)
 	
 	public IdmContractSliceFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -66,6 +68,22 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 
 	public void setParentContract(UUID parentContract) {
 		this.parentContract = parentContract;
+	}
+
+	public Boolean getShouldBeUsingAsContract() {
+		return shouldBeUsingAsContract;
+	}
+
+	public void setShouldBeUsingAsContract(Boolean shouldBeUsingAsContract) {
+		this.shouldBeUsingAsContract = shouldBeUsingAsContract;
+	}
+
+	public Boolean getUsingAsContract() {
+		return usingAsContract;
+	}
+
+	public void setUsingAsContract(Boolean usingAsContract) {
+		this.usingAsContract = usingAsContract;
 	}
 	
 }

@@ -80,8 +80,8 @@ public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmCo
 		}
 		event.setContent(slice);
 		
-		UUID originalParentContract = originalSlice.getParentContract();
-		if (originalSlice != null && !Objects.equal(originalParentContract, slice.getParentContract())) {
+		if (originalSlice != null && !Objects.equal(originalSlice.getParentContract(), slice.getParentContract())) {
+			UUID originalParentContract = originalSlice.getParentContract();
 			//Parent contract was changed ... we need recalculate parent contract for original slice
 			if(originalParentContract != null) {
 				IdmIdentityContractDto contract = contractService.get(originalParentContract);
@@ -149,7 +149,8 @@ public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmCo
 				IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice, slices);
 				slice.setParentContract(contract.getId());
 				
-				return service.saveInternal(slice);
+				IdmContractSliceDto savedSlice = service.saveInternal(slice);
+				return savedSlice;
 			} else {
 				// We found and link on existed contract. We have to do update this contract by slice.
 				slice.setParentContract(parentContractId);

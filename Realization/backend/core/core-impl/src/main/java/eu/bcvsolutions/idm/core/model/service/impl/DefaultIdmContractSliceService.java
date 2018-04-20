@@ -158,6 +158,34 @@ public class DefaultIdmContractSliceService
 		if (filter.getCode() != null) {
 			predicates.add(builder.equal(root.get(IdmContractSlice_.code), filter.getCode()));
 		}
+		if (filter.getUsingAsContract() != null) {
+			predicates.add(builder.equal(root.get(IdmContractSlice_.usingAsContract), filter.getUsingAsContract()));
+		}
+		if (filter.getShouldBeUsingAsContract() != null) {
+			if (filter.getShouldBeUsingAsContract()) {
+				final LocalDate today = LocalDate.now();
+				predicates.add(
+						builder.and(
+								builder.or(
+										builder.lessThanOrEqualTo(root.get(IdmContractSlice_.validFrom), today),
+										builder.isNull(root.get(IdmContractSlice_.validFrom))
+										),
+								builder.or(
+										builder.greaterThanOrEqualTo(root.get(IdmContractSlice_.validTill), today),
+										builder.isNull(root.get(IdmContractSlice_.validTill))
+										)
+								)								
+						);
+			}else {
+				final LocalDate today = LocalDate.now();
+				predicates.add(
+						builder.or(
+								builder.greaterThan(root.get(IdmContractSlice_.validFrom), today),
+								builder.lessThan(root.get(IdmContractSlice_.validTill), today)
+								)
+						);
+			}
+		}
 		
 		// property, if is property filled and it isn't find in defined properties return disjunction
 		boolean exitsProperty = filter.getProperty() == null ? true : false;
@@ -187,4 +215,3 @@ public class DefaultIdmContractSliceService
 	}
 
 }
-

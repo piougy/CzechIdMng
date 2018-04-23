@@ -262,6 +262,10 @@ public class EntityUtils {
 		if (value != null && String.class.equals(parameterClass) && !(value instanceof String)) {
 			value = String.valueOf(value);
 		}
+		// When is target LocalDate and value not, then we try create instance of LocalDate first
+		if (value != null && LocalDate.class.equals(parameterClass) && !(value instanceof LocalDate)) {
+			value = new LocalDate(value);
+		}
 		if (value != null && !parameterClass.isAssignableFrom(value.getClass()) && !(value.getClass().isPrimitive() || parameterClass.isPrimitive())) {
 			throw new IllegalAccessException(
 					MessageFormat.format("Wrong type of value [{0}]. Value must be instance of [{1}] type, but has type [{2}]!",

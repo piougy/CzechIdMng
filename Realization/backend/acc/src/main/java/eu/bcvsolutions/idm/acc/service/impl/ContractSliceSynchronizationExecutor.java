@@ -243,7 +243,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			entity = sliceService.get(entityId);
 		}
 		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -297,7 +297,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		List<AccContractSliceAccountDto> entityAccounts = contractAccoutnService
 				.find((AccContractSliceAccountFilter) entityAccountFilter, null).getContent();
 		if (entityAccounts.isEmpty()) {
-			addToItemLog(logItem, "Contract-account relation was not found!");
+			addToItemLog(logItem, "Warning! - Contract-account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

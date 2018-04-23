@@ -239,7 +239,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			treeNode = treeNodeService.get(entityId);
 		}
 		if (treeNode == null) {
-			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Tree account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -382,7 +382,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 			return;
 		} else {
-			addToItemLog(logItem, "Tree - account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Tree - account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -406,7 +406,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		treeAccountFilter.setAccountId(account.getId());
 		List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
 		if (treeAccounts.isEmpty()) {
-			addToItemLog(logItem, "Tree account relation was not found!");
+			addToItemLog(logItem, "Warning! - Tree account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -444,7 +444,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			treeNode = treeNodeService.get(entityId);
 		}
 		if (treeNode == null) {
-			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Tree account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

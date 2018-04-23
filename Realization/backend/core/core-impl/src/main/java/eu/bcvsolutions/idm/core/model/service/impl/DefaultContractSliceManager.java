@@ -2,8 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.Comparator;
 import java.util.List;
-
-import javax.persistence.EntityManager;
+import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +37,15 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	private IdmIdentityContractService contractService;
 	@Autowired
 	private IdmContractSliceService contractSliceService;
-	@Autowired
-	private EntityManager entityManager;
 
 	@Override
 	@Transactional
-	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice,
-			List<IdmContractSliceDto> slices) {
+	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
 		Assert.notNull(slices);
+		Assert.isTrue(slice.isUsingAsContract(),
+				"When new contract is created, then this slice have to be sets as 'Is using as contract'!");
 
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		// Contract reuses audit fields from slice
@@ -57,7 +55,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		recalculateContractValidity(contract, slices);
 		// Previous slice will be valid till starts of validity next slice
 		updateValidTillOnPreviousSlice(slice, slices);
-
 		convertSliceToContract(slice, contract);
 		// Create contract
 		return contractService.save(contract);
@@ -67,7 +64,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Transactional
 	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
 			List<IdmContractSliceDto> slices) {
-		
+
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
 		Assert.notNull(slice.getId(), "Contract slice have to be created!");
@@ -87,13 +84,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		return contractService.save(contract);
 	}
 
-	/**
-	 * Update validity till on previous slice. Previous slice will be valid till
-	 * starts of validity next slice.
-	 * 
-	 * @param slice
-	 * @param slices
-	 */
 	@Override
 	@Transactional
 	public void updateValidTillOnPreviousSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
@@ -102,7 +92,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		if (slice.getValidFrom() == null) {
 			return;
 		}
- 
+
 		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		IdmContractSliceDto previousSlice = slices.stream() //
 				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
@@ -117,22 +107,34 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, previousSlice,
 				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
 	}
-	
 
-	/**
-	 * Recalculate time validity for whole contract (from all given slices)
-	 * 
-	 * @param contract
-	 * @param slices
-	 */
+	@Override
+	@Transactional
+	public IdmContractSliceDto findNextSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
+		Assert.notNull(slice, "Contract slice cannot be null!");
+		Assert.notNull(slices);
+		if (slice.getValidFrom() == null) {
+			return null;
+		}
+
+		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
+		return slices.stream() //
+				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
+						&& s.getValidFrom().isAfter(slice.getValidFrom())) //
+				.min(comparatorValidFrom) //
+				.orElse(null); //
+	}
+
 	@Override
 	@Transactional
 	public void recalculateContractValidity(IdmIdentityContractDto contract, List<IdmContractSliceDto> slices) {
 		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 
-		IdmContractSliceDto minValidFromSlice = slices.stream().filter(s -> s.getValidFrom() != null)
+		IdmContractSliceDto minValidFromSlice = slices.stream() //
+				.filter(s -> s.getValidFrom() != null) //
 				.min(comparatorValidFrom).orElse(null);
-		IdmContractSliceDto maxValidFromSlice = slices.stream().filter(s -> s.getValidFrom() != null)
+		IdmContractSliceDto maxValidFromSlice = slices.stream() //
+				.filter(s -> s.getValidFrom() != null) //
 				.max(comparatorValidFrom).orElse(null);
 
 		// Contract is valid from minimum of all 'validFrom' slices
@@ -145,12 +147,73 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	}
 
 	@Override
+	@Transactional
 	public Page<IdmContractSliceDto> findUnvalidSlices(Pageable page) {
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 		sliceFilter.setShouldBeUsingAsContract(Boolean.TRUE);
 		sliceFilter.setUsingAsContract(Boolean.FALSE);
-		
+
 		return contractSliceService.find(sliceFilter, page);
+	}
+
+	@Override
+	@Transactional
+	public void setSliceAsCurrentlyUsing(IdmContractSliceDto slice) {
+		// Only one slice can be marked as 'is using as contract' (for one parent
+		// contract)
+		if (slice.getParentContract() != null) {
+			// Find other slices with this contract and marked "is using as contract"
+			// (usually should be returned only one)
+			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+			sliceFilter.setParentContract(slice.getParentContract());
+			sliceFilter.setUsingAsContract(Boolean.TRUE);
+			List<IdmContractSliceDto> otherSlices = contractSliceService.find(sliceFilter, null).getContent();
+
+			// To all this slices (exclude itself) set "using as contract" on false
+			otherSlices.stream().filter(s -> !s.equals(slice)).forEach(s -> {
+				s.setUsingAsContract(false);
+				// We want only save data, not update contract by slice
+				contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s,
+						ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
+			});
+		}
+		slice.setUsingAsContract(true);
+		// Copy to contract is ensures the save slice processor. We have to only set
+		// attribute 'Is using as contract' to true.
+		contractSliceService.save(slice);
+	}
+
+	@Override
+	@Transactional
+	public IdmContractSliceDto findValidSlice(UUID contractId) {
+		Assert.notNull(contractId, "Contract is mandatory!");
+
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setShouldBeUsingAsContract(Boolean.TRUE);
+		sliceFilter.setParentContract(contractId);
+
+		// First try found valid slice
+		List<IdmContractSliceDto> validSlices = contractSliceService.find(sliceFilter, null).getContent();
+		if (!validSlices.isEmpty()) {
+			return validSlices.get(0);
+		}
+
+		// None valid slice exists, now we found all slices
+		sliceFilter.setShouldBeUsingAsContract(null);
+		List<IdmContractSliceDto> slices = contractSliceService.find(sliceFilter, null).getContent();
+		// We does not have any slices for this contract
+		if (slices.isEmpty()) {
+			return null;
+		}
+
+		LocalDate now = LocalDate.now();
+		// Try to find the nearest slice in future
+		IdmContractSliceDto resultSlice = slices.stream().filter(slice -> now.isBefore(slice.getValidFrom()))
+				.min(Comparator.comparing(IdmContractSliceDto::getValidFrom)).orElse(null);
+		if (resultSlice != null) {
+			return resultSlice;
+		}
+		return null;
 	}
 
 	/**
@@ -174,5 +237,4 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contract.setExterne(slice.isExterne());
 		contract.setDescription(slice.getDescription());
 	}
-
 }

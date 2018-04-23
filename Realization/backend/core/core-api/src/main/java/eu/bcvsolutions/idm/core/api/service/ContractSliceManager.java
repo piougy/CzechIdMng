@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,5 +45,33 @@ public interface ContractSliceManager {
 	 * @return
 	 */
 	Page<IdmContractSliceDto> findUnvalidSlices(Pageable page);
+
+	/**
+	 * Sets this slice as it is currently using. It means, this slice will be marked
+	 * "As currently using" and others slices will be unmarked. Slices will be
+	 * copied to the parent contract.
+	 * 
+	 * @param slice
+	 */
+	void setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
+
+	/**
+	 * Find next valid slice for that contract. First find valid slice for now. Then
+	 * find the nearest slice valid in future. If none slice will be found, then
+	 * return null.
+	 * 
+	 * @param contract
+	 * @return
+	 */
+	IdmContractSliceDto findValidSlice(UUID contractId);
+
+	/**
+	 * Find next slice for given slice
+	 * 
+	 * @param slice
+	 * @param slices
+	 * @return
+	 */
+	IdmContractSliceDto findNextSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices);
 
 }

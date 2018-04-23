@@ -149,7 +149,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			identity = identityService.get(entityId);
 		}
 		if (identity == null) {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! -Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -176,7 +176,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			identity = identityService.get(entityId);
 		}
 		if (identity == null) {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -281,7 +281,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 			return;
 		} else {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -306,7 +306,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService
 				.find((AccIdentityAccountFilter) identityAccountFilter, null).getContent();
 		if (identityAccounts.isEmpty()) {
-			addToItemLog(logItem, "Identity account relation was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

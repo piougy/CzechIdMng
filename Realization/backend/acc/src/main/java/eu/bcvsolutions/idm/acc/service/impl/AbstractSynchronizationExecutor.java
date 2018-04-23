@@ -1332,7 +1332,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			return;
 		} else {
-			addToItemLog(logItem, "Entity-account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity-account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -2093,7 +2093,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entity = this.getEntityByAccount(account.getId());
 		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

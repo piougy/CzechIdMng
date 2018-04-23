@@ -121,7 +121,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			entity = roleService.get(entityId);
 		}
 		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -164,7 +164,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		List<AccRoleAccountDto> roleAccounts = roleAccoutnService
 				.find((AccRoleAccountFilter) roleAccountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
-			addToItemLog(logItem, "Role account relation was not found!");
+			addToItemLog(logItem, "Warning! - Role account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

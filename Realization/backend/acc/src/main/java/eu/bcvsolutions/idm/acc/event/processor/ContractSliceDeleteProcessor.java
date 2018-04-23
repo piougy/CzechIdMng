@@ -9,13 +9,13 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractSliceAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.event.processor.ContractSliceProcessor;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
@@ -27,12 +27,12 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
 @Component("accContractSliceDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
 public class ContractSliceDeleteProcessor
-		extends CoreEventProcessor<IdmIdentityContractDto> 
-		implements IdentityContractProcessor {
+		extends CoreEventProcessor<IdmContractSliceDto> 
+		implements ContractSliceProcessor {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ContractSliceDeleteProcessor.class);
 	
-	public static final String PROCESSOR_NAME = "contract-delete-processor";
+	public static final String PROCESSOR_NAME = "contract-slice-delete-processor";
 	private final AccContractSliceAccountService entityAccountService;
 	
 	@Autowired
@@ -51,7 +51,7 @@ public class ContractSliceDeleteProcessor
 	}
 
 	@Override
-	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
+	public EventResult<IdmContractSliceDto> process(EntityEvent<IdmContractSliceDto> event) {
 
 		// delete relations on account (includes delete of account	)
 		AccContractSliceAccountFilter filter = new AccContractSliceAccountFilter();

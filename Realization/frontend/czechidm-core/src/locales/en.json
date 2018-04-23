@@ -634,6 +634,7 @@
     },
     "IdentityAttributeEnum": {
       "USERNAME": "User name (String)",
+      "EXTERNAL_CODE": "Personal number (String)",
       "DISABLED": "Disabled (boolean)",
       "FIRSTNAME": "First name (String)",
       "LASTNAME": "Surname (String)",
@@ -1067,7 +1068,7 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, surname, name, e-mail or note"
+          "placeholder": "Username, personal number, surname, name, e-mail or note"
         },
         "organization": {
           "label": "Org. structure",
@@ -1669,6 +1670,7 @@
         "title": "My profile",
         "userDetail": "User details",
         "username": "$t(entity.Identity.username)",
+        "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
         "email": {
@@ -2401,6 +2403,7 @@
     "Identity": {
       "_type": "User",
       "username": "Login",
+      "externalCode": "Personal number",
       "firstName": "First name",
       "lastName": "Surname",
       "email": "E-mail",

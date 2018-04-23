@@ -265,6 +265,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
           <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
           <Advanced.Column property="firstName" width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
+          <Advanced.Column property="externalCode" width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={_ .includes(columns, 'email') }/>
           <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={ _.includes(columns, 'disabled') }/>
           <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={ _.includes(columns, 'state') }/>
@@ -321,7 +322,7 @@ IdentityTable.propTypes = {
 };
 
 IdentityTable.defaultProps = {
-  columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'state', 'description'],
+  columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'disabled', 'state', 'description'],
   filterOpened: false,
   showAddButton: true,
   showDetailButton: true,

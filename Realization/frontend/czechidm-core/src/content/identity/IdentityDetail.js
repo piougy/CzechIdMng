@@ -120,6 +120,7 @@ class IdentityDetail extends Basic.AbstractContent {
               <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required max={255}/>
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
               <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255} />
+              <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>
 
               <Basic.Row>
                 <div className="col-lg-6">

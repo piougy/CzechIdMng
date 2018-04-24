@@ -669,7 +669,8 @@
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",
-      "systemMapping": "Název mapování"
+      "systemMapping": "Název mapování",
+      "forwardAccountManagemen": "Dopředná správa účtů"
     },
     "SystemEntity": {
       "_type": "Entita na systému",

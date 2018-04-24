@@ -193,8 +193,11 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 placeholder={systemId ? null : this.i18n('systemMapping.systemPlaceholder')}
                 readOnly={!isNew || !systemId}
                 required/>
+              <Basic.Checkbox
+                ref="forwardAccountManagemen"
+                label={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen')}/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter rendered={Utils.Entity.isNew(roleSystem)}>
+            <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}
                 showLoading={_showLoading}>

@@ -662,7 +662,8 @@
       "type": "Assign type",
       "role": "Role",
       "system": "System",
-      "systemMapping": "Mapping"
+      "systemMapping": "Mapping",
+      "forwardAccountManagemen": "Forward account management"
     },
     "SystemEntity": {
       "_type": "Entity in system",

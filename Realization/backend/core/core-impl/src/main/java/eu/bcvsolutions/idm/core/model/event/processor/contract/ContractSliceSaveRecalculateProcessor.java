@@ -29,17 +29,17 @@ import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 
 /**
- * Update contract by slice
+ * Update/recalculate contract by slice
  * 
  * @author svandav
  *
  */
 @Component
-@Description("Update contract by slice.")
-public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmContractSliceDto>
+@Description("Update/recalculate contract by slice")
+public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<IdmContractSliceDto>
 		implements ContractSliceProcessor {
 
-	public static final String PROCESSOR_NAME = "contract-slice-save-contract-processor";
+	public static final String PROCESSOR_NAME = "contract-slice-save-recalculate-processor";
 	//
 	@Autowired
 	private IdmContractSliceService service;
@@ -48,7 +48,7 @@ public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmCo
 	@Autowired
 	private IdmIdentityContractService contractService;
 
-	public ContractSliceSaveContractProcessor() {
+	public ContractSliceSaveRecalculateProcessor() {
 		super(ContractSliceEventType.UPDATE, ContractSliceEventType.CREATE, ContractSliceEventType.EAV_SAVE);
 	}
 
@@ -120,7 +120,7 @@ public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmCo
 			// slice
 			if (parentContract != null) {
 				// Find other slices for parent contract
-				List<IdmContractSliceDto> slices = findAllSlices(parentContract);
+				List<IdmContractSliceDto> slices = sliceManager.findAllSlices(parentContract);
 				if (!slices.isEmpty()) {
 					// Update validity till on previous slice
 					sliceManager.updateValidTillOnPreviousSlice(slice, slices);
@@ -161,7 +161,7 @@ public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmCo
 		if (originalSlice == null) {
 			// Slice is new, we want to set valid till by next slice
 			slice = service.get(slice.getId());
-			IdmContractSliceDto nextSlice = sliceManager.findNextSlice(slice, findAllSlices(parentContract));
+			IdmContractSliceDto nextSlice = sliceManager.findNextSlice(slice, sliceManager.findAllSlices(parentContract));
 			if (nextSlice != null) {
 				slice.setValidTill(nextSlice.getValidFrom().minusDays(1));
 				// Save with skip this processor
@@ -171,17 +171,6 @@ public class ContractSliceSaveContractProcessor extends CoreEventProcessor<IdmCo
 		}
 		event.setContent(service.get(slice.getId()));
 		return new DefaultEventResult<>(event, this);
-	}
-
-	/**
-	 * @param parentContract
-	 * @return
-	 */
-	private List<IdmContractSliceDto> findAllSlices(UUID parentContract) {
-		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-		sliceFilter.setParentContract(parentContract);
-		List<IdmContractSliceDto> slices = service.find(sliceFilter, null).getContent();
-		return slices;
 	}
 
 	private IdmContractSliceDto updateContract(IdmContractSliceDto slice) {

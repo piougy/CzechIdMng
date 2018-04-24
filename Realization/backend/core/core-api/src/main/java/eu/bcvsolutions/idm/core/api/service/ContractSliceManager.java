@@ -74,4 +74,11 @@ public interface ContractSliceManager {
 	 */
 	IdmContractSliceDto findNextSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices);
 
+	/**
+	 * Find slice for given parent contract ID
+	 * @param parentContract
+	 * @return
+	 */
+	List<IdmContractSliceDto> findAllSlices(UUID parentContract);
+
 }

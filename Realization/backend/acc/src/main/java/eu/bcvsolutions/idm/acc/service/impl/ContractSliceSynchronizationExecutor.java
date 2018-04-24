@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -118,12 +119,15 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	private final IdmLongRunningTaskService longRunningTaskService;
 	private final IdmScheduledTaskService scheduledTaskService;
 	private final IdmConfigurationService configurationService;
+	@Autowired
+	private ContractSliceManager contractSliceManager;
 
 	public final static String CONTRACT_STATE_FIELD = IdmContractSlice_.state.getName();
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
 	public final static String CONTRACT_IDENTITY_FIELD = IdmContractSlice_.identity.getName();
 	public final static String CONTRACT_WORK_POSITION_FIELD = IdmContractSlice_.workPosition.getName();
 	public final static String CONTRACT_SLICE_CONTRACT_CODE_FIELD = IdmContractSlice_.contractCode.getName();
+	public final static String CONTRACT_VALID_TILL_FIELD = IdmContractSlice_.validTill.getName();
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 	public final static String DEFAULT_TASK = "Default";
 
@@ -357,6 +361,14 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, new SyncIdentityContractDto());
 				}
 				return;
+			}
+			// Valid till attribute is sets only if is that slice last!
+			if (CONTRACT_VALID_TILL_FIELD.equals(attributeProperty) && dto.getParentContract() != null) {
+				IdmContractSliceDto nextSlice = contractSliceManager.findNextSlice(dto, contractSliceManager.findAllSlices(dto.getParentContract()));
+				if(nextSlice != null) {
+					context.getLogItem().addToLog("Warning! - Valid till field wasn't changed, because the that slice is not a last!");
+					return;
+				}
 			}
 			// Set transformed value from target system to entity
 			try {

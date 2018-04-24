@@ -21,8 +21,15 @@ import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 
 /**
  * Manager for automatic role
@@ -37,6 +44,12 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	private IdmIdentityContractService contractService;
 	@Autowired
 	private IdmContractSliceService contractSliceService;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private FormValueService<IdmIdentityContract> identityContractFormValueService;
+	@Autowired
+	private IdmIdentityContractRepository identityContractRepository;
 
 	@Override
 	@Transactional
@@ -48,8 +61,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				"When new contract is created, then this slice have to be sets as 'Is using as contract'!");
 
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
-		// Contract reuses audit fields from slice
-		EntityUtils.copyAuditFields(slice, contract);
 
 		// Get valid interval of whole contract
 		recalculateContractValidity(contract, slices);
@@ -57,7 +68,11 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		updateValidTillOnPreviousSlice(slice, slices);
 		convertSliceToContract(slice, contract);
 		// Create contract
-		return contractService.save(contract);
+		IdmIdentityContractDto savedContract = contractService.save(contract);
+		// Copy values of extended attributes
+		copyExtendedAttributes(slice, savedContract);
+
+		return savedContract;
 	}
 
 	@Override
@@ -80,8 +95,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		}
 		// Previous slice will be valid till starts of validity next slice
 		updateValidTillOnPreviousSlice(slice, slices);
-		// Create contract
-		return contractService.save(contract);
+		// Save contract
+		IdmIdentityContractDto savedContract = contractService.save(contract);
+		// Copy values of extended attributes
+		if (slice.isUsingAsContract()) {
+			copyExtendedAttributes(slice, savedContract);
+		}
+		
+		return savedContract;
 	}
 
 	@Override
@@ -216,6 +237,15 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		return null;
 	}
 
+	@Override
+	@Transactional
+	public List<IdmContractSliceDto> findAllSlices(UUID parentContract) {
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setParentContract(parentContract);
+		List<IdmContractSliceDto> slices = contractSliceService.find(sliceFilter, null).getContent();
+		return slices;
+	}
+
 	/**
 	 * Convert slice to the contract (does not save changes)
 	 * 
@@ -236,5 +266,25 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contract.setTrimmed(slice.isTrimmed());
 		contract.setExterne(slice.isExterne());
 		contract.setDescription(slice.getDescription());
+	}
+
+	/**
+	 * Copy (clone) of attribute values from slice to contract
+	 * 
+	 * @param slice
+	 * @param savedContract
+	 */
+	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto savedContract) {
+		IdmFormDefinitionDto defaultDefinition = formService.getDefinition(IdmIdentityContract.class);
+		// Load extended values for this slice
+		List<IdmFormValueDto> sliceValues = formService.getValues(slice.getId(), IdmContractSlice.class,
+				defaultDefinition);
+		sliceValues.forEach(value -> {
+			value.setOwner(identityContractRepository.findOne(savedContract.getId()));
+			// Clear audit fields
+			EntityUtils.clearAuditFields(value);
+			value.setId(null);
+			identityContractFormValueService.save(value);
+		});
 	}
 }

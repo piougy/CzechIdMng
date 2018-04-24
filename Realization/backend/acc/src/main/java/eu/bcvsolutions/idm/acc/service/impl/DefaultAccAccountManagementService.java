@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -152,11 +153,17 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			return !identityRole.isValid();
 		}).forEach(identityRole -> {
 			// Search IdentityAccounts to delete
-			identityAccountList.stream().filter(identityAccount -> {
-				return identityRole.getId().equals(identityAccount.getIdentityRole());
-			}).forEach(identityAccount -> {
-				identityAccountsToDelete.add(identityAccount);
-			});
+			
+			// Identity-account is not removed (even if that identity-role is invalid) if
+			// the role-system has enabled forward account management and identity-role will be valid in the future.
+			identityAccountList.stream() //
+					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
+					.filter(identityAccount -> identityAccount.getRoleSystem() == null || (!DtoUtils
+							.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem, SysRoleSystemDto.class)
+							.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
+					.forEach(identityAccount -> {
+						identityAccountsToDelete.add(identityAccount);
+					});
 		});
 	}
 
@@ -175,61 +182,62 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			List<AccIdentityAccountDto> identityAccountsToCreate,
 			List<AccIdentityAccountDto> identityAccountsToDelete) {
 
-		// Is role valid in this moment
-		identityRoles.stream().filter(identityRole -> {
-			return identityRole.isValid();
-		}).forEach(identityRole -> {
+		identityRoles.forEach(identityRole -> {
 
 			IdmRole role = identityRole.getRole();
 			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 			roleSystemFilter.setRoleId(role.getId());
 			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
-			roleSystems.stream().filter(roleSystem -> {
-				// Filter out identity-accounts for same role-system, account (by UID)
-				return !identityAccountList.stream().filter(identityAccount -> {
-					if (roleSystem.getId().equals(identityAccount.getRoleSystem())) {
+			// Is role valid in this moment or 
+			// role-system has enabled forward account management (identity-role have to be valid in the future)
+			roleSystems.stream()
+					.filter(roleSystem -> (identityRole.isValid() || (roleSystem.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture()))) //
+					.filter(roleSystem -> { //
+						// Filter out identity-accounts for same role-system, account (by UID)
+						return !identityAccountList.stream().filter(identityAccount -> {
+							if (roleSystem.getId().equals(identityAccount.getRoleSystem())) {
 
-						// Has identity account same uid as account?
-						String uid = generateUID(identity, roleSystem);
-						AccAccountDto account = AccIdentityAccountService.getEmbeddedAccount(identityAccount);
-						if (!uid.equals(account.getUid())) {
-							// We found identityAccount for same identity and roleSystem, but this
-							// identityAccount
-							// is link to Account with different UID. It's probably means definition of UID
-							// (transformation)\
-							// on roleSystem was changed. We have to delete this identityAccount.
-							identityAccountsToDelete.add(identityAccount);
+								// Has identity account same uid as account?
+								String uid = generateUID(identity, roleSystem);
+								AccAccountDto account = AccIdentityAccountService.getEmbeddedAccount(identityAccount);
+								if (!uid.equals(account.getUid())) {
+									// We found identityAccount for same identity and roleSystem, but this
+									// identityAccount
+									// is link to Account with different UID. It's probably means definition of UID
+									// (transformation)\
+									// on roleSystem was changed. We have to delete this identityAccount.
+									identityAccountsToDelete.add(identityAccount);
+								}
+							}
+							return false;
+						}).findFirst().isPresent();
+
+					}).forEach(roleSystem -> {
+						// For this system we have to create new account
+						UUID accountId = createAccountByRoleSystem(identity, roleSystem, identityAccountsToCreate);
+						if (accountId == null) {
+							return;
 						}
-					}
-					return false;
-				}).findFirst().isPresent();
+						// prevent to create the same identity account - method is called multi times
+						// TODO: find the better place for this check
+						if (identityAccountList.stream().filter(identityAccount -> {
+							return identityAccount.getAccount().equals(accountId)
+									&& identityRole.getId().equals(identityAccount.getIdentityRole())
+									&& roleSystem.getId().equals(identityAccount.getRoleSystem());
+						}).count() == 0) {
+							AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
+							identityAccount.setAccount(accountId);
+							identityAccount.setIdentity(identity.getId());
+							identityAccount.setIdentityRole(identityRole.getId());
+							identityAccount.setRoleSystem(roleSystem.getId());
+							// TODO: Add flag ownership to SystemRole and set here.
+							identityAccount.setOwnership(true);
 
-			}).forEach(roleSystem -> {
-				// For this system we have to create new account
-				UUID accountId = createAccountByRoleSystem(identity, roleSystem, identityAccountsToCreate);
-				if (accountId == null) {
-					return;
-				}
-				// prevent to create the same identity account - method is called multi times
-				// TODO: find the better place for this check
-				if (identityAccountList.stream().filter(identityAccount -> {
-					return identityAccount.getAccount().equals(accountId)
-							&& identityRole.getId().equals(identityAccount.getIdentityRole())
-							&& roleSystem.getId().equals(identityAccount.getRoleSystem());
-				}).count() == 0) {
-					AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
-					identityAccount.setAccount(accountId);
-					identityAccount.setIdentity(identity.getId());
-					identityAccount.setIdentityRole(identityRole.getId());
-					identityAccount.setRoleSystem(roleSystem.getId());
-					// TODO: Add flag ownership to SystemRole and set here.
-					identityAccount.setOwnership(true);
+							identityAccountsToCreate.add(identityAccount);
+						}
 
-					identityAccountsToCreate.add(identityAccount);
-				}
-
-			});
+					});
 		});
 	}
 

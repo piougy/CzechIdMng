@@ -25,6 +25,7 @@ public class SysRoleSystemDto extends AbstractDto {
 	private UUID system;
 	@Embedded(dtoClass = SysSystemMappingDto.class)
 	private UUID systemMapping;
+	private boolean forwardAccountManagemen = false;
 
 	public UUID getSystemMapping() {
 		return systemMapping;
@@ -49,5 +50,14 @@ public class SysRoleSystemDto extends AbstractDto {
 	public void setSystem(UUID system) {
 		this.system = system;
 	}
+
+	public boolean isForwardAccountManagemen() {
+		return forwardAccountManagemen;
+	}
+
+	public void setForwardAccountManagemen(boolean forwardAccountManagemen) {
+		this.forwardAccountManagemen = forwardAccountManagemen;
+	}
+	
 
 }

@@ -2741,7 +2741,7 @@
     "ContractSlice": {
       "_type": "Time slices",
       "parentContract": "Parent contract relationship",
-      "contractCode": "Code of contract relationship",
+      "externalCode": "Code of contract relationship",
       "code": "Code of slice",
       "usingAsContract": {
         "label": "Currently used",
@@ -2752,8 +2752,10 @@
       "workPosition": "$t(entity.IdentityContract.workPosition)",
       "position": "$t(entity.IdentityContract.position)",
       "identity": "$t(entity.IdentityContract.identity)",
-      "validFrom": "$t(entity.validFrom)",
-      "validTill": "$t(entity.validTill)",
+      "contractValidFrom": "$t(entity.validFrom)",
+      "contractValidTill": "$t(entity.validTill)",
+      "validFrom": "Valid from (slice)",
+      "validTill": "Valid till (slice)",
       "guarantee": "$t(entity.IdentityContract.guarantee)",
       "externe": "$t(entity.IdentityContract.externe)",
       "managers": {
@@ -2772,7 +2774,7 @@
       "state": {
         "label": "$t(entity.IdentityContract.state.label)",
         "help": "$t(entity.IdentityContract.state.help)"
-      }
+      },
     },
     "TreeNode": {
       "_type": "Tree node",

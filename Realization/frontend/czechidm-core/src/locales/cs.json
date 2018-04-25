@@ -2783,7 +2783,7 @@
     "ContractSlice": {
       "_type": "Časové řezy",
       "parentContract": "Nadřízený smluvní vztah",
-      "contractCode": "Kód smluvního vztahu",
+      "externalCode": "Kód smluvního vztahu",
       "usingAsContract": {
         "label": "Aktuálně používaný",
         "help": "Pokud je zaškrtnuto, tak je tento časový řez aktuálně používaný, jako zdroj dat nadřazeného smluvního vztahu (hodnoty vztahu jsou zkopírované z tohoto řezu)."
@@ -2794,8 +2794,10 @@
       "workPosition": "$t(entity.IdentityContract.workPosition)",
       "position": "$t(entity.IdentityContract.position)",
       "identity": "$t(entity.IdentityContract.identity)",
-      "validFrom": "$t(entity.validFrom)",
-      "validTill": "$t(entity.validTill)",
+      "contractValidFrom": "$t(entity.validFrom)",
+      "contractValidTill": "$t(entity.validTill)",
+      "validFrom": "Platnost řezu od",
+      "validTill": "Platnost řezu do",
       "guarantee": "$t(entity.IdentityContract.guarantee)",
       "externe": "$t(entity.IdentityContract.externe)",
       "managers": {

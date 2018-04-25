@@ -156,7 +156,6 @@ class ContractSliceDetail extends Basic.AbstractContent {
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
-            <Basic.Alert level="warning" rendered={canSave} text={this.i18n('edit.notEditable')}/>
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
               <Basic.AbstractForm
                 ref="form"
@@ -167,9 +166,6 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
-                <Basic.TextField
-                  ref="contractCode"
-                  label={this.i18n('entity.ContractSlice.contractCode')}/>
                 <Basic.Checkbox
                   ref="usingAsContract"
                   label={this.i18n('entity.ContractSlice.usingAsContract.label')}
@@ -190,24 +186,27 @@ class ContractSliceDetail extends Basic.AbstractContent {
                   manager={this.treeTypeManager}
                   label={this.i18n('entity.ContractSlice.treeType')}
                   onChange={this.onChangeTreeType.bind(this)}/>
-
                 <Basic.SelectBox
                   ref="workPosition"
                   manager={this.treeNodeManager}
                   label={this.i18n('entity.ContractSlice.workPosition')}
                   forceSearchParameters={forceSearchParameters}
                   hidden={treeTypeId === null}/>
-
                 <Basic.DateTimePicker
                   mode="date"
-                  ref="validFrom"
-                  label={ this.i18n('label.validFrom') }/>
-
+                  ref="contractValidFrom"
+                  label={ this.i18n('entity.ContractSlice.contractValidFrom') }/>
                 <Basic.DateTimePicker
                   mode="date"
-                  ref="validTill"
-                  label={ this.i18n('label.validTill') }/>
-
+                  ref="contractValidTill"
+                  label={ this.i18n('entity.ContractSlice.contractValidTill') }/>
+                <Basic.EnumSelectBox
+                  ref="state"
+                  enum={ ContractStateEnum }
+                  useSymbol={ false }
+                  label={ this.i18n('entity.ContractSlice.state.label') }
+                  helpBlock={ this.i18n('entity.ContractSlice.state.help') }
+                  onChange={ this.onChangeState.bind(this) }/>
                 <Basic.Checkbox
                   ref="main"
                   label={this.i18n('entity.ContractSlice.main.label')}
@@ -216,26 +215,27 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="externe"
                   label={this.i18n('entity.ContractSlice.externe')}/>
-
-                <Basic.EnumSelectBox
-                  ref="state"
-                  enum={ ContractStateEnum }
-                  useSymbol={ false }
-                  label={ this.i18n('entity.ContractSlice.state.label') }
-                  helpBlock={ this.i18n('entity.ContractSlice.state.help') }
-                  onChange={ this.onChangeState.bind(this) }/>
-
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.ContractSlice.disabled.label')}
                   helpBlock={this.i18n('entity.ContractSlice.disabled.help')}
                   readOnly />
-
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('entity.ContractSlice.description')}
                   rows={4}
                   max={1000}/>
+                <Basic.TextField
+                  ref="externalCode"
+                  label={this.i18n('entity.ContractSlice.externalCode')}/>
+                <Basic.DateTimePicker
+                  mode="date"
+                  ref="validFrom"
+                  label={ this.i18n('entity.ContractSlice.validFrom') }/>
+                <Basic.DateTimePicker
+                  mode="date"
+                  ref="validTill"
+                  label={ this.i18n('entity.ContractSlice.validTill') }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

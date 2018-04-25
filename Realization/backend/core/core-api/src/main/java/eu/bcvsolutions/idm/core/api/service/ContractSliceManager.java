@@ -23,14 +23,6 @@ public interface ContractSliceManager {
 			List<IdmContractSliceDto> slices);
 
 	/**
-	 * Recalculate time validity for whole contract (from all given slices)
-	 * 
-	 * @param contract
-	 * @param slices
-	 */
-	void recalculateContractValidity(IdmIdentityContractDto contract, List<IdmContractSliceDto> slices);
-
-	/**
 	 * Update validity till on previous slice. Previous slice will be valid till
 	 * starts of validity next slice.
 	 * 

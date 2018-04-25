@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -37,7 +38,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_contract_slice", indexes = {
 		@Index(name = "idx_idm_contract_slice_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_contract_slice_wp", columnList = "work_position_id")})
-public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, Codeable {
+public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, Codeable, ExternalCodeable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -103,8 +104,8 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "contract_code", length = DefaultFieldLengths.NAME)
-	private String contractCode; // Identifier of the main contract on the source system
+	@Column(name = "external_code", length = DefaultFieldLengths.NAME)
+	private String externalCode; // Identifier of the main contract on the source system
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
@@ -115,6 +116,14 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	@NotNull
 	@Column(name = "using_as_contract", nullable = false)
 	private boolean usingAsContract; // Is this slice actually using as the contract?
+	
+	@Audited
+	@Column(name = "contract_valid_from")
+	private LocalDate contractValidFrom;
+	
+	@Audited
+	@Column(name = "contract_valid_till")
+	private LocalDate contractValidTill;
 	
 	public IdmContractSlice() {
 	}
@@ -269,14 +278,6 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 		this.parentContract = parentContract;
 	}
 
-	public String getContractCode() {
-		return contractCode;
-	}
-
-	public void setContractCode(String contractCode) {
-		this.contractCode = contractCode;
-	}
-
 	@Override
 	public String getCode() {
 		return code;
@@ -293,6 +294,28 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	public void setUsingAsContract(boolean usingAsContract) {
 		this.usingAsContract = usingAsContract;
 	}
-	
-	
+
+	public String getExternalCode() {
+		return externalCode;
+	}
+
+	public void setExternalCode(String externalCode) {
+		this.externalCode = externalCode;
+	}
+
+	public LocalDate getContractValidFrom() {
+		return contractValidFrom;
+	}
+
+	public void setContractValidFrom(LocalDate contractValidFrom) {
+		this.contractValidFrom = contractValidFrom;
+	}
+
+	public LocalDate getContractValidTill() {
+		return contractValidTill;
+	}
+
+	public void setContractValidTill(LocalDate contractValidTill) {
+		this.contractValidTill = contractValidTill;
+	}	
 }

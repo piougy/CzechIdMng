@@ -62,10 +62,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 
-		// Get valid interval of whole contract
-		recalculateContractValidity(contract, slices);
-		// Previous slice will be valid till starts of validity next slice
-		updateValidTillOnPreviousSlice(slice, slices);
+		// Previous slice will be valid till starts of validity next slice - Remove?
+		// updateValidTillOnPreviousSlice(slice, slices);
 		convertSliceToContract(slice, contract);
 		// Create contract
 		IdmIdentityContractDto savedContract = contractService.save(contract);
@@ -85,16 +83,12 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		Assert.notNull(slice.getId(), "Contract slice have to be created!");
 		Assert.notNull(slices);
 
-		// Get valid interval of whole contract (update on change of any contract's
-		// slice)
-		recalculateContractValidity(contract, slices);
-
 		// Slice is sets as 'is using as contract', we will update all attributes
 		if (slice.isUsingAsContract()) {
 			convertSliceToContract(slice, contract);
 		}
-		// Previous slice will be valid till starts of validity next slice
-		updateValidTillOnPreviousSlice(slice, slices);
+		// Previous slice will be valid till starts of validity next slice - Remove?
+		// updateValidTillOnPreviousSlice(slice, slices);
 		// Save contract
 		IdmIdentityContractDto savedContract = contractService.save(contract);
 		// Copy values of extended attributes
@@ -144,27 +138,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 						&& s.getValidFrom().isAfter(slice.getValidFrom())) //
 				.min(comparatorValidFrom) //
 				.orElse(null); //
-	}
-
-	@Override
-	@Transactional
-	public void recalculateContractValidity(IdmIdentityContractDto contract, List<IdmContractSliceDto> slices) {
-		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
-
-		IdmContractSliceDto minValidFromSlice = slices.stream() //
-				.filter(s -> s.getValidFrom() != null) //
-				.min(comparatorValidFrom).orElse(null);
-		IdmContractSliceDto maxValidFromSlice = slices.stream() //
-				.filter(s -> s.getValidFrom() != null) //
-				.max(comparatorValidFrom).orElse(null);
-
-		// Contract is valid from minimum of all 'validFrom' slices
-		LocalDate validFrom = minValidFromSlice != null ? minValidFromSlice.getValidFrom() : null;
-		// Contract is valid till date getting from the slice (validTill) with max of
-		// 'validFrom' (last slice)
-		LocalDate validTill = maxValidFromSlice != null ? maxValidFromSlice.getValidTill() : null;
-		contract.setValidFrom(validFrom);
-		contract.setValidTill(validTill);
 	}
 
 	@Override
@@ -266,6 +239,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contract.setTrimmed(slice.isTrimmed());
 		contract.setExterne(slice.isExterne());
 		contract.setDescription(slice.getDescription());
+		contract.setValidFrom(slice.getContractValidFrom());
+		contract.setValidTill(slice.getContractValidTill());
 	}
 
 	/**

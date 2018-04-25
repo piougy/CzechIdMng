@@ -68,7 +68,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 
 			// Check if was contractCode changed, if yes, then set parentContract to
 			// null (will be recalculated)
-			if (originalSlice != null && !Objects.equal(originalSlice.getContractCode(), slice.getContractCode())) {
+			if (originalSlice != null && !Objects.equal(originalSlice.getExternalCode(), slice.getExternalCode())) {
 				slice.setParentContract(null);
 			}
 			if (originalSlice != null && !Objects.equal(originalSlice.getParentContract(), slice.getParentContract())) {
@@ -199,7 +199,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 	 */
 	private IdmContractSliceDto linkOrCreateContract(IdmContractSliceDto slice) {
 
-		String contractCode = slice.getContractCode();
+		String contractCode = slice.getExternalCode();
 		if (Strings.isNullOrEmpty(contractCode)) {
 			// Create new parent contract
 			// When new contract is created, then this slice have to be sets as "Is using as

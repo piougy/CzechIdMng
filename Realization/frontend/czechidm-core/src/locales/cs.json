@@ -663,6 +663,7 @@
     },
     "IdentityAttributeEnum": {
       "USERNAME": "Uživatelské jméno (String)",
+      "EXTERNAL_CODE": "Personální číslo (String)",
       "DISABLED": "Zakázaný (boolean)",
       "FIRSTNAME": "Jméno (String)",
       "LASTNAME": "Příjmení (String)",
@@ -1116,7 +1117,7 @@
       "title": "Uživatelé",
       "filter": {
         "name": {
-          "placeholder": "Uživatelské jméno, příjmení, jméno, email či popis"
+          "placeholder": "Uživatelské jméno, osobní číslo, příjmení, jméno, email či popis"
         },
         "organization": {
           "label": "Org. struktura",
@@ -1726,6 +1727,7 @@
         "title": "Můj profil",
         "userDetail": "Detail uživatele",
         "username": "$t(entity.Identity.username)",
+        "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
         "email": {
@@ -2503,6 +2505,7 @@
     "Identity": {
       "_type": "Uživatel",
       "username": "Uživatelské jméno",
+      "externalCode": "Osobní číslo",
       "firstName": "Jméno",
       "lastName": "Příjmení",
       "email": "Email",

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.Process;
 import org.activiti.bpmn.model.ValuedDataObject;
 import org.activiti.engine.ActivitiIllegalArgumentException;
 import org.activiti.engine.RepositoryService;
@@ -87,11 +88,11 @@ public class DefaultWorkflowProcessDefinitionService
 			query.processDefinitionCategoryLike(filter.getCategory() + '%');
 		}
 		
-		if(filter.getProcessDefinitionKey() != null) {
+		if(filter != null && filter.getProcessDefinitionKey() != null) {
 			query.processDefinitionKeyLike('%' + filter.getProcessDefinitionKey() + '%');
 		}
 		
-		if(filter.getName() != null) {
+		if(filter != null && filter.getName() != null) {
 			query.processDefinitionNameLike('%' + filter.getName() + '%');
 		}
 
@@ -190,8 +191,13 @@ public class DefaultWorkflowProcessDefinitionService
 	public List<ValuedDataObject> getDataObjects(String definitionId) {
 		Assert.notNull(definitionId);
 		BpmnModel model = repositoryService.getBpmnModel(definitionId);
-		if (model != null && model.getMainProcess() != null) {
-			return model.getMainProcess().getDataObjects();
+		if (model != null) {
+			// we must split this check to two, because sonar has problem with 
+			// call the same method on the same object redundantly 
+			Process mainProcess = model.getMainProcess();
+			if (mainProcess != null) {
+				return mainProcess.getDataObjects();
+			}
 		}
 		return null;
 	}

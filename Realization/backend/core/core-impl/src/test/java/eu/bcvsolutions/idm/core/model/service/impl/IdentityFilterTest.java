@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  *
  * @author Marek Klement
  * @author Radek Tomiška
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Transactional
@@ -395,6 +398,56 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		results = identityService.find(filter, null);
 		Assert.assertTrue(results.getTotalElements() == 1);
 		Assert.assertEquals(identity.getUsername(), results.getContent().get(0).getUsername());
+	}
+	
+	@Test
+	public void testExternalCodeFilterOne() {
+		String testExternalCode = "externalCodeTest-" + System.currentTimeMillis();
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setExternalCode(testExternalCode);
+		identity = identityService.save(identity);
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setExternalCode("nonExistingCode" + System.currentTimeMillis());
+		List<IdmIdentityDto> content = identityService.find(filter, null).getContent();
+		//
+		assertEquals(0, content.size());
+		filter.setExternalCode(testExternalCode);
+		content = identityService.find(filter, null).getContent();
+		assertEquals(1, content.size());
+		//
+		IdmIdentityDto founded = content.get(0);
+		assertEquals(testExternalCode, founded.getExternalCode());
+		assertEquals(identity.getExternalCode(), founded.getExternalCode());
+		assertEquals(identity.getId(), founded.getId());
+	}
+
+	@Test
+	public void testExternalCodeFilterMany() {
+		String testExternalCode = "externalCodeTest-" + System.currentTimeMillis();
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setExternalCode(testExternalCode);
+		identity = identityService.save(identity);
+		//
+		IdmIdentityDto identity2 = helper.createIdentity();
+		identity2.setExternalCode(testExternalCode);
+		identity2 = identityService.save(identity2);
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setExternalCode("nonExistingCode" + System.currentTimeMillis());
+		List<IdmIdentityDto> content = identityService.find(filter, null).getContent();
+		//
+		assertEquals(0, content.size());
+		filter.setExternalCode(testExternalCode);
+		content = identityService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+		//
+		IdmIdentityDto founded = content.get(0);
+		IdmIdentityDto founded2 = content.get(1);
+		//
+		assertEquals(testExternalCode, founded.getExternalCode());
+		assertEquals(testExternalCode, founded2.getExternalCode());
+		assertNotEquals(founded.getId(), founded2.getId());
 	}
 
 	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){

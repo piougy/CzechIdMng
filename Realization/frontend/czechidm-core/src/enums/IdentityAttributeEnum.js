@@ -28,6 +28,9 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case this.USERNAME: {
         return 'username';
       }
+      case this.EXTERNAL_CODE: {
+        return 'externalCode';
+      }
       case this.DISABLED: {
         return 'disabled';
       }
@@ -66,6 +69,9 @@ export default class IdentityAttributeEnum extends AbstractEnum {
     switch (field) {
       case 'username': {
         return this.USERNAME;
+      }
+      case 'externalCode': {
+        return this.EXTERNAL_CODE;
       }
       case 'disabled': {
         return this.DISABLED;
@@ -113,6 +119,7 @@ export default class IdentityAttributeEnum extends AbstractEnum {
 }
 
 IdentityAttributeEnum.USERNAME = Symbol('USERNAME');
+IdentityAttributeEnum.EXTERNAL_CODE = Symbol('EXTERNAL_CODE');
 IdentityAttributeEnum.DISABLED = Symbol('DISABLED');
 IdentityAttributeEnum.FIRSTNAME = Symbol('FIRSTNAME');
 IdentityAttributeEnum.LASTNAME = Symbol('LASTNAME');

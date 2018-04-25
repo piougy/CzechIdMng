@@ -127,6 +127,67 @@ gulp.task('makeProductModules', () => {
   .pipe(vfs.symlink('./czechidm-modules', {useJunctions: true}));
 });
 
+/**
+ * Function print stdout to util.log
+ */
+function printCommandLineOutput(err, stdout) {
+  util.log(stdout);
+}
+
+/**
+ * Gulp task for relase module.
+ * Has two parameters:
+ * --releaseVersion (may not be defined)
+ * --developmentVersion
+ */
+gulp.task('release', () => {
+  // prepare arguments from comand line
+  const argv = yargs.argv;
+  const releaseVersionCommand = argv.releaseVersion === undefined ? 'npm version patch' : 'npm version ' + argv.releaseVersion;
+  const developmentVersionCommand = argv.developmentVersion === undefined ? '' : '&& npm version ' + argv.developmentVersion;
+  //
+  if (argv.releaseVersion === undefined) {
+    util.log('As release version will be used generated version');
+  } else {
+    util.log('As release version will be used version: ', util.colors.magenta(argv.releaseVersion));
+  }
+  //
+  if (argv.developmentVersion === undefined) {
+    util.log('Parameter "developmentVersion" isnt set. New development version will not be aplied.');
+  } else {
+    util.log('As new development version will be used version: ', util.colors.magenta(argv.developmentVersion));
+  }
+  //
+  // model array
+  const moduleList = [];
+  //
+  const exec = require('child_process').exec;
+  //
+  gulp.src(['../czechidm-*', '!../czechidm-app'])
+    .pipe(flatmap(function iterateModules(stream, file) {
+      const modulePathSplit = file.path.split('/');
+      const moduleName = modulePathSplit[modulePathSplit.length - 1];
+      util.log('Product module found:', moduleName);
+      // update version to release, publish and then upload version to development
+      exec(releaseVersionCommand + ' && npm publish ' + developmentVersionCommand, { cwd: file.path }, printCommandLineOutput);
+      moduleList.push(moduleName);
+      return stream;
+    })
+  )
+  .on('finish', function releaseApp() {
+    gulp.src(['../czechidm-app'])
+    .pipe(flatmap(function iterateModules(stream, file) {
+      // just safety check
+      if (file.path.endsWith('czechidm-app')) {
+        util.log('APP module will be released.');
+        //
+        exec(releaseVersionCommand + ' && npm publish ' + developmentVersionCommand, { cwd: file.path }, printCommandLineOutput);
+      }
+      return stream;
+    }));
+  });
+});
+
 gulp.task('removeAppLink', cb => {
   return rimraf('./czechidm-modules/czechidm-app', cb);
 });

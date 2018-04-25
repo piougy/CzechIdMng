@@ -181,7 +181,8 @@ public class DefaultIdmIdentityService
 					builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%")					
+					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmIdentity_.externalCode)), "%" + filter.getText().toLowerCase() + "%")
 					));
 		}
 		// Identity first name
@@ -191,6 +192,10 @@ public class DefaultIdmIdentityService
 		// Identity lastName
 		if (StringUtils.isNotEmpty(filter.getLastName())) {
 			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getLastName()));
+		}
+		// External code
+		if (StringUtils.isNotEmpty(filter.getExternalCode())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.externalCode), filter.getExternalCode()));
 		}
 		// identity with any of given role (OR)
 		List<UUID> roles = filter.getRoles();

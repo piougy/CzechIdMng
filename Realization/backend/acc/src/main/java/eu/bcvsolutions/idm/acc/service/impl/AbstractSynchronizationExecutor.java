@@ -118,6 +118,7 @@ import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.filter.impl.IcAndFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;
+import eu.bcvsolutions.idm.ic.filter.impl.IcNotFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcOrFilter;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -988,6 +989,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			allowTypes.add(IcFilterBuilder.class);
 			allowTypes.add(IcAttributeImpl.class);
 			allowTypes.add(IcAttribute.class);
+			allowTypes.add(IcNotFilter.class);
 			Object filterObj = groovyScriptService.evaluate(filterScript, variables, allowTypes);
 			if (filterObj != null && !(filterObj instanceof IcFilter)) {
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE,

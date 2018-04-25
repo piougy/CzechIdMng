@@ -175,7 +175,31 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
+
+	@Audited
+	@Column(name = "max_unsuccessful_attempts")
+	private Integer maxUnsuccessfulAttempts;
+
+	@Audited
+	@Column(name = "block_login_time")
+	private Integer blockLoginTime;
+
+	public Integer getMaxUnsuccessfulAttempts() {
+		return maxUnsuccessfulAttempts;
+	}
 	
+	public void setMaxUnsuccessfulAttempts(Integer maxUnsuccessfulAttempts) {
+		this.maxUnsuccessfulAttempts = maxUnsuccessfulAttempts;
+	}
+
+	public Integer getBlockLoginTime() {
+		return blockLoginTime;
+	}
+
+	public void setBlockLoginTime(Integer blockLoginTime) {
+		this.blockLoginTime = blockLoginTime;
+	}
+
 	public Integer getMaxHistorySimilar() {
 		return maxHistorySimilar;
 	}

@@ -17,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mchange.util.AssertException;
-
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
@@ -33,7 +31,6 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
@@ -112,6 +109,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Transactional
 	public void testBlockLogin() throws InterruptedException {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		String testPassword = "testPassword" + System.currentTimeMillis();
@@ -174,6 +172,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void testLoginWithoutPasswordPolicy() {
 		// remove all policies
 		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyService.find(null)) {
@@ -202,6 +201,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Transactional
 	public void testBlockLoginCheckNotification() {
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
 		passwordPolicy.setName(testHelper.createName());
@@ -239,6 +239,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Transactional
 	public void testNonExistingPassword() {
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
 		passwordPolicy.setName(testHelper.createName());

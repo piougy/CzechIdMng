@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Joi from 'joi';
 import { connect } from 'react-redux';
+import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
@@ -103,15 +104,23 @@ class IdentityDetail extends Basic.AbstractContent {
     const { identity, readOnly, _permissions } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
     //
+    const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
+    //
     return (
       <div>
         <form onSubmit={this.onSave.bind(this)}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
+            <Basic.Alert
+              ref="blockLoginDate"
+              level="warning"
+              rendered={blockLoginDate !== null}
+              text={this.i18n('blockLoginDate', {date: blockLoginDate})} />
             <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required max={255}/>
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
               <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255} />
+              <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>
 
               <Basic.Row>
                 <div className="col-lg-6">

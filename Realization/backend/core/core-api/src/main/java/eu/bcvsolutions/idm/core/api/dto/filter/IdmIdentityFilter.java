@@ -89,6 +89,10 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Identity last name - exact match
 	 */
 	private String lastName;
+	/**
+	 * External code for identity
+	 */
+	private String externalCode;
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -255,6 +259,14 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
 		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
+	}
+
+	public String getExternalCode() {
+		return externalCode;
+	}
+
+	public void setExternalCode(String externalCode) {
+		this.externalCode = externalCode;
 	}
 	
 }

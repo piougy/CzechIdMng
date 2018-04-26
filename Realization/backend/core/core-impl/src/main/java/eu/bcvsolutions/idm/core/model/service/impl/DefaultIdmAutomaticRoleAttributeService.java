@@ -266,6 +266,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void processAutomaticRolesForContract(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles) {
 		// Assign new passed automatic roles (assign to default contract)
 		IdmIdentityContractDto contract = identityContractService.get(contractId);

@@ -179,13 +179,13 @@ public class DefaultIdmRoleTreeNodeService
 
 	@Override
 	public IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.addAutomaticRoles(contract, automaticRoles);
+		this.createIdentityRole(contract, automaticRoles);
 		return null;
 	}
 	
 	@Override
 	public IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.addAutomaticRoles(contract, automaticRoles);
+		this.createIdentityRole(contract, automaticRoles);
 		return null;
 	}
 
@@ -204,6 +204,22 @@ public class DefaultIdmRoleTreeNodeService
 		// @Transactional with required new - this doesn't works with processor
 		// IdentityContractCreateByAutomaticRoleProcessor (some test are not passed)
 		// original method assignAutomaticRoles has also only @Transactional without reguired new
+		createIdentityRole(contract, automaticRoles);
+	}
+
+	@Override
+	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
+		automaticRoleAttributeService.removeAutomaticRoles(identityRole);
+	}
+
+	/**
+	 * Method create identity role and start event with create
+	 * the identity role and skip check authorities.
+	 *
+	 * @param contract
+	 * @param automaticRoles
+	 */
+	private void createIdentityRole(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			// create identity role directly
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
@@ -218,10 +234,5 @@ public class DefaultIdmRoleTreeNodeService
 			event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
 			identityRoleService.publish(event);
 		}
-	}
-
-	@Override
-	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		automaticRoleAttributeService.removeAutomaticRoles(identityRole);
 	}
 }

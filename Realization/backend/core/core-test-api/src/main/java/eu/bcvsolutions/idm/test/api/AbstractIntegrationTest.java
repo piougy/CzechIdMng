@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.test.api;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -7,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -19,9 +23,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.IdmApplication;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
@@ -43,6 +53,10 @@ public abstract class AbstractIntegrationTest {
 	
 	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
+	@Autowired
+	private LookupService lookupService;
+	@Autowired
+	private ModuleService moduleService;
 	private TransactionTemplate template;
 	
 	@BeforeClass
@@ -64,6 +78,18 @@ public abstract class AbstractIntegrationTest {
 		SecurityContextHolder.getContext().setAuthentication(AuthenticationTestUtils.getSystemAuthentication(username));
 	}
 	
+	/**
+	 * User will be logged as user with all authorities without APP_ADMIN
+	 * 
+	 * @param user
+	 */
+	public void loginAsNoAdmin(String user) {
+		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
+			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
+		}).collect(Collectors.toList());
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
+	}
 	/**
 	 * Clears security context
 	 */

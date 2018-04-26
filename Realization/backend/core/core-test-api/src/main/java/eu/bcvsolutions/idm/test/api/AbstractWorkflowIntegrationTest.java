@@ -20,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
@@ -66,14 +65,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(activityBehaviorFactory);
     }
 	
-	public void loginAsNoAdmin(String user) {
-		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
-			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
-		}).collect(Collectors.toList());
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
-	}
-
 	/**
 	 * Login as user without authorities given in parameter authorities
 	 *

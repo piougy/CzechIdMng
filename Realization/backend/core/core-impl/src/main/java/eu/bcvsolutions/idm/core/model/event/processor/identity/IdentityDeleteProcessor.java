@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
@@ -55,6 +56,7 @@ public class IdentityDeleteProcessor
 	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	private final IdmContractGuaranteeService contractGuaranteeService;
 	private final IdmAuthorityChangeRepository authChangeRepository;
+	private final IdmPasswordHistoryService passwordHistoryService;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
@@ -66,7 +68,8 @@ public class IdentityDeleteProcessor
 			IdmRoleRequestService roleRequestService,
 			IdmIdentityRoleValidRequestService identityRoleValidRequestService,
 			IdmAuthorityChangeRepository authChangeRepository,
-			IdmContractGuaranteeService contractGuaranteeService) {
+			IdmContractGuaranteeService contractGuaranteeService,
+			IdmPasswordHistoryService passwordHistoryService) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -78,6 +81,7 @@ public class IdentityDeleteProcessor
 		Assert.notNull(identityRoleValidRequestService);
 		Assert.notNull(contractGuaranteeService);
 		Assert.notNull(authChangeRepository);
+		Assert.notNull(passwordHistoryService);
 		//
 		this.service = service;
 		this.passwordProcessor = passwordProcessor;
@@ -88,6 +92,7 @@ public class IdentityDeleteProcessor
 		this.identityRoleValidRequestService = identityRoleValidRequestService;
 		this.contractGuaranteeService = contractGuaranteeService;
 		this.authChangeRepository = authChangeRepository;
+		this.passwordHistoryService = passwordHistoryService;
 	}
 	
 	@Override
@@ -120,6 +125,8 @@ public class IdentityDeleteProcessor
 		});
 		// remove password
 		passwordProcessor.deletePassword(identity);
+		// delete password history for identity
+		passwordHistoryService.deleteAllByIdentity(identity.getId());
 		// set to null all notification recipients - real recipient remains (email etc.)
 		notificationRecipientRepository.clearIdentity(identity.getId());
 		// remove authorities last changed relation

@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDt
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
@@ -46,7 +47,8 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
 	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
 	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
-	
+	public static final String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
+
 	@Override
 	public String getId() {
 		return MODULE_ID;
@@ -164,6 +166,13 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmConsoleLog.NOTIFICATION_TYPE,
 				"Events (asynchronous).", 
 				null));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_LOGIN_BLOCKED, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Login is blocked.", 
+				getNotificationTemplateId(AuthenticationManager.TEMPLATE_LOGIN_IS_BLOCKED)));
 		return configs;
 	}
 	

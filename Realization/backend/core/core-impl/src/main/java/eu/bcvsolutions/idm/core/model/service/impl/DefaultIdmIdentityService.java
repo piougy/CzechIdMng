@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -45,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
@@ -92,6 +94,7 @@ public class DefaultIdmIdentityService
 	private final EntityEventManager entityEventManager;
 	private final RoleConfiguration roleConfiguration;
 	private final IdmIdentityContractService identityContractService;
+	private final IdmPasswordService passwordService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -101,7 +104,8 @@ public class DefaultIdmIdentityService
 			EntityEventManager entityEventManager,
 			IdmAuthorityChangeRepository authChangeRepository,
 			RoleConfiguration roleConfiguration,
-			IdmIdentityContractService identityContractService) {
+			IdmIdentityContractService identityContractService,
+			IdmPasswordService passwordService) {
 		super(repository, entityEventManager, formService);
 		//
 		Assert.notNull(roleService);
@@ -109,6 +113,7 @@ public class DefaultIdmIdentityService
 		Assert.notNull(authChangeRepository);
 		Assert.notNull(roleConfiguration);
 		Assert.notNull(identityContractService);
+		Assert.notNull(passwordService);
 		//
 		this.repository = repository;
 		this.roleService = roleService;
@@ -116,6 +121,7 @@ public class DefaultIdmIdentityService
 		this.entityEventManager = entityEventManager;
 		this.roleConfiguration = roleConfiguration;
 		this.identityContractService = identityContractService;
+		this.passwordService = passwordService;
 	}
 	
 	@Override
@@ -153,6 +159,13 @@ public class DefaultIdmIdentityService
 		if (dto != null && entity != null) {
 			// set state - prevent to use disabled setter
 			dto.setState(entity.getState());
+			//
+			// set information about password
+			// password cannot exist, set block login date only if active
+			IdmPasswordDto passwordDto = passwordService.findOneByIdentity(dto.getId());
+			if (passwordDto != null && passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
+				dto.setBlockLoginDate(passwordDto.getBlockLoginDate());
+			}
 		}
 		return dto;
 	}
@@ -168,7 +181,8 @@ public class DefaultIdmIdentityService
 					builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%")					
+					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmIdentity_.externalCode)), "%" + filter.getText().toLowerCase() + "%")
 					));
 		}
 		// Identity first name
@@ -178,6 +192,10 @@ public class DefaultIdmIdentityService
 		// Identity lastName
 		if (StringUtils.isNotEmpty(filter.getLastName())) {
 			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getLastName()));
+		}
+		// External code
+		if (StringUtils.isNotEmpty(filter.getExternalCode())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.externalCode), filter.getExternalCode()));
 		}
 		// identity with any of given role (OR)
 		List<UUID> roles = filter.getRoles();
@@ -315,7 +333,7 @@ public class DefaultIdmIdentityService
 				if (result.getModel() != null) {
 					boolean success = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
 					boolean failure = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name());
-					if (success || failure) {				
+					if (success || failure) {
 						IdmAccountDto resultAccount = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
 						if (!passwordChangeResults.containsKey(resultAccount.getId())) {
 							passwordChangeResults.put(resultAccount.getId(), result);

@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
@@ -31,13 +33,16 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "identities")
 @ApiModel(description = "Identity domain object")
-public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable {
+public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable, ExternalCodeable {
 
 	private static final long serialVersionUID = 1L;
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(required = true, notes = "Unique identity username. Could be used as identifier in rest endpoints")
 	private String username;	
+	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external code.")
+	private String externalCode;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private transient GuardedString password;	
@@ -63,7 +68,9 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private boolean disabled;
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
-	
+	@JsonProperty(access = Access.READ_ONLY)
+	private DateTime blockLoginDate = null;
+
 	public IdmIdentityDto() {
 	}
 	
@@ -194,5 +201,22 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	
 	public void setState(IdentityState state) {
 		this.state = state;
+	}
+
+	public DateTime getBlockLoginDate() {
+		return blockLoginDate;
+	}
+
+	public void setBlockLoginDate(DateTime blockLoginDate) {
+		this.blockLoginDate = blockLoginDate;
+	}
+
+	@Override
+	public String getExternalCode() {
+		return externalCode;
+	}
+
+	public void setExternalCode(String externalCode) {
+		this.externalCode = externalCode;
 	}
 }

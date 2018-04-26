@@ -9,7 +9,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 
 /**
- * Idetifiable by {@link Codeable} lookup
+ * Idetifiable by {@link Codeable} lookup.
+ * UUID identifier has higher priority.
  * 
  * @param <DTO> {@link BaseDto} type
  * @author Radek Tomiška

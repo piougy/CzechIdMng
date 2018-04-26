@@ -109,7 +109,6 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Transactional
 	public void testBlockLogin() throws InterruptedException {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		String testPassword = "testPassword" + System.currentTimeMillis();
@@ -169,10 +168,11 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		
 		assertNotNull(loginDto.getToken());
 		assertEquals(CoreModuleDescriptor.MODULE_ID, loginDto.getAuthenticationModule());
+		
+		passwordPolicyService.delete(passwordPolicy);
 	}
 
 	@Test
-	@Transactional
 	public void testLoginWithoutPasswordPolicy() {
 		// remove all policies
 		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyService.find(null)) {
@@ -201,7 +201,6 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Transactional
 	public void testBlockLoginCheckNotification() {
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
 		passwordPolicy.setName(testHelper.createName());
@@ -236,10 +235,11 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertTrue(message.getSubject().contains("login blocked"));
 		assertTrue(message.getHtmlMessage().contains("has been exceeded the number of unsuccessful logon attempts"));
 		assertTrue(message.getHtmlMessage().contains(identity.getUsername()));
+		
+		passwordPolicyService.delete(passwordPolicy);
 	}
 	
 	@Test
-	@Transactional
 	public void testNonExistingPassword() {
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
 		passwordPolicy.setName(testHelper.createName());
@@ -269,6 +269,8 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertNotNull(passwordDto);
 		assertNull(passwordDto.getPassword());
 		assertNotNull(passwordDto.getBlockLoginDate());
+		
+		passwordPolicyService.delete(passwordPolicy);
 	}
 	
 	private LoginDto tryLogin(String username, String password) {

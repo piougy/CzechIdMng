@@ -429,9 +429,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
    */
   _onChangeSelectOfContract(value) {
     const{detail} = this.state;
-
+    let validFrom = value ? value.validFrom : null;
+    const now = moment().utc().valueOf();
+    if (validFrom && moment(validFrom).isBefore(now)) {
+      validFrom = now;
+    }
     const entityFormData = _.merge({}, detail.entity);
-    entityFormData.validFrom = value ? value.validFrom : null;
+    entityFormData.validFrom = validFrom;
     entityFormData.identityContract = value;
     this._showDetail(entityFormData, detail.edit, detail.add);
 

@@ -211,7 +211,6 @@ class ContractSliceDetail extends Basic.AbstractContent {
                   ref="main"
                   label={this.i18n('entity.ContractSlice.main.label')}
                   helpBlock={this.i18n('entity.ContractSlice.main.help')}/>
-
                 <Basic.Checkbox
                   ref="externe"
                   label={this.i18n('entity.ContractSlice.externe')}/>

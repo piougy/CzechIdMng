@@ -33,8 +33,11 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case this.VALID_FROM: {
         return 'validFrom';
       }
-      case this.VALID_TILL: {
-        return 'validTill';
+      case this.CONTRACT_VALID_FROM: {
+        return 'contractValidFrom';
+      }
+      case this.CONTRACT_VALID_TILL: {
+        return 'contractValidTill';
       }
       case this.WORK_POSITION: {
         return 'workPosition';
@@ -58,7 +61,7 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
         return 'state';
       }
       case this.CONTRACT_CODE: {
-        return 'contractCode';
+        return 'externalCode';
       }
       default: {
         return null;
@@ -78,8 +81,11 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case 'validFrom': {
         return this.VALID_FROM;
       }
-      case 'validTill': {
-        return this.VALID_TILL;
+      case 'contractValidFrom': {
+        return this.CONTRACT_VALID_FROM;
+      }
+      case 'contratcValidTill': {
+        return this.CONTRACT_VALID_TILL;
       }
       case 'workPosition': {
         return this.WORK_POSITION;
@@ -105,7 +111,7 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case 'state': {
         return this.STATE;
       }
-      case 'contractCode': {
+      case 'externalCode': {
         return this.CONTRACT_CODE;
       }
       default: {
@@ -135,7 +141,8 @@ ContractSliceAttributeEnum.STATE = Symbol('STATE');
 ContractSliceAttributeEnum.POSITION = Symbol('POSITION');
 ContractSliceAttributeEnum.WORK_POSITION = Symbol('WORK_POSITION');
 ContractSliceAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
-ContractSliceAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
+ContractSliceAttributeEnum.CONTRACT_VALID_FROM = Symbol('CONTRACT_VALID_FROM');
+ContractSliceAttributeEnum.CONTRACT_VALID_TILL = Symbol('CONTRACT_VALID_TILL');
 ContractSliceAttributeEnum.EXTERNE = Symbol('EXTERNE');
 ContractSliceAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 ContractSliceAttributeEnum.GUARANTESS = Symbol('GUARANTESS');

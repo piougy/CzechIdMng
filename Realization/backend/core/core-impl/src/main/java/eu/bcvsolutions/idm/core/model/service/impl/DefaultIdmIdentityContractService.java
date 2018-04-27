@@ -23,14 +23,15 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
-import eu.bcvsolutions.idm.core.api.dto.IdmContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -61,6 +62,8 @@ public class DefaultIdmIdentityContractService
 	private final IdmIdentityContractRepository repository;
 	private final TreeConfiguration treeConfiguration;
 	private final IdmTreeNodeRepository treeNodeRepository;
+	@Autowired
+	private IdmContractSliceService contractSliceService;
 	
 	@Autowired
 	public DefaultIdmIdentityContractService(
@@ -91,6 +94,22 @@ public class DefaultIdmIdentityContractService
 			contract.setDisabled(dto.isDisabled()); // redundant attribute for queries
 		}
 		return contract;
+	}
+	
+	@Override
+	protected IdmIdentityContractDto toDto(IdmIdentityContract entity, IdmIdentityContractDto dto) {
+		IdmIdentityContractDto resultDto = super.toDto(entity, dto);
+		// Set attribute if that contract was created by slices
+		if(resultDto != null && resultDto.getId() != null && !resultDto.isTrimmed()) {
+			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+			sliceFilter.setParentContract(dto.getId());
+			if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
+				resultDto.setControlledBySlices(Boolean.TRUE);
+			}else {
+				resultDto.setControlledBySlices(Boolean.FALSE);
+			}
+		}
+		return resultDto;
 	}
 	
 	@Override
@@ -296,64 +315,6 @@ public class DefaultIdmIdentityContractService
 	@Override
 	public List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne) {
 		return toDtos(this.repository.findAllValidContracts(identityId, date, onlyExterne), false);
-	}
-	
-	/**
-	 * Returns contract contains validity (and current slice) for whole contract
-	 * (all time slices).
-	 * 
-	 * @param identityContractId
-	 *            - Id of any contract slice. Slices for one contract have same
-	 *            parent id.
-	 */
-	@Override
-	@Transactional
-	public IdmContractDto getFullContract(UUID identityContractId) {
-//		Assert.notNull(identityContractId);
-//		IdmIdentityContractDto slice = this.get(identityContractId);
-//		Assert.notNull(slice);
-//		UUID parent = slice.getParent() != null ? slice.getParent() : slice.getId();
-//		List<IdmIdentityContractDto> slices = this.getAllSlices(parent);
-//		IdmIdentityContractDto currentSlice = this.getCurrentSliceForDate(slices, LocalDate.now());
-//
-//		LocalDate minValidFrom = slices.stream().filter(s -> s.getValidFrom() != null)
-//				.map(IdmIdentityContractDto::getValidFrom).min(LocalDate::compareTo).orElse(null);
-//		LocalDate maxValidTill = slices.stream().filter(s -> s.getValidTill() != null)
-//				.map(IdmIdentityContractDto::getValidTill).max(LocalDate::compareTo).orElse(null);
-//		return new IdmContractDto(currentSlice, minValidFrom, maxValidTill);
-		return null;
-	}
-	
-	/**
-	 * Find first valid slice for given date
-	 * @param slices
-	 * @param date
-	 * @return
-	 */
-	private IdmIdentityContractDto getCurrentSliceForDate(List<IdmIdentityContractDto> slices, LocalDate date) {
-		if(slices == null) {
-			return null;
-		}
-		return slices.stream().filter(s -> s.isValid(date)).findFirst().orElse(null);
-	}
-
-	/**
-	 * Get all contract time slices by parent id. Result includes parent contract too.
-	 * @param parent - Id of parent slice 
-	 * @return All slices for one contract.
-	 */
-	private List<IdmIdentityContractDto> getAllSlices(UUID parent) {
-		if (parent == null) {
-			return null;
-		}
-		
-		IdmIdentityContractDto parentSlice = this.get(parent);
-		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
-		//filter.setParent(parent);
-		
-		List<IdmIdentityContractDto> slices = this.find(filter, null).getContent();
-		slices.add(parentSlice);
-		return slices;
 	}
 
 	/**

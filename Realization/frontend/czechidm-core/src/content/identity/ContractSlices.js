@@ -116,7 +116,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                   level="success"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, {})}
-                  rendered={ false && SecurityManager.hasAuthority('CONTRACTSLICE_CREATE') }> // We do not want to create slice manually
+                  rendered={ SecurityManager.hasAuthority('CONTRACTSLICE_CREATE') }>
                   <Basic.Icon value="fa:plus"/>
                   {' '}
                   {this.i18n('button.add')}

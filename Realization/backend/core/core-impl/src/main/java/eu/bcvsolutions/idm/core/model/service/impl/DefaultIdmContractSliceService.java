@@ -84,6 +84,9 @@ public class DefaultIdmContractSliceService
 							)
 					);
 		}
+		if (filter.getTreeNode() != null) {
+			predicates.add(builder.equal(root.get(IdmContractSlice_.workPosition).get(AbstractEntity_.id), filter.getTreeNode()));
+		}
 		if (filter.getIdentity() != null) {
 			predicates.add(builder.equal(root.get(IdmContractSlice_.identity).get(AbstractEntity_.id), filter.getIdentity()));
 		}

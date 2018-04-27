@@ -3714,6 +3714,10 @@
       "title": "Prvek struktury nelze odebrat",
       "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
     },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] je již použit v časových řezech pracovně právních vztahů. Před odebráním tohoto prvku upravte všechny vztahy."
+    },
     "TREE_NODE_BAD_TYPE": {
       "title": "Špatný typ prvku",
       "message": "Zvolte prosím jiný typ prvku."

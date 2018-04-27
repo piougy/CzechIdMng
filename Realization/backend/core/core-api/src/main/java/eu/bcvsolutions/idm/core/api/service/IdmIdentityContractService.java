@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
-import eu.bcvsolutions.idm.core.api.dto.IdmContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
@@ -118,10 +117,4 @@ public interface IdmIdentityContractService extends
 	 */
 	IdmIdentityContractDto getPrimeValidContract(UUID identityId);
 
-	
-	/**
-	 * Returns contract contains validity (and current slice) for whole contract (all time slices).
-	 * @param identityContractId - Id of any contract slice. Slices for one contract have same parent id. 
-	 */
-	IdmContractDto getFullContract(UUID identityContractId);
 }

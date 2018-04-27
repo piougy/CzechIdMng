@@ -2775,7 +2775,7 @@
       "state": {
         "label": "$t(entity.IdentityContract.state.label)",
         "help": "$t(entity.IdentityContract.state.help)"
-      },
+      }
     },
     "TreeNode": {
       "_type": "Tree node",
@@ -3667,6 +3667,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
       "title": "Structure element cannot be removed",
       "message": "Structure element [{{treeNode}}] is used in contracted positions. Edit all used contracted positions before removing."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
+      "title": "Structure element cannot be removed",
+      "message": "Structure element [{{treeNode}}] is used in contract slice positions. Edit all used contract slice positions before removing."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Wrong element type",

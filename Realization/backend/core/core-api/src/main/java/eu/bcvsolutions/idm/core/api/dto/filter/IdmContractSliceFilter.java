@@ -21,6 +21,7 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 	private String code; // Identifier of the slice
 	private Boolean shouldBeUsingAsContract; // Return slices if are valid (for now). Checks only time validity.
 	private Boolean usingAsContract; // Slice is use as contract (boolean)
+	private UUID treeNode;
 	
 	public IdmContractSliceFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -85,5 +86,12 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 	public void setUsingAsContract(Boolean usingAsContract) {
 		this.usingAsContract = usingAsContract;
 	}
-	
+
+	public UUID getTreeNode() {
+		return treeNode;
+	}
+
+	public void setTreeNode(UUID treeNode) {
+		this.treeNode = treeNode;
+	}
 }

@@ -757,6 +757,8 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		passwordChange.setNewPassword(new GuardedString(firstPassword));
 		passwordChange.setOldPassword(new GuardedString(thridPassword));
 		identityService.passwordChange(identity, passwordChange);
+		
+		passwordPolicyService.delete(policy);
 	}
 	
 	private void checkMaxHistorySimilarError(ResultCodeException exception, int maxHistorySettingOriginal) {

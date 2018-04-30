@@ -102,7 +102,7 @@ public class DefaultIdmIdentityContractService
 		// Set attribute if that contract was created by slices
 		if(resultDto != null && resultDto.getId() != null && !resultDto.isTrimmed()) {
 			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-			sliceFilter.setParentContract(dto.getId());
+			sliceFilter.setParentContract(resultDto.getId());
 			if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
 				resultDto.setControlledBySlices(Boolean.TRUE);
 			}else {

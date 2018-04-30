@@ -45,6 +45,10 @@ class IdentityContract extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <OrganizationPosition identity={ params.identityId }/>
+        <Basic.Alert
+          rendered={entity && entity.controlledBySlices ? true : false}
+          level="info"
+          text={this.i18n('content.identity-contract.detail.alert.controlledBySlices')}/>
 
         <Advanced.TabPanel parentId="profile-contracts" params={this.props.params}>
           {this.props.children}

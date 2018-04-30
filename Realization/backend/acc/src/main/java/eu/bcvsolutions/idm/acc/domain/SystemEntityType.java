@@ -17,19 +17,21 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
  */
 public enum SystemEntityType {
 
-	IDENTITY(IdmIdentityDto.class, true),
-	ROLE(IdmRoleDto.class,true),
-	TREE(IdmTreeNodeDto.class, true),
-	ROLE_CATALOGUE(IdmRoleCatalogueDto.class, true),
-	CONTRACT(IdmIdentityContractDto.class, false),
-	CONTRACT_SLICE(IdmContractSliceDto.class, false);
+	IDENTITY(IdmIdentityDto.class, true, true),
+	ROLE(IdmRoleDto.class,true, true),
+	TREE(IdmTreeNodeDto.class, true, true),
+	ROLE_CATALOGUE(IdmRoleCatalogueDto.class, true, false),
+	CONTRACT(IdmIdentityContractDto.class, false, true),
+	CONTRACT_SLICE(IdmContractSliceDto.class, false, true);
 
 	private Class<? extends AbstractDto> entityType;
 	private boolean supportsProvisioning;
+	private boolean supportsSync;
 
-	private SystemEntityType(Class<? extends AbstractDto> entityType, boolean supportsProvisioning) {
+	private SystemEntityType(Class<? extends AbstractDto> entityType, boolean supportsProvisioning, boolean supportsSync) {
 		this.entityType = entityType;
 		this.supportsProvisioning = supportsProvisioning;
+		this.supportsSync = supportsSync;
 	}
 
 	public Class<? extends AbstractDto> getEntityType() {
@@ -49,5 +51,10 @@ public enum SystemEntityType {
 	public boolean isSupportsProvisioning() {
 		return supportsProvisioning;
 	}
+
+	public boolean isSupportsSync() {
+		return supportsSync;
+	}
+	
 	
 }

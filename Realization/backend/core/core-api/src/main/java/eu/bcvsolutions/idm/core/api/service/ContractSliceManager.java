@@ -17,8 +17,21 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
  */
 public interface ContractSliceManager {
 
+	/**
+	 * Create contract by given slice
+	 * @param slice
+	 * @param slices
+	 * @return
+	 */
 	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices);
 
+	/**
+	 * Update contract by given slice
+	 * @param contract
+	 * @param slice
+	 * @param slices
+	 * @return
+	 */
 	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
 			List<IdmContractSliceDto> slices);
 

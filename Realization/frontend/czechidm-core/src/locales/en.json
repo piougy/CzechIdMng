@@ -2023,6 +2023,29 @@
         "error" : {
           "notFound": "Extended attributes definition for time slice of contracted position not found."
         }
+      },
+      "guarantees": {
+        "header": "Guarantees and managers",
+        "title": "Guarantees",
+        "label": "Guarantees",
+        "guarantees": {
+          "direct": "Direct guarantees <small>on this time slice</small>",
+          "byTree": "Managers <small>by tree structures</small>"
+        },
+        "edit": {
+          "title": "Guarantee detail",
+          "header": "Guarantee detail"
+        },
+        "create": {
+          "title": "Add guarantee",
+          "header": "Add guarantee"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "For time slice was successfully saved authorizer [{{record}}]"
+          }
+        }
       }
     },
     "organizations": {
@@ -3183,6 +3206,13 @@
       "guarantee": {
         "label": "Guarantee",
         "help": "Guarantee assigned to contracted position"
+      }
+    },
+    "ContractSliceGuarantee": {
+      "contractSlice": "Time slice of contract position",
+      "guarantee": {
+        "label": "Guarantee",
+        "help": "Guarantee assigned to slice of contract position"
       }
     },
     "AutomaticRoleRequest": {

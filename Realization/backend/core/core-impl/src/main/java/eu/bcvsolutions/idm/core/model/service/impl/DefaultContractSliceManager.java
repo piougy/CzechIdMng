@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,16 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
+import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -47,6 +55,10 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Autowired
 	private FormService formService;
 	@Autowired
+	private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
+	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
 	private FormValueService<IdmIdentityContract> identityContractFormValueService;
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
@@ -69,6 +81,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		IdmIdentityContractDto savedContract = contractService.save(contract);
 		// Copy values of extended attributes
 		copyExtendedAttributes(slice, savedContract);
+		// Copy guarantees
+		copyGuarantees(slice, savedContract);
 
 		return savedContract;
 	}
@@ -91,11 +105,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		// updateValidTillOnPreviousSlice(slice, slices);
 		// Save contract
 		IdmIdentityContractDto savedContract = contractService.save(contract);
-		// Copy values of extended attributes
+
 		if (slice.isUsingAsContract()) {
+			// Copy values of extended attributes
 			copyExtendedAttributes(slice, savedContract);
+			// Copy guarantees
+			copyGuarantees(slice, savedContract);
 		}
-		
+
 		return savedContract;
 	}
 
@@ -262,4 +279,60 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			identityContractFormValueService.save(value);
 		});
 	}
+
+	
+	/**
+	 * Copy guarantees from slice to contract. Modifies only diff of current and result sets.
+	 * 
+	 * @param slice
+	 * @param contract
+	 */
+	private void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
+		Assert.notNull(slice);
+		Assert.notNull(slice.getId());
+		Assert.notNull(contract);
+		Assert.notNull(contract.getId());
+
+		IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
+		guaranteeFilter.setContractSliceId(slice.getId());
+		List<IdmContractSliceGuaranteeDto> guarantees = contractSliceGuaranteeService.find(guaranteeFilter, null)
+				.getContent();
+		List<IdmContractGuaranteeDto> resultGuarantees = new ArrayList<>();
+
+		guarantees.forEach(guarantee -> {
+			IdmContractGuaranteeDto result = this.cloneGuarante(guarantee);
+			result.setIdentityContract(contract.getId());
+			resultGuarantees.add(result);
+		});
+
+		IdmContractGuaranteeFilter contractGuaranteeFilter = new IdmContractGuaranteeFilter();
+		contractGuaranteeFilter.setIdentityContractId(contract.getId());
+
+		List<IdmContractGuaranteeDto> currentGuarantees = contractGuaranteeService.find(contractGuaranteeFilter, null)
+				.getContent();
+
+		// Find and create new guarantees
+		resultGuarantees.stream().filter(guarantee -> { //
+			return !currentGuarantees.stream() //
+					.filter(cg -> guarantee.getGuarantee().equals(cg.getGuarantee())) //
+					.findFirst() //
+					.isPresent(); //
+		}).forEach(guaranteeToAdd -> contractGuaranteeService.save(guaranteeToAdd));
+
+		// Find and remove guarantees which missing in the current result set
+		currentGuarantees.stream().filter(guarantee -> { //
+			return !resultGuarantees.stream() //
+					.filter(cg -> guarantee.getGuarantee().equals(cg.getGuarantee())) //
+					.findFirst() //
+					.isPresent(); //
+		}).forEach(guaranteeToRemove -> contractGuaranteeService.delete(guaranteeToRemove));
+
+	}
+
+	private IdmContractGuaranteeDto cloneGuarante(IdmContractSliceGuaranteeDto guarantee) {
+		IdmContractGuaranteeDto result = new IdmContractGuaranteeDto();
+		result.setGuarantee(guarantee.getGuarantee());
+		return result;
+	}
+
 }

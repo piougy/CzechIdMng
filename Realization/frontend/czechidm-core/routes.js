@@ -136,6 +136,11 @@ module.exports = {
           path: 'eav',
           component: require('./src/content/identity/contractSlice/ContractSliceEav'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        },
+        {
+          path: 'guarantees',
+          component: require('./src/content/identity/contractSlice/ContractSliceGuarantees'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
         }
       ]
     },

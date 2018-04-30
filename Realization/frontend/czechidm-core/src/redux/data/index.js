@@ -41,6 +41,7 @@ import FormAttributeManager from './FormAttributeManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
 import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
+import ContractSliceGuaranteeManager from './ContractSliceGuaranteeManager';
 import NotificationRecipientManager from './NotificationRecipientManager';
 import SmsManager from './SmsManager';
 import LoggingEventManager from './LoggingEventManager';
@@ -104,7 +105,8 @@ const ManagerRoot = {
   AutomaticRoleAttributeRuleRequestManager,
   EntityEventManager,
   EntityStateManager,
-  ContractSliceManager
+  ContractSliceManager,
+  ContractSliceGuaranteeManager
 };
 
 ManagerRoot.version = '0.0.1';

@@ -129,6 +129,14 @@ module.exports = {
                     'order': 20,
                     'path': '/identity/:identityId/contract-slice/:entityId/eav',
                     'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                  },
+                  {
+                    'id': 'contract-slice-guarantees',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.guarantees.label',
+                    'order': 30,
+                    'path': '/identity/:identityId/contract-slice/:entityId/guarantees',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
                   }
                 ]
               },

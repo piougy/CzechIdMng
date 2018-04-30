@@ -8,6 +8,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -95,7 +96,11 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	public ResponseEntity<?> post(@ApiParam(value = "Record (dto).", required = true) DTO dto) {
-		return new ResponseEntity<>(toResource(postDto(dto)), HttpStatus.CREATED);
+		ResourceSupport resource = toResource(postDto(dto));
+		if (resource == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(resource, HttpStatus.CREATED);
 	}
 
 	/**

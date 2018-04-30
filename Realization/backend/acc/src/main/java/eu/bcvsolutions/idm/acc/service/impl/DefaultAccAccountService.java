@@ -28,13 +28,11 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
-import eu.bcvsolutions.idm.acc.dto.AccContractSliceAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.AccContractSliceAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
@@ -53,14 +51,12 @@ import eu.bcvsolutions.idm.acc.event.AccountEvent;
 import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -134,7 +130,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 			}
 			// Load and set target entity. For loading a target entity is using sync executor.
 			SystemEntityType entityType = newDto.getEntityType();
-			if (entityType != null) {
+			if (entityType != null && entityType.isSupportsSync()) {
 				SynchronizationEntityExecutor executor = this.getSyncExecutor(entityType);
 				UUID targetEntity = executor.getEntityByAccount(newDto.getId());
 				newDto.setTargetEntityType(entityType.getEntityType().getName());

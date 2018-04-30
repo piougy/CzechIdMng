@@ -120,8 +120,12 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
+		ResourceSupport resource = toResource(dto);
+		if (resource == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 		//
-		return new ResponseEntity<>(toResource(dto), HttpStatus.OK);
+		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 
 	/**
@@ -263,6 +267,9 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	protected ResourceSupport toResource(DTO dto) {
+		if(dto == null) { 
+			return null;
+		} 
 		Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(dto.getId()).withSelfRel();
 		Resource<DTO> resourceSupport = new Resource<DTO>(dto, selfLink);
 		return resourceSupport;

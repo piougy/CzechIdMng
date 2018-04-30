@@ -2065,6 +2065,29 @@
         "error" : {
           "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
         }
+      },
+      "guarantees": {
+        "header": "Vedoucí a garanti",
+        "title": "Vedoucí",
+        "label": "Vedoucí",
+        "guarantees": {
+          "direct": "Nastavení garanti <small>přímo pro tento časový řeze vztahu</small>",
+          "byTree": "Vedoucí <small>dle stromových struktur</small>"
+        },
+        "edit": {
+          "title": "Detail garanta",
+          "header": "Detail garanta"
+        },
+        "create": {
+          "title": "Nový garant",
+          "header": "Nový garant"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "Pro časový řez byl úspěšně uložen garant [{{record}}]"
+          }
+        }
       }
     },
     "organizations": {
@@ -3219,6 +3242,13 @@
       "state": "Stav",
       "created": "Vytvořeno",
       "modified": "Upraveno"
+    },
+    "ContractSliceGuarantee": {
+      "contractSliceId": "Časový řez právního vztahu",
+      "guarantee": {
+        "label": "Garant",
+        "help": "Garant na přímo přiřazený k časovému řezu pracovně právního vztahu"
+      }
     },
     "ContractGuarantee": {
       "identityContractId": "Pracovně právní vztah",

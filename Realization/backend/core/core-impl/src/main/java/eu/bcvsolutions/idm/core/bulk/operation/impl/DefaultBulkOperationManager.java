@@ -5,14 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +27,12 @@ import eu.bcvsolutions.idm.core.api.bulk.operation.IdmBulkOperation;
 import eu.bcvsolutions.idm.core.api.bulk.operation.dto.IdmBulkOperationDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmBulkOperationItemDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.IdmBulkOperationItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
-import eu.bcvsolutions.idm.core.model.entity.IdmBulkOperationItem;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.repository.IdmBulkOperationItemRepository;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 
@@ -58,11 +51,7 @@ public class DefaultBulkOperationManager implements BulkOperationManager {
 	@Autowired
 	private EntityManager entityManager;
 	@Autowired
-	private IdmBulkOperationItemService bulkOperationItemService;
-	@Autowired
 	private IdmIdentityService identityService;
-	@Autowired
-	private IdmBulkOperationItemRepository bulkOperationItemRepository;
 	
 	@Autowired
 	public DefaultBulkOperationManager(
@@ -146,34 +135,6 @@ public class DefaultBulkOperationManager implements BulkOperationManager {
 		List<UUID> uuids = entityManager.createQuery(cq).getResultList();
 		
 
-		DateTime test2 = new DateTime();
-		Period period = new Period( test1 , DateTime.now() ) ;
-		
-//		Session session = (Session) this.entityManager.getDelegate();
-//		Transaction tx = session.beginTransaction();
-		
-		for (UUID uuid : uuids) {
-			IdmBulkOperationItem dto = new IdmBulkOperationItem();
-			dto.setId(UUID.randomUUID());
-			dto.setEntityId(uuid);
-			dto.setOperationId(UUID.randomUUID());
-			dto.setEntityClass(IdmIdentity.class.getName());
-			
-//			session.save(dto);
-			//dto = bulkOperationItemService.save(dto);
-		}
-//
-//		tx.commit();
-//		session.close();
-		
-		bulkOperationItemRepository.save(entities)
-		
-		
-		System.out.println("###########  size: " + uuids.size() + " load time: "  + period.toString());
-		period = new Period( test2 , DateTime.now() ) ;
-		System.out.println("###########   save time: "  + period.toString());
-		
-		
 		
 //		Specification<UUID> spec = new Specification<UUID>() {
 //			@Override

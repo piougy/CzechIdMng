@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -24,11 +25,17 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "idm_tree_type", indexes = { 
 		@Index(name = "ux_tree_type_name", columnList = "name"), 
-		@Index(name = "ux_tree_type_code", columnList = "code", unique = true) 
+		@Index(name = "ux_tree_type_code", columnList = "code", unique = true),
+		@Index(name = "idx_idm_tree_type_ext_id", columnList = "external_id")
 		})
-public class IdmTreeType extends AbstractEntity implements Codeable {
+public class IdmTreeType extends AbstractEntity implements Codeable, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 	
 	@Audited
 	@NotEmpty
@@ -63,5 +70,15 @@ public class IdmTreeType extends AbstractEntity implements Codeable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

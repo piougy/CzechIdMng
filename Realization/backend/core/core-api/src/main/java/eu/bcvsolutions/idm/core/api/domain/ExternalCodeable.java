@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
 /**
- * Interface for objects that own external code/identificator or something like this.
+ * Interface for objects that own external code / identifier or something like this.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *

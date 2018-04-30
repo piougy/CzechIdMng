@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -37,15 +38,21 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_tree_node", indexes = { 
 		@Index(name = "ux_tree_node_code", columnList = "tree_type_id,code", unique = true),
 		@Index(name = "idx_idm_tree_node_parent", columnList = "parent_id"),
-		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id")
+		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id"),
+		@Index(name = "idx_idm_tree_node_ext_id", columnList = "external_id")
 })
 public class IdmTreeNode 
 		extends AbstractEntity 
-		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmForestIndexEntity, UUID>, FormableEntity, Disableable {
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmForestIndexEntity, UUID>, FormableEntity, Disableable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";
 
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
+	
 	@Audited
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
@@ -89,11 +96,6 @@ public class IdmTreeNode
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
-	
-	@Audited
-	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
-	private String externalId; // TODO: obsolete, to remove
 
 	public String getName() {
 		return name;
@@ -193,14 +195,6 @@ public class IdmTreeNode
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}
-	
-	public String getExternalId() {
-		return externalId;
-	}
-
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
-	}
 
 	/**
 	 * Return tree type code from forest tree type
@@ -236,5 +230,15 @@ public class IdmTreeNode
 		Assert.notNull(treeTypeId);
 		//
 		return String.format("%s%s", TREE_TYPE_PREFIX, treeTypeId);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

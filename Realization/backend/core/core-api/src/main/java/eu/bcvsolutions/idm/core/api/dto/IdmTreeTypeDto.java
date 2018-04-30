@@ -9,6 +9,8 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Type of tree structure
@@ -16,9 +18,13 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "treeTypes")
-public class IdmTreeTypeDto extends AbstractDto implements Codeable  {
+public class IdmTreeTypeDto extends AbstractDto implements Codeable, ExternalIdentifiable {
 
     private static final long serialVersionUID = 3883227192651419232L;
+    //
+    @Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
     @NotEmpty
     @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String code;
@@ -49,4 +55,14 @@ public class IdmTreeTypeDto extends AbstractDto implements Codeable  {
     public void setName(String name) {
         this.name = name;
     }
+    
+    @Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
+	}
 }

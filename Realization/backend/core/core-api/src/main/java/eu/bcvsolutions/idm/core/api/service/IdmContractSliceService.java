@@ -21,6 +21,7 @@ public interface IdmContractSliceService extends
 	
 
 	public final String SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT = "skip-create-or-update-parent-contract";
+	public final String FORCE_RECALCULATE_CURRENT_USING_SLICE = "force-recalculate-current-using-slice";
 
 	/**
 	 * Returns working positions for given identity

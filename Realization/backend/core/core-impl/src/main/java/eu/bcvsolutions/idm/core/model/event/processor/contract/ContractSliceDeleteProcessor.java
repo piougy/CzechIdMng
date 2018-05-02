@@ -9,12 +9,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.ContractSliceProcessor;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -36,7 +38,8 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 	private ContractSliceManager contractSliceManager;
 	@Autowired
 	private IdmIdentityContractService contractService;
-	// private final IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
+	private IdmContractSliceGuaranteeService contractGuaranteeService;
 
 	@Autowired
 	public ContractSliceDeleteProcessor(IdmContractSliceService service) {
@@ -56,33 +59,35 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 	public EventResult<IdmContractSliceDto> process(EntityEvent<IdmContractSliceDto> event) {
 		IdmContractSliceDto slice = event.getContent();
 
-		// delete contract guarantees
-		// IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
-		// filter.setIdentityContractId(contract.getId());
-		// contractGuaranteeService.find(filter, null).forEach(guarantee -> {
-		// contractGuaranteeService.delete(guarantee);
-		// });
+		// delete contract slice guarantees
+		IdmContractSliceGuaranteeFilter filter = new IdmContractSliceGuaranteeFilter();
+		filter.setContractSliceId(slice.getId());
+		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
+			contractGuaranteeService.delete(guarantee);
+		});
 
 		UUID contractId = slice.getParentContract();
 		if (contractId != null) {
 			List<IdmContractSliceDto> slices = contractSliceManager.findAllSlices(contractId);
-			if(slices.size() == 1) {
-				// This slice is last for parent contract. We will also deleted the parent contract;
+			if (slices.size() == 1) {
+				// This slice is last for parent contract. We will also deleted the parent
+				// contract;
 				contractService.deleteById(contractId);
 				// Internal delete of slice
 				service.deleteInternal(slice);
 				return new DefaultEventResult<>(event, this);
 			}
-			
+
 			// Find next slice
 			IdmContractSliceDto nextSlice = contractSliceManager.findNextSlice(slice, slices);
-			
+
 			// Internal delete of slice
 			service.deleteInternal(slice);
 
 			// If exists next slice, then update valid till on previous slice
 			if (nextSlice != null) {
-				contractSliceManager.updateValidTillOnPreviousSlice(nextSlice, contractSliceManager.findAllSlices(contractId));
+				contractSliceManager.updateValidTillOnPreviousSlice(nextSlice,
+						contractSliceManager.findAllSlices(contractId));
 			}
 
 			IdmContractSliceDto validSlice = contractSliceManager.findValidSlice(contractId);

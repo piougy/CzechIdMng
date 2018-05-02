@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,12 +124,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			return;
 		}
 
-		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
-		IdmContractSliceDto previousSlice = slices.stream() //
-				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
-						&& s.getValidFrom().isBefore(slice.getValidFrom())) //
-				.max(comparatorValidFrom) //
-				.orElse(null); //
+		IdmContractSliceDto previousSlice = this.findPreviousSlice(slice, slices);
 		if (previousSlice == null) {
 			return;
 		}
@@ -154,6 +148,23 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
 						&& s.getValidFrom().isAfter(slice.getValidFrom())) //
 				.min(comparatorValidFrom) //
+				.orElse(null); //
+	}
+	
+	@Override
+	@Transactional
+	public IdmContractSliceDto findPreviousSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
+		Assert.notNull(slice, "Contract slice cannot be null!");
+		Assert.notNull(slices);
+		if (slice.getValidFrom() == null) {
+			return null;
+		}
+
+		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
+		return slices.stream() //
+				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
+						&& s.getValidFrom().isBefore(slice.getValidFrom())) //
+				.max(comparatorValidFrom) //
 				.orElse(null); //
 	}
 

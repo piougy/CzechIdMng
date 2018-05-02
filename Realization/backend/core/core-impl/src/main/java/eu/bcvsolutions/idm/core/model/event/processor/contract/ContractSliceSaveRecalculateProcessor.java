@@ -61,24 +61,27 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 	public EventResult<IdmContractSliceDto> process(EntityEvent<IdmContractSliceDto> event) {
 		IdmContractSliceDto slice = event.getContent();
 		IdmContractSliceDto originalSlice = event.getOriginalSource();
+		boolean forceRecalculateCurrentUsingSlice = this.getBooleanProperty(
+				IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, event.getProperties());
 
 		if (slice.getIdentity() != null) {
 			UUID parentContract = slice.getParentContract();
-			// TODO: Update of contract EAV
 
 			// Check if was contractCode changed, if yes, then set parentContract to
 			// null (will be recalculated)
 			if (originalSlice != null && !Objects.equal(originalSlice.getExternalCode(), slice.getExternalCode())) {
 				slice.setParentContract(null);
+				parentContract = null; // When external code changed, link or create new contract is required
 			}
 			if (originalSlice != null && !Objects.equal(originalSlice.getParentContract(), slice.getParentContract())) {
 				slice.setParentContract(null);
+				slice.setUsingAsContract(false);
 			}
 
 			if (parentContract == null) {
 				slice = linkOrCreateContract(slice);
 			} else {
-				slice = updateContract(slice);
+				slice = updateContract(slice, parentContract);
 			}
 		}
 
@@ -91,22 +94,46 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 		}
 
 		// Recalculate on change of 'parentContract' field
+		boolean parentContractChanged = false;
 		if (originalSlice != null && !Objects.equal(originalSlice.getParentContract(), slice.getParentContract())) {
 			UUID originalParentContract = originalSlice.getParentContract();
 			// Parent contract was changed ... we need recalculate parent contract for
 			// original slice
+			parentContractChanged = true;
 			if (originalParentContract != null) {
-				IdmIdentityContractDto contract = contractService.get(originalParentContract);
+				IdmIdentityContractDto originalContract = contractService.get(originalParentContract);
 				// Find other slices for original contract
 				IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 				sliceFilter.setParentContract(originalParentContract);
-				List<IdmContractSliceDto> slices = service.find(sliceFilter, null).getContent();
-				if (!slices.isEmpty()) {
-					IdmContractSliceDto currentSlice = slices.stream().filter(s -> s.isUsingAsContract()).findFirst()
-							.orElse(null);
-					// Update original contract
-					sliceManager.updateContractBySlice(contract, currentSlice != null ? currentSlice : slices.get(0),
-							slices);
+				List<IdmContractSliceDto> originalSlices = service.find(sliceFilter, null).getContent();
+				if (!originalSlices.isEmpty()) {
+					IdmContractSliceDto originalNextSlice = sliceManager.findNextSlice(originalSlice, originalSlices);
+					IdmContractSliceDto originalSliceToUpdate = originalNextSlice; 
+					if (originalNextSlice != null) {
+						// Next slice exists, update valid-till on previous slice by that slice
+						IdmContractSliceDto originalPreviousSlice = sliceManager.findPreviousSlice(originalNextSlice,
+								originalSlices);
+						if (originalPreviousSlice != null) {
+							originalPreviousSlice.setValidTill(originalNextSlice.getValidFrom().minusDays(1));
+							originalSliceToUpdate = originalPreviousSlice;
+						}
+					} else {
+						// Next slice does not exists. I means original slice was last. Set valid-till
+						// on previous slice to null.
+						IdmContractSliceDto originalPreviousSlice = sliceManager.findPreviousSlice(originalSlice,
+								originalSlices);
+						if (originalPreviousSlice != null) {
+							originalPreviousSlice.setValidTill(null);
+							originalSliceToUpdate = originalPreviousSlice;
+						}
+					}
+					// Save with force recalculation
+					service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, originalSliceToUpdate,
+							ImmutableMap.of(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, true)));
+				} else {
+					// Parent contract was changed and old contract does not have next slice, we
+					// have to delete him.
+					contractService.delete(originalContract);
 				}
 			}
 			// Parent contract was changed, want to recalculate "Is using as contract"
@@ -114,8 +141,11 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 			recalculateUsingAsContract = true;
 		}
 
-		// Recalculate on change of 'validFrom' field
-		if (originalSlice != null && !Objects.equal(originalSlice.getValidFrom(), slice.getValidFrom())) {
+		// Recalculate the valid-till on previous slice
+		// Evaluates on change of 'validFrom' field or new slice or change the parent
+		// contract
+		if (originalSlice == null || parentContractChanged
+				|| (originalSlice != null && !Objects.equal(originalSlice.getValidFrom(), slice.getValidFrom()))) {
 			// Valid from was changed ... we have to change of validity till on previous
 			// slice
 			if (parentContract != null) {
@@ -128,20 +158,21 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 					if (nextSlice != null) {
 						LocalDate validTill = nextSlice.getValidFrom().minusDays(1);
 						// Save only if valid till is changed
-						if(slice.getValidTill() == null || !validTill.isEqual(slice.getValidTill())) {
+						if (slice.getValidTill() == null || !validTill.isEqual(slice.getValidTill())) {
 							slice.setValidTill(validTill);
-							// Save with skip this processor
-							service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-									ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
 						}
+					} else {
+						slice.setValidTill(null);
 					}
+					// Save with skip this processor
+					saveWithoutRecalculate(slice);
 				}
 			}
 			// Validity from was changed, want to recalculate "Is using as contract" field.
 			recalculateUsingAsContract = true;
 		}
 
-		if (recalculateUsingAsContract) {
+		if (recalculateUsingAsContract || forceRecalculateCurrentUsingSlice) {
 			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 			sliceFilter.setParentContract(parentContract);
 			sliceFilter.setUsingAsContract(Boolean.TRUE);
@@ -158,32 +189,31 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 			}
 		}
 
-		if (originalSlice == null) {
-			// Slice is new, we want to set valid till by next slice
-			slice = service.get(slice.getId());
-			IdmContractSliceDto nextSlice = sliceManager.findNextSlice(slice, sliceManager.findAllSlices(parentContract));
-			if (nextSlice != null) {
-				slice.setValidTill(nextSlice.getValidFrom().minusDays(1));
-				// Save with skip this processor
-				service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-						ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
-			}
-		}
 		event.setContent(service.get(slice.getId()));
 		return new DefaultEventResult<>(event, this);
 	}
 
-	private IdmContractSliceDto updateContract(IdmContractSliceDto slice) {
+	/**
+	 * Save slice without recalculate ... it means with skip this processor
+	 * 
+	 * @param slice
+	 */
+	private void saveWithoutRecalculate(IdmContractSliceDto slice) {
+		service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
+				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
+	}
+
+	private IdmContractSliceDto updateContract(IdmContractSliceDto slice, UUID parentContract) {
 		Assert.notNull(slice.getId());
-		Assert.notNull(slice.getParentContract());
+		Assert.notNull(parentContract);
 
 		// Find other slices
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-		sliceFilter.setParentContract(slice.getParentContract());
+		sliceFilter.setParentContract(parentContract);
 		sliceFilter.setIdentity(slice.getIdentity());
 		List<IdmContractSliceDto> slices = service.find(sliceFilter, null).getContent();
 
-		IdmIdentityContractDto contract = contractService.get(slice.getParentContract());
+		IdmIdentityContractDto contract = contractService.get(parentContract);
 		// Update contract by that slice
 		sliceManager.updateContractBySlice(contract, slice, slices);
 		slice.setParentContract(contract.getId());
@@ -237,7 +267,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				slice.setParentContract(parentContractId);
 				IdmContractSliceDto sliceSaved = service.saveInternal(slice);
 
-				return this.updateContract(sliceSaved);
+				return this.updateContract(sliceSaved, parentContractId);
 			}
 		}
 	}

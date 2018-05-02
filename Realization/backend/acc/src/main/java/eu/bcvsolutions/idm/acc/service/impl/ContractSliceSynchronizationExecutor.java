@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -57,11 +58,13 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -70,7 +73,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
@@ -85,6 +88,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
+import eu.bcvsolutions.idm.core.model.event.ContractSliceGuaranteeEvent;
+import eu.bcvsolutions.idm.core.model.event.ContractSliceGuaranteeEvent.ContractSliceGuaranteeEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -110,7 +115,6 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 
 	private final IdmContractSliceService sliceService;
 	private final AccContractSliceAccountService contractAccoutnService;
-	private final IdmContractGuaranteeService guaranteeService;
 	private final IdmTreeNodeService treeNodeService;
 	private final LookupService lookupService;
 	private final LongRunningTaskManager longRunningTaskManager;
@@ -120,6 +124,8 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	private final IdmConfigurationService configurationService;
 	@Autowired
 	private ContractSliceManager contractSliceManager;
+	@Autowired
+	private IdmContractSliceGuaranteeService guaranteeService;
 
 	public final static String CONTRACT_STATE_FIELD = IdmContractSlice_.state.getName();
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
@@ -141,8 +147,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
-			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService,
+			SysSchemaAttributeService schemaAttributeService, LookupService lookupService, IdmTreeNodeService treeNodeService,
 			LongRunningTaskManager longRunningTaskManager, SchedulerManager schedulerService,
 			IdmLongRunningTaskService longRunningTaskService, IdmScheduledTaskService scheduledTaskService,
 			IdmConfigurationService configurationService) {
@@ -155,7 +160,6 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		Assert.notNull(contractService, "Contract service is mandatory!");
 		Assert.notNull(contractAccoutnService, "Contract-slice-account service is mandatory!");
 		Assert.notNull(lookupService, "Lookup service is mandatory!");
-		Assert.notNull(guaranteeService, "Contract guarantee service is mandatory!");
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
 		Assert.notNull(longRunningTaskManager, "Long runing task manager is mandatory!");
 		Assert.notNull(schedulerService, "Scheduler service is mandatory!");
@@ -166,7 +170,6 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		this.sliceService = contractService;
 		this.contractAccoutnService = contractAccoutnService;
 		this.lookupService = lookupService;
-		this.guaranteeService = guaranteeService;
 		this.treeNodeService = treeNodeService;
 		this.longRunningTaskManager = longRunningTaskManager;
 		this.schedulerService = schedulerService;
@@ -609,51 +612,51 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
-		IdmContractSliceDto contract = sliceService.publish(event).getContent();
-		// TODO guarantee
-//		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
-//			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
-//					.get(SYNC_CONTRACT_FIELD);
-//			IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
-//			guaranteeFilter.setIdentityContractId(contract.getId());
-//
-//			List<IdmContractGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
-//
-//			// Search guarantees to delete
-//			List<IdmContractGuaranteeDto> guaranteesToDelete = currentGuarantees.stream().filter(sysImplementer -> {
-//				return sysImplementer.getGuarantee() != null
-//						&& !syncContract.getGuarantees().contains(new IdmIdentityDto(sysImplementer.getGuarantee()));
-//			}).collect(Collectors.toList());
-//
-//			// Search guarantees to add
-//			List<IdmIdentityDto> guaranteesToAdd = syncContract.getGuarantees().stream().filter(identity -> {
-//				return !currentGuarantees.stream().filter(currentGuarrantee -> {
-//					return identity.getId().equals(currentGuarrantee.getGuarantee());
-//				}).findFirst().isPresent();
-//			}).collect(Collectors.toList());
-//
-//			// Delete guarantees
-//			guaranteesToDelete.forEach(guarantee -> {
-//				EntityEvent<IdmContractGuaranteeDto> guaranteeEvent = new ContractGuaranteeEvent(
-//						ContractGuaranteeEventType.DELETE, guarantee,
-//						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
-//				guaranteeService.publish(guaranteeEvent);
-//			});
-//
-//			// Create new guarantees
-//			guaranteesToAdd.forEach(identity -> {
-//				IdmContractGuaranteeDto guarantee = new IdmContractGuaranteeDto();
-//				guarantee.setIdentityContract(contract.getId());
-//				guarantee.setGuarantee(identity.getId());
-//				//
-//				EntityEvent<IdmContractGuaranteeDto> guaranteeEvent = new ContractGuaranteeEvent(
-//						ContractGuaranteeEventType.CREATE, guarantee,
-//						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
-//				guaranteeService.publish(guaranteeEvent);
-//			});
-//		}
+		IdmContractSliceDto slice = sliceService.publish(event).getContent();
+		
+		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
+			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
+					.get(SYNC_CONTRACT_FIELD);
+			IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
+			guaranteeFilter.setContractSliceId(slice.getId());
+
+			List<IdmContractSliceGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
+
+			// Search guarantees to delete
+			List<IdmContractSliceGuaranteeDto> guaranteesToDelete = currentGuarantees.stream().filter(sysImplementer -> {
+				return sysImplementer.getGuarantee() != null
+						&& !syncContract.getGuarantees().contains(new IdmIdentityDto(sysImplementer.getGuarantee()));
+			}).collect(Collectors.toList());
+
+			// Search guarantees to add
+			List<IdmIdentityDto> guaranteesToAdd = syncContract.getGuarantees().stream().filter(identity -> {
+				return !currentGuarantees.stream().filter(currentGuarrantee -> {
+					return identity.getId().equals(currentGuarrantee.getGuarantee());
+				}).findFirst().isPresent();
+			}).collect(Collectors.toList());
+
+			// Delete guarantees
+			guaranteesToDelete.forEach(guarantee -> {
+				EntityEvent<IdmContractSliceGuaranteeDto> guaranteeEvent = new ContractSliceGuaranteeEvent(
+						ContractSliceGuaranteeEventType.DELETE, guarantee,
+						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				guaranteeService.publish(guaranteeEvent);
+			});
+
+			// Create new guarantees
+			guaranteesToAdd.forEach(identity -> {
+				IdmContractSliceGuaranteeDto guarantee = new IdmContractSliceGuaranteeDto();
+				guarantee.setContractSlice(slice.getId());
+				guarantee.setGuarantee(identity.getId());
+				//
+				EntityEvent<IdmContractSliceGuaranteeDto> guaranteeEvent = new ContractSliceGuaranteeEvent(
+						ContractSliceGuaranteeEventType.CREATE, guarantee,
+						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				guaranteeService.publish(guaranteeEvent);
+			});
+		}
  
-		return contract;
+		return slice;
 	}
 
 	@Override

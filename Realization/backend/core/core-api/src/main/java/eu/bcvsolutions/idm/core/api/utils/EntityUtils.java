@@ -172,16 +172,17 @@ public class EntityUtils {
 	
 	/**
 	 * Check if is string convertible to {@link UUID} 
+	 * 
 	 * @param uuid
 	 * @return true if is given string convertible to {@link UUID}
 	 */
 	public static boolean isUuid(String uuid){
-		if(uuid == null){
+		if( uuid == null){
 			return false;
 		}
-		try{
+		try {
 			UUID.fromString(uuid);
-		}catch(IllegalArgumentException ex){
+		} catch(IllegalArgumentException ex){
 			// Simple is not UUID
 			return false;
 		}

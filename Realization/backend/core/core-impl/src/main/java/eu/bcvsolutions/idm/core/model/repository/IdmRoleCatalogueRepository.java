@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.forest.index.repository.BaseForestContentRepository;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
 /**
@@ -22,7 +23,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  */
 public interface IdmRoleCatalogueRepository extends 
 		AbstractEntityRepository<IdmRoleCatalogue>, 
-		BaseForestContentRepository<IdmRoleCatalogue, UUID>  {
+		BaseForestContentRepository<IdmRoleCatalogue, UUID>,
+		ExternalIdentifiableRepository<IdmRoleCatalogue, UUID> {
 	
 	IdmRoleCatalogue findOneByCode(@Param("code") String code);
 	

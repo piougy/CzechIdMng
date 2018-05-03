@@ -2,12 +2,17 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.UUID;
 
+import javax.validation.constraints.Size;
+
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Identity contract - working position
@@ -15,10 +20,13 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Svanda
  */
 @Relation(collectionRelation = "identityContracts")
-public class IdmIdentityContractDto extends AbstractDto implements ValidableEntity {
+public class IdmIdentityContractDto extends AbstractDto implements ValidableEntity, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID identity;
 	private LocalDate validFrom;
@@ -141,4 +149,13 @@ public class IdmIdentityContractDto extends AbstractDto implements ValidableEnti
 		return ValidableEntity.super.isValidNowOrInFuture() && !isDisabled();
 	}
 
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
+	@Override
+	public String getExternalId() {
+		return externalId;
+	}
 }

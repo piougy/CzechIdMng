@@ -17,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mchange.util.AssertException;
-
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
@@ -33,7 +31,6 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
@@ -171,6 +168,8 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		
 		assertNotNull(loginDto.getToken());
 		assertEquals(CoreModuleDescriptor.MODULE_ID, loginDto.getAuthenticationModule());
+		
+		passwordPolicyService.delete(passwordPolicy);
 	}
 
 	@Test
@@ -236,6 +235,8 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertTrue(message.getSubject().contains("login blocked"));
 		assertTrue(message.getHtmlMessage().contains("has been exceeded the number of unsuccessful logon attempts"));
 		assertTrue(message.getHtmlMessage().contains(identity.getUsername()));
+		
+		passwordPolicyService.delete(passwordPolicy);
 	}
 	
 	@Test
@@ -268,6 +269,8 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertNotNull(passwordDto);
 		assertNull(passwordDto.getPassword());
 		assertNotNull(passwordDto.getBlockLoginDate());
+		
+		passwordPolicyService.delete(passwordPolicy);
 	}
 	
 	private LoginDto tryLogin(String username, String password) {

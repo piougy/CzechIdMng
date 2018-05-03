@@ -1882,6 +1882,9 @@
         },
         "button": {
           "change": "Změnit heslo"
+        },
+        "identity": {
+          "username": "$t(entity.Identity.username)"
         }
       },
       "identityRoleDetail": {

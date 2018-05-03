@@ -57,7 +57,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractIntegrationTest {
 
 	private final String TEST_NAME = "test-name-";

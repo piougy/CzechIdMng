@@ -282,7 +282,7 @@ class PasswordChange extends Basic.AbstractContent {
 
                   <Basic.TextField
                     ref="username"
-                    label={this.i18n('entity.Identity.username')}
+                    label={this.i18n('content.identity.passwordChange.identity.username')}
                     placeholder={this.i18n('entity.Identity.username')}
                     required/>
                   <Basic.TextField

@@ -1840,6 +1840,9 @@
         },
         "button": {
           "change": "Change password"
+        },
+        "identity": {
+          "username": "$t(entity.Identity.username)"
         }
       },
       "identityRoleDetail": {

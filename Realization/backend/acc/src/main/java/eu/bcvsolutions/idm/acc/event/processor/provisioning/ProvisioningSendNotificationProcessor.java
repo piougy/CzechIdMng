@@ -26,6 +26,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 
+/**
+ * Processor sends notification after success provisioning create event.
+ * Only for system entity = IDENTITY. System must has mapped attribute __PASSWORD__
+ *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @Component
 @Description("After success provisioning send notification to identity with new generate password.")
 public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {

@@ -180,7 +180,11 @@ public class DefaultIdmIdentityRoleService
 		//
 		// is automatic role
 		if (filter.getAutomaticRole() != null) {
-			predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
+			if (filter.getAutomaticRole()) {
+				predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
+			} else {
+				predicates.add(builder.isNull(root.get(IdmIdentityRole_.automaticRole)));
+			}
 		}
 		//
 		if (filter.getAutomaticRoleId() != null) {

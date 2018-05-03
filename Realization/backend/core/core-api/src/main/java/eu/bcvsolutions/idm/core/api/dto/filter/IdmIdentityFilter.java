@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
+public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable {
 	
 	/**
 	 * Identity by username
@@ -267,6 +268,16 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 
 	public void setExternalCode(String externalCode) {
 		this.externalCode = externalCode;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 	
 }

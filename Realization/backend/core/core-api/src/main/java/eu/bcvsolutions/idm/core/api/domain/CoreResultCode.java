@@ -46,6 +46,8 @@ public enum CoreResultCode implements ResultCode {
 	XSRF(HttpStatus.UNAUTHORIZED, "XSRF cookie failed."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden."),
 	FORBIDDEN_ENTITY(HttpStatus.FORBIDDEN, "Forbidden: entity [%s], permission [%s]."),
+	DUPLICATE_EXTERNAL_IDENTIFIER(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
+	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable"),
 	// data
 	SEARCH_ERROR(HttpStatus.BAD_REQUEST, "Error during searching entities. Error: %s"),
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),

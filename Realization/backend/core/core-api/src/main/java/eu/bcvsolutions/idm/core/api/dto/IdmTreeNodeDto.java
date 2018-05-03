@@ -11,6 +11,8 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Tree node dto
@@ -18,9 +20,13 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "treeNodes")
-public class IdmTreeNodeDto extends AbstractDto implements Disableable {
+public class IdmTreeNodeDto extends AbstractDto implements Disableable, ExternalIdentifiable {
 
     private static final long serialVersionUID = 1337282508070610164L;
+    //
+    @Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
     @NotEmpty
     @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String code;
@@ -106,5 +112,15 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable {
 	 */
 	public Integer getChildrenCount() {
 		return (int) ((rgt - lft) / 2);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

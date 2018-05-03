@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -51,6 +52,15 @@ public interface IdmPasswordService
 	 * @return
 	 */
 	IdmPasswordDto findOneByIdentity(String username);
+	
+	/**
+	 * Return password for given identificator (id/username), if password doesn't exist
+	 * create new empty password.
+	 *
+	 * @param identificator
+	 * @return
+	 */
+	IdmPasswordDto findOrCreateByIdentity(Serializable identificator);
 
 	/**
 	 * Check password matches a passwordToCheck
@@ -70,12 +80,24 @@ public interface IdmPasswordService
 	String generateHash(GuardedString password, String salt);
 	
 	/**
-	 * Get salt for identity
+	 * Get salt
+	 * Identity isn't needed anymore for generate salt
+	 * 
+	 * @param identity
+	 * @return
+	 * @deprecated please use {@link IdmPasswordService#getSalt()}
+	 */
+	@Deprecated
+	String getSalt(IdmIdentityDto identity);
+	
+	/**
+	 * Get salt
+	 * Identity isn't needed anymore for generate salt
 	 * 
 	 * @param identity
 	 * @return
 	 */
-	String getSalt(IdmIdentityDto identity);
+	String getSalt();
 
 	/**
 	 * If this username exists and password is incorrect -> increase count of unsuccessful attempts
@@ -90,4 +112,20 @@ public interface IdmPasswordService
 	 * @param username
 	 */
 	void setLastSuccessfulLogin(String username);
+	
+	/**
+	 * Increase count of unsuccessful attempts for given password dto
+	 *
+	 * @param username
+	 * @return updated password dto
+	 */
+	IdmPasswordDto increaseUnsuccessfulAttempts(IdmPasswordDto passwordDto);
+
+	/**
+	 * Save timestamp of login for given password dto and set block time to null
+	 * 
+	 * @param username
+	 * @return updated password dto
+	 */
+	IdmPasswordDto setLastSuccessfulLogin(IdmPasswordDto passwordDto);
 }

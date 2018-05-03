@@ -58,6 +58,8 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 	private Integer maxHistorySimilar;
 	private String identityAttributeCheck;
 	private boolean disabled = false;
+	private Integer maxUnsuccessfulAttempts;
+	private Integer blockLoginTime;
 	
 	public String getName() {
 		return name;
@@ -334,4 +336,19 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 		return rules;
 	}
 
+	public Integer getMaxUnsuccessfulAttempts() {
+		return maxUnsuccessfulAttempts;
+	}
+
+	public void setMaxUnsuccessfulAttempts(Integer maxUnsuccessfulAttempts) {
+		this.maxUnsuccessfulAttempts = maxUnsuccessfulAttempts;
+	}
+
+	public Integer getBlockLoginTime() {
+		return blockLoginTime;
+	}
+
+	public void setBlockLoginTime(Integer blockLoginTime) {
+		this.blockLoginTime = blockLoginTime;
+	}
 }

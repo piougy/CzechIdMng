@@ -1,7 +1,11 @@
 import React, { PropTypes } from 'react';
 import Joi from 'joi';
 import { connect } from 'react-redux';
+<<<<<<< HEAD
 import Helmet from 'react-helmet';
+=======
+import moment from 'moment';
+>>>>>>> develop
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -207,6 +211,8 @@ class IdentityDetail extends Basic.AbstractContent {
     const { showLoading, showLoadingIdentityTrimmed, imageUrl, deleteButton } = this.state;
     const imgSrc = imageUrl ? imageUrl : null;
     //
+    const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
+    //
     return (
       <div>
       <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -214,6 +220,11 @@ class IdentityDetail extends Basic.AbstractContent {
         <form onSubmit={this.onSave.bind(this)}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
+            <Basic.Alert
+              ref="blockLoginDate"
+              level="warning"
+              rendered={blockLoginDate !== null}
+              text={this.i18n('blockLoginDate', {date: blockLoginDate})} />
             <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.Row>
                 <div className="col-lg-3" style={{margin: '4px 0px 5px 0'}}>
@@ -243,6 +254,7 @@ class IdentityDetail extends Basic.AbstractContent {
                   <Basic.TextField ref="username" label={this.i18n('username')} required min={3} max={255} />
                   <Basic.TextField ref="firstName" label={this.i18n('firstName')} max={255} />
                   <Basic.TextField ref="lastName" label={this.i18n('lastName')} max={255} />
+                  <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>
                 </div>
               </Basic.Row>
               <Basic.Row>

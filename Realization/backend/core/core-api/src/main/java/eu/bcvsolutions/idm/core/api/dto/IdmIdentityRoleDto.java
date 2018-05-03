@@ -2,14 +2,19 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.UUID;
 
+import javax.validation.constraints.Size;
+
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * IdentityRole DTO
@@ -18,11 +23,14 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "identityRoles")
-public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
+public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = 1L;
 	public static final String PROPERTY_IDENTITY_CONTRACT = "identityContract";
 	//
+	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
     @Embedded(dtoClass = IdmIdentityContractDto.class)
     private UUID identityContract;
     @Embedded(dtoClass = IdmRoleDto.class)
@@ -98,4 +106,14 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
     public void setRoleTreeNode(UUID roleTreeNode) {
         this.roleTreeNode = roleTreeNode;
     }
+    
+    @Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
+	}
 }

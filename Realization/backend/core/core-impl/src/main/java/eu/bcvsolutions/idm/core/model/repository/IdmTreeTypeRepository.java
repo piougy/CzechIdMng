@@ -1,8 +1,11 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
@@ -12,7 +15,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeType> {
+public interface IdmTreeTypeRepository extends 
+		AbstractEntityRepository<IdmTreeType>,
+		ExternalIdentifiableRepository<IdmTreeType, UUID> {
 	
 	/**
 	 * Finds treeType by code (unique).

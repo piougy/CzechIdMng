@@ -7,6 +7,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
@@ -15,7 +16,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
  *
  * @author Radek Tomiška
  */
-public class IdmIdentityContractFilter extends DataFilter implements CorrelationFilter{
+public class IdmIdentityContractFilter 
+		extends DataFilter 
+		implements CorrelationFilter, ExternalIdentifiable {
 
 	private UUID identity;
 	private LocalDate validFrom;
@@ -130,5 +133,15 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	@Override
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

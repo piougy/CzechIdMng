@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
 public interface AuthenticationManager {
 	
+	final String TEMPLATE_LOGIN_IS_BLOCKED = "loginBlocked";
+	
 	/**
 	 * Process authenticate over all founded {@link Authenticator}
 	 * 

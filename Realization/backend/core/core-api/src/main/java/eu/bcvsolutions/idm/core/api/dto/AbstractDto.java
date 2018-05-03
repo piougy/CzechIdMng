@@ -15,8 +15,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -101,10 +103,11 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 
 	@Override
 	public void setId(Serializable id) {
-		if (id != null) {
-			Assert.isInstanceOf(UUID.class, id, "AbstractDto supports only UUID identifier. For different identifier generalize BaseEntity.");
+		try {
+			this.id = EntityUtils.toUuid(id);
+		} catch (ClassCastException ex) {
+			throw new IllegalArgumentException("AbstractDto supports only UUID identifier. For different identifier generalize BaseEntity.", ex);
 		}
-		this.id = (UUID) id;
 	}
 
 	@Override

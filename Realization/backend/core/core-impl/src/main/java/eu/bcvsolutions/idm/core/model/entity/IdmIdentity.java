@@ -33,6 +33,8 @@ import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -49,9 +51,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
  */
 @Entity
 @Table(name = "idm_identity", indexes = {
-		@Index(name = "ux_idm_identity_username", columnList = "username", unique = true) })
-public class IdmIdentity extends AbstractEntity
-	implements Codeable, FormableEntity, Disableable, AuditSearchable, AttachableEntity {
+		@Index(name = "ux_idm_identity_username", columnList = "username", unique = true),
+		@Index(name = "idx_idm_identity_external_code", columnList = "external_code"),
+		@Index(name = "idx_idm_identity_external_id", columnList = "external_id")})
+public class IdmIdentity extends AbstractEntity 
+		implements Codeable, FormableEntity, Disableable, AuditSearchable, AttachableEntity, ExternalCodeable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
@@ -60,6 +64,16 @@ public class IdmIdentity extends AbstractEntity
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false)
 	private String username;
+
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_code", length = DefaultFieldLengths.NAME)
+	private String externalCode;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 
 	@Transient // passwords are saved to confidental storage
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -284,5 +298,24 @@ public class IdmIdentity extends AbstractEntity
 	 */
 	public void setState(IdentityState state) {
 		this.state = state;
+	}
+
+	@Override
+	public String getExternalCode() {
+		return externalCode;
+	}
+
+	public void setExternalCode(String externalCode) {
+		this.externalCode = externalCode;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

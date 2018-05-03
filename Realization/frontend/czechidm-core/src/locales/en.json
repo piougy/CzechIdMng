@@ -634,6 +634,7 @@
     },
     "IdentityAttributeEnum": {
       "USERNAME": "User name (String)",
+      "EXTERNAL_CODE": "Personal number (String)",
       "DISABLED": "Disabled (boolean)",
       "FIRSTNAME": "First name (String)",
       "LASTNAME": "Surname (String)",
@@ -1067,7 +1068,7 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, surname, name, e-mail or note"
+          "placeholder": "Username, personal number, surname, name, e-mail or note"
         },
         "organization": {
           "label": "Org. structure",
@@ -1669,6 +1670,7 @@
         "title": "My profile",
         "userDetail": "User details",
         "username": "$t(entity.Identity.username)",
+        "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
         "fileRejected": "$t(entity.Identity.fileRejected)",
@@ -1690,6 +1692,7 @@
           "placeholder": "Notes to user"
         },
         "active": "Active",
+        "blockLoginDate": "Identity has a blocked login to the application due to exceeding unsuccessful login attempts. Login will be possible after {{date}}.",
         "button": {
 
         },
@@ -1827,6 +1830,9 @@
         },
         "button": {
           "change": "Change password"
+        },
+        "identity": {
+          "username": "$t(entity.Identity.username)"
         }
       },
       "identityRoleDetail": {
@@ -2406,6 +2412,7 @@
     "Identity": {
       "_type": "User",
       "username": "Login",
+      "externalCode": "Personal number",
       "firstName": "First name",
       "lastName": "Surname",
       "email": "E-mail",
@@ -2936,6 +2943,8 @@
       "enchancedControl": "Enabled",
       "minRulesToFulfill": "Minimum number of additional rules for policy",
       "maxHistorySimilar": "Number of old passwords checked for match",
+      "blockLoginTime": "Login blocking time (seconds)",
+      "maxUnsuccessfulAttempts": "Maximum number of unsuccessful login attempts",
       "lowerCharBase": "Lowercase letters",
       "upperCharBase": "Uppercase letters",
       "numberBase": "Digits",
@@ -2949,6 +2958,8 @@
         "rules": "Select which rules are required set number of how many additional rules newly created password must fulfill at least.",
         "minRulesToFulfill": "Minimum number of the requirements which password must match to be valid.",
         "maxHistorySimilar": "Number of retroactively checked passwords, which cannot be same as new.",
+        "blockLoginTime": "After entering X failed attempts, the user will be blocked from signing in.",
+        "maxUnsuccessfulAttempts": "Number of unsuccessful login attempts. Upon overrun, the user will be blocked from logging into the application.",
         "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
         "bases": "Character set allowed for password generation. Forbidden characters are excluded from sets.",
         "identityAttributeCheck": "Password may not contain any listed attributes or variations thereof.",

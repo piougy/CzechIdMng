@@ -33,6 +33,7 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     private boolean mustChange = false;
     private DateTime lastSuccessfulLogin;
     private int unsuccessfulAttempts;
+    private DateTime blockLoginDate = null;
 
     public DateTime getLastSuccessfulLogin() {
         return lastSuccessfulLogin;
@@ -99,4 +100,12 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     public void setMustChange(boolean mustChange) {
         this.mustChange = mustChange;
     }
+
+	public DateTime getBlockLoginDate() {
+		return blockLoginDate;
+	}
+
+	public void setBlockLoginDate(DateTime blockLoginDate) {
+		this.blockLoginDate = blockLoginDate;
+	}
 }

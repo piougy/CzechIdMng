@@ -156,7 +156,7 @@ public class DefaultIdmContractSliceService
 			predicates.add(builder.equal(root.get(IdmContractSlice_.parentContract).get(IdmIdentityContract_.id), filter.getParentContract()));
 		}
 		if (filter.getContractCode() != null) {
-			predicates.add(builder.equal(root.get(IdmContractSlice_.externalCode), filter.getContractCode()));
+			predicates.add(builder.equal(root.get(IdmContractSlice_.contractCode), filter.getContractCode()));
 		}
 		if (filter.getCode() != null) {
 			predicates.add(builder.equal(root.get(IdmContractSlice_.code), filter.getCode()));

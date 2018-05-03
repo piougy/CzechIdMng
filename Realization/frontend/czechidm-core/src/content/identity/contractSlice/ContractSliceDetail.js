@@ -169,6 +169,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="usingAsContract"
                   label={this.i18n('entity.ContractSlice.usingAsContract.label')}
+                  readOnly
                   helpBlock={this.i18n('entity.ContractSlice.usingAsContract.help')}/>
                 <Basic.SelectBox
                   ref="parentContract" useFirst={Utils.Entity.isNew(entity)}
@@ -225,14 +226,15 @@ class ContractSliceDetail extends Basic.AbstractContent {
                   rows={4}
                   max={1000}/>
                 <Basic.TextField
-                  ref="externalCode"
-                  label={this.i18n('entity.ContractSlice.externalCode')}/>
+                  ref="contractCode"
+                  label={this.i18n('entity.ContractSlice.contractCode')}/>
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validFrom"
                   label={ this.i18n('entity.ContractSlice.validFrom') }/>
                 <Basic.DateTimePicker
                   mode="date"
+                  readOnly
                   ref="validTill"
                   label={ this.i18n('entity.ContractSlice.validTill') }/>
               </Basic.AbstractForm>

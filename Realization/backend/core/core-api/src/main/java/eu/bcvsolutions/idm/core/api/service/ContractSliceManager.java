@@ -20,20 +20,17 @@ public interface ContractSliceManager {
 	/**
 	 * Create contract by given slice
 	 * @param slice
-	 * @param slices
 	 * @return
 	 */
-	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices);
+	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice);
 
 	/**
 	 * Update contract by given slice
 	 * @param contract
 	 * @param slice
-	 * @param slices
 	 * @return
 	 */
-	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
-			List<IdmContractSliceDto> slices);
+	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice);
 
 	/**
 	 * Update validity till on previous slice. Previous slice will be valid till
@@ -93,6 +90,14 @@ public interface ContractSliceManager {
 	 * @return
 	 */
 	List<IdmContractSliceDto> findAllSlices(UUID parentContract);
+
+	/**
+	 * Copy guarantees from slice to contract. Modifies only diff of current and result sets.
+	 * 
+	 * @param slice
+	 * @param contract
+	 */
+	void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract);
 
 
 }

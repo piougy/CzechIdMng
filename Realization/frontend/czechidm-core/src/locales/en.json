@@ -2768,7 +2768,7 @@
     "ContractSlice": {
       "_type": "Time slices",
       "parentContract": "Parent contract relationship",
-      "externalCode": "Code of contract relationship",
+      "contractCode": "Code of contract relationship",
       "code": "Code of slice",
       "usingAsContract": {
         "label": "Currently used",

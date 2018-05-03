@@ -133,9 +133,9 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
-              property="externalCode"
+              property="contractCode"
               rendered={!isOnContractDetail}
-              header={this.i18n('entity.ContractSlice.externalCode')}
+              header={this.i18n('entity.ContractSlice.contractCode')}
               sort/>
             <Advanced.Column
               property="parent"

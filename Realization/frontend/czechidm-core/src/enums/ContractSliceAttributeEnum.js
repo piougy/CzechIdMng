@@ -61,7 +61,7 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
         return 'state';
       }
       case this.CONTRACT_CODE: {
-        return 'externalCode';
+        return 'contractCode';
       }
       default: {
         return null;
@@ -111,7 +111,7 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case 'state': {
         return this.STATE;
       }
-      case 'externalCode': {
+      case 'contractCode': {
         return this.CONTRACT_CODE;
       }
       default: {

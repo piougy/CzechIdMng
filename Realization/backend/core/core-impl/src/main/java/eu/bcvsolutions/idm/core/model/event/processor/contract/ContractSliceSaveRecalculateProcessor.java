@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
@@ -69,7 +68,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 
 			// Check if was contractCode changed, if yes, then set parentContract to
 			// null (will be recalculated)
-			if (originalSlice != null && !Objects.equal(originalSlice.getExternalCode(), slice.getExternalCode())) {
+			if (originalSlice != null && !Objects.equal(originalSlice.getContractCode(), slice.getContractCode())) {
 				slice.setParentContract(null);
 				parentContract = null; // When external code changed, link or create new contract is required
 			}
@@ -211,11 +210,10 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 		sliceFilter.setParentContract(parentContract);
 		sliceFilter.setIdentity(slice.getIdentity());
-		List<IdmContractSliceDto> slices = service.find(sliceFilter, null).getContent();
 
 		IdmIdentityContractDto contract = contractService.get(parentContract);
 		// Update contract by that slice
-		sliceManager.updateContractBySlice(contract, slice, slices);
+		sliceManager.updateContractBySlice(contract, slice);
 		slice.setParentContract(contract.getId());
 		return service.saveInternal(slice);
 	}
@@ -229,13 +227,13 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 	 */
 	private IdmContractSliceDto linkOrCreateContract(IdmContractSliceDto slice) {
 
-		String contractCode = slice.getExternalCode();
+		String contractCode = slice.getContractCode();
 		if (Strings.isNullOrEmpty(contractCode)) {
 			// Create new parent contract
 			// When new contract is created, then this slice have to be sets as "Is using as
 			// contract"
 			slice.setUsingAsContract(true);
-			IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice, ImmutableList.of(slice));
+			IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice);
 			slice.setParentContract(contract.getId());
 
 			return service.saveInternal(slice);
@@ -257,7 +255,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				// When new contract is created, then this slice have to be sets as "Is using as
 				// contract"
 				slice.setUsingAsContract(true);
-				IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice, slices);
+				IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice);
 				slice.setParentContract(contract.getId());
 
 				return service.saveInternal(slice);

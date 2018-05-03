@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
-import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -38,7 +37,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_contract_slice", indexes = {
 		@Index(name = "idx_idm_contract_slice_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_contract_slice_wp", columnList = "work_position_id")})
-public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, Codeable, ExternalCodeable {
+public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, Codeable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -104,8 +103,8 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "external_code", length = DefaultFieldLengths.NAME)
-	private String externalCode; // Identifier of the main contract on the source system
+	@Column(name = "contract_code", length = DefaultFieldLengths.NAME)
+	private String contractCode; // Identifier of the main contract on the source system
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
@@ -295,12 +294,12 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 		this.usingAsContract = usingAsContract;
 	}
 
-	public String getExternalCode() {
-		return externalCode;
+	public String getContractCode() {
+		return contractCode;
 	}
 
-	public void setExternalCode(String externalCode) {
-		this.externalCode = externalCode;
+	public void setContractCode(String contractCode) {
+		this.contractCode = contractCode;
 	}
 
 	public LocalDate getContractValidFrom() {

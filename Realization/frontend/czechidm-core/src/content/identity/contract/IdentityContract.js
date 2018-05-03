@@ -4,6 +4,7 @@ import * as Basic from '../../../components/basic';
 import { IdentityContractManager } from '../../../redux';
 import * as Advanced from '../../../components/advanced';
 import OrganizationPosition from '../OrganizationPosition';
+import _ from 'lodash';
 
 const manager = new IdentityContractManager();
 
@@ -37,7 +38,7 @@ class IdentityContract extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading, params } = this.props;
-
+    const paramsResult = _.merge(params, { controlledBySlices: entity && entity.controlledBySlices ? true : false});
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
@@ -50,7 +51,7 @@ class IdentityContract extends Basic.AbstractContent {
           level="info"
           text={this.i18n('content.identity-contract.detail.alert.controlledBySlices')}/>
 
-        <Advanced.TabPanel parentId="profile-contracts" params={this.props.params}>
+        <Advanced.TabPanel parentId="profile-contracts" params={paramsResult}>
           {this.props.children}
         </Advanced.TabPanel>
       </div>

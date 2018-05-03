@@ -9,7 +9,6 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
@@ -18,14 +17,14 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Svanda
  */
 @Relation(collectionRelation = "contractSlices")
-public class IdmContractSliceDto extends IdmIdentityContractDto implements ValidableEntity, ExternalCodeable {
+public class IdmContractSliceDto extends IdmIdentityContractDto implements ValidableEntity {
 
 	private static final long serialVersionUID = 1L;
 
 	@Embedded(dtoClass = IdmIdentityContractDto.class)
 	private UUID parentContract;
 	@Size(max = DefaultFieldLengths.NAME)
-	private String externalCode; // Identifier of the main contract on the source system
+	private String contractCode; // Identifier of the main contract on the source system
 	private String code; // Identifier of that slice on the source system
 	private boolean usingAsContract; // Is this slice actually using as the contract?
 	private LocalDate contractValidFrom;
@@ -39,13 +38,12 @@ public class IdmContractSliceDto extends IdmIdentityContractDto implements Valid
 		this.parentContract = parentContract;
 	}
 	
-	@Override
-	public String getExternalCode() {
-		return externalCode;
+	public String getContractCode() {
+		return contractCode;
 	}
 
-	public void setExternalCode(String externalCode) {
-		this.externalCode = externalCode;
+	public void setContractCode(String contractCode) {
+		this.contractCode = contractCode;
 	}
 
 	public LocalDate getContractValidFrom() {

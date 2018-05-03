@@ -131,7 +131,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
 	public final static String CONTRACT_IDENTITY_FIELD = IdmContractSlice_.identity.getName();
 	public final static String CONTRACT_WORK_POSITION_FIELD = IdmContractSlice_.workPosition.getName();
-	public final static String CONTRACT_SLICE_CONTRACT_CODE_FIELD = IdmContractSlice_.externalCode.getName();
+	public final static String CONTRACT_SLICE_CONTRACT_CODE_FIELD = IdmContractSlice_.contractCode.getName();
 	public final static String CONTRACT_VALID_TILL_FIELD = IdmContractSlice_.validTill.getName();
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 	public final static String DEFAULT_TASK = "Default";

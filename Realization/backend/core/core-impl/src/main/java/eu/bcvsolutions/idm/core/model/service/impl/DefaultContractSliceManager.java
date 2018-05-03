@@ -64,10 +64,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
+	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
-		Assert.notNull(slices);
 		Assert.isTrue(slice.isUsingAsContract(),
 				"When new contract is created, then this slice have to be sets as 'Is using as contract'!");
 
@@ -88,13 +87,11 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
-			List<IdmContractSliceDto> slices) {
+	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice) {
 
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
 		Assert.notNull(slice.getId(), "Contract slice have to be created!");
-		Assert.notNull(slices);
 
 		// Slice is sets as 'is using as contract', we will update all attributes
 		if (slice.isUsingAsContract()) {
@@ -292,13 +289,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	}
 
 	
-	/**
-	 * Copy guarantees from slice to contract. Modifies only diff of current and result sets.
-	 * 
-	 * @param slice
-	 * @param contract
-	 */
-	private void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
+	@Transactional
+	@Override
+	public void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
 		Assert.notNull(slice);
 		Assert.notNull(slice.getId());
 		Assert.notNull(contract);

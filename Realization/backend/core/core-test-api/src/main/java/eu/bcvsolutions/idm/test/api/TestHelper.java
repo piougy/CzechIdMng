@@ -46,6 +46,20 @@ public interface TestHelper {
 	
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 	String DEFAULT_PASSWORD = "password";
+	
+	/**
+	 * Login as given identity.
+	 * Identity has to exists, assigned identity roles and permissions will be used.
+	 * 
+	 * @param username
+	 * @param password
+	 */
+	void login(String username, String password);
+	
+	/**
+	 * Logout current logged identity ~ clear secutity context
+	 */
+	void logout();
 
 	/**
 	 * Creates random unique name

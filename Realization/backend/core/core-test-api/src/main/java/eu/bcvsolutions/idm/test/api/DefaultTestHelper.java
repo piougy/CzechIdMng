@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -64,7 +65,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 
 /**
  * Creates common test entities
@@ -95,6 +98,17 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private FormService formService;
 	@Autowired private IdmFormDefinitionService formDefinitionService;
 	@Autowired private IdmFormAttributeService formAttributeService;
+	@Autowired private LoginService loginService;
+	
+	@Override
+	public void login(String username, String password) {
+		loginService.login(new LoginDto(username, new GuardedString(password)));
+	}
+	
+	@Override
+	public void logout() {
+		SecurityContextHolder.clearContext();
+	}
 
 	/**
 	 * Creates random unique name

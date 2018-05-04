@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -108,6 +109,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public void logout() {
 		SecurityContextHolder.clearContext();
+	}
+	
+	@Override
+	public <T extends ReadDtoService<?, ?>> T getService(Class<T> dtoServiceType) {
+		return context.getBean(dtoServiceType);
 	}
 
 	/**

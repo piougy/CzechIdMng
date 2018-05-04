@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.api.utils;
 
 import java.util.Map;
 
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,9 +35,7 @@ public class FilterConverter extends ParameterConverter {
 	 * @return
 	 */
 	public <F extends BaseFilter> F toFilter(MultiValueMap<String, Object> parameters, Class<F> filterClass) {
-		Assert.notNull(parameters);
-		//
-		return toFilter(parameters.toSingleValueMap(), filterClass);
+		return toFilter(parameters == null ? null : parameters.toSingleValueMap(), filterClass);
 	}
 	
 	/**
@@ -49,7 +46,7 @@ public class FilterConverter extends ParameterConverter {
 	 * @return
 	 */
 	public <F extends BaseFilter> F toFilter(Map<String, Object> parameters, Class<F> filterClass) {
-		if (mapper == null || parameters.isEmpty() || EmptyFilter.class.equals(filterClass)) {
+		if (mapper == null || parameters == null || parameters.isEmpty() || EmptyFilter.class.equals(filterClass)) {
 			return null;
 		}
 		try {

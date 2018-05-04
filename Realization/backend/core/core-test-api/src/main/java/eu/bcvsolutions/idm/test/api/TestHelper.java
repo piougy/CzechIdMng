@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -60,6 +61,14 @@ public interface TestHelper {
 	 * Logout current logged identity ~ clear secutity context
 	 */
 	void logout();
+	
+	/**
+	 * Get dto service from context
+	 * 
+	 * @param dtoServiceType
+	 * @return
+	 */
+	<T extends ReadDtoService<?, ?>> T getService(Class<T> dtoServiceType);
 
 	/**
 	 * Creates random unique name

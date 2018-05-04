@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEven
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 
 /**
- * Manager for automatic role
+ * Manager for contract slices
  * 
  * @author svandav
  *

@@ -1316,7 +1316,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entity != null) {
 			// Update entity
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
-			this.save(entity, true);
+			entity = this.save(entity, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
 			// Update confidential attribute (entity must be persisted
@@ -1334,7 +1334,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			return;
 		} else {
-			addToItemLog(logItem, "Entity-account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity-account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -1969,7 +1969,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionLogs
 	 * @return
 	 */
-	protected UUID getEntityByAccount(UUID accountId) {
+	@Override
+	public UUID getEntityByAccount(UUID accountId) {
 		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
 		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
@@ -2094,7 +2095,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entity = this.getEntityByAccount(account.getId());
 		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

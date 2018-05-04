@@ -468,6 +468,27 @@
         }
       }
     },
+    "contract-slice": {
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifier",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
     "provisioningOperations": {
       "label": "Provisioning",
       "title" : "Provisioning - operations log",
@@ -641,7 +662,8 @@
       "type": "Assign type",
       "role": "Role",
       "system": "System",
-      "systemMapping": "Mapping"
+      "systemMapping": "Mapping",
+      "forwardAccountManagemen": "Forward account management"
     },
     "SystemEntity": {
       "_type": "Entity in system",
@@ -775,7 +797,8 @@
     "systemEntity": "Linked entity in system",
     "uid": "Account identifier",
     "inProtection": "Is protected from delete",
-    "endOfProtection": "Protected until"
+    "endOfProtection": "Protected until",
+    "targetEntity": "Target entity"
   },
     "IdentityAccount": {
       "_type": "Identity account in system",
@@ -999,7 +1022,8 @@
       "ROLE": "Role",
       "TREE": "Tree",
       "ROLE_CATALOGUE": "Role catalogue",
-      "CONTRACT": "Identity contract"
+      "CONTRACT": "Identity contract",
+      "CONTRACT_SLICE": "Time slices of identity contracts"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1112,7 +1136,8 @@
       "SYNCHRONIZATION": "Synchronization",
       "TREEACCOUNT": "Tree accounts",
       "IDENTITYACCOUNT": "Identity accounts",
-      "CONTRACTACCOUNT": "Contractual relationships",
+      "CONTRACTACCOUNT": "Accounts for contractual relationships",
+      "CONTRACTSLICEACCOUNT": "Accounts for time slices of contractual relationships",
       "PROVISIONINGBREAK": "Provisioning brake"
     }
   },
@@ -1340,6 +1365,10 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validation of system mapping {{name}} was not successful",
       "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
+    },
+    "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
+      "title": "Provisioning does not supports this type",
+      "message": "Provisioning does not supports this entity type [{{entityType}}]"
     }
   },
   "processor": {

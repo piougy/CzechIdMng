@@ -68,7 +68,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId, identityId } = this.props.params;
+    const { entityId, identityId, controlledBySlices } = this.props.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('identityContractId', entityId);
@@ -102,7 +102,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                       key="add_button"
                       className="btn-xs"
                       onClick={this.showDetail.bind(this, { identityContract: entityId })}
-                      rendered={ SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_CREATE']) }>
+                      rendered={ !controlledBySlices && SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_CREATE']) }>
                       <Basic.Icon type="fa" icon="plus"/>
                       {' '}
                       { this.i18n('button.add') }
@@ -145,7 +145,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                   <Basic.AbstractForm
                     ref="form"
                     showLoading={ _showLoading }
-                    readOnly={ !manager.canSave(detail.entity, _permissions) }>
+                    readOnly={ controlledBySlices || !manager.canSave(detail.entity, _permissions) }>
                     <Basic.SelectBox
                       ref="guarantee"
                       manager={ identityManager }
@@ -168,7 +168,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                     showLoading={ _showLoading }
                     showLoadingIcon
                     showLoadingText={ this.i18n('button.saving') }
-                    rendered={ manager.canSave(detail.entity, _permissions) }>
+                    rendered={!controlledBySlices && manager.canSave(detail.entity, _permissions) }>
                     { this.i18n('button.save') }
                   </Basic.Button>
                 </Basic.Modal.Footer>
@@ -202,8 +202,11 @@ IdentityContractGuarantees.defaultProps = {
   _showLoading: false,
 };
 
-function select(state) {
+function select(state, component) {
+  const { entityId } = component.params;
+
   return {
+    entity: manager.getEntity(state, entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`)
   };

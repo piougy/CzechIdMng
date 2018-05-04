@@ -40,6 +40,13 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
+	CONTRACTSLICE(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
 	IDENTITYROLE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.AUTOCOMPLETE,
@@ -150,6 +157,12 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	CONTRACTSLICEGUARANTEE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	WORKFLOWDEFINITION(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
@@ -204,11 +217,23 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYCONTRACT_UPDATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYCONTRACT_DELETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String CONTRACTSLICE_AUTOCOMPLETE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CONTRACTSLICE_READ = "CONTRACTSLICE" + BasePermission.SEPARATOR + "READ";
+	public static final String CONTRACTSLICE_CREATE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONTRACTSLICE_UPDATE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CONTRACTSLICE_DELETE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String CONTRACTGUARANTEE_AUTOCOMPLETE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONTRACTGUARANTEE_READ = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "READ";
 	public static final String CONTRACTGUARANTEE_CREATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONTRACTGUARANTEE_UPDATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONTRACTGUARANTEE_DELETE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String CONTRACTSLICEGUARANTEE_AUTOCOMPLETE = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CONTRACTSLICEGUARANTEE_READ = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "READ";
+	public static final String CONTRACTSLICEGUARANTEE_CREATE = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONTRACTSLICEGUARANTEE_UPDATE = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CONTRACTSLICEGUARANTEE_DELETE = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CONFIGURATION_ADMIN = "CONFIGURATION" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String CONFIGURATION_AUTOCOMPLETE = "CONFIGURATION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

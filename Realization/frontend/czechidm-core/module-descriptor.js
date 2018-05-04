@@ -104,7 +104,42 @@ module.exports = {
                 'order': 30,
                 'path': '/identity/:identityId/identity-contract/:entityId/guarantees',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
-              }
+              },
+              {
+                'id': 'identity-contract-slices',
+                'type': 'TAB',
+                'labelKey': 'entity.ContractSlice._type',
+                'order': 55,
+                'path': '/identity/:identityId/identity-contract/:entityId/contract-slices',
+                'icon': 'fa:hourglass-half',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                'items': [
+                  {
+                    'id': 'contract-slice-detail',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.detail.label',
+                    'order': 10,
+                    'path': '/identity/:identityId/contract-slice/:entityId/detail',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ]
+                  },
+                  {
+                    'id': 'contract-slice-eav',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.eav.label',
+                    'order': 20,
+                    'path': '/identity/:identityId/contract-slice/:entityId/eav',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                  },
+                  {
+                    'id': 'contract-slice-guarantees',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.guarantees.label',
+                    'order': 30,
+                    'path': '/identity/:identityId/contract-slice/:entityId/guarantees',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                  }
+                ]
+              },
             ]
           },
           {

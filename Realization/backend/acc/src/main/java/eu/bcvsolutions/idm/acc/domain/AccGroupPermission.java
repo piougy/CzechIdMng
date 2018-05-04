@@ -30,6 +30,7 @@ public enum AccGroupPermission implements GroupPermission {
 	ROLECATALOGUEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
 	CONTRACTACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	CONTRACTSLICEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	PROVISIONINGBREAK(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.READ, 
@@ -79,6 +80,11 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String CONTRACT_ACCOUNT_CREATE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONTRACT_ACCOUNT_UPDATE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONTRACT_ACCOUNT_DELETE = "CONTRACTACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String CONTRACT_SLICE_ACCOUNT_READ = "CONTRACTSLICEACCOUNT" + BasePermission.SEPARATOR + "READ";
+	public static final String CONTRACT_SLICE_ACCOUNT_CREATE = "CONTRACTSLICEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONTRACT_SLICE_ACCOUNT_UPDATE = "CONTRACTSLICEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CONTRACT_SLICE_ACCOUNT_DELETE = "CONTRACTSLICEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String PROVISIONINGBREAK_ADMIN = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String PROVISIONINGBREAK_READ = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "READ";

@@ -95,6 +95,9 @@ export default class AbstractService {
     return RestApiService
       .post(this.getApiPath(), json)
       .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
         return response.json();
       })
       .then(jsonResponse => {

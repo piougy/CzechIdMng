@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -57,6 +59,8 @@ public class IdentityDeleteProcessor
 	private final IdmContractGuaranteeService contractGuaranteeService;
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final IdmPasswordHistoryService passwordHistoryService;
+	@Autowired
+	private IdmContractSliceService contractSliceService;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
@@ -116,6 +120,12 @@ public class IdentityDeleteProcessor
 		filter.setGuaranteeId(identity.getId());
 		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
+		});
+		// delete contract slices
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setIdentity(identity.getId());
+		contractSliceService.find(sliceFilter, null).forEach(guarantee -> {
+			contractSliceService.delete(guarantee);
 		});
 		// remove role guarantee
 		IdmRoleGuaranteeFilter roleGuaranteeFilter = new IdmRoleGuaranteeFilter();

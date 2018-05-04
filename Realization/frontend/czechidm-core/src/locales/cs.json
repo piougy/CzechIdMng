@@ -2469,7 +2469,7 @@
       "externe": "Externista",
       "titleBefore": "Titul před",
       "titleAfter": "Titul za",
-      "fileRejected": "Soubor profilové fotky musí být formát grafického souboru ({{name}})!",
+      "fileRejected": "Soubor profilové fotky ({{name}}) musí být formát grafického souboru - jpg, png, gif.",
       "fileUploaded": "Soubor s profilovou fotkou ({{name}}) byl úspěšně nahrán.",
       "state": {
         "label": "Stav",
@@ -3869,7 +3869,7 @@
     },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Neplatný formát",
-      "message": "Soubor má správnou příponu, ale není to obrázek."
+      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, png, gif."
     }
   },
   "validationError": {

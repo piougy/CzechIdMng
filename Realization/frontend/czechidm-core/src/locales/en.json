@@ -2426,7 +2426,7 @@
       "externe": "External contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after",
-      "fileRejected": "Profile picture file must be image type ({{name}})!",
+      "fileRejected": "Profile picture file ({{name}}) must be of image type - jpg, png, gif.",
       "fileUploaded": "Profile picture ({{name}}) was successfully uploaded.",
       "state": {
         "label": "State",
@@ -3822,7 +3822,7 @@
     },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Wrong format",
-      "message": "File has got image suffix but It's not an image."
+      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, png, gif"
     }
   },
   "validationError": {

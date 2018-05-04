@@ -1,11 +1,8 @@
 import React, { PropTypes } from 'react';
 import Joi from 'joi';
 import { connect } from 'react-redux';
-<<<<<<< HEAD
 import Helmet from 'react-helmet';
-=======
 import moment from 'moment';
->>>>>>> develop
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -254,6 +251,10 @@ class IdentityDetail extends Basic.AbstractContent {
                   <Basic.TextField ref="username" label={this.i18n('username')} required min={3} max={255} />
                   <Basic.TextField ref="firstName" label={this.i18n('firstName')} max={255} />
                   <Basic.TextField ref="lastName" label={this.i18n('lastName')} max={255} />
+                </div>
+              </Basic.Row>
+              <Basic.Row>
+                <div className="col-lg-12">
                   <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>
                 </div>
               </Basic.Row>

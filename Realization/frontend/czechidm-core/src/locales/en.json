@@ -3212,7 +3212,7 @@
       }
     },
     "ContractSliceGuarantee": {
-      "contractSlice": "Time slice of contract position",
+      "contractSliceId": "Time slice of contract position",
       "guarantee": {
         "label": "Guarantee",
         "help": "Guarantee assigned to slice of contract position"

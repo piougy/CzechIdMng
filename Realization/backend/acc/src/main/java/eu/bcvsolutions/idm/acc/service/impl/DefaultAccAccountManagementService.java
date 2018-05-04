@@ -47,13 +47,11 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
- * Service for control account management. Iccount management is supported for
+ * Service for control account management. Account management is supported for
  * {@link SystemEntityType#IDENTITY} only.
  * 
  * @author svandav
@@ -67,16 +65,16 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final AccAccountService accountService;
 	private final SysRoleSystemService roleSystemService;
 	private final AccIdentityAccountService identityAccountService;
-	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
-			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
-			SysRoleSystemAttributeService roleSystemAttributeService,
+			AccIdentityAccountService identityAccountService, SysRoleSystemAttributeService roleSystemAttributeService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService) {
 		super();
@@ -84,7 +82,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
 		Assert.notNull(accountService);
-		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(systemMappingService);
@@ -93,7 +90,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
-		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.systemMappingService = systemMappingService;
@@ -108,8 +104,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> identityAccountList = identityAccountService.find(filter, null).getContent();
 
-		List<IdmIdentityRole> identityRoles = identityRoleRepository
-				.findAllByIdentityContract_Identity_Id(identity.getId(), null);
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 
 		boolean provisioningRequired = false;
 
@@ -147,20 +142,23 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param identityAccountsToDelete
 	 */
 	private void resolveIdentityAccountForDelete(List<AccIdentityAccountDto> identityAccountList,
-			List<IdmIdentityRole> identityRoles, List<AccIdentityAccountDto> identityAccountsToDelete) {
+			List<IdmIdentityRoleDto> identityRoles, List<AccIdentityAccountDto> identityAccountsToDelete) {
 
 		identityRoles.stream().filter(identityRole -> {
 			return !identityRole.isValid();
 		}).forEach(identityRole -> {
 			// Search IdentityAccounts to delete
-			
+
 			// Identity-account is not removed (even if that identity-role is invalid) if
-			// the role-system has enabled forward account management and identity-role will be valid in the future.
+			// the role-system has enabled forward account management and identity-role will
+			// be valid in the future.
 			identityAccountList.stream() //
 					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
-					.filter(identityAccount -> identityAccount.getRoleSystem() == null || (!DtoUtils
-							.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem, SysRoleSystemDto.class)
-							.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
+					.filter(identityAccount -> identityAccount.getRoleSystem() == null
+							|| !(DtoUtils
+									.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem,
+											SysRoleSystemDto.class)
+									.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
 					.forEach(identityAccount -> {
 						identityAccountsToDelete.add(identityAccount);
 					});
@@ -178,21 +176,23 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param resolvedRolesForCreate
 	 */
 	private void resolveIdentityAccountForCreate(IdmIdentityDto identity,
-			List<AccIdentityAccountDto> identityAccountList, List<IdmIdentityRole> identityRoles,
+			List<AccIdentityAccountDto> identityAccountList, List<IdmIdentityRoleDto> identityRoles,
 			List<AccIdentityAccountDto> identityAccountsToCreate,
 			List<AccIdentityAccountDto> identityAccountsToDelete) {
 
 		identityRoles.forEach(identityRole -> {
 
-			IdmRole role = identityRole.getRole();
+			UUID role = identityRole.getRole();
 			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
-			roleSystemFilter.setRoleId(role.getId());
+			roleSystemFilter.setRoleId(role);
 			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
-			// Is role valid in this moment or 
-			// role-system has enabled forward account management (identity-role have to be valid in the future)
+			// Is role valid in this moment or
+			// role-system has enabled forward account management (identity-role have to be
+			// valid in the future)
 			roleSystems.stream()
-					.filter(roleSystem -> (identityRole.isValid() || (roleSystem.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture()))) //
+					.filter(roleSystem -> (identityRole.isValid()
+							|| (roleSystem.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture()))) //
 					.filter(roleSystem -> { //
 						// Filter out identity-accounts for same role-system, account (by UID)
 						return !identityAccountList.stream().filter(identityAccount -> {
@@ -347,8 +347,9 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Account management - can be the account created? - execute the script on the
 		// system mapping
 		SysSystemDto system = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
-		if(mapping == null) {
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		if (mapping == null) {
 			return null;
 		}
 		if (!this.canBeAccountCreated(uid, identity, mapping, system)) {
@@ -384,7 +385,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		return account.getId();
 	}
 
-	private boolean canBeAccountCreated(String uid, IdmIdentityDto dto, SysSystemMappingDto mapping, SysSystemDto system) {
+	private boolean canBeAccountCreated(String uid, IdmIdentityDto dto, SysSystemMappingDto mapping,
+			SysSystemDto system) {
 		return systemMappingService.canBeAccountCreated(uid, dto, mapping.getCanBeAccountCreatedScript(), system);
 	}
 }

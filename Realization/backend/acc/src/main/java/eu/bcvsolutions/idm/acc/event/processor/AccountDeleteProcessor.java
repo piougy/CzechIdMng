@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccContractSliceAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleCatalogueAccountService;
@@ -59,6 +61,8 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 	private final AccContractAccountService contractAccountService;
 	private final AccRoleCatalogueAccountService roleCatalogueAccountService;
 	private final ProvisioningService provisioningService;
+	@Autowired
+	private AccContractSliceAccountService contractAccountSliceService;
 
 	private static final Logger LOG = LoggerFactory.getLogger(AccountDeleteProcessor.class);
 
@@ -153,21 +157,29 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 		contractAccountFilter.setAccountId(account.getId());
 		List<AccContractAccountDto> contractAccounts = contractAccountService.find(contractAccountFilter, null)
 				.getContent();
-		contractAccounts.forEach(contractAccount -> { 
+		contractAccounts.forEach(contractAccount -> {
 			contractAccountService.delete(contractAccount);
+		});
+
+		// delete all contract slice accounts
+		AccContractSliceAccountFilter contractSliceAccountFilter = new AccContractSliceAccountFilter();
+		contractSliceAccountFilter.setAccountId(account.getId());
+		contractAccountSliceService.find(contractSliceAccountFilter, null).forEach(contractAccount -> {
+			contractAccountSliceService.delete(contractAccount);
 		});
 
 		//
 		AccAccountDto refreshAccount = accountService.get(account.getId());
-		// If account still exists (was not deleted by entity-account), we delete him directly now
-    	if(refreshAccount != null) {
-			accountService.deleteInternal(refreshAccount);			
+		// If account still exists (was not deleted by entity-account), we delete him
+		// directly now
+		if (refreshAccount != null) {
+			accountService.deleteInternal(refreshAccount);
 		}
 		if (deleteTargetAccount) {
 			SystemEntityType entityType = account.getEntityType();
 			if (!entityType.isSupportsProvisioning()) {
-				LOG.warn(MessageFormat.format("Provisioning is not supported for [{1}] now [{0}]!",
-						account.getUid(), entityType));
+				LOG.warn(MessageFormat.format("Provisioning is not supported for [{1}] now [{0}]!", account.getUid(),
+						entityType));
 				return new DefaultEventResult<>(event, this);
 			}
 			this.provisioningService.doDeleteProvisioning(account, account.getEntityType(), entityId);

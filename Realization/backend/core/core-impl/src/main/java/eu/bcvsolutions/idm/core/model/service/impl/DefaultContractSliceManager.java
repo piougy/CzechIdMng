@@ -147,7 +147,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				.min(comparatorValidFrom) //
 				.orElse(null); //
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmContractSliceDto findPreviousSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
@@ -189,12 +189,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			List<IdmContractSliceDto> otherSlices = contractSliceService.find(sliceFilter, null).getContent();
 
 			// To all this slices (exclude itself) set "using as contract" on false
-			otherSlices.stream().filter(s -> !s.equals(slice)).forEach(s -> {
-				s.setUsingAsContract(false);
-				// We want only save data, not update contract by slice
-				contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s,
-						ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
-			});
+			otherSlices.stream() //
+					.filter(s -> !s.equals(slice)) //
+					.forEach(s -> { //
+						s.setUsingAsContract(false);
+						// We want only save data, not update contract by slice
+						contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s,
+								ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
+					});
 		}
 		slice.setUsingAsContract(true);
 		// Copy to contract is ensures the save slice processor. We have to only set
@@ -288,7 +290,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		});
 	}
 
-	
 	@Transactional
 	@Override
 	public void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract) {

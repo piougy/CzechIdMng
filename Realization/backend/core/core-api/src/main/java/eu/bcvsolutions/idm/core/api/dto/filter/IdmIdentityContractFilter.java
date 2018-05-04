@@ -135,7 +135,7 @@ public class IdmIdentityContractFilter
 	public String getValue() {
 		return value;
 	}
-
+	
 	@Override
 	public void setValue(String value) {
 		this.value = value;

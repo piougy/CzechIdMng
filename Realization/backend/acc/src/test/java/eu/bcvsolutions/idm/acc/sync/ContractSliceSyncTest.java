@@ -162,6 +162,13 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		helper.createIdentity(CONTRACT_OWNER_ONE);
 		helper.createIdentity(CONTRACT_OWNER_TWO);
 		helper.createIdentity(CONTRACT_LEADER_ONE);
+		
+		IdmTreeTypeDto treeType = helper.createTreeType();
+		IdmTreeNodeDto defaultNode = helper.createTreeNode(treeType, null);
+
+		((SysSyncContractConfigDto) config).setDefaultTreeType(treeType.getId());
+		((SysSyncContractConfigDto) config).setDefaultTreeNode(defaultNode.getId());
+		config = syncConfigService.save(config);
 
 		IdmContractSliceFilter contractFilter = new IdmContractSliceFilter();
 		contractFilter.setProperty(IdmIdentityContract_.position.getName());
@@ -263,6 +270,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
 		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		config = syncConfigService.save(config);
 
 		helper.createIdentity(CONTRACT_OWNER_ONE);
 		helper.createIdentity(CONTRACT_OWNER_TWO);

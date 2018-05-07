@@ -511,15 +511,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
-				} else if (nodes.size() > 1) {
-					context.getLogItem()
-							.addToLog(MessageFormat.format(
-									"Warning - Work position - more then one [{0}] node found for code [{1}]!", value,
-									nodes.size()));
-					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
-							context.getLog(), context.getActionLogs());
-					return null;
-
 				} else {
 					context.getLogItem().addToLog(MessageFormat.format(
 							"Work position - One node [{1}] was found for code [{0}]!", value, nodes.get(0).getId()));

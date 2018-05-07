@@ -102,8 +102,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private LoginService loginService;
 	
 	@Override
-	public void login(String username, String password) {
-		loginService.login(new LoginDto(username, new GuardedString(password)));
+	public LoginDto login(String username, String password) {
+		return loginService.login(new LoginDto(username, new GuardedString(password)));
 	}
 	
 	@Override

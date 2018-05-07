@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
@@ -55,7 +56,7 @@ public interface TestHelper {
 	 * @param username
 	 * @param password
 	 */
-	void login(String username, String password);
+	LoginDto login(String username, String password);
 	
 	/**
 	 * Logout current logged identity ~ clear secutity context

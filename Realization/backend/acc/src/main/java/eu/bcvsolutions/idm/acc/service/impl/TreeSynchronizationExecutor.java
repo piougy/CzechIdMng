@@ -224,33 +224,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	/**
 	 * Call provisioning for given account
 	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	@Override
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmTreeNodeDto treeNode = null;
-		if (entityId != null) {
-			treeNode = treeNodeService.get(entityId);
-		}
-		if (treeNode == null) {
-			addToItemLog(logItem, "Warning! - Tree account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(treeNode, entityType, logItem);
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
@@ -324,8 +297,10 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		entityAccount.setOwnership(true);
 		this.getEntityAccountService().save(entityAccount);
 
-		// Call provisioning for entity
-		this.callProvisioningForEntity(treeNode, entityType, logItem);
+		if(this.isProvisioningImplemented(entityType, logItem)) {
+			// Call provisioning for this entity
+			callProvisioningForEntity(treeNode, entityType, logItem);
+		}
 
 		// Entity Created
 		addToItemLog(logItem, MessageFormat.format("Tree node with id {0} was created", treeNode.getId()));
@@ -377,8 +352,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				logItem.setDisplayName(treeNode.getName());
 			}
 
-			// Call provisioning for entity
-			this.callProvisioningForEntity(treeNode, context.getEntityType(), logItem);
+			SystemEntityType entityType = context.getEntityType();
+			if(this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(treeNode, entityType, logItem);
+			}
 
 			return;
 		} else {

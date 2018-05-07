@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 
 /**
@@ -19,6 +20,7 @@ public interface ContractSliceManager {
 
 	/**
 	 * Create contract by given slice
+	 * 
 	 * @param slice
 	 * @return
 	 */
@@ -26,6 +28,7 @@ public interface ContractSliceManager {
 
 	/**
 	 * Update contract by given slice
+	 * 
 	 * @param contract
 	 * @param slice
 	 * @return
@@ -78,6 +81,7 @@ public interface ContractSliceManager {
 
 	/**
 	 * Find previous slice for given slice
+	 * 
 	 * @param slice
 	 * @param slices
 	 * @return
@@ -86,18 +90,27 @@ public interface ContractSliceManager {
 
 	/**
 	 * Find slice for given parent contract ID
+	 * 
 	 * @param parentContract
 	 * @return
 	 */
 	List<IdmContractSliceDto> findAllSlices(UUID parentContract);
 
 	/**
-	 * Copy guarantees from slice to contract. Modifies only diff of current and result sets.
+	 * Copy guarantees from slice to contract. Modifies only diff of current and
+	 * result sets.
 	 * 
 	 * @param slice
 	 * @param contract
 	 */
 	void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract);
 
+	/**
+	 * Find all guarantees for given slice
+	 * 
+	 * @param sliceId
+	 * @return
+	 */
+	List<IdmContractSliceGuaranteeDto> findSliceGuarantees(UUID sliceId);
 
 }

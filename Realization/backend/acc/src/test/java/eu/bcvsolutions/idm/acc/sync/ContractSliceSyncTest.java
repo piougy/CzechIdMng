@@ -59,11 +59,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -83,8 +87,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private static final String CONTRACT_OWNER_ONE = "contractOwnerOne";
 	private static final String CONTRACT_OWNER_TWO = "contractOwnerTwo";
 	private static final String CONTRACT_LEADER_ONE = "contractLeaderOne";
-	private static final String CONTRACT_LEADER_TWO = "contractLeaderTwo";
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameContractSlice";
+	private static final String WORK_POSITION_CODE = "workPositionOne";
 
 	@Autowired
 	private TestHelper helper;
@@ -120,6 +124,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private AccAccountService accountService;
 	@Autowired
 	private AccContractSliceAccountService contractSliceAccountService;
+	@Autowired
+	private ContractSliceManager contractSliceManager;
 
 	private SynchronizationService synchornizationService;
 
@@ -140,9 +146,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		}
 		if (identityService.getByUsername(CONTRACT_LEADER_ONE) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_ONE));
-		}
-		if (identityService.getByUsername(CONTRACT_LEADER_TWO) != null) {
-			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_TWO));
 		}
 		super.logout();
 	}
@@ -175,12 +178,20 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		contractFilter.setValue("1");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
+		// Find slice guarantees
+		Assert.assertEquals(1, contractSliceManager
+				.findSliceGuarantees(contractSliceService.find(contractFilter, null).getContent().get(0).getId()));
+
 		contractFilter.setValue("2");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
+
 		contractFilter.setValue("3");
 		List<IdmContractSliceDto> contractsThree = contractSliceService.find(contractFilter, null).getContent();
 		Assert.assertEquals(1, contractsThree.size());
 		Assert.assertEquals(null, contractsThree.get(0).getState());
+		// Find slice guarantees
+		Assert.assertEquals(0, contractSliceManager.findSliceGuarantees(contractsThree.get(0).getId()));
+
 		contractFilter.setValue("4");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
 
@@ -190,7 +201,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	public void deleteContractAccountTest() {
+	public void deleteSliceAccountTest() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
@@ -238,6 +249,156 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		AccContractSliceAccountFilter contractSliceAccountFilter = new AccContractSliceAccountFilter();
 		contractSliceAccountFilter.setAccountId(contractAccount.getAccount());
 		Assert.assertEquals(0, contractSliceAccountService.find(contractSliceAccountFilter, null).getTotalElements());
+
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+
+	@Test
+	public void updateAccountTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmContractSliceFilter contractFilter = new IdmContractSliceFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmContractSliceDto> contractSlices = contractSliceService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractSlices.size());
+
+		// Find the account for this contract slice
+		IdmContractSliceDto slice = contractSlices.get(0);
+		AccContractSliceAccountFilter contractAccountFilter = new AccContractSliceAccountFilter();
+		contractAccountFilter.setSliceId(slice.getId());
+		contractAccountFilter.setSystemId(system.getId());
+		List<AccContractSliceAccountDto> contractAccounts = contractSliceAccountService
+				.find(contractAccountFilter, null).getContent();
+		Assert.assertEquals(1, contractAccounts.size());
+		AccContractSliceAccountDto contractAccount = contractAccounts.get(0);
+		AccAccountDto account = accountService.get(contractAccount.getAccount());
+		Assert.assertNotNull(account);
+
+		// Delete log
+		syncLogService.delete(log);
+
+		TestContractSliceResource accountOnTargetSystem = this.getBean().findSliceOnTargetSystem("1");
+		Assert.assertNull(accountOnTargetSystem.getState());
+
+		// Set slice to disabled
+		slice.setState(ContractState.DISABLED);
+
+		// Change settings of sync and run
+		config.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ACCOUNT);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		config.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);
+		config.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+
+		config = syncConfigService.save(config);
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ACCOUNT, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Sync of slice does not supports provisioning now (account was not changed)!
+		accountOnTargetSystem = this.getBean().findSliceOnTargetSystem("1");
+		Assert.assertEquals(null, accountOnTargetSystem.getState());
+
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+
+	@Test
+	public void unlinkAccountTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmContractSliceFilter contractFilter = new IdmContractSliceFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmContractSliceDto> contractSlices = contractSliceService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractSlices.size());
+
+		// Find the account for this contract slice
+		IdmContractSliceDto slice = contractSlices.get(0);
+		AccContractSliceAccountFilter contractAccountFilter = new AccContractSliceAccountFilter();
+		contractAccountFilter.setSliceId(slice.getId());
+		contractAccountFilter.setSystemId(system.getId());
+		List<AccContractSliceAccountDto> contractAccounts = contractSliceAccountService
+				.find(contractAccountFilter, null).getContent();
+		Assert.assertEquals(1, contractAccounts.size());
+		AccContractSliceAccountDto contractAccount = contractAccounts.get(0);
+		AccAccountDto account = accountService.get(contractAccount.getAccount());
+		Assert.assertNotNull(account);
+
+		// Delete log
+		syncLogService.delete(log);
+
+		// Change settings of sync and run
+		config.setLinkedAction(SynchronizationLinkedActionType.UNLINK);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		config.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);
+		config.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+
+		config = syncConfigService.save(config);
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		log = checkSyncLog(config, SynchronizationActionType.UNLINK, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Find the account for this contract slice ... unlink operation was executed,
+		// none relation can be found
+		contractAccountFilter = new AccContractSliceAccountFilter();
+		contractAccountFilter.setSliceId(slice.getId());
+		contractAccountFilter.setSystemId(system.getId());
+		contractAccounts = contractSliceAccountService.find(contractAccountFilter, null).getContent();
+		Assert.assertEquals(0, contractAccounts.size());
+		account = accountService.get(account.getId());
+		Assert.assertNull(account);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -369,6 +530,76 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 	}
 
+	@Test
+	public void sliceWithDefaultPositionTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		IdmTreeTypeDto treeType = helper.createTreeType();
+		IdmTreeNodeDto defaultNode = helper.createTreeNode(treeType, null);
+		IdmTreeNodeDto workPositionOneNode = helper.createTreeNode(treeType, ContractSliceSyncTest.WORK_POSITION_CODE,
+				null);
+
+		((SysSyncContractConfigDto) config).setDefaultTreeType(treeType.getId());
+		((SysSyncContractConfigDto) config).setDefaultTreeNode(defaultNode.getId());
+
+		IdmIdentityDto owner = helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmContractSliceFilter contractSliceFilter = new IdmContractSliceFilter();
+		contractSliceFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractSliceFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+		contractSliceFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractSliceFilter.setValue("1");
+		List<IdmContractSliceDto> slicesOne = contractSliceService.find(contractSliceFilter, null).getContent();
+		Assert.assertEquals(1, slicesOne);
+		// Must have sets ContractSliceSyncTest.WORK_POSITION_CODE work position
+		Assert.assertEquals(workPositionOneNode.getId(), slicesOne.get(0).getWorkPosition());
+		
+		contractSliceFilter.setValue("2");
+		List<IdmContractSliceDto> slicesTwo = contractSliceService.find(contractSliceFilter, null).getContent();
+		Assert.assertEquals(1, slicesTwo.size());
+		// Must have sets default work position
+		Assert.assertEquals(defaultNode.getId(), slicesTwo.get(0).getWorkPosition());
+		
+		contractSliceFilter.setValue("3");
+		List<IdmContractSliceDto> contractsThree = contractSliceService.find(contractSliceFilter, null).getContent();
+		Assert.assertEquals(1, contractsThree.size());
+		Assert.assertEquals(null, contractsThree.get(0).getState());
+		// Must have sets default work position
+		Assert.assertEquals(defaultNode.getId(), contractsThree.get(0).getWorkPosition());
+		
+		contractSliceFilter.setValue("4");
+		Assert.assertEquals(1, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+
+		// Find created contract
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(owner.getId());
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(3, contracts.size());
+		// Slice with id "2" should be current using and must have work position sets to
+		// ContractSliceSyncTest.WORK_POSITION_CODE
+		Assert.assertEquals(1, contracts.stream().filter(c -> c.getPosition().equals("2") && c.isValid()
+				&& c.getWorkPosition().equals(workPositionOneNode.getId())).count());
+		Assert.assertTrue(slicesTwo.get(0).isUsingAsContract());
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,
 			int count) {
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
@@ -487,8 +718,9 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	@Transactional
 	public void initContractData() {
 		deleteAllResourceData();
-		entityManager.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null,
-				null, null, null, LocalDate.now().minusDays(10), "ONE"));
+		entityManager.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true",
+				ContractSliceSyncTest.WORK_POSITION_CODE, null, null, null, null, LocalDate.now().minusDays(10),
+				"ONE"));
 		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null, null, null,
 				LocalDate.now().minusDays(1), "ONE"));
 		entityManager.persist(this.createContract("3", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
@@ -509,6 +741,12 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				LocalDate.now().plusDays(10), "ONE"));
 		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
 				LocalDate.now(), "TWO"));
+
+	}
+
+	@Transactional
+	public TestContractSliceResource findSliceOnTargetSystem(String uid) {
+		return entityManager.find(TestContractSliceResource.class, uid);
 
 	}
 

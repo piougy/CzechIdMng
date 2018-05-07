@@ -128,7 +128,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		// Previous slice will be valid till starts of validity next slice
 		previousSlice.setValidTill(slice.getValidFrom().minusDays(1));
 		contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, previousSlice,
-				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
+				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
 	}
 
 	@Override
@@ -194,8 +194,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 					.forEach(s -> { //
 						s.setUsingAsContract(false);
 						// We want only save data, not update contract by slice
-						contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s,
-								ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
+						contractSliceService
+								.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s, ImmutableMap.of(
+										IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
 					});
 		}
 		slice.setUsingAsContract(true);
@@ -331,6 +332,17 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 					.findFirst() //
 					.isPresent(); //
 		}).forEach(guaranteeToRemove -> contractGuaranteeService.delete(guaranteeToRemove));
+
+	}
+
+	@Transactional
+	@Override
+	public List<IdmContractSliceGuaranteeDto> findSliceGuarantees(UUID sliceId) {
+		Assert.notNull(sliceId);
+
+		IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
+		guaranteeFilter.setContractSliceId(sliceId);
+		return contractSliceGuaranteeService.find(guaranteeFilter, null).getContent();
 
 	}
 

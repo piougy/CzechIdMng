@@ -128,7 +128,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 					}
 					// Save with force recalculation
 					service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, originalSliceToUpdate,
-							ImmutableMap.of(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, true)));
+							ImmutableMap.of(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, Boolean.TRUE)));
 				} else {
 					// Parent contract was changed and old contract does not have next slice, we
 					// have to delete him.
@@ -199,7 +199,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 	 */
 	private void saveWithoutRecalculate(IdmContractSliceDto slice) {
 		service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, true)));
+				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
 	}
 
 	private IdmContractSliceDto updateContract(IdmContractSliceDto slice, UUID parentContract) {

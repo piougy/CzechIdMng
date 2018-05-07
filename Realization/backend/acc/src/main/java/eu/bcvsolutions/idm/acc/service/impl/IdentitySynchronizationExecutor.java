@@ -161,33 +161,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	/**
 	 * Call provisioning for given account
 	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	@Override
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityDto identity = null;
-		if (entityId != null) {
-			identity = identityService.get(entityId);
-		}
-		if (identity == null) {
-			addToItemLog(logItem, "Warning! - Identity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(identity, entityType, logItem);
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
@@ -276,8 +249,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 				logItem.setDisplayName(identity.getUsername());
 			}
 
-			// Call provisioning for entity
-			this.callProvisioningForEntity(identity, entityType, logItem);
+			if(this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(identity, entityType, logItem);
+			}
 
 			return;
 		} else {

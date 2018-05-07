@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
@@ -102,32 +101,6 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		//
 		this.roleService = roleService;
 		this.roleAccoutnService = roleAccoutnService;
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmRoleDto entity = null;
-		if (entityId != null) {
-			entity = roleService.get(entityId);
-		}
-		if (entity == null) {
-			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(entity, entityType, logItem);
 	}
 
 	/**

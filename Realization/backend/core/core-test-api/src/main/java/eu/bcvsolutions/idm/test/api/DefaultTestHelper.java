@@ -420,6 +420,13 @@ public class DefaultTestHelper implements TestHelper {
 		//
 		configurationService.setBooleanValue(configurationPropertyName, value);
 	}
+	
+	@Override
+	public void setConfigurationValue(String configurationPropertyName, String value) {
+		Assert.notNull(configurationPropertyName);
+		//
+		configurationService.setValue(configurationPropertyName, value);
+	}
 
 	@Override
 	public void waitForResult(Function<String, Boolean> continueFunction) {

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
@@ -107,32 +106,6 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	/**
 	 * Call provisioning for given account
 	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmRoleDto entity = null;
-		if (entityId != null) {
-			entity = roleService.get(entityId);
-		}
-		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(entity, entityType, logItem);
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
@@ -164,7 +137,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		List<AccRoleAccountDto> roleAccounts = roleAccoutnService
 				.find((AccRoleAccountFilter) roleAccountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
-			addToItemLog(logItem, "Role account relation was not found!");
+			addToItemLog(logItem, "Warning! - Role account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

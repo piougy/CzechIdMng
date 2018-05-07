@@ -10,7 +10,9 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,28 +47,29 @@ import groovy.lang.Script;
  *
  */
 public class GroovySandboxFilter extends GroovyValueFilter {
-	
-	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
-			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
-			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
-			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, java.util.Date.class,
-			ZoneId.class, Instant.class, LocalDate.class, LocalTime.class, org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class,
-			Map.class, HashMap.class, List.class, ArrayList.class, Set.class, HashSet.class,
-			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class);
+
+	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(String.class, Integer.class, Double.class,
+			Long.class, Date.class, Enum.class, Boolean.class, BigDecimal.class, UUID.class, Character.class,
+			GuardedString.class, DateTimeFormatter.class, DateTimeFormat.class, DateTime.class, String[].class,
+			LocalDateTime.class, java.util.Date.class, ZoneId.class, Instant.class, LocalDate.class, LocalTime.class,
+			org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class, Map.class, HashMap.class, List.class,
+			ArrayList.class, Set.class, HashSet.class, LoggerFactory.class, Logger.class,
+			ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class, Arrays.class,
+			Collections.class);
 
 	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
-	
+
 	public GroovySandboxFilter() {
 	}
 
 	public GroovySandboxFilter(Set<Class<?>> allowedTypes) {
-		if(allowedTypes != null) {
+		if (allowedTypes != null) {
 			allowedCustomTypes.add(allowedTypes);
 		}
 	}
-	
+
 	public void addCustomTypes(Set<Class<?>> allowedTypes) {
-		if(allowedTypes != null) {
+		if (allowedTypes != null) {
 			allowedCustomTypes.add(allowedTypes);
 		}
 	}
@@ -74,7 +77,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	protected Collection<Class<?>> getCustomTypes() {
 		return allowedCustomTypes.getLast();
 	}
-	
+
 	public Collection<Class<?>> removeLastCustomTypes() {
 		return allowedCustomTypes.removeLast();
 	}
@@ -82,7 +85,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	public boolean isCustomTypesLast() {
 		return this.allowedCustomTypes.size() == 1;
 	}
-	
+
 	@Override
 	public Object filter(Object o) {
 		if (o == null) {
@@ -104,7 +107,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 		if (ALLOWED_TYPES.contains(targetClass) || getCustomTypes().contains(targetClass)) {
 			return o;
 		}
-		// TODO: check if this is necessary? 
+		// TODO: check if this is necessary?
 		if (o instanceof Class && ALLOWED_TYPES.contains(o) || getCustomTypes().contains(o)) {
 			return o;
 		}
@@ -115,7 +118,8 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 		if (Throwable.class.isAssignableFrom(targetClass)) {
 			return o; // access for all exception
 		}
-		throw new SecurityException(MessageFormat.format("Script wants to use unauthorized class: [{0}] ", targetClass));
+		throw new SecurityException(
+				MessageFormat.format("Script wants to use unauthorized class: [{0}] ", targetClass));
 	}
 
 }

@@ -20,6 +20,7 @@ import RoleCatalogueAccountManager from './RoleCatalogueAccountManager';
 import ProvisioningBreakConfigManager from './ProvisioningBreakConfigManager';
 import ProvisioningBreakRecipientManager from './ProvisioningBreakRecipientManager';
 import ContractAccountManager from './ContractAccountManager';
+import ContractSliceAccountManager from './ContractSliceAccountManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -43,7 +44,8 @@ const ManagerRoot = {
   RoleCatalogueAccountManager,
   ProvisioningBreakConfigManager,
   ProvisioningBreakRecipientManager,
-  ContractAccountManager
+  ContractAccountManager,
+  ContractSliceAccountManager
 };
 
 ManagerRoot.version = '0.0.1';

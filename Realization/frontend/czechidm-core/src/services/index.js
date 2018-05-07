@@ -56,6 +56,8 @@ import AutomaticRoleRequestService from './AutomaticRoleRequestService';
 import AutomaticRoleAttributeRuleRequestService from './AutomaticRoleAttributeRuleRequestService';
 import EntityEventService from './EntityEventService';
 import EntityStateService from './EntityStateService';
+import ContractSliceService from './ContractSliceService';
+import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -108,7 +110,9 @@ const ServiceRoot = {
   AutomaticRoleRequestService,
   AutomaticRoleAttributeRuleRequestService,
   EntityEventService,
-  EntityStateService
+  EntityStateService,
+  ContractSliceService,
+  ContractSliceGuaranteeService
 };
 
 ServiceRoot.version = '0.0.1';

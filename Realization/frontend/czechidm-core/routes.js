@@ -54,6 +54,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
         },
         {
+          path: 'contract-slices',
+          component: require('./src/content/identity/ContractSlices'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        },
+        {
           path: 'revision',
           component: require('./src/content/identity/Audit'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
@@ -104,13 +109,45 @@ module.exports = {
           path: 'guarantees',
           component: require('./src/content/identity/contract/IdentityContractGuarantees'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
-        }
+        },
+        {
+          path: 'contract-slices',
+          component: require('./src/content/identity/ContractSlices'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        },
       ]
     },
     {
       path: 'identity/:identityId/identity-contract/:entityId/new',
       component: require('./src/content/identity/contract/IdentityContractContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_CREATE' ] } ]
+    },
+    {
+      path: 'identity/:identityId/contract-slice/:entityId/',
+      component: require('./src/content/identity/contractSlice/ContractSlice'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/identity/contractSlice/ContractSliceContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        },
+        {
+          path: 'eav',
+          component: require('./src/content/identity/contractSlice/ContractSliceEav'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        },
+        {
+          path: 'guarantees',
+          component: require('./src/content/identity/contractSlice/ContractSliceGuarantees'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
+        }
+      ]
+    },
+    {
+      path: 'identity/:identityId/contract-slice/:entityId/new',
+      component: require('./src/content/identity/contractSlice/ContractSliceContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_CREATE' ] } ]
     },
     {
       path: 'identities',

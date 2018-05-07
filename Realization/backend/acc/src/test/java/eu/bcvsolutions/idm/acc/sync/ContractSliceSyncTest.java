@@ -162,7 +162,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		helper.createIdentity(CONTRACT_OWNER_ONE);
 		helper.createIdentity(CONTRACT_OWNER_TWO);
 		helper.createIdentity(CONTRACT_LEADER_ONE);
-		
+
 		IdmTreeTypeDto treeType = helper.createTreeType();
 		IdmTreeNodeDto defaultNode = helper.createTreeNode(treeType, null);
 
@@ -189,7 +189,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
 		// Find slice guarantees
 		Assert.assertEquals(1, contractSliceManager
-				.findSliceGuarantees(contractSliceService.find(contractFilter, null).getContent().get(0).getId()).size());
+				.findSliceGuarantees(contractSliceService.find(contractFilter, null).getContent().get(0).getId())
+				.size());
 
 		contractFilter.setValue("2");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
@@ -579,20 +580,20 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, slicesOne.size());
 		// Must have sets ContractSliceSyncTest.WORK_POSITION_CODE work position
 		Assert.assertEquals(workPositionOneNode.getId(), slicesOne.get(0).getWorkPosition());
-		
+
 		contractSliceFilter.setValue("2");
 		List<IdmContractSliceDto> slicesTwo = contractSliceService.find(contractSliceFilter, null).getContent();
 		Assert.assertEquals(1, slicesTwo.size());
 		// Must have sets default work position
 		Assert.assertEquals(defaultNode.getId(), slicesTwo.get(0).getWorkPosition());
-		
+
 		contractSliceFilter.setValue("3");
 		List<IdmContractSliceDto> contractsThree = contractSliceService.find(contractSliceFilter, null).getContent();
 		Assert.assertEquals(1, contractsThree.size());
 		Assert.assertEquals(null, contractsThree.get(0).getState());
 		// Must have sets default work position
 		Assert.assertEquals(defaultNode.getId(), contractsThree.get(0).getWorkPosition());
-		
+
 		contractSliceFilter.setValue("4");
 		Assert.assertEquals(1, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
@@ -603,9 +604,75 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(3, contracts.size());
 		// Slice with id "2" should be current using and must have work position sets to
 		// default node
-		Assert.assertEquals(1, contracts.stream().filter(c -> c.getPosition().equals("2") && c.isValid()
-				&& c.getWorkPosition().equals(defaultNode.getId())).count());
+		Assert.assertEquals(1, contracts.stream().filter(
+				c -> c.getPosition().equals("2") && c.isValid() && c.getWorkPosition().equals(defaultNode.getId()))
+				.count());
 		Assert.assertTrue(slicesTwo.get(0).isUsingAsContract());
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+
+	@Test
+	public void sliceWithDefaultLeaderTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		IdmIdentityDto defaultLeader = helper.createIdentity();
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+
+		((SysSyncContractConfigDto) config).setDefaultLeader(defaultLeader.getId());
+		config = syncConfigService.save(config);
+
+		IdmContractSliceFilter contractSliceFilter = new IdmContractSliceFilter();
+		contractSliceFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractSliceFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+		contractSliceFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractSliceFilter.setValue("2");
+		// Find slice guarantees (Have to be sets default leader.)
+		Assert.assertEquals(defaultLeader.getId(), contractSliceManager
+				.findSliceGuarantees(contractSliceService.find(contractSliceFilter, null).getContent().get(0).getId())
+				.get(0).getId());
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+	
+	@Test
+	public void sliceWithNoExistsLeaderTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		IdmContractSliceFilter contractSliceFilter = new IdmContractSliceFilter();
+		contractSliceFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractSliceFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+		contractSliceFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		// Sync must contains error, because leader CONTRACT_OWNER_ONE does not exist
+		Assert.assertTrue(log.isContainsError());
 		// Delete log
 		syncLogService.delete(log);
 
@@ -626,7 +693,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		List<SysSyncActionLogDto> actionLogs = actions.stream().filter(action -> {
 			return actionType == action.getSyncAction();
 		}).collect(Collectors.toList());
-		
+
 		List<SysSyncItemLogDto> result = new ArrayList<>();
 		actionLogs.forEach(actionLog -> {
 			SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
@@ -740,8 +807,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				LocalDate.now().minusDays(1), "ONE"));
 		entityManager.persist(this.createContract("3", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
 				LocalDate.now().plusDays(10), "ONE"));
-		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
-				LocalDate.now(), "TWO"));
+		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null,
+				null, null, null, LocalDate.now(), "TWO"));
 
 	}
 

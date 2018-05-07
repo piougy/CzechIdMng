@@ -1242,7 +1242,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected abstract void callProvisioningForEntity(DTO dto, SystemEntityType entityType, SysSyncItemLogDto logItem);
+	protected void callProvisioningForEntity(DTO dto, SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		throw new UnsupportedOperationException("Call provisioning method is not implemented!");
+	}
 
 	/**
 	 * Create new instance of ACC account

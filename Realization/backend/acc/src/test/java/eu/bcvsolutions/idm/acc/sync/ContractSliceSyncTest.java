@@ -645,7 +645,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		// Find slice guarantees (Have to be sets default leader.)
 		Assert.assertEquals(defaultLeader.getId(), contractSliceManager
 				.findSliceGuarantees(contractSliceService.find(contractSliceFilter, null).getContent().get(0).getId())
-				.get(0).getId());
+				.get(0).getGuarantee());
 		// Delete log
 		syncLogService.delete(log);
 

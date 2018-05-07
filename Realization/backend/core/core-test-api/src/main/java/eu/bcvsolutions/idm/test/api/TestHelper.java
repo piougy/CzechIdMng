@@ -416,6 +416,14 @@ public interface TestHelper {
 	 * @param configurationPropertyName
 	 */
 	void setConfigurationValue(String configurationPropertyName, boolean value);
+	
+	/**
+	 * Sets configuration value
+	 * 
+	 * @param configurationPropertyName
+	 * @param value
+	 */
+	void setConfigurationValue(String configurationPropertyName, String value);
 
 	/**
 	 * Enables given processor

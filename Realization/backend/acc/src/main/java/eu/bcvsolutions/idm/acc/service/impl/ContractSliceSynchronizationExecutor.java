@@ -504,7 +504,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				if (config.getDefaultTreeType() == null) {
 					context.getLogItem()
 							.addToLog(MessageFormat.format(
-									"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
+									"Warning - Work position - we cannot finding node by code [{0}], because default tree type is not set (in sync configuration)!",
 									value));
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());

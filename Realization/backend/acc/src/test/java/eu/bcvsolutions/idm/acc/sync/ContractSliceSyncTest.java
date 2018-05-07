@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -544,6 +546,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		((SysSyncContractConfigDto) config).setDefaultTreeType(treeType.getId());
 		((SysSyncContractConfigDto) config).setDefaultTreeNode(defaultNode.getId());
+		config = syncConfigService.save(config);
 
 		IdmIdentityDto owner = helper.createIdentity(CONTRACT_OWNER_ONE);
 		helper.createIdentity(CONTRACT_LEADER_ONE);
@@ -565,7 +568,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		contractSliceFilter.setValue("1");
 		List<IdmContractSliceDto> slicesOne = contractSliceService.find(contractSliceFilter, null).getContent();
-		Assert.assertEquals(1, slicesOne);
+		Assert.assertEquals(1, slicesOne.size());
 		// Must have sets ContractSliceSyncTest.WORK_POSITION_CODE work position
 		Assert.assertEquals(workPositionOneNode.getId(), slicesOne.get(0).getWorkPosition());
 		
@@ -591,9 +594,9 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
 		Assert.assertEquals(3, contracts.size());
 		// Slice with id "2" should be current using and must have work position sets to
-		// ContractSliceSyncTest.WORK_POSITION_CODE
+		// default node
 		Assert.assertEquals(1, contracts.stream().filter(c -> c.getPosition().equals("2") && c.isValid()
-				&& c.getWorkPosition().equals(workPositionOneNode.getId())).count());
+				&& c.getWorkPosition().equals(defaultNode.getId())).count());
 		Assert.assertTrue(slicesTwo.get(0).isUsingAsContract());
 		// Delete log
 		syncLogService.delete(log);
@@ -612,14 +615,18 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		actionLogFilter.setSynchronizationLogId(log.getId());
 		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 
-		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
+		List<SysSyncActionLogDto> actionLogs = actions.stream().filter(action -> {
 			return actionType == action.getSyncAction();
-		}).findFirst().get();
-
-		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
-		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(count, items.size());
+		}).collect(Collectors.toList());
+		
+		List<SysSyncItemLogDto> result = new ArrayList<>();
+		actionLogs.forEach(actionLog -> {
+			SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
+			itemLogFilter.setSyncActionLogId(actionLog.getId());
+			List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
+			result.addAll(items);
+		});
+		Assert.assertEquals(count, result.size());
 		return log;
 	}
 

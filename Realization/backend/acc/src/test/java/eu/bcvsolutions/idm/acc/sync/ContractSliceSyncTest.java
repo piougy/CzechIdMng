@@ -182,7 +182,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
 		// Find slice guarantees
 		Assert.assertEquals(1, contractSliceManager
-				.findSliceGuarantees(contractSliceService.find(contractFilter, null).getContent().get(0).getId()));
+				.findSliceGuarantees(contractSliceService.find(contractFilter, null).getContent().get(0).getId()).size());
 
 		contractFilter.setValue("2");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
@@ -192,7 +192,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, contractsThree.size());
 		Assert.assertEquals(null, contractsThree.get(0).getState());
 		// Find slice guarantees
-		Assert.assertEquals(0, contractSliceManager.findSliceGuarantees(contractsThree.get(0).getId()));
+		Assert.assertEquals(0, contractSliceManager.findSliceGuarantees(contractsThree.get(0).getId()).size());
 
 		contractFilter.setValue("4");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());

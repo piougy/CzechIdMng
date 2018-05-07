@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -330,6 +332,25 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
+	
+	/**
+	 * Creates simple identity contract slice
+	 *
+	 * @param identity
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity);
+	
+	/**
+	 * Creates identity contract slice on given position
+	 *
+	 * @param identity
+	 * @param position
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
 
 	/**
 	 * Creates identity contract on given position
@@ -366,6 +387,15 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
+	
+	/**
+	 * Creates identity contract's guarantee slice
+	 *
+	 * @param identityContractId
+	 * @param identityId
+	 * @return
+	 */
+	IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId);
 
 	/**
 	 * Assign roles through role request (manual, execute immediately)

@@ -66,7 +66,7 @@ public class SelectCurrentContractSliceTaskExecutor extends AbstractSchedulableT
 					duplicitiesMessage = new StringBuilder();
 				}
 				if (!invalidContracts.contains(slice.getParentContract())) {
-					duplicitiesMessage.append(slice.getParentContract()).append(",");
+					duplicitiesMessage.append(slice.getParentContract()).append(',');
 					invalidContracts.add(slice.getParentContract());
 				}
 

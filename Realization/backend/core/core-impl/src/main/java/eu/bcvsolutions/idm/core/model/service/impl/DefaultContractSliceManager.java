@@ -136,11 +136,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	public IdmContractSliceDto findNextSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slices);
+		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		if (slice.getValidFrom() == null) {
-			return null;
+			slices.stream() //
+			.filter(s -> !s.equals(slice) && s.getValidFrom() != null) //
+			.min(comparatorValidFrom) //
+			.orElse(null); //
 		}
 
-		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		return slices.stream() //
 				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
 						&& s.getValidFrom().isAfter(slice.getValidFrom())) //

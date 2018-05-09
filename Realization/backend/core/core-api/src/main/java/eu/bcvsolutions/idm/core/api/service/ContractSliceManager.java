@@ -61,7 +61,7 @@ public interface ContractSliceManager {
 	void setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
 
 	/**
-	 * Find next valid slice for that contract. First find valid slice for now. Then
+	 * Find slice that is currently valid (or first in future) for given contract. First find valid slice for now. If none exist then
 	 * find the nearest slice valid in future. If none slice will be found, then
 	 * return null.
 	 * 

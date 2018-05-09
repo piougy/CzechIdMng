@@ -23,6 +23,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -42,6 +44,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -100,6 +104,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmFormDefinitionService formDefinitionService;
 	@Autowired private IdmFormAttributeService formAttributeService;
 	@Autowired private LoginService loginService;
+	@Autowired private IdmContractSliceService contractSliceService;
+	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	
 	@Override
 	public LoginDto login(String username, String password) {
@@ -351,6 +357,25 @@ public class DefaultTestHelper implements TestHelper {
 		contract.setValidTill(validTill);
 		return identityContractService.save(contract);
 	}
+	
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity) {
+		return createContractSlice(identity, null, null, null, null);
+	}
+
+	
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill) {
+		IdmContractSliceDto contract = new IdmContractSliceDto();
+		contract.setIdentity(identity.getId());
+		contract.setPosition(createName());
+		contract.setWorkPosition(position == null ? null : position.getId());
+		contract.setValidFrom(validFrom);
+		contract.setContractValidFrom(contractValidFrom);
+		contract.setContractValidTill(contractValidTill);
+		return contractSliceService.save(contract);
+	}
+
 
 	@Override
 	public void deleteIdentityContact(UUID id) {
@@ -360,6 +385,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {
 		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
+	}
+	
+	@Override
+	public IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId) {
+		return contractSliceGuaranteeService.save(new IdmContractSliceGuaranteeDto(sliceId, identityId));
 	}
 
 	@Override

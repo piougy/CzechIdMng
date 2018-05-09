@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractSliceAccountDto;
@@ -90,8 +89,6 @@ import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceGuaranteeEvent.ContractSliceGuaranteeEventType;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
@@ -239,26 +236,27 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	 * @param entityType
 	 * @param logItem
 	 */
-	@Override
-	protected void callProvisioningForEntity(IdmContractSliceDto entity, SystemEntityType entityType,
-			SysSyncItemLogDto logItem) {
-		addToItemLog(logItem,
-				MessageFormat.format(
-						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-						entity.getId(), entity.getPosition()));
-		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
-		// We do not want execute HR processes for every contract. We need start
-		// them for every identity only once.
-		// For this we skip them now. HR processes must be start after whole
-		// sync finished (by using dependent scheduled task)!
-		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
-		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
-
-		entityEventManager.process(event);
-	}
+// TODO: Uncomment after contract will supports provisioning
+//	@Override
+//	protected void callProvisioningForEntity(IdmContractSliceDto entity, SystemEntityType entityType,
+//			SysSyncItemLogDto logItem) {
+//		addToItemLog(logItem,
+//				MessageFormat.format(
+//						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
+//						entity.getId(), entity.getPosition()));
+//		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
+//		// We do not want execute HR processes for every contract. We need start
+//		// them for every identity only once.
+//		// For this we skip them now. HR processes must be start after whole
+//		// sync finished (by using dependent scheduled task)!
+//		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+//		//
+//		// We don't want recalculate automatic role by attribute recalculation for every contract.
+//		// Recalculation will be started only once.
+//		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+//
+//		entityEventManager.process(event);
+//	}
 
 	/**
 	 * Operation remove IdentityContractAccount relations and linked roles

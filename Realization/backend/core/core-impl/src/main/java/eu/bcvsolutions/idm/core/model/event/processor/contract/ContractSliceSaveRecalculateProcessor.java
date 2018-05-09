@@ -62,7 +62,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 		IdmContractSliceDto originalSlice = event.getOriginalSource();
 		boolean forceRecalculateCurrentUsingSlice = this.getBooleanProperty(
 				IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, event.getProperties());
-
+		
 		if (slice.getIdentity() != null) {
 			UUID parentContract = slice.getParentContract();
 
@@ -118,11 +118,11 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 						}
 					} else {
 						// Next slice does not exists. I means original slice was last. Set valid-till
-						// on previous slice to null.
+						// on previous slice to contract valid till.
 						IdmContractSliceDto originalPreviousSlice = sliceManager.findPreviousSlice(originalSlice,
 								originalSlices);
 						if (originalPreviousSlice != null) {
-							originalPreviousSlice.setValidTill(null);
+							originalPreviousSlice.setValidTill(originalPreviousSlice.getContractValidTill());
 							originalSliceToUpdate = originalPreviousSlice;
 						}
 					}
@@ -156,12 +156,9 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 					IdmContractSliceDto nextSlice = sliceManager.findNextSlice(slice, slices);
 					if (nextSlice != null) {
 						LocalDate validTill = nextSlice.getValidFrom().minusDays(1);
-						// Save only if valid till is changed
-						if (slice.getValidTill() == null || !validTill.isEqual(slice.getValidTill())) {
-							slice.setValidTill(validTill);
-						}
+					    slice.setValidTill(validTill);
 					} else {
-						slice.setValidTill(null);
+						slice.setValidTill(slice.getContractValidTill());
 					}
 					// Save with skip this processor
 					saveWithoutRecalculate(slice);
@@ -185,6 +182,16 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				if (shouldBeSetAsUsing != null) {
 					sliceManager.setSliceAsCurrentlyUsing(shouldBeSetAsUsing);
 				}
+			}
+		}
+		
+		// Check if is slice new or contract valid till field was changed.
+		if (originalSlice == null || (!Objects.equal(originalSlice.getContractValidTill(), slice.getContractValidTill()))) {
+			// If is slice last, then will be to slice valid till copy date of contract valid till
+			boolean isSliceLast = sliceManager.findNextSlice(slice, sliceManager.findAllSlices(parentContract)) == null ? true : false;
+			if(isSliceLast) {
+				slice.setValidTill(slice.getContractValidTill());
+				this.saveWithoutRecalculate(slice);
 			}
 		}
 

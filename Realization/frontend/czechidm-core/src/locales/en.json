@@ -216,6 +216,33 @@
       "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-add-role-bulk-action": {
+        "niceLabel": "Bulk roles assignment",
+        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)",
+        "attributes": {
+          "role": {
+            "label": "Roles",
+            "helpBlock": ""
+          },
+          "approve": {
+            "label": "Approve",
+            "helpBlock": "After check, the role assignment will be approved"
+          },
+          "mainContract": {
+            "label": "Assign to main contract only",
+            "helpBlock": "Assigning new roles will only be done on the main contract."
+          }
+        }
+      }
+    },
+    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on all currently filtered items. To this date [{{date}}] actual count [{{count}}]. Processed items may be different.",
+    "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
+    "button": {
+      "execute": "Execute"
+    }
+  },
   "environment": {
     "development": {
       "short": "D",
@@ -3811,6 +3838,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Event cannot be deleted",
       "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    },
+    "BULK_ACTION_REQUIRED_PROPERTY": {
+      "title": "Required property wasn't filled",
+      "message": "Property [{{attributeCode}}] wasn't filled."
     }
   },
   "validationError": {

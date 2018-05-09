@@ -244,6 +244,33 @@
       "accepted_5": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu)."
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-add-role-bulk-action": {
+        "niceLabel": "Hromadné přidělení rolí",
+        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)",
+        "attributes": {
+          "role": {
+            "label": "Role",
+            "helpBlock": ""
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "helpBlock": "Po zakrtnutí bude přidělení role schvalováno"
+          },
+          "mainContract": {
+            "label": "Přiřadit pouze na hlavní kontrakt",
+            "helpBlock": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+          }
+        }
+      }
+    },
+    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad všemi právě vyfiltrovanými položkami. K tomuto datu [{{date}}] aktuální počet [{{count}}]. Zpracované položky se mohou lišit.",
+    "created": "Hromadná uloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "button": {
+      "execute": "Spustit"
+    }
+  },
   "environment": {
     "development": {
       "short": "D",
@@ -3857,6 +3884,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Událost nelze smazat",
       "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    },
+    "BULK_ACTION_REQUIRED_PROPERTY": {
+      "title": "Nebyla vyplněna povinná položka",
+      "message": "Položka [{{attributeCode}}] nebyla vyplněna."
     }
   },
   "validationError": {

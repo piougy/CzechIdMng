@@ -40,6 +40,7 @@ import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
+import EavAttributeForm from './Form/EavAttributeForm';
 
 const Components = {
   Table,
@@ -85,7 +86,8 @@ const Components = {
   OperationResult,
   WorkflowTaskInfo,
   TreeTypeInfo,
-  TreeNodeInfo
+  TreeNodeInfo,
+  EavAttributeForm
 };
 
 Components.version = '0.0.1';

@@ -3,12 +3,16 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -22,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -69,6 +74,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected ModelMapper modelMapper;
 	@Autowired
 	private ApplicationContext context;
+	@Autowired
+	private EntityManager entityManager;
 	//
 	private AuthorizationManager authorizationManager;
 	private FilterManager filterManager;
@@ -176,6 +183,50 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return toDtoPage(findEntities(filter, pageable, permission));
 	}
 	
+	@Override
+	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
+		return this.findIds(null, pageable, permission);
+	}
+	
+	@Override
+	public Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission) {
+		Specification<E> criteria = tranfromFilterToCriteria(filter, permission);
+		
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<UUID> cq = criteriaBuilder.createQuery(UUID.class);
+		Root<E> root = cq.from(getEntityClass());
+
+		cq.select(root.get("id"));
+
+		Predicate predicate = criteria.toPredicate(root, cq, criteriaBuilder);
+		cq.where(predicate);
+
+		// prepare sort
+		if (pageable != null && pageable.getSort() != null) {
+			List<Order> orders = QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder);
+			cq.orderBy(orders);
+		}
+
+		TypedQuery<UUID> query = entityManager.createQuery(cq);
+
+		// if pageable is empty return result
+		if (pageable == null) {
+			return new PageImpl<UUID>(query.getResultList());
+		}
+		
+		// count query
+		CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+		countQuery.where(predicate);
+		Long total = entityManager.createQuery(countQuery).getSingleResult();
+		
+		query.setFirstResult(pageable.getOffset());
+		query.setMaxResults(pageable.getPageSize());
+		
+		List<UUID> content = total > pageable.getOffset() ? query.getResultList() : Collections.<UUID> emptyList();
+		
+		return new PageImpl<UUID>(content, pageable, total);
+	}
+	
 	/**
 	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props. 
 	 * Transforms given filter to jpa predicate, never returns null.
@@ -225,27 +276,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		// transform filter to criteria
-		Specification<E> criteria = new Specification<E>() {
-			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				List<Predicate> predicates = new ArrayList<>();
-				//
-				// if filter is null, no filter predicates will be built
-				if (filter != null) {
-					predicates.addAll(AbstractReadDtoService.this.toPredicates(root, query, builder, filter));
-				}
-				//
-				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
-				BasePermission[] permissions = PermissionUtils.trimNull(permission);
-				if (!ObjectUtils.isEmpty(permissions) && (AbstractReadDtoService.this instanceof AuthorizableService)) {					
-					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
-					if (authorizableType != null && authorizableType.getType() != null) {					
-						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permissions));
-					}
-				}
-				//
-				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
-			}
-		};
+		Specification<E> criteria = tranfromFilterToCriteria(filter, permission);
 		return getRepository().findAll(criteria, pageable);
 	}
 	
@@ -433,4 +464,34 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		this.modelMapper = modelMapper;
 	}
 
+	/**
+	 * Transform filter with permission to criteria
+	 *
+	 * @param filter
+	 * @param permission
+	 * @return
+	 */
+	private Specification<E> tranfromFilterToCriteria(F filter, BasePermission... permission) {
+		return new Specification<E>() {
+			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				List<Predicate> predicates = new ArrayList<>();
+				//
+				// if filter is null, no filter predicates will be built
+				if (filter != null) {
+					predicates.addAll(AbstractReadDtoService.this.toPredicates(root, query, builder, filter));
+				}
+				//
+				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
+				BasePermission[] permissions = PermissionUtils.trimNull(permission);
+				if (!ObjectUtils.isEmpty(permissions) && (AbstractReadDtoService.this instanceof AuthorizableService)) {					
+					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
+					if (authorizableType != null && authorizableType.getType() != null) {					
+						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permissions));
+					}
+				}
+				//
+				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
+			}
+		};
+	}
 }

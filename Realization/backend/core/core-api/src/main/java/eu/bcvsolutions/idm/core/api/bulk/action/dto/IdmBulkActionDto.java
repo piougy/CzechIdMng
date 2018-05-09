@@ -1,6 +1,7 @@
-package eu.bcvsolutions.idm.core.api.bulk.operation.dto;
+package eu.bcvsolutions.idm.core.api.bulk.action.dto;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -12,31 +13,41 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
 /**
- * Basic DTO for bulk operation. The DTO contains information about bulk
- * operation and parameters.
+ * Basic DTO for bulk actions. The DTO contains information about bulk
+ * actions, filter and parameters.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Relation(collectionRelation = "bulkOperations")
-public class IdmBulkOperationDto implements Serializable {
+public class IdmBulkActionDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private String name;
+	@JsonProperty(access = Access.READ_ONLY)
 	private String module;
+	@JsonProperty(access = Access.READ_ONLY)
 	private String entityClass;
+	@JsonProperty(access = Access.READ_ONLY)
 	private String filterClass;
 	@JsonIgnore
-	private transient BaseFilter filter;
+	private transient BaseFilter transformedFilter;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Map<String, Object> properties;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	private Map<String, Object> filter;
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID longRunningTaskId;
-	private Set<String> identifiers;
-	private Set<String> removeIdentifiers;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	private Set<UUID> identifiers;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	private Set<UUID> removeIdentifiers;
+	@JsonProperty(access = Access.READ_ONLY)
+	private List<IdmFormAttributeDto> formAttributes;
 
 	public UUID getLongRunningTaskId() {
 		return longRunningTaskId;
@@ -86,27 +97,43 @@ public class IdmBulkOperationDto implements Serializable {
 		this.filterClass = filterClass;
 	}
 
-	public BaseFilter getFilter() {
+	public BaseFilter getTransformedFilter() {
+		return transformedFilter;
+	}
+
+	public void setTransformedFilter(BaseFilter transformedFilter) {
+		this.transformedFilter = transformedFilter;
+	}
+
+	public Map<String, Object> getFilter() {
 		return filter;
 	}
 
-	public void setFilter(BaseFilter filter) {
+	public void setFilter(Map<String, Object> filter) {
 		this.filter = filter;
 	}
 
-	public Set<String> getIdentifiers() {
+	public Set<UUID> getIdentifiers() {
 		return identifiers;
 	}
 
-	public void setIdentifiers(Set<String> identifiers) {
+	public void setIdentifiers(Set<UUID> identifiers) {
 		this.identifiers = identifiers;
 	}
 
-	public Set<String> getRemoveIdentifiers() {
+	public Set<UUID> getRemoveIdentifiers() {
 		return removeIdentifiers;
 	}
 
-	public void setRemoveIdentifiers(Set<String> removeIdentifiers) {
+	public void setRemoveIdentifiers(Set<UUID> removeIdentifiers) {
 		this.removeIdentifiers = removeIdentifiers;
+	}
+
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		return formAttributes;
+	}
+
+	public void setFormAttributes(List<IdmFormAttributeDto> formAttributes) {
+		this.formAttributes = formAttributes;
 	}
 }

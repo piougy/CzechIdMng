@@ -2,6 +2,8 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import _ from 'lodash';
+import Immutable from 'immutable';
+import moment from 'moment';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
@@ -9,6 +11,8 @@ import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
+import { DataManager, FormAttributeManager } from '../../../redux/data';
+import EavAttributeForm from '../Form/EavAttributeForm';
 
 /**
  * Table component with header and columns.
@@ -21,8 +25,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     super(props, context);
     this.state = {
       filterOpened: this.props.filterOpened,
-      selectedRows: this.props.selectedRows
+      selectedRows: this.props.selectedRows,
+      removedRows: new Immutable.Set(),
+      showBulkActionDetail: false,
+      bulkActionShowLoading: false
     };
+    this.attributeManager = new FormAttributeManager();
   }
 
   /**
@@ -35,7 +43,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
+    const { useBackendBulkAction, manager } = this.props;
     this.reload();
+    //
+    if (useBackendBulkAction) {
+      this.context.store.dispatch(manager.fetchAvailableBulkActions());
+    }
   }
 
   componentWillReceiveProps(newProps) {
@@ -62,6 +75,95 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.setState({
       selectedRows: []
     });
+  }
+
+  selectRowForBulkAction(rowIndex, selected) {
+    const { selectedRows, removedRows } = this.state;
+    let newRemovedRows = new Immutable.Set(removedRows);
+    let newSelectedRows = new Immutable.Set(selectedRows);
+    if (rowIndex === -1) {
+      // de/select all rows
+      // reset selected rows
+      newSelectedRows = new Immutable.Set();
+      if (selected) {
+        newSelectedRows = newSelectedRows.add(Basic.Table.SELECT_ALL);
+      } else {
+        newSelectedRows = newSelectedRows.remove(Basic.Table.SELECT_ALL);
+      }
+      // reset removed rows
+      newRemovedRows = new Immutable.Set();
+    } else {
+      const recordId = this.refs.table.getIdentifier(rowIndex);
+      // de/select one row
+      if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
+        if (selected) {
+          newRemovedRows = newRemovedRows.remove(recordId);
+        } else {
+          newRemovedRows = newRemovedRows.add(recordId);
+        }
+      } else {
+        newSelectedRows = (selected ? newSelectedRows.add(recordId) : newSelectedRows.remove(recordId));
+      }
+    }
+    this.setState({
+      selectedRows: newSelectedRows.toArray(),
+      removedRows: newRemovedRows
+    });
+    return newSelectedRows;
+  }
+
+  isRowSelected(identifier) {
+    const { selectedRows, removedRows } = this.state;
+    if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
+      return !removedRows.has(identifier);
+    }
+    return _.includes(selectedRows, identifier);
+  }
+
+  processBulkAction(bulkAction, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const _searchParameters = this._mergeSearchParameters(this.props._searchParameters);
+
+    const { selectedRows, removedRows } = this.state;
+
+    if (bulkAction) {
+      const bulkActionToProcess = {
+        ...bulkAction
+      };
+      const { manager } = this.props;
+      // remove unnecessary attributes
+      delete bulkActionToProcess.formAttributes;
+      delete bulkActionToProcess.longRunningTaskId;
+      //
+      bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
+      if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
+        bulkActionToProcess.filter = _searchParameters.getFilters().toJSON();
+        bulkActionToProcess.removeIdentifiers = removedRows.toArray();
+      } else {
+        bulkActionToProcess.identifiers = selectedRows;
+      }
+      //
+      this.setState({
+        bulkActionShowLoading: true
+      });
+      this.context.store.dispatch(manager.processBulkAction(bulkActionToProcess, (processBulkAction, error) => {
+        if (error) {
+          this.addErrorMessage({}, error);
+        } else {
+          this.addMessage({ level: 'info', message: this.i18n('bulkAction.created', { longRunningTaskId: processBulkAction.longRunningTaskId, name: this.i18n(processBulkAction.module + 'bulkAction.actions.' + processBulkAction.name + '.niceLabel')})});
+          this.showBulkActionDetail(null);
+          this.setState({
+            selectedRows: [],
+            removedRows: new Immutable.Set()
+          });
+        }
+        this.setState({
+          bulkActionShowLoading: false
+        });
+      }));
+    }
   }
 
   /**
@@ -239,6 +341,74 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
+  showBulkActionDetail(backendBulkAction) {
+    const { showBulkActionDetail } = this.state;
+    // transform forma attribute to better localization
+    if (backendBulkAction && backendBulkAction.formAttributes) {
+      backendBulkAction.formAttributes.forEach(attribute => {
+        attribute.name = this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.attributes.' + attribute.code + '.label');
+        attribute.description = this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.attributes.' + attribute.code + '.helpBlock');
+      });
+    }
+    //
+    this.setState({
+      backendBulkAction,
+      showBulkActionDetail: !showBulkActionDetail
+    });
+  }
+
+  _backendBulkActionDetail() {
+    const { backendBulkAction, showBulkActionDetail, bulkActionShowLoading, selectedRows, removedRows } = this.state;
+    const { _total } = this.props;
+    const count = _total - removedRows.size;
+    return (
+      <div>
+        <Basic.Modal
+          show={ showBulkActionDetail }
+          onHide={ this.showBulkActionDetail.bind(this) }
+          backdrop="static">
+          {
+            !backendBulkAction
+            ||
+            <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
+              <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.header') }/>
+              <Basic.Modal.Body>
+                <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
+                  <Basic.Alert
+                    level="warning"
+                    text={this.i18n('bulkAction.selectAllRecordsWarning',
+                      {
+                        count,
+                        action: this.i18n(backendBulkAction.module + 'bulkAction.actions.' + backendBulkAction.name + '.header'),
+                        date: moment(new Date()).format(this.i18n('format.datetime')) })}
+                    rendered={_.includes(selectedRows, Basic.Table.SELECT_ALL)} />
+                  <EavAttributeForm
+                    ref="bulkActionAttributes"
+                    formAttributes={backendBulkAction.formAttributes} />
+                </Basic.AbstractForm>
+              </Basic.Modal.Body>
+              <Basic.Modal.Footer>
+                <Basic.Button
+                  level="link"
+                  onClick={this.showBulkActionDetail.bind(this)}>
+                  {this.i18n('button.close')}
+                </Basic.Button>
+                <Basic.Button
+                  type="submit"
+                  level="success"
+                  showLoading={bulkActionShowLoading}
+                  showLoadingIcon
+                  showLoadingText={ this.i18n('button.saving') }>
+                  {this.i18n('bulkAction.button.execute')}
+                </Basic.Button>
+              </Basic.Modal.Footer>
+            </form>
+          }
+        </Basic.Modal>
+      </div>
+    );
+  }
+
   render() {
     const {
       _entities,
@@ -265,11 +435,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       showToolbar,
       condensed,
       header,
-      forceSearchParameters
+      forceSearchParameters,
+      useBackendBulkAction,
+      _backendBulkActions
     } = this.props;
     const {
       filterOpened,
-      selectedRows
+      selectedRows,
+      removedRows
     } = this.state;
     //
     if (!rendered) {
@@ -384,10 +557,31 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     //
     let _actions = [];
-    if (actions !== null && actions.length > 0) {
-      _actions = actions.filter(action => {
-        return action.rendered === undefined || action.rendered === true || action.rendered === null;
-      });
+    if (useBackendBulkAction) {
+      for (const index in _backendBulkActions) {
+        if (_backendBulkActions.hasOwnProperty(index)) {
+          const backendBulkAction = _backendBulkActions[index];
+          _actions.push({
+            value: backendBulkAction.name,
+            niceLabel: this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.niceLabel'),
+            action: this.showBulkActionDetail.bind(this, backendBulkAction)
+          });
+        }
+      }
+      //
+    } else {
+      if (actions !== null && actions.length > 0) {
+        _actions = actions.filter(action => {
+          return action.rendered === undefined || action.rendered === true || action.rendered === null;
+        });
+      }
+    }
+
+    let count = 0;
+    if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
+      count = _total - removedRows.size;
+    } else {
+      count = selectedRows.length;
     }
 
     return (
@@ -405,7 +599,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   className={selectedRows.length <= 0 ? 'hidden' : 'bulk-action'}
                   multiSelect={false}
                   options={ _actions }
-                  placeholder={this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
+                  placeholder={this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count })}
                   rendered={ _actions.length > 0 && showRowSelection}
                   searchable={false}/>
               </div>
@@ -465,7 +659,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               onRowSelect={this._onRowSelect.bind(this)}
               rowClass={_rowClass}
               condensed={condensed}
-              noData={this.getNoData(noData)}>
+              noData={this.getNoData(noData)}
+              selectRowCb={useBackendBulkAction ? this.selectRowForBulkAction.bind(this) : null}
+              isRowSelectedCb={useBackendBulkAction ? this.isRowSelected.bind(this) : null}>
 
               {renderedColumns}
 
@@ -490,6 +686,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               total={ pagination ? _total : _entities.length } {...range} />
           </div>
         }
+        { this._backendBulkActionDetail() }
       </div>
     );
   }
@@ -599,7 +796,10 @@ AdvancedTable.propTypes = {
    * Shows toolbar.
    */
   showToolbar: PropTypes.bool,
-
+  /**
+   * Use bulk operation from backend
+   */
+  useBackendBulkAction: PropTypes.bool,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -613,7 +813,8 @@ AdvancedTable.propTypes = {
   /**
    * Persisted / used search parameters in redux
    */
-  _searchParameters: PropTypes.object
+  _searchParameters: PropTypes.object,
+  _backendBulkActions: PropTypes.arrayOf(PropTypes.object),
 };
 AdvancedTable.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
@@ -622,6 +823,7 @@ AdvancedTable.defaultProps = {
   _total: null,
   _searchParameters: null,
   _error: null,
+  _backendBulkActions: null,
   pagination: true,
   showRowSelection: false,
   showFilter: true,
@@ -631,11 +833,13 @@ AdvancedTable.defaultProps = {
   actions: [],
   buttons: [],
   showPageSize: true,
-  showToolbar: true
+  showToolbar: true,
+  useBackendBulkAction: false
 };
 
 function select(state, component) {
   const uiKey = component.manager.resolveUiKey(component.uiKey);
+  const useBackendBulkAction = component.useBackendBulkAction;
   const ui = state.data.ui[uiKey];
   if (!ui) {
     return {};
@@ -646,6 +850,7 @@ function select(state, component) {
     _total: ui.total,
     _searchParameters: ui.searchParameters,
     _error: ui.error,
+    _backendBulkActions: useBackendBulkAction ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null
   };
 }
 

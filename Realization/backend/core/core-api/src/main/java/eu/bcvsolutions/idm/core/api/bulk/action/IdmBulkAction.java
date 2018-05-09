@@ -1,15 +1,11 @@
-package eu.bcvsolutions.idm.core.api.bulk.operation;
+package eu.bcvsolutions.idm.core.api.bulk.action;
 
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.core.api.bulk.operation.dto.IdmBulkOperationDto;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
@@ -20,16 +16,16 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  *
  */
 
-public interface IdmBulkOperation<DTO extends BaseDto>
+public interface IdmBulkAction<DTO extends BaseDto>
 		extends Plugin<Class<? extends AbstractEntity>> {
 
 	List<IdmFormAttributeDto> getFormAttributes();
 
 	String getName();
 	
-	IdmBulkOperationDto getOperation();
+	IdmBulkActionDto getAction();
 
-	void setOperation(IdmBulkOperationDto operation);
+	void setAction(IdmBulkActionDto action);
 	
 	String getFilterClass();
 	
@@ -37,4 +33,5 @@ public interface IdmBulkOperation<DTO extends BaseDto>
 	
 	String getModule();
 	
+	void validate();
 }

@@ -112,12 +112,9 @@ const ServiceRoot = {
   AutomaticRoleAttributeRuleRequestService,
   EntityEventService,
   EntityStateService,
-<<<<<<< HEAD
-  BulkActionService
-=======
+  BulkActionService,
   ContractSliceService,
   ContractSliceGuaranteeService
->>>>>>> okopr/1090-precessed-items-lrt
 };
 
 ServiceRoot.version = '0.0.1';

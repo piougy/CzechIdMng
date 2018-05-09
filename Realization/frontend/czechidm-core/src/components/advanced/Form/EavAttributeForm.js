@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
 import { FormAttributeManager } from '../../../redux';

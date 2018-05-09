@@ -26,6 +26,24 @@
       }
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-log-example-bulk-action": {
+        "niceLabel": "Log identities",
+        "header": "$t(example:bulkAction.actions.identity-log-example-bulk-action.niceLabel)",
+        "attributes": {
+          "exampleText": {
+            "label": "Example input text",
+            "helpBlock": ""
+          },
+          "exampleWarning": {
+            "label": "Log into warning",
+            "helpBlock": "After check username will be log into warning"
+          }
+        }
+      }
+    }
+  },
   "permission": {
     "group": {
       "EXAMPLEPRODUCT": "Ukázkové produkty"

@@ -26,6 +26,24 @@
       }
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-log-example-bulk-action": {
+        "niceLabel": "Logování identit",
+        "header": "$t(example:bulkAction.actions.identity-log-example-bulk-action.niceLabel)",
+        "attributes": {
+          "exampleText": {
+            "label": "Příklad vstupního textu",
+            "helpBlock": ""
+          },
+          "exampleWarning": {
+            "label": "Logovat do warning",
+            "helpBlock": "Po zaškrtnutí bude uživatelské jméno logováno do warning"
+          }
+        }
+      }
+    }
+  },
   "permission": {
     "group": {
       "EXAMPLEPRODUCT": "Ukázkové produkty"

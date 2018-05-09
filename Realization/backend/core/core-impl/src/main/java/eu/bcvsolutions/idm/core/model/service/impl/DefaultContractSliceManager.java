@@ -128,7 +128,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		// Previous slice will be valid till starts of validity next slice
 		previousSlice.setValidTill(slice.getValidFrom().minusDays(1));
 		contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, previousSlice,
-				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
+				ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 	}
 
 	@Override
@@ -199,7 +199,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 						// We want only save data, not update contract by slice
 						contractSliceService
 								.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s, ImmutableMap.of(
-										IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
+										IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 					});
 		}
 		slice.setUsingAsContract(true);

@@ -124,7 +124,7 @@ public class IdentityContractDeleteProcessor
 			// Set relation to null
 			slice.setParentContract(null);
 			contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-					ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
+					ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 		});
 		
 		// delete identity contract

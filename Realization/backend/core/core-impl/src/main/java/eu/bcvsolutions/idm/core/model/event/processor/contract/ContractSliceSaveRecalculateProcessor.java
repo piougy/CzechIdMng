@@ -206,7 +206,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 	 */
 	private void saveWithoutRecalculate(IdmContractSliceDto slice) {
 		service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
+				ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 	}
 
 	private IdmContractSliceDto updateContract(IdmContractSliceDto slice, UUID parentContract) {
@@ -279,7 +279,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 
 	@Override
 	public boolean conditional(EntityEvent<IdmContractSliceDto> event) {
-		return !this.getBooleanProperty(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT,
+		return !this.getBooleanProperty(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE,
 				event.getProperties());
 	}
 

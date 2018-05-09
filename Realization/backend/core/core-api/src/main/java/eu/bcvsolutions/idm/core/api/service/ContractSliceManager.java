@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
  * Manager for contract time slices
@@ -16,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
  * @author svandav
  *
  */
-public interface ContractSliceManager {
+public interface ContractSliceManager extends ScriptEnabled  {
 
 	/**
 	 * Create contract by given slice

@@ -343,14 +343,15 @@ public interface TestHelper {
 	
 	/**
 	 * Creates identity contract slice on given position
-	 *
+	 * 
 	 * @param identity
 	 * @param position
 	 * @param validFrom
-	 * @param validTill
+	 * @param contractValidFrom
+	 * @param contractValidTill
 	 * @return
 	 */
-	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
 
 	/**
 	 * Creates identity contract on given position

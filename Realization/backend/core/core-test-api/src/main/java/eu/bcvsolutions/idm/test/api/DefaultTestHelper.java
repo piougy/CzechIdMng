@@ -360,18 +360,19 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity) {
-		return createContractSlice(identity, null, null, null);
+		return createContractSlice(identity, null, null, null, null);
 	}
 
 	
 	@Override
-	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill) {
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill) {
 		IdmContractSliceDto contract = new IdmContractSliceDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition(createName());
 		contract.setWorkPosition(position == null ? null : position.getId());
 		contract.setValidFrom(validFrom);
-		contract.setValidTill(validTill);
+		contract.setContractValidFrom(contractValidFrom);
+		contract.setContractValidTill(contractValidTill);
 		return contractSliceService.save(contract);
 	}
 

@@ -3110,7 +3110,7 @@
       "specialCharBase": "Povolené speciální znaky",
       "identityAttributeCheck": "Atributy identity pro kontrolu",
       "help": {
-        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IdM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "defaultPolicy": "Standardní politika je použita pro CzechIdM a všechny systémy, kde není určena jiná politika.",
         "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
         "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",

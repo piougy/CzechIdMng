@@ -25,6 +25,14 @@ export default class IdentityContractManager extends FormableEntityManager {
     return 'identityContracts';
   }
 
+  canSave(entity, _permissions) {
+    // Contratct controlled by slices cannot be modified
+    if (entity && entity.controlledBySlices) {
+      return false;
+    }
+    return super.canSave(entity, _permissions);
+  }
+
   /**
    * Extended nice label
    *

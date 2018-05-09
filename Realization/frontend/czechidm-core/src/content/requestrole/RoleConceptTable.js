@@ -424,6 +424,24 @@ export class RoleConceptTable extends Basic.AbstractContent {
     );
   }
 
+  /**
+   * Pre-fill valid-from by contract validity
+   */
+  _onChangeSelectOfContract(value) {
+    const{detail} = this.state;
+    let validFrom = value ? value.validFrom : null;
+    const now = moment().utc().valueOf();
+    if (validFrom && moment(validFrom).isBefore(now)) {
+      validFrom = now;
+    }
+    const entityFormData = _.merge({}, detail.entity);
+    entityFormData.validFrom = validFrom;
+    entityFormData.identityContract = value;
+    this._showDetail(entityFormData, detail.edit, detail.add);
+
+    return false;
+  }
+
   render() {
     const { showLoading, identityUsername, readOnly, className } = this.props;
     const { conceptData, detail, showRoleCatalogue } = this.state;
@@ -555,6 +573,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
                   returnProperty={false}
                   readOnly={!detail.entity._added}
+                  onChange={this._onChangeSelectOfContract.bind(this)}
                   hidden={showRoleCatalogue}
                   required
                   useFirst/>

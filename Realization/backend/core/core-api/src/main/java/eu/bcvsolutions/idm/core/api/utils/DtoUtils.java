@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.util.UUID;
+
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.springframework.util.Assert;
@@ -90,6 +92,18 @@ public class DtoUtils {
 	 */
 	public static void clearAuditFields(Auditable auditable) {
 		EntityUtils.clearAuditFields(auditable);
+	}
+	
+	/**
+	 * Returns {@link UUID} from given {@code string} or {@link UUID}.
+	 * 
+	 * @param identifier {@code string} or {@link UUID} 
+	 * @return
+     * @throws IllegalArgumentException If identifier does not conform to the string representation as
+     *          described in {@link #toString}
+	 */	
+	public static UUID toUuid(Object identifier) {
+		return EntityUtils.toUuid(identifier);
 	}
 	
 }

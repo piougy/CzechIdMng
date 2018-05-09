@@ -468,6 +468,27 @@
         }
       }
     },
+    "contract-slice": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
     "provisioningOperations": {
       "label": "Provisioning",
       "title" : "Provisioning - log operací",
@@ -648,7 +669,8 @@
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",
-      "systemMapping": "Název mapování"
+      "systemMapping": "Název mapování",
+      "forwardAccountManagemen": "Dopředná správa účtů"
     },
     "SystemEntity": {
       "_type": "Entita na systému",
@@ -782,7 +804,8 @@
       "systemEntity": "Navázaná entita na systému",
       "uid": "Identifikátor účtu",
       "inProtection": "Je chráněn před smazáním",
-      "endOfProtection": "Chráněn do"
+      "endOfProtection": "Chráněn do",
+      "targetEntity": "Cílová entita"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",
@@ -1006,7 +1029,8 @@
       "ROLE": "Role",
       "TREE": "Strom",
       "ROLE_CATALOGUE": "Katalog rolí",
-      "CONTRACT": "Vztah identity"
+      "CONTRACT": "Pracovní pozice",
+      "CONTRACT_SLICE": "Časové řezy pracovních pozic"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1120,6 +1144,7 @@
       "TREEACCOUNT": "Účty pro prvky stromu",
       "IDENTITYACCOUNT": "Účty pro identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
+      "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
       "PROVISIONINGBREAK": "Brzda provisioningu"
     }
   },
@@ -1347,6 +1372,10 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
       "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
+    },
+    "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
+      "title": "Provisioning není podporován",
+      "message": "Provisioning není podporován pro type entity [{{entityType}}]"
     }
   },
   "processor": {

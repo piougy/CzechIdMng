@@ -684,6 +684,21 @@
       "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)"
     },
+    "ContractSliceAttributeEnum": {
+      "IDENTITY": "Owner (IdmIdentity - Id or username)",
+      "VALID_FROM": "Valid from of slice (LocalDate)",
+      "CONTRACT_VALID_FROM": "Valid from of contract (LocalDate)",
+      "CONTRACT_VALID_TILL": "Valid till of contract (LocalDate)",
+      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
+      "POSITION": "Name of position (String)",
+      "EXTERNE": "Externe (boolean)",
+      "MAIN": "Main relation (boolean)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)",
+      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "STATE": "State (ContractState - String)",
+      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Created",
       "NO_CONTRACT": "No contract",
@@ -726,6 +741,7 @@
       "IDENTITY": "Users",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
+      "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
@@ -1869,6 +1885,16 @@
           "success": "Contracted position [{{position}}] for user [{{username}}] successfully removed."
         }
       },
+      "contractSlices": {
+        "header": "Contracted positions (time slices)",
+        "title": "$t(content.identity.contractSlices.header)",
+        "contractSlices": {
+          "empty": "Contracted positions (time slices) not found."
+        },
+        "delete": {
+          "success": "Contracted position [{{position}}] (time slice) for user [{{username}}] successfully removed."
+        }
+      },
       "approve": {
         "header": "Role approver",
         "title": "$t(content.identity.approve.header)"
@@ -1954,6 +1980,9 @@
         },
         "save": {
           "success": "Contracted position [{{name}}] successfully saved."
+        },
+        "alert": {
+          "controlledBySlices": "This contract is controller by time slices. Cannot be modified directlly!"
         }
       },
       "eav": {
@@ -1987,6 +2016,64 @@
           "save": {
             "success_0": "N/A",
             "success_1": "For contracted position was successfully saved authorizer [{{record}}]"
+          }
+        }
+      }
+    },
+    "contract-slice": {
+      "detail": {
+        "header": "Time slice of contracted position detail",
+        "title": "Time slice of contracted position detail",
+        "label": "Basic information",
+        "invalidContract":"Invalid time slice of contracted position detail",
+        "validContract":"Time slice of contracted position detail",
+        "edit": {
+          "title": "Time slice of contracted position detail",
+          "header": "{{position}} <small>time slice of contracted position detail</small>",
+          "success": "Time slice of contracted position [{{position}}] successfully saved.",
+          "notEditable": "Time slices cannot be editing or adding manually."
+        },
+        "create": {
+          "title": "New time slice of contracted position",
+          "header": "New time slice of contracted position",
+          "success": "Time slice of contracted position [{{position}}] successfully saved.",
+          "accepted": "Time slice of contracted position [{{position}}] was accepted. Time slice of contracted position has to be approved at first."
+        },
+        "save": {
+          "success": "Time slice of contracted position [{{name}}] successfully saved."
+        }
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "label": "More information",
+        "save": {
+          "success": "Extended attributes for time slice of contracted position [{{name}}] successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for time slice of contracted position not found."
+        }
+      },
+      "guarantees": {
+        "header": "Guarantees and managers",
+        "title": "Guarantees",
+        "label": "Guarantees",
+        "guarantees": {
+          "direct": "Direct guarantees <small>on this time slice</small>",
+          "byTree": "Managers <small>by tree structures</small>"
+        },
+        "edit": {
+          "title": "Guarantee detail",
+          "header": "Guarantee detail"
+        },
+        "create": {
+          "title": "Add guarantee",
+          "header": "Add guarantee"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "For time slice was successfully saved authorizer [{{record}}]"
           }
         }
       }
@@ -2708,6 +2795,44 @@
         "help": "Contract's state"
       }
     },
+    "ContractSlice": {
+      "_type": "Time slices",
+      "parentContract": "Parent contract relationship",
+      "contractCode": "Code of contract relationship",
+      "code": "Code of slice",
+      "usingAsContract": {
+        "label": "Currently used",
+        "help": "If checked, this time slot is currently used as the source of the parent contract (the values on the parent contract are copied from this slice)."
+      },
+      "id": "$t(entity.IdentityContract.id)",
+      "treeType": "$t(entity.IdentityContract.treeType)",
+      "workPosition": "$t(entity.IdentityContract.workPosition)",
+      "position": "$t(entity.IdentityContract.position)",
+      "identity": "$t(entity.IdentityContract.identity)",
+      "contractValidFrom": "$t(entity.validFrom)",
+      "contractValidTill": "$t(entity.validTill)",
+      "validFrom": "Valid from (slice)",
+      "validTill": "Valid till (slice)",
+      "guarantee": "$t(entity.IdentityContract.guarantee)",
+      "externe": "$t(entity.IdentityContract.externe)",
+      "managers": {
+        "label": "$t(entity.IdentityContract.managers.label)",
+        "title": "$t(entity.IdentityContract.managers.title)"
+      },
+      "disabled": {
+        "label": "$t(entity.IdentityContract.disabled.label)",
+        "help": "$t(entity.IdentityContract.disabled.help)"
+      },
+      "description": "$t(entity.IdentityContract.description)",
+      "main": {
+        "label": "$t(entity.IdentityContract.main.label)",
+        "help": "$t(entity.IdentityContract.main.help)"
+      },
+      "state": {
+        "label": "$t(entity.IdentityContract.state.label)",
+        "help": "$t(entity.IdentityContract.state.help)"
+      }
+    },
     "TreeNode": {
       "_type": "Tree node",
       "id": "Identifier",
@@ -3111,6 +3236,13 @@
       "guarantee": {
         "label": "Guarantee",
         "help": "Guarantee assigned to contracted position"
+      }
+    },
+    "ContractSliceGuarantee": {
+      "contractSliceId": "Time slice of contract position",
+      "guarantee": {
+        "label": "Guarantee",
+        "help": "Guarantee assigned to slice of contract position"
       }
     },
     "AutomaticRoleRequest": {
@@ -3598,6 +3730,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
       "title": "Structure element cannot be removed",
       "message": "Structure element [{{treeNode}}] is used in contracted positions. Edit all used contracted positions before removing."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
+      "title": "Structure element cannot be removed",
+      "message": "Structure element [{{treeNode}}] is used in contract slice positions. Edit all used contract slice positions before removing."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Wrong element type",

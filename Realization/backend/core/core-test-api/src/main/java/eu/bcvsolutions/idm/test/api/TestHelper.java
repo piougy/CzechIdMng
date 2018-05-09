@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -26,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -34,6 +37,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
@@ -46,6 +50,28 @@ public interface TestHelper {
 	
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 	String DEFAULT_PASSWORD = "password";
+	
+	/**
+	 * Login as given identity.
+	 * Identity has to exists, assigned identity roles and permissions will be used.
+	 * 
+	 * @param username
+	 * @param password
+	 */
+	LoginDto login(String username, String password);
+	
+	/**
+	 * Logout current logged identity ~ clear secutity context
+	 */
+	void logout();
+	
+	/**
+	 * Get dto service from context
+	 * 
+	 * @param dtoServiceType
+	 * @return
+	 */
+	<T extends ReadDtoService<?, ?>> T getService(Class<T> dtoServiceType);
 
 	/**
 	 * Creates random unique name
@@ -306,6 +332,25 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
+	
+	/**
+	 * Creates simple identity contract slice
+	 *
+	 * @param identity
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity);
+	
+	/**
+	 * Creates identity contract slice on given position
+	 *
+	 * @param identity
+	 * @param position
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
 
 	/**
 	 * Creates identity contract on given position
@@ -342,6 +387,15 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
+	
+	/**
+	 * Creates identity contract's guarantee slice
+	 *
+	 * @param identityContractId
+	 * @param identityId
+	 * @return
+	 */
+	IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId);
 
 	/**
 	 * Assign roles through role request (manual, execute immediately)
@@ -392,6 +446,14 @@ public interface TestHelper {
 	 * @param configurationPropertyName
 	 */
 	void setConfigurationValue(String configurationPropertyName, boolean value);
+	
+	/**
+	 * Sets configuration value
+	 * 
+	 * @param configurationPropertyName
+	 * @param value
+	 */
+	void setConfigurationValue(String configurationPropertyName, String value);
 
 	/**
 	 * Enables given processor

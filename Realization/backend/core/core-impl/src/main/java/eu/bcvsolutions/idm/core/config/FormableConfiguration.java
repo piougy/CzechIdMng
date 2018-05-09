@@ -8,10 +8,12 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmContractSliceFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
@@ -82,6 +84,21 @@ public class FormableConfiguration {
 			ConfidentialStorage confidentialStorage) {
 		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository, confidentialStorage) {};
 	}
+	
+	/**
+	 * Eav attributes for contract time slices
+	 * 
+	 * @param repository
+	 * @param confidentialStorage
+	 * @return
+	 */
+	@Bean
+	public AbstractFormValueService<IdmContractSlice, IdmContractSliceFormValue> contractSliceFormValueService(
+			AbstractFormValueRepository<IdmContractSlice, IdmContractSliceFormValue> repository, 
+			ConfidentialStorage confidentialStorage) {
+		return new AbstractFormValueService<IdmContractSlice, IdmContractSliceFormValue>(repository, confidentialStorage) {};
+	}
+	
 	
 	/**
 	 * Eav attributes for common eav form

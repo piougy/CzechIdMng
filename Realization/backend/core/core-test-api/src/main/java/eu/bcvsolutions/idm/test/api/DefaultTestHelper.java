@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -22,6 +23,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -41,6 +44,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -50,6 +55,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -64,7 +70,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 
 /**
  * Creates common test entities
@@ -95,6 +103,24 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private FormService formService;
 	@Autowired private IdmFormDefinitionService formDefinitionService;
 	@Autowired private IdmFormAttributeService formAttributeService;
+	@Autowired private LoginService loginService;
+	@Autowired private IdmContractSliceService contractSliceService;
+	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
+	
+	@Override
+	public LoginDto login(String username, String password) {
+		return loginService.login(new LoginDto(username, new GuardedString(password)));
+	}
+	
+	@Override
+	public void logout() {
+		SecurityContextHolder.clearContext();
+	}
+	
+	@Override
+	public <T extends ReadDtoService<?, ?>> T getService(Class<T> dtoServiceType) {
+		return context.getBean(dtoServiceType);
+	}
 
 	/**
 	 * Creates random unique name
@@ -331,6 +357,24 @@ public class DefaultTestHelper implements TestHelper {
 		contract.setValidTill(validTill);
 		return identityContractService.save(contract);
 	}
+	
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity) {
+		return createContractSlice(identity, null, null, null);
+	}
+
+	
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill) {
+		IdmContractSliceDto contract = new IdmContractSliceDto();
+		contract.setIdentity(identity.getId());
+		contract.setPosition(createName());
+		contract.setWorkPosition(position == null ? null : position.getId());
+		contract.setValidFrom(validFrom);
+		contract.setValidTill(validTill);
+		return contractSliceService.save(contract);
+	}
+
 
 	@Override
 	public void deleteIdentityContact(UUID id) {
@@ -340,6 +384,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {
 		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
+	}
+	
+	@Override
+	public IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId) {
+		return contractSliceGuaranteeService.save(new IdmContractSliceGuaranteeDto(sliceId, identityId));
 	}
 
 	@Override
@@ -399,6 +448,13 @@ public class DefaultTestHelper implements TestHelper {
 		Assert.notNull(configurationPropertyName);
 		//
 		configurationService.setBooleanValue(configurationPropertyName, value);
+	}
+	
+	@Override
+	public void setConfigurationValue(String configurationPropertyName, String value) {
+		Assert.notNull(configurationPropertyName);
+		//
+		configurationService.setValue(configurationPropertyName, value);
 	}
 
 	@Override

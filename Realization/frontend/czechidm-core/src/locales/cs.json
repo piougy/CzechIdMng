@@ -713,6 +713,21 @@
       "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "STATE": "Stav (ContractState - String)"
     },
+    "ContractSliceAttributeEnum": {
+      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
+      "VALID_FROM": "Platnost od časového řezu (LocalDate)",
+      "CONTRACT_VALID_FROM": "Platnost od kontraktu (LocalDate)",
+      "CONTRACT_VALID_TILL": "Platnost do kontraktu (LocalDate)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
+      "POSITION": "Název pozice (String)",
+      "EXTERNE": "Externista (boolean)",
+      "MAIN": "Hlavní vztah (boolean)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "STATE": "Stav (ContractState - String)",
+      "CONTRACT_CODE": "Kód nadřazeného kontraktu (String - stejný pro všechny řezy)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Vytvořen(a)",
       "NO_CONTRACT": "Bez úvazku",
@@ -755,6 +770,7 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
@@ -1911,6 +1927,16 @@
           "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
         }
       },
+      "contractSlices": {
+        "header": "Časové řezy pracovně právních vztahů",
+        "title": "$t(content.identity.contractSlices.header)",
+        "contractSlices": {
+          "empty": "Nenalezeny žádné časové řezy pracovně právních vztahů."
+        },
+        "delete": {
+          "success": "Pozice (časový řez) [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
+        }
+      },
       "approve": {
         "header": "Schvalovatel pro role",
         "title": "$t(content.identity.approve.header)"
@@ -1996,6 +2022,9 @@
         },
         "save": {
           "success": "PPV [{{name}}] byl úspěšně uložen"
+        },
+        "alert": {
+          "controlledBySlices": "Tento právní vztah je řízen časovými řezy. Není možné ho upravovat přímo!"
         }
       },
       "eav": {
@@ -2029,6 +2058,64 @@
           "save": {
             "success_0": "N/A",
             "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
+          }
+        }
+      }
+    },
+    "contract-slice": {
+      "detail": {
+        "header": "Detail časového řezu (PPV)",
+        "title": "Detail časového řezu PPV",
+        "label": "Základní údaje",
+        "invalidContract":"Detail neplatného PPV",
+        "validContract":"Detail PPV",
+        "edit": {
+          "title": "Detail PPV",
+          "header": "{{position}} <small>detail přiřazené pozice</small>",
+          "success": "Pozice [{{position}}] byla úspěšně upravena.",
+          "notEditable": "Časové řezy není možné ručně upravovat ani přidávat!"
+        },
+        "create": {
+          "title": "Přiřazení nové pozice",
+          "header": "Přiřazení nové pozice",
+          "success": "Pozice [{{position}}] byla úspěšně přidána.",
+          "accepted": "Pozice [{{position}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
+        },
+        "save": {
+          "success": "PPV [{{name}}] byl úspěšně uložen"
+        }
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "label": "Další údaje",
+        "save": {
+          "success": "Údaje PPV [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
+        }
+      },
+      "guarantees": {
+        "header": "Vedoucí a garanti",
+        "title": "Vedoucí",
+        "label": "Vedoucí",
+        "guarantees": {
+          "direct": "Nastavení garanti <small>přímo pro tento časový řeze vztahu</small>",
+          "byTree": "Vedoucí <small>dle stromových struktur</small>"
+        },
+        "edit": {
+          "title": "Detail garanta",
+          "header": "Detail garanta"
+        },
+        "create": {
+          "title": "Nový garant",
+          "header": "Nový garant"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "Pro časový řez byl úspěšně uložen garant [{{record}}]"
           }
         }
       }
@@ -2750,6 +2837,44 @@
         "help": "Stav pracovní pozice."
       }
     },
+    "ContractSlice": {
+      "_type": "Časové řezy",
+      "parentContract": "Nadřízený smluvní vztah",
+      "contractCode": "Kód smluvního vztahu",
+      "usingAsContract": {
+        "label": "Aktuálně používaný",
+        "help": "Pokud je zaškrtnuto, tak je tento časový řez aktuálně používaný, jako zdroj dat nadřazeného smluvního vztahu (hodnoty vztahu jsou zkopírované z tohoto řezu)."
+      },
+      "code": "Kód řezu",
+      "id": "$t(entity.IdentityContract.id)",
+      "treeType": "$t(entity.IdentityContract.treeType)",
+      "workPosition": "$t(entity.IdentityContract.workPosition)",
+      "position": "$t(entity.IdentityContract.position)",
+      "identity": "$t(entity.IdentityContract.identity)",
+      "contractValidFrom": "$t(entity.validFrom)",
+      "contractValidTill": "$t(entity.validTill)",
+      "validFrom": "Platnost řezu od",
+      "validTill": "Platnost řezu do",
+      "guarantee": "$t(entity.IdentityContract.guarantee)",
+      "externe": "$t(entity.IdentityContract.externe)",
+      "managers": {
+        "label": "$t(entity.IdentityContract.managers.label)",
+        "title": "$t(entity.IdentityContract.managers.title)"
+      },
+      "disabled": {
+        "label": "$t(entity.IdentityContract.disabled.label)",
+        "help": "$t(entity.IdentityContract.disabled.help)"
+      },
+      "description": "$t(entity.IdentityContract.description)",
+      "main": {
+        "label": "$t(entity.IdentityContract.main.label)",
+        "help": "$t(entity.IdentityContract.main.help)"
+      },
+      "state": {
+        "label": "$t(entity.IdentityContract.state.label)",
+        "help": "$t(entity.IdentityContract.state.help)"
+      }
+    },
     "TreeNode": {
       "_type": "Prvek stromu",
       "id": "Identifikátor",
@@ -3147,6 +3272,13 @@
       "state": "Stav",
       "created": "Vytvořeno",
       "modified": "Upraveno"
+    },
+    "ContractSliceGuarantee": {
+      "contractSliceId": "Časový řez právního vztahu",
+      "guarantee": {
+        "label": "Garant",
+        "help": "Garant na přímo přiřazený k časovému řezu pracovně právního vztahu"
+      }
     },
     "ContractGuarantee": {
       "identityContractId": "Pracovně právní vztah",
@@ -3644,6 +3776,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
       "title": "Prvek struktury nelze odebrat",
       "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] je již použit v časových řezech pracovně právních vztahů. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Špatný typ prvku",

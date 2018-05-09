@@ -135,6 +135,17 @@ module.exports = {
         'icon': 'fa:external-link',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTACCOUNT_READ'] } ]
       },
+      {
+        'id': 'contract-slice-accounts',
+        'parentId': 'identity-contract-slices',
+        'type': 'TAB',
+        'labelKey': 'acc:content.contract-slice.accounts.title',
+        'order': 100,
+        'priority': 0,
+        'path': '/identity/:identityId/contract-slice/:entityId/accounts',
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEACCOUNT_READ'] } ]
+      },
       // Provisioning for contract is not implemented yet
       // {
       //   'id': 'identity-contract-provisioning-operations',

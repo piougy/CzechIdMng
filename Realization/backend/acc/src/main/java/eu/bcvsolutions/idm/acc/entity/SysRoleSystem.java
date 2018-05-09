@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -29,7 +30,7 @@ public class SysRoleSystem extends AbstractEntity {
 	private static final long serialVersionUID = -7589083183676265957L;
 
 	@NotNull
-	@Audited()
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -37,7 +38,7 @@ public class SysRoleSystem extends AbstractEntity {
 	private IdmRole role;
 
 	@NotNull
-	@Audited()
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -45,12 +46,16 @@ public class SysRoleSystem extends AbstractEntity {
 	private SysSystem system;
 
 	@NotNull
-	@Audited()
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSystemMapping systemMapping;
+	
+	@Audited
+	@Column(name = "forward_acm_enabled", nullable = false)
+	private boolean forwardAccountManagemen = false;
 
 	public IdmRole getRole() {
 		return role;
@@ -74,6 +79,14 @@ public class SysRoleSystem extends AbstractEntity {
 
 	public void setSystemMapping(SysSystemMapping systemMapping) {
 		this.systemMapping = systemMapping;
+	}
+
+	public boolean isForwardAccountManagemen() {
+		return forwardAccountManagemen;
+	}
+
+	public void setForwardAccountManagemen(boolean forwardAccountManagemen) {
+		this.forwardAccountManagemen = forwardAccountManagemen;
 	}
 
 }

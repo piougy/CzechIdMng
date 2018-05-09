@@ -20,6 +20,7 @@ import RoleCatalogueAccountService from './RoleCatalogueAccountService';
 import ProvisioningBreakConfigService from './ProvisioningBreakConfigService';
 import ProvisioningBreakRecipientService from './ProvisioningBreakRecipientService';
 import ContractAccountService from './ContractAccountService';
+import ContractSliceAccountService from './ContractSliceAccountService';
 
 const ServiceRoot = {
   SystemService,
@@ -43,7 +44,8 @@ const ServiceRoot = {
   RoleCatalogueAccountService,
   ProvisioningBreakConfigService,
   ProvisioningBreakRecipientService,
-  ContractAccountService
+  ContractAccountService,
+  ContractSliceAccountService
 };
 
 ServiceRoot.version = '0.1.0';

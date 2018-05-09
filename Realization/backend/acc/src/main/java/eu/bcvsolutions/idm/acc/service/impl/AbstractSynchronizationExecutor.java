@@ -1199,8 +1199,41 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected abstract void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs);
+	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
+		UUID entityId = getEntityByAccount(account.getId());
+		DTO entity = null;
+		if (entityId != null) {
+			entity = getService().get(entityId);
+		}
+		if (entity == null) {
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		if(this.isProvisioningImplemented(entityType, logItem)) {
+			// Call provisioning for this entity
+			callProvisioningForEntity(entity, entityType, logItem);
+		}
+	}
+
+	/**
+	 * Check if is supported provisioning for given entity type.
+	 * 
+	 * @param entityType
+	 * @param logItem
+	 * @return
+	 */
+	protected boolean isProvisioningImplemented(SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		if (entityType != null && entityType.isSupportsProvisioning()) {
+			return true;
+		}
+		logItem.addToLog(MessageFormat.format("Warning! - Provisioning for this entity type [{0}] is not supported!",
+				entityType.name()));
+		return false;
+
+	}
 
 	/**
 	 * Call provisioning for given account
@@ -1209,7 +1242,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected abstract void callProvisioningForEntity(DTO dto, SystemEntityType entityType, SysSyncItemLogDto logItem);
+	protected void callProvisioningForEntity(DTO dto, SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		throw new UnsupportedOperationException("Call provisioning method is not implemented!");
+	}
 
 	/**
 	 * Create new instance of ACC account
@@ -1265,8 +1300,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 		}
 
-		// Call provisioning for entity
-		this.callProvisioningForEntity(entity, entityType, logItem);
+		if(this.isProvisioningImplemented(entityType, logItem)) {
+			// Call provisioning for this entity
+			callProvisioningForEntity(entity, entityType, logItem);
+		}
 	}
 
 	/**
@@ -1316,7 +1353,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entity != null) {
 			// Update entity
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
-			this.save(entity, true);
+			entity = this.save(entity, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
 			// Update confidential attribute (entity must be persisted
@@ -1329,12 +1366,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 			}
 
-			// Call provisioning for entity
-			this.callProvisioningForEntity(entity, context.getEntityType(), logItem);
+			SystemEntityType entityType = context.getEntityType();
+			if (this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(entity, entityType, logItem);
+			}
 
 			return;
 		} else {
-			addToItemLog(logItem, "Entity-account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity-account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -1969,7 +2009,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionLogs
 	 * @return
 	 */
-	protected UUID getEntityByAccount(UUID accountId) {
+	@Override
+	public UUID getEntityByAccount(UUID accountId) {
 		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
 		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
@@ -2066,8 +2107,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		logItem.setIdentification(entityAccount.getId().toString());
 
 		if (callProvisioning) {
-			// Call provisioning for this identity
-			callProvisioningForEntity(dto, entityType, logItem);
+			if(this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(dto, entityType, logItem);
+			}
 		}
 	}
 
@@ -2094,7 +2137,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entity = this.getEntityByAccount(account.getId());
 		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

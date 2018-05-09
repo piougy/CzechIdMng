@@ -7,8 +7,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,14 +21,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.exception.ConcurrentExecutionException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
@@ -43,6 +52,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Autowired private TestHelper helper;
 	@Autowired private IdmLongRunningTaskService service;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private IdmProcessedTaskItemService itemService;
 	//
 	private LongRunningTaskManager manager;
 	
@@ -213,6 +223,127 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		TestTaskExecutor executorTwo = new TestTaskExecutor();
 		executorTwo.setCount(10L);
 		manager.executeSync(executorTwo);
+	}
+	
+	@Test
+	public void testCheckLogs() throws InterruptedException, ExecutionException {
+		IdmIdentityDto identity1 = helper.createIdentity();
+		IdmIdentityDto identity2 = helper.createIdentity();
+		IdmIdentityDto identity3 = helper.createIdentity();
+		IdmIdentityDto identity4 = helper.createIdentity();
+		IdmIdentityDto identity5 = helper.createIdentity();
+		//
+		TestLogItemLongRunningTaskExecutor taskExecutor = new TestLogItemLongRunningTaskExecutor();
+		taskExecutor.addIdentityToProcess(identity1, identity2, identity3, identity4, identity5);
+		taskExecutor.addRemovedIdentity(identity2, identity5);
+		assertNull(taskExecutor.getLongRunningTaskId());
+		//
+		LongRunningFutureTask<Boolean> futureTask = manager.execute(taskExecutor);
+		//
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		assertNotNull(longRunningTask);
+		assertEquals(taskExecutor.getClass().getCanonicalName(), longRunningTask.getTaskType());
+		assertEquals(configurationService.getInstanceId(), longRunningTask.getInstanceId());
+		//
+		assertEquals(Boolean.TRUE, futureTask.getFutureTask().get());
+		List<IdmProcessedTaskItemDto> content = itemService.findLogItems(longRunningTask, null).getContent();
+		//
+		longRunningTask = service.get(longRunningTask.getId());
+		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
+		//
+		assertEquals(5, content.size());
+		//
+		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
+		filter.setLongRunningTaskId(taskExecutor.getLongRunningTaskId());
+		filter.setOperationState(OperationState.EXECUTED);
+		content = itemService.find(filter, null).getContent();
+		assertEquals(3, content.size());
+		//
+		filter.setOperationState(OperationState.NOT_EXECUTED);
+		content = itemService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+		//
+		content = itemService.findLogItems(longRunningTask, null).getContent();
+		Set<UUID> entityIdsList = content.stream().map(IdmProcessedTaskItemDto::getReferencedEntityId).collect(Collectors.toSet());
+		assertEquals(5, entityIdsList.size());
+		assertTrue(entityIdsList.contains(identity1.getId()));
+		assertTrue(entityIdsList.contains(identity2.getId()));
+		assertTrue(entityIdsList.contains(identity3.getId()));
+		assertTrue(entityIdsList.contains(identity4.getId()));
+		assertTrue(entityIdsList.contains(identity5.getId()));
+	}
+	
+	@Test
+	public void testCheckDisableLogs() throws InterruptedException, ExecutionException {
+		IdmIdentityDto identity1 = helper.createIdentity();
+		IdmIdentityDto identity2 = helper.createIdentity();
+		IdmIdentityDto identity3 = helper.createIdentity();
+		IdmIdentityDto identity4 = helper.createIdentity();
+		IdmIdentityDto identity5 = helper.createIdentity();
+		//
+		TestLogItemLongRunningTaskExecutor taskExecutor = new TestLogItemLongRunningTaskExecutor();
+		taskExecutor.addIdentityToProcess(identity1, identity2, identity3, identity4, identity5);
+		taskExecutor.addRemovedIdentity(identity2, identity5);
+		taskExecutor.setLog(false);
+		assertNull(taskExecutor.getLongRunningTaskId());
+		//
+		LongRunningFutureTask<Boolean> futureTask = manager.execute(taskExecutor);
+		//
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		assertNotNull(longRunningTask);
+		assertEquals(taskExecutor.getClass().getCanonicalName(), longRunningTask.getTaskType());
+		assertEquals(configurationService.getInstanceId(), longRunningTask.getInstanceId());
+		//
+		assertEquals(Boolean.TRUE, futureTask.getFutureTask().get());
+		List<IdmProcessedTaskItemDto> content = itemService.findLogItems(longRunningTask, null).getContent();
+		//
+		longRunningTask = service.get(longRunningTask.getId());
+		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
+		//
+		assertEquals(0, content.size());
+	}
+	
+	private class TestLogItemLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
+		
+		private final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+				.getLogger(DefaultLongRunningTaskManagerIntegrationTest.TestLogItemLongRunningTaskExecutor.class);
+		
+		List<IdmIdentityDto> identities = new ArrayList<>();
+		List<IdmIdentityDto> removedIdentities = new ArrayList<>();
+		boolean log = true;
+		
+		@Override
+		public Boolean process() {
+			for (IdmIdentityDto identity : identities) {
+				LOGGER.debug("Execute identity username: {} and id: {}" + identity.getUsername(), identity.getId());
+				OperationResult result = new OperationResult();
+				if (removedIdentities.contains(identity)) {
+					result.setState(OperationState.NOT_EXECUTED);
+				} else {
+					result.setState(OperationState.EXECUTED);
+				}
+				if(this.log) {
+					this.logItemProcessed(identity, result);
+				}
+			}
+			return Boolean.TRUE;
+		}
+
+		public void addIdentityToProcess(IdmIdentityDto ...identities) {
+			for (IdmIdentityDto identity : identities) {
+				this.identities.add(identity);
+			}
+		}
+		
+		public void addRemovedIdentity(IdmIdentityDto ...identities) {
+			for (IdmIdentityDto identity : identities) {
+				this.removedIdentities.add(identity);
+			}
+		}
+		
+		public void setLog(boolean log) {
+			this.log = log;
+		}
 	}
 	
 	private class TestSimpleLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {

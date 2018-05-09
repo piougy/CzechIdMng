@@ -11,15 +11,19 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdentifierException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
@@ -159,8 +163,20 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	 * @param dto
 	 * @return
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected E validateEntity(E entity) {
-		return validate(entity);
+		entity = validate(entity);
+		if (entity instanceof ExternalIdentifiable && getRepository() instanceof ExternalIdentifiableRepository) {
+			// unique external id in business logic (external id can be null)
+			ExternalIdentifiableRepository externalIdentifiableRepository = (ExternalIdentifiableRepository) getRepository();
+			ExternalIdentifiable externalIdentifiable = (ExternalIdentifiable) entity;
+			if (StringUtils.isNotEmpty(externalIdentifiable.getExternalId())) { // empty string are not valid external id
+				if( externalIdentifiableRepository.countOtherByExternalId(externalIdentifiable.getExternalId(), entity.getId()) > 0) {
+					throw new DuplicateExternalIdentifierException(getEntityClass().getCanonicalName(), externalIdentifiable.getExternalId());
+				}
+			}
+		}
+		return entity;
 	}
 	
 	/**

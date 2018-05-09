@@ -436,7 +436,8 @@ public class DefaultConfigurationService
 		// get url of application
 		String allowedOrigins = getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
 		if (StringUtils.isBlank(allowedOrigins) || allowedOrigins.equals("*")) {
-			return null;
+			// relative url is returned, when allowed origin is not configured
+			return path;
 		}
 		//
 		List<String> urls = Arrays.asList(allowedOrigins.replaceAll("\\s*", "").split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR));

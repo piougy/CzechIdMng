@@ -149,40 +149,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			identity = identityService.get(entityId);
 		}
 		if (identity == null) {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! -Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
 		// Delete identity
 		identityService.delete(identity);
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	@Override
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityDto identity = null;
-		if (entityId != null) {
-			identity = identityService.get(entityId);
-		}
-		if (identity == null) {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(identity, entityType, logItem);
 	}
 
 	/**
@@ -276,12 +249,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 				logItem.setDisplayName(identity.getUsername());
 			}
 
-			// Call provisioning for entity
-			this.callProvisioningForEntity(identity, entityType, logItem);
+			if(this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(identity, entityType, logItem);
+			}
 
 			return;
 		} else {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -306,7 +281,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService
 				.find((AccIdentityAccountFilter) identityAccountFilter, null).getContent();
 		if (identityAccounts.isEmpty()) {
-			addToItemLog(logItem, "Identity account relation was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 
 /**
@@ -13,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-public class IdmRoleCatalogueFilter extends DataFilter {
+public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdentifiable {
 	
 	private UUID parent;
 	private String name;
@@ -49,5 +50,15 @@ public class IdmRoleCatalogueFilter extends DataFilter {
 
 	public void setParent(UUID parent) {
 		this.parent = parent;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

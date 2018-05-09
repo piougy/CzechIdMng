@@ -58,4 +58,11 @@ public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> 
 	 */
 	void resolveLinkedSituation(SynchronizationLinkedActionType action, SynchronizationContext context);
 
+	/**
+	 * Find target entity by accountId
+	 * @param accountId
+	 * @return
+	 */
+	UUID getEntityByAccount(UUID accountId);
+
 }

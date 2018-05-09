@@ -57,6 +57,8 @@ import AutomaticRoleAttributeRuleRequestService from './AutomaticRoleAttributeRu
 import EntityEventService from './EntityEventService';
 import EntityStateService from './EntityStateService';
 import BulkActionService from './BulkActionService';
+import ContractSliceService from './ContractSliceService';
+import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -110,7 +112,12 @@ const ServiceRoot = {
   AutomaticRoleAttributeRuleRequestService,
   EntityEventService,
   EntityStateService,
+<<<<<<< HEAD
   BulkActionService
+=======
+  ContractSliceService,
+  ContractSliceGuaranteeService
+>>>>>>> okopr/1090-precessed-items-lrt
 };
 
 ServiceRoot.version = '0.0.1';

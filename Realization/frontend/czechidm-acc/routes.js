@@ -171,6 +171,17 @@ module.exports = {
       ]
     },
     {
+      path: '/identity/:identityId/contract-slice/:entityId',
+      component: require('czechidm-core/src/content/identity/contractSlice/ContractSlice'),
+      childRoutes: [
+        {
+          path: 'accounts',
+          component: require('./src/content/contractSlice/ContractSliceAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEACCOUNT_READ'] } ]
+        }
+      ]
+    },
+    {
       path: 'password-policies/',
       component: require('czechidm-core/src/content/passwordpolicy/PasswordPolicyRoutes'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],

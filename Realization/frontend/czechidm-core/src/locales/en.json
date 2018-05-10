@@ -3068,7 +3068,7 @@
       "specialCharBase": "Special characters",
       "identityAttributeCheck": "User attributes not allowed in password",
       "help": {
-        "defaultPolicy": "Default policy is used for password validation for IdM system and all systems without set password policy.",
+        "defaultPolicy": "Default policy is used for CzechIdM and all systems without set policy.",
         "maxPasswordAge": "Maximum number of days for password validity.",
         "minPasswordAge": "Minimum number of days for password validity.",
         "enchancedControl": "Enhanced control makes passwords more secure by comparing new passwords with previous ones and user attributes. It is possible to select which rules are required.",

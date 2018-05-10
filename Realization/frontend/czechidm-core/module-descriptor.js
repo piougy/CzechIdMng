@@ -136,7 +136,7 @@ module.exports = {
                     'labelKey': 'content.contract-slice.guarantees.label',
                     'order': 30,
                     'path': '/identity/:identityId/contract-slice/:entityId/guarantees',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEGUARANTEE_READ'] } ],
                   }
                 ]
               },

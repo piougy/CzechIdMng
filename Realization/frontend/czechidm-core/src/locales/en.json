@@ -716,6 +716,7 @@
       "IDENTITYCONTRACT": "Contracted positions",
       "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
+      "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
@@ -1998,6 +1999,8 @@
         "header": "Time slice of contracted position detail",
         "title": "Time slice of contracted position detail",
         "label": "Basic information",
+        "labelContract": "Basic information of contract",
+        "labelSlice": "Basic information of time slice",
         "invalidContract":"Invalid time slice of contracted position detail",
         "validContract":"Time slice of contracted position detail",
         "edit": {
@@ -2773,6 +2776,10 @@
       "parentContract": "Parent contract relationship",
       "contractCode": "Code of contract relationship",
       "code": "Code of slice",
+      "code": {
+        "label": "Code of slice",
+        "help": "Identifier of the time slice (typically external identifier from source system)."
+      },
       "usingAsContract": {
         "label": "Currently used",
         "help": "If checked, this time slot is currently used as the source of the parent contract (the values on the parent contract are copied from this slice)."

@@ -1145,6 +1145,7 @@
       "IDENTITYACCOUNT": "Účty pro identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
+      "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "PROVISIONINGBREAK": "Brzda provisioningu"
     }
   },

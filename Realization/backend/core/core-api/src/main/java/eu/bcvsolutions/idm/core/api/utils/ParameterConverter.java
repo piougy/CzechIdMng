@@ -143,12 +143,22 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public Boolean toBoolean(Map<String, Object> parameters, String parameterName) {
-		String valueAsString = toString(parameters, parameterName);
-		if (StringUtils.isNotEmpty(valueAsString)) {
-			return Boolean.valueOf(valueAsString);
+		return toBoolean(toString(parameters, parameterName));
+	}
+	
+	/**
+	 * Converts parameter to {@code Boolean} from given parameters.
+	 *  
+	 * @param parameterValue
+	 * @return
+	 */
+	public Boolean toBoolean(String parameterValue) {
+		if (StringUtils.isNotEmpty(parameterValue)) {
+			return Boolean.valueOf(parameterValue);
 		}
 		return null;
 	}
+	
 	
 	/**
 	 * Converts parameter to {@code Long} from given parameters.
@@ -356,22 +366,22 @@ public class ParameterConverter {
 	 * 
 	 * @param parameters
 	 * @param parameterName
-	 * @param entityClass
+	 * @param identifiableType dto or entity type
 	 * @return
 	 */
-	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends Identifiable> entityClass) {
-		return toEntityUuid(toString(parameters, parameterName), entityClass);
+	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
+		return toEntityUuid(toString(parameters, parameterName), identifiableType);
 	}
 	
 	/**
 	 * Converts parameter value to entity id.
 	 * 
 	 * @param parameterValue
-	 * @param entityClass
+	 * @param identifiableType dto or entity type
 	 * @return
 	 */
-	public UUID toEntityUuid(String parameterValue, Class<? extends Identifiable> entityClass) {
-		Identifiable entity = toEntity(parameterValue, entityClass);
+	public UUID toEntityUuid(String parameterValue, Class<? extends Identifiable> identifiableType) {
+		Identifiable entity = toEntity(parameterValue, identifiableType);
 		return entity == null ? null : (UUID) entity.getId();
 	}
 	

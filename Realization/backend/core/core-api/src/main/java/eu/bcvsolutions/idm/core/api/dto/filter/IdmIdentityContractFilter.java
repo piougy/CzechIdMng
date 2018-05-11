@@ -22,6 +22,7 @@ public class IdmIdentityContractFilter
 		implements CorrelationFilter, ExternalIdentifiable {
 
 	private UUID identity;
+	private UUID workPosition;
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private Boolean externe;
@@ -30,6 +31,7 @@ public class IdmIdentityContractFilter
 	private Boolean main;
 	private Boolean validNowOrInFuture;
 	private ContractState state;
+	private String position;
 
 	/**
 	 * Little dynamic search by role property and value
@@ -149,5 +151,21 @@ public class IdmIdentityContractFilter
 	@Override
 	public void setExternalId(String externalId) {
 		data.set(PROPERTY_EXTERNAL_ID, externalId);
+	}
+	
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	
+	public void setWorkPosition(UUID workPosition) {
+		this.workPosition = workPosition;
+	}
+	
+	public UUID getWorkPosition() {
+		return workPosition;
 	}
 }

@@ -123,7 +123,7 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	@Audited
 	@Column(name = "contract_valid_till")
 	private LocalDate contractValidTill;
-	
+
 	public IdmContractSlice() {
 	}
 	

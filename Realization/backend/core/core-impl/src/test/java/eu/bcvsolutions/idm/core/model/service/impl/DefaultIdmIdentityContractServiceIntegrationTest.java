@@ -808,7 +808,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 
 	@Test
-	public void mainFilterTest(){
+	public void mainFilterTest() {
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityDto identity2 = helper.createIdentity();
 
@@ -834,6 +834,37 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		result = service.find(filter,null);
 		assertTrue(result.getContent().contains(contract2));
 		assertFalse(result.getContent().contains(contract));
+	}
+	
+	@Test
+	public void positionFilterTest() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setPosition(getHelper().createName());
+		contract = getHelper().getService(IdmIdentityContractService.class).save(contract);
+		//
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setPosition(contract.getPosition());
+		Page<IdmIdentityContractDto> results = service.find(filter, null);
+		Assert.assertTrue(results.getContent().contains(contract));
+		Assert.assertEquals(1, results.getTotalElements());
+	}
+	
+	@Test
+	public void workPositionFilterTest() {
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setWorkPosition(treeNode.getId());
+		contract = getHelper().getService(IdmIdentityContractService.class).save(contract);
+		//
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setWorkPosition(treeNode.getId());
+		Page<IdmIdentityContractDto> results = service.find(filter, null);
+		Assert.assertTrue(results.getContent().contains(contract));
+		Assert.assertEquals(1, results.getTotalElements());
 	}
 	
 	@Test

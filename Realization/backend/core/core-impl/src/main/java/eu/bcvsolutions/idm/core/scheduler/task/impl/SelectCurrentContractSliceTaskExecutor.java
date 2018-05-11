@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 
 @Service
 @DisallowConcurrentExecution
-@Description("Recalcullate current using slices as contract. Find all slices which should be for actual date using as contract and copy their values to parent contracts.")
+@Description("Recalculate current using slices as contract. Find all slices which should be for actual date using as contract and copy their values to parent contracts.")
 public class SelectCurrentContractSliceTaskExecutor extends AbstractSchedulableTaskExecutor<OperationResult> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SelectCurrentContractSliceTaskExecutor.class);

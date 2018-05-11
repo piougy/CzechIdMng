@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -12,9 +11,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
@@ -42,8 +39,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmContractSliceService 
 		extends AbstractFormableService<IdmContractSliceDto, IdmContractSlice, IdmContractSliceFilter>
 		implements IdmContractSliceService {
-
-	private final IdmContractSliceRepository repository;
 	
 	@Autowired
 	public DefaultIdmContractSliceService(
@@ -51,8 +46,6 @@ public class DefaultIdmContractSliceService
 			FormService formService,
 			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager, formService);
-		//
-		this.repository = repository;
 	}
 	
 	@Override
@@ -209,12 +202,6 @@ public class DefaultIdmContractSliceService
 		}
 		//
 		return predicates;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<IdmContractSliceDto> findAllByIdentity(UUID identityId) {
-		return toDtos(repository.findAllByIdentity_Id(identityId, new Sort(IdmContractSlice_.validFrom.getName())), false);
 	}
 
 }

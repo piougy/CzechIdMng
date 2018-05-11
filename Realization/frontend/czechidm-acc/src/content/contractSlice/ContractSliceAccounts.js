@@ -40,6 +40,10 @@ class ContractSliceAccountsContent extends Advanced.AbstractTableContent {
     return 'contract-slice-accounts';
   }
 
+  componentDidMount() {
+    this.selectSidebarItem('contract-slice-accounts');
+  }
+
   showDetail(entity) {
     if (!Utils.Entity.isNew(entity)) {
       this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));

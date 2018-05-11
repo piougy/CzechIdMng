@@ -89,6 +89,27 @@
 			</trigger>
 		</triggers>		
 	</task>
+	
+	<task>
+		<description>Recalculate current using slices as contract. Find all slices which should be for actual date using as contract and copy their values to parent contracts.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.SelectCurrentContractSliceTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 0 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
+	
 	<task>
 		<description>Default</description>
 		<instanceId>idm-primary</instanceId>

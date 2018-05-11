@@ -246,13 +246,7 @@
 									</resources>
 								</configuration>
 							</execution>
-						</executions>
-					</plugin>
-					<!-- Copy FE sources to WAR file -->
-					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>3.0.1</version>
-						<executions>
+							<!-- Copy FE sources to WAR file -->
 							<execution>
 								<id>copy-fe-sources</id>
 								<phase>prepare-package</phase>
@@ -266,6 +260,7 @@
 											<directory>../../frontend/czechidm-app</directory>
 											<filtering>true</filtering>
 											<excludes>
+												<exclude>dist/</exclude>
 												<exclude>node_modules/</exclude>
 												<exclude>czechidm-modules/**/node_modules/</exclude>
 												<exclude>**/.*</exclude>

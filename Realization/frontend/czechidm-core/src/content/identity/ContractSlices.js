@@ -42,6 +42,11 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
     return 'identity-contract-slices';
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    this.selectSidebarItem('identity-contract-slices');
+  }
+
   showDetail(entity, event) {
     if (event) {
       event.preventDefault();

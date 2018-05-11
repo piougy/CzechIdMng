@@ -350,7 +350,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentityDto.class));
-		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "workPosition", IdmTreeNodeDto.class));
+		filter.setWorkPosition(getParameterConverter().toEntityUuid(parameters, "workPosition", IdmTreeNodeDto.class));
 		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));
 		filter.setExterne(getParameterConverter().toBoolean(parameters, "externe"));
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));

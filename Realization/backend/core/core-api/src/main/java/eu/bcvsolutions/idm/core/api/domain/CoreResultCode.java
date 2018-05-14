@@ -230,8 +230,8 @@ public enum CoreResultCode implements ResultCode {
 	EVENT_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Event [%s] type [%s] for owner [%s] on instance [%s] cannot be deleted. Delete events at first, where this event is set as parent."),
 	//
 	// Contract slices
+	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),
 	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!");
-
 
 	
 	private final HttpStatus status;

@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -25,7 +27,7 @@ public interface ContractSliceManager extends ScriptEnabled  {
 	 * @param slice
 	 * @return
 	 */
-	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice);
+	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, Map<String, Serializable> eventProperties);
 
 	/**
 	 * Update contract by given slice
@@ -34,7 +36,7 @@ public interface ContractSliceManager extends ScriptEnabled  {
 	 * @param slice
 	 * @return
 	 */
-	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice);
+	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice, Map<String, Serializable> eventProperties);
 
 	/**
 	 * Update validity till on previous slice. Previous slice will be valid till
@@ -58,8 +60,9 @@ public interface ContractSliceManager extends ScriptEnabled  {
 	 * copied to the parent contract.
 	 * 
 	 * @param slice
+	 * @return 
 	 */
-	void setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
+	IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
 
 	/**
 	 * Find slice that is currently valid (or first in future) for given contract. First find valid slice for now. If none exist then

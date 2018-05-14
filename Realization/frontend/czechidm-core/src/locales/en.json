@@ -89,7 +89,8 @@
     "saveAndNew": "Save and add another",
     "saving": "Saving",
     "yes": "Yes",
-    "set": "Set"
+    "set": "Set",
+    "crop": "Crop & save"
   },
   "filter": {
     "dateFrom": {

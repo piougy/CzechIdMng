@@ -89,7 +89,8 @@
     "saveAndNew": "Uložit a přidat další",
     "saving": "Ukládám ...",
     "yes": "Ano",
-    "set": "Nastavit"
+    "set": "Nastavit",
+    "crop": "Ořezat a uložit"
   },
   "filter": {
     "dateFrom": {

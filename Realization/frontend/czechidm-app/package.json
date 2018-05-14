@@ -81,6 +81,7 @@
     "react-ace": "3.7.0",
     "react-async-script": "0.9.1",
     "react-bootstrap": "0.30.7",
+    "react-cropper": "1.0.1",
     "react-datetime": "2.2.0",
     "react-dom": "15.4.1",
     "react-draft-wysiwyg": "1.7.6",

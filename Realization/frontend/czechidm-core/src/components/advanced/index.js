@@ -38,9 +38,10 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
-import ImageDropzone from './ImageDropzone/ImageDropzone.js';
+import ImageDropzone from './ImageDropzone/ImageDropzone';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
+import ImageCropper from './ImageCropper/ImageCropper';
 
 const Components = {
   Table,
@@ -87,7 +88,8 @@ const Components = {
   ImageDropzone,
   WorkflowTaskInfo,
   TreeTypeInfo,
-  TreeNodeInfo
+  TreeNodeInfo,
+  ImageCropper
 };
 
 Components.version = '0.0.1';

@@ -1,6 +1,5 @@
 import React from 'react';
 import Well from '../../basic/Well/Well';
-// import Img from 'react-image';
 //
 import * as Basic from '../../basic';
 

@@ -26,51 +26,48 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @Description("Verify image suffix and create square thumbnail")
 public class ImageUtils {
-	
-	public ImageUtils () {
+
+	public ImageUtils() {
 	}
-	
+
 	public boolean verifyImage(MultipartFile data) throws IllegalStateException, IOException {
 		File file = convertData(data);
 		return isImage(file);
 	}
-	
+
 	public BufferedImage processImage(MultipartFile data) throws IOException {
 		File file = multipartToFile(data);
-		int newWidth = 100;
 		BufferedImage source = ImageIO.read(file);
-		double ratio = (double)source.getWidth() / newWidth;
-		BufferedImage scaled = resizeImage(source);
-		// System.out.println("Source width: " + source.getWidth());
-		// System.out.println("Source height: " + source.getHeight());
-		// System.out.println("Scaled width: " + scaled.getWidth());
-		// System.out.println("Scaled height: " + scaled.getHeight());
-		return scaled;
+		// int newWidth = 100;
+		// double ratio = (double)source.getWidth() / newWidth;
+		// BufferedImage scaled = resizeImage(source);
+		// Return scaled for BE resize
+		return source;
 	}
-	
+
 	private static File convertData(MultipartFile data) throws IOException {
 		File convFile = new File(data.getOriginalFilename());
-	    convFile.createNewFile(); 
-	    FileOutputStream fos = new FileOutputStream(convFile); 
-	    fos.write(data.getBytes());
-	    fos.close();
-	    return convFile;
+		convFile.createNewFile();
+		FileOutputStream fos = new FileOutputStream(convFile);
+		fos.write(data.getBytes());
+		fos.close();
+		return convFile;
 	}
-	
+
 	public File multipartToFile(MultipartFile data) throws IllegalStateException, IOException {
-	    File convFile = new File(data.getOriginalFilename());
-	    data.transferTo(convFile);
-	    return convFile;
+		File convFile = new File(data.getOriginalFilename());
+		data.transferTo(convFile);
+		return convFile;
 	}
-	
+
 	public boolean isImage(File file) {
 		try {
-		    BufferedImage image = ImageIO.read(file);
-		    if (image == null) {
-		        return false;
-		    }
-		} catch(IOException ex) {
-		    return false;
+			BufferedImage image = ImageIO.read(file);
+			if (image == null) {
+				return false;
+			}
+		} catch (IOException ex) {
+			return false;
 		}
 		return true;
 	}
@@ -78,12 +75,14 @@ public class ImageUtils {
 	private BufferedImage resizeImage(BufferedImage originalBufferedImage) {
 		int thumbnailWidth = 300;
 		int widthToScale, heightToScale, transferX, transferY;
-		if (originalBufferedImage.getHeight() >= originalBufferedImage.getWidth()) {		 
-		    widthToScale = (int)(thumbnailWidth);
-		    heightToScale = (int)((thumbnailWidth * 1.0) / originalBufferedImage.getWidth() * originalBufferedImage.getHeight());
+		if (originalBufferedImage.getHeight() >= originalBufferedImage.getWidth()) {
+			widthToScale = (int) (thumbnailWidth);
+			heightToScale = (int) ((thumbnailWidth * 1.0) / originalBufferedImage.getWidth()
+					* originalBufferedImage.getHeight());
 		} else {
-		    heightToScale = (int)(thumbnailWidth);
-		    widthToScale = (int)((thumbnailWidth * 1.0) / originalBufferedImage.getHeight() * originalBufferedImage.getWidth());
+			heightToScale = (int) (thumbnailWidth);
+			widthToScale = (int) ((thumbnailWidth * 1.0) / originalBufferedImage.getHeight()
+					* originalBufferedImage.getWidth());
 		}
 		BufferedImage resizedImage = new BufferedImage(thumbnailWidth, thumbnailWidth, originalBufferedImage.getType());
 		Graphics2D graphics = resizedImage.createGraphics();
@@ -91,10 +90,10 @@ public class ImageUtils {
 		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		if(heightToScale > widthToScale) {
+		if (heightToScale > widthToScale) {
 			transferX = 0;
 			transferY = (thumbnailWidth - heightToScale) / 2;
-		} else if(widthToScale > heightToScale) {
+		} else if (widthToScale > heightToScale) {
 			transferX = (thumbnailWidth - widthToScale) / 2;
 			transferY = 0;
 		} else {
@@ -105,10 +104,10 @@ public class ImageUtils {
 		graphics.dispose();
 		return resizedImage;
 	}
-	
+
 	public InputStream imageToInputStream(BufferedImage image) throws IOException {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		ImageIO.write(image,"png", os);
+		ImageIO.write(image, "png", os);
 		InputStream fis = new ByteArrayInputStream(os.toByteArray());
 		return fis;
 	}

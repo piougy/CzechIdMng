@@ -25,7 +25,8 @@ class IdentityDetail extends Basic.AbstractContent {
       showLoading: false,
       showLoadingIdentityTrimmed: false,
       setDataToForm: false,
-      deleteButton: false
+      deleteButton: false,
+      showCropper: false
     };
   }
 
@@ -63,8 +64,7 @@ class IdentityDetail extends Basic.AbstractContent {
   receiveImage(blob) {
     const objectURL = URL.createObjectURL(blob);
     this.setState({
-      imageUrl: objectURL,
-      hasImage: true
+      imageUrl: objectURL
     });
   }
 
@@ -125,27 +125,10 @@ class IdentityDetail extends Basic.AbstractContent {
       });
       return;
     }
+    const objectURL = URL.createObjectURL(file);
     this.setState({
-      showLoading: true
-    });
-    const formData = new FormData();
-    formData.append( 'data', file );
-    identityManager.upload(formData, identity.id)
-    .then(() => {
-      this.setState({
-        showLoading: false
-      }, () => {
-        this.addMessage({
-          message: this.i18n('fileUploaded', {name: file.name})
-        });
-        identityManager.download(identity.id, this.receiveImage.bind(this));
-      });
-    })
-    .catch(error => {
-      this.setState({
-        showLoading: false
-      });
-      this.addError(error);
+      cropperSrc: objectURL,
+      showCropper: true
     });
   }
 
@@ -177,7 +160,7 @@ class IdentityDetail extends Basic.AbstractContent {
         this.setState({
           showLoading: false,
           imageUrl: undefined,
-          hasImage: false
+          cropperSrc: undefined
         }, () => {
 
         });
@@ -187,25 +170,41 @@ class IdentityDetail extends Basic.AbstractContent {
     });
   }
 
-  showDelete() {
-    if (this.state.imageUrl !== undefined) {
-      return true;
-    }
-    return false;
+  showCropper() {
+    this.setState({
+      showCropper: true
+    });
   }
 
-  mouseEnter() {
-    if (this.state.imageUrl !== undefined) {
-      this.setState({ deleteButton: true });
-    }
+  closeCropper() {
+    this.setState({
+      showCropper: false
+    });
   }
-  mouseLeave() {
-    this.setState({ deleteButton: false });
+
+  _crop() {
+    this.refs.cropper.crop((formData) => {
+      identityManager.upload(formData, this.props.identity.id)
+      .then(() => {
+        this.setState({
+          showLoading: false
+        }, () => {
+          identityManager.download(this.props.identity.id, this.receiveImage.bind(this));
+        });
+      })
+      .catch(error => {
+        this.setState({
+          showLoading: false
+        });
+        this.addError(error);
+      });
+    });
+    this.closeCropper();
   }
 
   render() {
     const { identity, readOnly, _permissions } = this.props;
-    const { showLoading, showLoadingIdentityTrimmed, imageUrl, deleteButton } = this.state;
+    const { showLoading, showLoadingIdentityTrimmed, imageUrl, showCropper, cropperSrc } = this.state;
     const imgSrc = imageUrl ? imageUrl : null;
     //
     const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
@@ -226,23 +225,33 @@ class IdentityDetail extends Basic.AbstractContent {
               <Basic.Row>
                 <div className="col-lg-3" style={{margin: '4px 0px 5px 0'}}>
                   <Basic.Button
-                  ref="cancelButton"
                   type="button"
-                  level="danger"
-                  rendered={this.showDelete()}
-                  style={{position: 'absolute', right: '25px', top: '10px'}}
+                  level="outline-info"
+                  rendered={cropperSrc && imgSrc ? true : false}
+                  style={{position: 'absolute', left: '25px', bottom: '10px'}}
+                  titlePlacement="right"
+                  onClick={this.showCropper.bind(this)}
+                  className="btn-xs">
+                    <Basic.Icon type="fa" icon="edit" style={{fontSize: '14px'}}/>
+                  </Basic.Button>
+                  <Basic.Button
+                  type="button"
+                  level="outline-dark"
+                  rendered={imgSrc ? true : false}
+                  style={{position: 'absolute', right: '25px', bottom: '10px'}}
                   titlePlacement="left"
                   onClick={this.deleteImage.bind(this)}
                   className="btn-xs">
-                    <Basic.Icon type="fa" icon="remove"/>
+                  <Basic.Icon type="fa" icon="trash" style={{fontSize: '14px'}}/>
                   </Basic.Button>
                   <Advanced.ImageDropzone
+                  className=""
                   ref="dropzone"
                   accept="image/*"
                   multiple={false}
                   onDrop={this._onDrop.bind(this)}>
                     <img
-                    className="img-thumbnail"
+                    className="img-thumbnail "
                     src={imgSrc}
                     style={{width: '100%'}} />
                   </Advanced.ImageDropzone>
@@ -322,6 +331,34 @@ class IdentityDetail extends Basic.AbstractContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
+        <Basic.Modal
+          bsSize="default"
+          show={showCropper}
+          onHide={this.closeCropper.bind(this)}
+          backdrop="static" >
+
+          <Basic.Modal.Body>
+            <Advanced.ImageCropper
+              ref="cropper"
+              src={cropperSrc}
+              identity={identity} />
+          </Basic.Modal.Body>
+
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={this.closeCropper.bind(this)}
+              showLoading={showLoading}>
+              {this.i18n('button.close')}
+            </Basic.Button>
+            <Basic.Button
+              level="info"
+              onClick={this._crop.bind(this)}
+              showLoading={showLoading}>
+              {this.i18n('button.crop')}
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
       </div>
     );
   }

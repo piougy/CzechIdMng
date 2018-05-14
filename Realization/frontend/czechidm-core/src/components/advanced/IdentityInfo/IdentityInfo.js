@@ -137,35 +137,29 @@ export class IdentityInfo extends AbstractEntityInfo {
       );
   }
 
-  /**
-   * Returns popover info content
-   *
-   * @param  {array} table data
-   */
-  getPopoverContent(entity) {
-    return [
-      {
-        value: '.'
-      },
-      {
-        value: (
-          <div>
-            <Basic.Icon value="fa:envelope" style={{ marginRight: 5 }}/>
+  renderRow(icon, entityAttr) {
+    if (entityAttr) {
+      return (
+        <tr>
+          <td>
+            <Basic.Icon value={icon} />
             {' '}
-            { entity.email }
-          </div>
-        )
-      },
-      {
-        value: (
-          <div>
-            <Basic.Icon value="fa:phone" style={{ marginRight: 3 }}/>
-            {' '}
-            { entity.phone }
-          </div>
-        )
-      },
-    ];
+            { entityAttr }
+          </td>
+        </tr>
+      );
+    }
+  }
+
+  renderBody(_entity) {
+    return (
+      <table className="table table-condensed text-center" style={{ marginBottom: 0 }}>
+        <tbody>
+          { this.renderRow('fa:envelope', _entity.email) }
+          { this.renderRow('fa:phone', _entity.phone) }
+        </tbody>
+      </table>
+    );
   }
 
   _renderFull() {
@@ -196,24 +190,7 @@ export class IdentityInfo extends AbstractEntityInfo {
             <div className="clearfix"/>
         </Basic.PanelHeader>
 
-          <table className="table table-condensed text-center" style={{ marginBottom: 0 }}>
-            <tbody>
-              <tr>
-                <td>
-                  <Basic.Icon value="fa:envelope" style={{ marginRight: 5 }}/>
-                  {' '}
-                  { _entity.email }
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <Basic.Icon value="fa:phone" style={{ marginRight: 5 }}/>
-                  {' '}
-                  { _entity.phone }
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        { this.renderBody(_entity) }
 
         <Basic.PanelFooter rendered={ this.showLink() }>
           <div className="text-center">

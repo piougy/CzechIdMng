@@ -70,11 +70,11 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 		if (contractId != null) {
 			List<IdmContractSliceDto> slices = contractSliceManager.findAllSlices(contractId);
 			if (slices.size() == 1) {
+				// Internal delete of slice
+				service.deleteInternal(slice);
 				// This slice is last for parent contract. We will also deleted the parent
 				// contract;
 				contractService.deleteById(contractId);
-				// Internal delete of slice
-				service.deleteInternal(slice);
 				return new DefaultEventResult<>(event, this);
 			}
 

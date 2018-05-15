@@ -3999,6 +3999,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Událost nelze smazat",
       "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    },
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
+      "title": "Pracovní pozici není možné odstranit.",
+      "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"
     }
   },
   "validationError": {

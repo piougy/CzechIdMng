@@ -3954,6 +3954,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Event cannot be deleted",
       "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    },
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
+      "title": "Contract cannot be deleted!",
+      "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"
     }
   },
   "validationError": {

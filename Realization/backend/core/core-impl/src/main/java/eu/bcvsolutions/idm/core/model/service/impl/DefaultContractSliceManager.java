@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
@@ -36,6 +38,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 
 /**
@@ -64,7 +68,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice) {
+	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice,
+			Map<String, Serializable> eventProperties) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
 		Assert.isTrue(slice.isUsingAsContract(),
@@ -76,7 +81,10 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		// updateValidTillOnPreviousSlice(slice, slices);
 		convertSliceToContract(slice, contract);
 		// Create contract
-		IdmIdentityContractDto savedContract = contractService.save(contract);
+		// Beware - Uses properties from the slice event!
+		IdmIdentityContractDto savedContract = contractService
+				.publish(new IdentityContractEvent(IdentityContractEventType.CREATE, contract, ImmutableMap.copyOf(eventProperties)))
+				.getContent();
 		// Copy values of extended attributes
 		copyExtendedAttributes(slice, savedContract);
 		// Copy guarantees
@@ -87,7 +95,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice) {
+	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
+			Map<String, Serializable> eventProperties) {
 
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
@@ -100,7 +109,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		// Previous slice will be valid till starts of validity next slice - Remove?
 		// updateValidTillOnPreviousSlice(slice, slices);
 		// Save contract
-		IdmIdentityContractDto savedContract = contractService.save(contract);
+		IdmIdentityContractDto savedContract = contractService
+				.publish(new IdentityContractEvent(IdentityContractEventType.UPDATE, contract, ImmutableMap.copyOf(eventProperties)))
+				.getContent();
 
 		if (slice.isUsingAsContract()) {
 			// Copy values of extended attributes
@@ -139,9 +150,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		if (slice.getValidFrom() == null) {
 			slices.stream() //
-			.filter(s -> !s.equals(slice) && s.getValidFrom() != null) //
-			.min(comparatorValidFrom) //
-			.orElse(null); //
+					.filter(s -> !s.equals(slice) && s.getValidFrom() != null) //
+					.min(comparatorValidFrom) //
+					.orElse(null); //
 		}
 
 		return slices.stream() //
@@ -180,7 +191,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public void setSliceAsCurrentlyUsing(IdmContractSliceDto slice) {
+	public IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice) {
 		// Only one slice can be marked as 'is using as contract' (for one parent
 		// contract)
 		if (slice.getParentContract() != null) {
@@ -198,14 +209,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 						s.setUsingAsContract(false);
 						// We want only save data, not update contract by slice
 						contractSliceService
-								.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s, ImmutableMap.of(
-										IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
+								.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s, ImmutableMap
+										.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 					});
 		}
 		slice.setUsingAsContract(true);
 		// Copy to contract is ensures the save slice processor. We have to only set
 		// attribute 'Is using as contract' to true.
-		contractSliceService.save(slice);
+		return contractSliceService.save(slice);
 	}
 
 	@Override

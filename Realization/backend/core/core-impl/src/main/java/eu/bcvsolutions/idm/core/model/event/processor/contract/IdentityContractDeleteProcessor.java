@@ -111,6 +111,12 @@ public class IdentityContractDeleteProcessor
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
 		});		
+		// delete contract guarantees
+		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
+		filter.setIdentityContractId(contract.getId());
+		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
+			contractGuaranteeService.delete(guarantee);
+		});
 		// delete relation (from slices) on the contract
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 		sliceFilter.setParentContract(contract.getId());
@@ -118,12 +124,6 @@ public class IdentityContractDeleteProcessor
 			// This contract is controlled by some slice -> cannot be deleted
 			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED, ImmutableMap.of("contractId", contract.getId()));
 		}
-		// delete contract guarantees
-		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
-		filter.setIdentityContractId(contract.getId());
-		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
-			contractGuaranteeService.delete(guarantee);
-		});
 		
 		// delete identity contract
 		service.deleteInternal(contract);

@@ -121,8 +121,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 		// if dto exists add real uid
 		if (newDto != null) {
 			if (newDto.getSystemEntity() != null) {
-				SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(newDto, AccAccount_.systemEntity,
-						SysSystemEntityDto.class);
+				SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(newDto, AccAccount_.systemEntity);
 				newDto.setRealUid(systemEntity.getUid());
 			} else {
 				// If system entity do not exist, then return uid from account.

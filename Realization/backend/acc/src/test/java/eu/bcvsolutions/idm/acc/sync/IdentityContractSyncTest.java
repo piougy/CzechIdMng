@@ -565,8 +565,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		guaranteeFilter.setIdentityContractId(contractsOne.get(0).getId());
 		List<IdmContractGuaranteeDto> gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, gurantees.size());
-		IdmIdentityDto guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee,
-				IdmIdentityDto.class);
+		IdmIdentityDto guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
 		// Direct leader from resource
 		Assert.assertEquals(CONTRACT_LEADER_ONE, guarantee.getUsername());
 
@@ -576,7 +575,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		guaranteeFilter.setIdentityContractId(contractsTwo.get(0).getId());
 		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, gurantees.size());
-		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee, IdmIdentityDto.class);
+		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
 		// Default leader
 		Assert.assertEquals(CONTRACT_LEADER_TWO, guarantee.getUsername());
 
@@ -586,7 +585,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		guaranteeFilter.setIdentityContractId(contractsThree.get(0).getId());
 		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, gurantees.size());
-		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee, IdmIdentityDto.class);
+		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
 		// Default leader
 		Assert.assertEquals(CONTRACT_LEADER_TWO, guarantee.getUsername());
 
@@ -662,8 +661,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("1");
 		contractsOne = contractService.find(contractFilter, null).getContent();
 		Assert.assertEquals(1, contractsOne.size());
-		IdmTreeNodeDto workposition = DtoUtils.getEmbedded(contractsOne.get(0), IdmIdentityContract_.workPosition,
-				IdmTreeNodeDto.class);
+		IdmTreeNodeDto workposition = DtoUtils.getEmbedded(contractsOne.get(0), IdmIdentityContract_.workPosition);
 		Assert.assertEquals("one", workposition.getCode());
 
 		// For contract Two must not be found workposition (WRONG node is not in

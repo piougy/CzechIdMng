@@ -155,9 +155,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			identityAccountList.stream() //
 					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
 					.filter(identityAccount -> identityAccount.getRoleSystem() == null
-							|| !(DtoUtils
-									.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem,
-											SysRoleSystemDto.class)
+							|| !( ((SysRoleSystemDto) DtoUtils
+									.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem))
 									.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
 					.forEach(identityAccount -> {
 						identityAccountsToDelete.add(identityAccount);
@@ -262,9 +261,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}).collect(Collectors.toList());
 
 		if (attributesUid.size() > 1) {
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role, IdmRoleDto.class);
-			DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
-			SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
 					ImmutableMap.of("role", roleDto.getName(), "system", systemDto.getName()));
 		}
@@ -281,7 +279,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			uidRoleAttribute.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
 			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, uidRoleAttribute);
 			if (uid == null) {
-				SysSystemDto systemEntity = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
+				SysSystemDto systemEntity = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 						ImmutableMap.of("system", systemEntity.getName()));
 			}
@@ -296,7 +294,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// If roleSystem UID was not found, then we use default UID schema
 		// attribute handling
 		SysSchemaObjectClassDto objectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system);
 		SysSystemAttributeMappingFilter systeAttributeMappingFilter = new SysSystemAttributeMappingFilter();
 		systeAttributeMappingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> schemaHandlingAttributes = systemAttributeMappingService
@@ -346,7 +344,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		// Account management - can be the account created? - execute the script on the
 		// system mapping
-		SysSystemDto system = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
 		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
 				SystemEntityType.IDENTITY);
 		if (mapping == null) {

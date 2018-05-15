@@ -323,7 +323,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return identityAccount;
 		}
 		// Default role is defines
-		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole, IdmRoleDto.class);
+		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole);
 		context.getLogItem()
 				.addToLog(MessageFormat.format(
 						"Default role [{1}] is defines and will be assigned to the identity [{0}].", entity.getCode(),

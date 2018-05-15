@@ -1956,7 +1956,7 @@
           "success": "Contracted position [{{name}}] successfully saved."
         },
         "alert": {
-          "controlledBySlices": "This contract is controller by time slices. Cannot be modified directlly!"
+          "controlledBySlices": "This contract is controlled by time slices. Cannot be modified directly!"
         }
       },
       "eav": {

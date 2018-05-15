@@ -181,10 +181,6 @@ class ContractSliceDetail extends Basic.AbstractContent {
                         forceSearchParameters={parentForceSearchParameters}
                         label={this.i18n('entity.ContractSlice.parentContract')}/>
                       <Basic.TextField
-                        ref="code"
-                        label={this.i18n('entity.ContractSlice.code.label')}
-                        helpBlock={this.i18n('entity.ContractSlice.code.help')}/>
-                      <Basic.TextField
                         ref="contractCode"
                         label={this.i18n('entity.ContractSlice.contractCode')}/>
                       <Basic.DateTimePicker

@@ -295,7 +295,6 @@ public class IdmContractSliceController
 		filter.setParentContract(getParameterConverter().toUuid(parameters, "parentContract"));
 		filter.setWithoutParent(getParameterConverter().toBoolean(parameters, "withoutParent"));
 		filter.setContractCode(getParameterConverter().toString(parameters, "contractCode"));
-		filter.setCode(getParameterConverter().toString(parameters, "code"));
 
 		return filter;
 	}

@@ -25,7 +25,6 @@ public class IdmContractSliceDto extends IdmIdentityContractDto implements Valid
 	private UUID parentContract;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String contractCode; // Identifier of the main contract on the source system
-	private String code; // Identifier of that slice on the source system
 	private boolean usingAsContract; // Is this slice actually using as the contract?
 	private LocalDate contractValidFrom;
 	private LocalDate contractValidTill;
@@ -60,14 +59,6 @@ public class IdmContractSliceDto extends IdmIdentityContractDto implements Valid
 
 	public void setContractValidTill(LocalDate contractValidTill) {
 		this.contractValidTill = contractValidTill;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
 	}
 
 	public boolean isUsingAsContract() {

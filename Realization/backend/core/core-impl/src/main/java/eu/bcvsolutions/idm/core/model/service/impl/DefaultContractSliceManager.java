@@ -289,15 +289,28 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * Copy (clone) of attribute values from slice to contract
 	 * 
 	 * @param slice
-	 * @param savedContract
+	 * @param contract
 	 */
-	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto savedContract) {
+	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
+		Assert.notNull(contract);
+		Assert.notNull(contract.getId());
+		Assert.notNull(slice);
+		Assert.notNull(slice.getId());
+		
 		IdmFormDefinitionDto defaultDefinition = formService.getDefinition(IdmIdentityContract.class);
+		// Load extended values for this contract
+		List<IdmFormValueDto> contractValues = formService.getValues(contract.getId(), IdmIdentityContract.class,
+						defaultDefinition);
+		// Delete all current values
+		contractValues.forEach(value -> {
+			identityContractFormValueService.delete(value);
+		});
+		
 		// Load extended values for this slice
 		List<IdmFormValueDto> sliceValues = formService.getValues(slice.getId(), IdmContractSlice.class,
 				defaultDefinition);
 		sliceValues.forEach(value -> {
-			value.setOwner(identityContractRepository.findOne(savedContract.getId()));
+			value.setOwner(identityContractRepository.findOne(contract.getId()));
 			// Clear audit fields
 			EntityUtils.clearAuditFields(value);
 			value.setId(null);

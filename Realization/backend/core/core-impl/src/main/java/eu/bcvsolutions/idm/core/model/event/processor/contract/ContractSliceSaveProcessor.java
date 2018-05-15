@@ -46,5 +46,10 @@ public class ContractSliceSaveProcessor extends CoreEventProcessor<IdmContractSl
 
 		return new DefaultEventResult<>(event, this);
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmContractSliceDto> event) {
+		return !this.getBooleanProperty(IdmContractSliceService.SKIP_CONTRACT_SLICE_SAVE, event.getProperties());
+	}
 
 }

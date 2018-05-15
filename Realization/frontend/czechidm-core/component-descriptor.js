@@ -200,16 +200,18 @@ module.exports = {
       'type': 'form-attribute-renderer',
       'persistentType': 'UUID',
       'faceType': 'IDENTITY-SELECT',
-      'component': require('./src/components/advanced/Form/IdentitySelectFormAttributeRenderer'),
-      'labelKey': 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT'
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT',
+      'manager': require('./src/redux').IdentityManager
     },
     {
       'id': 'role-select-form-value',
       'type': 'form-attribute-renderer',
       'persistentType': 'UUID',
       'faceType': 'ROLE-SELECT',
-      'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
-      'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT',
+      'manager': require('./src/redux').RoleManager
     },
     {
       'id': 'boolean-select-form-value',

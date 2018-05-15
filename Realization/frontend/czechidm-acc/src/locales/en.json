@@ -7,6 +7,15 @@
     "menu" : {
     }
   },
+  "component" : {
+    "advanced": {
+      "EavForm": {
+        "faceType": {
+          "SYSTEM-SELECT": "System select (SelectBox)"
+        }
+      }
+    }
+  },
   "content": {
     "dashboard": {
     },

@@ -156,7 +156,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 				int lockLoginTime = validatePolicy.getBlockLoginTime().intValue();
 				passwordDto.setBlockLoginDate(new DateTime().plus(Seconds.seconds(lockLoginTime)));
 				passwordDto = passwordService.save(passwordDto);
-				IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity, IdmIdentityDto.class);
+				IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
 				//
 				DateTimeFormatter formatter = DateTimeFormat.forPattern("d.M.y H:m:s");
 				String dateAsString = passwordDto.getBlockLoginDate().toString(formatter);

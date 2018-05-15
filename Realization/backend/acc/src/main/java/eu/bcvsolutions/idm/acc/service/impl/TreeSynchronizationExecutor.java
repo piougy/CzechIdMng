@@ -448,8 +448,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			List<SysSyncActionLogDto> actionsLog) {
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
-				SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
 		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes, system);
 
 		List<IdmTreeNodeDto> roots = treeNodeService.findRoots(systemMapping.getTreeType(), null).getContent();

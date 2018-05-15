@@ -113,12 +113,14 @@ export default class EavForm extends Basic.AbstractContextComponent {
             }
             //
             const FormValueComponent = component.component;
+            const ManagerType = component.manager;
             return (
               <FormValueComponent
                 ref={ attribute.code }
                 attribute={ attribute }
                 values={ formInstance.getValues(attribute.code) }
-                readOnly={ readOnly } />
+                readOnly={ readOnly }
+                manager={ ManagerType ? new ManagerType() : null }/>
             );
           })
         }

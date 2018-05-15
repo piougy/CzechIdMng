@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.InitApplicationData;
-import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -64,6 +63,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.test.TestHelper;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -164,7 +164,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		
-		provisioningService.doProvisioning(DtoUtils.getEmbedded(accountIdentityOne, AccIdentityAccount_.identity, IdmIdentityDto.class));
+		provisioningService.doProvisioning(DtoUtils.getEmbedded(accountIdentityOne, AccIdentityAccount_.identity));
 
 		TestResource createdAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(createdAccount);
@@ -231,7 +231,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		createIdentityContact(subordinateOne, subordinateOnePositionOne);
 		AccIdentityAccountDto subordinateAccount = prepareAccount(subordinateOne);
 		//
-		provisioningService.doProvisioning(DtoUtils.getEmbedded(subordinateAccount, AccIdentityAccount_.identity, IdmIdentityDto.class));
+		provisioningService.doProvisioning(DtoUtils.getEmbedded(subordinateAccount, AccIdentityAccount_.identity));
 		//
 		TestResource account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
 		Assert.assertNotNull(account);
@@ -340,8 +340,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
-		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
-		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity);
 
 		SysSystemAttributeMappingFilter attributeFilter = new SysSystemAttributeMappingFilter();
 		attributeFilter.setSystemId(system.getId());

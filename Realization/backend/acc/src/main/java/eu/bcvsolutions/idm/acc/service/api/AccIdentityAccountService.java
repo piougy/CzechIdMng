@@ -34,7 +34,7 @@ public interface AccIdentityAccountService extends
 	void delete(AccIdentityAccountDto entity, boolean deleteAccount, BasePermission... permission);
 	
 	static AccAccountDto getEmbeddedAccount(AccIdentityAccountDto identityAccount){
-		return DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account, AccAccountDto.class);
+		return DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account);
 	}
 
 	/**

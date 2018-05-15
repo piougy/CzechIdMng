@@ -487,7 +487,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, (Serializable) value);
 
 			if (node != null) {
-				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class);
+				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType);
 				context.getLogItem()
 						.addToLog(MessageFormat.format(
 								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
@@ -509,8 +509,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 					return null;
 				}
 				IdmTreeNodeFilter treeNodeFilter = new IdmTreeNodeFilter();
-				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType,
-						IdmTreeTypeDto.class);
+				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType);
 				treeNodeFilter.setTreeTypeId(config.getDefaultTreeType());
 				treeNodeFilter.setCode((String) value);
 				context.getLogItem()

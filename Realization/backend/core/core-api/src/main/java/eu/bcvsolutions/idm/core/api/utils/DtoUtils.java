@@ -14,9 +14,70 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  * @author Radek Tomiška <tomiska@ders.cz>
  */
-public class DtoUtils {
-
-	private DtoUtils() {
+public abstract class DtoUtils {
+	
+	/**
+	 * Returns embedded DTO from given dto. Returns default value, if embedded object is not found or is {@code null}.
+	 * 
+	 * @param dto
+	 * @param attributeName
+	 * @param defaultValue
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, DTO defaultValue) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getEmbedded());
+		Assert.hasLength(attributeName);
+		//
+		if (!dto.getEmbedded().containsKey(attributeName)) {
+    		return defaultValue;
+    	}
+    	return (DTO) dto.getEmbedded().get(attributeName);
+	}
+	
+	/**
+	 * Returns embedded DTO from given dto.
+	 * 
+	 * @throws IllegalArgumentException if embedded dto not found
+	 * @param dto
+	 * @param attributeName
+	 * @return
+	 */
+	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName) {
+		DTO embedded = getEmbedded(dto, attributeName, (DTO) null);
+		if (embedded == null) {
+			throw new IllegalArgumentException(String.format("Embedded dto with key [%s] not found in given dto [%s]", attributeName, dto));
+		}
+		return embedded;
+	}
+	
+	/**
+	 * Returns embedded DTO from given dto
+	 * 
+	 * @throws IllegalArgumentException if embedded dto not found
+	 * @param dto
+	 * @param attribute
+	 * @return
+	 */
+	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute) {
+		Assert.notNull(attribute);
+		//
+		return getEmbedded(dto, attribute.getName());
+	}
+	
+	/**
+	 * Returns embedded DTO from given dto. Returns default value, if embedded object is not found or is {@code null}.
+	 * 
+	 * @param dto
+	 * @param attribute
+	 * @param defaultValue
+	 * @return
+	 */
+	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, DTO defaultValue) {
+		Assert.notNull(attribute);
+		//
+		return getEmbedded(dto, attribute.getName(), (DTO) defaultValue);
 	}
 	
 	/**
@@ -26,7 +87,9 @@ public class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
+	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, String)}
 	 */
+	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, Class<DTO> dtoClass) {
 		DTO embedded = getEmbedded(dto, attributeName, dtoClass, null);
 		if (embedded == null) {
@@ -41,17 +104,15 @@ public class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
+	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, String, Object)}
 	 */
-	@SuppressWarnings("unchecked")
+	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, Class<DTO> dtoClass, DTO defaultValue) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getEmbedded());
 		Assert.hasLength(attributeName);
 		//
-		if (!dto.getEmbedded().containsKey(attributeName)) {
-    		return defaultValue;
-    	}
-    	return (DTO) dto.getEmbedded().get(attributeName);
+		return getEmbedded(dto, attributeName, defaultValue);
 	}
 	
 	/**
@@ -61,7 +122,9 @@ public class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
+	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, SingularAttribute)}
 	 */
+	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, Class<DTO> dtoClass) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getEmbedded());
@@ -76,7 +139,9 @@ public class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
+	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, SingularAttribute, Object)}
 	 */
+	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, Class<DTO> dtoClass, DTO defaultValue) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getEmbedded());

@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.acc.DefaultTestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -27,6 +26,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.test.AccTestHelper;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -44,7 +44,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 	@Autowired private SysProvisioningOperationService operationService;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysProvisioningBatchService batchService;
-	@Autowired private DefaultTestHelper helper;
+	@Autowired private AccTestHelper helper;
 
 	@Before
 	public void init() {

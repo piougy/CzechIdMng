@@ -61,7 +61,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		
 		IdmIdentityRoleDto identityRole = event.getContent();
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
-		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
+		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
 		
 		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		

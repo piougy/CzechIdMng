@@ -292,7 +292,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system);
 
 		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
@@ -370,7 +370,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 	
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system);
 		SysSystemEntityDto systemEntity = findSystemEntity(uid, system, entityType);
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
@@ -399,7 +399,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		AccAccountDto account = accountService.get(accountId);
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(sysSchemaObjectClassDto, SysSchemaObjectClass_.system);
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 		SynchronizationContext context = new SynchronizationContext();
 		context.addUid(uid)

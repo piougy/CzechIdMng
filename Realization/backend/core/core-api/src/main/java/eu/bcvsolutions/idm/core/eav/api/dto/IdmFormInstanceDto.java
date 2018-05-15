@@ -114,9 +114,11 @@ public class IdmFormInstanceDto implements Serializable {
 	 * @return
 	 */
 	public Map<String, List<Serializable>> toPersistentValueMap() {
-		Assert.notNull(values);
-		//
 		Map<String, List<Serializable>> results = new HashMap<>();
+		if (values == null) {
+			return results;
+		}
+		//
 		for(IdmFormValueDto value : values) {
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(value.getFormAttribute());
 			String key = attribute.getCode();

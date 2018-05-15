@@ -1,19 +1,13 @@
-package eu.bcvsolutions.idm.acc;
+package eu.bcvsolutions.idm.acc.test;
 
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemMappingService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
@@ -31,7 +25,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -41,6 +34,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -55,15 +49,12 @@ import joptsimple.internal.Strings;
  * 
  * @author Radek Tomiška
  */
-@Primary
-@Component("accTestHelper")
-public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestHelper implements TestHelper {
+public abstract class AccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestHelper implements TestHelper {
 	
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired private SysSchemaAttributeService schemaAttributeService;
-	@Autowired private EntityManager entityManager;
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
@@ -189,7 +180,7 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	@Override
 	public SysSystemDto createTestResourceSystem(boolean withMapping, String systemName) {
 		// create test system
-		SysSystemDto system = createSystem(TestResource.TABLE_NAME, systemName);
+		SysSystemDto system = createSystem(AbstractTestResource.TABLE_NAME, systemName);
 		//
 		if (!withMapping) {
 			return system;
@@ -290,12 +281,6 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 		//
 		roleSystem.setSystemMapping(mappings.get(0).getId());
 		return roleSystemService.save(roleSystem);
-	}
-	
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public TestResource findResource(String uid) {
-		return entityManager.find(TestResource.class, uid);
 	}
 	
 	@Override

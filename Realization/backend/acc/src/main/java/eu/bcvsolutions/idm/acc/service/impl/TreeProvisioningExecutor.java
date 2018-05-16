@@ -104,7 +104,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 		treeAccoutnList.stream().filter(treeAccount -> {
 			return treeAccount.isOwnership();
 		}).forEach((treeAccount) -> {
-			doProvisioning(account, DtoUtils.getEmbedded(treeAccount, AccTreeAccount_.treeNode));
+			doProvisioning(account, DtoUtils.getEmbedded(treeAccount, AccTreeAccount_.treeNode, IdmTreeNodeDto.class));
 		});
 	}
 	

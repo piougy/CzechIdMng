@@ -114,7 +114,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 				return identityAccount.isOwnership();
 			})
 			.forEach((identityAccount) -> {
-				doProvisioning(account, DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identity));
+				doProvisioning(account, DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identity, IdmIdentityDto.class));
 			});
 	}	
 	

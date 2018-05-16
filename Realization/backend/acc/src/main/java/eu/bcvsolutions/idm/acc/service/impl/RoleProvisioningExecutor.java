@@ -90,7 +90,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 		entityAccoutnList.stream().filter(entityAccount -> {
 			return entityAccount.isOwnership();
 		}).forEach((roleAccount) -> {
-			doProvisioning(account, DtoUtils.getEmbedded(roleAccount, AccRoleAccount_.role));
+			doProvisioning(account, DtoUtils.getEmbedded(roleAccount, AccRoleAccount_.role, IdmRoleDto.class));
 		});
 	}
 	

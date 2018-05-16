@@ -164,7 +164,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		
-		provisioningService.doProvisioning(DtoUtils.getEmbedded(accountIdentityOne, AccIdentityAccount_.identity));
+		provisioningService.doProvisioning(DtoUtils.getEmbedded(accountIdentityOne, AccIdentityAccount_.identity, IdmIdentityDto.class));
 
 		TestResource createdAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(createdAccount);
@@ -231,7 +231,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		createIdentityContact(subordinateOne, subordinateOnePositionOne);
 		AccIdentityAccountDto subordinateAccount = prepareAccount(subordinateOne);
 		//
-		provisioningService.doProvisioning(DtoUtils.getEmbedded(subordinateAccount, AccIdentityAccount_.identity));
+		provisioningService.doProvisioning(DtoUtils.getEmbedded(subordinateAccount, AccIdentityAccount_.identity, IdmIdentityDto.class));
 		//
 		TestResource account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
 		Assert.assertNotNull(account);

@@ -87,9 +87,7 @@ public abstract class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
-	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, String)}
 	 */
-	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, Class<DTO> dtoClass) {
 		DTO embedded = getEmbedded(dto, attributeName, dtoClass, null);
 		if (embedded == null) {
@@ -104,9 +102,7 @@ public abstract class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
-	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, String, Object)}
 	 */
-	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, Class<DTO> dtoClass, DTO defaultValue) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getEmbedded());
@@ -122,9 +118,7 @@ public abstract class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
-	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, SingularAttribute)}
 	 */
-	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, Class<DTO> dtoClass) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getEmbedded());
@@ -139,9 +133,7 @@ public abstract class DtoUtils {
 	 * @param dto 
 	 * @param attributeName
 	 * @return
-	 * @deprecated @since 8.1.0 use {@link #getEmbedded(AbstractDto, SingularAttribute, Object)}
 	 */
-	@Deprecated
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, Class<DTO> dtoClass, DTO defaultValue) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getEmbedded());

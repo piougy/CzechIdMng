@@ -135,15 +135,15 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
   }
 }
 
+ContractSliceAttributeEnum.CONTRACT_CODE = Symbol('CONTRACT_CODE');
 ContractSliceAttributeEnum.IDENTITY = Symbol('IDENTITY');
+ContractSliceAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
+ContractSliceAttributeEnum.CONTRACT_VALID_FROM = Symbol('CONTRACT_VALID_FROM');
+ContractSliceAttributeEnum.CONTRACT_VALID_TILL = Symbol('CONTRACT_VALID_TILL');
 ContractSliceAttributeEnum.MAIN = Symbol('MAIN');
 ContractSliceAttributeEnum.STATE = Symbol('STATE');
 ContractSliceAttributeEnum.POSITION = Symbol('POSITION');
 ContractSliceAttributeEnum.WORK_POSITION = Symbol('WORK_POSITION');
-ContractSliceAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
-ContractSliceAttributeEnum.CONTRACT_VALID_FROM = Symbol('CONTRACT_VALID_FROM');
-ContractSliceAttributeEnum.CONTRACT_VALID_TILL = Symbol('CONTRACT_VALID_TILL');
 ContractSliceAttributeEnum.EXTERNE = Symbol('EXTERNE');
-ContractSliceAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 ContractSliceAttributeEnum.GUARANTESS = Symbol('GUARANTESS');
-ContractSliceAttributeEnum.CONTRACT_CODE = Symbol('CONTRACT_CODE');
+ContractSliceAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');

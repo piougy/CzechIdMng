@@ -1998,7 +1998,7 @@
           "success": "PPV [{{name}}] byl úspěšně uložen"
         },
         "alert": {
-          "controlledBySlices": "Tento právní vztah je řízen časovými řezy. Není možné ho upravovat přímo!"
+          "controlledBySlices": "Tento právní vztah je řízen časovými řezy. Není možné ho upravovat napřímo!"
         }
       },
       "eav": {

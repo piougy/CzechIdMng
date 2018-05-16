@@ -18,7 +18,6 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 	private Boolean withoutParent; // Returns contract without filled the parent field.
 	private UUID parentContract; // Internal relation on the main identity-contract
 	private String contractCode; // Identifier for the main contract.
-	private String code; // Identifier of the slice
 	private Boolean shouldBeUsingAsContract; // Return slices if are valid (for now). Checks only time validity.
 	private Boolean usingAsContract; // Slice is use as contract (boolean)
 	private UUID treeNode;
@@ -54,15 +53,7 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 	public void setContractCode(String contractCode) {
 		this.contractCode = contractCode;
 	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
+	
 	public UUID getParentContract() {
 		return parentContract;
 	}

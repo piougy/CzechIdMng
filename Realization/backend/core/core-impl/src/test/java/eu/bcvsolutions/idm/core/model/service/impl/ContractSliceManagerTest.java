@@ -89,8 +89,8 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		List<IdmContractSliceDto> results = contractSliceService.find(filter, null).getContent();
 		assertEquals(1, results.size());
 		IdmContractSliceDto createdSlice = results.get(0);
-		assertFalse(createdSlice.isValid());
-		assertEquals(LocalDate.now().minusDays(5), createdSlice.getValidTill());
+		assertTrue(createdSlice.isValid());
+		assertEquals(null, createdSlice.getValidTill());
 
 		// Check created contract by that slice
 		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
@@ -122,7 +122,7 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		assertEquals(1, results.size());
 		IdmContractSliceDto createdSlice = results.get(0);
 		assertFalse(createdSlice.isValid());
-		assertEquals(LocalDate.now().plusDays(100), createdSlice.getValidTill());
+		assertEquals(null, createdSlice.getValidTill());
 
 		// Check created contract by that slice
 		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();

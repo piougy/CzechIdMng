@@ -122,11 +122,12 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 						}
 					} else {
 						// Next slice does not exists. I means original slice was last. Set valid-till
-						// on previous slice to contract valid till.
+						// on previous slice to null.
 						IdmContractSliceDto originalPreviousSlice = sliceManager.findPreviousSlice(originalSlice,
 								originalSlices);
-						if (originalPreviousSlice != null) {
-							originalPreviousSlice.setValidTill(originalPreviousSlice.getContractValidTill());
+						if (originalPreviousSlice != null
+								&& sliceManager.findNextSlice(originalPreviousSlice, originalSlices) == null) {
+							originalPreviousSlice.setValidTill(null);
 							originalSliceToUpdate = originalPreviousSlice;
 						}
 					}
@@ -156,17 +157,25 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				// Find other slices for parent contract
 				List<IdmContractSliceDto> slices = sliceManager.findAllSlices(parentContract);
 				if (!slices.isEmpty()) {
-					// Update validity till on previous slice
-					sliceManager.updateValidTillOnPreviousSlice(slice, slices);
-					IdmContractSliceDto nextSlice = sliceManager.findNextSlice(slice, slices);
-					if (nextSlice != null) {
-						LocalDate validTill = nextSlice.getValidFrom().minusDays(1);
-						slice.setValidTill(validTill);
-					} else {
-						slice.setValidTill(slice.getContractValidTill());
+					// Update validity till on this slice and on previous slice
+					recalculateValidTill(slice, slices);
+					// Update validity till on this original slice and on previous slice (to
+					// original slice)
+					if (originalSlice != null) {
+						IdmContractSliceDto nextSliceForOriginalSlice = sliceManager.findNextSlice(originalSlice,
+								slices);
+						if (nextSliceForOriginalSlice == null) {
+							// Next slice not exists, it means original slice was last
+							IdmContractSliceDto previousSliceForOriginalSlice = sliceManager
+									.findPreviousSlice(originalSlice, slices);
+							if (previousSliceForOriginalSlice != null
+									&& sliceManager.findNextSlice(previousSliceForOriginalSlice, slices) == null) {
+								previousSliceForOriginalSlice.setValidTill(null);
+								// Save with skip this processor
+								saveWithoutRecalculate(previousSliceForOriginalSlice);
+							}
+						}
 					}
-					// Save with skip this processor
-					saveWithoutRecalculate(slice);
 				}
 			}
 			// Validity from was changed, want to recalculate "Is using as contract" field.
@@ -204,13 +213,32 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 					? true
 					: false;
 			if (isSliceLast) {
-				slice.setValidTill(slice.getContractValidTill());
+				slice.setValidTill(null);
 				this.saveWithoutRecalculate(slice);
 			}
 		}
 
 		event.setContent(service.get(slice.getId()));
 		return new DefaultEventResult<>(event, this);
+	}
+
+	/**
+	 * Recalculate valid till on given slice and on previous slice
+	 * 
+	 * @param slice
+	 * @param slices
+	 */
+	private void recalculateValidTill(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
+		sliceManager.updateValidTillOnPreviousSlice(slice, slices);
+		IdmContractSliceDto nextSlice = sliceManager.findNextSlice(slice, slices);
+		if (nextSlice != null) {
+			LocalDate validTill = nextSlice.getValidFrom().minusDays(1);
+			slice.setValidTill(validTill);
+		} else {
+			slice.setValidTill(null);
+		}
+		// Save with skip this processor
+		saveWithoutRecalculate(slice);
 	}
 
 	/**

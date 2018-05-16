@@ -45,6 +45,6 @@ public final class IcStartsWithFilter extends IcStringFilter {
     public String toString() {
         StringBuilder bld = new StringBuilder();
         bld.append("STARTSWITH: ").append(getAttribute());
-        return super.toString();
+        return bld.toString();
     }
 }

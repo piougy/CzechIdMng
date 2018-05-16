@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.test.AccTestHelper;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -41,7 +41,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired private IdmTreeTypeService treeTypeService;
-	@Autowired private AccTestHelper testHelper;
+	@Autowired private TestHelper testHelper;
 
 	@Before
 	public void init() {

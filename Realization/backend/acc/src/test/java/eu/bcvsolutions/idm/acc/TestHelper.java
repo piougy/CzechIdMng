@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.test;
+package eu.bcvsolutions.idm.acc;
 
 import java.util.UUID;
 
@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -118,7 +119,7 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @param uid
 	 * @return
 	 */
-	<R extends AbstractTestResource> R findResource(String uid);
+	TestResource findResource(String uid);
 
 	/**
 	 * Creates system entity (IDENTITY) with random name on given system

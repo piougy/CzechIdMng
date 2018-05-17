@@ -39,6 +39,8 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Default controller for password policy
  * 
+ * TODO: use AbstractReadWriteDtoController - some methods are public now (find ...)
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */

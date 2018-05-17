@@ -22,7 +22,8 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerate, Disableable, Codeable {
 
 	private static final long serialVersionUID = -7102038216963911330L;
-	
+	//
+	@NotEmpty
 	private String name;
 	private String description;
 	private boolean passwordLengthRequired = true;

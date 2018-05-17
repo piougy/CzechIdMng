@@ -190,19 +190,14 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 			sliceFilter.setParentContract(parentContract);
 			sliceFilter.setUsingAsContract(Boolean.TRUE);
 
-			List<IdmContractSliceDto> slicesMarkedAsUsing = service.find(sliceFilter, null).getContent();
 			IdmContractSliceDto shouldBeSetAsUsing = sliceManager.findValidSlice(parentContract);
 
-			// If is correct slice marked as "Is using as contract", then recalculate is not
-			// called
-			if (slicesMarkedAsUsing.isEmpty() || !slicesMarkedAsUsing.get(0).equals(shouldBeSetAsUsing)) {
-				if (shouldBeSetAsUsing != null) {
-					shouldBeSetAsUsing = sliceManager.setSliceAsCurrentlyUsing(shouldBeSetAsUsing);
-					if (slice.equals(shouldBeSetAsUsing)) {
-						// If that slice should be using as contract, then we using returned instance
-						// (instead the reload slice from DB)
-						slice = shouldBeSetAsUsing;
-					}
+			if (shouldBeSetAsUsing != null) {
+				shouldBeSetAsUsing = sliceManager.setSliceAsCurrentlyUsing(shouldBeSetAsUsing);
+				if (slice.equals(shouldBeSetAsUsing)) {
+					// If that slice should be using as contract, then we using returned instance
+					// (instead the reload slice from DB)
+					slice = shouldBeSetAsUsing;
 				}
 			}
 		}

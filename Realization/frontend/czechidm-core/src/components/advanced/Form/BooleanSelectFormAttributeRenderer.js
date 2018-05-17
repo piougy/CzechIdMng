@@ -43,9 +43,9 @@ export default class BooleanSelectFormAttributeRenderer extends AbstractFormAttr
     return (
       <Basic.BooleanSelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ attribute.name }
+        label={ this.getLabel() }
         value={ this.toInputValue(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }
         placeholder={ attribute.placeholder }/>

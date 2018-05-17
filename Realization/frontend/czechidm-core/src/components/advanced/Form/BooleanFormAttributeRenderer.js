@@ -38,9 +38,9 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
     return (
       <Basic.Checkbox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ attribute.name }
+        label={ this.getLabel() }
         value={ this.toInputValue(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }/>
     );

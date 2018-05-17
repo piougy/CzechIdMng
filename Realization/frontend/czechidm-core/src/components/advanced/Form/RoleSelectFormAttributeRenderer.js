@@ -108,11 +108,11 @@ export default class RoleSelectFormAttributeRenderer extends UuidFormAttributeRe
     return (
       <Basic.SelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ attribute.name }
+        label={ this.getLabel() }
         placeholder={ attribute.placeholder }
         manager={ manager }
         value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }
         multiSelect={ attribute.multiple }/>

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmWebsocketLogDto;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmWebsocketLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.WebsocketNotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 
 /**
  * Send messages through websocket
@@ -79,6 +80,11 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 			}
 		}
 		return log;
+	}
+
+	@Override
+	public void updateStateLongRunningTask(IdmLongRunningTaskDto longRunningTaskDto) {
+		websocket.convertAndSend("/lrt/queue/" + longRunningTaskDto.getId(), longRunningTaskDto);
 	}
 
 	/**

@@ -37,7 +37,7 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, label, className, ...others } = this.props;
+    const { rendered, active, label, className, bars, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -46,6 +46,24 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
       'advanced-progress-bar',
       className
     );
+    if (bars) {
+      const stackedBars = [];
+      bars.forEach(bar => {
+        stackedBars.push(
+          <Basic.ProgressBar isChild min={bar.min} max={this.props.max} now={bar.now} bsStyle={bar.bsStyle} active={active} />
+        );
+      });
+      return (
+        <span className={classNames}>
+          <Basic.ProgressBar style={ { marginBottom: 0} }>
+            { stackedBars }
+          </Basic.ProgressBar>
+          <div className="text-center">
+            { this._resolveLabel() }
+          </div>
+        </span>
+      );
+    }
     //
     return (
       <span className={classNames}>

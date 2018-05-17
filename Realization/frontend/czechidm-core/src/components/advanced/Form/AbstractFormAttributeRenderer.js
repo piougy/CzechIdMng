@@ -210,6 +210,60 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   /**
+   * Return localized label for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
+   */
+  getLabel(defaultValue = null) {
+    const { attribute } = this.props;
+    const formDefinition = attribute._embedded.formDefinition;
+
+    let key = null;
+    let localizeMessage = null;
+    if (formDefinition) {
+      key = `eav.${formDefinition.type}.${formDefinition.code}.${attribute.code}.label`;
+      localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
+    }
+
+    // if localized message is exactly same as key, that means message isn't localize
+    if (key === null || key === localizeMessage) {
+      if (attribute.code) {
+        return attribute.code;
+      }
+      return defaultValue;
+    }
+
+    return localizeMessage;
+  }
+
+  /**
+   * Return localized help block for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
+   */
+  getHelpBlock(defaultValue = null) {
+    const { attribute } = this.props;
+    const formDefinition = attribute._embedded.formDefinition;
+
+    let key = null;
+    let localizeMessage = null;
+    if (formDefinition) {
+      key = `eav.${formDefinition.type}.${formDefinition.code}.${attribute.code}.helpBlock`;
+      localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
+    }
+
+    // if localized message is exactly same as key, that means message isn't localize
+    if (key === null || key === localizeMessage) {
+      if (attribute.description) {
+        return attribute.description;
+      }
+      return defaultValue;
+    }
+
+    return localizeMessage;
+  }
+
+  /**
    * Input as single fields
    */
   renderSingleInput() {

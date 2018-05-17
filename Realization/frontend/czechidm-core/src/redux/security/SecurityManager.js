@@ -465,6 +465,60 @@ export default class SecurityManager {
       }
     };
   }
+
+  static unsubscribeStompClientForLrt(longRunningTaskId, userContext = null) {
+    return (dispatch, getState) => {
+      if (stompClient) {
+        if (!userContext) {
+          userContext = AuthenticateService.getUserContext();
+        }
+        const headers = {
+          login: userContext.username,
+          CIDMST: userContext.tokenCIDMST
+        };
+        try {
+          stompClient.unsubscribe(`/lrt/queue/${longRunningTaskId}`, () => {
+            getState().logger.debug(`stomp client for messages - websocket successfully closed.`);
+          }, headers);
+        } catch (err) {
+          LOGGER.debug(`[SecurityManager]: closing stomp client failed.`, err.message);
+        }
+      }
+    };
+  }
+
+  static connectStompClientForLrt(longRunningTaskId, userContext = null) {
+    return (dispatch, getState) => {
+      if (!userContext) {
+        userContext = AuthenticateService.getUserContext();
+      }
+      // logged user only
+      if (userContext && userContext.username) {
+        stompClient = Stomp.over(new SockJS(`${ConfigLoader.getServerUrl()}/websocket-info`));
+        const headers = {
+          login: userContext.username,
+          CIDMST: userContext.tokenCIDMST
+        };
+        stompClient.connect(headers, () => {
+          getState().logger.debug(`stomp client for Long running task [${longRunningTaskId}] is logged.`);
+          stompClient.subscribe(`/lrt/queue/${longRunningTaskId}`, (stompMessage) => {
+            const longRunningTask = JSON.parse(stompMessage.body);
+            // TODO: set type and entity type by enum.
+            dispatch({
+              type: 'RECEIVE_ENTITY',
+              id: longRunningTaskId,
+              entityType: 'LongRunningTask',
+              entity: longRunningTask,
+              uiKey: null
+            });
+          }, headers);
+        }, () => {
+          // try reconnect
+          // setTimeout(SecurityManager.connectStompClient, 10000);
+        });
+      }
+    };
+  }
 }
 
 SecurityManager.ADMIN_PERMISSION = ADMIN_PERMISSION;

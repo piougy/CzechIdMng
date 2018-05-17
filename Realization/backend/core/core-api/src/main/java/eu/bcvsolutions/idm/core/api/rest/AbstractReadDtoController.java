@@ -28,15 +28,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+//import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
@@ -118,7 +117,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		ResourceSupport resource = toResource(dto);
 		if (resource == null) {
@@ -255,7 +254,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		return getService().getPermissions(dto.getId());
 	}
@@ -326,6 +325,10 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	
 	protected LookupService getLookupService() {
 		return lookupService;
+	}
+	
+	protected ObjectMapper getMapper() {
+		return mapper;
 	}
 	
 	/**

@@ -108,6 +108,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	
 	@Override
+	public LoginDto loginAdmin() {
+		return loginService.login(new LoginDto(TestHelper.ADMIN_USERNAME, new GuardedString(TestHelper.ADMIN_PASSWORD)));
+	}
+	
+	@Override
 	public LoginDto login(String username, String password) {
 		return loginService.login(new LoginDto(username, new GuardedString(password)));
 	}
@@ -189,6 +194,11 @@ public class DefaultTestHelper implements TestHelper {
 		treeType.setName(name);
 		return treeTypeService.save(treeType);
 	}
+	
+	@Override
+	public IdmTreeTypeDto getDefaultTreeType() {
+		return treeTypeService.getDefaultTreeType();
+	}
 
 	@Override
 	public IdmTreeNodeDto createTreeNode() {
@@ -197,7 +207,7 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmTreeNodeDto createTreeNode(String name, IdmTreeNodeDto parent) {
-		return createTreeNode(treeTypeService.getDefaultTreeType(), name, parent);
+		return createTreeNode(getDefaultTreeType(), name, parent);
 	}
 
 	@Override

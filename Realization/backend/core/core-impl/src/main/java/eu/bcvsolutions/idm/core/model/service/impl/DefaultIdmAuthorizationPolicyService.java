@@ -126,6 +126,12 @@ public class DefaultIdmAuthorizationPolicyService
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmAuthorizationPolicy> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmAuthorizationPolicyFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// like in evaluator type
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(IdmAuthorizationPolicy_.evaluatorType)), "%" + filter.getText().toLowerCase() + "%")
+					));
+		}
 		// role id
 		if (filter.getRoleId() != null) {
 			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id), filter.getRoleId()));

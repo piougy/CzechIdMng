@@ -2,16 +2,29 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+
 /**
  * Filter for asigned evaluators to roles
  *
  * @author Radek Tomiška
  */
-public class IdmAuthorizationPolicyFilter implements BaseFilter {
+public class IdmAuthorizationPolicyFilter extends DataFilter {
 
     private UUID roleId;
     private Boolean disabled;
     private String authorizableType;
+    
+    public IdmAuthorizationPolicyFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public IdmAuthorizationPolicyFilter(MultiValueMap<String, Object> data) {
+		super(IdmAuthorizationPolicyDto.class, data);
+	}
 
     public UUID getRoleId() {
         return roleId;

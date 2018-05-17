@@ -32,10 +32,9 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 public abstract class AbstractRestTest extends AbstractIntegrationTest {
 
 	private MockMvc mockMvc;
-
 	private static String CONTENT_TYPE = "application/hal+json";
-
-	@Autowired
+	//
+	@Autowired 
 	private WebApplicationContext webApplicationContext;
 
 	@Before
@@ -43,6 +42,11 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 		this.mockMvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
 	}
 
+	/**
+	 * Initialized mock mvc 
+	 * 
+	 * @return
+	 */
 	public MockMvc getMockMvc() {
 		return mockMvc;
 	}

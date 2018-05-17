@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -132,7 +133,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@ApiParam(value = "Record (dto).", required = true) DTO dto) {
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		DTO updatedDto = putDto(dto);
 		return new ResponseEntity<>(toResource(updatedDto), HttpStatus.OK);
@@ -164,7 +165,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		//
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		updateDto = patchDto((DTO) requestResourceResolver.resolve(nativeRequest, getDtoClass(), updateDto));
 		return new ResponseEntity<>(toResource(updateDto), HttpStatus.OK);
@@ -195,7 +196,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		deleteDto(dto);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);

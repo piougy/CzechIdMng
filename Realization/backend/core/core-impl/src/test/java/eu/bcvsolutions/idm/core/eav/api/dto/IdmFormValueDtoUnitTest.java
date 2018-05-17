@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav;
+package eu.bcvsolutions.idm.core.eav.api.dto;
 
 import java.util.UUID;
 
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class AbstractFormValueUnitTest extends AbstractUnitTest {
+public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testNullValues() {
@@ -160,5 +160,46 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 		formValue.setValue(uuid.toString());
 		
 		Assert.assertEquals(uuid, formValue.getValue());
+	}
+	
+	@Test
+	public void testLongValueAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.LONG);
+		//
+		Long current = 14896357892248L;		
+		
+		formValue.setValue(current.toString());
+		
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testIntValueAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.INT);
+		//
+		Long current = 14896357892248L;		
+		
+		formValue.setValue(current.toString());
+		
+		Assert.assertEquals(current.intValue(), formValue.getValue());
+	}
+	
+	@Test
+	public void testBooleanValueAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.BOOLEAN);
+		//
+		Boolean current = Boolean.TRUE;		
+		
+		formValue.setValue(current.toString());
+		Assert.assertEquals(current, formValue.getValue());
+		formValue.setValue("ff");
+		Assert.assertFalse((Boolean) formValue.getValue());
+		formValue.setValue("false");
+		Assert.assertFalse((Boolean) formValue.getValue());
+		formValue.setValue("TRUE");
+		Assert.assertTrue((Boolean) formValue.getValue());
 	}
 }

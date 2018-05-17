@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
@@ -26,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
@@ -39,7 +40,8 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 public class IdmFormValueDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
-
+	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
+	//
 	@NotNull
 	@JsonProperty(access = Access.READ_ONLY)
 	private Serializable ownerId;
@@ -78,24 +80,31 @@ public class IdmFormValueDto extends AbstractDto {
 	public IdmFormValueDto(IdmFormAttributeDto formAttribute) {
 		Assert.notNull(formAttribute);
 		//
-		this.formAttribute = formAttribute.getId();
-		this.persistentType = formAttribute.getPersistentType();
-		this.confidential = formAttribute.isConfidential();
+		setFormAttributeDto(formAttribute);
 	}
 	
 	/**
 	 * Set s owner and all attribute properties.
 	 * 
 	 * @param owner
-	 * @param attribute
+	 * @param formAttribute
 	 */
-	public void setOwnerAndAttribute(FormableEntity owner, IdmFormAttributeDto attribute) {
+	public void setOwnerAndAttribute(FormableEntity owner, IdmFormAttributeDto formAttribute) {
 		setOwner(owner);
-		setFormAttribute(attribute == null ? null : attribute.getId());
-		if (attribute != null) {
-			setPersistentType(attribute.getPersistentType());
-			setConfidential(attribute.isConfidential());
+		if (formAttribute != null) {
+			setFormAttributeDto(formAttribute);
+		} else {
+			setFormAttribute(null);
 		}
+	}
+	
+	private void setFormAttributeDto(IdmFormAttributeDto formAttribute) {
+		this.formAttribute = formAttribute.getId();
+		this.persistentType = formAttribute.getPersistentType();
+		this.confidential = formAttribute.isConfidential();
+		//
+		// set attribute in embedded (jpa model cannot be used on this layer (api))
+		this.getEmbedded().put(PROPERTY_FORM_ATTRIBUTE, formAttribute);
 	}
 	
 	public Serializable getOwnerId() {
@@ -317,7 +326,7 @@ public class IdmFormValueDto extends AbstractDto {
 	}
 
 	/**
-	 * Sets value by persintent type
+	 * Sets value by persistent type
 	 *
 	 * @param value
 	 */
@@ -354,10 +363,27 @@ public class IdmFormValueDto extends AbstractDto {
 					setDateValue(null);
 				} else if (value instanceof DateTime) {
 					setDateValue((DateTime) value);
+				} else if (value instanceof LocalDate) {
+					setDateValue(((LocalDate) value).toDateTimeAtStartOfDay());
 				} else if (value instanceof Date) {
 					setDateValue(new DateTime((Date) value));
 				} else if (value instanceof Long) {
 					setDateValue(new DateTime(( Long) value));
+				} else if (value instanceof String) {
+					try {
+						setDateValue(DateTime.parse((String) value));
+					} catch(IllegalArgumentException ex) {
+						throw new ResultCodeException(
+								CoreResultCode.FORM_VALUE_WRONG_TYPE, 
+								"Form value [%s] for attribute [%s] with type [%s] supports ISO format only.", 
+								ImmutableMap.of(
+									"value", Objects.toString(value), 
+									"formAttribute", formAttribute == null ? Objects.toString(formAttribute) : formAttribute, 
+									"persistentType", persistentType, 
+									"valueType", value == null ?  Objects.toString(null) : value.getClass().getCanonicalName()
+								), 
+								ex);
+					}
 				} else {
 					throw wrongType(value, null);
 				}
@@ -393,7 +419,7 @@ public class IdmFormValueDto extends AbstractDto {
 			}
 			case UUID: {
 				try {
-					setUuidValue(EntityUtils.toUuid(value));
+					setUuidValue(DtoUtils.toUuid(value));
 				} catch (ClassCastException ex) {
 					throw wrongType(value, ex);
 				}

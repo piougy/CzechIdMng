@@ -1,14 +1,17 @@
 package eu.bcvsolutions.idm.core.eav;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
+import org.junit.Assert;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
@@ -21,9 +24,35 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  *
  */
 public class AbstractFormValueUnitTest extends AbstractUnitTest {
+	
+	@Test
+	public void testNullValues() {
+		for (PersistentType persistentType : PersistentType.values()) {
+			IdmFormValueDto formValue = new IdmFormValueDto();
+			formValue.setPersistentType(persistentType);
+			formValue.setValue(null);
+			//
+			Assert.assertNull(formValue.getValue());
+		}
+	}
+	
+	@Test
+	public void testConstructByAttribute() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		attribute.setId(UUID.randomUUID());
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setConfidential(true);
+		//
+		IdmFormValueDto formValue = new IdmFormValueDto(attribute);
+		//
+		Assert.assertEquals(attribute.getId(), formValue.getFormAttribute());
+		Assert.assertEquals(attribute.getPersistentType(), formValue.getPersistentType());
+		Assert.assertEquals(attribute.isConfidential(), formValue.isConfidential());
+		Assert.assertEquals(attribute, DtoUtils.getEmbedded(formValue, IdmFormValueDto.PROPERTY_FORM_ATTRIBUTE));
+	}
 
 	@Test
-	public void testDateValueAsDateTime() {
+	public void testDateTimeValueAsDateTime() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
@@ -31,11 +60,11 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 		
 		formValue.setValue(current);
 		
-		assertEquals(current, formValue.getValue());
+		Assert.assertEquals(current, formValue.getValue());
 	}
 	
 	@Test
-	public void testDateValueAsDate() {
+	public void testDateTimeValueAsDate() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
@@ -43,11 +72,11 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 		
 		formValue.setValue(current.toDate());
 		
-		assertEquals(current, formValue.getValue());
+		Assert.assertEquals(current, formValue.getValue());
 	}
 	
 	@Test
-	public void testDateValueAsLong() {
+	public void testDateTimeValueAsLong() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
@@ -55,7 +84,55 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 		
 		formValue.setValue(current.toDate().getTime());
 		
-		assertEquals(current, formValue.getValue());
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testDateTimeValueAsLocalDate() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		
+		DateTime current = new DateTime().withTimeAtStartOfDay();
+		
+		formValue.setValue(current.toLocalDate());
+		
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testDateTimeValueAsStringWithTimeZone() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		//
+		DateTime current = new DateTime();		
+		
+		formValue.setValue(current.toString());
+		// time zone default vs. constructed
+		Assert.assertTrue(current.isEqual((DateTime) formValue.getValue()));
+	}
+	
+	@Test
+	public void testDateTimeValueAsStringWithUtc() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		//
+		DateTime current = new DateTime(DateTimeZone.UTC);		
+		
+		formValue.setValue(current.toString());
+		
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testDateValueAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATE);
+		//
+		LocalDate current = new LocalDate();		
+		
+		formValue.setValue(current.toString());
+		
+		Assert.assertEquals(current, ((DateTime) formValue.getValue()).toLocalDate());
 	}
 	
 	@Test(expected = ResultCodeException.class)
@@ -66,6 +143,14 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 		formValue.setValue("wrong");
 	}
 	
+	@Test(expected = ResultCodeException.class)
+	public void testWrongDateObject() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		
+		formValue.setValue(new IdmFormValueDto());
+	}
+	
 	@Test
 	public void uuidAsString() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
@@ -74,6 +159,6 @@ public class AbstractFormValueUnitTest extends AbstractUnitTest {
 		
 		formValue.setValue(uuid.toString());
 		
-		assertEquals(uuid, formValue.getValue());
+		Assert.assertEquals(uuid, formValue.getValue());
 	}
 }

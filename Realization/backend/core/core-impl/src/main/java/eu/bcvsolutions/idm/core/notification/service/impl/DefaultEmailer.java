@@ -26,7 +26,6 @@ import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -52,8 +51,7 @@ public class DefaultEmailer implements Emailer {
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private EntityEventManager entityEventManager;
-	@Autowired private IdmFormDefinitionController formDefinitionController;
-	
+
 	@Transactional
 	public boolean send(IdmEmailLogDto emailLog) {
 		log.debug("Sending email [{}]", emailLog);

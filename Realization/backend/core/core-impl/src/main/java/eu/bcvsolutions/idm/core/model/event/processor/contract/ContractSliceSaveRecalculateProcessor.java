@@ -9,7 +9,6 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -84,7 +83,11 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 			if (parentContract == null) {
 				slice = linkOrCreateContract(slice, eventProperties);
 			} else {
-				slice = updateContract(slice, parentContract, eventProperties);
+				// Update contract by that slice
+				if(slice.isUsingAsContract()) {
+					IdmIdentityContractDto contract = contractService.get(parentContract);
+					sliceManager.updateContractBySlice(contract, slice, eventProperties);
+				}
 			}
 		}
 
@@ -251,23 +254,6 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 	}
 
-	private IdmContractSliceDto updateContract(IdmContractSliceDto slice, UUID parentContract,
-			Map<String, Serializable> eventProperties) {
-		Assert.notNull(slice.getId());
-		Assert.notNull(parentContract);
-
-		// Find other slices
-		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-		sliceFilter.setParentContract(parentContract);
-		sliceFilter.setIdentity(slice.getIdentity());
-
-		IdmIdentityContractDto contract = contractService.get(parentContract);
-		// Update contract by that slice
-		sliceManager.updateContractBySlice(contract, slice, eventProperties);
-		slice.setParentContract(contract.getId());
-		return service.saveInternal(slice);
-	}
-
 	/**
 	 * Create or link contract from the slice or create relation on the exists
 	 * contract
@@ -284,7 +270,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 			// When new contract is created, then this slice have to be sets as "Is using as
 			// contract"
 			slice.setUsingAsContract(true);
-			IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice, eventProperties);
+			IdmIdentityContractDto contract = sliceManager.updateContractBySlice(new IdmIdentityContractDto(), slice, eventProperties);
 			slice.setParentContract(contract.getId());
 
 			return service.saveInternal(slice);
@@ -306,7 +292,7 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				// When new contract is created, then this slice have to be sets as "Is using as
 				// contract"
 				slice.setUsingAsContract(true);
-				IdmIdentityContractDto contract = sliceManager.createContractBySlice(slice, eventProperties);
+				IdmIdentityContractDto contract = sliceManager.updateContractBySlice(new IdmIdentityContractDto(), slice, eventProperties);
 				slice.setParentContract(contract.getId());
 
 				return service.saveInternal(slice);
@@ -316,7 +302,13 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 				slice.setParentContract(parentContractId);
 				IdmContractSliceDto sliceSaved = service.saveInternal(slice);
 
-				return this.updateContract(sliceSaved, parentContractId, eventProperties);
+				// Update contract by that slice
+				if(sliceSaved.isUsingAsContract()) {
+					IdmIdentityContractDto contract = contractService.get(sliceSaved.getParentContract());
+					sliceManager.updateContractBySlice(contract, sliceSaved, eventProperties);
+				}
+
+				return sliceSaved;
 			}
 		}
 	}

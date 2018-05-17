@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,9 +18,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import io.swagger.annotations.ApiModelProperty;
+import joptsimple.internal.Strings;
 
 /**
  * Common dto
@@ -251,7 +254,13 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 
 	@Override
 	public String toString() {
-		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
+		if (this instanceof Codeable) {
+			String code = ((Codeable) this).getCode();
+			if (!Strings.isNullOrEmpty(code)) {
+				return MessageFormat.format("{0} [code= {1}]", getClass().getCanonicalName(), code);
+			}
+		}
+		return MessageFormat.format("{0} [code= {1}]", getClass().getCanonicalName(), getId());
 	}
 
 	@Override

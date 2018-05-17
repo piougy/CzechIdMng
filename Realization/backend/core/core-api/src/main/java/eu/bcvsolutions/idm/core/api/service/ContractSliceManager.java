@@ -22,15 +22,7 @@ import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 public interface ContractSliceManager extends ScriptEnabled  {
 
 	/**
-	 * Create contract by given slice
-	 * 
-	 * @param slice
-	 * @return
-	 */
-	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice, Map<String, Serializable> eventProperties);
-
-	/**
-	 * Update contract by given slice
+	 * Create or update contract by given slice
 	 * 
 	 * @param contract
 	 * @param slice

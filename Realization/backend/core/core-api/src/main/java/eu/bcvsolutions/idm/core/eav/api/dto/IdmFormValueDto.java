@@ -344,6 +344,8 @@ public class IdmFormValueDto extends AbstractDto {
 					setLongValue(((Integer) value).longValue());
 				} else if (value instanceof Number) {
 					setLongValue(((Number) value).longValue());
+				} else if (value instanceof String) {
+					setLongValue(Long.valueOf((String) value));
 				} else {
 					throw wrongType(value, null);
 				}
@@ -353,6 +355,8 @@ public class IdmFormValueDto extends AbstractDto {
 					setBooleanValue(null);
 				} else if (value instanceof Boolean) {
 					setBooleanValue((Boolean) value);
+				} else if (value instanceof String) {
+					setBooleanValue(Boolean.valueOf((String) value));
 				} else {
 					throw wrongType(value, null);
 				}
@@ -403,6 +407,9 @@ public class IdmFormValueDto extends AbstractDto {
 					setDoubleValue(BigDecimal.valueOf(((Float) value).doubleValue()));
 				} else if (value instanceof Number) {
 					setDoubleValue(BigDecimal.valueOf(((Number) value).doubleValue()));
+				} else if (value instanceof String) {
+					// TODO: parse, but how to solve separator by locale?
+					throw wrongType(value, null);
 				} else {
 					throw wrongType(value, null);
 				}
@@ -412,6 +419,9 @@ public class IdmFormValueDto extends AbstractDto {
 					setByteValue(null);
 				} else if (value instanceof byte[]) {
 					setByteValue((byte[]) value);
+				} else if (value instanceof String) {
+					// TODO: parse, but how ... byte64 or [45, 46, 78, 45]?
+					throw wrongType(value, null);
 				} else {
 					throw wrongType(value, null);
 				}

@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -51,7 +52,7 @@ public class DefaultEmailer implements Emailer {
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private EntityEventManager entityEventManager;
-
+	@Autowired private IdmFormDefinitionController formDefinitionController;
 	
 	@Transactional
 	public boolean send(IdmEmailLogDto emailLog) {
@@ -130,8 +131,12 @@ public class DefaultEmailer implements Emailer {
 		Map<String, Object> headers = new HashMap<String, Object>();		
 		// resolve recipients
 		headers.put("To", getRecipiets(emailLog));	
-		
-		String from = configuration.getFrom();
+
+		String from = emailLog.getMessage().getTemplate().getSender();
+		if (StringUtils.isBlank(from)) {
+			from = configuration.getFrom();
+		}
+
 		if (StringUtils.isNotBlank(from)) {
 			headers.put("From", from);
 		}

@@ -49,7 +49,17 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 public interface TestHelper {
 	
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
+	String ADMIN_USERNAME = "admin";
+	String ADMIN_PASSWORD = "admin";
 	String DEFAULT_PASSWORD = "password";
+	String HAL_CONTENT_TYPE = "application/hal+json";
+	
+	/**
+	 * Login as test admin
+	 *  
+	 * @return
+	 */
+	LoginDto loginAdmin();
 	
 	/**
 	 * Login as given identity.
@@ -155,6 +165,13 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmTreeTypeDto createTreeType(String code);
+	
+	/**
+	 * Returns configured default tree type.
+	 * 
+	 * @return
+	 */
+	IdmTreeTypeDto getDefaultTreeType();
 
 	/**
 	 * Creates tree node with random name and code

@@ -371,6 +371,20 @@ public interface TestHelper {
 	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
 
 	/**
+	 *  Creates identity contract slice on given position
+	 *  
+	 * @param identity
+	 * @param contractCode
+	 * @param position
+	 * @param validFrom
+	 * @param contractValidFrom
+	 * @param contractValidTill
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, String contractCode, IdmTreeNodeDto position,
+			LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
+	
+	/**
 	 * Creates identity contract on given position
 	 *
 	 * @param identity
@@ -553,4 +567,6 @@ public interface TestHelper {
 	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
 			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
 			UUID formAttrId, String value);
+
+
 }

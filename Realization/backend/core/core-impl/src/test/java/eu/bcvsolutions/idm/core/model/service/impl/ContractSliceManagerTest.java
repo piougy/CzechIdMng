@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
@@ -61,6 +64,8 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 	private IdmIdentityContractService contractService;
 	@Autowired
 	private ContractSliceManager contractSliceManager;
+	@Autowired
+	private ConfigurationService configurationService;
 	//
 
 	@Before
@@ -70,6 +75,7 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 
 	@After
 	public void logout() {
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "0");
 		//
 		super.logout();
 	}
@@ -560,6 +566,130 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		result = contractSliceService.find(filter, null);
 		assertTrue(result.getContent().contains(slice2));
 		assertFalse(result.getContent().contains(slice));
+	}
+
+	@Test
+	public void contractValidityProtectionModeDisabledTest() {
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "0");
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				LocalDate.now().plusDays(10), LocalDate.now().plusDays(100));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is disabled, contract must have validity fields same as slice
+		// One
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
+
+	}
+
+	@Test
+	public void contractValidityProtectionModeEnabledTest() {
+		// Enable protection mode (5 days, gap is 5 days)
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "5");
+
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				LocalDate.now().plusDays(10), LocalDate.now().plusDays(100));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is enabled
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(sliceTwo.getContractValidFrom(), contract.getValidTill());
+
+	}
+
+	@Test
+	public void contractValidityProtectionModeEnabledExpiredTest() {
+		// Enable protection mode (4 days, gap is 5 days)
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "4");
+
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				LocalDate.now().plusDays(10), LocalDate.now().plusDays(100));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is enabled, but gap was too long
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
+
+	}
+
+	@Test
+	public void contractValidityProtectionModeEnabledIndependentTest() {
+		// Enable protection mode (1 days)
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "1");
+
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				null, LocalDate.now().plusDays(100));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is enabled, next slice has contract valid from sets to null
+		assertEquals(null, contract.getValidTill());
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+
+	}
+
+	@Test
+	public void contractValidityProtectionModeDisableIndependentTest() {
+		// Disable protection mode (0 days)
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "0");
+
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				null, LocalDate.now().plusDays(100));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is disabled, next slice has contract valid from sets to null
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
+
 	}
 
 }

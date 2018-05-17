@@ -87,16 +87,15 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 		boolean isNew = contractService.isNew(contract);
 
-
 		// Update all slice attributes
 		convertSliceToContract(slice, contract);
 
 		// Check if is protection interval activated and whether we need resolve him
-		int protectionInterval = contractSliceConfiguration.getProtectionInterval();		
-		if (protectionInterval > 0 && slice.getContractValidTill() != null) {
+		int protectionInterval = contractSliceConfiguration.getProtectionInterval();
+		if (!isNew && protectionInterval > 0 && slice.getContractValidTill() != null) {
 			resolveProtectionInterval(slice, contract, protectionInterval);
 		}
-		
+
 		// Save contract
 		IdmIdentityContractDto savedContract = contractService.publish(
 				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
@@ -123,6 +122,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 */
 	private void resolveProtectionInterval(IdmContractSliceDto slice, IdmIdentityContractDto contract,
 			int protectionInterval) {
+		Assert.notNull(contract);
+		Assert.notNull(contract.getId());
+		
 		List<IdmContractSliceDto> slices = this.findAllSlices(contract.getId());
 		IdmContractSliceDto nextSlice = this.findNextSlice(slice, slices);
 		if (nextSlice == null) {
@@ -135,10 +137,13 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 					"Update contract by slice [{0}] - Resloving of the protection interval - next slice has contract valid from sets to 'null' ... contract [{1}] was changed!",
 					slice, contract));
 			contract.setValidTill(null);
+			return;
 
 		}
-		long diffInDays = ChronoUnit.DAYS.between(java.time.LocalDate.parse(slice.getContractValidTill().toString()),
-				java.time.LocalDate.parse(nextSlice.getContractValidFrom().toString()));
+		long diffInDays = ChronoUnit.DAYS //
+				.between( //
+						java.time.LocalDate.parse(slice.getContractValidTill().toString()), //
+						java.time.LocalDate.parse(nextSlice.getContractValidFrom().toString()));
 
 		if (diffInDays <= protectionInterval) {
 			LOG.info(MessageFormat.format(

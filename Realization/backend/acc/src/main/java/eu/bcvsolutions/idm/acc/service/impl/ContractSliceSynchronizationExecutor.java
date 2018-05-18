@@ -144,10 +144,10 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService, LookupService lookupService, IdmTreeNodeService treeNodeService,
-			LongRunningTaskManager longRunningTaskManager, SchedulerManager schedulerService,
-			IdmLongRunningTaskService longRunningTaskService, IdmScheduledTaskService scheduledTaskService,
-			IdmConfigurationService configurationService) {
+			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
+			IdmTreeNodeService treeNodeService, LongRunningTaskManager longRunningTaskManager,
+			SchedulerManager schedulerService, IdmLongRunningTaskService longRunningTaskService,
+			IdmScheduledTaskService scheduledTaskService, IdmConfigurationService configurationService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -185,14 +185,19 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> mappedAttributes = systemAttributeMappingService
 				.find(attributeHandlingFilter, null).getContent();
-		SysSystemAttributeMappingDto ownerAttribute = mappedAttributes.stream().filter(attribute -> {
-			return CONTRACT_IDENTITY_FIELD.equals(attribute.getIdmPropertyName());
-		}).findFirst().orElse(null);
 
-		if (ownerAttribute == null) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST,
-					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
-		}
+		// Owner attribute check
+		mappedAttributes.stream().filter(attribute -> {
+			return CONTRACT_IDENTITY_FIELD.equals(attribute.getIdmPropertyName());
+		}).findFirst().orElseThrow(() -> new ProvisioningException(AccResultCode.SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST,
+				ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD)));
+
+		// Code of contract attribute check
+		mappedAttributes.stream().filter(attribute -> {
+			return CONTRACT_SLICE_CONTRACT_CODE_FIELD.equals(attribute.getIdmPropertyName());
+		}).findFirst().orElseThrow(() -> new ProvisioningException(AccResultCode.SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST,
+				ImmutableMap.of("property", CONTRACT_SLICE_CONTRACT_CODE_FIELD)));
+
 		return super.validate(synchronizationConfigId);
 	}
 
@@ -200,63 +205,31 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 		log = synchronizationLogService.save(log);
-		
+
 		if (getConfig(context).isStartOfHrProcesses()) {
 			// start all HR process with skip automatic role recalculation
 			// Enable contracts task
 			log = executeHrProcess(log, new HrEnableContractProcess(true));
-			
+
 			// End contracts task
 			log = executeHrProcess(log, new HrEndContractProcess(true));
-			
+
 			// Exclude contracts task
 			log = executeHrProcess(log, new HrContractExclusionProcess(true));
 		} else {
-			log.addToLog(MessageFormat.format(
-					"Start HR processes contracts (after sync) isn't allowed [{0}]",
+			log.addToLog(MessageFormat.format("Start HR processes contracts (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
-		
+
 		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
-		} else { 
-			log.addToLog(MessageFormat.format(
-					"Start automatic role recalculation (after sync) isn't allowed [{0}]",
+		} else {
+			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
-		
+
 		return log;
 	}
-
-
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param entity
-	 * @param entityType
-	 * @param logItem
-	 */
-// TODO: Uncomment after contract will supports provisioning
-//	@Override
-//	protected void callProvisioningForEntity(IdmContractSliceDto entity, SystemEntityType entityType,
-//			SysSyncItemLogDto logItem) {
-//		addToItemLog(logItem,
-//				MessageFormat.format(
-//						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-//						entity.getId(), entity.getPosition()));
-//		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
-//		// We do not want execute HR processes for every contract. We need start
-//		// them for every identity only once.
-//		// For this we skip them now. HR processes must be start after whole
-//		// sync finished (by using dependent scheduled task)!
-//		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-//		//
-//		// We don't want recalculate automatic role by attribute recalculation for every contract.
-//		// Recalculation will be started only once.
-//		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
-//
-//		entityEventManager.process(event);
-//	}
 
 	/**
 	 * Operation remove IdentityContractAccount relations and linked roles
@@ -286,10 +259,9 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			// We will remove contract account, but without delete connected
 			// account
 			contractAccoutnService.delete(entityAccount, false);
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
-							entityAccount.getSlice(), entityAccount.getId()));
+			addToItemLog(logItem, MessageFormat.format(
+					"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
+					entityAccount.getSlice(), entityAccount.getId()));
 
 		});
 		return;
@@ -308,8 +280,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	 * @return
 	 */
 	protected IdmContractSliceDto fillEntity(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, IdmContractSliceDto dto, boolean create,
-			SynchronizationContext context) {
+			List<IcAttribute> icAttributes, IdmContractSliceDto dto, boolean create, SynchronizationContext context) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
 			// Skip extended attributes (we need update/ create entity first)
@@ -338,9 +309,11 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			}
 			// Valid till attribute is sets only if is that slice last!
 			if (CONTRACT_VALID_TILL_FIELD.equals(attributeProperty) && dto.getParentContract() != null) {
-				IdmContractSliceDto nextSlice = contractSliceManager.findNextSlice(dto, contractSliceManager.findAllSlices(dto.getParentContract()));
-				if(nextSlice != null) {
-					context.getLogItem().addToLog("Warning! - Valid till field wasn't changed, because the that slice is not a last!");
+				IdmContractSliceDto nextSlice = contractSliceManager.findNextSlice(dto,
+						contractSliceManager.findAllSlices(dto.getParentContract()));
+				if (nextSlice != null) {
+					context.getLogItem().addToLog(
+							"Warning! - Valid till field wasn't changed, because the that slice is not a last!");
 					return;
 				}
 			}
@@ -384,10 +357,9 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 					UUID defaultNode = ((SysSyncContractConfigDto) context.getConfig()).getDefaultTreeNode();
 					IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, defaultNode);
 					if (node != null) {
-						context.getLogItem()
-								.addToLog(MessageFormat.format(
-										"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
-										node.getCode()));
+						context.getLogItem().addToLog(MessageFormat.format(
+								"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
+								node.getCode()));
 						return node.getId();
 					}
 				}
@@ -403,6 +375,12 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 						ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
 			}
 			return identity.getId();
+		}
+		// Code of contract cannot be null
+		if (transformedValue == null && CONTRACT_SLICE_CONTRACT_CODE_FIELD.equals(attribute.getIdmPropertyName())
+				&& attribute.isEntityAttribute()) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,
+					ImmutableMap.of("property", CONTRACT_SLICE_CONTRACT_CODE_FIELD));
 		}
 
 		return transformedValue;
@@ -488,10 +466,9 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 
 			if (node != null) {
 				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType);
-				context.getLogItem()
-						.addToLog(MessageFormat.format(
-								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
-								value, node.getCode(), treeTypeDto.getCode()));
+				context.getLogItem().addToLog(MessageFormat.format(
+						"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
+						value, node.getCode(), treeTypeDto.getCode()));
 				return node;
 			}
 			context.getLogItem().addToLog(MessageFormat
@@ -500,10 +477,9 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				// Find by code in default tree type
 				SysSyncContractConfigDto config = this.getConfig(context);
 				if (config.getDefaultTreeType() == null) {
-					context.getLogItem()
-							.addToLog(MessageFormat.format(
-									"Warning - Work position - we cannot finding node by code [{0}], because default tree type is not set (in sync configuration)!",
-									value));
+					context.getLogItem().addToLog(MessageFormat.format(
+							"Warning - Work position - we cannot finding node by code [{0}], because default tree type is not set (in sync configuration)!",
+							value));
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
@@ -530,10 +506,9 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				}
 			}
 		} else {
-			context.getLogItem()
-					.addToLog(MessageFormat.format(
-							"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
-							value));
+			context.getLogItem().addToLog(MessageFormat.format(
+					"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
+					value));
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 		}
@@ -562,33 +537,36 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		}
 
 		EntityEvent<IdmContractSliceDto> event = new ContractSliceEvent(
-				sliceService.isNew(entity) ? ContractSliceEventType.CREATE : ContractSliceEventType.UPDATE,
-				entity, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				sliceService.isNew(entity) ? ContractSliceEventType.CREATE : ContractSliceEventType.UPDATE, entity,
+				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
 		// We do not want execute HR processes for every contract. We need start
 		// them for every identity only once.
 		// For this we skip them now. HR processes must be start after whole
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
 		IdmContractSliceDto slice = sliceService.publish(event).getContent();
-		
+
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
 			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
 					.get(SYNC_CONTRACT_FIELD);
 			IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
 			guaranteeFilter.setContractSliceId(slice.getId());
 
-			List<IdmContractSliceGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
+			List<IdmContractSliceGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null)
+					.getContent();
 
 			// Search guarantees to delete
-			List<IdmContractSliceGuaranteeDto> guaranteesToDelete = currentGuarantees.stream().filter(sysImplementer -> {
-				return sysImplementer.getGuarantee() != null
-						&& !syncContract.getGuarantees().contains(new IdmIdentityDto(sysImplementer.getGuarantee()));
-			}).collect(Collectors.toList());
+			List<IdmContractSliceGuaranteeDto> guaranteesToDelete = currentGuarantees.stream()
+					.filter(sysImplementer -> {
+						return sysImplementer.getGuarantee() != null && !syncContract.getGuarantees()
+								.contains(new IdmIdentityDto(sysImplementer.getGuarantee()));
+					}).collect(Collectors.toList());
 
 			// Search guarantees to add
 			List<IdmIdentityDto> guaranteesToAdd = syncContract.getGuarantees().stream().filter(identity -> {
@@ -617,7 +595,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				guaranteeService.publish(guaranteeEvent);
 			});
 		}
- 
+
 		return slice;
 	}
 
@@ -663,8 +641,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
 
-		List<IdmContractSliceDto> entities = sliceService.find((IdmContractSliceFilter) filter, null)
-				.getContent();
+		List<IdmContractSliceDto> entities = sliceService.find((IdmContractSliceFilter) filter, null).getContent();
 
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;
@@ -678,30 +655,31 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Start automatic role by attribute recalculation synchronously.
 	 *
 	 * @param log
 	 * @return
 	 */
-	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) { 
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) {
 		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
-		
+
 		log.addToLog(MessageFormat.format(
 				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
 				LocalDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
-			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].", LocalDateTime.now()));
+			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
+					LocalDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
 
 		return synchronizationLogService.save(log);
 	}
-	
+
 	/**
 	 * Start HR process. Find quartz task and LRT. If some LRT for this task type
 	 * exists, then is used. If not exists, then is created new. Task is execute
@@ -754,13 +732,12 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			log = synchronizationLogService.save(log);
 			executor.setLongRunningTaskId(lrt.getId());
 			longRunningTaskManager.executeSync(executor);
-			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(),
-					simpleName));
+			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(), simpleName));
 			log = synchronizationLogService.save(log);
 		}
 		return log;
 	}
-	
+
 	/**
 	 * Find quartz task for given task type. If existed more then one task for same
 	 * type, then is using that with name "Default". If none with this name exists,

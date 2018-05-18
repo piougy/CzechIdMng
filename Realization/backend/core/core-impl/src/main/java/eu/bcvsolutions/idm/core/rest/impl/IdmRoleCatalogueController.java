@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -12,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -94,7 +96,7 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update role catalogue", 
-			nickname = "putIdentity", 
+			nickname = "putRoleCatalogue", 
 			response = IdmRoleCatalogueDto.class, 
 			tags = { IdmRoleCatalogueController.TAG }, 
 			authorizations = { 
@@ -110,7 +112,28 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 		return super.put(backendId, dto);
 	}
 	
-	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_UPDATE + "')")
+	@ApiOperation(
+			value = "Update role catalogue", 
+			nickname = "patchRoleCatalogue	", 
+			response = IdmRoleCatalogueDto.class, 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Role catalogue's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
+	}
 
 	@Override
 	@ResponseBody

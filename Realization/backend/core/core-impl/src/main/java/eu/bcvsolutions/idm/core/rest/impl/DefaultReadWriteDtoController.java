@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -96,6 +98,17 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 			@ApiParam(value = "Record (dto).", required = true)
 			@Valid @RequestBody DTO dto) {
 		return super.put(backendId, dto);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
 	}
 
 	@Override

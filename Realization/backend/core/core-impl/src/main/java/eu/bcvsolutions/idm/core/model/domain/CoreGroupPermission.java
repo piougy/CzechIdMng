@@ -19,6 +19,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	
 	AUTHORIZATIONPOLICY(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -26,7 +27,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	IDENTITY(
 			IdmBasePermission.ADMIN, 
-			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
@@ -35,6 +37,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.CHANGEPERMISSION),
 	IDENTITYCONTRACT(
 			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
@@ -48,7 +51,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
 	IDENTITYROLE(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -56,6 +59,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	ROLE(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -63,6 +67,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	ROLECATALOGUE(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -78,6 +83,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.AUTOCOMPLETE),
 	TREENODE(
 			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -85,13 +91,15 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	TREETYPE(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
-	CONFIGURATION( // read configuration is public operation
+	CONFIGURATION(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
@@ -99,6 +107,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	PASSWORDPOLICY(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
@@ -153,6 +162,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	CONTRACTGUARANTEE(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
@@ -198,6 +209,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	
+	public static final String AUTHORIZATIONPOLICY_COUNT = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "COUNT";
 	public static final String AUTHORIZATIONPOLICY_AUTOCOMPLETE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String AUTHORIZATIONPOLICY_READ = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "READ";
 	public static final String AUTHORIZATIONPOLICY_CREATE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "CREATE";
@@ -205,12 +217,14 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String AUTHORIZATIONPOLICY_DELETE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String IDENTITY_ADMIN = "IDENTITY" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String IDENTITY_COUNT = "IDENTITY" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITY_AUTOCOMPLETE = "IDENTITY" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String IDENTITY_READ = "IDENTITY" + BasePermission.SEPARATOR + "READ";
 	public static final String IDENTITY_CREATE = "IDENTITY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String IDENTITY_UPDATE = "IDENTITY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String IDENTITYCONTRACT_COUNT = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String IDENTITYCONTRACT_READ = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "READ";
 	public static final String IDENTITYCONTRACT_CREATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "CREATE";
@@ -223,6 +237,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String CONTRACTSLICE_UPDATE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONTRACTSLICE_DELETE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String CONTRACTGUARANTEE_COUNT = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String CONTRACTGUARANTEE_AUTOCOMPLETE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONTRACTGUARANTEE_READ = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "READ";
 	public static final String CONTRACTGUARANTEE_CREATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "CREATE";
@@ -236,30 +251,35 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String CONTRACTSLICEGUARANTEE_DELETE = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CONFIGURATION_ADMIN = "CONFIGURATION" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String CONFIGURATION_COUNT = "CONFIGURATION" + BasePermission.SEPARATOR + "COUNT";
 	public static final String CONFIGURATION_AUTOCOMPLETE = "CONFIGURATION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONFIGURATION_READ = "CONFIGURATION" + BasePermission.SEPARATOR + "READ";
 	public static final String CONFIGURATION_CREATE = "CONFIGURATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONFIGURATION_UPDATE = "CONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONFIGURATION_DELETE = "CONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String TREENODE_COUNT = "TREENODE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String TREENODE_AUTOCOMPLETE = "TREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String TREENODE_READ = "TREENODE" + BasePermission.SEPARATOR + "READ";
 	public static final String TREENODE_CREATE = "TREENODE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREENODE_UPDATE = "TREENODE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREENODE_DELETE = "TREENODE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String TREETYPE_COUNT = "TREETYPE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String TREETYPE_AUTOCOMPLETE = "TREETYPE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String TREETYPE_READ = "TREETYPE" + BasePermission.SEPARATOR + "READ";
 	public static final String TREETYPE_CREATE = "TREETYPE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREETYPE_UPDATE = "TREETYPE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String ROLE_COUNT = "ROLE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String ROLE_AUTOCOMPLETE = "ROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_CREATE = "ROLE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLE_UPDATE = "ROLE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String ROLECATALOGUE_COUNT = "ROLECATALOGUE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String ROLECATALOGUE_READ = "ROLECATALOGUE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLECATALOGUE_CREATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLECATALOGUE_UPDATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "UPDATE";
@@ -271,6 +291,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLETREENODE_DELETE = "ROLETREENODE" + BasePermission.SEPARATOR + "DELETE";
 	public static final String ROLETREENODE_AUTOCOMPLETE = "ROLETREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	//
+	public static final String PASSWORDPOLICY_COUNT = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "COUNT";
 	public static final String PASSWORDPOLICY_CREATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String PASSWORDPOLICY_UPDATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String PASSWORDPOLICY_DELETE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "DELETE";

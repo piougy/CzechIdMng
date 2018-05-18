@@ -23,13 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -51,7 +51,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmNotificationTemplateController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmNotificationTemplateController extends DefaultReadWriteDtoController<IdmNotificationTemplateDto, IdmNotificationTemplateFilter> {
+public class IdmNotificationTemplateController extends AbstractReadWriteDtoController<IdmNotificationTemplateDto, IdmNotificationTemplateFilter> {
 	
 	protected static final String TAG = "Notification templates";
 	private final IdmNotificationTemplateService notificationTemplateService;
@@ -98,6 +98,44 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return this.find(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete notification templates (selectbox usage)", 
+			nickname = "autocompleteNotificationTemplates", 
+			tags = { IdmNotificationTemplateController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countNotificationTemplates", 
+			tags = { IdmNotificationTemplateController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 	
 	@Override

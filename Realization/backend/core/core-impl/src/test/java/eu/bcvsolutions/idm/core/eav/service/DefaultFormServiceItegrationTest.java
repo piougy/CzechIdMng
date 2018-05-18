@@ -57,7 +57,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Target system tests
@@ -72,7 +71,6 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	private final static String FORM_VALUE_THREE = "three";
 	private final static String FORM_VALUE_FOUR = "four";
 	
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityRepository identityRepository;
@@ -408,9 +406,9 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindOwnersByStringAttributeValue() {
-		IdmIdentityDto owner = helper.createIdentity();
-		IdmIdentityDto ownerTwo = helper.createIdentity();
-		IdmIdentityDto ownerThree = helper.createIdentity();
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto ownerTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto ownerThree = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save values
@@ -436,7 +434,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindTreeNodesByNullAttributeValue() {
-		IdmTreeNodeDto owner = helper.createTreeNode();
+		IdmTreeNodeDto owner = getHelper().createTreeNode();
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class);
 		IdmFormAttributeDto attribute = formDefinition.getFormAttributes().get(0);
 		// save values
@@ -480,8 +478,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindOwnersByUuidAttributeValue() {
-		IdmIdentityDto owner = helper.createIdentity();
-		IdmIdentityDto ownerTwo = helper.createIdentity();
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);;
+		IdmIdentityDto ownerTwo = getHelper().createIdentity((GuardedString) null);;
 		
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_UUID);
@@ -508,11 +506,11 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	@Test
 	@Transactional
 	public void testFindOwnersByShortTextAttributeValue() {
-		IdmIdentityDto owner = helper.createIdentity();
-		IdmIdentityDto ownerTwo = helper.createIdentity();
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);;
+		IdmIdentityDto ownerTwo = getHelper().createIdentity((GuardedString) null);;
 		
 		IdmFormAttributeDto shortTextAttr = new IdmFormAttributeDto();
-		String shortTextAttrName = helper.createName();
+		String shortTextAttrName = getHelper().createName();
 		shortTextAttr.setCode(shortTextAttrName);
 		shortTextAttr.setName(shortTextAttrName);
 		shortTextAttr.setPersistentType(PersistentType.SHORTTEXT);
@@ -574,8 +572,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void findOwnerByCriteria() {
-		IdmRoleDto owner = helper.createRole();
-		IdmRoleDto ownerTwo = helper.createRole();
+		IdmRoleDto owner = getHelper().createRole();
+		IdmRoleDto ownerTwo = getHelper().createRole();
 		
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmRole.class);
 		IdmFormAttributeDto attribute = formDefinition.getFormAttributes().get(0);

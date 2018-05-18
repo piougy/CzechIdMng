@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -18,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable {
+public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable, ExternalCodeable {
 	
 	/**
 	 * Identity by username
@@ -90,10 +91,6 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 * Identity last name - exact match
 	 */
 	private String lastName;
-	/**
-	 * External code for identity
-	 */
-	private String externalCode;
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -262,12 +259,14 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
 	}
 
+	@Override
 	public String getExternalCode() {
-		return externalCode;
+		return (String) data.getFirst(PROPERTY_EXTERNAL_CODE);
 	}
 
+	@Override
 	public void setExternalCode(String externalCode) {
-		this.externalCode = externalCode;
+		data.set(PROPERTY_EXTERNAL_CODE, externalCode);
 	}
 	
 	@Override

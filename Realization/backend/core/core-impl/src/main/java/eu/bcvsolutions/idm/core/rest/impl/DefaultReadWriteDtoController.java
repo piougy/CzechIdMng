@@ -28,8 +28,10 @@ import io.swagger.annotations.ApiParam;
 /**
  * Default CRUD controller for given {@link BaseDto}.
  * 
+ * Lookout - this controller doesn't define security. Use for PoC mainly.
+ * 
  * @author Svanda
- *
+ * @author Radek Tomiška
  */
 public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadWriteDtoController<DTO, F> {
@@ -69,6 +71,12 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 
 	@Override

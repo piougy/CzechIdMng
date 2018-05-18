@@ -557,6 +557,11 @@ public class DefaultIdmPasswordPolicyService
 	private boolean isNull(Integer number) {
 		return number == null;
 	}
+	
+	@Override
+	public IdmPasswordPolicyDto getByCode(String code) {
+		return findOneByName(code);
+	}
 
 	@Override
 	public IdmPasswordPolicyDto findOneByName(String name) {

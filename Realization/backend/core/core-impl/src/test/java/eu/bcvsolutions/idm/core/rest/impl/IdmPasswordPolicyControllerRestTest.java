@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
@@ -14,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
  * @author Radek Tomiška
  *
  */
-@Ignore
 public class IdmPasswordPolicyControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmPasswordPolicyDto> {
 
 	@Autowired private IdmPasswordPolicyController controller;

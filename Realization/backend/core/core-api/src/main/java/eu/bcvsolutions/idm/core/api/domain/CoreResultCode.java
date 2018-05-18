@@ -49,6 +49,7 @@ public enum CoreResultCode implements ResultCode {
 	FORBIDDEN_ENTITY(HttpStatus.FORBIDDEN, "Forbidden: entity [%s], permission [%s]."),
 	DUPLICATE_EXTERNAL_IDENTIFIER(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable"),
+	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable"),
 	// data
 	SEARCH_ERROR(HttpStatus.BAD_REQUEST, "Error during searching entities. Error: %s"),
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),

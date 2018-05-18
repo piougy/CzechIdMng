@@ -726,6 +726,7 @@
   "permission": {
     "base" : {
       "ADMIN": "Administrace (vše)",
+      "COUNT": "Počet záznamů",
       "AUTOCOMPLETE": "Zobrazení v našeptávačích, výběrech",
       "READ": "Čtení",
       "CREATE": "Vytvoření",

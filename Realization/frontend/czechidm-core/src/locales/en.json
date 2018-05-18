@@ -697,6 +697,7 @@
   "permission": {
     "base" : {
       "ADMIN": "Administration (all)",
+      "COUNT": "Number of records",
       "AUTOCOMPLETE": "View in select box (autocomplete)",
       "READ": "Read",
       "CREATE": "Create",

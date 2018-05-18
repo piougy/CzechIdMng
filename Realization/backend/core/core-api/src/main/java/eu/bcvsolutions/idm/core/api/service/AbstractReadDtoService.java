@@ -176,6 +176,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return toDtoPage(findEntities(filter, pageable, permission));
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public long count(final F filter, BasePermission... permission) {
+		return getRepository().count(toCriteria(filter, permission));
+	}
+	
 	/**
 	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props. 
 	 * Transforms given filter to jpa predicate, never returns null.
@@ -224,8 +230,18 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
-		// transform filter to criteria
-		Specification<E> criteria = new Specification<E>() {
+		return getRepository().findAll(toCriteria(filter, permission), pageable);
+	}
+	
+	/**
+	 * Constructs find / count jpa criteria from given filter and permissions
+	 * 
+	 * @param filter
+	 * @param permission
+	 * @return
+	 */
+	protected Specification<E> toCriteria(F filter, BasePermission... permission) {
+		return new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				List<Predicate> predicates = new ArrayList<>();
 				//
@@ -246,7 +262,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
 			}
 		};
-		return getRepository().findAll(criteria, pageable);
 	}
 	
 	@Override

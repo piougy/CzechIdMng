@@ -203,7 +203,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
@@ -226,6 +225,21 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@PageableDefault Pageable pageable) {
 		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
 	}
+	
+	/**
+	 * The number of entities that match the filter - parameters will be transformed to filter object
+	 * 
+	 * @param parameters
+	 * @return
+     * @see #toFilter(MultiValueMap)
+	 */
+	@ApiOperation(value = "The number of entities that match the filter", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return count(toFilter(parameters), IdmBasePermission.COUNT);
+	}
 
 	/**
 	 * Quick search - finds DTOs by given filter and pageable
@@ -237,6 +251,17 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission permission) {
 		return getService().find(filter, pageable, permission);
+	}
+	
+	/**
+	 * The number of entities that match the filter
+	 * 
+	 * @param filter
+	 * @param permission
+	 * @return
+	 */
+	public long count(F filter, BasePermission permission) {
+		return getService().count(filter, permission);
 	}
 	
 	/**

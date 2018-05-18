@@ -29,23 +29,38 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
- * Basic dto CRUD tests
- * - TODO: permissions, count
+ * Basic dto controller tests.
+ * - CRUD
+ * - find, quick, autocomplete, count
+ * - find by external id (if dto supports {@link ExternalIdentifiable})
+ * - find by external code (if dto supports {@link ExternalCodeable})
+ * - find by codeable (if dto supports {@link Codeable})
+ * - find by id (if service supports {@link DataFilter})
+ * - permissions
+ * 
+ * Make sure controller support all methods. Add methods implementation instead skipping tests.
+ * Controller's service should support {@link DataFilter} - methods which requires it are skipped internally (see log), but
+ * better way is to implement {@link DataFilter} in service.
+ * 
+ * Test uses test admin authentication (see {@link TestHelper}).
  * 
  * @author Radek Tomiška
  *
@@ -103,87 +118,6 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 */
 	protected boolean supportsAutocomplete() {
 		return true;
-	}
-	
-	/**
-	 * Login as admin
-	 * 
-	 * @return
-	 */
-	protected Authentication getAdminAuthentication() {
-		return new IdmJwtAuthentication(
-				getHelper().getService(IdmIdentityService.class).getByUsername(TestHelper.ADMIN_USERNAME), 
-				null, 
-				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
-				"test");
-	}
-	
-	/**
-	 * Creates dto (saved)
-	 * 
-	 * @return
-	 */
-	protected DTO createDto() {
-		return createDto(prepareDto());
-	}
-	
-	/**
-	 * Creates dto (saved). Auth internally.
-	 * 
-	 * @param dto
-	 * @return
-	 */
-	protected DTO createDto(DTO dto) {
-		try {
-			getHelper().loginAdmin();
-			return getController().saveDto(dto);
-		} finally {
-			getHelper().logout();
-		}
-	}
-	
-	/**
-	 * Get dto by id. Auth internally.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	protected DTO getDto(UUID id) {
-		try {
-			getHelper().loginAdmin();
-			return getController().getDto(id);
-		} finally {
-			getHelper().logout();
-		}
-	}
-	
-	protected String getBaseUrl() {
-		Class<?> clazz = AopUtils.getTargetClass(getController());
-	 
-    	RequestMapping mapping = clazz.getAnnotation(RequestMapping.class);
-    	if (mapping.value().length > 0) {
-    		return mapping.value()[0];
-    	}
-    	if (mapping.path().length > 0) {
-    		return mapping.path()[0];
-    	}
-		throw new CoreException("Controller [" + clazz + "] doeasn't have default mapping, cannot be tested by this abstraction.");
-	}
-	
-	protected String getAutocompleteUrl() {
-		return String.format("%s%s", getBaseUrl(), "/search/autocomplete"); 
-	}
-	
-	protected String getDetailUrl(Serializable backendId) {
-		return String.format("%s/%s", getBaseUrl(), backendId);
-	}
-	
-	protected String getResourcesName() {
-		Relation mapping = getController().getDtoClass().getAnnotation(Relation.class);
-		if (mapping == null) {
-			throw new CoreException("Dto class [" + getController().getDtoClass() + "] not have @Relation annotation! Configure dto annotation properly.");
-		}
-		return mapping.collectionRelation();
 	}
 	
 	@Test
@@ -264,7 +198,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	@Test
 	public void testPatch() throws Exception {
 		if (!supportsPatch()) {
-			LOG.info("Controller [{}] doesn't support PATCH method. Mentod will not be tested.", getController().getClass());
+			LOG.info("Controller [{}] doesn't support PATCH method. Method will not be tested.", getController().getClass());
 			return;
 		}
 		DTO dto = createDto();
@@ -287,7 +221,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	@Test
 	public void testDelete() throws Exception {
 		if (!supportsDelete()) {
-			LOG.info("Controller [{}] doesn't support DELETE method. Mentod will not be tested.", getController().getClass());
+			LOG.info("Controller [{}] doesn't support DELETE method. Method will not be tested.", getController().getClass());
 			return;
 		}
 		DTO dto = createDto();
@@ -305,6 +239,331 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
         		.with(authentication(getAdminAuthentication()))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());
+	}
+	
+	/**
+	 * Test search by external identifier, if DTO implements {@link ExternalIdentifiable}
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testFindByExternalId() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO dto = prepareDto();
+		if (!(dto instanceof ExternalIdentifiable)) {
+			// ignore test
+			return;
+		}
+		//
+		ExternalIdentifiable externalIdentifiableDto = (ExternalIdentifiable) dto;
+		externalIdentifiableDto.setExternalId(getHelper().createName());
+		//
+		DTO createdDto = createDto(dto);
+		//
+		// create another mock dto
+		ExternalIdentifiable dtoTwo = (ExternalIdentifiable) prepareDto();
+		dtoTwo.setExternalId(getHelper().createName());
+		createDto((DTO) dtoTwo);
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(ExternalIdentifiable.PROPERTY_EXTERNAL_ID, externalIdentifiableDto.getExternalId());
+		//
+		List<DTO> results = find(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
+		if (supportsAutocomplete()) {
+			results = autocomplete(parameters);
+			//
+			Assert.assertEquals(1, results.size());
+			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		} else {
+			LOG.info("Controller [{}] doesn't support autocomplete method. Method will not be tested.", getController().getClass());
+		}
+		//
+		Assert.assertEquals(1, count(parameters));
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testFindByExternalCode() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO dto = prepareDto();
+		if (!(dto instanceof ExternalCodeable)) {
+			// ignore test
+			return;
+		}
+		//
+		ExternalCodeable externalCodeableDto = (ExternalCodeable) dto;
+		externalCodeableDto.setExternalCode(getHelper().createName());
+		//
+		DTO createdDto = createDto(dto);
+		//
+		// create another mock dto
+		ExternalCodeable dtoTwo = (ExternalCodeable) prepareDto();
+		dtoTwo.setExternalCode(getHelper().createName());
+		createDto((DTO) dtoTwo);
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(ExternalCodeable.PROPERTY_EXTERNAL_CODE, externalCodeableDto.getExternalCode());
+		//
+		List<DTO> results = find(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
+		if (supportsAutocomplete()) {
+			results = autocomplete(parameters);
+			//
+			Assert.assertEquals(1, results.size());
+			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		} else {
+			LOG.info("Controller [{}] doesn't support autocomplete method. Method will not be tested.", getController().getClass());
+		}
+		//
+		Assert.assertEquals(1, count(parameters));
+	}
+	
+	/**
+	 * Test search by external identifier, if DTO implements {@link ExternalIdentifiable}
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFindByCodeable() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by codeable will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO dto = prepareDto();
+		if (!(dto instanceof Codeable)) {
+			// ignore test
+			return;
+		}
+		Codeable codeable = (Codeable) dto;
+		if (StringUtils.isEmpty(codeable.getCode())) {
+			throw new CoreException("Code has to be set by #prepareDto method, its required by default");
+		}
+		//
+		DTO createdDto = createDto(dto);
+		// mock dto
+		createDto(prepareDto());
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(DataFilter.PARAMETER_CODEABLE_IDENTIFIER, codeable.getCode());
+		//
+		List<DTO> results = find(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
+		if (supportsAutocomplete()) {
+			results = autocomplete(parameters);
+			//
+			Assert.assertEquals(1, results.size());
+			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		} else {
+			LOG.info("Controller [{}] doesn't support autocomplete method. Method will not be tested.", getController().getClass());
+		}
+		//
+		Assert.assertEquals(1, count(parameters));
+	}
+	
+	/**
+	 * Test search by id - supported by default, id DataFilter is used (see #toPedicates in services - has to call super implementation)
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFindById() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by id will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO dto = prepareDto();
+		//
+		DTO createdDto = createDto(dto);
+		// mock dto
+		createDto(prepareDto());
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(DataFilter.PARAMETER_ID, createdDto.getId().toString());
+		//
+		List<DTO> results = find(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
+		if (supportsAutocomplete()) {
+			results = autocomplete(parameters);
+			//
+			Assert.assertEquals(1, results.size());
+			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		} else {
+			LOG.info("Controller [{}] doesn't support autocomplete method. Method will not be tested.", getController().getClass());
+		}
+		//
+		Assert.assertEquals(1, count(parameters));
+	}
+	
+	@Test
+	public void testDeleteIdentityNotExists() throws Exception {
+		if (!supportsDelete()) {
+			LOG.info("Controller [{}] doesn't support DELETE method. Method will not be tested.", getController().getClass());
+			return;
+		}
+		getMockMvc().perform(delete(getDetailUrl(UUID.randomUUID()))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void testCount() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Count method will not be tested.", getController().getClass());
+			return;
+		}
+		DTO dto = prepareDto();
+		//
+		DTO createdDto = createDto(dto);
+		// mock dto
+		createDto(prepareDto());
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(DataFilter.PARAMETER_ID, createdDto.getId().toString());
+		//
+		long results = count(parameters);
+		//
+		Assert.assertEquals(1, results);
+	}
+	
+	@Test
+	public void testPermissions() {
+		DTO dto = prepareDto();
+		//
+		DTO createdDto = createDto(dto);
+		List<String> permissions = null;
+		//
+		try {
+			String response = getMockMvc().perform(get(getPermissionsUrl(createdDto.getId()))
+	        		.with(authentication(getAdminAuthentication()))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			// convert embedded object to list of strings
+			permissions = getController().getMapper().readValue(response, new TypeReference<List<String>>(){});
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to find entities", ex);
+		}
+		//
+		Assert.assertNotNull(permissions);
+		Assert.assertFalse(permissions.isEmpty());
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.ADMIN.getName())));
+	}
+	
+	/**
+	 * Login as admin
+	 * 
+	 * @return
+	 */
+	protected Authentication getAdminAuthentication() {
+		return new IdmJwtAuthentication(
+				getHelper().getService(IdmIdentityService.class).getByUsername(TestHelper.ADMIN_USERNAME), 
+				null, 
+				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
+				"test");
+	}
+	
+	/**
+	 * Creates dto (saved)
+	 * 
+	 * @return
+	 */
+	protected DTO createDto() {
+		return createDto(prepareDto());
+	}
+	
+	/**
+	 * Creates dto (saved). Auth internally.
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	protected DTO createDto(DTO dto) {
+		try {
+			getHelper().loginAdmin();
+			return getController().saveDto(dto);
+		} finally {
+			getHelper().logout();
+		}
+	}
+	
+	/**
+	 * Get dto by id. Auth internally.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	protected DTO getDto(UUID id) {
+		try {
+			getHelper().loginAdmin();
+			return getController().getDto(id);
+		} finally {
+			getHelper().logout();
+		}
+	}
+	
+	protected String getBaseUrl() {
+		Class<?> clazz = AopUtils.getTargetClass(getController());
+	 
+    	RequestMapping mapping = clazz.getAnnotation(RequestMapping.class);
+    	if (mapping.value().length > 0) {
+    		return mapping.value()[0];
+    	}
+    	if (mapping.path().length > 0) {
+    		return mapping.path()[0];
+    	}
+		throw new CoreException("Controller [" + clazz + "] doeasn't have default mapping, cannot be tested by this abstraction.");
+	}
+	
+	protected String getAutocompleteUrl() {
+		return String.format("%s%s", getBaseUrl(), "/search/autocomplete"); 
+	}
+	
+	protected String getCountUrl() {
+		return String.format("%s%s", getBaseUrl(), "/search/count"); 
+	}
+	
+	protected String getDetailUrl(Serializable backendId) {
+		return String.format("%s/%s", getBaseUrl(), backendId);
+	}
+	
+	protected String getPermissionsUrl(Serializable backendId) {
+		return String.format("%s/%s/permissions", getBaseUrl(), backendId);
+	}
+	
+	protected String getResourcesName() {
+		Relation mapping = getController().getDtoClass().getAnnotation(Relation.class);
+		if (mapping == null) {
+			throw new CoreException("Dto class [" + getController().getDtoClass() + "] not have @Relation annotation! Configure dto annotation properly.");
+		}
+		return mapping.collectionRelation();
 	}
 	
 	protected List<DTO> find(MultiValueMap<String, String> parameters) {
@@ -343,6 +602,23 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	protected long count(MultiValueMap<String, String> parameters) {
+		try {
+			String response = getMockMvc().perform(get(getCountUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.params(parameters)
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return Long.parseLong(response);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to find entities", ex);
+		}
+	}
+	
 	protected List<DTO> toDtos(String listResponse) {
 		try {
 			JsonNode json = getController().getMapper().readTree(listResponse);
@@ -360,129 +636,4 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			throw new RuntimeException("Failed parse entities from list response", ex);
 		}
 	}
-	
-	/**
-	 * Test search by external identifier, if DTO implements {@link ExternalIdentifiable}
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	@SuppressWarnings("unchecked")
-	public void testFindByExternalId() {		
-		DTO dto = prepareDto();
-		if (!(dto instanceof ExternalIdentifiable)) {
-			// ignore test
-			return;
-		}
-		
-		ExternalIdentifiable externalIdentifiableDto = (ExternalIdentifiable) dto;
-		externalIdentifiableDto.setExternalId(getHelper().createName());
-		//
-		DTO createdDto = createDto(dto);
-		//
-		// create another mock dto
-		ExternalIdentifiable dtoTwo = (ExternalIdentifiable) prepareDto();
-		dtoTwo.setExternalId(getHelper().createName());
-		createDto((DTO) dtoTwo);
-		//
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameters.set(ExternalIdentifiable.PROPERTY_EXTERNAL_ID, externalIdentifiableDto.getExternalId());
-		//
-		List<DTO> results = find(parameters);
-		//
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
-		//
-		if (supportsAutocomplete()) {
-			results = autocomplete(parameters);
-			//
-			Assert.assertEquals(1, results.size());
-			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
-		} else {
-			LOG.info("Controller [{}] doesn't support autocomplete method. Mentod will not be tested.", getController().getClass());
-		}
-	}
-	
-	/**
-	 * Test search by external identifier, if DTO implements {@link ExternalIdentifiable}
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testFindByCodeable() {		
-		DTO dto = prepareDto();
-		if (!(dto instanceof Codeable)) {
-			// ignore test
-			return;
-		}
-		Codeable codeable = (Codeable) dto;
-		if (StringUtils.isEmpty(codeable.getCode())) {
-			throw new CoreException("Code has to be set by #prepareDto method, its required by default");
-		}
-		//
-		DTO createdDto = createDto(dto);
-		// mock dto
-		createDto(prepareDto());
-		//
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameters.set(DataFilter.PARAMETER_CODEABLE_IDENTIFIER, codeable.getCode());
-		//
-		List<DTO> results = find(parameters);
-		//
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
-		//
-		if (supportsAutocomplete()) {
-			results = autocomplete(parameters);
-			//
-			Assert.assertEquals(1, results.size());
-			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
-		} else {
-			LOG.info("Controller [{}] doesn't support autocomplete method. Mentod will not be tested.", getController().getClass());
-		}
-	}
-	
-	/**
-	 * Test search by id - supported by default, id DataFilter is used (see #toPedicates in services - has to call super implementation)
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testFindById() {		
-		DTO dto = prepareDto();
-		//
-		DTO createdDto = createDto(dto);
-		// mock dto
-		createDto(prepareDto());
-		//
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameters.set(DataFilter.PARAMETER_ID, createdDto.getId().toString());
-		//
-		List<DTO> results = find(parameters);
-		//
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
-		//
-		if (supportsAutocomplete()) {
-			results = autocomplete(parameters);
-			//
-			Assert.assertEquals(1, results.size());
-			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
-		} else {
-			LOG.info("Controller [{}] doesn't support autocomplete method. Mentod will not be tested.", getController().getClass());
-		}
-	}
-	
-	@Test
-	public void testDeleteIdentityNotExists() throws Exception {
-		if (!supportsDelete()) {
-			LOG.info("Controller [{}] doesn't support DELETE method. Mentod will not be tested.", getController().getClass());
-			return;
-		}
-		getMockMvc().perform(delete(getDetailUrl(UUID.randomUUID()))
-        		.with(authentication(getAdminAuthentication()))
-                .contentType(TestHelper.HAL_CONTENT_TYPE))
-				.andExpect(status().isNotFound());
-	}
-	
 }

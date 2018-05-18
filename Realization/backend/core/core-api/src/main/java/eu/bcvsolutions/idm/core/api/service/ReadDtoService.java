@@ -66,10 +66,20 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * 
 	 * @param filter
 	 * @param pageable
-	 * @param permission base permissions to evaluate
+	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
 	Page<DTO> find(F filter, Pageable pageable, BasePermission... permission);
+	
+	/**
+	 * The number of entities that match the filter.
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
+	 * 
+	 * @param filter
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 */
+	long count(F filter, BasePermission... permission);
 	
 	/**
 	 * Returns whether the given dto is considered to be new.

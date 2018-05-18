@@ -280,6 +280,7 @@ public class IdmIdentity extends AbstractEntity
 		return externalCode;
 	}
 
+	@Override
 	public void setExternalCode(String externalCode) {
 		this.externalCode = externalCode;
 	}

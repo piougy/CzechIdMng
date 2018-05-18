@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 
 /**
- * Identity controller tests
+ * Controller tests
  * - TODO: move filters here
  * 
  * @author Radek Tomiška

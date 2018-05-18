@@ -41,7 +41,7 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Role catalogue controller
  * 
- * TODO: use AbstractEventableDtoController - add missing methods, because DefaultReadWriteDtoController is used now :/
+ * TODO: use AbstractEventableDtoController - add missing methods, because DefaultReadWriteDtoController is used now :/ => read role catalogues is public now
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -109,6 +109,8 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 			@Valid @RequestBody IdmRoleCatalogueDto dto) {
 		return super.put(backendId, dto);
 	}
+	
+	
 
 	@Override
 	@ResponseBody

@@ -105,7 +105,6 @@ public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<I
 			@RequestBody @NotNull IdmPasswordPolicyDto dto) {
 		return super.put(backendId, dto);
 	}
-	
 
 	@Override
 	@ResponseBody

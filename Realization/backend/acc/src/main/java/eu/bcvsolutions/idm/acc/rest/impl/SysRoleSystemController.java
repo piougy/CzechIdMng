@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +25,10 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +38,8 @@ import io.swagger.annotations.AuthorizationScope;;
 
 /**
  * Role could assign identity account on target system.
+ * 
+ * TODO: Authorization policy - transitive by role
  * 
  * @author Radek Tomiška
  *
@@ -49,7 +53,7 @@ import io.swagger.annotations.AuthorizationScope;;
 		description = "Assign system to role",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysRoleSystemController extends DefaultReadWriteDtoController<SysRoleSystemDto, SysRoleSystemFilter> {
+public class SysRoleSystemController extends AbstractReadWriteDtoController<SysRoleSystemDto, SysRoleSystemFilter> {
 	
 	protected static final String TAG = "Role system - mappings";
 	
@@ -157,6 +161,29 @@ public class SysRoleSystemController extends DefaultReadWriteDtoController<SysRo
 			@PathVariable @NotNull String backendId,
 			@RequestBody @NotNull SysRoleSystemDto dto) {
 		return super.put(backendId, dto);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	@ApiOperation(
+			value = "Update role system", 
+			nickname = "patchRoleSystem", 
+			response = SysRoleSystemDto.class, 
+			tags = { SysRoleSystemController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Role system mapping's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
 	}
 	
 	@Override

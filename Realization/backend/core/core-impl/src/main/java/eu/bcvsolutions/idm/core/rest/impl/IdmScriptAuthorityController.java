@@ -110,6 +110,7 @@ public class IdmScriptAuthorityController extends AbstractReadWriteDtoController
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_AUTOCOMPLETE + "')")
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Autocomplete script authorities (selectbox usage)", 
 			nickname = "autocompleteScriptAuthorities", 
@@ -192,6 +193,7 @@ public class IdmScriptAuthorityController extends AbstractReadWriteDtoController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
+	@RequestMapping(method = RequestMethod.POST)
 	@ApiOperation(
 			value = "Create / update script authority", 
 			nickname = "postScriptAuthority", 

@@ -82,8 +82,10 @@ public class IdmNotificationTemplateController extends AbstractReadWriteDtoContr
 		return super.find(parameters, pageable);
 	}
 	
+	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Search notification templates", 
 			nickname = "searchQuickNotificationTemplates", 
@@ -141,6 +143,7 @@ public class IdmNotificationTemplateController extends AbstractReadWriteDtoContr
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Notification template detail", 
 			nickname = "getNotificationTemplate", 
@@ -162,6 +165,7 @@ public class IdmNotificationTemplateController extends AbstractReadWriteDtoContr
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_CREATE + "')"
 			+ " or hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
+	@RequestMapping(method = RequestMethod.POST)
 	@ApiOperation(
 			value = "Create / update notification template", 
 			nickname = "postNotificationTemplate", 
@@ -182,6 +186,7 @@ public class IdmNotificationTemplateController extends AbstractReadWriteDtoContr
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@ApiOperation(
 			value = "Update notification template", 
 			nickname = "putNotificationTemplate", 
@@ -202,6 +207,7 @@ public class IdmNotificationTemplateController extends AbstractReadWriteDtoContr
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_DELETE + "')")
 	@ApiOperation(
 			value = "Delete notification template", 

@@ -2957,6 +2957,7 @@
       "_type": "Notifikační šablona",
       "name": "Název",
       "code": "Kód",
+      "sender": "Adresa odesílatele",
       "subject": "Předmět",
       "parameter": {
         "name": "Parametry",

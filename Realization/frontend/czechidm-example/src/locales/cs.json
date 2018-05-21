@@ -30,17 +30,7 @@
     "actions": {
       "identity-log-example-bulk-action": {
         "niceLabel": "Logování identit",
-        "header": "$t(example:bulkAction.actions.identity-log-example-bulk-action.niceLabel)",
-        "attributes": {
-          "exampleText": {
-            "label": "Příklad vstupního textu",
-            "helpBlock": ""
-          },
-          "exampleWarning": {
-            "label": "Logovat do warning",
-            "helpBlock": "Po zaškrtnutí bude uživatelské jméno logováno do warning"
-          }
-        }
+        "header": "$t(example:bulkAction.actions.identity-log-example-bulk-action.niceLabel)"
       }
     }
   },
@@ -106,6 +96,28 @@
         },
         "save": {
           "success": "Produkt [{{name}}] byl úspěšně uložen"
+        }
+      }
+    }
+  },
+  "eav": {
+    "bulkAction": {
+      "identity-log-example-bulk-action": {
+        "exampleText": {
+          "label": "Příklad vstupního textu",
+          "helpBlock": ""
+        },
+        "exampleWarning": {
+          "label": "Warning log",
+          "helpBlock": "Po zaškrtnutí bude uživatelské jméno logováno do warning konzole"
+        },
+        "sleep": {
+          "label": "Prodleva mezi zpracováním (ms)",
+          "helpBlock": ""
+        },
+        "failEveryN": {
+          "label": "Selhání na každé X-té identitě",
+          "helpBlock": "Každá X-tá identita nebude provedena úspěšně"
         }
       }
     }

@@ -11,8 +11,9 @@ import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
-import { DataManager, FormAttributeManager } from '../../../redux/data';
+import { DataManager, FormAttributeManager, LongRunningTaskManager } from '../../../redux/data';
 import EavAttributeForm from '../Form/EavAttributeForm';
+import LongRunningTask from '../LongRunningTask/LongRunningTask';
 
 /**
  * Table component with header and columns.
@@ -31,6 +32,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       bulkActionShowLoading: false
     };
     this.attributeManager = new FormAttributeManager();
+    this.longRunningTaskManager = new LongRunningTaskManager();
   }
 
   /**
@@ -66,6 +68,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return;
     }
     this.fetchEntities(_searchParameters, _props);
+    if (_props.useBackendBulkAction) {
+      this.context.store.dispatch(_props.manager.fetchAvailableBulkActions());
+    }
   }
 
   /**
@@ -77,6 +82,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     });
   }
 
+  /**
+   * Process select row in table. The method is ised only for bulk action.
+   * Methot has own behavior for select all.
+   *
+   * @param  rowIndex
+   * @param  selected
+   * @return
+   */
   selectRowForBulkAction(rowIndex, selected) {
     const { selectedRows, removedRows } = this.state;
     let newRemovedRows = new Immutable.Set(removedRows);
@@ -112,6 +125,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return newSelectedRows;
   }
 
+  isAllRowSelected() {
+    const { selectedRows } = this.state;
+    // if selected rows contains SELECT ALL return true
+    return _.includes(selectedRows, Basic.Table.SELECT_ALL);
+  }
+
   isRowSelected(identifier) {
     const { selectedRows, removedRows } = this.state;
     if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
@@ -123,6 +142,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   processBulkAction(bulkAction, event) {
     if (event) {
       event.preventDefault();
+    }
+    if (!this.refs.bulkActionAttributes.isValid()) {
+      return;
     }
     const _searchParameters = this._mergeSearchParameters(this.props._searchParameters);
 
@@ -136,6 +158,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // remove unnecessary attributes
       delete bulkActionToProcess.formAttributes;
       delete bulkActionToProcess.longRunningTaskId;
+      delete bulkActionToProcess.permissions;
       //
       bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
       if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
@@ -151,17 +174,19 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       this.context.store.dispatch(manager.processBulkAction(bulkActionToProcess, (processBulkAction, error) => {
         if (error) {
           this.addErrorMessage({}, error);
+          this.setState({
+            bulkActionShowLoading: false
+          });
         } else {
           this.addMessage({ level: 'info', message: this.i18n('bulkAction.created', { longRunningTaskId: processBulkAction.longRunningTaskId, name: this.i18n(processBulkAction.module + 'bulkAction.actions.' + processBulkAction.name + '.niceLabel')})});
-          this.showBulkActionDetail(null);
+          // this.showBulkActionDetail(null);
           this.setState({
             selectedRows: [],
-            removedRows: new Immutable.Set()
+            removedRows: new Immutable.Set(),
+            bulkActionShowLoading: false,
+            backendBulkAction: processBulkAction
           });
         }
-        this.setState({
-          bulkActionShowLoading: false
-        });
       }));
     }
   }
@@ -343,13 +368,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
   showBulkActionDetail(backendBulkAction) {
     const { showBulkActionDetail } = this.state;
-    // transform forma attribute to better localization
-    if (backendBulkAction && backendBulkAction.formAttributes) {
-      backendBulkAction.formAttributes.forEach(attribute => {
-        attribute.name = this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.attributes.' + attribute.code + '.label');
-        attribute.description = this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.attributes.' + attribute.code + '.helpBlock');
-      });
-    }
     //
     this.setState({
       backendBulkAction,
@@ -358,52 +376,103 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   _backendBulkActionDetail() {
-    const { backendBulkAction, showBulkActionDetail, bulkActionShowLoading, selectedRows, removedRows } = this.state;
-    const { _total } = this.props;
+    const {
+      backendBulkAction,
+      showBulkActionDetail,
+      bulkActionShowLoading,
+      selectedRows,
+      removedRows } = this.state;
+    const { _total, manager } = this.props;
     const count = _total - removedRows.size;
+    const existFormAttributes = backendBulkAction && showBulkActionDetail && backendBulkAction.formAttributes.length > 0;
+
+    const isSelectedAll = _.includes(selectedRows, Basic.Table.SELECT_ALL);
+    // get entities for currently selected
+    let selectedEntities = [];
+    if (!isSelectedAll) {
+      selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    }
+    //
+    // get entitties for currently deselected
+    let removedEnties = [];
+    if (removedRows.size > 0) {
+      removedEnties = manager.getEntitiesByIds(this.context.store.getState(), removedRows.toArray());
+    }
+    let modalContent = null;
+    if (backendBulkAction && backendBulkAction.longRunningTaskId) {
+      modalContent = (
+        <Basic.Modal.Body style={ {padding: 0, marginBottom: -20} }>
+          <LongRunningTask
+            entityIdentifier={ backendBulkAction.longRunningTaskId }
+            header={ this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.header')}
+            footerButtons={
+              <Basic.Button
+                level="link"
+                onClick={this.showBulkActionDetail.bind(this)}>
+                {this.i18n('button.close')}
+              </Basic.Button>
+            }/>
+        </Basic.Modal.Body>
+      );
+    } else if (backendBulkAction) {
+      modalContent = (
+        <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
+          <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.header') }/>
+          <Basic.Modal.Body>
+            <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
+              <Basic.Alert
+                level="warning"
+                text={this.i18n('bulkAction.selectAllRecordsWarning',
+                  {
+                    count,
+                    action: this.i18n(`${backendBulkAction.module}:bulkAction.actions.${backendBulkAction.name}.header`),
+                    date: moment(new Date()).format(this.i18n('format.datetime')) })}
+                rendered={isSelectedAll} />
+              <Basic.Row rendered={!isSelectedAll} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
+                <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.message', {
+                  count: selectedRows.length,
+                  entities: manager.getNiceLabels(selectedEntities).join(', '),
+                  name: this.i18n(`${backendBulkAction.module}:bulkAction.actions.${backendBulkAction.name}.niceLabel`) }) }}/>
+              </Basic.Row>
+              <Basic.Row rendered={removedEnties.length > 0} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
+                <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.removedRecord', {
+                  count: removedEnties.length,
+                  entities: manager.getNiceLabels(removedEnties).join(', ') }) }}/>
+              </Basic.Row>
+              <EavAttributeForm
+                ref="bulkActionAttributes"
+                localizationKey={backendBulkAction.name}
+                localizationModule={backendBulkAction.module}
+                formAttributes={backendBulkAction.formAttributes}
+                localizationType="bulkAction"/>
+            </Basic.AbstractForm>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={this.showBulkActionDetail.bind(this)}>
+              {this.i18n('button.close')}
+            </Basic.Button>
+            <Basic.Button
+              type="submit"
+              level="success"
+              showLoading={bulkActionShowLoading}
+              showLoadingIcon
+              showLoadingText={ this.i18n('button.saving') }>
+              {this.i18n('bulkAction.button.execute')}
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </form>
+      );
+    }
+
     return (
       <div>
         <Basic.Modal
           show={ showBulkActionDetail }
           onHide={ this.showBulkActionDetail.bind(this) }
           backdrop="static">
-          {
-            !backendBulkAction
-            ||
-            <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
-              <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.header') }/>
-              <Basic.Modal.Body>
-                <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
-                  <Basic.Alert
-                    level="warning"
-                    text={this.i18n('bulkAction.selectAllRecordsWarning',
-                      {
-                        count,
-                        action: this.i18n(backendBulkAction.module + 'bulkAction.actions.' + backendBulkAction.name + '.header'),
-                        date: moment(new Date()).format(this.i18n('format.datetime')) })}
-                    rendered={_.includes(selectedRows, Basic.Table.SELECT_ALL)} />
-                  <EavAttributeForm
-                    ref="bulkActionAttributes"
-                    formAttributes={backendBulkAction.formAttributes} />
-                </Basic.AbstractForm>
-              </Basic.Modal.Body>
-              <Basic.Modal.Footer>
-                <Basic.Button
-                  level="link"
-                  onClick={this.showBulkActionDetail.bind(this)}>
-                  {this.i18n('button.close')}
-                </Basic.Button>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoading={bulkActionShowLoading}
-                  showLoadingIcon
-                  showLoadingText={ this.i18n('button.saving') }>
-                  {this.i18n('bulkAction.button.execute')}
-                </Basic.Button>
-              </Basic.Modal.Footer>
-            </form>
-          }
+          { modalContent }
         </Basic.Modal>
       </div>
     );
@@ -661,7 +730,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               condensed={condensed}
               noData={this.getNoData(noData)}
               selectRowCb={useBackendBulkAction ? this.selectRowForBulkAction.bind(this) : null}
-              isRowSelectedCb={useBackendBulkAction ? this.isRowSelected.bind(this) : null}>
+              isRowSelectedCb={useBackendBulkAction ? this.isRowSelected.bind(this) : null}
+              isAllRowsSelectedCb={useBackendBulkAction ? this.isAllRowSelected.bind(this) : null}>
 
               {renderedColumns}
 

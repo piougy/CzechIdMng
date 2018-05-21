@@ -5,6 +5,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -37,6 +41,12 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	private boolean stateful;
 	private DateTime taskStarted;
 	private boolean dryRun;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Long successItemCount;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Long failedItemCount;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Long warningItemCount;
 
 	public void setTaskStarted(DateTime date){
 		taskStarted = date;
@@ -163,5 +173,29 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 
 	public void setDryRun(boolean dryRun) {
 		this.dryRun = dryRun;
+	}
+
+	public Long getSuccessItemCount() {
+		return successItemCount;
+	}
+
+	public void setSuccessItemCount(Long successItemCount) {
+		this.successItemCount = successItemCount;
+	}
+
+	public Long getFailedItemCount() {
+		return failedItemCount;
+	}
+
+	public void setFailedItemCount(Long failedItemCount) {
+		this.failedItemCount = failedItemCount;
+	}
+
+	public Long getWarningItemCount() {
+		return warningItemCount;
+	}
+
+	public void setWarningItemCount(Long warningItemCount) {
+		this.warningItemCount = warningItemCount;
 	}
 }

@@ -13,8 +13,20 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 public interface BulkActionManager {
 
+	/**
+	 * Get all available bulk actions for given entity
+	 *
+	 * @param entity
+	 * @return
+	 */
 	List<IdmBulkActionDto> getAvailableActions(Class<? extends AbstractEntity> entity);
 	
+	/**
+	 * Process bulk action in new long running task
+	 *
+	 * @param actionDto
+	 * @return
+	 */
 	IdmBulkActionDto processAction(IdmBulkActionDto actionDto);
 	
 }

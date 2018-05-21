@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Basic DTO for bulk actions. The DTO contains information about bulk
@@ -38,6 +39,8 @@ public class IdmBulkActionDto implements Serializable {
 	private transient BaseFilter transformedFilter;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Map<String, Object> properties;
+	@JsonProperty(access = Access.READ_ONLY)
+	private Map<String, BasePermission[]> permissions;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Map<String, Object> filter;
 	@JsonProperty(access = Access.READ_ONLY)
@@ -135,5 +138,13 @@ public class IdmBulkActionDto implements Serializable {
 
 	public void setFormAttributes(List<IdmFormAttributeDto> formAttributes) {
 		this.formAttributes = formAttributes;
+	}
+	
+	public Map<String, BasePermission[]> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(Map<String, BasePermission[]> permissions) {
+		this.permissions = permissions;
 	}
 }

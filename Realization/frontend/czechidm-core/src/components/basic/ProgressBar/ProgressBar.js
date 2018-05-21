@@ -52,7 +52,7 @@ export default class BasicProgressBar extends AbstractComponent {
   }
 
   render() {
-    const { rendered, showLoading, min, now, active, style, className } = this.props;
+    const { rendered, showLoading, min, now, active, style, className, bsStyle, children, isChild } = this.props;
     if (!rendered) {
       return null;
     }
@@ -67,6 +67,21 @@ export default class BasicProgressBar extends AbstractComponent {
       className
     );
     //
+    if (children) {
+      return (
+        <ProgressBar
+          min={min}
+          max={this._resolveMax()}
+          now={now}
+          label={this._resolveLabel()}
+          active={active}
+          style={style}
+          bsStyle={bsStyle}>
+          { children }
+        </ProgressBar>
+      );
+    }
+    //
     return (
       <span className={classNames}>
         <ProgressBar
@@ -75,7 +90,9 @@ export default class BasicProgressBar extends AbstractComponent {
           now={now}
           label={this._resolveLabel()}
           active={active}
-          style={style}/>
+          style={style}
+          bsStyle={bsStyle}
+          isChild={isChild}/>
       </span>
     );
   }
@@ -105,7 +122,8 @@ BasicProgressBar.propTypes = {
   /**
    * Adds animation -  the stripes right to left. Not available in IE9 and below.
    */
-  active: PropTypes.bool
+  active: PropTypes.bool,
+  bsStyle: PropTypes.string
 };
 
 BasicProgressBar.defaultProps = {

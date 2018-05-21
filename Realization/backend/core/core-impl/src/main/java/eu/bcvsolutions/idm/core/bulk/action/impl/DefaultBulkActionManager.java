@@ -11,13 +11,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -39,10 +39,10 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	
 	@Autowired
 	public DefaultBulkActionManager(
-			List<AbstractBulkAction<? extends BaseDto>> evaluators,
+			List<AbstractBulkAction<? extends BaseDto>> actions,
 			LongRunningTaskManager taskManager,
 			ModuleService moduleService) {
-		pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
+		pluginExecutors = OrderAwarePluginRegistry.create(actions);
 		//
 		this.taskManager = taskManager;
 		this.moduleService = moduleService;
@@ -63,8 +63,13 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		// validate before execute
 		executor.validate();
 		//
-		LongRunningFutureTask<Boolean> execute = taskManager.execute(executor);
+		LongRunningFutureTask<OperationResult> execute = taskManager.execute(executor);
 		action.setLongRunningTaskId(execute.getExecutor().getLongRunningTaskId());
+		action.setEntityClass(executor.getEntityClass());
+		action.setFilterClass(executor.getFilterClass());
+		action.setModule(executor.getModule());
+		action.setFormAttributes(executor.getFormAttributes());
+		action.setPermissions(executor.getPermissions());
 		return action;
 	}
 	
@@ -85,6 +90,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 			actionDto.setModule(action.getModule());
 			actionDto.setName(action.getName());
 			actionDto.setFormAttributes(action.getFormAttributes());
+			actionDto.setPermissions(action.getPermissions());
 			result.add(actionDto);
 		}
 		return result;

@@ -41,6 +41,7 @@ import OperationResult from './OperationResult/OperationResult';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 import EavAttributeForm from './Form/EavAttributeForm';
+import LongRunningTask from './LongRunningTask/LongRunningTask';
 
 const Components = {
   Table,
@@ -87,7 +88,8 @@ const Components = {
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
-  EavAttributeForm
+  EavAttributeForm,
+  LongRunningTask
 };
 
 Components.version = '0.0.1';

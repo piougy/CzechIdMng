@@ -7,7 +7,6 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { LongRunningTaskManager } from '../../redux';
-import LongRunningTask from './LongRunningTask';
 
 const UIKEY = 'active-long-running-task-table';
 const manager = new LongRunningTaskManager();
@@ -38,7 +37,8 @@ class RunningTasks extends Basic.AbstractContent {
   }
 
   _fetchRunningTasks() {
-    const forceSearchParameters = new SearchParameters().setFilter('running', true).setFilter('stateful', true).setSort('created', 'desc');
+    const { creatorId } = this.props;
+    const forceSearchParameters = new SearchParameters().setFilter('running', true).setFilter('stateful', true).setFilter('creatorId', creatorId).setSort('created', 'desc');
     this.context.store.dispatch(manager.fetchEntities(forceSearchParameters, UIKEY));
   }
 
@@ -71,7 +71,7 @@ class RunningTasks extends Basic.AbstractContent {
                 {
                   _entities.map(entity => {
                     return (
-                      <LongRunningTask entity={ entity } />
+                      <Advanced.LongRunningTask entity={ entity } />
                     );
                   })
                 }
@@ -85,10 +85,12 @@ class RunningTasks extends Basic.AbstractContent {
 }
 
 RunningTasks.propTypes = {
+  creatorId: PropTypes.string,
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object)
 };
 RunningTasks.defaultProps = {
+  creatorId: null,
   _showLoading: true,
   _entities: []
 };

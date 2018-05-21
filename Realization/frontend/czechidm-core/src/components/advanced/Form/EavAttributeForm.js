@@ -68,7 +68,15 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { formAttributes, rendered, showLoading, readOnly } = this.props;
+    const {
+      formAttributes,
+      rendered,
+      showLoading,
+      readOnly,
+      localizationKey,
+      localizationModule,
+      localizationType
+    } = this.props;
     //
     if (!rendered || !formAttributes) {
       return null;
@@ -85,12 +93,25 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
       );
     }
 
+
     // values are not initialized
     return (
       <span>
         {
           formAttributes.map(attribute => {
             const component = attributeManager.getFormComponent(attribute);
+            if (localizationKey) {
+              // if localizationKey is defined we must fake formDefinition.code
+              attribute._embedded.formDefinition = {
+                ...attribute._embedded.formDefinition,
+                code: localizationKey
+              };
+            }
+            attribute._embedded.formDefinition = {
+              ...attribute._embedded.formDefinition,
+              module: localizationModule,
+              type: localizationType
+            };
             if (!component) {
               return (
                 <Basic.LabelWrapper label={attribute.name}>
@@ -103,12 +124,16 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
             }
             //
             const FormValueComponent = component.component;
+            let value = {};
+            if (attribute.defaultValue) {
+              value = { value: attribute.defaultValue};
+            }
             return (
               <FormValueComponent
                 ref={ attribute.code }
                 attribute={ attribute }
-                values={ {} }
-                readOnly={readOnly}/>
+                values={ value }
+                readOnly={ readOnly }/>
             );
           })
         }
@@ -120,10 +145,16 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
 EavAttributeForm.propTypes = {
   ...Basic.AbstractContextComponent.propTypes,
   formAttributes: PropTypes.object,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  localizationKey: PropTypes.string,
+  localizationModule: PropTypes.string,
+  localizationType: PropTypes.string,
 };
 EavAttributeForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   formAttributes: null,
-  readOnly: false
+  readOnly: false,
+  localizationKey: null,
+  localizationModule: 'core',
+  localizationType: null
 };

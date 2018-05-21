@@ -5,9 +5,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -23,12 +24,14 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-//import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -42,23 +45,21 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
- * Bulk operation for add role to identity
+ * Remove role from given identities by bulk operation
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Component("identityAddRoleBulkAction")
-@Description("Add role to idetity in bulk action.")
-public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityAddRoleBulkAction.class);
-	
-	public static final String BULK_ACTION_NAME = "identity-add-role-bulk-action";
-	
+@Component("identityRemoveRoleBulkAction")
+@Description("Remove role from given identities.")
+public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
+
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRemoveRoleBulkAction.class);
+
+	private static final String NAME = "identity-remove-role-bulk-action";
 	private static final String ROLE_CODE = "role";
 	private static final String PRIMARY_CONTRACT_CODE = "mainContract";
-	private static final String VALID_TILL_CODE = "validTill";
-	private static final String VALID_FROM_CODE = "validFrom";
 	private static final String APPROVE_CODE = "approve";
 	
 	@Autowired
@@ -69,29 +70,14 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
-	
-	@Override
-	public List<IdmFormAttributeDto> getFormAttributes() {
-		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
-		formAttributes.add(getRoleAttribute());
-		formAttributes.add(getApproveAttribute());
-		formAttributes.add(getPrimaryContractAttribute());
-		formAttributes.add(getValidTillAttribute());
-		formAttributes.add(getValidFromAttribute());
-		return formAttributes;
-	}
-
-	@Override
-	public String getName() {
-		return IdentityAddRoleBulkAction.BULK_ACTION_NAME;
-	}
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	@Override
 	protected OperationResult processIdentity(IdmIdentityDto identity) {
 		List<IdmIdentityContractDto> contracts = new ArrayList<>();
 		if (this.isPrimaryContract()) {
 			IdmIdentityContractDto contract = identityContractService.getPrimeValidContract(identity.getId());
-			//
 			if (contract != null) {
 				contracts.add(contract);
 			}
@@ -101,37 +87,52 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 		//
 		// contract empty return not processed
 		if (contracts.isEmpty()) {
+			LOG.warn("For identity id: [{}] username: [{}] wasn't found contranct.", identity.getId(), identity.getUsername());
 			return new OperationResult.Builder(OperationState.NOT_EXECUTED)
 					.setModel(
 							new DefaultResultModel(CoreResultCode.BULK_ACTION_CONTRACT_NOT_FOUND,
 									ImmutableMap.of("identity", identity.getId()))) //
 					.build();
 		}
-		//
 		boolean approve = isApprove();
-		LocalDate validFrom = this.getValidFrom();
-		LocalDate validTill = this.getValidTill();
+		List<IdmRoleDto> roles = getRoles();
+		Set<UUID> rolesIds = roles.stream().map(IdmRoleDto::getId).collect(Collectors.toSet());
 		//
 		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
 		for (IdmIdentityContractDto contract : contracts) {
 			if (!checkPermissionForContract(contract)) {
 				continue;
 			}
+			// check if contract has role
+			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(contract.getId());
+			Set<UUID> roleIdsSet = allByContract.stream().map(IdmIdentityRoleDto::getRole).collect(Collectors.toSet());
+			if (Collections.disjoint(roleIdsSet, rolesIds)) {
+				// contract hasn't assigned the roles
+				continue;
+			}
 			//
-			for (IdmRoleDto role : getRoles()) {
-				IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
-				concept.setRole(role.getId());
-				concept.setIdentityContract(contract.getId());
-				concept.setOperation(ConceptRoleRequestOperation.ADD);
-				// if valid till or from is null get this attributes from contract
-				concept.setValidFrom(validFrom == null ? contract.getValidFrom() : validFrom);
-				concept.setValidTill(validTill == null ? contract.getValidTill() : validTill);
-				concepts.add(concept);
+			for (IdmRoleDto role : roles) {
+				IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+				filter.setIdentityContractId(contract.getId());
+				filter.setRoleId(role.getId());
+				//
+				List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+				if (identityRoles.isEmpty()) {
+					continue;
+				}
+				//
+				for (IdmIdentityRoleDto identityRole : identityRoles) {
+					IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+					concept.setRole(role.getId());
+					concept.setIdentityContract(contract.getId());
+					concept.setIdentityRole(identityRole.getId());
+					concept.setOperation(ConceptRoleRequestOperation.REMOVE);
+					concepts.add(concept);
+				}
 			}
 		}
-		// if exists at least one concept create and starts request
+		
 		if (!concepts.isEmpty()) {
-			// create request
 			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 			roleRequest.setApplicant(identity.getId());
 			roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
@@ -144,8 +145,8 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 				concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 			}
 			//
-			IdmRoleRequestDto request = roleRequestService.startRequest(roleRequest.getId(), true);
-			if (request.getState() == RoleRequestState.EXECUTED) {
+			roleRequest = roleRequestService.startRequest(roleRequest.getId(), true);
+			if (roleRequest.getState() == RoleRequestState.EXECUTED) {
 				return new OperationResult.Builder(OperationState.EXECUTED).build();
 			} else {
 				return new OperationResult.Builder(OperationState.CREATED).build();
@@ -154,7 +155,25 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 		//
 		return new OperationResult.Builder(OperationState.NOT_EXECUTED).build();
 	}
-	
+
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
+		formAttributes.add(getRoleAttribute());
+		formAttributes.add(getApproveAttribute());
+		formAttributes.add(getPrimaryContractAttribute());
+		return formAttributes;
+	}
+
+	@Override
+	protected BasePermission[] getPermissionForIdentity() {
+		BasePermission[] permissions =  {
+				IdentityBasePermission.CHANGEPERMISSION,
+				IdmBasePermission.READ
+		};
+		return permissions;
+	}
+
 	@Override
 	public Map<String, BasePermission[]> getPermissions() {
 		Map<String, BasePermission[]> permissions = super.getPermissions();
@@ -186,14 +205,10 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
-		BasePermission[] permissions= {
-				IdentityBasePermission.CHANGEPERMISSION,
-				IdmBasePermission.READ
-		};
-		return permissions;
+	public String getName() {
+		return NAME;
 	}
-
+	
 	/**
 	 * Get roles for assign
 	 *
@@ -243,38 +258,6 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	}
 	
 	/**
-	 * Get valid from
-	 *
-	 * @return
-	 */
-	private LocalDate getValidFrom() {
-		return getParameterConverter().toLocalDate(getProperties(), VALID_FROM_CODE);
-	}
-	
-	/**
-	 * Get valid till
-	 *
-	 * @return
-	 */
-	private LocalDate getValidTill() {
-		return getParameterConverter().toLocalDate(getProperties(), VALID_TILL_CODE);
-	}
-	
-	/**
-	 * Get {@link IdmFormAttributeDto} for approve checkbox
-	 *
-	 * @return
-	 */
-	private IdmFormAttributeDto getApproveAttribute() {
-		IdmFormAttributeDto approve = new IdmFormAttributeDto(
-				APPROVE_CODE, 
-				APPROVE_CODE, 
-				PersistentType.BOOLEAN);
-		approve.setDefaultValue(Boolean.TRUE.toString());
-		return approve;
-	}
-	
-	/**
 	 * Get {@link IdmFormAttributeDto} for select roles
 	 *
 	 * @return
@@ -303,35 +286,23 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 		primaryContract.setDefaultValue(Boolean.TRUE.toString());
 		return primaryContract;
 	}
-	
+
 	/**
-	 * Get {@link IdmFormAttributeDto} for valid till attribute
+	 * Get {@link IdmFormAttributeDto} for approve checkbox
 	 *
 	 * @return
 	 */
-	private IdmFormAttributeDto getValidTillAttribute() {
-		IdmFormAttributeDto validTill = new IdmFormAttributeDto(
-				VALID_TILL_CODE, 
-				VALID_TILL_CODE, 
-				PersistentType.DATE);
-		return validTill;
-	}
-	
-	/**
-	 * Get {@link IdmFormAttributeDto} for valid from attribute
-	 *
-	 * @return
-	 */
-	private IdmFormAttributeDto getValidFromAttribute() {
-		IdmFormAttributeDto validFrom = new IdmFormAttributeDto(
-				VALID_FROM_CODE, 
-				VALID_FROM_CODE, 
-				PersistentType.DATE);
-		return validFrom;
+	private IdmFormAttributeDto getApproveAttribute() {
+		IdmFormAttributeDto approve = new IdmFormAttributeDto(
+				APPROVE_CODE, 
+				APPROVE_CODE, 
+				PersistentType.BOOLEAN);
+		approve.setDefaultValue(Boolean.TRUE.toString());
+		return approve;
 	}
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 400;
+		return super.getOrder() + 500;
 	}
 }

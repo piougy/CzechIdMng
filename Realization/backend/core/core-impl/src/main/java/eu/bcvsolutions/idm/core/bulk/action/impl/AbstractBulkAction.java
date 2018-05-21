@@ -1,7 +1,8 @@
-package eu.bcvsolutions.idm.core.api.bulk.action;
+package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,13 +10,15 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Abstract parent for all bulk actions
@@ -25,7 +28,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExe
  * @param <DTO>
  */
 public abstract class AbstractBulkAction<DTO extends BaseDto>
-		extends AbstractLongRunningTaskExecutor<Boolean>
+		extends AbstractLongRunningTaskExecutor<OperationResult>
 		implements IdmBulkAction<DTO> {
 
 	private IdmBulkActionDto action;
@@ -82,5 +85,23 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 			return super.getProperties();
 		}
 		return this.getAction().getProperties();
+	}
+	
+	@Override
+	public Map<String, BasePermission[]> getPermissions() {
+		return new HashMap<>();
+	}
+	
+	@Override
+	public int getOrder() {
+		return DEFAULT_ORDER;
+	}
+	
+	@Override
+	protected OperationResult end(OperationResult result, Exception ex) {
+		if (result != null && result.getException() != null) {
+			return super.end(result, (Exception) result.getException());
+		}
+		return super.end(result, ex);
 	}
 }

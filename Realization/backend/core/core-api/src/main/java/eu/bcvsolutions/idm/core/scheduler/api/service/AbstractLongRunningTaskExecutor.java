@@ -26,7 +26,6 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
-import eu.bcvsolutions.idm.core.notification.api.service.WebsocketNotificationSender;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -52,7 +51,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Autowired private LookupService entityLookupService;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmProcessedTaskItemService itemService;
-	@Autowired private WebsocketNotificationSender websocketNotificationSender;
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID longRunningTaskId;
@@ -276,8 +274,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		if (task == null) {
 			return true;
 		}
-		// send websocket with status
-		websocketNotificationSender.updateStateLongRunningTask(task);
 		//
 		return task.isRunning() && OperationState.isRunnable(task.getResultState());
 	}

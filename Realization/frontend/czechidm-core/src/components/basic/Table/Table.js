@@ -185,13 +185,13 @@ class Table extends AbstractComponent {
   }
 
   _isAllRowsSelected() {
-    const { data } = this.props;
+    const { data, isAllRowsSelectedCb } = this.props;
     const { selectedRows } = this.state;
+    if (isAllRowsSelectedCb) {
+      return isAllRowsSelectedCb();
+    }
     if (!data || data.length === 0) {
       return false;
-    }
-    if (selectedRows.has(Table.SELECT_ALL)) {
-      return true;
     }
     let enabledRowsCount = 0;
     for (let i = 0; i < data.length; i++) {
@@ -410,7 +410,11 @@ Table.propTypes = {
   /**
    * Function that is called for check if row is selcted
    */
-  isRowSelectedCb: PropTypes.func
+  isRowSelectedCb: PropTypes.func,
+  /**
+   * Function that is called for check if all row are selected
+   */
+  isAllRowsSelectedCb: PropTypes.func
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -422,7 +426,8 @@ Table.defaultProps = {
   condensed: false,
   noHeader: false,
   selectRowCb: null,
-  isRowSelectedCb: null
+  isRowSelectedCb: null,
+  isAllRowsSelectedCb: null
 };
 
 Table.SELECT_ALL = 'select-all-rows';

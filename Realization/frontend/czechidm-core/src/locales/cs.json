@@ -247,26 +247,34 @@
   "bulkAction": {
     "actions": {
       "identity-add-role-bulk-action": {
-        "niceLabel": "Hromadné přidělení rolí",
-        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)",
-        "attributes": {
-          "role": {
-            "label": "Role",
-            "helpBlock": ""
-          },
-          "approve": {
-            "label": "Schvalovat",
-            "helpBlock": "Po zakrtnutí bude přidělení role schvalováno"
-          },
-          "mainContract": {
-            "label": "Přiřadit pouze na hlavní kontrakt",
-            "helpBlock": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
-          }
-        }
+        "niceLabel": "Přidělení rolí",
+        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)"
+      },
+      "identity-remove-role-bulk-action": {
+        "niceLabel": "Odebrání rolí",
+        "header": "$t(bulkAction.actions.identity-remove-role-bulk-action.niceLabel)"
+      },
+      "identity-disable-bulk-action": {
+        "niceLabel": "Deaktivovat - (manuálně)",
+        "header": "$t(bulkAction.actions.identity-disable-bulk-action.niceLabel)"
+      },
+      "identity-enable-bulk-action": {
+        "niceLabel": "Aktivovat - (manuálně)",
+        "header": "$t(bulkAction.actions.identity-enable-bulk-action.niceLabel)"
+      },
+      "identity-delete-bulk-action": {
+        "niceLabel": "Odebrat",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
       }
     },
-    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad všemi právě vyfiltrovanými položkami. K tomuto datu [{{date}}] aktuální počet [{{count}}]. Zpracované položky se mohou lišit.",
-    "created": "Hromadná uloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad právě vyfiltrovanými položkami. K tomuto datu [{{date}}] je aktuální počet [{{count}}]. Zpracované položky se mohou lišit.",
+    "removedRecord_1": "Do zpracování hromadné úlohy nebude započítána tato entita: <b>[{{entities}}]</b>.",
+    "removedRecord_2": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
+    "removedRecord_5": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
+    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "message_1": "Provádíte hromadnou úlohu [{{name}}] nad vybráným záznamem: <b>[{{entities}}]</b>.",
+    "message_2": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
+    "message_5": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Spustit"
     }
@@ -748,6 +756,9 @@
     "profileDashboard" : {
       "header": "Vaše základní údaje",
       "goToProfil": "Přejít na detail profilu"
+    },
+    "longRunningTaskDashboard": {
+      "header": "Vaše dlouhotrvající úlohy"
     }
   },
   "permission": {
@@ -3604,6 +3615,46 @@
         "name" : "$t(entity.validTill) (nová)",
         "tooltip": "",
         "placeholder": ""
+      }
+    }
+  },
+  "eav": {
+    "bulkAction": {
+      "identity-add-role-bulk-action": {
+        "role": {
+          "label": "Role",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Schvalovat",
+          "helpBlock": "Po zakrtnutí bude přidělení role schvalováno"
+        },
+        "mainContract": {
+          "label": "Přiřadit pouze na hlavní kontrakt",
+          "helpBlock": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+        },
+        "validFrom": {
+          "label": "Platnost od",
+          "helpBlock": ""
+        },
+        "validTill": {
+          "label": "Platnost do",
+          "helpBlock": ""
+        }
+      },
+      "identity-remove-role-bulk-action": {
+        "role": {
+          "label": "Role",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Schvalovat",
+          "helpBlock": "Po zakrtnutí bude odebrání role schvalováno"
+        },
+        "mainContract": {
+          "label": "Odebrat pouze z hlavního kontraktu",
+          "helpBlock": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+        }
       }
     }
   },

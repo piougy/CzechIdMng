@@ -235,6 +235,8 @@ public enum CoreResultCode implements ResultCode {
 	BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED(HttpStatus.BAD_REQUEST, "Only one filtering option can be applied."),
 	BULK_ACTION_MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Action [%s] can't be processed. Module [%s] is disabled."),
 	BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED(HttpStatus.BAD_REQUEST, "Bulk action hasn't specified entities or filter."),
+	BULK_ACTION_INSUFFICIENT_PERMISSION(HttpStatus.FORBIDDEN, "Insufficient permissions for execute bulk action: [%s] on identity id: [%s] and identity username: [%s]."),
+	BULK_ACTION_CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "Contract for identity: [%s] not found."),
 	//
 	// Contract slices
 	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!");

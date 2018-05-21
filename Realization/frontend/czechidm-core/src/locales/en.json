@@ -219,26 +219,32 @@
   "bulkAction": {
     "actions": {
       "identity-add-role-bulk-action": {
-        "niceLabel": "Bulk roles assignment",
-        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)",
-        "attributes": {
-          "role": {
-            "label": "Roles",
-            "helpBlock": ""
-          },
-          "approve": {
-            "label": "Approve",
-            "helpBlock": "After check, the role assignment will be approved"
-          },
-          "mainContract": {
-            "label": "Assign to main contract only",
-            "helpBlock": "Assigning new roles will only be done on the main contract."
-          }
-        }
+        "niceLabel": "Roles assignment",
+        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)"
+      },
+      "identity-remove-role-bulk-action": {
+        "niceLabel": "Role removing",
+        "header": "$t(bulkAction.actions.identity-remove-role-bulk-action.niceLabel)"
+      },
+      "identity-disable-bulk-action": {
+        "niceLabel": "Deactivate - (manually)",
+        "header": "$t(bulkAction.actions.identity-disable-bulk-action.niceLabel)"
+      },
+      "identity-enable-bulk-action": {
+        "niceLabel": "Activate - (manually)",
+        "header": "$t(bulkAction.actions.identity-enable-bulk-action.niceLabel)"
+      },
+      "identity-delete-bulk-action": {
+        "niceLabel": "Remove",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
       }
     },
-    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on all currently filtered items. To this date [{{date}}] actual count [{{count}}]. Processed items may be different.",
+    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date [{{date}}] is actual count [{{count}}]. Processed items may be different.",
+    "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
+    "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
     "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
+    "message": "Performing the bulk action on select record: <b>[{{entities}}]</b>.",
+    "message_plural": "Performing the bulk action on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Execute"
     }
@@ -719,6 +725,9 @@
     "profileDashboard" : {
       "header": "Your basic information",
       "goToProfil": "Go to profile"
+    },
+    "longRunningTaskDashboard": {
+      "header": "Your long running task"
     }
   },
   "permission": {
@@ -3562,6 +3571,46 @@
         "name" : "$t(entity.validTill) (new)",
         "tooltip": "",
         "placeholder": ""
+      }
+    }
+  },
+  "eav": {
+    "bulkAction": {
+      "identity-add-role-bulk-action": {
+        "role": {
+          "label": "Roles",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Approve",
+          "helpBlock": "After check, the role assignment will be approved"
+        },
+        "mainContract": {
+          "label": "Assign to main contract only",
+          "helpBlock": "Assigning new roles will only be done on the main contract."
+        },
+        "validFrom": {
+          "label": "Valid from",
+          "helpBlock": ""
+        },
+        "validTill": {
+          "label": "Valid till",
+          "helpBlock": ""
+        }
+      },
+      "identity-remove-role-bulk-action": {
+        "role": {
+          "label": "Roles",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Approve",
+          "helpBlock": "After check, the role remove will be approved"
+        },
+        "mainContract": {
+          "label": "Remove only from the main contract",
+          "helpBlock": "Removing role/s will only be done from the main contract."
+        }
       }
     }
   },

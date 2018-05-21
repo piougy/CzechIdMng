@@ -107,6 +107,24 @@ public class IdmAuthorizationPolicyController extends AbstractReadWriteDtoContro
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUTHORIZATIONPOLICY_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countAuthorizationPolicies", 
+			tags = { IdmAuthorizationPolicyController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTHORIZATIONPOLICY_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUTHORIZATIONPOLICY_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody

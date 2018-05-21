@@ -733,6 +733,7 @@
   "permission": {
     "base" : {
       "ADMIN": "Administration (all)",
+      "COUNT": "Number of records",
       "AUTOCOMPLETE": "View in select box (autocomplete)",
       "READ": "Read",
       "CREATE": "Create",
@@ -752,6 +753,7 @@
       "IDENTITYCONTRACT": "Contracted positions",
       "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
+      "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
@@ -1991,7 +1993,7 @@
           "success": "Contracted position [{{name}}] successfully saved."
         },
         "alert": {
-          "controlledBySlices": "This contract is controller by time slices. Cannot be modified directlly!"
+          "controlledBySlices": "This contract is controlled by time slices. Cannot be modified directly!"
         }
       },
       "eav": {
@@ -2034,6 +2036,8 @@
         "header": "Time slice of contracted position detail",
         "title": "Time slice of contracted position detail",
         "label": "Basic information",
+        "labelContract": "Basic information of contract",
+        "labelSlice": "Basic information of time slice",
         "invalidContract":"Invalid time slice of contracted position detail",
         "validContract":"Time slice of contracted position detail",
         "edit": {
@@ -2809,6 +2813,10 @@
       "parentContract": "Parent contract relationship",
       "contractCode": "Code of contract relationship",
       "code": "Code of slice",
+      "code": {
+        "label": "Code of slice",
+        "help": "Identifier of the time slice (typically external identifier from source system)."
+      },
       "usingAsContract": {
         "label": "Currently used",
         "help": "If checked, this time slot is currently used as the source of the parent contract (the values on the parent contract are copied from this slice)."
@@ -3104,7 +3112,7 @@
       "specialCharBase": "Special characters",
       "identityAttributeCheck": "User attributes not allowed in password",
       "help": {
-        "defaultPolicy": "Default policy is used for password validation for IdM system and all systems without set password policy.",
+        "defaultPolicy": "Default policy is used for CzechIdM and all systems without set policy.",
         "maxPasswordAge": "Maximum number of days for password validity.",
         "minPasswordAge": "Minimum number of days for password validity.",
         "enchancedControl": "Enhanced control makes passwords more secure by comparing new passwords with previous ones and user attributes. It is possible to select which rules are required.",
@@ -4026,7 +4034,14 @@
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Required property wasn't filled",
-      "message": "Property [{{attributeCode}}] wasn't filled."
+      "message": "Property [{{attributeCode}}] wasn't filled.",
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
+      "title": "Contract cannot be deleted!",
+      "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"
+    },
+    "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
+      "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
+      "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"
     }
   },
   "validationError": {

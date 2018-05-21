@@ -460,6 +460,12 @@ public class DefaultConfigurationService
 		return getValue(PROPERTY_APP_DATETIME_FORMAT, DEFAULT_APP_DATETIME_FORMAT);
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public String getDateTimeSecondsFormat() {
+		return getValue(PROPERTY_APP_DATETIME_WITH_SECONDS_FORMAT, DEFAULT_APP_DATETIME_WITH_SECONDS_FORMAT);
+	}
+	
 	private static IdmConfigurationDto toConfigurationDto(String key, Object value) {
 		String stringValue = value == null ? null : value.toString();
 		IdmConfigurationDto configuration = new IdmConfigurationDto(key, stringValue);

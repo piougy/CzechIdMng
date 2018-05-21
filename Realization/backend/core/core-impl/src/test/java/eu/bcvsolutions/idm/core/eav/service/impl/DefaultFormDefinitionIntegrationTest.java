@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.service;
+package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import static org.junit.Assert.assertEquals;
 

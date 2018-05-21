@@ -107,7 +107,7 @@ export default class IdentitySelectFormAttributeRenderer extends UuidFormAttribu
     return (
       <Basic.SelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ this.getLable() }
+        label={ this.getLabel() }
         placeholder={ attribute.placeholder }
         manager={ manager }
         value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }

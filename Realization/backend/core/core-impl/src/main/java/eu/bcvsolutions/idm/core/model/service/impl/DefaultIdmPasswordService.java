@@ -12,13 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordHistoryDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -183,11 +181,11 @@ public class DefaultIdmPasswordService
 	
 	@Override
 	@Transactional
-	public IdmPasswordDto findOrCreateByIdentity(Serializable identificator) {
-		IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identificator);
+	public IdmPasswordDto findOrCreateByIdentity(Serializable identifier) {
+		IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identifier);
 		//
 		if (identityDto == null) {
-			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
+			return null;
 		}
 		//
 		UUID identityId = identityDto.getId();
@@ -202,7 +200,7 @@ public class DefaultIdmPasswordService
 		passwordDto.setMustChange(false);
 		passwordDto.setValidFrom(new LocalDate());
 		//
-		return passwordDto;
+		return this.save(passwordDto);
 	}
 
 

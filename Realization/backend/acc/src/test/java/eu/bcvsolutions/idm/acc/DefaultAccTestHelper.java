@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc;
 
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemMappingService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -57,13 +57,13 @@ import joptsimple.internal.Strings;
  */
 @Primary
 @Component("accTestHelper")
-public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestHelper implements TestHelper {
+public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestHelper implements TestHelper {
 	
+	@Autowired private EntityManager entityManager;	
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired private SysSchemaAttributeService schemaAttributeService;
-	@Autowired private EntityManager entityManager;
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
@@ -72,6 +72,11 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 	@Autowired private AccAccountService accountService;
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private DefaultSysSystemMappingService mappingService;
+	
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public TestResource findResource(String uid) {
+		return entityManager.find(TestResource.class, uid);
+	}
 	
 	/**
 	 * Create test system connected to same database (using configuration from dataSource)
@@ -290,12 +295,6 @@ public class DefaultTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTestH
 		//
 		roleSystem.setSystemMapping(mappings.get(0).getId());
 		return roleSystemService.save(roleSystem);
-	}
-	
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public TestResource findResource(String uid) {
-		return entityManager.find(TestResource.class, uid);
 	}
 	
 	@Override

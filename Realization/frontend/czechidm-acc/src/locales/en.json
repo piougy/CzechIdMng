@@ -7,6 +7,15 @@
     "menu" : {
     }
   },
+  "component" : {
+    "advanced": {
+      "EavForm": {
+        "faceType": {
+          "SYSTEM-SELECT": "System select (SelectBox)"
+        }
+      }
+    }
+  },
   "content": {
     "dashboard": {
     },
@@ -663,7 +672,10 @@
       "role": "Role",
       "system": "System",
       "systemMapping": "Mapping",
-      "forwardAccountManagemen": "Forward account management"
+      "forwardAccountManagemen": {
+        "label": "Forward account management",
+        "help": "If checked, then an account on this system is created even though the assignment of this role to the user will be valid in the future."
+      }
     },
     "SystemEntity": {
       "_type": "Entity in system",

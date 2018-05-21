@@ -6,7 +6,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 
 /**
  * Filter for identity role
@@ -30,7 +30,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 	
 	public IdmIdentityRoleFilter(MultiValueMap<String, Object> data) {
-		super(IdmRoleDto.class, data);
+		super(IdmIdentityRoleDto.class, data);
 	}
 
     public UUID getIdentityId() {

@@ -20,7 +20,7 @@ class ContractSliceEav extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectSidebarItem('identity-contract-eav');
+    this.selectSidebarItem('contract-slice-eav');
   }
 
   getContentKey() {

@@ -296,19 +296,26 @@ public class EntityUtils {
 		auditable.setTransactionId(null);
 	}
 	
-	public static void copyAuditFields(Auditable auditableSource, Auditable auditableTarget) {
-		Asserts.notNull(auditableTarget, "Entity must be not null!");
-		Asserts.notNull(auditableSource, "Entity must be not null!");
+	/**
+	 * Sets target audit fields by given source
+	 * 
+	 * @param auditableSource entity or dto
+	 * @param auditableTarget entity or dto
+	 */
+	public static void copyAuditFields(Auditable source, Auditable target) {
+		Asserts.notNull(target, "Entity must be not null!");
+		Asserts.notNull(source, "Entity must be not null!");
 		//
-		auditableTarget.setCreated(auditableSource.getCreated());
-		auditableTarget.setCreator(auditableSource.getCreator());
-		auditableTarget.setCreatorId(auditableSource.getCreatorId());
-		auditableTarget.setModified(auditableSource.getModified());
-		auditableTarget.setModifier(auditableSource.getModifier());
-		auditableTarget.setModifierId(auditableSource.getModifierId());
-		auditableTarget.setOriginalCreator(auditableSource.getOriginalCreator());
-		auditableTarget.setOriginalCreatorId(auditableSource.getOriginalCreatorId());
-		auditableTarget.setOriginalModifier(auditableSource.getModifier());
-		auditableTarget.setOriginalModifierId(auditableSource.getOriginalModifierId());
+		target.setCreated(source.getCreated());
+		target.setCreator(source.getCreator());
+		target.setCreatorId(source.getCreatorId());
+		target.setModified(source.getModified());
+		target.setModifier(source.getModifier());
+		target.setModifierId(source.getModifierId());
+		target.setOriginalCreator(source.getOriginalCreator());
+		target.setOriginalCreatorId(source.getOriginalCreatorId());
+		target.setOriginalModifier(source.getModifier());
+		target.setOriginalModifierId(source.getOriginalModifierId());
+		target.setTransactionId(source.getTransactionId());
 	}
 }

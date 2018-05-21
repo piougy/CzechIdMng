@@ -193,10 +193,6 @@ public class DefaultIdmIdentityService
 		if (StringUtils.isNotEmpty(filter.getLastName())) {
 			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getLastName()));
 		}
-		// External code
-		if (StringUtils.isNotEmpty(filter.getExternalCode())) {
-			predicates.add(builder.equal(root.get(IdmIdentity_.externalCode), filter.getExternalCode()));
-		}
 		// identity with any of given role (OR)
 		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {

@@ -22,7 +22,7 @@ class ContractSliceContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectSidebarItem('identity-contract-detail');
+    this.selectSidebarItem('contract-slice-detail');
     //
     const { entityId } = this.props.params;
     const { query } = this.props.location;

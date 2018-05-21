@@ -49,7 +49,17 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 public interface TestHelper {
 	
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
+	String ADMIN_USERNAME = "admin";
+	String ADMIN_PASSWORD = "admin";
 	String DEFAULT_PASSWORD = "password";
+	String HAL_CONTENT_TYPE = "application/hal+json";
+	
+	/**
+	 * Login as test admin
+	 *  
+	 * @return
+	 */
+	LoginDto loginAdmin();
 	
 	/**
 	 * Login as given identity.
@@ -155,6 +165,13 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmTreeTypeDto createTreeType(String code);
+	
+	/**
+	 * Returns configured default tree type.
+	 * 
+	 * @return
+	 */
+	IdmTreeTypeDto getDefaultTreeType();
 
 	/**
 	 * Creates tree node with random name and code
@@ -343,15 +360,30 @@ public interface TestHelper {
 	
 	/**
 	 * Creates identity contract slice on given position
-	 *
+	 * 
 	 * @param identity
 	 * @param position
 	 * @param validFrom
-	 * @param validTill
+	 * @param contractValidFrom
+	 * @param contractValidTill
 	 * @return
 	 */
-	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
 
+	/**
+	 *  Creates identity contract slice on given position
+	 *  
+	 * @param identity
+	 * @param contractCode
+	 * @param position
+	 * @param validFrom
+	 * @param contractValidFrom
+	 * @param contractValidTill
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, String contractCode, IdmTreeNodeDto position,
+			LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
+	
 	/**
 	 * Creates identity contract on given position
 	 *
@@ -535,4 +567,6 @@ public interface TestHelper {
 	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
 			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
 			UUID formAttrId, String value);
+
+
 }

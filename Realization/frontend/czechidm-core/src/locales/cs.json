@@ -764,6 +764,7 @@
   "permission": {
     "base" : {
       "ADMIN": "Administrace (vše)",
+      "COUNT": "Počet záznamů",
       "AUTOCOMPLETE": "Zobrazení v našeptávačích, výběrech",
       "READ": "Čtení",
       "CREATE": "Vytvoření",
@@ -783,6 +784,7 @@
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
       "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
+      "CONTRACTSLICEGUARANTEE": "Garanti časových řezů PPV",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
@@ -2035,7 +2037,7 @@
           "success": "PPV [{{name}}] byl úspěšně uložen"
         },
         "alert": {
-          "controlledBySlices": "Tento právní vztah je řízen časovými řezy. Není možné ho upravovat přímo!"
+          "controlledBySlices": "Tento právní vztah je řízen časovými řezy. Není možné ho upravovat napřímo!"
         }
       },
       "eav": {
@@ -2078,6 +2080,8 @@
         "header": "Detail časového řezu (PPV)",
         "title": "Detail časového řezu PPV",
         "label": "Základní údaje",
+        "labelContract": "Základní údaje - pracovní pozice",
+        "labelSlice": "Základní údaje - časového řezu",
         "invalidContract":"Detail neplatného PPV",
         "validContract":"Detail PPV",
         "edit": {
@@ -2856,7 +2860,10 @@
         "label": "Aktuálně používaný",
         "help": "Pokud je zaškrtnuto, tak je tento časový řez aktuálně používaný, jako zdroj dat nadřazeného smluvního vztahu (hodnoty vztahu jsou zkopírované z tohoto řezu)."
       },
-      "code": "Kód řezu",
+      "code": {
+        "label": "Kód řezu",
+        "help": "Identifikátor časového řezu (typicky externí identifikátor zdrojového systému)."
+      },
       "id": "$t(entity.IdentityContract.id)",
       "treeType": "$t(entity.IdentityContract.treeType)",
       "workPosition": "$t(entity.IdentityContract.workPosition)",
@@ -3148,7 +3155,7 @@
       "specialCharBase": "Povolené speciální znaky",
       "identityAttributeCheck": "Atributy identity pro kontrolu",
       "help": {
-        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IdM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "defaultPolicy": "Standardní politika je použita pro CzechIdM a všechny systémy, kde není určena jiná politika.",
         "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
         "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
@@ -4074,7 +4081,14 @@
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Nebyla vyplněna povinná položka",
-      "message": "Položka [{{attributeCode}}] nebyla vyplněna."
+      "message": "Položka [{{attributeCode}}] nebyla vyplněna.",
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
+      "title": "Pracovní pozici není možné odstranit.",
+      "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"
+    },
+    "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
+      "title": "Politika [{{definition}}], nemá definovaný interval blokování!",
+      "message": "Politika [{{definition}}], definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
     }
   },
   "validationError": {

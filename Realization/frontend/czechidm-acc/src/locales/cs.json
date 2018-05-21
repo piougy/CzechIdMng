@@ -7,6 +7,15 @@
     "menu" : {
     }
   },
+  "component" : {
+    "advanced": {
+      "EavForm": {
+        "faceType": {
+          "SYSTEM-SELECT": "Výběr systémů (SelectBox)"
+        }
+      }
+    }
+  },
   "content": {
     "dashboard": {
     },
@@ -670,7 +679,10 @@
       "role": "Role",
       "system": "Systém",
       "systemMapping": "Název mapování",
-      "forwardAccountManagemen": "Dopředná správa účtů"
+      "forwardAccountManagemen": {
+        "label": "Dopředná správa účtů",
+        "help": "Pokud je zaškrtnuto, pak bude účet na tomto systému vytvořen i v případě, že přířazní této role uživateli bude platné až v budoucnu."
+      }
     },
     "SystemEntity": {
       "_type": "Entita na systému",
@@ -1145,6 +1157,7 @@
       "IDENTITYACCOUNT": "Účty pro identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
+      "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "PROVISIONINGBREAK": "Brzda provisioningu"
     }
   },

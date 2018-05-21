@@ -20,7 +20,6 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
@@ -37,7 +36,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_contract_slice", indexes = {
 		@Index(name = "idx_idm_contract_slice_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_contract_slice_wp", columnList = "work_position_id")})
-public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, Codeable {
+public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -107,11 +106,6 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	private String contractCode; // Identifier of the main contract on the source system
 	
 	@Audited
-	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "code", length = DefaultFieldLengths.NAME)
-	private String code; // Identifier of that slice on the source system
-	
-	@Audited
 	@NotNull
 	@Column(name = "using_as_contract", nullable = false)
 	private boolean usingAsContract; // Is this slice actually using as the contract?
@@ -123,7 +117,7 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 	@Audited
 	@Column(name = "contract_valid_till")
 	private LocalDate contractValidTill;
-	
+
 	public IdmContractSlice() {
 	}
 	
@@ -275,15 +269,6 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 
 	public void setParentContract(IdmIdentityContract parentContract) {
 		this.parentContract = parentContract;
-	}
-
-	@Override
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
 	}
 
 	public boolean isUsingAsContract() {

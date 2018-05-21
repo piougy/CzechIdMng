@@ -18,8 +18,8 @@ import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdentifierExcepti
 import eu.bcvsolutions.idm.core.api.exception.EntityTypeNotExternalIdentifiableException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * ExternalIdentifiableFilterBuilder test
@@ -30,17 +30,16 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 @Transactional
 public class ExternalIdentifiableFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
 
 	@Test
 	public void testFindIdentityByExternalId() {
 		// prepare data
-		IdmIdentityDto identityOne = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
 		identityOne.setExternalId("one");
 		identityOne = identityService.save(identityOne);
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
 		identityTwo.setExternalId("two");
 		identityTwo = identityService.save(identityTwo); 
 		//
@@ -61,10 +60,10 @@ public class ExternalIdentifiableFilterBuilderIntegrationTest extends AbstractIn
 	@Test(expected = DuplicateExternalIdentifierException.class)
 	public void testCreateDuplicateExternalId() {
 		// prepare data
-		IdmIdentityDto identityOne = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
 		identityOne.setExternalId("one");
 		identityOne = identityService.save(identityOne);
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
 		identityTwo.setExternalId("one");
 		identityTwo = identityService.save(identityTwo); 
 	}
@@ -80,10 +79,10 @@ public class ExternalIdentifiableFilterBuilderIntegrationTest extends AbstractIn
 	@Test
 	public void testUpdateExternalId() {
 		// prepare data
-		IdmIdentityDto identityOne = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
 		identityOne.setExternalId("one");
 		identityOne = identityService.save(identityOne);
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
 		
 		identityTwo.setExternalId("two");
 		identityTwo = identityService.save(identityTwo); 

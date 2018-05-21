@@ -44,7 +44,7 @@ public class IdentityRolePublishChangeProcessor
 		event = super.setAdditionalEventProperties(event);
 		// we need to set super entity owner - identity roles should not be processed concurrently for given identity
 		// TODO: can be removed, if account management can be executed concurrently for given identity
-		IdmIdentityContractDto identityContract = DtoUtils.getEmbedded(event.getContent(), IdmIdentityRole_.identityContract, IdmIdentityContractDto.class, null);
+		IdmIdentityContractDto identityContract = DtoUtils.getEmbedded(event.getContent(), IdmIdentityRole_.identityContract, (IdmIdentityContractDto) null);
 		if (identityContract == null) {
 			identityContract = (IdmIdentityContractDto) lookupService.lookupDto(IdmIdentityContractDto.class, event.getContent().getIdentityContract());
 		}

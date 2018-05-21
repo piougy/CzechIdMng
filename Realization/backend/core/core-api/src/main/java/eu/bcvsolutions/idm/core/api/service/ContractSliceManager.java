@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
  * Manager for contract time slices
@@ -16,24 +19,16 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
  * @author svandav
  *
  */
-public interface ContractSliceManager {
+public interface ContractSliceManager extends ScriptEnabled  {
 
 	/**
-	 * Create contract by given slice
-	 * 
-	 * @param slice
-	 * @return
-	 */
-	IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice);
-
-	/**
-	 * Update contract by given slice
+	 * Create or update contract by given slice
 	 * 
 	 * @param contract
 	 * @param slice
 	 * @return
 	 */
-	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice);
+	IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice, Map<String, Serializable> eventProperties);
 
 	/**
 	 * Update validity till on previous slice. Previous slice will be valid till
@@ -57,11 +52,12 @@ public interface ContractSliceManager {
 	 * copied to the parent contract.
 	 * 
 	 * @param slice
+	 * @return 
 	 */
-	void setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
+	IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
 
 	/**
-	 * Find next valid slice for that contract. First find valid slice for now. Then
+	 * Find slice that is currently valid (or first in future) for given contract. First find valid slice for now. If none exist then
 	 * find the nearest slice valid in future. If none slice will be found, then
 	 * return null.
 	 * 

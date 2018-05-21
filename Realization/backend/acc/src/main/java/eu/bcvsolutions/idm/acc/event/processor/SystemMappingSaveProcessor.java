@@ -64,7 +64,7 @@ public class SystemMappingSaveProcessor extends CoreEventProcessor<SysSystemMapp
 		SysSystemMappingDto dto = event.getContent();
 		// it is not possible get schema from embedded - new entity
 		SysSchemaObjectClassDto schema = schemaObjectClassService.get(dto.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schema, SysSchemaObjectClass_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(schema, SysSchemaObjectClass_.system);
 		//
 		// for tree type is possible has more than one provisioning, both only for one tree type
 		if (dto.getOperationType() == SystemOperationType.PROVISIONING) {

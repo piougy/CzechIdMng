@@ -363,7 +363,7 @@ public class DefaultIdmRoleRequestService
 			// Save created identity role id
 			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
 			String message = MessageFormat.format("Role [{0}] was added to applicant. Requested in concept [{1}].",
 					roleDto.getCode(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
@@ -386,7 +386,7 @@ public class DefaultIdmRoleRequestService
 			// Save created identity role id
 			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
 			String message = MessageFormat.format("Role [{0}] was changed. Requested in concept [{1}].",
 					roleDto.getCode(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);

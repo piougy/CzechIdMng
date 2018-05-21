@@ -49,6 +49,7 @@ public enum CoreResultCode implements ResultCode {
 	FORBIDDEN_ENTITY(HttpStatus.FORBIDDEN, "Forbidden: entity [%s], permission [%s]."),
 	DUPLICATE_EXTERNAL_IDENTIFIER(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable"),
+	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable"),
 	// data
 	SEARCH_ERROR(HttpStatus.BAD_REQUEST, "Error during searching entities. Error: %s"),
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),
@@ -122,6 +123,7 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_POLICY_MAX_AGE_LOWER(HttpStatus.BAD_REQUEST, "Password policy has max password age lower than min age."),
 	PASSWORD_POLICY_MAX_RULE(HttpStatus.BAD_REQUEST, "Password policy: minimum rules to fulfill must be [%s] or lower."),
 	PASSWORD_POLICY_NEGATIVE_VALUE(HttpStatus.BAD_REQUEST, "Password policy can not contain negative values. Attribute: [%s]"),
+	PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED(HttpStatus.BAD_REQUEST, "Attribute 'Max login attempts' attribute has value, but time of blocking missing (for policy [%s])!"),
 	//
 	SCHEDULER_INVALID_CRON_EXPRESSION(HttpStatus.BAD_REQUEST, "Cron expression [%s] is invalid."),
 	SCHEDULER_UNSUPPORTED_TASK_TRIGGER(HttpStatus.BAD_REQUEST, "Task trigger [%s] is not supported."),
@@ -239,6 +241,7 @@ public enum CoreResultCode implements ResultCode {
 	BULK_ACTION_CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "Contract for identity: [%s] not found."),
 	//
 	// Contract slices
+	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),
 	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!");
 
 	private final HttpStatus status;

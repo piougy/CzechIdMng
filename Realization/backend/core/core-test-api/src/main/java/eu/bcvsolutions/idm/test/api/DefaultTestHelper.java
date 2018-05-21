@@ -108,6 +108,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	
 	@Override
+	public LoginDto loginAdmin() {
+		return loginService.login(new LoginDto(TestHelper.ADMIN_USERNAME, new GuardedString(TestHelper.ADMIN_PASSWORD)));
+	}
+	
+	@Override
 	public LoginDto login(String username, String password) {
 		return loginService.login(new LoginDto(username, new GuardedString(password)));
 	}
@@ -189,6 +194,11 @@ public class DefaultTestHelper implements TestHelper {
 		treeType.setName(name);
 		return treeTypeService.save(treeType);
 	}
+	
+	@Override
+	public IdmTreeTypeDto getDefaultTreeType() {
+		return treeTypeService.getDefaultTreeType();
+	}
 
 	@Override
 	public IdmTreeNodeDto createTreeNode() {
@@ -197,7 +207,7 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmTreeNodeDto createTreeNode(String name, IdmTreeNodeDto parent) {
-		return createTreeNode(treeTypeService.getDefaultTreeType(), name, parent);
+		return createTreeNode(getDefaultTreeType(), name, parent);
 	}
 
 	@Override
@@ -360,18 +370,27 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity) {
-		return createContractSlice(identity, null, null, null);
+		return createContractSlice(identity, null, null, null, null);
 	}
 
 	
 	@Override
-	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill) {
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position,
+			LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill) {
+		return createContractSlice(identity, null, position, validFrom, contractValidFrom, contractValidTill);
+	}
+
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, String contractCode,
+			IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill) {
 		IdmContractSliceDto contract = new IdmContractSliceDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition(createName());
+		contract.setContractCode(contractCode);
 		contract.setWorkPosition(position == null ? null : position.getId());
 		contract.setValidFrom(validFrom);
-		contract.setValidTill(validTill);
+		contract.setContractValidFrom(contractValidFrom);
+		contract.setContractValidTill(contractValidTill);
 		return contractSliceService.save(contract);
 	}
 

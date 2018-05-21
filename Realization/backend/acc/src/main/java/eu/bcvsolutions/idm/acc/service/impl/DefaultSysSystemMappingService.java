@@ -137,7 +137,7 @@ public class DefaultSysSystemMappingService
 	public boolean isEnabledProtection(AccAccountDto account) {
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getEntityType(), "EntityType cannot be null!");
-		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 		List<SysSystemMappingDto> mappings = this.findBySystem(system, SystemOperationType.PROVISIONING,
 				account.getEntityType());
 		if (mappings.isEmpty()) {
@@ -152,7 +152,7 @@ public class DefaultSysSystemMappingService
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getEntityType(), "EntityType cannot be null!");
 
-		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 		List<SysSystemMappingDto> mappings = this.findBySystem(system, SystemOperationType.PROVISIONING,
 				account.getEntityType());
 		if (mappings.isEmpty()) {

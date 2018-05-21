@@ -1,11 +1,17 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +21,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
@@ -36,6 +43,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 
 /**
@@ -46,6 +55,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
  */
 @Service("contractSliceManager")
 public class DefaultContractSliceManager implements ContractSliceManager {
+
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultContractSliceManager.class);
 
 	@Autowired
 	private IdmIdentityContractService contractService;
@@ -61,55 +72,86 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	private FormValueService<IdmIdentityContract> identityContractFormValueService;
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
+	@Autowired
+	private ContractSliceConfiguration contractSliceConfiguration;
 
 	@Override
 	@Transactional
-	public IdmIdentityContractDto createContractBySlice(IdmContractSliceDto slice) {
+	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
+			Map<String, Serializable> eventProperties) {
+
+		Assert.notNull(contract);
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slice.getIdentity());
-		Assert.isTrue(slice.isUsingAsContract(),
-				"When new contract is created, then this slice have to be sets as 'Is using as contract'!");
+		Assert.isTrue(slice.isUsingAsContract());
 
-		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		boolean isNew = contractService.isNew(contract);
 
-		// Previous slice will be valid till starts of validity next slice - Remove?
-		// updateValidTillOnPreviousSlice(slice, slices);
+		// Update all slice attributes
 		convertSliceToContract(slice, contract);
-		// Create contract
-		IdmIdentityContractDto savedContract = contractService.save(contract);
+
+		// Check if is protection interval activated and whether we need resolve him
+		int protectionInterval = contractSliceConfiguration.getProtectionInterval();
+		if (!isNew && protectionInterval > 0 && slice.getContractValidTill() != null) {
+			resolveProtectionInterval(slice, contract, protectionInterval);
+		}
+
+		// Save contract
+		IdmIdentityContractDto savedContract = contractService.publish(
+				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
+						contract, ImmutableMap.copyOf(eventProperties)))
+				.getContent();
 		// Copy values of extended attributes
 		copyExtendedAttributes(slice, savedContract);
+
 		// Copy guarantees
 		copyGuarantees(slice, savedContract);
 
 		return savedContract;
 	}
 
-	@Override
-	@Transactional
-	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice) {
-
-		Assert.notNull(slice, "Contract slice cannot be null!");
-		Assert.notNull(slice.getIdentity());
-		Assert.notNull(slice.getId(), "Contract slice have to be created!");
-
-		// Slice is sets as 'is using as contract', we will update all attributes
-		if (slice.isUsingAsContract()) {
-			convertSliceToContract(slice, contract);
-		}
-		// Previous slice will be valid till starts of validity next slice - Remove?
-		// updateValidTillOnPreviousSlice(slice, slices);
-		// Save contract
-		IdmIdentityContractDto savedContract = contractService.save(contract);
-
-		if (slice.isUsingAsContract()) {
-			// Copy values of extended attributes
-			copyExtendedAttributes(slice, savedContract);
-			// Copy guarantees
-			copyGuarantees(slice, savedContract);
+	/**
+	 * Protection mode is activate. Check if the next slice has valid from of
+	 * contract lover then contract valid till (plus protection interval) on given
+	 * slice, then contract will does not terminated (his valid till will be sets by
+	 * valid till form next slice)
+	 * 
+	 * @param slice
+	 * @param contract
+	 * @param protectionInterval
+	 */
+	private void resolveProtectionInterval(IdmContractSliceDto slice, IdmIdentityContractDto contract,
+			int protectionInterval) {
+		Assert.notNull(contract);
+		Assert.notNull(contract.getId());
+		
+		List<IdmContractSliceDto> slices = this.findAllSlices(contract.getId());
+		IdmContractSliceDto nextSlice = this.findNextSlice(slice, slices);
+		if (nextSlice == null) {
+			// None next slice exists ... contract was not changed
+			return;
 		}
 
-		return savedContract;
+		if (nextSlice.getContractValidFrom() == null) {
+			LOG.info(MessageFormat.format(
+					"Update contract by slice [{0}] - Resloving of the protection interval - next slice has contract valid from sets to 'null' ... contract [{1}] was changed!",
+					slice, contract));
+			contract.setValidTill(null);
+			return;
+
+		}
+		long diffInDays = ChronoUnit.DAYS //
+				.between( //
+						java.time.LocalDate.parse(slice.getContractValidTill().toString()), //
+						java.time.LocalDate.parse(nextSlice.getContractValidFrom().toString()));
+
+		if (diffInDays <= protectionInterval) {
+			LOG.info(MessageFormat.format(
+					"Update contract by slice [{0}] - Resloving of the protection interval - next slice has contract valid from sets to [{2}] ... contract [{1}] was changed!",
+					slice, contract, nextSlice.getContractValidFrom()));
+
+			contract.setValidTill(nextSlice.getContractValidFrom());
+		}
 	}
 
 	@Override
@@ -128,7 +170,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		// Previous slice will be valid till starts of validity next slice
 		previousSlice.setValidTill(slice.getValidFrom().minusDays(1));
 		contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, previousSlice,
-				ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
+				ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 	}
 
 	@Override
@@ -136,11 +178,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	public IdmContractSliceDto findNextSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
 		Assert.notNull(slices);
+		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		if (slice.getValidFrom() == null) {
-			return null;
+			slices.stream() //
+					.filter(s -> !s.equals(slice) && s.getValidFrom() != null) //
+					.min(comparatorValidFrom) //
+					.orElse(null); //
 		}
 
-		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		return slices.stream() //
 				.filter(s -> !s.equals(slice) && s.getValidFrom() != null
 						&& s.getValidFrom().isAfter(slice.getValidFrom())) //
@@ -177,7 +222,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public void setSliceAsCurrentlyUsing(IdmContractSliceDto slice) {
+	public IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice) {
 		// Only one slice can be marked as 'is using as contract' (for one parent
 		// contract)
 		if (slice.getParentContract() != null) {
@@ -195,14 +240,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 						s.setUsingAsContract(false);
 						// We want only save data, not update contract by slice
 						contractSliceService
-								.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s, ImmutableMap.of(
-										IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
+								.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, s, ImmutableMap
+										.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
 					});
 		}
 		slice.setUsingAsContract(true);
 		// Copy to contract is ensures the save slice processor. We have to only set
 		// attribute 'Is using as contract' to true.
-		contractSliceService.save(slice);
+		return contractSliceService.save(slice);
 	}
 
 	@Override
@@ -275,15 +320,28 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * Copy (clone) of attribute values from slice to contract
 	 * 
 	 * @param slice
-	 * @param savedContract
+	 * @param contract
 	 */
-	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto savedContract) {
+	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
+		Assert.notNull(contract);
+		Assert.notNull(contract.getId());
+		Assert.notNull(slice);
+		Assert.notNull(slice.getId());
+
 		IdmFormDefinitionDto defaultDefinition = formService.getDefinition(IdmIdentityContract.class);
+		// Load extended values for this contract
+		List<IdmFormValueDto> contractValues = formService.getValues(contract.getId(), IdmIdentityContract.class,
+				defaultDefinition);
+		// Delete all current values
+		contractValues.forEach(value -> {
+			identityContractFormValueService.delete(value);
+		});
+
 		// Load extended values for this slice
 		List<IdmFormValueDto> sliceValues = formService.getValues(slice.getId(), IdmContractSlice.class,
 				defaultDefinition);
 		sliceValues.forEach(value -> {
-			value.setOwner(identityContractRepository.findOne(savedContract.getId()));
+			value.setOwner(identityContractRepository.findOne(contract.getId()));
 			// Clear audit fields
 			EntityUtils.clearAuditFields(value);
 			value.setId(null);

@@ -13,6 +13,7 @@ import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
 import EavContent from './Form/EavContent';
 import AbstractFormAttributeRenderer from './Form/AbstractFormAttributeRenderer';
+import SelectBoxFormAttributeRenderer from './Form/SelectBoxFormAttributeRenderer';
 import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
@@ -62,6 +63,7 @@ const Components = {
   EavForm,
   EavContent,
   AbstractFormAttributeRenderer,
+  SelectBoxFormAttributeRenderer,
   PasswordField,
   RichTextArea,
   AbstractTableContent,

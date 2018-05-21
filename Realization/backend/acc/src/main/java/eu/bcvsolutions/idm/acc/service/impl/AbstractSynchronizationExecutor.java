@@ -732,8 +732,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
-				SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
 		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
 				system);
 
@@ -878,8 +877,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		Assert.notNull(mapping);
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
-				SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
 		Assert.notNull(system);
 
 		// System must be enabled
@@ -1229,8 +1227,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entityType != null && entityType.isSupportsProvisioning()) {
 			return true;
 		}
-		logItem.addToLog(MessageFormat.format("Warning! - Provisioning for this entity type [{0}] is not supported!",
-				entityType.name()));
+		if (entityType != null ) {
+			logItem.addToLog(MessageFormat.format("Warning! - Provisioning for this entity type [{0}] is not supported!",
+					entityType.name()));
+		}
 		return false;
 
 	}

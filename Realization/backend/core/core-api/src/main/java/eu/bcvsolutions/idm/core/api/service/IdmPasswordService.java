@@ -54,13 +54,13 @@ public interface IdmPasswordService
 	IdmPasswordDto findOneByIdentity(String username);
 	
 	/**
-	 * Return password for given identificator (id/username), if password doesn't exist
+	 * Return password for given identifier (id/ username), if password doesn't exist
 	 * create new empty password.
 	 *
 	 * @param identificator
 	 * @return
 	 */
-	IdmPasswordDto findOrCreateByIdentity(Serializable identificator);
+	IdmPasswordDto findOrCreateByIdentity(Serializable identifier);
 
 	/**
 	 * Check password matches a passwordToCheck

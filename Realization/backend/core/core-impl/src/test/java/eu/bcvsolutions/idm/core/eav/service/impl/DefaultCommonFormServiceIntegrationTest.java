@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.service;
+package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import org.junit.Assert;
 import org.junit.Before;

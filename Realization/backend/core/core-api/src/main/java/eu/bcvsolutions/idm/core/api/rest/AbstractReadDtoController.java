@@ -28,15 +28,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+//import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
@@ -118,7 +117,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		ResourceSupport resource = toResource(dto);
 		if (resource == null) {
@@ -204,7 +203,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
@@ -227,6 +225,21 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@PageableDefault Pageable pageable) {
 		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
 	}
+	
+	/**
+	 * The number of entities that match the filter - parameters will be transformed to filter object
+	 * 
+	 * @param parameters
+	 * @return
+     * @see #toFilter(MultiValueMap)
+	 */
+	@ApiOperation(value = "The number of entities that match the filter", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return count(toFilter(parameters), IdmBasePermission.COUNT);
+	}
 
 	/**
 	 * Quick search - finds DTOs by given filter and pageable
@@ -238,6 +251,17 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission permission) {
 		return getService().find(filter, pageable, permission);
+	}
+	
+	/**
+	 * The number of entities that match the filter
+	 * 
+	 * @param filter
+	 * @param permission
+	 * @return
+	 */
+	public long count(F filter, BasePermission permission) {
+		return getService().count(filter, permission);
 	}
 	
 	/**
@@ -255,7 +279,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		return getService().getPermissions(dto.getId());
 	}
@@ -326,6 +350,10 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	
 	protected LookupService getLookupService() {
 		return lookupService;
+	}
+	
+	protected ObjectMapper getMapper() {
+		return mapper;
 	}
 	
 	/**

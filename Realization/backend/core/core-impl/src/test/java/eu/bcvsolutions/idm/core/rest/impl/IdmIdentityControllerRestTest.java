@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.rest;
+package eu.bcvsolutions.idm.core.rest.impl;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -9,48 +9,52 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.net.URLEncoder;
 
-import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
-import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
-public class IdmIdentityControllerRestTest extends AbstractRestTest {
+/**
+ * Identity controller tests
+ * - TODO: move filters here
+ * 
+ * @author Radek Tomiška
+ *
+ */
+public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmIdentityDto> {
+
+	@Autowired private IdmIdentityController controller;
 	
-	@Autowired private IdmIdentityService identityService;
-	
-	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+	@Override
+	protected AbstractReadWriteDtoController<IdmIdentityDto, ?> getController() {
+		return controller;
 	}
-	
-	@After
-	public void logout() {
-		SecurityContextHolder.clearContext();
+
+	@Override
+	protected IdmIdentityDto prepareDto() {
+		IdmIdentityDto dto = new IdmIdentityDto();
+		dto.setUsername(getHelper().createName());
+		return dto;
 	}
 	
 	@Test
     public void userNotFound() throws Exception {
 		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/n_a_user")
-        		.with(authentication(getAuthentication()))
+        		.with(authentication(getAdminAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());
     }
 	
 	@Test
     public void userFoundByUsername() throws Exception {
-		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/" + InitTestData.TEST_ADMIN_USERNAME)
-        		.with(authentication(getAuthentication()))
+		getMockMvc().perform(get(getDetailUrl(InitTestData.TEST_ADMIN_USERNAME))
+        		.with(authentication(getAdminAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
@@ -63,10 +67,10 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 		identity.setUsername("admin.com");
 		identity.setFirstName("test");
 		identity.setLastName("test");
-		identity = identityService.save(identity);
+		identity = getHelper().getService(IdmIdentityService.class).save(identity);
 		//
-		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/" + URLEncoder.encode(identity.getUsername(), "UTF-8"))
-        		.with(authentication(getAuthentication()))
+		getMockMvc().perform(get(getDetailUrl(URLEncoder.encode(identity.getUsername(), "UTF-8")))
+        		.with(authentication(getAdminAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
@@ -80,10 +84,10 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 		identity.setUsername("admin/com");
 		identity.setFirstName("test");
 		identity.setLastName("test");
-		identity = identityService.save(identity);
+		identity = getHelper().getService(IdmIdentityService.class).save(identity);
 		//
-		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/" + URLEncoder.encode(identity.getUsername(), "UTF-8"))
-        		.with(authentication(getAuthentication()))
+		getMockMvc().perform(get(getDetailUrl(URLEncoder.encode(identity.getUsername(), "UTF-8")))
+        		.with(authentication(getAdminAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))

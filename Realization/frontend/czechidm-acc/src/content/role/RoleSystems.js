@@ -120,7 +120,7 @@ class RoleSystems extends Advanced.AbstractTableContent {
               }/>
             <Advanced.Column
               property="forwardAccountManagemen"
-              header={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen')}
+              header={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.label')}
               sort
               face="boolean"/>
           </Advanced.Table>

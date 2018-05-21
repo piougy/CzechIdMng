@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -20,14 +21,13 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
-import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
@@ -120,12 +120,10 @@ public class IdentityContractDeleteProcessor
 		// delete relation (from slices) on the contract
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 		sliceFilter.setParentContract(contract.getId());
-		contractSliceService.find(sliceFilter, null).forEach(slice -> {
-			// Set relation to null
-			slice.setParentContract(null);
-			contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-					ImmutableMap.of(IdmContractSliceService.SKIP_CREATE_OR_UPDATE_PARENT_CONTRACT, Boolean.TRUE)));
-		});
+		if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0){
+			// This contract is controlled by some slice -> cannot be deleted
+			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED, ImmutableMap.of("contractId", contract.getId()));
+		}
 		
 		// delete identity contract
 		service.deleteInternal(contract);

@@ -220,6 +220,7 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 		return externalCode;
 	}
 
+	@Override
 	public void setExternalCode(String externalCode) {
 		this.externalCode = externalCode;
 	}

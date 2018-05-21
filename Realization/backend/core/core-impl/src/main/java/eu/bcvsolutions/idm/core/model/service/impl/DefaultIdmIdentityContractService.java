@@ -205,6 +205,12 @@ public class DefaultIdmIdentityContractService
 		if (!exitsProperty) {
 			predicates.add(builder.disjunction());
 		}
+		if (StringUtils.isNotEmpty(filter.getPosition())) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getPosition()));
+		}
+		if (filter.getWorkPosition() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.id), filter.getWorkPosition()));
+		}
 		//
 		return predicates;
 	}

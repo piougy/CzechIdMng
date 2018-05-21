@@ -43,9 +43,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Autowired(required = false)
 	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
 	
-	public AbstractNotificationSender() {
-	}
-	
 	/**
 	 * Returns true, if given delimiter equals this managers {@link IdmNotification} type.
 	 */

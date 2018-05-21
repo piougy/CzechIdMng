@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
@@ -49,7 +50,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Groovy scripts administration",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmScriptController extends DefaultReadWriteDtoController<IdmScriptDto, IdmScriptFilter> {
+public class IdmScriptController extends AbstractReadWriteDtoController<IdmScriptDto, IdmScriptFilter> {
 	
 	protected static final String TAG = "Scripts";
 	private final IdmScriptService service;
@@ -103,6 +104,7 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_AUTOCOMPLETE + "')")
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Autocomplete scripts (selectbox usage)", 
 			nickname = "autocompleteScripts", 
@@ -144,6 +146,7 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
+	@RequestMapping(method = RequestMethod.POST)
 	@ApiOperation(
 			value = "Create / update script", 
 			nickname = "postScript", 

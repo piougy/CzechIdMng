@@ -113,6 +113,19 @@ public class IdentityDeleteProcessor
 		IdmIdentityDto identity = event.getContent();
 		Assert.notNull(identity.getId(), "Identity ID is required!");
 		
+		// delete contract slices
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setIdentity(identity.getId());
+		contractSliceService.find(sliceFilter, null).forEach(guarantee -> {
+			contractSliceService.delete(guarantee);
+		});
+		// delete contract slice guarantees
+		IdmContractSliceGuaranteeFilter sliceGuaranteeFilter = new IdmContractSliceGuaranteeFilter();
+		sliceGuaranteeFilter.setGuaranteeId(identity.getId());
+		contractSliceGuaranteeService.find(sliceGuaranteeFilter, null).forEach(guarantee -> {
+			contractSliceGuaranteeService.delete(guarantee);
+		});
+		
 		// contracts
 		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
 			// when identity is deleted, then HR processes has to be shipped (prevent to update deleted identity, when contract is removed)
@@ -126,19 +139,6 @@ public class IdentityDeleteProcessor
 		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
 		});
-		// delete contract slices
-		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-		sliceFilter.setIdentity(identity.getId());
-		contractSliceService.find(sliceFilter, null).forEach(guarantee -> {
-			contractSliceService.delete(guarantee);
-		});
-		// delete contract slice guarantees
-		IdmContractSliceGuaranteeFilter sliceGuaranteeFilter = new IdmContractSliceGuaranteeFilter();
-		filter.setGuaranteeId(identity.getId());
-		contractSliceGuaranteeService.find(sliceGuaranteeFilter, null).forEach(guarantee -> {
-			contractSliceGuaranteeService.delete(guarantee);
-		});
-		
 		// remove role guarantee
 		IdmRoleGuaranteeFilter roleGuaranteeFilter = new IdmRoleGuaranteeFilter();
 		roleGuaranteeFilter.setGuarantee(identity.getId());

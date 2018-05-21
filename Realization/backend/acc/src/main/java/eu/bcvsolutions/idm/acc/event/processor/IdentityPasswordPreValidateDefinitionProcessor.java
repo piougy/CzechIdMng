@@ -75,8 +75,7 @@ public class IdentityPasswordPreValidateDefinitionProcessor extends CoreEventPro
 			defaultPasswordPolicy = new IdmPasswordPolicyDto();
 		}
 		for (String account : passwordChangeDto.getAccounts()) {
-			SysSystemDto system = DtoUtils.getEmbedded(accountService.get(UUID.fromString(account)), AccAccount_.system,
-					SysSystemDto.class);
+			SysSystemDto system = DtoUtils.getEmbedded(accountService.get(UUID.fromString(account)), AccAccount_.system);
 			IdmPasswordPolicyDto passwordPolicy;
 			//
 			if (system.getPasswordPolicyValidate() == null) {

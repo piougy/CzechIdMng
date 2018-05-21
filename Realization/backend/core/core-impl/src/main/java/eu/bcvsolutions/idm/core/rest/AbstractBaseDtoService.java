@@ -78,6 +78,11 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission... permission) {
 		return null;
 	}
+	
+	@Override
+	public long count(F filter, BasePermission... permission) {
+		return 0;
+	}
 
 	@Override
 	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {

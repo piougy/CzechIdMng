@@ -4,19 +4,23 @@ import _ from 'lodash';
 import * as Basic from '../../basic';
 import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import UuidFormAttributeRenderer from './UuidFormAttributeRenderer';
-import { RoleManager } from '../../../redux/';
-
-const manager = new RoleManager();
 
 /**
- * Uuid form value component
+ * Universal selectbox component
  * - supports multiple attributes
+ * - define used manager in component descriptor
  * - TODO: validation
  *
- * @author Vít Švanda
  * @author Radek Tomiška
  */
-export default class RoleSelectFormAttributeRenderer extends UuidFormAttributeRenderer {
+export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRenderer {
+
+  /**
+   * Entity manager used in select box
+   */
+  getManager() {
+    return this.props.manager;
+  }
 
   /**
    * Returns true, when multi value mode is supported
@@ -110,7 +114,7 @@ export default class RoleSelectFormAttributeRenderer extends UuidFormAttributeRe
         ref={ AbstractFormAttributeRenderer.INPUT }
         label={ this.getLabel() }
         placeholder={ attribute.placeholder }
-        manager={ manager }
+        manager={ this.getManager() }
         value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }

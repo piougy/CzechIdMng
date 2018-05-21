@@ -195,7 +195,8 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 required/>
               <Basic.Checkbox
                 ref="forwardAccountManagemen"
-                label={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen')}/>
+                label={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.label')}
+                helpBlock={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.help')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

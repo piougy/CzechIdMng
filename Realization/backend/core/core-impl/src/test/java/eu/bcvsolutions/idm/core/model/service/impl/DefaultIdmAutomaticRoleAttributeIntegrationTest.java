@@ -1521,7 +1521,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		for (IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
-			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class, null);
+			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, (AbstractIdmAutomaticRoleDto) null);
 			assertEquals(automaticRole, embedded);
 			assertEquals(role.getId(), embedded.getRole());
 			assertEquals(role.getId(), identityRole.getRole());

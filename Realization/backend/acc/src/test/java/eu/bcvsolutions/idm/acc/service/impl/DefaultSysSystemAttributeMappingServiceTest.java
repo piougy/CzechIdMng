@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.acc.DefaultTestHelper;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -42,7 +42,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 	@Autowired private SysSchemaAttributeService attributeService;
 	@Autowired private SysSystemService systemService;
 	@Autowired private DefaultSysSystemAttributeMappingService attributeMappingService;
-	@Autowired private DefaultTestHelper testHelper;
+	@Autowired private TestHelper testHelper;
 
 	@Before
 	public void init() {

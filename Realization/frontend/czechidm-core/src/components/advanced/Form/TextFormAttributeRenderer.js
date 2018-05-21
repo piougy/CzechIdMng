@@ -72,6 +72,10 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
    */
   fillFormValue(formValue, rawValue) {
     formValue.stringValue = rawValue;
+    if (formValue.stringValue === '') {
+      // empty string is sent as null => value will not be saved on BE
+      formValue.stringValue = null;
+    }
     return formValue;
   }
 

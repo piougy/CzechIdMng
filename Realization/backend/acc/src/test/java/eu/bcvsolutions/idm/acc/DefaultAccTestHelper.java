@@ -109,6 +109,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	 * @return
 	 */
 	@Override
+	@SuppressWarnings("deprecation")
 	public SysSystemDto createSystem(String tableName, String systemName, String statusColumnName, String keyColumnName) {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);

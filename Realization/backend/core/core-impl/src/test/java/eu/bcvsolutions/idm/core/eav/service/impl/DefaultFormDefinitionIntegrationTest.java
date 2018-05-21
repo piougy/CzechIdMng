@@ -28,9 +28,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
-import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * EAV definition tests
@@ -42,7 +40,6 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormDefinitionIntegrationTest.class);
 
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmFormAttributeRepository formAttributeRepository;
 	@Autowired private IdmFormAttributeService formAttributeService;
@@ -165,10 +162,10 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Test
 	@Transactional
 	public void testSwitchMainDefinition() {
-		String type = helper.createName();
+		String type = getHelper().createName();
 		IdmFormDefinitionDto formDefinitionOne = new IdmFormDefinitionDto();
 		formDefinitionOne.setType(type);
-		formDefinitionOne.setCode(helper.createName());
+		formDefinitionOne.setCode(getHelper().createName());
 		formDefinitionOne.setMain(true);
 		formDefinitionOne = formDefinitionService.save(formDefinitionOne);
 		Assert.assertTrue(formDefinitionOne.isMain());
@@ -177,7 +174,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		//
 		IdmFormDefinitionDto formDefinitionTwo = new IdmFormDefinitionDto();
 		formDefinitionTwo.setType(type);
-		formDefinitionTwo.setCode(helper.createName());
+		formDefinitionTwo.setCode(getHelper().createName());
 		formDefinitionTwo.setMain(true);
 		formDefinitionTwo = formDefinitionService.save(formDefinitionTwo);
 		formDefinitionOne = formDefinitionService.get(formDefinitionOne);
@@ -192,7 +189,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		List<IdmFormAttributeDto> attributes = new ArrayList<>();
 		attributes.add(new IdmFormAttributeDto("code", "Code", PersistentType.TEXT));
 		attributes.add(new IdmFormAttributeDto("name", "Name", PersistentType.TEXT));		
-		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, helper.createName(), attributes);
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, getHelper().createName(), attributes);
 		// after create
 		Assert.assertEquals(2, formDefinition.getFormAttributes().size());
 		IdmFormAttributeDto code = formDefinition.getFormAttributes().get(0);
@@ -249,7 +246,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Transactional
 	public void testUpdateDefinitionPersistentType() {
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto("code", "Code", PersistentType.TEXT);	
-		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, helper.createName(), Lists.newArrayList(attribute));
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, getHelper().createName(), Lists.newArrayList(attribute));
 		Assert.assertEquals(1, formDefinition.getFormAttributes().size());
 		//
 		// update
@@ -261,7 +258,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Transactional
 	public void testUpdateDefinitionConfidential() {
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto("code", "Code", PersistentType.TEXT);	
-		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, helper.createName(), Lists.newArrayList(attribute));
+		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(IdmIdentityDto.class, getHelper().createName(), Lists.newArrayList(attribute));
 		Assert.assertEquals(1, formDefinition.getFormAttributes().size());
 		//
 		// update
@@ -277,7 +274,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto("two", "Code", PersistentType.TEXT);	
 		IdmFormDefinitionDto formDefinition = formDefinitionService.updateDefinition(
 				IdmIdentityDto.class, 
-				helper.createName(), 
+				getHelper().createName(), 
 				Lists.newArrayList(attributeOne, attributeTwo));
 		Assert.assertEquals(2, formDefinition.getFormAttributes().size());
 		//

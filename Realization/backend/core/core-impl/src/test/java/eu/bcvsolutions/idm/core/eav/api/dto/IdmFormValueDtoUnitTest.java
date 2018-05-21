@@ -33,6 +33,8 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 			formValue.setValue(null);
 			//
 			Assert.assertNull(formValue.getValue());
+			Assert.assertTrue(formValue.isEmpty());
+			Assert.assertTrue(formValue.isNull());
 		}
 	}
 	
@@ -201,5 +203,5 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		Assert.assertFalse((Boolean) formValue.getValue());
 		formValue.setValue("TRUE");
 		Assert.assertTrue((Boolean) formValue.getValue());
-	}
+	}	
 }

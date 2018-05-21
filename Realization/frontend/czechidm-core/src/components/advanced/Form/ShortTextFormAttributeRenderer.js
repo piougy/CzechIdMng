@@ -38,6 +38,10 @@ export default class ShortTextFormAttributeRenderer extends TextFormAttributeRen
    */
   fillFormValue(formValue, rawValue) {
     formValue.shortTextValue = rawValue;
+    if (formValue.shortTextValue === '') {
+      // empty string is sent as null => value will not be saved on BE
+      formValue.shortTextValue = null;
+    }
     return formValue;
   }
 

@@ -21,11 +21,6 @@ public class IdmRoleCatalogueControllerRestTest extends AbstractReadWriteDtoCont
 	protected AbstractReadWriteDtoController<IdmRoleCatalogueDto, ?> getController() {
 		return controller;
 	}
-	
-	@Override
-	protected boolean supportsPatch() {
-		return false;
-	}
 
 	@Override
 	protected IdmRoleCatalogueDto prepareDto() {

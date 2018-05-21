@@ -409,12 +409,12 @@ public class DefaultFormService implements FormService {
 		}
 
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
-
-		// get old values
-		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, attribute);
+		//
+		// get previous (old) values
+		List<IdmFormValueDto> previousValues = formValueService.getValues(ownerEntity, attribute);
 
 		// size isn't same drop and create
-		if (values.size() != persistentValues.size()) {
+		if (previousValues.size() != persistentValues.size()) {
 			deleteValues(owner, attribute);
 			// create
 			List<IdmFormValueDto> results = new ArrayList<>();
@@ -433,15 +433,18 @@ public class DefaultFormService implements FormService {
 
 		// compare values
 		List<IdmFormValueDto> results = new ArrayList<>();
-		for (IdmFormValueDto value : values) {
+		for (IdmFormValueDto previousValue : previousValues) {
 			IdmFormValueDto newValue = new IdmFormValueDto();
 			newValue.setOwnerAndAttribute(ownerEntity, attribute);
-			Serializable serializableValue = persistentValues.get(value.getSeq());
+			Serializable serializableValue = persistentValues.get(previousValue.getSeq());
 			newValue.setValue(serializableValue);
-
-			if (!value.isEquals(newValue)) {
-				value.setValue(serializableValue);
-				results.add(formValueService.save(value));
+			//
+			// we using filled value only and set her into previous value => value id is preserved 
+			if (!previousValue.isEquals(newValue)) {
+				previousValue.setValue(serializableValue);
+				// attribute persistent type could be changed
+				previousValue.setOwnerAndAttribute(ownerEntity, attribute);
+				results.add(formValueService.save(previousValue));
 			}
 		}
 		return results;

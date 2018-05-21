@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.service;
+package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -43,17 +43,14 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
-import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -64,6 +61,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	private final static String FORM_VALUE_ONE = "one";
@@ -73,7 +71,6 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private IdmFormDefinitionService formDefinitionService;	
 	@Autowired private IdmRoleRepository roleRepository;
 	//
@@ -92,7 +89,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFillFormValues() {
-		FormableEntity owner = createTestOwner("test1");
+		Identifiable owner = createTestOwner("test1");
 		//
 		// create definition one		
 		IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();
@@ -123,7 +120,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(FORM_VALUE_TWO, formService.getValues(owner, formDefinitionTwo).get(0).getStringValue());
 		//
 		// create second owner
-		FormableEntity owner2 = createTestOwner("test2");
+		Identifiable owner2 = createTestOwner("test2");
 		
 		assertEquals(0, formService.getValues(owner2, formDefinitionOne).size());
 		assertEquals(1, formService.getValues(owner, formDefinitionOne).size());
@@ -151,7 +148,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	 */
 	@Test
 	public void testMultipleValues() {
-		FormableEntity owner = createTestOwner("test3");
+		Identifiable owner = createTestOwner("test3");
 		//
 		// create definition with multi parameter	
 		IdmFormAttributeDto multiAttribite = new IdmFormAttributeDto();
@@ -214,20 +211,20 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testOwnerWithoutId() {
 		// unpersisted identity
-		FormableEntity owner = new IdmIdentity();
+		Identifiable owner = new IdmIdentity();
 		formService.getValues(owner);
 	}
 	
 	@Test
 	public void testUnpersistedOwnerWithId() {
 		// unpersisted identity
-		FormableEntity owner = new IdmIdentity(UUID.randomUUID());
+		Identifiable owner = new IdmIdentity(UUID.randomUUID());
 		assertTrue(formService.getValues(owner).isEmpty());
 	}
 	
 	@Test
 	public void testReadDefaultDefinitionValue() {
-		FormableEntity owner = createTestOwner("test4");
+		Identifiable owner = createTestOwner("test4");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save value into default owner and default form definition
 		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE));
@@ -244,7 +241,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadDefaultDefinitionValueNotSingle() {
-		FormableEntity owner = createTestOwner("test5");
+		Identifiable owner = createTestOwner("test5");
 		try {
 			IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 			// save value into default owner and default form definition
@@ -265,7 +262,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testReadConfidentialFormValue() {
-		FormableEntity owner = createTestOwner("test6");
+		Identifiable owner = createTestOwner("test6");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save password
 		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
@@ -282,7 +279,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testDeleteDefinitionWithFormValues() {
-		FormableEntity owner = createTestOwner("test7");
+		Identifiable owner = createTestOwner("test7");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		
 		// save password
@@ -301,7 +298,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testSaveSingleAttributeValues() {
-		FormableEntity owner = createTestOwner("test8");
+		Identifiable owner = createTestOwner("test8");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save value
@@ -320,7 +317,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testSaveMultipleAttributeValuesToSingleAttribute() {
-		FormableEntity owner = createTestOwner("test9");
+		Identifiable owner = createTestOwner("test9");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save value
@@ -331,7 +328,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testDeleteSingleAttributeValues() {
-		FormableEntity owner = createTestOwner("test10");
+		Identifiable owner = createTestOwner("test10");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		IdmFormAttributeDto attributeWWW = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW);
@@ -359,7 +356,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testEditMultipleAttributeValues() {
-		FormableEntity owner = createTestOwner("test11");
+		Identifiable owner = createTestOwner("test11");
 		// save value
 		formService.saveValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 		//
@@ -378,9 +375,9 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindOwnersByMultiStringAttributeValue() {
-		FormableEntity owner = createTestOwner("test12");
-		FormableEntity ownerTwo = createTestOwner("test13");
-		FormableEntity ownerThree = createTestOwner("test14");
+		Identifiable owner = createTestOwner("test12");
+		Identifiable ownerTwo = createTestOwner("test13");
+		Identifiable ownerThree = createTestOwner("test14");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW);
 		// save values
@@ -451,8 +448,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindOwnersByDateAttributeValue() {
-		FormableEntity owner = createTestOwner("test15");
-		FormableEntity ownerTwo = createTestOwner("test16");
+		Identifiable owner = createTestOwner("test15");
+		Identifiable ownerTwo = createTestOwner("test16");
 		
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_DATETIME);
@@ -603,7 +600,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testSaveValuesByOwnerId() {
-		FormableEntity owner = createTestOwner("test8");
+		Identifiable owner = createTestOwner("test8");
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save value
@@ -630,13 +627,54 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		Assert.assertEquals(definitionByEntityClass, definitionByDtoClass);
 	}
 	
-	private FormableEntity createTestOwner(String name) {
+	/**
+	 * #1051 - Change value persistent type, when single attribute is saved and attribute persistent type changed
+	 */
+	@Test
+	public void testChangeAttributePersistentType() {
+		Identifiable owner = createTestOwner("user");
+		//
+		// create definition with attribute
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v3", Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		// fill values		
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		
+		Map<String, List<IdmFormValueDto>> m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
+		
+		// check value and persistent type
+		assertEquals(1, m.get(attributeName).size());
+		assertEquals(FORM_VALUE_ONE, (m.get(attributeName).get(0)).getValue());
+		assertEquals(attribute.getPersistentType(), (m.get(attributeName).get(0)).getPersistentType());
+		//
+		// change attribute persistentn type
+		attribute.setPersistentType(PersistentType.TEXT);
+		attribute = formService.saveAttribute(attribute);
+		// update value
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_TWO));
+		m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
+		//
+		// check value and persistent type
+		assertEquals(1, m.get(attributeName).size());
+		assertEquals(FORM_VALUE_TWO, (m.get(attributeName).get(0)).getValue());
+		assertEquals(attribute.getPersistentType(), (m.get(attributeName).get(0)).getPersistentType());
+		//
+		identityService.deleteById(owner.getId());
+	}
+	
+	private Identifiable createTestOwner(String name) {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(name + "_" + System.currentTimeMillis());
 		identity.setPassword(new GuardedString("heslo"));
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
-		return identityRepository.findOne(identity.getId());
+		return identityService.get(identity.getId());
 	}
 }

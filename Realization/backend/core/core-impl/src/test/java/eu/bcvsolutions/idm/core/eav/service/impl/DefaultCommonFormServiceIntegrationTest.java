@@ -18,10 +18,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Common forms are used for filters and congifurable properties
@@ -31,7 +30,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class DefaultCommonFormServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private FormService formService;
 	@Autowired private LookupService lookupService;
@@ -46,7 +44,7 @@ public class DefaultCommonFormServiceIntegrationTest extends AbstractIntegration
 	@Test
 	@Transactional
 	public void testCreateForm() {
-		Codeable owner = helper.createIdentity();
+		Codeable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormAttributeDto attribute = createDefinition();
 		IdmFormValueDto formValue = new IdmFormValueDto(attribute);
 		formValue.setValue("testOne");
@@ -71,12 +69,12 @@ public class DefaultCommonFormServiceIntegrationTest extends AbstractIntegration
 
 	private IdmFormAttributeDto createDefinition() {		
 		IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();
-		attributeDefinitionOne.setCode(helper.createName());
+		attributeDefinitionOne.setCode(getHelper().createName());
 		attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);
 		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
 				IdmIdentity.class.getCanonicalName(),
-				helper.createName(), 
+				getHelper().createName(), 
 				Lists.newArrayList(attributeDefinitionOne));
 		return formDefinitionOne.getMappedAttributeByCode(attributeDefinitionOne.getCode());
 	}

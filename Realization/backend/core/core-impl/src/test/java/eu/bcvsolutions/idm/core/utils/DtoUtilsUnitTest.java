@@ -23,7 +23,6 @@ public class DtoUtilsUnitTest extends AbstractUnitTest {
 	private static final String PROPERTY = "identityContract"; // IdmIdentityRole_.identityContract could not be used in unit test (see DtoUtilsIntegrationTest)
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testEmbedded() {
 		IdmIdentityRoleDto dto = new IdmIdentityRoleDto();
 		IdmIdentityContractDto contract = new IdmIdentityContractDto(UUID.randomUUID());
@@ -32,8 +31,7 @@ public class DtoUtilsUnitTest extends AbstractUnitTest {
 		IdmIdentityContractDto embedded = DtoUtils.getEmbedded(dto, PROPERTY, IdmIdentityContractDto.class);
 		assertEquals(contract, embedded);
 	}
-	
-	@SuppressWarnings("deprecation")
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testEmptyEmbeddedWIthoutDefault() {
 		IdmIdentityRoleDto dto = new IdmIdentityRoleDto();
@@ -43,7 +41,6 @@ public class DtoUtilsUnitTest extends AbstractUnitTest {
 	
 	
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testEmbeddedWithtDefault() {
 		IdmIdentityRoleDto dto = new IdmIdentityRoleDto();
 		//

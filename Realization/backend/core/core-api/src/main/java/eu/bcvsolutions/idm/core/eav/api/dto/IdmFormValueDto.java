@@ -259,7 +259,7 @@ public class IdmFormValueDto extends AbstractDto {
 	}
 
 	/**
-	 * Returns true, if value by persistent type is empty
+	 * Returns true, if value by persistent type is empty (null or empty strings are evaluated)
 	 *
 	 * @return
 	 */
@@ -289,6 +289,40 @@ public class IdmFormValueDto extends AbstractDto {
 			}
 			default:
 				return StringUtils.isEmpty(stringValue);
+		}
+	}
+	
+	/**
+	 * Returns true, if value by persistent type is {@code null}. Empty string are filled
+	 * 
+	 * @return
+	 */
+	@JsonIgnore
+	public boolean isNull() {
+		Assert.notNull(persistentType);
+		//
+		switch (persistentType) {
+			case INT:
+			case LONG:
+				return longValue == null;
+			case BOOLEAN:
+				return booleanValue == null;
+			case DATE:
+			case DATETIME:
+				return dateValue == null;
+			case DOUBLE:
+				return doubleValue == null;
+			case BYTEARRAY: {
+				return byteValue == null;
+			}
+			case UUID: {
+				return uuidValue == null;
+			}
+			case SHORTTEXT: {
+				return shortTextValue == null;
+			}
+			default:
+				return stringValue == null;
 		}
 	}
 	

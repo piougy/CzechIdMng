@@ -309,7 +309,7 @@ public class DefaultFormService implements FormService {
 		//
 		List<IdmFormValueDto> results = new ArrayList<>();
 		for (IdmFormValueDto value : values) {
-			// value could contant attribute id only
+			// value could contain attribute id only
 			UUID attributeId = value.getFormAttribute();
 			Assert.notNull(attributeId, "Form attribute is required");
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(attributeId);
@@ -319,21 +319,29 @@ public class DefaultFormService implements FormService {
 			//
 			IdmFormValueDto previousValue = value.getId() == null ? null : previousValues.get(value.getId());
 			if (previousValue != null) {
-				// saved values will not be removed
-				previousValues.remove(value.getId());
 				// the same value should not be updated
 				// confidential value is always updated - only new values are sent from client
-				if (value.isConfidential() || !value.isEquals(previousValue)) {
-					// update value
-					results.add(formValueService.save(value));
-					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(),
-							ownerEntity);
+				if (value.isConfidential() || !value.isNull()) {
+					// saved values will not be removed
+					previousValues.remove(value.getId());
+					//
+					if (value.isConfidential() || !value.isEquals(previousValue)) {
+						// update value
+						results.add(formValueService.save(value));
+						LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(),
+								ownerEntity);
+					}
+				} else {
+					// null value will be removed by previousValues set on the end
 				}
 			} else {
-				// create new value
-				results.add(formValueService.save(value));
-				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(),
-						ownerEntity);
+				// new value
+				if (!value.isNull()) {
+					// create new value
+					results.add(formValueService.save(value));
+					LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(),
+							ownerEntity);
+				}
 			}
 		}
 		//
@@ -424,7 +432,9 @@ public class DefaultFormService implements FormService {
 				//
 				value.setValue(persistentValues.get(seq));
 				value.setSeq(seq);
-				results.add(formValueService.save(value));
+				if (!value.isNull()) { // null values are not saved
+					results.add(formValueService.save(value));
+				}
 			}
 			;
 			//
@@ -444,7 +454,11 @@ public class DefaultFormService implements FormService {
 				previousValue.setValue(serializableValue);
 				// attribute persistent type could be changed
 				previousValue.setOwnerAndAttribute(ownerEntity, attribute);
-				results.add(formValueService.save(previousValue));
+				if (!previousValue.isNull()) { // null values are not saved
+					results.add(formValueService.save(previousValue));
+				} else {
+					formValueService.delete(previousValue);
+				}
 			}
 		}
 		return results;

@@ -2,24 +2,35 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -29,6 +40,8 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -78,6 +91,12 @@ public class DefaultSysRoleSystemAttributeService extends
 	private SysSystemMappingService systemMappingService;
 	@Autowired
 	private IdmRoleService roleService;
+	
+	@Autowired private SysSchemaObjectClassService sysSchemaObjectClassService;
+	@Autowired private SysSystemMappingService sysSystemMappingService;
+	@Autowired private SysSchemaAttributeService sysSchemaAttributeService;
+	@Autowired private SysSystemAttributeMappingService sysSystemAttributeMappingService;
+	@Autowired private SysRoleSystemService sysRoleSystemService;
 
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
@@ -172,5 +191,130 @@ public class DefaultSysRoleSystemAttributeService extends
 			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
+	}
+	
+	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
+			String objectClassName) { // ObjectClassName "__ACCOUNT__"
+		Assert.notNull(systemId, "SystemId cannot be null!");
+		Assert.notNull(roleId, "RoleId cannot be null!");
+		Assert.notNull(attributeName, "Attribute name cannot be null");
+		Assert.hasLength(attributeName, "Attribute name cannot be blank");
+
+		SysRoleSystemAttributeDto attr = new SysRoleSystemAttributeDto();
+		UUID roleSystemId = getSysRoleSystem(systemId, roleId, objectClassName);
+		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName);
+		//
+		//
+		attr.setName(attributeName);
+		attr.setRoleSystem(roleSystemId);
+		attr.setSystemAttributeMapping(systemAttributeMappingId);
+		attr.setEntityAttribute(false);
+		attr.setStrategyType(AttributeMappingStrategyType.MERGE);
+		//
+		if (transformationScript != null) {
+			attr.setTransformScript(transformationScript);
+		}
+		//
+		if (!alreadyHasSystemAttribute(attr)) {
+			this.save(attr);
+		}
+
+	}
+
+	// changes transformation script and returns Boolean.TRUE if script is changed,
+	// Boolean.FALSE if script is not changed and null if there is not
+	// transformation script
+	public Boolean isChangedRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName,
+			String transformationScript) {
+		Assert.notNull(systemId, "SystemId cannot be null!");
+		Assert.notNull(roleId, "RoleId cannot be null!");
+		Assert.notNull(attributeName, "Attribute name cannot be null");
+		Assert.hasLength(attributeName, "Attribute name cannot be blank");
+
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
+		filter.setRoleId(roleId);
+		filter.setSystemId(systemId);
+		Page<SysRoleSystemDto> roleSystem = sysRoleSystemService.find(filter, null);
+		if (roleSystem.getContent().size() == 1) {
+			SysRoleSystemAttributeFilter filt = new SysRoleSystemAttributeFilter();
+			filt.setRoleSystemId(roleSystem.getContent().get(0).getId());
+			List<SysRoleSystemAttributeDto> roleSystemAttribute = this.find(filt, null)
+					.getContent();
+			if (roleSystemAttribute.size() == 1) {
+				SysRoleSystemAttributeDto sysRoleSystemAttributeDto = roleSystemAttribute.get(0);
+				String script = sysRoleSystemAttributeDto.getTransformScript();
+				if (script.equals(transformationScript)) {
+					return Boolean.FALSE;
+				} else {
+					sysRoleSystemAttributeDto.setTransformScript(transformationScript);
+					this.save(sysRoleSystemAttributeDto);
+					return Boolean.TRUE;
+				}
+			}
+		}
+		return null;
+
+	}
+
+	private UUID getSysRoleSystem(UUID systemId, UUID roleId, String objectClassName) {
+		SysRoleSystemDto sys = new SysRoleSystemDto();
+		sys.setRole(roleId);
+		sys.setSystem(systemId);
+		sys.setSystemMapping(getSystemMapping(systemId, objectClassName));
+		return sysRoleSystemService.save(sys).getId();
+	}
+
+	private UUID getSystemMapping(UUID systemId, String objectClassName) {
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
+		filter.setSystemId(systemId);
+		filter.setOperationType(SystemOperationType.PROVISIONING);
+		filter.setObjectClassId(getObjectClassId(systemId, objectClassName));
+
+		List<SysSystemMappingDto> content = sysSystemMappingService.find(filter, null).getContent();
+		if (content.isEmpty()) {
+			throw new RuntimeException("Cannot find system mapping");
+		}
+		return content.get(0).getId();
+	}
+
+	private UUID getObjectClassId(UUID systemId, String objectClassName) {
+		SysSchemaObjectClassFilter filter = new SysSchemaObjectClassFilter();
+		filter.setSystemId(systemId);
+		filter.setObjectClassName(objectClassName);
+		List<SysSchemaObjectClassDto> objectClasses = sysSchemaObjectClassService.find(filter, null).getContent();
+		if (objectClasses.isEmpty()) {
+			throw new RuntimeException("Cannot find system schema");
+		}
+		return objectClasses.get(0).getId();
+	}
+
+	private UUID getSystemAttributeMapping(UUID systemId, String attributeName, String objectClassName) {
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemId(systemId);
+		filter.setSchemaAttributeId(getSchemaAttr(systemId, attributeName, objectClassName));
+
+		List<SysSystemAttributeMappingDto> content = sysSystemAttributeMappingService.find(filter, null).getContent();
+		if (content.isEmpty()) {
+			throw new RuntimeException("Cannot find System attribute mapping");
+		}
+		return content.get(0).getId();
+	}
+
+	private UUID getSchemaAttr(UUID systemId, String attributeName, String objectClassName) {
+		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();
+		filter.setObjectClassId(getObjectClassId(systemId, objectClassName));
+		filter.setText(attributeName);
+		List<SysSchemaAttributeDto> list = sysSchemaAttributeService.find(filter, null).getContent();
+		if (list.isEmpty()) {
+			throw new RuntimeException("Cannot find Schema attribute");
+		}
+		return list.get(0).getId();
+	}
+
+	private boolean alreadyHasSystemAttribute(SysRoleSystemAttributeDto attr) {
+		SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
+		filter.setRoleSystemId(attr.getRoleSystem());
+		List<SysRoleSystemAttributeDto> content = this.find(filter, null).getContent();
+		return !content.isEmpty();
 	}
 }

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -48,6 +49,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final NotificationManager notificationManager;
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Autowired
 	public DefaultAuthenticationManager(
@@ -98,8 +101,11 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		//
 		// check if user can log in and hasn't administrator permission
 		IdmPasswordDto passwordDto = passwordService.findOrCreateByIdentity(loginDto.getUsername());
+		if (passwordDto == null) {
+			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
+		}
 		if (passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
-			LOG.info("Identity {} has block login to IdM.",
+			LOG.info("Identity {} has blocked login to IdM.",
 					loginDto.getUsername());
 			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
 		}
@@ -151,14 +157,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		IdmPasswordPolicyDto validatePolicy = passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 		// check if exists validate policy and then check if is exceeded max unsuccessful attempts
 		if (validatePolicy != null && validatePolicy.getMaxUnsuccessfulAttempts() != null &&
-				passwordDto.getUnsuccessfulAttempts() > validatePolicy.getMaxUnsuccessfulAttempts()) {
+				passwordDto.getUnsuccessfulAttempts() >= validatePolicy.getMaxUnsuccessfulAttempts()) {
 			if (validatePolicy.getBlockLoginTime() != null) {
 				int lockLoginTime = validatePolicy.getBlockLoginTime().intValue();
 				passwordDto.setBlockLoginDate(new DateTime().plus(Seconds.seconds(lockLoginTime)));
 				passwordDto = passwordService.save(passwordDto);
 				IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
 				//
-				DateTimeFormatter formatter = DateTimeFormat.forPattern("d.M.y H:m:s");
+				DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
 				String dateAsString = passwordDto.getBlockLoginDate().toString(formatter);
 				//
 				LOG.warn("For identity username: {} was lock authentization to IdM for {} seconds. Authentization will be available after: {}.",

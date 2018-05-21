@@ -3959,6 +3959,10 @@
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Contract cannot be deleted!",
       "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"
+    },
+    "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
+      "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
+      "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"
     }
   },
   "validationError": {

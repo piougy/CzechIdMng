@@ -134,6 +134,12 @@ public class DefaultIdmPasswordPolicyService
 			}
 			checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
 		}
+		// Check, if max attempts attribute is defined, then time of blocking must have defined too
+		Integer maxAttempts = dto.getMaxUnsuccessfulAttempts();
+		Integer blockLogin = dto.getBlockLoginTime();
+		if (maxAttempts != null && maxAttempts.intValue() > 0 && (blockLogin == null || blockLogin <= 0)) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED, ImmutableMap.of("definition", dto.getName()));
+		}
 		//
 		LOG.debug("Saving entity [{}]", dto.getName());
 		if (isNew(dto)) {

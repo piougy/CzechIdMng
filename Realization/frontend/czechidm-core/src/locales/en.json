@@ -892,11 +892,11 @@
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
         "specialCharacterBase": "List of special characters for password policies: ",
-        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
-        "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
-        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",
-        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname",
-        "maxHistorySimilar": "The password must be different from the last {{0}} passwords"
+        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login.",
+        "passwordSimilarEmailPreValidate": "Password cannot be similar to email.",
+        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name.",
+        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname.",
+        "maxHistorySimilar": "The password must be different from the last {{0}} passwords."
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."

@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
-import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 
 /**
@@ -45,7 +44,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	
 	@Test
     public void userNotFound() throws Exception {
-		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/n_a_user")
+		getMockMvc().perform(get(getDetailUrl("n_a_user"))
         		.with(authentication(getAdminAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());

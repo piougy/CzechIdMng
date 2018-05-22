@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalCodeException;
 import eu.bcvsolutions.idm.core.api.exception.EntityTypeNotExternalCodeableException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
@@ -94,6 +96,25 @@ public class ExternalCodeableFilterBuilderIntegrationTest extends AbstractIntegr
 		identities = identityService.find(identityFilter, null).getContent();
 		assertEquals(1, identities.size());
 		assertEquals(identityTwo.getId(), identities.get(0).getId());
+	}
+	
+	@Test
+	public void testCreateDuplicateExternalId() {
+		// prepare data
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		identityOne.setExternalCode("one");
+		identityOne = identityService.save(identityOne);
+		IdmIdentityDto identityThree = getHelper().createIdentity((GuardedString) null);
+		identityThree.setExternalCode(null);
+		identityService.save(identityThree);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		identityTwo.setExternalCode("one");
+		try {
+			identityTwo = identityService.save(identityTwo); 
+			fail();
+		} catch (DuplicateExternalCodeException ex) {
+			assertEquals(identityOne.getId(), ex.getDuplicateId());
+		}		
 	}
 	
 }

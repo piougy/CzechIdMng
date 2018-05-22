@@ -25,8 +25,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Prepare data for all tests with subordinates / managers.
@@ -36,7 +36,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public abstract class AbstractWorkingPositionFilterIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private FormService formService;
 	//
 	protected IdmIdentityDto managerOne;
@@ -71,36 +70,36 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	 * suborinateOne is manager for suborinateTwo
 	 */
 	protected void prepareData() {
-		managerOne = helper.createIdentity();
-		managerTwo = helper.createIdentity();
-		invalidManager = helper.createIdentity();
-		guaranteeThree = helper.createIdentity();
-		guaranteeFour = helper.createIdentity();
-		subordinateOne = helper.createIdentity();
-		subordinateTwo = helper.createIdentity();
-		subordinateThree = helper.createIdentity();
+		managerOne = getHelper().createIdentity((GuardedString) null);
+		managerTwo = getHelper().createIdentity((GuardedString) null);
+		invalidManager = getHelper().createIdentity((GuardedString) null);
+		guaranteeThree = getHelper().createIdentity((GuardedString) null);
+		guaranteeFour = getHelper().createIdentity((GuardedString) null);
+		subordinateOne = getHelper().createIdentity((GuardedString) null);
+		subordinateTwo = getHelper().createIdentity((GuardedString) null);
+		subordinateThree = getHelper().createIdentity((GuardedString) null);
 		//
-		structureOne = helper.createTreeType();
-		IdmTreeNodeDto managerOnePosition = helper.createTreeNode(structureOne, null); 
-		helper.createIdentityContact(managerOne, managerOnePosition);
-		helper.createIdentityContact(invalidManager, managerOnePosition, new LocalDate().plusDays(1), null);
+		structureOne = getHelper().createTreeType();
+		IdmTreeNodeDto managerOnePosition = getHelper().createTreeNode(structureOne, null); 
+		getHelper().createIdentityContact(managerOne, managerOnePosition);
+		getHelper().createIdentityContact(invalidManager, managerOnePosition, new LocalDate().plusDays(1), null);
 		//
-		structureTwo = helper.createTreeType();
-		IdmTreeNodeDto managerTwoPosition = helper.createTreeNode(structureTwo, null); 
-		helper.createIdentityContact(managerTwo, managerTwoPosition);
+		structureTwo = getHelper().createTreeType();
+		IdmTreeNodeDto managerTwoPosition = getHelper().createTreeNode(structureTwo, null); 
+		getHelper().createIdentityContact(managerTwo, managerTwoPosition);
 		// subordinate one
 		IdmTreeNodeDto subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
-		contractOne = helper.createIdentityContact(subordinateOne, subordinateOnePositionOne);
-		helper.createContractGuarantee(contractOne.getId(), guaranteeThree.getId());
+		contractOne = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionOne);
+		getHelper().createContractGuarantee(contractOne.getId(), guaranteeThree.getId());
 		IdmTreeNodeDto subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
-		contractTwo = helper.createIdentityContact(subordinateOne, subordinateOnePositionTwo);
-		helper.createContractGuarantee(contractTwo.getId(), guaranteeFour.getId());
+		contractTwo = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionTwo);
+		getHelper().createContractGuarantee(contractTwo.getId(), guaranteeFour.getId());
 		// subordinate two
 		IdmTreeNodeDto subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
-		IdmIdentityContractDto contractSubordinateTwo = helper.createIdentityContact(subordinateTwo, subordinateTwoPosition);
-		helper.createContractGuarantee(contractSubordinateTwo.getId(), guaranteeFour.getId());
+		IdmIdentityContractDto contractSubordinateTwo = getHelper().createIdentityContact(subordinateTwo, subordinateTwoPosition);
+		getHelper().createContractGuarantee(contractSubordinateTwo.getId(), guaranteeFour.getId());
 		// subordinate three
-		helper.createContractGuarantee(helper.createIdentityContact(subordinateThree).getId(), managerOne.getId());
+		getHelper().createContractGuarantee(getHelper().createIdentityContact(subordinateThree).getId(), managerOne.getId());
 	}
 	
 	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdmIdentityFilter> builder) {
@@ -185,7 +184,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	}
 	
 	private IdmTreeNodeDto createPosition(IdmTreeTypeDto type, IdmTreeNodeDto parent) {
-		IdmTreeNodeDto node = helper.createTreeNode(type, parent);
+		IdmTreeNodeDto node = getHelper().createTreeNode(type, parent);
 		
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
 		IdmFormAttributeDto attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);

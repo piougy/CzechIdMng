@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -25,6 +26,7 @@ public class DefaultSubordinatesFilterIntegrationTest extends AbstractWorkingPos
 	}
 	
 	@Test
+	@Transactional
 	public void testSubordinates() {
 		prepareData();
 		super.testSubordinatesBuilder(builder);

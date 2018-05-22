@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.forest.index.repository.TypeableForestContentRepository;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
@@ -22,8 +21,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  */
 public interface IdmTreeNodeRepository extends 
 		AbstractEntityRepository<IdmTreeNode>, 
-		TypeableForestContentRepository<IdmTreeNode, UUID>,
-		ExternalIdentifiableRepository<IdmTreeNode, UUID> {
+		TypeableForestContentRepository<IdmTreeNode, UUID> {
 	
 	/**
 	 * Nodes by tree type.

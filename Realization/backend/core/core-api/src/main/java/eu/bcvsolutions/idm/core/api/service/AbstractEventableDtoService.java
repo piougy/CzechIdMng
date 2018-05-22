@@ -17,12 +17,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 /**
  * Adds event processing to abstract implementation for generic CRUD operations on a repository for a
  * specific type.
+ * Base event processors should be provided (e.g. save, delete).
  * 
  * @author Radek Tomiška
  *
  * @param <DTO> dto type
  * @param <E> entity type
  * @param <F> filter type
+ * @see AbstractEntityEventProcessor
  */
 public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadWriteDtoService<DTO, E, F> 

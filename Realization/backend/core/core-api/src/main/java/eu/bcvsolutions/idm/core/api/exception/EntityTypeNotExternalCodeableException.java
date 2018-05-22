@@ -16,9 +16,13 @@ public class EntityTypeNotExternalCodeableException extends ResultCodeException 
 	private final String entityType;
 	
 	public EntityTypeNotExternalCodeableException(String entityType) {
+		this(entityType, null);
+	}
+	
+	public EntityTypeNotExternalCodeableException(String entityType, Exception ex) {
 		super(CoreResultCode.ENTITY_TYPE_NOT_EXTERNAL_CODEABLE, ImmutableMap.of(
 				"entityType", String.valueOf(entityType)
-				));
+				), ex);
 		this.entityType = entityType;
 	}
 	

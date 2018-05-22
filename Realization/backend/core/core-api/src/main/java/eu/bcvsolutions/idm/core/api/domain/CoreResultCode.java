@@ -47,7 +47,8 @@ public enum CoreResultCode implements ResultCode {
 	XSRF(HttpStatus.UNAUTHORIZED, "XSRF cookie failed."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden."),
 	FORBIDDEN_ENTITY(HttpStatus.FORBIDDEN, "Forbidden: entity [%s], permission [%s]."),
-	DUPLICATE_EXTERNAL_IDENTIFIER(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
+	DUPLICATE_EXTERNAL_ID(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
+	DUPLICATE_EXTERNAL_CODE(HttpStatus.CONFLICT, "Entity type [%s] with external code [%s] already exist (id: [%s])!"),
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable"),
 	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable"),
 	// data

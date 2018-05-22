@@ -249,11 +249,6 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testFindByExternalId() {
-		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
-			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());
-			return;
-		}
-		//
 		DTO dto = prepareDto();
 		if (!(dto instanceof ExternalIdentifiable)) {
 			// ignore test
@@ -291,13 +286,34 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
-	public void testFindByExternalCode() {
+	public void testDuplicateExternalId() throws Exception {
 		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
 			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());
 			return;
 		}
 		//
+		DTO dto = prepareDto();
+		if (!(dto instanceof ExternalIdentifiable)) {
+			// ignore test
+			return;
+		}
+		//
+		ExternalIdentifiable externalIdentifiableDto = (ExternalIdentifiable) dto;
+		String name = getHelper().createName();
+		externalIdentifiableDto.setExternalId(name);
+		//
+		createDto(dto);
+		//
+		getMockMvc().perform(post(getBaseUrl())
+        		.with(authentication(getAdminAuthentication()))
+        		.content(getController().getMapper().writeValueAsString(dto))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isConflict());
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testFindByExternalCode() {
 		DTO dto = prepareDto();
 		if (!(dto instanceof ExternalCodeable)) {
 			// ignore test
@@ -332,6 +348,32 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 		//
 		Assert.assertEquals(1, count(parameters));
+	}
+	
+	@Test
+	public void testDuplicateExternalCode() throws Exception {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO dto = prepareDto();
+		if (!(dto instanceof ExternalCodeable)) {
+			// ignore test
+			return;
+		}
+		//
+		ExternalCodeable externalIdentifiableDto = (ExternalCodeable) dto;
+		String name = getHelper().createName();
+		externalIdentifiableDto.setExternalCode(name);
+		//
+		createDto(dto);
+		//
+		getMockMvc().perform(post(getBaseUrl())
+        		.with(authentication(getAdminAuthentication()))
+        		.content(getController().getMapper().writeValueAsString(dto))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isConflict());
 	}
 	
 	/**

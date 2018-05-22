@@ -533,7 +533,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		// Save token
 		log.setToken(token);
-		config.setToken(token);
+		if(!config.isReconciliation()) {
+			config.setToken(token);
+		}
 
 		boolean result = startItemSynchronization(itemContext);
 
@@ -2245,7 +2247,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			String tokenObject = token.getValue() != null ? token.getValue().toString() : null;
 			// Save token
 			log.setToken(tokenObject);
-			config.setToken(tokenObject);
+			if(!config.isReconciliation()) {
+				config.setToken(tokenObject);
+			}
 			//
 			if (config.isReconciliation()) {
 				systemAccountsList.add(uid);

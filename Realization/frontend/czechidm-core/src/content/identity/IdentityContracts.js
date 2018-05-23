@@ -156,12 +156,6 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               face="date"
               sort/>
             <Advanced.Column
-              property="disabled"
-              header={this.i18n('entity.IdentityContract.disabled.label')}
-              face="bool"
-              width={100}
-              sort/>
-            <Advanced.Column
               property="state"
               header={this.i18n('entity.IdentityContract.state.label')}
               face="enum"

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 //
 import { TreeNodeManager, SecurityManager, DataManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
-import TreeTypeInfo from '../TreeTypeInfo/TreeTypeInfo';
 import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new TreeNodeManager();
@@ -94,13 +93,14 @@ export class TreeNodeInfo extends AbstractEntityInfo {
       {
         label: this.i18n('entity.TreeNode.parent.name'),
         value: entity.parent === null ? this.i18n('entity.TreeNode.parent.false') :
-        <EntityInfo entityType="treeNode" entityIdentifier={ entity.parent } face="link" />
+        <EntityInfo entityType="treeNode" entity={ entity._embedded ? entity._embedded.parent : null } entityIdentifier={ entity.parent } face="link" />
       },
       {
         label: this.i18n('entity.TreeNode.treeType.name'),
         value: !entity._embedded
         ||
-        <TreeTypeInfo
+        <EntityInfo
+          entityType="treeType"
           entity={ entity._embedded.treeType }
           entityIdentifier={ entity._embedded.treeType.id }
           face="popover" />

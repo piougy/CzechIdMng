@@ -376,8 +376,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                       entityIdentifier={ data[rowIndex].identityContract }
                       entity={ data[rowIndex]._embedded.identityContract }
                       showIdentity={ false }
-                      face="popover"
-                      showLink={ false } />
+                      face="popover" />
                   );
                 }
               }

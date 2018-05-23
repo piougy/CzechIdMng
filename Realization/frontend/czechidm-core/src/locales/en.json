@@ -2748,7 +2748,7 @@
       "id": "Internal position id",
       "treeType": "Structure type",
       "workPosition": "Position",
-      "position": "Work position",
+      "position": "Name of the position",
       "identity": "User",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",
@@ -3878,11 +3878,11 @@
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
       "title": "Role cannot be deleted",
-      "message": "Role [{{role}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+      "message": "Role [{{role}}] has assigned automatic roles. Remove automatic roles at first."
     },
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
-      "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+      "message": "Node [{{treeNode}}] has assigned automatic roles. Remove automatic roles at first."
     },
     "ROLE_TREE_NODE_TYPE_EXISTS": {
       "title": "A similar definition of an automatic role already exists",

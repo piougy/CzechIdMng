@@ -49,8 +49,10 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
@@ -171,7 +173,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	 */
 	public void testCreateAutomaticAttributeRoleViaManager() {
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
@@ -380,27 +382,32 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testDeleteTreeAutomaticRole() {
-		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
-
-		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
-		automaticRole.setRole(role.getId());
-		automaticRole.setName(role.getName());
-		automaticRole.setTreeNode(nodeOne.getId());
-
-		// Create automatic role via manager
-		automaticRole = automaticRoleManager.createAutomaticRoleByTree(automaticRole, true);
-		Assert.assertNotNull(automaticRole.getId());
-
-		IdmRoleTreeNodeDto treeAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
-		Assert.assertNotNull(treeAutomaticRole);
-		Assert.assertEquals(nodeOne.getId(), treeAutomaticRole.getTreeNode());
-		Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
-
-		// Delete automatic role via manager
-		automaticRoleManager.deleteAutomaticRole(automaticRole, true);
-		IdmRoleTreeNodeDto deletedAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
-		Assert.assertNull(deletedAutomaticRole);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		try {
+			IdmRoleDto role = prepareRole();
+			IdmTreeNodeDto nodeOne = helper.createTreeNode();
+	
+			IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
+			automaticRole.setRole(role.getId());
+			automaticRole.setName(role.getName());
+			automaticRole.setTreeNode(nodeOne.getId());
+	
+			// Create automatic role via manager
+			automaticRole = automaticRoleManager.createAutomaticRoleByTree(automaticRole, true);
+			Assert.assertNotNull(automaticRole.getId());
+	
+			IdmRoleTreeNodeDto treeAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
+			Assert.assertNotNull(treeAutomaticRole);
+			Assert.assertEquals(nodeOne.getId(), treeAutomaticRole.getTreeNode());
+			Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
+	
+			// Delete automatic role via manager
+			automaticRoleManager.deleteAutomaticRole(automaticRole, true);
+			IdmRoleTreeNodeDto deletedAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
+			Assert.assertNull(deletedAutomaticRole);
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		}
 	}
 
 	@Test
@@ -429,6 +436,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 		Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
 
 		// Delete automatic role via manager
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		try {
 			automaticRoleManager.deleteAutomaticRole(automaticRole, false);
 		} catch (AcceptedException ex) {
@@ -449,6 +457,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			IdmRoleTreeNodeDto deletedAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
 			Assert.assertNull(deletedAutomaticRole);
 			return;
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		}
 		fail("Automatic role request have to be approving by gurantee!");
 	}

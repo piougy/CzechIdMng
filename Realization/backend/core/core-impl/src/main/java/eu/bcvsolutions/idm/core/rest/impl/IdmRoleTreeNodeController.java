@@ -196,6 +196,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 		IdmRoleTreeNodeDto automaticRole = this.getDto(backendId);
 		Assert.notNull(automaticRole);
 		requestService.deleteAutomaticRole(automaticRole, AutomaticRoleRequestType.TREE);
+		//
 		throw new AcceptedException();
 	}
 	

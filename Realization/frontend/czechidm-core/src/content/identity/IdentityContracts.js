@@ -104,6 +104,11 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               face="bool"
               width={75}
               sort/>
+            <Advanced.Column
+              property="position"
+              header={this.i18n('entity.IdentityContract.position')}
+              width={ 200 }
+              sort/>
             <Basic.Column
               property="workPosition"
               header={this.i18n('entity.IdentityContract.workPosition')}
@@ -149,12 +154,6 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               property="validTill"
               header={this.i18n('entity.IdentityContract.validTill')}
               face="date"
-              sort/>
-            <Advanced.Column
-              property="disabled"
-              header={this.i18n('entity.IdentityContract.disabled.label')}
-              face="bool"
-              width={100}
               sort/>
             <Advanced.Column
               property="state"

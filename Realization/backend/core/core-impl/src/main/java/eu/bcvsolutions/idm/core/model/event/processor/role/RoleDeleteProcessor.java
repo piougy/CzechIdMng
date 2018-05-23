@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
-import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -116,17 +115,10 @@ public class RoleDeleteProcessor
 		// remove related automatic roles
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setRoleId(role.getId());
-		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
-			try {
-				roleTreeNodeService.delete(roleTreeNode);
-			} catch (AcceptedException ex) {
-				throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_TREE_NODE, 
-						ImmutableMap.of(
-								"role", role.getName(),
-								"roleTreeNode", roleTreeNode.getId()
-								));
-			}
-		});
+		if (roleTreeNodeService.find(filter, null).getTotalElements() > 0) {
+			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_TREE_NODE, 
+					ImmutableMap.of("role", role.getName()));
+		}
 		// Find all concepts and remove relation on role
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleId(role.getId());

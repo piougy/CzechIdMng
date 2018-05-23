@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -50,7 +51,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegrity() {
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
 		IdmTreeNodeDto treeNode = helper.createTreeNode();
 	    helper.createIdentityContact(identity, treeNode);
 	    // tree node cannot be deleted, when some contract are defined on this node
@@ -58,12 +59,10 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void testCreateNode() {
-		IdmTreeNodeDto node = null;
-		
+	public void testCreateNode() {	
 		Exception ex = null;
 		try {
-			node = helper.createTreeNode(null, "TEST_NODE", null);
+			helper.createTreeNode(null, "TEST_NODE", null);
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -75,7 +74,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		
 		ex = null;
 		try {
-			node = helper.createTreeNode(type, "TEST_NODE", null);
+			helper.createTreeNode(type, "TEST_NODE", null);
 		} catch (Exception e) {
 			ex = e;
 		}

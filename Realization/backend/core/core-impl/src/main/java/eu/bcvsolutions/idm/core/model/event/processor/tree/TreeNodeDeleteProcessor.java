@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
@@ -75,21 +74,14 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 		if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES, ImmutableMap.of("treeNode", treeNode.getName()));
 		}
-		
-		// remove related automatic roles
+		//
+		// check related automatic roles
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setTreeNodeId(treeNode.getId());
-		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
-			try {
-				roleTreeNodeService.delete(roleTreeNode);
-			} catch (AcceptedException ex) {
-				throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_ROLE, 
-						ImmutableMap.of(
-								"treeNode", treeNode.getName(),
-								"roleTreeNode", roleTreeNode.getId()
-								));
-			}
-		});
+		if(roleTreeNodeService.find(filter, null).getTotalElements() > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_ROLE, 
+					ImmutableMap.of("treeNode", treeNode.getName()));
+		}
 		//		
 		service.deleteInternal(treeNode);
 		//

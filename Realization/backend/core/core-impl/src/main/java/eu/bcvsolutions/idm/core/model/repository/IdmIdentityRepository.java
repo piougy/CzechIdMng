@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
@@ -20,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška 
  *
  */
-public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdentity>, ExternalIdentifiableRepository<IdmIdentity, UUID> {
+public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdentity> {
 
 	IdmIdentity findOneByUsername(@Param("username") String username);
 	

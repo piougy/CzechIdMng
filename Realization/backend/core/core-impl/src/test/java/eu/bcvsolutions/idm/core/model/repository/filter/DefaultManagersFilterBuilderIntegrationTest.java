@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -25,6 +26,7 @@ public class DefaultManagersFilterBuilderIntegrationTest extends AbstractWorking
 	}
 	
 	@Test
+	@Transactional
 	public void testManagers() {
 		prepareData();
 		super.testManagersBuilder(builder);

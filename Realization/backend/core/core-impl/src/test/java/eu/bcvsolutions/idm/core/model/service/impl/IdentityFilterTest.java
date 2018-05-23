@@ -46,12 +46,12 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		getHelper().loginAdmin();
 	}
 	
 	@After
-	public void deleteIdentity() {
-		logout();
+	public void logout() {
+		super.logout();
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		Page<IdmIdentityDto> result = identityService.find(filter, null);
 		person.setState(IdentityState.DISABLED);
 		identityService.save(person);
-		filter.setDisabled(false);
+		//
 		Page<IdmIdentityDto> result2 = identityService.find(filter, null);
 		int changed = (int) (result.getTotalElements() - result2.getTotalElements());
 		assertEquals("Wrong Disabled",1, changed);
@@ -430,34 +430,33 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		identity = identityService.save(identity);
 		//
 		IdmIdentityDto identity2 = helper.createIdentity();
-		identity2.setExternalCode(testExternalCode);
+		identity2.setExternalCode(getHelper().createName());
 		identity2 = identityService.save(identity2);
 		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setExternalCode("nonExistingCode" + System.currentTimeMillis());
+		filter.setExternalCode(getHelper().createName());
 		List<IdmIdentityDto> content = identityService.find(filter, null).getContent();
 		//
 		assertEquals(0, content.size());
 		filter.setExternalCode(testExternalCode);
 		content = identityService.find(filter, null).getContent();
-		assertEquals(2, content.size());
+		assertEquals(1, content.size());
 		//
 		IdmIdentityDto founded = content.get(0);
-		IdmIdentityDto founded2 = content.get(1);
 		//
 		assertEquals(testExternalCode, founded.getExternalCode());
-		assertEquals(testExternalCode, founded2.getExternalCode());
-		assertNotEquals(founded.getId(), founded2.getId());
+		assertNotEquals(identity2.getId(), founded.getId());
 	}
 
 	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){
-		IdmIdentityDto identity2 = helper.createIdentity();
-		identity2.setFirstName(firstName);
-		identity2.setLastName(lastName);
-		identity2.setEmail(email);
-		identity2.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
-		identity2.setPhone(phone);
-		return identityService.save(identity2);
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		identity.setFirstName(firstName);
+		identity.setLastName(lastName);
+		identity.setEmail(email);
+		identity.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
+		identity.setPhone(phone);
+		return identityService.save(identity);
 	}
 
 }

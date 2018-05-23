@@ -394,7 +394,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertEquals(firstname + 3, resource.getFirstname());
 		Assert.assertEquals(0, provisioningOperationService.findByBatchId(batch.getId(), null).getTotalElements());
 		Assert.assertNull(provisioningOperationService.get(readOnlyOperation.getId()));
-		Assert.assertNull(provisioningBatchService.get(batch.getId()));
+		batch = provisioningBatchService.get(batch.getId());
+		Assert.assertNull(batch.getNextAttempt());
 	}
 	
 	@Test
@@ -435,6 +436,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			operation = provisioningOperationService.get(operation.getId());
 			batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), systemEntity.getId());
 			Assert.assertEquals(2, operation.getCurrentAttempt());
+			Assert.assertNotNull(batch.getNextAttempt());
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 			//
 			batch.setNextAttempt(new DateTime());
@@ -449,7 +451,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 			Assert.assertFalse(systemEntity.isWish());
 			Assert.assertNotNull(helper.findResource(uid));
-			Assert.assertNull(provisioningBatchService.get(batch.getId()));
+			batch = provisioningBatchService.get(batch.getId());
+			Assert.assertNull(batch.getNextAttempt());
 		} finally {
 			testProvisioningExceptionProcessor.setDisabled(true);
 		}

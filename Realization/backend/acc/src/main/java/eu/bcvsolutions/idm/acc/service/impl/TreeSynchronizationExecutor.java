@@ -297,7 +297,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		entityAccount.setOwnership(true);
 		this.getEntityAccountService().save(entityAccount);
 
-		if(this.isProvisioningImplemented(entityType, logItem)) {
+		if (this.isProvisioningImplemented(entityType, logItem)) {
 			// Call provisioning for this entity
 			callProvisioningForEntity(treeNode, entityType, logItem);
 		}
@@ -353,7 +353,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			}
 
 			SystemEntityType entityType = context.getEntityType();
-			if(this.isProvisioningImplemented(entityType, logItem)) {
+			if (this.isProvisioningImplemented(entityType, logItem)) {
 				// Call provisioning for this entity
 				callProvisioningForEntity(treeNode, entityType, logItem);
 			}
@@ -474,6 +474,29 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			String parentUid = transformedValue.toString();
 			SysSystemMappingDto systemMapping = systemMappingService
 					.get(((SysSystemAttributeMappingDto) attribute).getSystemMapping());
+
+			try {
+				UUID parentUUID = UUID.fromString(parentUid);
+				IdmTreeNodeDto parentNode = treeNodeService.get(parentUUID);
+				if (parentNode != null) {
+					if (!systemMapping.getTreeType().equals(parentNode.getTreeType())) {
+						throw new ProvisioningException(
+								AccResultCode.SYNCHRONIZATION_TREE_PARENT_NODE_IS_NOT_FROM_SAME_TREE_TYPE,
+								ImmutableMap.of("parentNode", parentNode.getCode(), "systemId",
+										context.getSystem().getName()));
+					}
+
+					addToItemLog(context.getLogItem(), MessageFormat.format(
+							"Transformed value from the parent attribute contains the UUID of idmTreeNode [{0}].",
+							parentNode.getCode()));
+					return parentNode.getId();
+				}
+			} catch (IllegalArgumentException ex) {
+				// OK this is not UUID of tree node
+				addToItemLog(context.getLogItem(),
+						MessageFormat.format("Parent value [{0}] is not UUID of a tree node.", parentUid));
+			}
+
 			SysSchemaObjectClassDto schemaObjectClass = schemaObjectClassService.get(systemMapping.getObjectClass());
 			UUID systemId = schemaObjectClass.getSystem();
 			// Find account by UID from parent field

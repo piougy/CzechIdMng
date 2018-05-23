@@ -958,11 +958,11 @@
         "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
         "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
-        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu",
-        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu",
-        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu",
-        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení",
-        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel"
+        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu.",
+        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu.",
+        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu.",
+        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení.",
+        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel."
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
@@ -2822,7 +2822,7 @@
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
       "workPosition": "Pozice",
-      "position": "Pracovní pozice",
+      "position": "Název pozice",
       "identity": "Uživatel",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",
@@ -3995,11 +3995,11 @@
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
       "title": "Role nelze odebrat",
-      "message": "Role [{{role}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné roli odebrat."
+      "message": "Role [{{role}}] obsahuje konfiguraci automatických rolí. Odeberte automatické role, poté bude možné roli odebrat."
     },
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Prvek stromové struktury nelze odebrat",
-      "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
+      "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatických rolí. Odeberte automatické role, poté bude možné prvek odebrat."
     },
     "ROLE_TREE_NODE_TYPE_EXISTS": {
       "title": "Podobná definice automatické role již existuje",

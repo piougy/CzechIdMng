@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -19,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  * @author Radek Tomiška 
  *
  */
-public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole>, ExternalIdentifiableRepository<IdmRole, UUID> {
+public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole> {
 	
 	/**
 	 * @deprecated use {@link #findOneByCode(String)}

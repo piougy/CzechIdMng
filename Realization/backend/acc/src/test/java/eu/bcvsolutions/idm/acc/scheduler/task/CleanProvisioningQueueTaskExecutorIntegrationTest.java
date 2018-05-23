@@ -156,9 +156,6 @@ public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractI
 		page = sysProvisioningOperationService.find(filter, null);
 		Assert.assertEquals(0, page.getContent().size());
 
-		batch = sysProvisioningBatchService.get(batchId);
-		assertNull(batch);
-
 		// find items in provisioning queue// both systems
 		pageSecond = sysProvisioningOperationService.find(filterSecond, null);
 		Assert.assertEquals(1, pageSecond.getContent().size());

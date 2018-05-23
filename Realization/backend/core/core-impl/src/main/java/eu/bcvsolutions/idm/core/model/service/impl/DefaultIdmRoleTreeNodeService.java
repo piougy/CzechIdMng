@@ -105,6 +105,7 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
+		// FIXME: this should be in save internal or in save processor ... can be skipped by publishing raw create event
 		if (isNew(roleTreeNode)) { // create
 			// check if exists same entity for roleId, treeNodeId and recursion type
 			IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
@@ -141,11 +142,8 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
-		EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
-		//
-		if (context.isSuspended()) {
-			throw new AcceptedException();
-		}
+		// its asynchronous, but we cannot throw Accepted exception - its called from requests
+		entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
 	}
 	
 	@Override

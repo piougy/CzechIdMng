@@ -928,11 +928,11 @@
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
         "specialCharacterBase": "List of special characters for password policies: ",
-        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
-        "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
-        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",
-        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname",
-        "maxHistorySimilar": "The password must be different from the last {{0}} passwords"
+        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login.",
+        "passwordSimilarEmailPreValidate": "Password cannot be similar to email.",
+        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name.",
+        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname.",
+        "maxHistorySimilar": "The password must be different from the last {{0}} passwords."
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."
@@ -2777,7 +2777,7 @@
       "id": "Internal position id",
       "treeType": "Structure type",
       "workPosition": "Position",
-      "position": "Work position",
+      "position": "Name of the position",
       "identity": "User",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",
@@ -3947,11 +3947,11 @@
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
       "title": "Role cannot be deleted",
-      "message": "Role [{{role}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+      "message": "Role [{{role}}] has assigned automatic roles. Remove automatic roles at first."
     },
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
-      "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+      "message": "Node [{{treeNode}}] has assigned automatic roles. Remove automatic roles at first."
     },
     "ROLE_TREE_NODE_TYPE_EXISTS": {
       "title": "A similar definition of an automatic role already exists",

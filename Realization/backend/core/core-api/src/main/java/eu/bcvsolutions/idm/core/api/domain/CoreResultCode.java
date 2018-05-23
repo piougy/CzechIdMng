@@ -47,7 +47,8 @@ public enum CoreResultCode implements ResultCode {
 	XSRF(HttpStatus.UNAUTHORIZED, "XSRF cookie failed."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden."),
 	FORBIDDEN_ENTITY(HttpStatus.FORBIDDEN, "Forbidden: entity [%s], permission [%s]."),
-	DUPLICATE_EXTERNAL_IDENTIFIER(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
+	DUPLICATE_EXTERNAL_ID(HttpStatus.CONFLICT, "Entity type [%s] with external identifier [%s] already exist (id: [%s])!"),
+	DUPLICATE_EXTERNAL_CODE(HttpStatus.CONFLICT, "Entity type [%s] with external code [%s] already exist (id: [%s])!"),
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable"),
 	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable"),
 	// data
@@ -79,7 +80,7 @@ public enum CoreResultCode implements ResultCode {
 	TREE_NODE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Tree node [%s] has children, cannot be deleted. Remove them at first."),
 	TREE_NODE_DELETE_FAILED_HAS_CONTRACTS(HttpStatus.CONFLICT, "Tree node [%s] has contract assigned, cannot be deleted. Remove them at first."),
 	TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES(HttpStatus.CONFLICT, "Tree node [%s] has contract slice assigned, cannot be deleted. Remove them at first."),
-	TREE_NODE_DELETE_FAILED_HAS_ROLE(HttpStatus.CONFLICT, "Tree node [%s] has assigned automatic role [%s], which cannot be deleted without approving. Remove automatic role at first."),
+	TREE_NODE_DELETE_FAILED_HAS_ROLE(HttpStatus.CONFLICT, "Tree node [%s] has assigned automatic roles. Remove automatic roles at first."),
 	TREE_TYPE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Tree type [%s] has children, cannot be deleted. Remove them at first."),
 	TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS(HttpStatus.CONFLICT, "Tree type [%s] has contract assigned, cannot be deleted. Remove them at first."),
 	// role catalogs
@@ -92,7 +93,7 @@ public enum CoreResultCode implements ResultCode {
 	CONFIGURATION_DISABLED(HttpStatus.BAD_REQUEST, "Configuration [%s] is disabled."),
 	// role
 	ROLE_DELETE_FAILED_IDENTITY_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some identites have role assigned."),
-	ROLE_DELETE_FAILED_HAS_TREE_NODE(HttpStatus.CONFLICT, "Role [%s] has assigned automatic role [%s], which cannot be deleted without approving. Remove automatic role at first."),
+	ROLE_DELETE_FAILED_HAS_TREE_NODE(HttpStatus.CONFLICT, "Role [%s] has assigned automatic roles. Remove automatic roles at first."),
 	ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some automatic roles by attribe has assigned this role."),
 	// groovy script
 	GROOVY_SCRIPT_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains compillation errors."),

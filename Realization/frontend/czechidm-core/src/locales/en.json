@@ -2748,7 +2748,7 @@
       "id": "Internal position id",
       "treeType": "Structure type",
       "workPosition": "Position",
-      "position": "Work position",
+      "position": "Name of the position",
       "identity": "User",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",

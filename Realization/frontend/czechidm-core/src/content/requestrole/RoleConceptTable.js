@@ -506,7 +506,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
               ({rowIndex, data}) => {
                 const contract = data[rowIndex]._embedded.identityContract;
                 return (
-                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" showLink={ false } />
+                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
                 );
               }
             }/>
@@ -575,6 +575,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   readOnly={!detail.entity._added}
                   onChange={this._onChangeSelectOfContract.bind(this)}
                   hidden={showRoleCatalogue}
+                  niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
                   required
                   useFirst/>
 

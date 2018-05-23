@@ -104,6 +104,11 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               face="bool"
               width={75}
               sort/>
+            <Advanced.Column
+              property="position"
+              header={this.i18n('entity.IdentityContract.position')}
+              width={ 200 }
+              sort/>
             <Basic.Column
               property="workPosition"
               header={this.i18n('entity.IdentityContract.workPosition')}

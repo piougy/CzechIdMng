@@ -2790,7 +2790,7 @@
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
       "workPosition": "Pozice",
-      "position": "Pracovní pozice",
+      "position": "Název pozice",
       "identity": "Uživatel",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",

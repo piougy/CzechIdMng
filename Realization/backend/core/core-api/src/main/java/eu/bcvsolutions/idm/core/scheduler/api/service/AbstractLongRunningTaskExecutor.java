@@ -331,7 +331,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Override
 	public <DTO extends AbstractDto> IdmProcessedTaskItemDto logItemProcessed(DTO item, OperationResult opResult) {
 		Assert.notNull(item);
-		Assert.notNull(opResult);
 		//
 		return itemService.createLogItem(item, opResult, this.getLongRunningTaskService().get(this.getLongRunningTaskId()));
 	}

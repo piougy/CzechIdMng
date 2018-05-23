@@ -669,10 +669,10 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(path = "/bulk-action", method = RequestMethod.POST)
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@ApiOperation(
-			value = "Bulk action for identity", 
+			value = "Process bulk action for identity", 
 			nickname = "bulkAction", 
 			response = IdmBulkActionDto.class, 
 			tags = { IdmIdentityController.TAG }, 
@@ -705,7 +705,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/bulk-action", method = RequestMethod.GET)
+	@RequestMapping(value = "/bulk/action", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	@ApiOperation(
 			value = "Get available bulk actions", 

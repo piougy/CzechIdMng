@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 @Description("Enable given identities.")
 public class IdentityEnableBulkAction extends AbstractIdentityBulkAction {
 
-	private static final String NAME = "identity-enable-bulk-action";
+	public static final String NAME = "identity-enable-bulk-action";
 	
 	@Autowired
 	private IdmIdentityService identityService;

@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 @Description("Delete given identities.")
 public class IdentityDeleteBulkAction extends AbstractIdentityBulkAction {
 
-	private static final String NAME = "identity-delete-bulk-action";
+	public static final String NAME = "identity-delete-bulk-action";
 
 	@Autowired
 	private IdmIdentityService identityService;

@@ -1062,7 +1062,6 @@
         "taskState": "$t(entity.ApprovalTask.taskState)",
         "approve": "Accept",
         "disapprove": "Reject",
-        "approvers": "Approvers of this task",
         "messages": {
           "approved":"Task successfully approved",
           "disapproved": "Task successfully rejected",
@@ -1714,7 +1713,6 @@
         "profile": "Personal data",
         "password": "Change password",
         "roles": "Roles",
-        "approve": "Approver of roles",
         "subordinates": "Subordinates",
         "positions": "Contracted positions",
         "approve": "Approver of roles"
@@ -2230,10 +2228,6 @@
         "title": "All tasks",
         "filter": {
           "text": {
-            "label": "Key / Type",
-            "placeholder": "Key or task type"
-          },
-          "text": {
             "label": "Type / Description",
             "placeholder": "Type or description of task"
           },
@@ -2368,7 +2362,6 @@
         "key": "Key",
         "version": "Version",
         "description": "Description",
-        "resourceName": "Resource name",
         "category": "Category",
         "diagramResourceName": "Scheme name",
         "deploymentId": "Deployment Id",
@@ -4034,7 +4027,8 @@
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Required property wasn't filled",
-      "message": "Property [{{attributeCode}}] wasn't filled.",
+      "message": "Property [{{attributeCode}}] wasn't filled."
+    },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Contract cannot be deleted!",
       "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"

@@ -48,6 +48,7 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
 	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
 	public static final String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
+	public static final String TOPIC_BULK_ACTION_END = String.format("%s:bulkActionEnd", MODULE_ID);
 
 	@Override
 	public String getId() {
@@ -173,6 +174,13 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Login is blocked.", 
 				getNotificationTemplateId(AuthenticationManager.TEMPLATE_LOGIN_IS_BLOCKED)));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_BULK_ACTION_END, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Bulk action ended.", 
+				getNotificationTemplateId("bulkActionEnd")));
 		return configs;
 	}
 	

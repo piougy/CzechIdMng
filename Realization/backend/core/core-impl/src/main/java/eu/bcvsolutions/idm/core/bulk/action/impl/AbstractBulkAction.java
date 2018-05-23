@@ -6,17 +6,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -32,6 +40,12 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 		implements IdmBulkAction<DTO> {
 
 	private IdmBulkActionDto action;
+	@Autowired
+	private NotificationManager notificationManager;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private ConfigurationService configurationService;
 	
 	@Override
 	public IdmBulkActionDto getAction() {
@@ -62,6 +76,10 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 		//
 		for (IdmFormAttributeDto attribute : this.getFormAttributes()) {
 			if (attribute.isRequired()) {
+				if (action.getProperties() == null) {
+					// this state is also possible
+					throw new ResultCodeException(CoreResultCode.BULK_ACTION_REQUIRED_PROPERTY, ImmutableMap.of("attributeCode", attribute.getCode()));
+				}
 				Object value = action.getProperties().get(attribute.getCode());
 				if (value == null) {
 					throw new ResultCodeException(CoreResultCode.BULK_ACTION_REQUIRED_PROPERTY, ImmutableMap.of("attributeCode", attribute.getCode()));
@@ -99,9 +117,30 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 	
 	@Override
 	protected OperationResult end(OperationResult result, Exception ex) {
+		OperationResult end = null;
 		if (result != null && result.getException() != null) {
-			return super.end(result, (Exception) result.getException());
+			end = super.end(result, (Exception) result.getException());
 		}
-		return super.end(result, ex);
+		end = super.end(result, ex);
+		// send message
+		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId());
+		IdmBulkActionDto action = getAction();
+		//
+		IdmIdentityDto identityDto = identityService.get(task.getCreatorId());
+		if (identityDto != null) {
+			configurationService.getValue("idm.pub.security.allowed-origins");
+			notificationManager.send(CoreModuleDescriptor.TOPIC_BULK_ACTION_END,
+					new IdmMessageDto.Builder()
+					.addParameter("action", action)
+					.addParameter("task", task)
+					.addParameter("owner", identityDto)
+					.addParameter("result", end)
+					.addParameter("detailUrl", configurationService.getFrontendUrl(String.format("scheduler/all-tasks/%s/detail", task.getId())))
+					.addParameter("processItemslUrl", configurationService.getFrontendUrl(String.format("scheduler/all-tasks/%s/items", task.getId())))
+					.build(),
+					identityDto);
+		}
+		//
+		return end;
 	}
 }

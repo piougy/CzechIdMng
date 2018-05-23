@@ -57,10 +57,11 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRemoveRoleBulkAction.class);
 
-	private static final String NAME = "identity-remove-role-bulk-action";
-	private static final String ROLE_CODE = "role";
-	private static final String PRIMARY_CONTRACT_CODE = "mainContract";
-	private static final String APPROVE_CODE = "approve";
+	public static final String NAME = "identity-remove-role-bulk-action";
+
+	public static final String ROLE_CODE = "role";
+	public static final String PRIMARY_CONTRACT_CODE = "mainContract";
+	public static final String APPROVE_CODE = "approve";
 	
 	@Autowired
 	private IdmRoleRequestService roleRequestService;
@@ -145,7 +146,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 				concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 			}
 			//
-			roleRequest = roleRequestService.startRequest(roleRequest.getId(), true);
+			roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), true);
 			if (roleRequest.getState() == RoleRequestState.EXECUTED) {
 				return new OperationResult.Builder(OperationState.EXECUTED).build();
 			} else {
@@ -188,7 +189,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 	 * @return
 	 */
 	private boolean checkPermissionForContract(IdmIdentityContractDto contract) {
-		return PermissionUtils.hasPermission(identityContractService.getPermissions(contract), getPermissionForContract());
+		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), getPermissionForContract());
 	}
 
 	/**

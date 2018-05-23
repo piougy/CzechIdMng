@@ -124,6 +124,7 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
             }
             //
             const FormValueComponent = component.component;
+            const ManagerType = component.manager;
             let value = {};
             if (attribute.defaultValue) {
               value = { value: attribute.defaultValue};
@@ -133,7 +134,8 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
                 ref={ attribute.code }
                 attribute={ attribute }
                 values={ value }
-                readOnly={ readOnly }/>
+                readOnly={ readOnly }
+                manager={ ManagerType ? new ManagerType() : null }/>
             );
           })
         }

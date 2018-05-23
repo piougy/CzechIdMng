@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -64,14 +65,15 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 		IdmLongRunningTaskDto longRunningTask = this.getLongRunningTaskService().get(this.getLongRunningTaskId());
 		description.append(longRunningTask.getTaskDescription());
 		//
-		Collection<UUID> identities = null;
+		List<UUID> identities = null;
 		if (action.getIdentifiers() != null) {
-			identities = action.getIdentifiers();
+			identities = new ArrayList<UUID>(action.getIdentifiers());
 			//
 			description.append(System.lineSeparator());
 			description.append("For filtering is used list of ID's.");
 		} else {
-			identities = find(transformFilter(action.getTransformedFilter()), null);
+			// it is necessary create new arraylist because return list form find is unmodifiable
+			identities = new ArrayList<UUID>(find(transformFilter(action.getTransformedFilter()), null));
 			//
 			description.append(System.lineSeparator());
 			description.append("For filtering is used filter:");
@@ -79,14 +81,18 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 			String filterAsString = Arrays.toString(action.getFilter().entrySet().toArray());
 			description.append(filterAsString);
 		}
+		//
+		// remove given ids
+		if (action.getRemoveIdentifiers() != null && !action.getRemoveIdentifiers().isEmpty()) {
+			identities.removeAll(action.getRemoveIdentifiers());
+		}
+		//
 		this.count = Long.valueOf(identities.size());
 		this.counter = 0l;
 		//
 		// update description
 		longRunningTask.setTaskDescription(description.toString());
 		this.getLongRunningTaskService().save(longRunningTask);
-		// we must update state for send new state to websocket
-		this.updateState();
 		//
 		return processIdentities(identities);
 	}
@@ -120,16 +126,10 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 			try {
 				if (checkPermissionForIdentity(identity)) {
 					OperationResult result = processIdentity(identity);
-					if (result.getState() == OperationState.EXECUTED) {
-						// log success result
-						createSuccessLog(identity);
-					} else {
-						// something inside process method failed
-						createFailedLog(identity, result);
-					}
+					this.logItemProcessed(identity, result);
 				} else {
 					// check permission failed
-					createPermissionFailedLog(identity, null);
+					createPermissionFailedLog(identity);
 				}
 				//
 				//
@@ -140,7 +140,7 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 			} catch (Exception ex) {
 				// log failed result and continue
 				// TODO: log into log4j?
-				createFailedLog(identity, ex, null);
+				this.logItemProcessed(identity, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
 				if (!updateState()) {
 					return new OperationResult.Builder(OperationState.CANCELED).setCause(ex).build();
 				}
@@ -166,33 +166,13 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 	 * @param identity
 	 * @param cause
 	 */
-	protected void createPermissionFailedLog(IdmIdentityDto identity, Throwable cause) {
+	protected void createPermissionFailedLog(IdmIdentityDto identity) {
 		DefaultResultModel model = new DefaultResultModel(CoreResultCode.BULK_ACTION_INSUFFICIENT_PERMISSION,
 				ImmutableMap.of("bulkAction", this.getAction().getName(),
 						"identityId", identity.getId(),
 						"identityUsername", identity.getUsername()));
 		// operation state = blocked for insufficient permission
-		this.createFailedLog(identity, cause, new OperationResult.Builder(OperationState.BLOCKED).setCause(cause).setModel(model).build());
-	}
-
-	/**
-	 * Create failed log for given identity. With exception and model
-	 *
-	 * @param identity
-	 * @param cause
-	 * @param model
-	 */
-	protected void createFailedLog(IdmIdentityDto identity, Throwable cause, OperationResult result) {
-		this.logItemProcessed(identity, result);
-	}
-	
-	/**
-	 * Create failed log for given identity
-	 *
-	 * @param identity
-	 */
-	protected void createFailedLog(IdmIdentityDto identity, OperationResult result) {
-		this.createFailedLog(identity, null, result);
+		this.logItemProcessed(identity, new OperationResult.Builder(OperationState.BLOCKED).setModel(model).build());
 	}
 	
 	/**

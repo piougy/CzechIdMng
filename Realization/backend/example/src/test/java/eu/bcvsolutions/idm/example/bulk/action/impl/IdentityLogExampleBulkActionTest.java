@@ -10,22 +10,16 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import com.google.common.collect.Sets;
 
-import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventDto;
-import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventFilter;
-import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
@@ -36,28 +30,22 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
  */
 public class IdentityLogExampleBulkActionTest extends AbstractBulkActionTest {
 	
-	@Autowired
-	private IdmLoggingEventService loggingEventService;
 	
 	@Before
 	public void login() {
-		IdmIdentityDto adminIdentity = this.getTransactionTemplate().execute(new TransactionCallback<IdmIdentityDto>() {
-			@Override
-			public IdmIdentityDto doInTransaction(TransactionStatus arg0) {
-				return getHelper().createIdentity();
-			}
-		});
-		this.loginAsAdmin(adminIdentity.getUsername());
-		setSynchronousLrt(false);
+		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdmBasePermission.READ);
+		loginAsNoAdmin(adminIdentity.getUsername());
+		this.enableSynchronousLrt();
 	}
 	
 	@After
 	public void logout() {
+		this.setDefaultSynchronousLrt();
 		super.logout();
 	}
 	
 	@Test
-	public void processTask() throws InterruptedException {
+	public void processBulkAction() {
 		IdmBulkActionDto exampleAction = findBulkAction(IdmIdentity.class, IdentityLogExampleBulkAction.BULK_ACTION_NAME);
 		
 		assertNotNull(exampleAction);
@@ -71,15 +59,15 @@ public class IdentityLogExampleBulkActionTest extends AbstractBulkActionTest {
 		IdmBulkActionDto processAction = bulkActionManager.processAction(exampleAction);
 		assertNotNull(processAction.getLongRunningTaskId());
 		IdmLongRunningTaskDto longRunningTask = longRunningTaskService.get(processAction.getLongRunningTaskId());
-		
+
 		assertEquals(Long.valueOf(3), longRunningTask.getCount());
 		assertEquals(Long.valueOf(3), longRunningTask.getSuccessItemCount());
 		assertEquals(Long.valueOf(0), longRunningTask.getFailedItemCount());
 		assertEquals(Long.valueOf(0), longRunningTask.getWarningItemCount());
-		
+
 		List<IdmProcessedTaskItemDto> items = getItemsForLrt(longRunningTask);
 		assertEquals(3, items.size());
-		
+
 		boolean identitySuccess = false;
 		boolean identitySuccess2 = false;
 		boolean identitySuccess3 = false;
@@ -100,11 +88,5 @@ public class IdentityLogExampleBulkActionTest extends AbstractBulkActionTest {
 		assertTrue(identitySuccess);
 		assertTrue(identitySuccess2);
 		assertTrue(identitySuccess3);
-		
-		// check logs
-		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
-		filter.setText("Log identity with username: " + identity.getUsername());
-		List<IdmLoggingEventDto> logs = loggingEventService.find(filter, null).getContent();
-		assertEquals(1, logs.size());
 	}
 }

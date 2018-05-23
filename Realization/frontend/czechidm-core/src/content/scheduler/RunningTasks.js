@@ -65,7 +65,7 @@ class RunningTasks extends Basic.AbstractContent {
             {
               (!_entities || _entities.length === 0)
               ?
-              <Basic.Alert text={ this.i18n('empty') }/>
+              <Basic.Alert className="no-margin" text={ this.i18n('empty') }/>
               :
               <div>
                 {

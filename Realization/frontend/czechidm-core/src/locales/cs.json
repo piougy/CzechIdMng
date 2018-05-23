@@ -1098,7 +1098,6 @@
           "taskState": "$t(entity.ApprovalTask.taskState)",
           "approve": "Schválit",
           "disapprove": "Zamítnout",
-          "approvers": "Schvalovatelé tohoto úkolu",
           "messages": {
             "approved":"Úkol byl úspěšně schválen",
             "disapproved": "Úkol byl úspěšně zamítnut",
@@ -1758,7 +1757,6 @@
         "profile": "Osobní údaje",
         "password": "Změna hesla",
         "roles": "Přiřazené role",
-        "approve": "Schvaluji role",
         "subordinates": "Podřízení",
         "positions": "Pracovně právní vztahy",
         "approve": "Schvalovatelem pro role"
@@ -2273,10 +2271,6 @@
         "header": "Všechny úlohy",
         "title": "Všechny úlohy",
         "filter": {
-          "text": {
-            "label": "Klíč / Typ",
-            "placeholder": "Klíč nebo typ úlohy"
-          },
           "text": {
             "label": "Typ / Popis",
             "placeholder": "Typ nebo popis úlohy"
@@ -4081,7 +4075,8 @@
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Nebyla vyplněna povinná položka",
-      "message": "Položka [{{attributeCode}}] nebyla vyplněna.",
+      "message": "Položka [{{attributeCode}}] nebyla vyplněna."
+    },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Pracovní pozici není možné odstranit.",
       "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"

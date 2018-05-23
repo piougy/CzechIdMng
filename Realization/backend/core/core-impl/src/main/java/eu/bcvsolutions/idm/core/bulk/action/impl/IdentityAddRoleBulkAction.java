@@ -52,15 +52,15 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityAddRoleBulkAction.class);
-	
-	public static final String BULK_ACTION_NAME = "identity-add-role-bulk-action";
-	
-	private static final String ROLE_CODE = "role";
-	private static final String PRIMARY_CONTRACT_CODE = "mainContract";
-	private static final String VALID_TILL_CODE = "validTill";
-	private static final String VALID_FROM_CODE = "validFrom";
-	private static final String APPROVE_CODE = "approve";
-	
+
+	public static final String NAME = "identity-add-role-bulk-action";
+
+	public static final String ROLE_CODE = "role";
+	public static final String PRIMARY_CONTRACT_CODE = "mainContract";
+	public static final String VALID_TILL_CODE = "validTill";
+	public static final String VALID_FROM_CODE = "validFrom";
+	public static final String APPROVE_CODE = "approve";
+
 	@Autowired
 	private IdmRoleRequestService roleRequestService;
 	@Autowired
@@ -69,7 +69,7 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
-	
+
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
@@ -83,7 +83,7 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 
 	@Override
 	public String getName() {
-		return IdentityAddRoleBulkAction.BULK_ACTION_NAME;
+		return IdentityAddRoleBulkAction.NAME;
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 				concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 			}
 			//
-			IdmRoleRequestDto request = roleRequestService.startRequest(roleRequest.getId(), true);
+			IdmRoleRequestDto request = roleRequestService.startRequestInternal(roleRequest.getId(), true);
 			if (request.getState() == RoleRequestState.EXECUTED) {
 				return new OperationResult.Builder(OperationState.EXECUTED).build();
 			} else {
@@ -169,7 +169,7 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	 * @return
 	 */
 	private boolean checkPermissionForContract(IdmIdentityContractDto contract) {
-		return PermissionUtils.hasPermission(identityContractService.getPermissions(contract), getPermissionForContract());
+		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), getPermissionForContract());
 	}
 
 	/**

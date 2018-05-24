@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -40,11 +41,16 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 @Transactional // we need rollback after each test
 public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private IdmPasswordService passwordService;
-	@Autowired private IdmPasswordPolicyService policyService;
-	@Autowired private TestHelper testHelper;
-	@Autowired private IdmIdentityService identityService;
-	@Autowired private LoginController loginController;
+	@Autowired
+	private IdmPasswordService passwordService;
+	@Autowired
+	private IdmPasswordPolicyService policyService;
+	@Autowired
+	private TestHelper testHelper;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private LoginController loginController;
 
 	@Before
 	public void before() {
@@ -217,6 +223,58 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertEquals(0, password.getUnsuccessfulAttempts());
 	}
 
+	@Test
+	public void checkPasswordByPersisIdentity() {
+		GuardedString password = new GuardedString("password-" + System.currentTimeMillis());
+		
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		identity.setPassword(password);
+
+		IdmIdentityDto saveIdentity = identityService.save(identity);
+		assertNull(saveIdentity.getPassword());
+	}
+	
+	@Test
+	public void checkNullValueNewPassword() {
+		GuardedString passwordForCheck = new GuardedString("password");
+		IdmPasswordDto newPassword = new IdmPasswordDto();
+		assertFalse(passwordService.checkPassword(passwordForCheck, newPassword));
+	}
+
+	@Test
+	public void checkNullValuePasswordForCheck() {
+		GuardedString passwordForCheck = new GuardedString();
+		IdmPasswordDto newPassword = new IdmPasswordDto();
+		newPassword.setPassword(generateHash("password"));
+		assertFalse(passwordService.checkPassword(passwordForCheck, newPassword));
+	}
+	
+	@Test
+	public void checkNullBothPasswords() {
+		GuardedString passwordForCheck = new GuardedString();
+		IdmPasswordDto newPassword = new IdmPasswordDto();
+		assertFalse(passwordService.checkPassword(passwordForCheck, newPassword));
+	}
+
+	@Test
+	public void checkCorrectBehaviorTrue() {
+		String password = "password" + System.currentTimeMillis();
+		GuardedString passwordForCheck = new GuardedString(password);
+		IdmPasswordDto newPassword = new IdmPasswordDto();
+		newPassword.setPassword(generateHash(password));
+		assertTrue(passwordService.checkPassword(passwordForCheck, newPassword));
+	}
+
+	@Test
+	public void checkCorrectBehaviorFalse() {
+		String password = "password" + System.currentTimeMillis();
+		GuardedString passwordForCheck = new GuardedString(password + "2");
+		IdmPasswordDto newPassword = new IdmPasswordDto();
+		newPassword.setPassword(generateHash(password));
+		assertFalse(passwordService.checkPassword(passwordForCheck, newPassword));
+	}
+
 	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName(UUID.randomUUID().toString());
@@ -235,4 +293,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		policyService.find(null).forEach(p -> policyService.delete(p));
 	}
 
+	private String generateHash(String password) {
+		return passwordService.generateHash(new GuardedString(password), passwordService.getSalt());
+	}
 }

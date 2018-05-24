@@ -133,7 +133,8 @@ public class RoleDeleteProcessor
 				message = MessageFormat.format(
 						"Request change in concept [{0}], was not executed, because requested role [{1}] was deleted (not from this role request)!",
 						concept.getId(), role.getName());
-				concept.setState(RoleRequestState.CANCELED);
+				// Cancel concept and WF
+				concept = conceptRoleRequestService.cancel(concept);
 			}
 			roleRequestService.addToLog(request, message);
 			conceptRoleRequestService.addToLog(concept, message);

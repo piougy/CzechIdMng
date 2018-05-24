@@ -1389,6 +1389,10 @@
     "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
       "title": "Provisioning není podporován",
       "message": "Provisioning není podporován pro type entity [{{entityType}}]"
+    },
+    "ACCOUNT_CANNOT_BE_READ_FROM_TARGET": {
+      "title": "Účet se nepodařilo načíst",
+      "message": "Účet [{{account}}] se nepodařilo načíst z koncového systému [{{system}}]!"
     }
   },
   "processor": {

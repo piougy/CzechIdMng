@@ -221,7 +221,11 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     let key = null;
     let localizeMessage = null;
     if (formDefinition) {
-      key = `eav.${formDefinition.type}.${formDefinition.code}.${attribute.code}.label`;
+      const formType = this._transformKey(formDefinition.type);
+      const formCode = this._transformKey(formDefinition.code);
+      const attrCode = this._transformKey(attribute.code);
+      //
+      key = `eav.${formType}.${formCode}.${attrCode}.label`;
       localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
     }
 
@@ -248,7 +252,11 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     let key = null;
     let localizeMessage = null;
     if (formDefinition) {
-      key = `eav.${formDefinition.type}.${formDefinition.code}.${attribute.code}.helpBlock`;
+      const formType = this._transformKey(formDefinition.type);
+      const formCode = this._transformKey(formDefinition.code);
+      const attrCode = this._transformKey(attribute.code);
+      //
+      key = `eav.${formType}.${formCode}.${attrCode}.helpBlock`;
       localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
     }
 
@@ -261,6 +269,18 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     }
 
     return localizeMessage;
+  }
+
+  /**
+   * Tranform key. Return key without dot or double dot. All these characters
+   * will be replaced by dash.
+   */
+  _transformKey(key) {
+    const dash = '-';
+    const dot = '.';
+    const colon = ':';
+    // g is globaly - replace all
+    return _.replace(_.replace(key, new RegExp(dot, 'g'), dash), new RegExp(colon, 'g'), dash);
   }
 
   /**

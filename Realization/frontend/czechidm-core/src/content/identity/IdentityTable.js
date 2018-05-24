@@ -84,12 +84,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
-  getFilterData() {
-    if (this.refs.filterForm) {
-      return this.refs.filterForm.getData();
-    }
-  }
-
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
@@ -158,7 +152,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           manager={identityManager}
           useBackendBulkAction
-          getFilterDataFunc={this.getFilterData.bind(this)}
           showRowSelection={showRowSelection && (SecurityManager.hasAuthority('IDENTITY_UPDATE') || SecurityManager.hasAuthority('IDENTITY_DELETE'))}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>

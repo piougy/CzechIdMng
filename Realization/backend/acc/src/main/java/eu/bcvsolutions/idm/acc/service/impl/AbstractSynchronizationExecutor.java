@@ -31,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -257,10 +256,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// List of all accounts keys (used in reconciliation)
 		Set<String> systemAccountsList = new HashSet<>();
 
-		// TODO: Export is not fully implemented (FE, configuration and Groovy
-		// part missing)
-		boolean export = false;
-
 		longRunningTaskExecutor.setCounter(0L);
 
 		try {
@@ -270,12 +265,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// add logs to context
 			context.addLog(log).addActionLogs(actionsLog);
 
-			if (export) {
-				// Start exporting entities to resource
-				log.addToLog("Exporting entities to resource started...");
-				this.startExport(entityType, config, context.getMappedAttributes(), log, actionsLog);
-
-			} else if (config.isCustomFilter() || config.isReconciliation()) {
+			if (config.isCustomFilter() || config.isReconciliation()) {
 				// Custom filter Sync
 				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
 				AttributeMapping tokenAttribute = null;
@@ -533,7 +523,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		// Save token
 		log.setToken(token);
-		if(!config.isReconciliation()) {
+		if (!config.isReconciliation()) {
 			config.setToken(token);
 		}
 
@@ -655,6 +645,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<AccAccountDto> accounts = accountService.find(accountFilter, null).getContent();
 
 		for (AccAccountDto account : accounts) {
+			if (!log.isRunning()) {
+				return;
+			}
 			String uid = account.getRealUid();
 			if (!allAccountsSet.contains(uid)) {
 				SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
@@ -691,9 +684,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					if (!result) {
 						log.setRunning(false);
 						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-						addToItemLog(itemLog, "Canceled!");
-						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
-								actionsLog);
 					}
 
 				} catch (Exception ex) {
@@ -716,43 +706,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				}
 			}
 		}
-	}
-
-	/**
-	 * Start export entities to target resource
-	 * 
-	 * @param entityType
-	 * @param config
-	 * @param mappedAttributes
-	 * @param log
-	 * @param actionsLog
-	 */
-	@Beta
-	protected void startExport(SystemEntityType entityType, AbstractSysSyncConfigDto config,
-			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log,
-			List<SysSyncActionLogDto> actionsLog) {
-
-		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
-		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
-		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
-				system);
-
-		List<DTO> entities = this.findAll();
-		entities.stream().forEach(entity -> {
-
-			// TODO: evaluate to groovy script
-
-			SynchronizationContext itemBuilder = new SynchronizationContext();
-			itemBuilder.addConfig(config) //
-					.addSystem(system) //
-					.addEntityType(entityType) //
-					.addEntityId(entity.getId()) //
-					.addLog(log) //
-					.addActionLogs(actionsLog);
-			// Start export for this entity
-			exportEntity(itemBuilder, uidAttribute, entity);
-		});
 	}
 
 	/**
@@ -820,9 +773,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			if (!result) {
 				log.setRunning(false);
 				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-				addToItemLog(itemLog, "Canceled!");
-				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
-						actionsLog);
 			}
 
 		} catch (Exception ex) {
@@ -1212,7 +1162,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					actionLogs);
 			return;
 		}
-		if(this.isProvisioningImplemented(entityType, logItem)) {
+		if (this.isProvisioningImplemented(entityType, logItem)) {
 			// Call provisioning for this entity
 			callProvisioningForEntity(entity, entityType, logItem);
 		}
@@ -1229,9 +1179,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entityType != null && entityType.isSupportsProvisioning()) {
 			return true;
 		}
-		if (entityType != null ) {
-			logItem.addToLog(MessageFormat.format("Warning! - Provisioning for this entity type [{0}] is not supported!",
-					entityType.name()));
+		if (entityType != null) {
+			logItem.addToLog(MessageFormat
+					.format("Warning! - Provisioning for this entity type [{0}] is not supported!", entityType.name()));
 		}
 		return false;
 
@@ -1302,7 +1252,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 		}
 
-		if(this.isProvisioningImplemented(entityType, logItem)) {
+		if (this.isProvisioningImplemented(entityType, logItem)) {
 			// Call provisioning for this entity
 			callProvisioningForEntity(entity, entityType, logItem);
 		}
@@ -2109,7 +2059,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		logItem.setIdentification(entityAccount.getId().toString());
 
 		if (callProvisioning) {
-			if(this.isProvisioningImplemented(entityType, logItem)) {
+			if (this.isProvisioningImplemented(entityType, logItem)) {
 				// Call provisioning for this entity
 				callProvisioningForEntity(dto, entityType, logItem);
 			}
@@ -2247,7 +2197,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			String tokenObject = token.getValue() != null ? token.getValue().toString() : null;
 			// Save token
 			log.setToken(tokenObject);
-			if(!config.isReconciliation()) {
+			if (!config.isReconciliation()) {
 				config.setToken(tokenObject);
 			}
 			//
@@ -2274,9 +2224,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			if (!result) {
 				log.setRunning(false);
 				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-				addToItemLog(itemLog, "Canceled!");
-				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
-						itemContext.getActionLogs());
 			}
 			return result;
 

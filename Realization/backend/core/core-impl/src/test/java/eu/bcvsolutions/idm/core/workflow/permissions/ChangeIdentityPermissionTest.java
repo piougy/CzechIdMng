@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -78,6 +79,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
+	@Autowired
+	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
@@ -1043,6 +1046,198 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		filterRemove.setIdentityId(test1.getId());
 		Page<IdmIdentityRoleDto> pageRemove = identityRoleService.find(filterRemove, null);
 		assertEquals(0, pageRemove.getContent().size());
+	}
+
+	@Test
+	@Transactional
+	public void cancelWfOnRoleRequestDeleteTest() {
+		// We are logged as admin. By default is all approve tasks assigned to Admin.
+		// All this tasks will be skipped.
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// HELPDESK - must be skipped
+		// MANAGER
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(1, tasks.size());
+		concept = conceptRoleRequestService.get(concept.getId());
+		String conceptWf = concept.getWfProcessId();
+		assertNull(conceptWf);
+
+		request = roleRequestService.get(request.getId());
+		String requestWf = request.getWfProcessId();
+		assertNotNull(requestWf);
+		assertNotNull(workflowProcessInstanceService.get(requestWf));
+		// Delete the request
+		roleRequestService.delete(request);
+		// WF have to be cancelled
+
+		assertNull(roleRequestService.get(request.getId()));
+		assertNull(workflowProcessInstanceService.get(requestWf));
+	}
+
+	@Test
+	@Transactional
+	public void cancelSubprocessOnContractDeleteTest() {
+
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		adminRole.setPriority(priority);
+		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+		guarantee.setRole(adminRole.getId());
+		guarantee.setGuarantee(test2.getId());
+		adminRole.getGuarantees().add(guarantee);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_MANAGER_KEY);
+
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// HELPDESK - must be skipped
+		// MANAGER
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// USER MANAGER
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Subprocess - approve by Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(1, tasks.size());
+		concept = conceptRoleRequestService.get(concept.getId());
+
+		String conceptWf = concept.getWfProcessId();
+		assertNotNull(conceptWf);
+		assertNotNull(workflowProcessInstanceService.get(conceptWf));
+		
+		// Delete the contract that is using in the concept
+		UUID contractId = concept.getIdentityContract();
+		assertNotNull(contractId);
+		identityContractService.deleteById(contractId);
+
+		// Concept has to be in the Cancel state and WF must be canceled
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertEquals(RoleRequestState.CANCELED, concept.getState());
+		assertNotNull(concept.getWfProcessId());
+		assertNull(workflowProcessInstanceService.get(conceptWf));
+	}
+	
+	@Test
+	@Transactional
+	public void cancelSubprocessOnRoleDeleteTest() {
+
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		adminRole.setPriority(priority);
+		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+		guarantee.setRole(adminRole.getId());
+		guarantee.setGuarantee(test2.getId());
+		adminRole.getGuarantees().add(guarantee);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_MANAGER_KEY);
+
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// HELPDESK - must be skipped
+		// MANAGER
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// USER MANAGER
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		// Subprocess - approve by Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(1, tasks.size());
+		concept = conceptRoleRequestService.get(concept.getId());
+
+		String conceptWf = concept.getWfProcessId();
+		assertNotNull(conceptWf);
+		assertNotNull(workflowProcessInstanceService.get(conceptWf));
+		
+		// Delete the role that is using in the concept
+		UUID roleId = concept.getRole();
+		assertNotNull(roleId);
+		
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setRoleId(roleId);
+		identityRoleService.find(identityRoleFilter, null).getContent().forEach(identityRole -> identityRoleService.delete(identityRole));
+		
+		roleService.deleteById(roleId);
+
+		// Concept has to be in the Cancel state and WF must be canceled
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertEquals(RoleRequestState.CANCELED, concept.getState());
+		assertNotNull(concept.getWfProcessId());
+		assertNull(workflowProcessInstanceService.get(conceptWf));
 	}
 
 	/**

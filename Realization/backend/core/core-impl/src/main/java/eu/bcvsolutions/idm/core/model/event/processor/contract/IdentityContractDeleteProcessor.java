@@ -102,7 +102,8 @@ public class IdentityContractDeleteProcessor
 				message = MessageFormat.format(
 						"Request change in concept [{0}], was not executed, because requested IdentityContract [{1}] was deleted (not from this role request)!",
 						concept.getId(), contract.getId());
-				concept.setState(RoleRequestState.CANCELED);
+				// Cancel concept and WF
+				concept = conceptRequestService.cancel(concept);
 			}
 			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);

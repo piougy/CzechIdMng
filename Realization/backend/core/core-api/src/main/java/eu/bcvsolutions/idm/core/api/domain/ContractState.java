@@ -8,8 +8,15 @@ package eu.bcvsolutions.idm.core.api.domain;
  */
 public enum ContractState {
 
-	EXCLUDED(false), // excluded from evidence - remains valid, but roles assigned for this contract are not added for logged identity
-	DISABLED(true); // invalid by user - not changed by dates
+	/**
+	 * Excluded from evidence - remains valid, but roles assigned for this contract are not added for logged identity.
+	 * Excluded contract is not valid for managers - manager has to have valid not excluded contract.
+	 */
+	EXCLUDED(false),
+	/**
+	 * Invalid by user - not changed by dates
+	 */
+	DISABLED(true);
 
 	private boolean disabled;
 

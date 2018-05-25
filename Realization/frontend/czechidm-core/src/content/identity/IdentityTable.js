@@ -322,7 +322,7 @@ IdentityTable.propTypes = {
 };
 
 IdentityTable.defaultProps = {
-  columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'disabled', 'state', 'description'],
+  columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'state', 'description'],
   filterOpened: false,
   showAddButton: true,
   showDetailButton: true,

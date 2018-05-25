@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
@@ -96,6 +98,12 @@ public class IdmTreeNode
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "workPosition")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we dont want lazy lists
 
 	public String getName() {
 		return name;

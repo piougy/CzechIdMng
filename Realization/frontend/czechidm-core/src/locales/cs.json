@@ -2555,11 +2555,11 @@
       "titleAfter": "Titul za",
       "state": {
         "label": "Stav",
-        "help": "Stav uživatele."
+        "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů)."
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
-        "help": "Neaktivní identitě není povoleno přihlášení."
+        "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
       }
     },
     "RoleCatalogue": {
@@ -2798,7 +2798,8 @@
       "externe": "Externista",
       "managers": {
         "label": "Garant / Vedoucí",
-        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře",
+        "total": "Celkový počet garantů a vedoucí"
       },
       "disabled": {
         "label": "Neaktivní",

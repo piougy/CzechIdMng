@@ -73,7 +73,13 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	public <E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission) {
 		Assert.notNull(permission);
 		//
-		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
+		// check super admin
+		if(securityService.isAdmin()) {
+			LOG.debug("Logged as admin [{}], authorization granted", securityService.getCurrentUsername());
+			return builder.conjunction();
+		}
+		//
+		final List<Predicate> predicates = Lists.newArrayList(); // no data by default
 		//
 		service.getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
 			if (!supportsEntityType(policy, root.getJavaType())) {
@@ -88,6 +94,9 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				}
 			}
 		});
+		if (predicates.isEmpty()) {
+			return builder.disjunction(); // no data by default
+		}
 		return builder.or(predicates.toArray(new Predicate[predicates.size()]));
 	}
 

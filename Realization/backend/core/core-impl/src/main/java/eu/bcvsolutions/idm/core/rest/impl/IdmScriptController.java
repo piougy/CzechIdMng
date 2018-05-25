@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -103,8 +107,9 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_AUTOCOMPLETE + "')")
+	@ResponseBody
 	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_AUTOCOMPLETE + "')")
 	@ApiOperation(
 			value = "Autocomplete scripts (selectbox usage)", 
 			nickname = "autocompleteScripts", 
@@ -258,7 +263,68 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		service.backup(script);
 		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
 	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countScripts", 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_COUNT, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_COUNT, description = "") })
+			})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
+	@ApiOperation(
+			value = "Update script",
+			nickname = "patchScript", 
+			response = IdmScriptDto.class, 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_UPDATE, description = "") })
+			})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Script's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+					throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnScript", 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Script's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
+	}
+
 	@Override
 	protected IdmScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmScriptFilter filter = new IdmScriptFilter(parameters);

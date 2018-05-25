@@ -107,7 +107,8 @@ public enum AccResultCode implements ResultCode {
 	ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be deleted. Is protected before delete!"),
 	ACCOUNT_CANNOT_UPDATE_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be updated. Attribute [isProtected] connot be reseted manually!"),
 	// Role system
-	ROLE_SYSTEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Duplicated role mapping. Role [%s] with mapping on same system [%s] already exists!");
+	ROLE_SYSTEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Duplicated role mapping. Role [%s] with mapping on same system [%s] already exists!"),
+	ACCOUNT_CANNOT_BE_READ_FROM_TARGET(HttpStatus.BAD_REQUEST, "Account [%s] cannot be read from the target system [%s]!");
 	
 	
 	

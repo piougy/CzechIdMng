@@ -92,14 +92,16 @@ public interface TestHelper {
 	String createName();
 
 	/**
-	 * Creates test identity with random username  and default "password"
+	 * Creates test identity with random username  and default "password".
+	 * The password is set back to identity after save.
 	 *
 	 * @return
 	 */
 	IdmIdentityDto createIdentity();
 
 	/**
-	 * Creates test identity with given username and default "password"
+	 * Creates test identity with given username and default "password".
+	 * The password is set back to identity after save.
 	 *
 	 * @param username
 	 * @return
@@ -107,7 +109,8 @@ public interface TestHelper {
 	IdmIdentityDto createIdentity(String username);
 	
 	/**
-	 * Creates test identity with random username and given password
+	 * Creates test identity with random username and given password.
+	 * The password is set back to identity after save.
 	 *
 	 * @param password [optional] when password is not given, then identity password will not be saved - useful when password is not needed
 	 * @return
@@ -115,7 +118,8 @@ public interface TestHelper {
 	IdmIdentityDto createIdentity(GuardedString password);
 	
 	/**
-	 * Creates test identity given username and given password
+	 * Creates test identity given username and given password.
+	 * The password is set back to identity after save.
 	 *
 	 * @param username
 	 * @param password [optional] when password is not given, then identity password will not be saved - usefull when password is not needed

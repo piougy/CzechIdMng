@@ -160,7 +160,11 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity.setPassword(password);
-		return identityService.save(identity);
+		identity = identityService.save(identity);
+		// password is transient, some test except password back in identity
+		identity.setPassword(password);
+		//
+		return identity;
 	}
 
 	@Override

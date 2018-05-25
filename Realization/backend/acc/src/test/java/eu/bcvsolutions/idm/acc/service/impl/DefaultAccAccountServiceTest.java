@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
@@ -280,7 +279,6 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void targetEntityTest() {
 		String userOneName = "UserOne";
-		String eavAttributeName = "EAV_ATTRIBUTE";
 		SysSystemDto system = initData();
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);

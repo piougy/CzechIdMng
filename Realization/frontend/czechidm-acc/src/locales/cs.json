@@ -1042,7 +1042,7 @@
       "TREE": "Strom",
       "ROLE_CATALOGUE": "Katalog rolí",
       "CONTRACT": "Pracovní pozice",
-      "CONTRACT_SLICE": "Časové řezy pracovních pozic"
+      "CONTRACT_SLICE": "Časové řezy pozic"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",

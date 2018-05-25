@@ -7,6 +7,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 
+/**
+ * Rest test for {@link IdmScriptController}
+ *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 public class IdmScriptControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmScriptDto> {
 
 	@Autowired

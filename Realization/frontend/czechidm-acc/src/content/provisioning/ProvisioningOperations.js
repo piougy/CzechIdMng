@@ -254,14 +254,14 @@ class ProvisioningOperations extends Basic.AbstractContent {
                 <Advanced.OperationResult value={ detail.entity.result } face="full"/>
 
                 {
-                  (!detail.entity.nextAttempt)
+                  (!detail.entity._embedded || !detail.entity._embedded.batch.nextAttempt)
                   ||
                   <div style={{ marginBottom: 15 }}>
                     <Basic.ContentHeader text={ this.i18n('detail.nextAttempt.header') }/>
                     <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt.label', {
                       currentAttempt: detail.entity.currentAttempt,
                       maxAttempts: detail.entity.maxAttempts,
-                      nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
+                      nextAttempt: moment(detail.entity._embedded.batch.nextAttempt).format(this.i18n('format.datetime'))
                     })}}/>
                   </div>
                 }

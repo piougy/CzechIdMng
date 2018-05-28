@@ -1384,7 +1384,7 @@
     },
     "ACCOUNT_CANNOT_BE_READ_FROM_TARGET": {
       "title": "Account cannot be read",
-      "message": "Account [{{account}}] cannost be read from the end system [{{system}}]!"
+      "message": "Account [{{account}}] cannot be read from the end system [{{system}}]!"
     }
   },
   "processor": {

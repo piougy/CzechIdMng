@@ -12,12 +12,6 @@ import uuid from 'uuid';
 const rootRoleCatalogueKey = 'tree-role-catalogue-table-roots';
 
 /**
- * TODO: Add better constant for max roots count
- * @type {Number}
- */
-const MAX_ROOTS_COUNT = 100000;
-
-/**
 * Table of roles catalogues
 *
 * @author Ondřej Kopr
@@ -37,7 +31,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     const { roleCatalogueManager } = this.props;
-    const searchParametersRoots = roleCatalogueManager.getRootSearchParameters().setSize(MAX_ROOTS_COUNT);
+    const searchParametersRoots = roleCatalogueManager.getRootSearchParameters();
     this.context.store.dispatch(roleCatalogueManager.fetchEntities(searchParametersRoots, rootRoleCatalogueKey, (loadedRoots) => {
       const rootNodes = loadedRoots._embedded[roleCatalogueManager.getCollectionType()];
       this.setState({

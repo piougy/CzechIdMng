@@ -12,6 +12,12 @@ import uuid from 'uuid';
 const rootRoleCatalogueKey = 'tree-role-catalogue-table-roots';
 
 /**
+ * TODO: Add better constant for max roots count
+ * @type {Number}
+ */
+const MAX_ROOTS_COUNT = 100000;
+
+/**
 * Table of roles catalogues
 *
 * @author Ondřej Kopr
@@ -31,7 +37,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     const { roleCatalogueManager } = this.props;
-    const searchParametersRoots = roleCatalogueManager.getRootSearchParameters();
+    const searchParametersRoots = roleCatalogueManager.getRootSearchParameters().setSize(MAX_ROOTS_COUNT);
     this.context.store.dispatch(roleCatalogueManager.fetchEntities(searchParametersRoots, rootRoleCatalogueKey, (loadedRoots) => {
       const rootNodes = loadedRoots._embedded[roleCatalogueManager.getCollectionType()];
       this.setState({
@@ -235,7 +241,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="role-catalogue/:id"
+            <Advanced.ColumnLink to="role-catalogue/:id/detail"
               header={this.i18n('entity.RoleCatalogue.code.name')}
               property="code" width="15%" sort face="text"/>
             <Advanced.Column property="name" header={this.i18n('entity.RoleCatalogue.name.name')} sort face="text"/>

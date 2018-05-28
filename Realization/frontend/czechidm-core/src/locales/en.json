@@ -1105,6 +1105,10 @@
         "disabled": {
           "label": "$t(label.disabled)",
           "placeholder": "$t(label.disabled)"
+        },
+        "state": {
+          "label": "State",
+          "placeholder": "Identity state"
         }
       },
       "action": {
@@ -2513,11 +2517,11 @@
       "titleAfter": "Titles after",
       "state": {
         "label": "State",
-        "help": "Identity state"
+        "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions."
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
-        "help": "$t(label.disabled) identity cannot log in."
+        "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
       }
     },
     "RoleCatalogue": {
@@ -2756,7 +2760,8 @@
       "externe": "External contractor",
       "managers": {
         "label": "Authorizers",
-        "title": "Authorizer and all managers for position in structure"
+        "title": "Authorizer and all managers for position in structure",
+        "total": "Total number of authorizers"
       },
       "disabled": {
         "label": "$t(label.disabled)",

@@ -5,23 +5,23 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -40,13 +40,17 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component("eavCodeSubordinatesFilter")
 public class EavCodeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
 	protected static final String PROPERTY_FORM_DEFINITION = "formDefinition";
 	protected static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
+	protected static final String PROPERTY_PERSISTENT_TYPE = "persistentType";
 	protected static final String DEFAULT_FORM_ATTRIBUTE_CODE = "parentCode";
+	protected static final String DEFAULT_PERSISTENT_TYPE = "stringValue";
+	//
+	@Autowired private GuaranteeSubordinatesFilter guaranteeSubordinatesFilter;
 	
 	@Override
 	public String getName() {
@@ -63,6 +67,7 @@ public class EavCodeSubordinatesFilter
 		List<String> props = super.getPropertyNames();
 		props.add(PROPERTY_FORM_DEFINITION);
 		props.add(PROPERTY_FORM_ATTRIBUTE);
+		props.add(PROPERTY_PERSISTENT_TYPE);
 		return props;
 	}
 
@@ -78,19 +83,9 @@ public class EavCodeSubordinatesFilter
 		subquery.select(subRoot);
 		//
 		List<Predicate> subPredicates = new ArrayList<>();
-		if (filter.getSubordinatesByTreeType() == null) {
+		if (filter.getSubordinatesByTreeType() == null && filter.isIncludeGuarantees()) {
 			// manager as guarantee
-			Subquery<IdmIdentityContract> subqueryGuarantees = query.subquery(IdmIdentityContract.class);
-			Root<IdmContractGuarantee> subRootGuarantees = subqueryGuarantees.from(IdmContractGuarantee.class);
-			subqueryGuarantees.select(subRootGuarantees.get(IdmContractGuarantee_.identityContract));
-			//
-			subqueryGuarantees.where(
-	                builder.and(
-	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.identityContract), subRoot), // correlation attr
-	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.guarantee).get(IdmIdentity_.id), filter.getSubordinatesFor())
-	                		)
-	        );
-			subPredicates.add(builder.exists(subqueryGuarantees));
+			subPredicates.add(guaranteeSubordinatesFilter.getGuaranteesPredicate(root, query, builder, filter));
 		}		
 		//
 		Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
@@ -99,12 +94,15 @@ public class EavCodeSubordinatesFilter
 		//
 		Subquery<String> subqueryEav = query.subquery(String.class);
 		Root<IdmTreeNodeFormValue> subRootEav = subqueryEav.from(IdmTreeNodeFormValue.class);
-		subqueryEav.select(subRootEav.get(IdmTreeNodeFormValue_.stringValue));
-		Path<IdmFormAttribute> eavAttr = subRootEav.get(IdmTreeNodeFormValue_.formAttribute);
+		subqueryEav.select(subRootEav.get(getConfigurationValue(PROPERTY_PERSISTENT_TYPE, DEFAULT_PERSISTENT_TYPE)));
+		// prevent to generate cross joins by default
+		Join<IdmTreeNodeFormValue, IdmFormAttribute> eavAttr = subRootEav.join(IdmTreeNodeFormValue_.formAttribute);
+		Join<IdmFormAttribute, IdmFormDefinition> extDef = eavAttr.join(IdmFormAttribute_.formDefinition);
+		//
 		subqueryEav.where(builder.and(
 						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subRoot.get(IdmIdentityContract_.workPosition)),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.code), 
+								extDef.get(IdmFormDefinition_.code), 
 								getConfigurationValue(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_CODE)),
 						builder.equal(
 								eavAttr.get(IdmFormAttribute_.code), 
@@ -114,14 +112,8 @@ public class EavCodeSubordinatesFilter
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);
 		subqueryWp.where(builder.and(
 				// valid contract only
-				builder.or(
-						builder.isNull(subqueryWpRoot.get(IdmIdentityContract_.validFrom)),
-						builder.lessThanOrEqualTo(subqueryWpRoot.get(IdmIdentityContract_.validFrom), new LocalDate())
-						),
-				builder.or(
-						builder.isNull(subqueryWpRoot.get(IdmIdentityContract_.validTill)),
-						builder.greaterThanOrEqualTo(subqueryWpRoot.get(IdmIdentityContract_.validTill), new LocalDate())
-						),
+				RepositoryUtils.getValidPredicate(subqueryWpRoot, builder),
+        		builder.equal(subqueryWpRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 				//
 				(filter.getSubordinatesByTreeType() == null) 
 					? builder.conjunction() 

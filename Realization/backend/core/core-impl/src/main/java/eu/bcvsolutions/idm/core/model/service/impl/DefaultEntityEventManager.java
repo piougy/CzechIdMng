@@ -30,7 +30,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
@@ -68,9 +67,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -95,7 +91,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SecurityService securityService;
-	@Autowired private NotificationManager notificationManager;
+//	@Autowired private NotificationManager notificationManager;
 	@Autowired private EventConfiguration eventConfiguration;
 	
 	public DefaultEntityEventManager(
@@ -577,22 +573,23 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			return;
 		}
 		//
+		// TODO: send notification only when event fails
 		// notification - info about registered (asynchronous) processors
-		Map<String, Object> parameters = new LinkedHashMap<>();
-		parameters.put("eventType", entityEvent.getEventType());
-		parameters.put("ownerId", entityEvent.getOwnerId());
-		parameters.put("instanceId", entityEvent.getInstanceId());
-		parameters.put("processors", registeredProcessors
-				.stream()
-				.map(DefaultEntityEventManager.this::toDto)
-				.collect(Collectors.toList()));
-		notificationManager.send(
-				CoreModuleDescriptor.TOPIC_EVENT, 
-				new IdmMessageDto
-					.Builder()
-					.setLevel(NotificationLevel.INFO)
-					.setModel(new DefaultResultModel(CoreResultCode.EVENT_ACCEPTED, parameters))
-					.build());
+//		Map<String, Object> parameters = new LinkedHashMap<>();
+//		parameters.put("eventType", entityEvent.getEventType());
+//		parameters.put("ownerId", entityEvent.getOwnerId());
+//		parameters.put("instanceId", entityEvent.getInstanceId());
+//		parameters.put("processors", registeredProcessors
+//				.stream()
+//				.map(DefaultEntityEventManager.this::toDto)
+//				.collect(Collectors.toList()));
+//		notificationManager.send(
+//				CoreModuleDescriptor.TOPIC_EVENT, 
+//				new IdmMessageDto
+//					.Builder()
+//					.setLevel(NotificationLevel.INFO)
+//					.setModel(new DefaultResultModel(CoreResultCode.EVENT_ACCEPTED, parameters))
+//					.build());
 		//
 		// persist event - asynchronous processing
 		entityEventService.save(entityEvent);

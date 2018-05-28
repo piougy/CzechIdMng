@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -504,6 +505,20 @@ public interface TestHelper {
 	 * @param processorType
 	 */
 	void disable(Class<? extends EntityEventProcessor<?>> processorType);
+	
+	/**
+	 * Enables given filter
+	 *
+	 * @param processorType
+	 */
+	void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType);
+
+	/**
+	 * Disables given filter
+	 *
+	 * @param processorType
+	 */
+	void disableFilter(Class<? extends FilterBuilder<?, ?>> filterType);
 
 	/**
 	 * Wait for result - usable for asynchronous tests

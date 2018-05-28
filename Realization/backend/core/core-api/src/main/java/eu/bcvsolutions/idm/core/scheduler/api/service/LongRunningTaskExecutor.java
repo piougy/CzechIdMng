@@ -5,7 +5,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 
 /**
  * Long running task executor
@@ -130,4 +133,13 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	 * @param task persisted task to validate
 	 */
 	void validate(IdmLongRunningTaskDto task);
+	
+	/**
+	 * Create new log in processed items
+	 *
+	 * @param item
+	 * @param opResult
+	 * @return
+	 */
+	<DTO extends AbstractDto> IdmProcessedTaskItemDto logItemProcessed(DTO item, OperationResult opResult);
 }

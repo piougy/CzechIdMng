@@ -88,6 +88,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                 manager={ manager }
                 forceSearchParameters={ forceSearchParameters }
                 showRowSelection={ SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE']) }
+                rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]._embedded.guarantee); }}
                 actions={
                   SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE'])
                   ?

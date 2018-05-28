@@ -235,7 +235,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="role-catalogue/:id"
+            <Advanced.ColumnLink to="role-catalogue/:id/detail"
               header={this.i18n('entity.RoleCatalogue.code.name')}
               property="code" width="15%" sort face="text"/>
             <Advanced.Column property="name" header={this.i18n('entity.RoleCatalogue.name.name')} sort face="text"/>

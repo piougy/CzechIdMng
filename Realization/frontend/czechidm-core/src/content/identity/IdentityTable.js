@@ -204,7 +204,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="state"
-                      placeholder={ this.i18n('entity.Identity.state.help') }
+                      placeholder={ this.i18n('filter.state.placeholder') }
                       enum={ IdentityStateEnum }/>
                   </Basic.Col>
                 </Basic.Row>

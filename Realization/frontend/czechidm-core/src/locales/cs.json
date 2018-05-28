@@ -1139,6 +1139,10 @@
         "disabled": {
           "label": "Neaktivní",
           "placeholder": "Aktivita uživatele"
+        },
+        "state": {
+          "label": "Stav",
+          "placeholder": "Stav uživatele"
         }
       },
       "action": {

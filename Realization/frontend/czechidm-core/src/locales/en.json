@@ -1105,6 +1105,10 @@
         "disabled": {
           "label": "$t(label.disabled)",
           "placeholder": "$t(label.disabled)"
+        },
+        "state": {
+          "label": "State",
+          "placeholder": "Identity state"
         }
       },
       "action": {

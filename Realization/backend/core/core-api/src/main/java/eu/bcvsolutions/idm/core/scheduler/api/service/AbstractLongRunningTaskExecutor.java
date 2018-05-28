@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent;
 import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
@@ -48,6 +50,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired private LookupService entityLookupService;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private IdmProcessedTaskItemService itemService;
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID longRunningTaskId;
@@ -319,5 +322,13 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	 */
 	protected IdmLongRunningTaskService getLongRunningTaskService() {
 		return longRunningTaskService;
+	}
+	
+	@Override
+	public <DTO extends AbstractDto> IdmProcessedTaskItemDto logItemProcessed(DTO item, OperationResult opResult) {
+		Assert.notNull(item);
+		Assert.notNull(opResult);
+		//
+		return itemService.createLogItem(item, opResult, this.getLongRunningTaskService().get(this.getLongRunningTaskId()));
 	}
 }

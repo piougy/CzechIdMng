@@ -60,14 +60,6 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	}
 
 	@Override
-	public IdmProcessedTaskItemDto logItemProcessed(DTO dto, OperationResult opResult) {
-		Assert.notNull(dto);
-		Assert.notNull(opResult);
-		//
-		return itemService.createLogItem(dto, opResult, longRunningTaskService.get(this.getLongRunningTaskId()));
-	}
-
-	@Override
 	public IdmProcessedTaskItemDto addToProcessedQueue(DTO dto, OperationResult opResult) {
 		Assert.notNull(dto);
 		Assert.notNull(opResult);

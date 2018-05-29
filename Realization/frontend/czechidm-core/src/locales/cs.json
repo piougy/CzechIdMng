@@ -1185,7 +1185,7 @@
         "identifiers": {
           "label": "Identifikátory",
           "placeholder": "Identifikátory",
-          "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou.",
+          "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou."
         },
         "state": {
           "label": "Stav",

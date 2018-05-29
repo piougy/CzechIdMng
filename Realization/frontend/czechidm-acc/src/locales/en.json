@@ -1035,7 +1035,7 @@
       "TREE": "Tree",
       "ROLE_CATALOGUE": "Role catalogue",
       "CONTRACT": "Identity contract",
-      "CONTRACT_SLICE": "Time slices of identity contracts"
+      "CONTRACT_SLICE": "Contract time slices"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1384,7 +1384,7 @@
     },
     "ACCOUNT_CANNOT_BE_READ_FROM_TARGET": {
       "title": "Account cannot be read",
-      "message": "Account [{{account}}] cannost be read from the end system [{{system}}]!"
+      "message": "Account [{{account}}] cannot be read from the end system [{{system}}]!"
     }
   },
   "processor": {

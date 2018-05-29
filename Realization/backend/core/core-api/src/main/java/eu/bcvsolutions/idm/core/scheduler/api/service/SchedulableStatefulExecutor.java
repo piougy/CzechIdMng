@@ -86,12 +86,4 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	 */
 	void removeFromProcessedQueue(DTO dto);
 
-	/**
-	 * Logs the operation result of given entity DTO processing.
-	 * 
-	 * @param dto
-	 * @param opResult
-	 */
-	IdmProcessedTaskItemDto logItemProcessed(DTO dto, OperationResult opResult);
-	
 }

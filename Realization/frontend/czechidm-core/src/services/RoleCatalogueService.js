@@ -2,6 +2,12 @@ import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
 /**
+ * TODO: Add better constant for max roots count
+ * @type {Number}
+ */
+const MAX_ROOTS_COUNT = 100000;
+
+/**
  * Role catalogue
  *
  * @author Ondřej Kopr
@@ -40,7 +46,7 @@ class RoleCatalogueService extends AbstractService {
    * Returns search parameters for search roots
    */
   getRootSearchParameters() {
-    return super.getDefaultSearchParameters().setName(RoleCatalogueService.ROOT_SEARCH).clearSort().setSort('name');
+    return super.getDefaultSearchParameters().setName(RoleCatalogueService.ROOT_SEARCH).clearSort().setSort('name').setSize(MAX_ROOTS_COUNT);
   }
 
   /**

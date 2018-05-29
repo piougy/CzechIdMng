@@ -84,6 +84,13 @@ module.exports = {
       'manager': require('./src/redux').IdentityContractManager
     },
     {
+      'id': 'contract-slice-info',
+      'type': 'entity-info',
+      'entityType': ['contractSlice', 'contractSlice', 'IdmContractSlice', 'IdmContractSliceDto'],
+      'component': require('./src/components/advanced/ContractSliceInfo/ContractSliceInfo').default,
+      'manager': require('./src/redux').ContractSliceManager
+    },
+    {
       'id': 'text-form-value',
       'type': 'form-attribute-renderer',
       'persistentType': 'TEXT',

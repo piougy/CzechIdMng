@@ -25,6 +25,7 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
     super(props);
     //
     this.state = {
+      ...this.state,
       filterOpened: false
     };
   }
@@ -64,7 +65,7 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
 
   render() {
     const { entity, showLoading } = this.props;
-    const { filterOpened } = this.state;
+    const { filterOpened, detail } = this.state;
     //
     if (showLoading) {
       return (
@@ -126,6 +127,17 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
             }
             _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                  );
+                }
+              }/>
+            <Advanced.Column
               property="operationResult.state"
               header={this.i18n('entity.LongRunningTaskItem.result.state')}
               width={75}
@@ -133,7 +145,7 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
               cell={
                 ({ data, rowIndex }) => {
                   return (
-                    <Advanced.OperationResult value={ data[rowIndex].operationResult }/>
+                    <Advanced.OperationResult value={ data[rowIndex].operationResult } detailLink={ () => this.showDetail(data[rowIndex]) }/>
                   );
                 }
               }
@@ -152,7 +164,6 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
                   );
                 }
               }
-              width={250}
               sort
               face="text"
             />
@@ -172,6 +183,26 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
             />
           </Advanced.Table>
         }
+
+        <Basic.Modal
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
+          backdrop="static">
+
+          <Basic.Modal.Header text={ this.i18n('detail.header') }/>
+          <Basic.Modal.Body>
+            <Advanced.OperationResult value={ detail.entity ? detail.entity.operationResult : null } face="full"/>
+          </Basic.Modal.Body>
+
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={this.closeDetail.bind(this)}>
+              {this.i18n('button.close')}
+            </Basic.Button>
+          </Basic.Modal.Footer>
+
+        </Basic.Modal>
       </Basic.Panel>
     );
   }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -448,6 +449,59 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		assertNotEquals(identity2.getId(), founded.getId());
 	}
 
+	@Test
+	public void testIdentifiers() {
+		List<IdmIdentityDto> identities = createIdentities(10);
+		
+		IdmIdentityDto identityOne = identities.get(1);
+		IdmIdentityDto identityTwo = identities.get(2);
+		IdmIdentityDto identityFive = identities.get(5);
+		IdmIdentityDto identityNine = identities.get(9);
+		
+		identityOne.setExternalCode("identityOneExternalCode" + System.currentTimeMillis());
+		
+		identityTwo.setUsername("identityTwoUsername" + System.currentTimeMillis());
+		
+		identityFive.setUsername("identityFiveUsername" + System.currentTimeMillis());
+		identityFive.setExternalCode("identityFiveExternalCode" + System.currentTimeMillis());
+		
+		identityNine.setExternalCode("identityNineExternalCode" + System.currentTimeMillis());
+		identityNine.setUsername("identityNineUsername" + System.currentTimeMillis());
+		
+		identityOne = identityService.save(identityOne);
+		identityTwo = identityService.save(identityTwo);
+		identityFive = identityService.save(identityFive);
+		identityNine = identityService.save(identityNine);
+		
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		List<String> identifiers = new ArrayList<>();
+		
+		identifiers.add(identityOne.getExternalCode());
+		identifiers.add(identityTwo.getUsername());
+		identifiers.add(identityFive.getExternalCode());
+		identifiers.add(identityFive.getUsername());
+		identifiers.add(identityNine.getExternalCode());
+		identifiers.add(identityNine.getUsername());
+		
+		filter.setIdentifiers(identifiers);
+		
+		List<IdmIdentityDto> result = identityService.find(filter, null).getContent();
+		assertEquals(4, result.size());
+	}
+
+	/**
+	 * Create X identities without password
+	 *
+	 * @param count
+	 * @return
+	 */
+	private List<IdmIdentityDto> createIdentities(int count) {
+		List<IdmIdentityDto> identities = new ArrayList<>();
+		for (int index = 0; index < count; index++) {
+			identities.add(getHelper().createIdentity(getHelper().createName(), null));
+		}
+		return identities;
+	}
 	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(getHelper().createName());

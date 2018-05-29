@@ -191,7 +191,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       ]}/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Row className="last">
+                <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="disabled"
@@ -206,6 +206,16 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       ref="state"
                       placeholder={ this.i18n('entity.Identity.state.help') }
                       enum={ IdentityStateEnum }/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 12 }>
+                    <Advanced.Filter.CreatableSelectBox
+                      ref="identifiers"
+                      manager={identityManager}
+                      useCheck
+                      placeholder={this.i18n('filter.identifiers.placeholder')}
+                      tooltip={this.i18n('filter.identifiers.tooltip')}/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>

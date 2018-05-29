@@ -10,6 +10,7 @@ import FilterBooleanSelectBox from './FilterBooleanSelectBox';
 import FilterEnumSelectBox from './FilterEnumSelectBox';
 import FilterSelectBox from './FilterSelectBox';
 import FilterDateTimePicker from './FilterDateTimePicker';
+import FilterCreatableSelectBox from './FilterCreatableSelectBox';
 
 /**
  * Filter mainly for advanced table
@@ -93,3 +94,4 @@ Filter.BooleanSelectBox = FilterBooleanSelectBox;
 Filter.EnumSelectBox = FilterEnumSelectBox;
 Filter.SelectBox = FilterSelectBox;
 Filter.DateTimePicker = FilterDateTimePicker;
+Filter.CreatableSelectBox = FilterCreatableSelectBox;

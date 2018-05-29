@@ -197,6 +197,23 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return null;
   }
 
+/**
+ * Render icon (rendered only if props showIcon is true)
+ * @return {[type]} [description]
+ */
+  _renderIcon() {
+    const {showIcon} = this.props;
+    if (!showIcon) {
+      return '';
+    }
+    const _entity = this.getEntity();
+    return (
+    <span className="pull-left">
+      <Basic.Icon value={ this.getEntityIcon(_entity) } title={ this.getPopoverTitle(_entity) } style={{ marginRight: 5 }}/>
+    </span>
+    );
+  }
+
   /**
    * Renders nicelabel used in text and link face
    */
@@ -212,7 +229,12 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders text face
    */
   _renderText() {
-    return this._renderNiceLabel();
+    return (
+      <span>
+        {this._renderIcon()}
+        {this._renderNiceLabel()}
+      </span>
+    );
   }
 
   /**
@@ -225,11 +247,14 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       return this._renderNiceLabel();
     }
     return (
-      <Link
-        to={ this.getLink() }
-        title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }>
-        { this.getManager().getNiceLabel(_entity) }
-      </Link>
+      <span>
+        {this._renderIcon()}
+        <Link
+          to={ this.getLink() }
+          title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }>
+          { this.getManager().getNiceLabel(_entity) }
+        </Link>
+      </span>
     );
   }
 
@@ -248,6 +273,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         {
           <span
             style={ style }>
+            { this._renderIcon() }
             <Basic.Button
               level="link"
               style={{ padding: 0, whiteSpace: 'normal', textAlign: 'left' }}
@@ -375,6 +401,10 @@ AbstractEntityInfo.propTypes = {
    */
   showLink: PropTypes.bool,
   /**
+   * Shows icon for text', 'link', 'popover' face
+   */
+  showIcon: PropTypes.bool,
+  /**
    * Entity manager
    */
   manager: PropTypes.object
@@ -382,5 +412,6 @@ AbstractEntityInfo.propTypes = {
 AbstractEntityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   face: 'full',
-  showLink: true
+  showLink: true,
+  showIcon: false
 };

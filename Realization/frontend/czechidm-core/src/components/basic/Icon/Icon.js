@@ -47,7 +47,7 @@ class Icon extends AbstractComponent {
   }
 
   render() {
-    const { type, icon, value, className, rendered, showLoading, color, style, disabled } = this.props;
+    const { type, icon, value, className, rendered, showLoading, color, style, disabled, title } = this.props;
     if (!rendered) {
       return null;
     }
@@ -81,7 +81,7 @@ class Icon extends AbstractComponent {
       _style.color = color;
     }
     return (
-      <span className={classNames} aria-hidden="true" style={_style}></span>
+      <span title={title} className={classNames} aria-hidden="true" style={_style}></span>
     );
   }
 }

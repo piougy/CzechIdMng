@@ -191,27 +191,16 @@ public class DefaultIdmConceptRoleRequestService
 	}
 	
 	@Override
+	@Transactional
+	public IdmConceptRoleRequestDto cancel(IdmConceptRoleRequestDto dto) {
+		cancelWF(dto);
+		dto.setState(RoleRequestState.CANCELED);
+		return this.save(dto);
+	}
+	
+	@Override
 	public void deleteInternal(IdmConceptRoleRequestDto dto) {
-		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
-			WorkflowFilterDto filter = new WorkflowFilterDto();
-			filter.setProcessInstanceId(dto.getWfProcessId());
-
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
-					.searchInternal(filter, false).getResources();
-			if (resources.isEmpty()) {
-				// Process with this ID not exist ... maybe was ended
-				this.addToLog(dto, MessageFormat.format(
-						"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
-						dto.getWfProcessId()));
-			} else {
-				workflowProcessInstanceService.delete(dto.getWfProcessId(),
-						"Role concept use this WF, was deleted. This WF was deleted too.");
-				this.addToLog(dto,
-						MessageFormat.format(
-								"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
-								dto.getWfProcessId()));
-			}
-		}
+		this.cancelWF(dto);
 		super.deleteInternal(dto);
 	}
 	
@@ -259,5 +248,28 @@ public class DefaultIdmConceptRoleRequestService
 		text = sb.toString();
 		logItem.addToLog(text);
 		LOG.info(text);
+	}
+	
+	private void cancelWF(IdmConceptRoleRequestDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+			WorkflowFilterDto filter = new WorkflowFilterDto();
+			filter.setProcessInstanceId(dto.getWfProcessId());
+
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
+					.searchInternal(filter, false).getResources();
+			if (resources.isEmpty()) {
+				// Process with this ID not exist ... maybe was ended
+				this.addToLog(dto, MessageFormat.format(
+						"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
+						dto.getWfProcessId()));
+			} else {
+				workflowProcessInstanceService.delete(dto.getWfProcessId(),
+						"Role concept use this WF, was deleted. This WF was deleted too.");
+				this.addToLog(dto,
+						MessageFormat.format(
+								"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
+								dto.getWfProcessId()));
+			}
+		}
 	}
 }

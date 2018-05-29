@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
@@ -159,7 +160,11 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity.setPassword(password);
-		return identityService.save(identity);
+		identity = identityService.save(identity);
+		// password is transient, some test except password back in identity
+		identity.setPassword(password);
+		//
+		return identity;
 	}
 
 	@Override
@@ -463,6 +468,16 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
+	public void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType) {
+		enableFilter(filterType, true);
+	}
+	
+	@Override
+	public void disableFilter(Class<? extends FilterBuilder<?, ?>> filterType) {
+		enableFilter(filterType, false);
+	}
+	
+	@Override
 	public void setConfigurationValue(String configurationPropertyName, boolean value) {
 		Assert.notNull(configurationPropertyName);
 		//
@@ -503,6 +518,15 @@ public class DefaultTestHelper implements TestHelper {
 		EntityEventProcessor<?> processor = context.getBean(processorType);
 		Assert.notNull(processor);
 		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
+	}
+	
+	private void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType, boolean enabled) {
+		Assert.notNull(filterType);
+		//
+		FilterBuilder<?, ?> filter = context.getBean(filterType);
+		Assert.notNull(filter);
+		String enabledPropertyName = filter.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
 		configurationService.setBooleanValue(enabledPropertyName, enabled);
 	}
 

@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.repository.filter.DisabledFilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
@@ -58,11 +59,14 @@ public class DefaultFilterManager implements FilterManager {
 		}
 		//
 		// default plugin by ordered definition
-		FilterBuilder<?, ?> builder = builders.getPluginFor(new FilterKey(entityClass, propertyName));
+		FilterBuilder<E, DataFilter> builder = (FilterBuilder<E, DataFilter>) builders.getPluginFor(new FilterKey(entityClass, propertyName));
+		if (builder.isDisabled()) {
+			return new DisabledFilterBuilder<E>(builder);
+		}
 		String implName = builder.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
 		if (!StringUtils.hasLength(implName)) {
 			// return default builder - configuration is empty
-			return (FilterBuilder<E, DataFilter>) builder;
+			return builder;
 		}
 		//
 		try {

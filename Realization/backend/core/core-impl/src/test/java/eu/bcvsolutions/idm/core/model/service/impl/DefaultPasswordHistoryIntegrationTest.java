@@ -63,7 +63,8 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		IdmIdentityDto newIdentity2 = testHelper.createIdentity(new GuardedString(originalPassword));
 
 		content = passwordHistoryService.find(null).getContent();
-		assertEquals(beforeSize + 4, content.size());
+		// after create identity is create only one password history record
+		assertEquals(beforeSize + 2, content.size());
 		
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdm(true);
@@ -71,7 +72,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		identityService.passwordChange(newIdentity, passwordChange);
 		
 		content = passwordHistoryService.find(null).getContent();
-		assertEquals(beforeSize + 5, content.size());
+		assertEquals(beforeSize + 3, content.size());
 		
 		passwordChange = new PasswordChangeDto();
 		passwordChange.setIdm(true);
@@ -79,7 +80,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		identityService.passwordChange(newIdentity2, passwordChange);
 		
 		content = passwordHistoryService.find(null).getContent();
-		assertEquals(beforeSize + 6, content.size());
+		assertEquals(beforeSize + 4, content.size());
 	}
 	
 	@Test
@@ -100,16 +101,15 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		filter.setIdentityId(identity.getId());
 		List<IdmPasswordHistoryDto> content = passwordHistoryService.find(filter, null).getContent();
 		
-		assertEquals(3, content.size());
+		// after create identity is create only one password history record
+		assertEquals(2, content.size());
 		
 		IdmPasswordHistoryDto passwordHistory1 = content.get(0);
 		IdmPasswordHistoryDto passwordHistory2 = content.get(1);
-		IdmPasswordHistoryDto passwordHistory3 = content.get(2);
 		
 		IdmPasswordDto identityPassword = passwordService.findOneByIdentity(identity.getId());
 		assertNotEquals(identityPassword.getPassword(), passwordHistory1.getPassword());
-		assertNotEquals(identityPassword.getPassword(), passwordHistory2.getPassword());
-		assertEquals(identityPassword.getPassword(), passwordHistory3.getPassword());
+		assertEquals(identityPassword.getPassword(), passwordHistory2.getPassword());
 	}
 	
 	@Test
@@ -123,18 +123,19 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		filter.setIdentityId(identity.getId());
 		List<IdmPasswordHistoryDto> content = passwordHistoryService.find(filter, null).getContent();
 		
-		assertEquals(2, content.size());
+		// after create identity is only one record
+		assertEquals(1, content.size());
 		
 		this.loginAsNoAdmin(identity.getUsername());
 		
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
-		passwordChange.setOldPassword(new GuardedString(password));
+		passwordChange.setOldPassword(new GuardedString(originalPassword));
 		passwordChange.setAll(true);
 		passwordChange.setIdm(true);
 		passwordChange.setNewPassword(new GuardedString(password));
 		identityService.passwordChange(identity, passwordChange);
 		
 		content = passwordHistoryService.find(filter, null).getContent();
-		assertEquals(3, content.size());
+		assertEquals(2, content.size());
 	}
 }

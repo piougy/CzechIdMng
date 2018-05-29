@@ -129,6 +129,10 @@ public class DefaultIdmPasswordService
 		if (password.getPassword() == null) {
 			return false;
 		}
+		// isn't possible compare null password
+		if (passwordToCheck.asString() == null) {
+			return false;
+		}
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
 

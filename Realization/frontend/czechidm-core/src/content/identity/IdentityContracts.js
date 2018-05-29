@@ -58,6 +58,15 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
     }
   }
 
+  showGuarantees(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    const { entityId } = this.props.params;
+    this.context.router.push(`/identity/${encodeURIComponent(entityId)}/identity-contract/${entity.id}/guarantees`);
+  }
+
   render() {
     const { entityId } = this.props.params;
     //
@@ -94,7 +103,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               cell={
                 ({rowIndex, data}) => {
                   return (
-                    <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    <Advanced.DetailButton onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                   );
                 }
               }/>
@@ -126,7 +135,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                           entityIdentifier={ data[rowIndex].workPosition }
                           face="popover" />
                         :
-                        data[rowIndex].position
+                        null
                       }
                     </span>
                   );
@@ -139,7 +148,10 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <ManagersInfo managersFor={entityId} identityContractId={data[rowIndex].id}/>
+                    <ManagersInfo
+                      managersFor={entityId}
+                      identityContractId={data[rowIndex].id}
+                      detailLink={ this.showGuarantees.bind(this, data[rowIndex]) }/>
                   );
                 }
               }

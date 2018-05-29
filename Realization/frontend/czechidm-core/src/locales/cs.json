@@ -350,6 +350,11 @@
         "searchingText": "Vyhledávání...",
         "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ..."
       },
+      "CreatebleSelectBox": {
+        "textCreator": "Vytvořit novou filtrovací hodnotu: [{{value}}]?",
+        "noResultsText": "Vytvořte nové hodnoty pro filtrování",
+        "searchPromptText": "Začněte psát pro vytvoření nových filtrovacích hodnot ..."
+      },
       "Table" : {
         "Pagination" : {
           "recordInfo": "<strong title='Počáteční zobrazený záznam na stránce'>{{minRecord}}</strong> - <strong title='Poslední zobrazený záznam na stránce'>{{maxRecord}}</strong> z <strong title='Celkový počet záznamů'>{{totalRecords}}</strong> záznamů",
@@ -1176,6 +1181,15 @@
         "disabled": {
           "label": "Neaktivní",
           "placeholder": "Aktivita uživatele"
+        },
+        "identifiers": {
+          "label": "Identifikátory",
+          "placeholder": "Identifikátory",
+          "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou.",
+        },
+        "state": {
+          "label": "Stav",
+          "placeholder": "Stav uživatele"
         }
       },
       "action": {
@@ -2587,11 +2601,11 @@
       "titleAfter": "Titul za",
       "state": {
         "label": "Stav",
-        "help": "Stav uživatele."
+        "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů)."
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
-        "help": "Neaktivní identitě není povoleno přihlášení."
+        "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
       }
     },
     "RoleCatalogue": {
@@ -2830,7 +2844,8 @@
       "externe": "Externista",
       "managers": {
         "label": "Garant / Vedoucí",
-        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře",
+        "total": "Celkový počet garantů a vedoucí"
       },
       "disabled": {
         "label": "Neaktivní",

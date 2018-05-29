@@ -115,8 +115,10 @@ public enum CoreGroupPermission implements GroupPermission {
 	SCRIPT(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.DELETE),
 	AUDIT(
 			IdmBasePermission.ADMIN, 
@@ -301,6 +303,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String SCRIPT_CREATE = "SCRIPT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SCRIPT_UPDATE = "SCRIPT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCRIPT_DELETE = "SCRIPT" + BasePermission.SEPARATOR + "DELETE";
+	public static final String SCRIPT_COUNT = "SCRIPT" + BasePermission.SEPARATOR + "COUNT";
 	//
 	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
 	//

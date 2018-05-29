@@ -158,7 +158,7 @@ public interface Configurable {
 	/**
 	 * Returns whole property name with prefix in configuration
 	 * 
-	 * @param propertyName
+	 * @param propertyName without prefix
 	 * @return
 	 */
 	default String getConfigurationPropertyName(String propertyName) {

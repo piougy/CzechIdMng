@@ -201,6 +201,28 @@ export default class AbstractService {
       });
   }
 
+  count(searchParameters) {
+    if (!searchParameters) {
+      searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_COUNT);
+    }
+    if (!(searchParameters instanceof SearchParameters)) {
+      // TODO: try construct SearchParameters.fromJs object
+      LOGGER.warn('Search parameters is not instance of SearchParameters - using default', searchParameters);
+      searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_COUNT);
+    }
+    return RestApiService
+      .get(this.getApiPath() + searchParameters.toUrl())
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

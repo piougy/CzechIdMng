@@ -129,7 +129,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		this.loginAsNoAdmin(identity.getUsername());
 		
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
-		passwordChange.setOldPassword(new GuardedString(password));
+		passwordChange.setOldPassword(new GuardedString(originalPassword));
 		passwordChange.setAll(true);
 		passwordChange.setIdm(true);
 		passwordChange.setNewPassword(new GuardedString(password));

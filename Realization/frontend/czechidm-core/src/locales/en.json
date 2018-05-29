@@ -287,6 +287,11 @@
         "searchingText": "Searching ...",
         "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
       },
+      "CreatebleSelectBox": {
+        "textCreator": "Create a new filtering option: [{{value}}]?",
+        "noResultsText": "Create new values for filtering",
+        "searchPromptText": "Start typing for create new options for filtering ..."
+      },
       "Table" : {
         "Pagination" : {
           "recordInfo": "<strong title='First record on page'>{{minRecord}}</strong> - <strong title='Last record on page'>{{maxRecord}}</strong> of <strong title='Total number of records'>{{totalRecords}}</strong> records",
@@ -1105,6 +1110,11 @@
         "disabled": {
           "label": "$t(label.disabled)",
           "placeholder": "$t(label.disabled)"
+        },
+        "identifiers": {
+          "label": "Identifiers",
+          "placeholder": "Identifiers",
+          "tooltip": "Enter individual values separated by a comma"
         },
         "state": {
           "label": "State",

@@ -45,6 +45,7 @@ import ScriptArea from './ScriptArea/ScriptArea';
 import PasswordStrength from './PasswordStrength/PasswordStrength';
 import Link from './Link/Link';
 import ShortText from './ShortText/ShortText';
+import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 
 const Components = {
   AbstractComponent,
@@ -107,7 +108,8 @@ const Components = {
   ScriptArea,
   PasswordStrength,
   Link,
-  ShortText
+  ShortText,
+  CreatableSelectBox
 };
 
 Components.version = '0.0.1';

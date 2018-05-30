@@ -319,6 +319,11 @@
         "searchingText": "Vyhledávání...",
         "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ..."
       },
+      "CreatebleSelectBox": {
+        "textCreator": "Vytvořit novou filtrovací hodnotu: [{{value}}]?",
+        "noResultsText": "Vytvořte nové hodnoty pro filtrování",
+        "searchPromptText": "Začněte psát pro vytvoření nových filtrovacích hodnot ..."
+      },
       "Table" : {
         "Pagination" : {
           "recordInfo": "<strong title='Počáteční zobrazený záznam na stránce'>{{minRecord}}</strong> - <strong title='Poslední zobrazený záznam na stránce'>{{maxRecord}}</strong> z <strong title='Celkový počet záznamů'>{{totalRecords}}</strong> záznamů",
@@ -1143,6 +1148,11 @@
         "disabled": {
           "label": "Neaktivní",
           "placeholder": "Aktivita uživatele"
+        },
+        "identifiers": {
+          "label": "Identifikátory",
+          "placeholder": "Identifikátory",
+          "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou."
         },
         "state": {
           "label": "Stav",

@@ -76,6 +76,14 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
     }
   }
 
+  afterDelete() {
+    this.refs.table.getWrappedInstance().reload();
+    const {reloadExternal} = this.props;
+    if (reloadExternal) {
+      reloadExternal();
+    }
+  }
+
   render() {
     const { entityId, identityId} = this.props.params;
     const {rendered} = this.props;

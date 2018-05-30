@@ -403,6 +403,7 @@ class SelectBox extends AbstractFormComponent {
       actualPage: 0
     });
     this.getOptions(value, this.props.forceSearchParameters);
+    return value;
   }
 
   getBody(feedback) {
@@ -495,6 +496,8 @@ class SelectBox extends AbstractFormComponent {
     const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
+    // from new version react-select is necessary turn off onBlurResetsInput and closeOnSelect
+    // onBlurResetsInput made problems with submit form and focus
     return (
         <Select
           ref="selectComponent"
@@ -508,6 +511,8 @@ class SelectBox extends AbstractFormComponent {
           onValueClick={this.gotoContributor}
           valueKey={ITEM_FULL_KEY}
           labelKey={fieldLabel}
+          onBlurResetsInput={false}
+          closeOnSelect={false}
           noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
           placeholder={this.getPlaceholder(placeholder)}
           searchingText={this.i18n('component.basic.SelectBox.searchingText')}

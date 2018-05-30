@@ -487,12 +487,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected boolean handleIcObject(SynchronizationContext itemContext) {
 		Assert.notNull(itemContext);
-
-		String uid = itemContext.getUid();
+		
 		IcConnectorObject icObject = itemContext.getIcObject();
 		AbstractSysSyncConfigDto config = itemContext.getConfig();
 		SysSyncLogDto log = itemContext.getLog();
-		List<SysSyncActionLogDto> actionLogs = itemContext.getActionLogs();
 		AttributeMapping tokenAttribute = itemContext.getTokenAttribute();
 
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
@@ -528,20 +526,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 
 		boolean result = startItemSynchronization(itemContext);
-
-		// We reload log (maybe was synchronization canceled)
-		longRunningTaskExecutor.increaseCounter();
-		log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-		if (!log.isRunning()) {
-			result = false;
-		}
-		if (!result) {
-			log.setRunning(false);
-			log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-			addToItemLog(itemLog, "Canceled!");
-			initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log, actionLogs);
-		}
-		return result;
+		// Update (increased counter) and check state of sync (maybe was cancelled from
+		// sync or LRT)
+		return updateAndCheckState(result, log);
 	}
 
 	/**
@@ -675,16 +662,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 						result = (boolean) lastResult.getEvent().getProperties()
 								.get(SynchronizationService.RESULT_SYNC_ITEM);
 					}
-
-					// We reload log (maybe was synchronization canceled)
-					log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-					if (!log.isRunning()) {
-						result = false;
-					}
-					if (!result) {
-						log.setRunning(false);
-						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-					}
+					// Update (increased counter) and check state of sync (maybe was cancelled from
+					// sync or LRT)
+					updateAndCheckState(result, log);
 
 				} catch (Exception ex) {
 					String message = MessageFormat.format("Reconciliation - error for uid {0}", uid);
@@ -765,15 +745,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				result = (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
 			}
 
-			// We reload log (maybe was synchronization canceled)
-			log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-			if (!log.isRunning()) {
-				result = false;
-			}
-			if (!result) {
-				log.setRunning(false);
-				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-			}
+			// Update (increased counter) and check state of sync (maybe was cancelled from
+			// sync or LRT)
+			updateAndCheckState(result, log);
 
 		} catch (Exception ex) {
 			String message = MessageFormat.format("Export - error for entity {0}", entity.getId());
@@ -2131,6 +2105,28 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
+	 * Update (increased counter) and check state of sync (maybe was cancelled from
+	 * sync or LRT)
+	 * 
+	 * @param result
+	 * @param log
+	 */
+	private boolean updateAndCheckState(boolean result, SysSyncLogDto log) {
+		// We reload log (maybe was synchronization canceled)
+		log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
+		longRunningTaskExecutor.increaseCounter();
+		boolean lrtResult = longRunningTaskExecutor.updateState();
+		if (!log.isRunning() || !lrtResult) {
+			result = false;
+		}
+		if (!result) {
+			log.setRunning(false);
+			log.addToLog("Synchronization canceled!");
+		}
+		return result;
+	}
+
+	/**
 	 * Default implementation of {@link IcResultsHandler}
 	 * 
 	 * @author svandav
@@ -2215,17 +2211,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			boolean result = startItemSynchronization(itemContext);
 
-			// We reload log (maybe was synchronization canceled)
-			log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-			longRunningTaskExecutor.increaseCounter();
-			if (!log.isRunning()) {
-				result = false;
-			}
-			if (!result) {
-				log.setRunning(false);
-				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-			}
-			return result;
+			// Update (increased counter) and check state of sync (maybe was cancelled from
+			// sync or LRT)
+			return updateAndCheckState(result, log);
 
 		}
 	}

@@ -384,7 +384,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       removedRows } = this.state;
     const { _total, manager } = this.props;
     const count = _total - removedRows.size;
-    const existFormAttributes = backendBulkAction && showBulkActionDetail && backendBulkAction.formAttributes.length > 0;
 
     const isSelectedAll = _.includes(selectedRows, Basic.Table.SELECT_ALL);
     // get entities for currently selected

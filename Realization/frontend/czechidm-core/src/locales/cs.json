@@ -265,6 +265,10 @@
       "identity-delete-bulk-action": {
         "niceLabel": "Odebrat",
         "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
+      },
+      "identity-save-bulk-action": {
+        "niceLabel": "Přeuložit uživatele",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
       }
     },
     "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad právě vyfiltrovanými položkami. K tomuto datu [{{date}}] je aktuální počet [{{count}}]. Zpracované položky se mohou lišit.",
@@ -3670,6 +3674,12 @@
         "mainContract": {
           "label": "Odebrat pouze z hlavního kontraktu",
           "helpBlock": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+        }
+      },
+      "identity-save-bulk-action": {
+        "onlyNotify": {
+          "label": "Vyvolat pouze událost NOTIFY",
+          "helpBlock": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
         }
       }
     }

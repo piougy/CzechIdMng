@@ -279,8 +279,9 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     const dash = '-';
     const dot = '.';
     const colon = ':';
+    // replace dots must be done with split and join, reqular expression doesn't work correctly
     // g is globaly - replace all
-    return _.replace(_.replace(key, new RegExp(dot, 'g'), dash), new RegExp(colon, 'g'), dash);
+    return _.replace(key.split(dot).join(dash), new RegExp(colon, 'g'), dash);
   }
 
   /**

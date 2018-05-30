@@ -115,7 +115,7 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Create list of identities
+	 * Create list of identities, without passwords
 	 *
 	 * @param count
 	 * @return
@@ -124,7 +124,8 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 		List<IdmIdentityDto> identites = new ArrayList<>();
 		//
 		for (int index = 0; index < count; index++) {
-			identites.add(getHelper().createIdentity());
+			// create identity without password
+			identites.add(getHelper().createIdentity(getHelper().createName(), null));
 		}
 		//
 		return identites;

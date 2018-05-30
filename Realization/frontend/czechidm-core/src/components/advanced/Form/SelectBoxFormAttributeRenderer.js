@@ -108,7 +108,6 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
 
   renderSingleInput() {
     const { attribute, readOnly, values } = this.props;
-    console.log(123, this.getManager());
     //
     return (
       <Basic.SelectBox

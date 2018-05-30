@@ -403,7 +403,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			AccAccountDto account = accounts
 					.stream()
 					.filter(a -> {					
-						return a.getUid().equals(result.getSystemEntityUid()) 
+						return a.getRealUid().equals(result.getSystemEntityUid()) 
 								&& a.getSystem().equals(operation.getSystem());
 					})
 					.findFirst().get();				

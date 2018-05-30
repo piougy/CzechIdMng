@@ -133,12 +133,12 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
-                    <Basic.Col lg={ 6 }>
+                    <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
                     </Basic.Col>
-                    <Basic.Col lg={ 6 } className="text-right">
+                    <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                     </Basic.Col>
                   </Basic.Row>

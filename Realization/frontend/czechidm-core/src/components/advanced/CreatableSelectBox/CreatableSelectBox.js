@@ -1,15 +1,14 @@
 import React, { PropTypes } from 'react';
 import Select from 'react-select';
 import _ from 'lodash';
-//
-import EnumSelectBox from '../EnumSelectBox/EnumSelectBox';
+import * as Basic from '../../basic';
 
 /**
  * Creatable component
  *
  * @author Ondrej Kopr
  */
-class CreatableSelectBox extends EnumSelectBox {
+class CreatableSelectBox extends Basic.EnumSelectBox {
 
   constructor(props) {
     super(props);
@@ -58,7 +57,7 @@ class CreatableSelectBox extends EnumSelectBox {
   }
 
   getComponentKey() {
-    return 'component.basic.CreatebleSelectBox';
+    return 'component.advanced.CreatableSelectBox';
   }
 
   _onChange(values) {
@@ -144,7 +143,7 @@ class CreatableSelectBox extends EnumSelectBox {
   }
 
   _promptTextCreator(value) {
-    return this.i18n('component.basic.CreatebleSelectBox.textCreator', { value });
+    return this.i18n('textCreator', { value });
   }
 
   getSelectComponent() {
@@ -162,15 +161,15 @@ class CreatableSelectBox extends EnumSelectBox {
         removeSelected
         placeholder={this.getPlaceholder(placeholder)}
         labelKey={fieldLabel}
-        noResultsText={this.i18n('component.basic.CreatebleSelectBox.noResultsText')}
-        searchPromptText={this.i18n('component.basic.CreatebleSelectBox.searchPromptText')}
+        noResultsText={this.i18n('noResultsText')}
+        searchPromptText={this.i18n('searchPromptText')}
         promptTextCreator={this._promptTextCreator.bind(this)}/>
     );
   }
 }
 
 CreatableSelectBox.propTypes = {
-  ...EnumSelectBox.propTypes,
+  ...Basic.EnumSelectBox.propTypes,
   /**
    * Seperator for separate values
    */
@@ -199,7 +198,7 @@ CreatableSelectBox.propTypes = {
 };
 
 CreatableSelectBox.defaultProps = {
-  ...EnumSelectBox.defaultProps,
+  ...Basic.EnumSelectBox.defaultProps,
   separator: ',',
   manager: null,
   filterColumnName: 'identifiers',

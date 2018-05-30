@@ -105,6 +105,10 @@
         "header": "Filtrování",
         "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
       }
+    },
+    "module": {
+      "label": "Modul",
+      "placeholder": "Modul"
     }
   },
   "action": {
@@ -2082,7 +2086,7 @@
         "title": "Vedoucí",
         "label": "Vedoucí",
         "guarantees": {
-          "direct": "Nastavení garanti <small>přímo pro tento časový řeze vztahu</small>",
+          "direct": "Nastavení garanti <small>přímo pro tento časový řez vztahu</small>",
           "byTree": "Vedoucí <small>dle stromových struktur</small>"
         },
         "edit": {

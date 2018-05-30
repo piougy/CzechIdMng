@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author svandav
  *
  */
-@Service("idmContractSliceService")
+@Service("contractSliceService")
 public class DefaultIdmContractSliceService 
 		extends AbstractFormableService<IdmContractSliceDto, IdmContractSlice, IdmContractSliceFilter>
 		implements IdmContractSliceService {

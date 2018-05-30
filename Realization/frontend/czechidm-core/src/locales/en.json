@@ -105,6 +105,10 @@
         "header": "Filtering",
         "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>"
       }
+    },
+    "module": {
+      "label": "Modul",
+      "placeholder": "Modul"
     }
   },
   "action": {

@@ -143,14 +143,19 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                     </Basic.Col>
                   </Basic.Row>
                   <Basic.Row className="last">
-                    <Basic.Col lg={ 6 }>
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.TextField
+                        ref="module"
+                        placeholder={this.i18n('filter.module.placeholder')}/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.EnumSelectBox
                         ref="entityType"
                         placeholder={ this.i18n('filter.entityType.placeholder') }
                         options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
                         searchable/>
                     </Basic.Col>
-                    <Basic.Col lg={ 6 }>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.EnumSelectBox
                         ref="eventTypes"
                         placeholder={ this.i18n('filter.eventTypes.placeholder') }

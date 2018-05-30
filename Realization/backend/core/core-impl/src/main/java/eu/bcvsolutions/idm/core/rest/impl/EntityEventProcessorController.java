@@ -103,6 +103,7 @@ public class EntityEventProcessorController {
 		filter.setEntityType(getParameterConverter().toString(parameters, "entityType"));
 		filter.setName(getParameterConverter().toString(parameters, "name"));
 		filter.setEventTypes(getParameterConverter().toStrings(parameters, "eventTypes"));
+		filter.setModule(getParameterConverter().toString(parameters, "module"));
 		//
 		return filter;
 	}

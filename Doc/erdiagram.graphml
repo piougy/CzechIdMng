@@ -2022,23 +2022,6 @@ ContractState</y:NodeLabel>
     </node>
     <node id="n82">
       <data key="d6">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="30.0" x="-2167.040860215054" y="-1277.2301075268817"/>
-          <y:Fill color="#FFCC00" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="19.26953125" x="5.365234375" y="6.015625">88<y:LabelModel>
-              <y:SmartNodeLabelModel distance="4.0"/>
-            </y:LabelModel>
-            <y:ModelParameter>
-              <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/>
-            </y:ModelParameter>
-          </y:NodeLabel>
-          <y:Shape type="rectangle"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n83">
-      <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="101.80279283154118" width="210.6240424083178" x="2764.7604124857703" y="-948.9839357512805"/>
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
@@ -2059,7 +2042,7 @@ ContractState</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n84">
+    <node id="n83">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="101.80279283154118" width="210.6240424083178" x="2764.7604124857703" y="-817.1811429197393"/>
@@ -2079,7 +2062,7 @@ ContractState</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n85">
+    <node id="n84">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="58.46980208860214" width="69.05248994229083" x="-1049.4553536022574" y="-1311.2860012642038"/>
@@ -2099,7 +2082,7 @@ ContractState</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n86">
+    <node id="n85">
       <data key="d4"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
@@ -2120,7 +2103,7 @@ ContractState</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n87">
+    <node id="n86">
       <data key="d4"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
@@ -2141,7 +2124,7 @@ ContractState</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n88">
+    <node id="n87">
       <data key="d4"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
@@ -2164,7 +2147,7 @@ ContractState</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n89">
+    <node id="n88">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="102.5" width="127.0" x="1696.9359040501524" y="1191.320437282216"/>
@@ -2185,7 +2168,7 @@ Comparsion</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n90">
+    <node id="n89">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="102.5" width="127.0" x="2016.5543877903697" y="942.2880036812409"/>
@@ -2209,7 +2192,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n91">
+    <node id="n90">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="296.8489798304025" width="162.32572716670643" x="-1189.3015979156332" y="513.4720876196413"/>
@@ -2247,7 +2230,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n92">
+    <node id="n91">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="226.92230272645986" width="162.32572716670643" x="-902.9950894680062" y="548.4354261716128"/>
@@ -2280,7 +2263,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n93">
+    <node id="n92">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="126.34711122580654" width="291.9691937926174" x="1442.6263470085341" y="687.5527301852425"/>
@@ -2304,7 +2287,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n94">
+    <node id="n93">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="202.67732221585243" width="162.7888587216496" x="1154.2340092261684" y="649.3876246902196"/>
@@ -2335,10 +2318,10 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n95">
+    <node id="n94">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="56.32388549471682" width="134.18725560430107" x="-203.7113969923612" y="344.6880948113565"/>
+          <y:Geometry height="56.32388549471682" width="134.18725560430107" x="-381.9938419988128" y="383.3317847898511"/>
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="103.4921875" x="15.347534052150536" y="4.0">PasswordHistory</y:NodeLabel>
@@ -2355,10 +2338,10 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n96">
+    <node id="n95">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="226.92230272645986" width="153.3863492213634" x="-478.99255959206135" y="651.7685071667388"/>
+          <y:Geometry height="226.92230272645986" width="153.3863492213634" x="-522.0526712823839" y="651.7685071667388"/>
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="83.88671875" x="34.749815235681695" y="4.0">ContractSlice</y:NodeLabel>
@@ -2387,10 +2370,10 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n97">
+    <node id="n96">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="77.30985207741969" width="172.5854428384257" x="-488.5921064005925" y="992.3693292996111"/>
+          <y:Geometry height="77.30985207741969" width="172.5854428384257" x="-531.6522180909151" y="992.3693292996111"/>
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="148.638671875" x="11.973385481712853" y="4.0">ContractSliceFormValue</y:NodeLabel>
@@ -2407,11 +2390,11 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n98">
+    <node id="n97">
       <data key="d4"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="56.32388549471682" width="172.5854428384257" x="-416.12591272136484" y="481.7661022656094"/>
+          <y:Geometry height="56.32388549471682" width="172.5854428384257" x="-531.6522180909151" y="481.7661022656094"/>
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="147.5078125" x="12.538815169212853" y="4.0">ContractSliceGuarantee</y:NodeLabel>
@@ -2428,7 +2411,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n99">
+    <node id="n98">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="246.99400372581488" width="219.58748326853288" x="2591.196925226318" y="221.1639992221153"/>
@@ -2458,7 +2441,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n100">
+    <node id="n99">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="81.8301295466033" width="219.58748326853288" x="2849.6058477686165" y="221.1639992221153"/>
@@ -2481,7 +2464,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n101">
+    <node id="n100">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="67.7041066666668" width="172.5854428384257" x="2323.79248632076" y="406.8213337473884"/>
@@ -2501,7 +2484,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n102">
+    <node id="n101">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="116.94802970430942" width="215.47210434380145" x="2302.349155568072" y="221.1639992221153"/>
@@ -2525,7 +2508,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n103">
+    <node id="n102">
       <data key="d6">
         <y:GenericNode configuration="ShinyPlateNodeWithShadow">
           <y:Geometry height="625.8614097968939" width="985.8900836320199" x="2196.881945235733" y="6.612016616683377"/>
@@ -2539,7 +2522,7 @@ Type</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-    <node id="n104">
+    <node id="n103">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="115.0" width="152.9599253584928" x="577.0020010637843" y="-284.21715653862"/>
@@ -3503,7 +3486,7 @@ jedné synchronizace<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e61" source="n1" target="n86">
+    <edge id="e61" source="n1" target="n85">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="-44.98291015625"/>
@@ -3540,7 +3523,7 @@ na stromové struktuře<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e63" source="n58" target="n86">
+    <edge id="e63" source="n58" target="n85">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="-25.63557147320148" ty="-0.17562682243715244">
@@ -3633,7 +3616,7 @@ na základě  automatické role
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e70" source="n86" target="n60">
+    <edge id="e70" source="n85" target="n60">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-25.972010611662427" sy="13.107488792377126" tx="0.0" ty="0.0"/>
@@ -3814,8 +3797,8 @@ obsah<y:LabelModel>
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="-234.9221570041588" y="812.5707033767145"/>
-            <y:Point x="-234.9221570041588" y="390.88408758468097"/>
-            <y:Point x="-234.92215700415892" y="390.88408758468097"/>
+            <y:Point x="-134.4485630600729" y="390.88408758468097"/>
+            <y:Point x="-134.4485630600729" y="390.88408758468097"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="crows_foot_one" target="crows_foot_many_optional"/>
@@ -3909,7 +3892,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e89" source="n102" target="n101">
+    <edge id="e89" source="n101" target="n100">
       <data key="d10">
         <y:BezierEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -3926,7 +3909,7 @@ obsah<y:LabelModel>
         </y:BezierEdge>
       </data>
     </edge>
-    <edge id="e90" source="n102" target="n9">
+    <edge id="e90" source="n101" target="n9">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -3948,7 +3931,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e91" source="n99" target="n9">
+    <edge id="e91" source="n98" target="n9">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="103.37174535415829" ty="45.4346078783052">
@@ -3969,7 +3952,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e92" source="n100" target="n9">
+    <edge id="e92" source="n99" target="n9">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -3990,7 +3973,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e93" source="n0" target="n100">
+    <edge id="e93" source="n0" target="n99">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4012,7 +3995,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e94" source="n1" target="n100">
+    <edge id="e94" source="n1" target="n99">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4035,7 +4018,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e95" source="n99" target="n99">
+    <edge id="e95" source="n98" target="n98">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4055,7 +4038,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e96" source="n99" target="n99">
+    <edge id="e96" source="n98" target="n98">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4267,7 +4250,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e112" source="n33" target="n83">
+    <edge id="e112" source="n33" target="n82">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4277,7 +4260,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e113" source="n84" target="n33">
+    <edge id="e113" source="n83" target="n33">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4287,7 +4270,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e114" source="n85" target="n80">
+    <edge id="e114" source="n84" target="n80">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4305,7 +4288,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e115" source="n86" target="n55">
+    <edge id="e115" source="n85" target="n55">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4315,7 +4298,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e116" source="n87" target="n88">
+    <edge id="e116" source="n86" target="n87">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4325,7 +4308,7 @@ obsah<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e117" source="n86" target="n87">
+    <edge id="e117" source="n85" target="n86">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4344,7 +4327,7 @@ podle atributu<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e118" source="n89" target="n88">
+    <edge id="e118" source="n88" target="n87">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4363,7 +4346,7 @@ porovnání<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e119" source="n90" target="n88">
+    <edge id="e119" source="n89" target="n87">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4382,7 +4365,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e120" source="n91" target="n91">
+    <edge id="e120" source="n90" target="n90">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4402,7 +4385,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e121" source="n91" target="n92">
+    <edge id="e121" source="n90" target="n91">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4412,7 +4395,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e122" source="n94" target="n93">
+    <edge id="e122" source="n93" target="n92">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4422,7 +4405,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e123" source="n86" target="n94">
+    <edge id="e123" source="n85" target="n93">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4432,7 +4415,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e124" source="n1" target="n94">
+    <edge id="e124" source="n1" target="n93">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4442,7 +4425,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e125" source="n94" target="n6">
+    <edge id="e125" source="n93" target="n6">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4455,7 +4438,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e126" source="n93" target="n88">
+    <edge id="e126" source="n92" target="n87">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4465,7 +4448,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e127" source="n93" target="n27">
+    <edge id="e127" source="n92" target="n27">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4479,7 +4462,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e128" source="n95" target="n0">
+    <edge id="e128" source="n94" target="n0">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4489,7 +4472,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e129" source="n96" target="n97">
+    <edge id="e129" source="n95" target="n96">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4499,13 +4482,13 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e130" source="n98" target="n96">
+    <edge id="e130" source="n97" target="n95">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="crows_foot_many_optional" target="crows_foot_one"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="112.111328125" x="-103.38006644692655" y="47.87504824478253">garant "na přímo"<y:LabelModel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="112.111328125" x="-86.05566366388973" y="47.87504824478253">garant "na přímo"<y:LabelModel>
               <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -4517,7 +4500,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e131" source="n96" target="n77">
+    <edge id="e131" source="n95" target="n77">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="-22.7190482385366" ty="-1.1454848577578787"/>
@@ -4527,12 +4510,11 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e132" source="n98" target="n0">
-      <data key="d9"/>
+    <edge id="e132" source="n97" target="n0">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
-            <y:Point x="-105.73361380197741" y="467.5135199444891"/>
+            <y:Point x="-82.54739981488069" y="413.4123539745966"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="crows_foot_many_optional" target="crows_foot_one"/>
@@ -4540,8 +4522,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e133" source="n7" target="n104">
-      <data key="d9"/>
+    <edge id="e133" source="n7" target="n103">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4551,8 +4532,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e134" source="n104" target="n96">
-      <data key="d9"/>
+    <edge id="e134" source="n103" target="n95">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -4564,8 +4544,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e135" source="n96" target="n0">
-      <data key="d9"/>
+    <edge id="e135" source="n95" target="n0">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -4575,8 +4554,7 @@ pravidla<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e136" source="n96" target="n6">
-      <data key="d9"/>
+    <edge id="e136" source="n95" target="n6">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>

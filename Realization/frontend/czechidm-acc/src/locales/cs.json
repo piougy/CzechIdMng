@@ -1411,6 +1411,90 @@
     "ACCOUNT_CANNOT_BE_READ_FROM_TARGET": {
       "title": "Účet se nepodařilo načíst",
       "message": "Účet [{{account}}] se nepodařilo načíst z koncového systému [{{system}}]!"
+    },
+    "PROVISIONING_NEW_PASSWORD_FOR_ACCOUNT": {
+      "title": "Heslo bylo změněno",
+      "message": "Pro objekt s uid [{{uid}}] na systému [{{system}}] bylo nastaveno heslo: [{{password}}]."
+    },
+    "AUTHENTICATION_AGAINST_SYSTEM_FAILED": {
+      "title": "Přihlášení se nezdařilo",
+      "message": "Přihlášení uživatele [{{user}}] na systém [{{system}}] se nezdařilo."
+    },
+    "AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET": {
+      "title": "Přihlášení se nezdařilo",
+      "message": "Nelze se přihlásit na systém [{{system}}], protože nemé nastaven atribut pro autentifikaci."
+    },
+    "AUTHENTICATION_USERNAME_DONT_EXISTS": {
+      "title": "Přihlášení se nezdařilo",
+      "message": "Uživatel [{{user}}] nebyl na systému [{{system}}] nalezen."
+    },
+    "CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Klíč nebyl nalezen",
+      "message": "Klíč konektoru pro systém [{{system}}] nebyl nalezen."
+    },
+    "CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Schéma nebylo nalezeno",
+      "message": "Schéma konektoru pro systém [{{system}}] nebylo nalezeno."
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND": {
+      "title": "Schéma nebylo nalezeno",
+      "message": "Atribut schématu [{{attr}}] nebyl nalezen."
+    },
+    "PROVISIONING_SCRIPT_CAN_BE_ACC_CREATED_MUST_RETURN_BOOLEAN": {
+      "title": "Špatná návratová hodnota",
+      "message": "Script 'Can be account created' na systému [{{system}}] musí vracet hodnotu 'boolean'."
+    },
+    "SYNCHRONIZATION_CORRELATION_BAD_VALUE": {
+      "title": "Špatná hodnota atributu",
+      "message": "Synchronizace - hodnotu [{{value}}] pro najití korelace nebylo možné zkonvertovat."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL": {
+      "title": "Špatná hodnota atributu",
+      "message": "IDM atribut [{{attr}}] nesmí být null."
+    },
+    "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
+      "title": "Mapovaný atribut neexistuje",
+      "message": "Mapovaný atribut pro IdM pole [{{field}}] musí existovat v mapování systému."
+    },
+    "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Špatná hodnota filtru",
+      "message": "Hodnota filtru pro kořen stromu je null, ale musí být typu Boolean."
+    },
+    "PROVISIONING_GENERATED_UID_IS_NULL": {
+      "title": "UID nesmí být null",
+      "message": "Generované UID je null pro systém [{{system}}]. UID účtu musí být hodnota typu String."
+    },
+    "PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Účet nebyl nalezen",
+      "message": "Účet pro rodičovský prvek [{{node}}] nebyl nalezen."
+    },
+    "PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS": {
+      "title": "Příliš mnoho účtů pro rodičovských prvek",
+      "message": "Bylo nalezeno příliš mnoho účtů pro rodičovských prvek [{{node}}]. Očekává se pouze jeden účet pro stejný systém."
+    },
+    "SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND": {
+      "title": "Atribut nenalezen",
+      "message": "IDM atribut [{{attr}}] nebyl nalezen."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_GET": {
+      "title": "Nelze získat atribut",
+      "message": "IdM atribut [{{attr}}] pro entitu [{{entity}}] nelze získat."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_SET": {
+      "title": "Nelze nastavit atribut",
+      "message": "IdM atribut [{{attr}}] pro entitu [{{entity}}] nelze nastavit."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřezené UID: [{{uid}}] na systému [{{system}}] a s acc account: [{{account}}] nebyl nalezen účet stromové struktury."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "=Nebyů nalezen účet",
+      "message": "Pro nadřezené UID: [{{uid}}] na systému [{{system}}] nebyl nalezen rodičovský účet."
+    },
+    "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
+      "title": "Více atributů pro příjemce",
+      "message": "Pro příjemce existuje nastavení role a identity. Povolená je pouze jedna hodnota."
     }
   },
   "processor": {

@@ -7,6 +7,7 @@ import * as Advanced from '../../components/advanced';
 import { BackendModuleManager, DataManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
 import ConfigLoader from '../../utils/ConfigLoader';
+import ResultCodesModal from './ResultCodesModal';
 
 /**
  * BE modules administration
@@ -17,6 +18,11 @@ class BackendModules extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      detail: {
+        show: false
+      }
+    };
     this.backendModuleManager = new BackendModuleManager();
   }
 
@@ -24,8 +30,13 @@ class BackendModules extends Basic.AbstractContent {
     return 'content.system.be-modules';
   }
 
+  getNavigationKey() {
+    return 'be-modules';
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['system', 'modules', 'be-modules']);
+    super.componentDidMount();
+    //
     this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
   }
 
@@ -51,8 +62,26 @@ class BackendModules extends Basic.AbstractContent {
     });
   }
 
+  /**
+  * Show modal window
+  */
+  showResultCodes(moduleDescriptor) {
+    this.context.store.dispatch(this.backendModuleManager.fetchResultCodes(moduleDescriptor.id, (error) => {
+      if (error) {
+        this.addError(error);
+      }
+    }));
+    const { detail } = this.state;
+    detail.show = true;
+    detail.entity = moduleDescriptor;
+    this.setState({
+      ...detail,
+    });
+  }
+
   render() {
     const { installedModules, showLoading } = this.props;
+    const { detail } = this.state;
 
     const _installedModules = [];
     if (installedModules) {
@@ -69,6 +98,8 @@ class BackendModules extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
+
+        <ResultCodesModal detail={ detail } />
 
         <Basic.Table
           data={_installedModules}
@@ -106,6 +137,7 @@ class BackendModules extends Basic.AbstractContent {
           <Basic.Column
             property="documentation"
             header={this.i18n('entity.Module.documentation')}
+            width={ 250 }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({rowIndex, data}) => {
@@ -126,6 +158,14 @@ class BackendModules extends Basic.AbstractContent {
                       style={{ marginRight: 5 }}/>
                   );
                 }
+                links.push(
+                  <Basic.Button
+                    level="success"
+                    className="btn-xs"
+                    onClick={ this.showResultCodes.bind(this, moduleDescriptor) }
+                    text={ this.i18n('result-codes.button-show') }
+                    style={{ marginRight: 5 }}/>
+                );
                 // javadoc
                 return links;
               }

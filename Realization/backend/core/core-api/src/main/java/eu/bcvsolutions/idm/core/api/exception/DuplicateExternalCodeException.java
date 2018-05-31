@@ -16,17 +16,17 @@ public class DuplicateExternalCodeException extends ResultCodeException {
 	
 	private static final long serialVersionUID = 1L;
 	private final String entityType;
-	private final String externalId;
+	private final String externalCode;
 	private final Serializable duplicateId;
 	
-	public DuplicateExternalCodeException(String entityType, String externalId, Serializable duplicateId) {
+	public DuplicateExternalCodeException(String entityType, String externalCode, Serializable duplicateId) {
 		super(CoreResultCode.DUPLICATE_EXTERNAL_CODE, ImmutableMap.of(
 				"entityType", String.valueOf(entityType),
-				"externalId", String.valueOf(externalId),
+				"externalCode", String.valueOf(externalCode),
 				"duplicateId", String.valueOf(duplicateId)
 				));
 		this.entityType = entityType;
-		this.externalId = externalId;
+		this.externalCode = externalCode;
 		this.duplicateId = duplicateId;
 	}
 	
@@ -34,8 +34,8 @@ public class DuplicateExternalCodeException extends ResultCodeException {
 		return entityType;
 	}
 	
-	public String getExternalId() {
-		return externalId;
+	public String getExternalCode() {
+		return externalCode;
 	}
 	
 	public Serializable getDuplicateId() {

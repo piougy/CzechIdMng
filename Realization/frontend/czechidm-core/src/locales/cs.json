@@ -1069,7 +1069,6 @@
           "taskState": "$t(entity.ApprovalTask.taskState)",
           "approve": "Schválit",
           "disapprove": "Zamítnout",
-          "approvers": "Schvalovatelé tohoto úkolu",
           "messages": {
             "approved":"Úkol byl úspěšně schválen",
             "disapproved": "Úkol byl úspěšně zamítnut",
@@ -1738,7 +1737,6 @@
         "profile": "Osobní údaje",
         "password": "Změna hesla",
         "roles": "Přiřazené role",
-        "approve": "Schvaluji role",
         "subordinates": "Podřízení",
         "positions": "Pracovně právní vztahy",
         "approve": "Schvalovatelem pro role"
@@ -2126,11 +2124,6 @@
         }
       }
     },
-    "audit": {
-      "header": "Audit",
-      "headerSmall": "záznamy auditních logů",
-      "title": "Audit"
-    },
     "system": {
       "modules": {
         "header": "Aplikační moduly a komponenty",
@@ -2152,7 +2145,19 @@
       },
       "be-modules": {
         "header": "Moduly <small>backend</small>",
-        "title": "Moduly (backend)"
+        "title": "Moduly (backend)",
+        "result-codes": {
+          "button-show": "Stavové kódy",
+          "title": "Seznam stavových kódů pro modul [{{moduleName}}]",
+          "status": "Stav",
+          "code": "Kód",
+          "message": "Zpráva",
+          "filter": {
+            "text": {
+              "placeholder": "Kód"
+            }
+          }
+        }
       },
       "entity-event-processors": {
         "header": "Processory",
@@ -2253,10 +2258,6 @@
         "header": "Všechny úlohy",
         "title": "Všechny úlohy",
         "filter": {
-          "text": {
-            "label": "Klíč / Typ",
-            "placeholder": "Klíč nebo typ úlohy"
-          },
           "text": {
             "label": "Typ / Popis",
             "placeholder": "Typ nebo popis úlohy"
@@ -2396,7 +2397,6 @@
         "category": "Kategorie",
         "diagramResourceName": "Název schéma",
         "deploymentId": "ID deploymentu",
-        "resourceName": "Název zdroje",
         "id":"Identifikátor",
         "diagram": "Náhled procesu",
         "fullscreenDiagram": "Diagram procesu"
@@ -3007,7 +3007,6 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "model": "$t(entity.Notification.message.model)",
         "level": "$t(entity.Notification.message.level)"
@@ -3691,10 +3690,6 @@
       "title": "V politice hesel se nemohou vyskytovat záporné hodnoty",
       "message": "Attribut [{{attribute}}] je záporný."
     },
-    "PASSWORD_POLICY_NEGATIVE_VALUE": {
-      "title": "V politice hesel se nemohou vyskytovat záporné hodnoty",
-      "message": "Attribut [{{attribute}}] je záporný."
-    },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Politika hesel nebyla uložena",
       "message": "Problém s validací politiky."
@@ -4027,6 +4022,254 @@
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
       "title": "Politika [{{definition}}], nemá definovaný interval blokování!",
       "message": "Politika [{{definition}}], definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
+    },
+    "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
+      "title": "Změna hesla provedena",
+      "message": "Změna hesla pro účet [{{account}}] byla úspěšná."
+    },
+    "OK": {
+      "title": "Operace proběhla úspěšně",
+      "message": "Požadavek byl úspěšně dokončen."
+    },
+    "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
+      "title": "Není vyplněn atribut 'groupPermission'",
+      "message": "V případě vyplnění typu autorizace musíte vyplnit i atribut 'groupPermission'."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
+      "title": "Role nebyla přiřazena",
+      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{autoRole}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Role je využívána jiným procesem",
+      "message": "Automatická role [{{autoRole}}] je využívána souběžně úlohou [{{task}}], počkejta na dokončení."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
+      "title": "Role nebyla smazána",
+      "message": "Role [{{role}}] nebyla smazána automatickou rolí [{{autoRole}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Role je využívána jiným procesem",
+      "message": "Automatická role [{{autoRole}}] je mazána souběžnou úlohou [{{task}}]."
+    },
+    "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
+      "title": "Nejsou vyplněny potřebné atributy",
+      "message": "Pravidlo pro automatickou roli nevyplnilo potřebné atributy: [{{attrs}}]."
+    },
+    "AUTOMATIC_ROLE_TASK_EMPTY": {
+      "title": "Chybí 'id' automatické role",
+      "message": "Id automatické role je povinné."
+    },
+    "BACKUP_FAIL": {
+      "title": "Záloha nebyla provedena",
+      "message": "Záloha pro script [{{script}}] selhala z důvodu: [{{error}}]."
+    },
+    "DEPLOY_ERROR": {
+      "title": "Nezdařené nahrání entity",
+      "message": "Nepodařilo se nahrát entitu z umístění [{{path}}]."
+    },
+    "FORM_VALUE_WRONG_TYPE": {
+      "title": "Špatný formát atributu",
+      "message": "Hodnota [{{value}}] atributu [{{attr}}] musí být typu [{{type}}] místo [{{currentType}}]."
+    },
+    "GROOVY_SCRIPT_EXCEPTION": {
+      "title": "Chyba ve scriptu",
+      "message": "Script obsahuje následující chyby: [{{errors}}]."
+    },
+    "GROOVY_SCRIPT_INVALID_CATEGORY": {
+      "title": "Špatná kategorie pro script",
+      "message": "Script používá script ze špatné kategorie [{{category}}]."
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_CLASS": {
+      "title": "Třída není přístupná",
+      "message": "Třída [{{class}}] není přístupná!"
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
+      "title": "Služba není přístupná",
+      "message": "Služba [{{service}}] není přístupná!"
+    },
+    "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
+      "title": "Úloha má více instancí",
+      "message": "Úloha [{{task}}] má jinou instanci {{instance}}], proto není dostupná z této instance {{thisInstance}}]."
+    },
+    "LONG_RUNNING_TASK_NOT_FOUND": {
+      "title": "Nelze vytvořit instanci",
+      "message": "Nelze vytvořit instanci pro typ úlohy [{{taskType}}]."
+    },
+    "NOTIFICATION_TEMPLATE_ERROR_XML_SCHEMA": {
+      "title": "Nelze načíst šablonu",
+      "message": "Nepodařilo se načíst šablonu [{{template}}], chyba v XML schématu."
+    },
+    "NULL_ATTRIBUTE": {
+      "title": "Atribut je NULL",
+      "message": "Atribut 'null' je NULL."
+    },
+    "ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED": {
+      "title": "Špatná hodnota",
+      "message": "Atribut 'requested by' v žádosti [{{request}}] nemůže mít hodnotu 'AUTOMATICALLY' při volání přes REST API."
+    },
+    "ROLE_REQUEST_EXECUTE_WRONG_STATE": {
+      "title": "Nepovolený stav žádosti",
+      "message": "Žádost je ve stavu [{{state}}], pouze stavy APPROVED a CONCEPT mohou být provedeny."
+    },
+    "SCHEDULER_UNSUPPORTED_TASK_TRIGGER": {
+      "title": "Nepodporovaný trigger",
+      "message": "Úlohový trigger [{{trigger}}] není podporován."
+    },
+    "TREE_NODE_BAD_CHILDREN": {
+      "title": "Chybný potomek",
+      "message": "Prvek stromu [{{node}}] má špatného potomka."
+    },
+    "SEARCH_ERROR": {
+      "title": "Chyba během vyhledávání",
+      "message": "Došlo k chybě během vyhledávání entit. Chyba: [{{error}}]."
+    },
+    "WF_WARNING": {
+      "title": "Problém při běhu workflow",
+      "message": "Při běhu workflow došlo k následujícímu problému: [{{warning}}]."
+    },
+    "XML_JAXB_INIT_ERROR": {
+      "title": "Chyba při inicializaci instance JAXB",
+      "message": "Nepodařilo se inicializovat instanci JAXB."
+    },
+    "AUTH_EXPIRED": {
+      "title": "Vypršela doba platnosti přihlášení",
+      "message": "Došlo ke skončení platnosti přihlášení."
+    },
+    "ATTACHMENT_DATA_NOT_FOUND": {
+      "title": "Nenalezena data pro přílohu",
+      "message": "Binární data pro přílohu: [{{one}}:{{two}}] - [{{three}}] nebyla nalezena."
+    },
+    "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
+      "title": "Šablona nebyla nalezena",
+      "message": "XML soubor pro šablonu [{{template}}] nebyl nalezen."
+    },
+    "SCRIPT_XML_FILE_NOT_FOUND": {
+      "title": "Soubor nebyl nalezen",
+      "message": "XML soubor pro script [{{script}}] nebyl nalezen."
+    },
+    "METHOD_NOT_ALLOWED": {
+      "title": "Metoda není povolena",
+      "message": "Daná metoda není povolena!"
+    },
+    "FILTER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Filter nebyl nalezen",
+      "message": "Filter [{{filter}}] pro atribut [{{property}}] nebyl nalezen. Opravte konfigurační atribut [{{repairProperty}}]."
+    },
+    "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
+      "title": "Definici formuláře nelze aktualizovat",
+      "message": "Definici formuláře [{{form}}][{{form1}}] nelze aktualizovat. Nelze automaticky aktualizovat vlastnost [{{property}}] atributu [{{attr}}]. Použijte change script pro aktualizaci formuláře nebo definujte nový."
+    },
+    "NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Odesílač nebyl nalezen",
+      "message": "Odesílač [{{sender}}] pro typ [{{type}}] nebyl nalezen. Opravte konfigurační atribut [{{repairProperty}}]."
+    },
+    "NOTIFICATION_TEMPLATE_MORE_CODE_FOUND": {
+      "title": "Nalezeno více šablon",
+      "message": "Více než jedna šablona byla nalezena pro kód: [{{code}}]."
+    },
+    "PASSWORD_CHANGE_ACCOUNT_FAILED": {
+      "title": "Chyba při změně hesla",
+      "message": "Změna hesla selhala na následujících účtech: [{{accounts}}]."
+    },
+    "ROLE_DELETE_FAILED_IDENTITY_ASSIGNED": {
+      "title": "Role nelze smazat",
+      "message": "Roli [{{role}}] nelze smazat, protože jí májí stále přiřazeny nějaké identity."
+    },
+    "SCRIPT_MORE_CODE_FOUND": {
+      "title": "Nalezeno více scriptů",
+      "message": "Více než jednen script byl nalezen pro kód: [{{code}}]."
+    },
+    "UNMODIFIABLE_LOCKED": {
+      "title": "Nelze upravit entitu",
+      "message": "Entita [{{entity}}] nemůže být změněna, protože je uzamčena."
+    },
+    "ATTACHMENT_CREATE_FAILED": {
+      "title": "Chyba při tvorbě přílohy",
+      "message": "Tvorba přílohy [{{attachment}}] s vlastníkem [{{owner}}][{{owner1}}] selhala."
+    },
+    "ATTACHMENT_CREATE_TEMP_FILE_FAILED": {
+      "title": "Chyba při tvorbě dočasného souboru",
+      "message": "Tvorba dočasného souboru [{{file}}] ve dočasné složce [{{folder}}] selhala."
+    },
+    "ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED": {
+      "title": "Nelze vytvořit výchozí uložiště",
+      "message": "Tvorba složky pro výchozí uložiště [{{storage}}] v dočasné složce selhala."
+    },
+    "ATTACHMENT_INIT_DEFAULT_TEMP_FAILED": {
+      "title": "Nelze vytvořit dočasné výchozí uložiště",
+      "message": "Tvorba složky pro dočasné výchozí uložiště [{{storage}}] v dočasné složce selhala."
+    },
+    "ATTACHMENT_UPDATE_FAILED": {
+      "title": "Chyba při aktualizaci přílohy",
+      "message": "Aktualizace přílohy [{{attachment}}] s vlastníkem [{{owner}}][{{owner1}}] selhala."
+    },
+    "INTERNAL_SERVER_ERROR": {
+      "title": "Chyba serveru",
+      "message": "Na serveru se vyskytla chyba."
+    },
+    "NOT_IMPLEMENTED": {
+      "title": "Není implementováno",
+      "message": "Funkce [{{function}}] není implementována."
+    },
+    "NOT_SUPPORTED": {
+      "title": "Není podporována",
+      "message": "Funkce [{{function}}] není podporována."
+    },
+    "RECAPTCHA_SECRET_KEY_MISSING": {
+      "title": "Chyba v konfiguraci Recaptcha",
+      "message": "Recaptcha je chybně nastavena. Atribut [{{attr}}] chybí, prosím nastavte jej."
+    },
+    "SCHEDULER_CREATE_TASK_FAILED": {
+      "title": "Chyba při tvorbě úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_CREATE_TRIGGER_FAILED": {
+      "title": "Chyba pro tvorbě triggeru",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TASK_FAILED": {
+      "title": "Chyba při mazání úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TRIGGER_FAILED": {
+      "title": "Chyba při mazáná triggeru",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_INTERRUPT_TASK_FAILED": {
+      "title": "Chyba při přerušení úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_PAUSE_TRIGGER_FAILED": {
+      "title": "Chyba při pozastavení úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_RESUME_TRIGGER_FAILED": {
+      "title": "Chyba při znovuzpuštění úlohy",
+      "message": "[{{error}}]."
+    },
+    "WF_ERROR": {
+      "title": "Chyba při provádění workflow",
+      "message": "Při provádění workflow došlo k chybě: [{{error}}]."
+    },
+    "WRONG_PROXY_CONFIG": {
+      "title": "Špatná kofigurace proxy",
+      "message": "Chybná konfigurace http proxy. Požadovaný formát je '[IP]:[PORT]'. Například: '153.25.16.8:1234'."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE": {
+      "title": "Typ entity nepodporuje externí identifikátor",
+      "message": "Typ entity [{{entityType}}] nepodporuje externí identifikátor."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_CODEABLE": {
+      "title": "Typ entity nepodporuje externí kód",
+      "message": "Typ entity [{{entityType}}] nepodporuje externí kód."
+    },
+    "DUPLICATE_EXTERNAL_ID": {
+      "title": "Entita již existuje",
+      "message": "Typ entity [{{entityType}}] s externím identifikátorem [{{externalId}}] již existuje (id: [{{duplicateId}}])."
+    },
+    "DUPLICATE_EXTERNAL_CODE": {
+      "title": "Entita již existuje",
+      "message": "Typ entity [{{entityType}}] s externím kódem [{{externalCode}}] již existuje (id: [{{duplicateId}}])."
     }
   },
   "validationError": {

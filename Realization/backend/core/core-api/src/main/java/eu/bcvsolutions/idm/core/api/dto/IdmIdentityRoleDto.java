@@ -89,7 +89,6 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, 
         this.role = role;
     }
 
-    @Deprecated
     public boolean isAutomaticRole() {
         return automaticRole;
     }

@@ -91,7 +91,6 @@ public class IdentityContractDeleteProcessor
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityContractId(contract.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -104,6 +103,7 @@ public class IdentityContractDeleteProcessor
 				// Cancel concept and WF
 				concept = conceptRequestService.cancel(concept);
 			}
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
 			concept.setIdentityContract(null);

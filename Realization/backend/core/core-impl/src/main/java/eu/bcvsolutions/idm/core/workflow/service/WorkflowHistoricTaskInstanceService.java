@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceD
  *
  */
 
+@SuppressWarnings("deprecation")
 public interface WorkflowHistoricTaskInstanceService extends ReadDtoService<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto> {
 
 	public static final String SORT_BY_CREATE_TIME = "createTime";

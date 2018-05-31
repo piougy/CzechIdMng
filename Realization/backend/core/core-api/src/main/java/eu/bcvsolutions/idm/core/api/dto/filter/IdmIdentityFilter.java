@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -10,8 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;

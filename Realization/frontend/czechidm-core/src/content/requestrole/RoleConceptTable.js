@@ -490,6 +490,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
                 const role = data[rowIndex]._embedded.role;
+                if (!role) {
+                  return '';
+                }
                 return (
                   <Advanced.EntityInfo
                     entityType="role"
@@ -505,6 +508,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
             cell={
               ({rowIndex, data}) => {
                 const contract = data[rowIndex]._embedded.identityContract;
+                if (!contract) {
+                  return '';
+                }
                 return (
                   <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
                 );

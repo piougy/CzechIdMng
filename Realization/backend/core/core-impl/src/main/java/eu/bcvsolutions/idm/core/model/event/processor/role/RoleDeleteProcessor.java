@@ -12,7 +12,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
@@ -123,7 +122,6 @@ public class RoleDeleteProcessor
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleId(role.getId());
 		conceptRoleRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -136,6 +134,7 @@ public class RoleDeleteProcessor
 				// Cancel concept and WF
 				concept = conceptRoleRequestService.cancel(concept);
 			}
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			roleRequestService.addToLog(request, message);
 			conceptRoleRequestService.addToLog(concept, message);
 			concept.setRole(null);

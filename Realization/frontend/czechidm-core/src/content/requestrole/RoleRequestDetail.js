@@ -371,9 +371,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               header={this.i18n('entity.ConceptRoleRequest.identityContract')}
               cell={
                 ({rowIndex, data}) => {
+                  const contract = data[rowIndex].identityContract;
+                  if (!contract) {
+                    return '';
+                  }
                   return (
                     <Advanced.IdentityContractInfo
-                      entityIdentifier={ data[rowIndex].identityContract }
+                      entityIdentifier={ contract }
                       entity={ data[rowIndex]._embedded.identityContract }
                       showIdentity={ false }
                       face="popover" />

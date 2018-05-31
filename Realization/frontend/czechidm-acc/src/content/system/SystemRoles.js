@@ -4,15 +4,15 @@ import _ from 'lodash';
 import { Basic, Domain } from 'czechidm-core';
 import RoleSystemTableComponent, { RoleSystemTable } from '../role/RoleSystemTable';
 
-const uiKey = 'role-systems-table';
+const uiKey = 'system-roles-table';
 
 /**
- * Linked target systems to role
+ * Table to display roles, assigned to system
  *
- * @author Radek Tomiška
  * @author Petr Hanák
+ * @author Radek Tomiška
  */
-export default class RoleSystems extends Basic.AbstractContent {
+export default class SystemRoles extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -23,25 +23,27 @@ export default class RoleSystems extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'acc:content.role.systems';
+    return 'acc:content.system.roles';
   }
 
   getNavigationKey() {
-    return 'role-systems';
+    return 'system-roles';
   }
 
   render() {
     const { entityId } = this.props.params;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    //
     return (
       <div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Panel className="no-border last">
           <RoleSystemTableComponent
+            columns={ _.difference(RoleSystemTable.defaultProps.columns, ['system']) }
             uiKey={ this.getUiKey() }
-            columns={ _.difference(RoleSystemTable.defaultProps.columns, ['role']) }
             forceSearchParameters={ forceSearchParameters }
+            menu="system"
             params={ this.props.params }/>
         </Basic.Panel>
       </div>

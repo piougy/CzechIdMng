@@ -84,6 +84,16 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-roles',
+            'type': 'TAB',
+            'icon': 'fa:universal-access',
+            'labelKey': 'acc:content.systemRoles.title',
+            'titleKey': 'acc:content.systemRoles.header',
+            'order': 55,
+            'path': '/system/:entityId/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
             'id': 'system-synchronization-configs',
             'type': 'TAB',
             'icon': 'transfer',

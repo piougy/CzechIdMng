@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -107,6 +108,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private LoginService loginService;
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
+	@Autowired private EntityEventManager entityEventManager;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -513,12 +515,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	private void enableProcessor(Class<? extends EntityEventProcessor<?>> processorType, boolean enabled) {
-		Assert.notNull(processorType);
-		//
-		EntityEventProcessor<?> processor = context.getBean(processorType);
-		Assert.notNull(processor);
-		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
-		configurationService.setBooleanValue(enabledPropertyName, enabled);
+		entityEventManager.setEnabled(context.getBean(processorType).getId(), enabled);
 	}
 	
 	private void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType, boolean enabled) {

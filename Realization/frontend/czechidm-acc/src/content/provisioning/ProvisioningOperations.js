@@ -253,8 +253,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                 <Advanced.OperationResult value={ detail.entity.result } face="full"/>
 
-                {
-                  (!detail.entity._embedded || !detail.entity._embedded.batch.nextAttempt)
+                { // look out - archive doesn't have batch
+                  (!detail.entity._embedded || !detail.entity._embedded.batch || !detail.entity._embedded.batch.nextAttempt)
                   ||
                   <div style={{ marginBottom: 15 }}>
                     <Basic.ContentHeader text={ this.i18n('detail.nextAttempt.header') }/>

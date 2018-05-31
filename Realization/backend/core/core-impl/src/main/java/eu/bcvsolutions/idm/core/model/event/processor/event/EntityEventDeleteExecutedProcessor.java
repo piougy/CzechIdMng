@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
  * @author Radek Tomiška
  * @since 8.0.0
  */
-@Component
+@Component(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME)
 @Description("Delete successfully executed entity events.")
 public class EntityEventDeleteExecutedProcessor extends CoreEventProcessor<IdmEntityEventDto> {
 	

@@ -67,6 +67,10 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
     this.context.router.push(`/identity/${encodeURIComponent(entityId)}/identity-contract/${entity.id}/guarantees`);
   }
 
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
   render() {
     const { entityId } = this.props.params;
     //
@@ -182,7 +186,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               sort/>
           </Advanced.Table>
         </Basic.Panel>
-        <ContractSlices rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')} params={{entityId}}/>
+        <ContractSlices rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')} params={{entityId}} reloadExternal={this.reload.bind(this)}/>
       </div>
     );
   }

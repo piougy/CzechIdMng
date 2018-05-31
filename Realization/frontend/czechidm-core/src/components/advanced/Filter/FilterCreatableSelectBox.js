@@ -1,14 +1,17 @@
-
-
 import { PropTypes } from 'react';
-import * as Basic from '../../basic';
+import CreatableSelectBox from '../CreatableSelectBox/CreatableSelectBox';
 
-export default class FilterCreatableSelectBox extends Basic.CreatableSelectBox {
+/**
+ * Select box supports creating new options used in filters.
+ *
+ * @author Ondřej Kopr
+ */
+export default class FilterCreatableSelectBox extends CreatableSelectBox {
 
 }
 
 FilterCreatableSelectBox.propTypes = {
-  ...Basic.EnumSelectBox.propTypes,
+  ...CreatableSelectBox.propTypes,
   /**
    * Field name - if is not set, then ref is used
    * @type {[type]}
@@ -20,7 +23,7 @@ FilterCreatableSelectBox.propTypes = {
    */
   relation: PropTypes.oneOf(['EQ'])
 };
-const { labelSpan, componentSpan, ...otherDefaultProps } = Basic.CreatableSelectBox.defaultProps; // labelSpan etc. override
+const { labelSpan, componentSpan, ...otherDefaultProps } = CreatableSelectBox.defaultProps; // labelSpan etc. override
 FilterCreatableSelectBox.defaultProps = {
   ...otherDefaultProps,
   relation: 'EQ'

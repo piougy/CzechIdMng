@@ -105,6 +105,10 @@
         "header": "Filtrování",
         "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
       }
+    },
+    "module": {
+      "label": "Modul",
+      "placeholder": "Modul"
     }
   },
   "action": {
@@ -354,11 +358,6 @@
         "searchingText": "Vyhledávání...",
         "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ..."
       },
-      "CreatebleSelectBox": {
-        "textCreator": "Vytvořit novou filtrovací hodnotu: [{{value}}]?",
-        "noResultsText": "Vytvořte nové hodnoty pro filtrování",
-        "searchPromptText": "Začněte psát pro vytvoření nových filtrovacích hodnot ..."
-      },
       "Table" : {
         "Pagination" : {
           "recordInfo": "<strong title='Počáteční zobrazený záznam na stránce'>{{minRecord}}</strong> - <strong title='Poslední zobrazený záznam na stránce'>{{maxRecord}}</strong> z <strong title='Celkový počet záznamů'>{{totalRecords}}</strong> záznamů",
@@ -514,6 +513,11 @@
           "header": "Výsledek",
           "code": "Kód"
         }
+      },
+      "CreatableSelectBox": {
+        "textCreator": "Vytvořit novou filtrovací hodnotu: [{{value}}]?",
+        "noResultsText": "Vytvořte nové hodnoty pro filtrování",
+        "searchPromptText": "Začněte psát pro vytvoření nových filtrovacích hodnot ..."
       }
     }
   },
@@ -1188,7 +1192,7 @@
         },
         "identifiers": {
           "label": "Identifikátory",
-          "placeholder": "Identifikátory",
+          "placeholder": "Identifikátory - uživatelská jména nebo osobní čísla. $t(content.identities.filter.identifiers.tooltip)",
           "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou."
         },
         "state": {
@@ -2132,7 +2136,7 @@
         "title": "Vedoucí",
         "label": "Vedoucí",
         "guarantees": {
-          "direct": "Nastavení garanti <small>přímo pro tento časový řeze vztahu</small>",
+          "direct": "Nastavení garanti <small>přímo pro tento časový řez vztahu</small>",
           "byTree": "Vedoucí <small>dle stromových struktur</small>"
         },
         "edit": {

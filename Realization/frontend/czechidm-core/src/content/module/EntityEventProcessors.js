@@ -72,6 +72,28 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, UIKEY));
   }
 
+  onEnable(entity, enable, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs[`confirm-${enable ? '' : 'de'}activate`].show(
+      this.i18n(`action.${enable ? '' : 'de'}activate.message`, { count: 1, record: entity.name }),
+      this.i18n(`action.${enable ? '' : 'de'}activate.header`, { count: 1 })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().setEnabled(entity.id, enable, (patchedEntity, error) => {
+        if (!error) {
+          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: entity.name }) });
+          // refresh table with processors
+          this.reload();
+        } else {
+          this.addError(error);
+        }
+      }));
+    }, () => {
+      // rejected
+    });
+  }
+
   render() {
     const { processors, registeredProcessors, showLoading, _searchParameters } = this.props;
     const { filterOpened } = this.state;
@@ -133,24 +155,29 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
-                    <Basic.Col lg={ 6 }>
+                    <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}/>
                     </Basic.Col>
-                    <Basic.Col lg={ 6 } className="text-right">
+                    <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                     </Basic.Col>
                   </Basic.Row>
                   <Basic.Row className="last">
-                    <Basic.Col lg={ 6 }>
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.TextField
+                        ref="module"
+                        placeholder={this.i18n('filter.module.placeholder')}/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.EnumSelectBox
                         ref="entityType"
                         placeholder={ this.i18n('filter.entityType.placeholder') }
                         options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
                         searchable/>
                     </Basic.Col>
-                    <Basic.Col lg={ 6 }>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.EnumSelectBox
                         ref="eventTypes"
                         placeholder={ this.i18n('filter.eventTypes.placeholder') }
@@ -248,6 +275,36 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                           ({rowIndex, data, property}) => {
                             return (
                               <Advanced.UuidInfo value={data[rowIndex][property]}/>
+                            );
+                          }
+                        }/>
+                      <Basic.Column
+                        header={this.i18n('label.action')}
+                        className="action"
+                        cell={
+                          ( {rowIndex, data} ) => {
+                            if (!data[rowIndex].disabled) {
+                              return (
+                                <Basic.Button
+                                  level="warning"
+                                  onClick={this.onEnable.bind(this, data[rowIndex], false)}
+                                  className="btn-xs"
+                                  title={this.i18n('button.deactivate')}
+                                  titlePlacement="bottom"
+                                  rendered={data[rowIndex].disableable}>
+                                  {this.i18n('button.deactivate')}
+                                </Basic.Button>
+                              );
+                            }
+                            return (
+                              <Basic.Button
+                                level="success"
+                                onClick={this.onEnable.bind(this, data[rowIndex], true)}
+                                className="btn-xs"
+                                title={this.i18n('button.activate')}
+                                titlePlacement="bottom">
+                                {this.i18n('button.activate')}
+                              </Basic.Button>
                             );
                           }
                         }/>

@@ -31,6 +31,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 | face | oneOf(['full', 'popover', 'link', 'text'])  |  Decorator: <ul><li>`text`: entity's nice label only</li><li>`link`: entity's nice label with link to detail</li>li>`popover`: entity's nice label with link to popover with full info card</li><li>`full`: full info card</li></ul>  |  full |
 | showLink | bool | Shows link to entity's detail | true |
 | showEntityType | bool | Shows entity type, when no entity info component is found. Set to `false` when type is rendered extrnally (e.g. in different table column) | true |
+| showIcon | bool | Shows icon for 'text', 'link', 'popover' face | false |
 
 
 ## Public static methods

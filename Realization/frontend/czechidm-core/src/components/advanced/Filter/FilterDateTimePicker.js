@@ -1,8 +1,11 @@
-
-
 import { PropTypes } from 'react';
 import * as Basic from '../../basic';
 
+/**
+ * DateTimePicker used in filters
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterDateTimePicker extends Basic.DateTimePicker {
 
 }

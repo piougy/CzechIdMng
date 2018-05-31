@@ -806,11 +806,11 @@
     "_type": "Account in system",
     "accountType": "Account type",
     "system": "System",
-    "systemEntity": "Linked entity in system",
+    "systemEntity": "Entity (system)",
     "uid": "Account identifier",
     "inProtection": "Is protected from delete",
     "endOfProtection": "Protected until",
-    "targetEntity": "Target entity"
+    "targetEntity": "Entity (IdM)"
   },
     "IdentityAccount": {
       "_type": "Identity account in system",

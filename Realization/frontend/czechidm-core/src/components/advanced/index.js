@@ -43,6 +43,7 @@ import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 import EavAttributeForm from './Form/EavAttributeForm';
 import LongRunningTask from './LongRunningTask/LongRunningTask';
+import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 
 const Components = {
   Table,
@@ -90,8 +91,12 @@ const Components = {
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
+<<<<<<< HEAD
   EavAttributeForm,
   LongRunningTask
+=======
+  CreatableSelectBox
+>>>>>>> develop
 };
 
 Components.version = '0.0.1';

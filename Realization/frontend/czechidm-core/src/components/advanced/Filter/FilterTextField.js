@@ -1,8 +1,11 @@
-
-
 import { PropTypes } from 'react';
 import * as Basic from '../../basic';
 
+/**
+ * Text field used in filters
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterTextField extends Basic.TextField {
 
 }

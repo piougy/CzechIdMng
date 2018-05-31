@@ -51,6 +51,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       }
     }
   }
+
   static getEntityEnum(key) {
     if (!key) {
       return null;

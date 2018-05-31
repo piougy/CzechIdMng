@@ -231,17 +231,6 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		return executor.process(synchronizationConfigId);
 	}
 	
-	/**
-	 * Synchronization has own cancel mechanism
-	 * 
-	 * @param running
-	 */
-	public void updateState(boolean running) {
-		boolean result = super.updateState();
-		if (running && !result) { // synchronization was canceled from long running task agenda - we need to stop synchronization through event 
-			stopSynchronizationEvent(synchronizationConfigService.get(synchronizationConfigId));
-		}
-	}
 	
 	@Override
 	public AbstractSysSyncConfigDto stopSynchronizationEvent(AbstractSysSyncConfigDto config) {

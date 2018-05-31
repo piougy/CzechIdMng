@@ -51,56 +51,22 @@ public class IdentityDeleteProcessor
 		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
-	private final IdmIdentityService service;
-	private final IdentityPasswordProcessor passwordProcessor;
-	private final IdmRoleGuaranteeService roleGuaranteeService;
-	private final IdmIdentityContractService identityContractService;
-	private final IdmNotificationRecipientRepository notificationRecipientRepository;
-	private final IdmRoleRequestService roleRequestService;
-	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
-	private final IdmContractGuaranteeService contractGuaranteeService;
-	private final IdmAuthorityChangeRepository authChangeRepository;
-	private final IdmPasswordHistoryService passwordHistoryService;
-	@Autowired
-	private IdmContractSliceService contractSliceService;
-	@Autowired
-	private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
+	//
+	@Autowired private IdmIdentityService service;
+	@Autowired private IdentityPasswordProcessor passwordProcessor;
+	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmNotificationRecipientRepository notificationRecipientRepository;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
+	@Autowired private IdmPasswordHistoryService passwordHistoryService;
+	@Autowired private IdmContractSliceService contractSliceService;
+	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	
-	@Autowired
-	public IdentityDeleteProcessor(
-			IdmIdentityService service,
-			IdentityPasswordProcessor passwordProcessor,
-			IdmRoleGuaranteeService roleGuaranteeService,
-			IdmIdentityContractService identityContractService,
-			IdmNotificationRecipientRepository notificationRecipientRepository,
-			IdmRoleRequestService roleRequestService,
-			IdmIdentityRoleValidRequestService identityRoleValidRequestService,
-			IdmAuthorityChangeRepository authChangeRepository,
-			IdmContractGuaranteeService contractGuaranteeService,
-			IdmPasswordHistoryService passwordHistoryService) {
+	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
-		//
-		Assert.notNull(service);
-		Assert.notNull(passwordProcessor);
-		Assert.notNull(roleGuaranteeService);
-		Assert.notNull(identityContractService);
-		Assert.notNull(notificationRecipientRepository);
-		Assert.notNull(roleRequestService);
-		Assert.notNull(identityRoleValidRequestService);
-		Assert.notNull(contractGuaranteeService);
-		Assert.notNull(authChangeRepository);
-		Assert.notNull(passwordHistoryService);
-		//
-		this.service = service;
-		this.passwordProcessor = passwordProcessor;
-		this.roleGuaranteeService = roleGuaranteeService;
-		this.identityContractService = identityContractService;
-		this.notificationRecipientRepository = notificationRecipientRepository;
-		this.roleRequestService = roleRequestService;
-		this.identityRoleValidRequestService = identityRoleValidRequestService;
-		this.contractGuaranteeService = contractGuaranteeService;
-		this.authChangeRepository = authChangeRepository;
-		this.passwordHistoryService = passwordHistoryService;
 	}
 	
 	@Override

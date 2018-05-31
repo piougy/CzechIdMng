@@ -2,6 +2,11 @@ import { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
 
+/**
+ * Boolean select box used in filters
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterBooleanSelectBox extends Basic.BooleanSelectBox {
 
 }

@@ -1,8 +1,11 @@
-
-
 import { PropTypes } from 'react';
 import * as Basic from '../../basic';
 
+/**
+ * Enum select box used in filters
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterEnumSelectBox extends Basic.EnumSelectBox {
 
 }

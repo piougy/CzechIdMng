@@ -80,20 +80,21 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class DefaultEntityEventManager implements EntityEventManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityEventManager.class);
+	private static final ConcurrentHashMap<UUID, UUID> runningOwnerEvents = new ConcurrentHashMap<>();
+	//
 	private final ApplicationContext context;
 	private final ApplicationEventPublisher publisher;
 	private final EnabledEvaluator enabledEvaluator;
 	private final LookupService lookupService;
-	private static final ConcurrentHashMap<UUID, UUID> runningOwnerEvents = new ConcurrentHashMap<>();
 	//
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private IdmEntityEventRepository entityEventRepository;
 	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SecurityService securityService;
-//	@Autowired private NotificationManager notificationManager;
 	@Autowired private EventConfiguration eventConfiguration;
-	
+
+	@Autowired
 	public DefaultEntityEventManager(
 			ApplicationContext context, 	
 			ApplicationEventPublisher publisher,
@@ -183,6 +184,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
 			EntityEventProcessor<?> processor = entry.getValue();
 			// entity event processor depends on module - we could not call any processor method
+			// TODO: all processor should be returned - disbaled by filter
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
@@ -195,6 +197,41 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
 		return dtos;
+	}
+	
+	@Override
+	public EntityEventProcessorDto get(String processorId) {
+		EntityEventProcessor<?> processor = getProcessor(processorId);
+		if (processor == null) {
+			return null;
+		}
+		return toDto(processor);
+	}
+	
+	/**
+	 * Get processor from context by id
+	 * 
+	 * @param processorId
+	 * @return
+	 */
+	@Override
+	public EntityEventProcessor<?> getProcessor(String processorId) {
+		Assert.notNull(processorId);
+		//
+		return (EntityEventProcessor<?>) context.getBean(processorId);
+	}
+	
+	/**
+	 * Get processor from context by type
+	 * 
+	 * @param processorId
+	 * @return
+	 */
+	@Override
+	public <T extends Serializable> EntityEventProcessor<T> getProcessor(Class<? extends EntityEventProcessor<T>> processorType) {
+		Assert.notNull(processorType);
+		//
+		return context.getBean(processorType);
 	}
 
 	@Override
@@ -499,6 +536,31 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		resurectedEvent.setOriginalSource(entityEvent.getOriginalSource());
 		//
 		return resurectedEvent;
+	}
+	
+	@Override
+	public void enable(String processorId) {
+		setEnabled(processorId, true);
+	}
+
+	@Override
+	public void disable(String processorId) {
+		setEnabled(processorId, false);
+	}
+
+	@Override
+	public void setEnabled(String processorId, boolean enabled) {
+		setEnabled(getProcessor(processorId), enabled);
+	}
+	
+	@Override
+	public <DTO extends Serializable> void setEnabled(Class<? extends EntityEventProcessor<DTO>> processorType, boolean enabled) {
+		setEnabled(getProcessor(processorType), enabled);
+	}
+	
+	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {
+		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
 	}
 	
 	/**

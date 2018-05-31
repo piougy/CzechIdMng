@@ -2936,6 +2936,7 @@
       "_type": "Notification Template",
       "name": "Name",
       "code": "Code",
+      "sender": "Sender address",
       "subject": "Subject",
       "parameter": {
         "name": "Parameters",

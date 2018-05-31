@@ -20,8 +20,7 @@ class NotificationDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      showLoading: false,
-      templateActive: false // if is choose template deactivate some fields
+      showLoading: false
     };
     this.identityManager = new IdentityManager();
     this.notificationManager = new NotificationManager();
@@ -92,14 +91,8 @@ class NotificationDetail extends Basic.AbstractContent {
     this.context.router.replace('notification/notifications/');
   }
 
-  _pickTemplate(template, event) {
-    if (event) {
-      event.preventDefault();
-    }
+  _pickTemplate(template) {
     if (template) {
-      this.setState({
-        templateActive: true
-      });
       const data = {
         ...this.refs.form.getData(),
         subject: template.subject,
@@ -107,10 +100,6 @@ class NotificationDetail extends Basic.AbstractContent {
         htmlMessage: template.bodyHtml
       };
       this.refs.form.setData(data);
-    } else {
-      this.setState({
-        templateActive: false
-      });
     }
   }
 
@@ -158,7 +147,7 @@ class NotificationDetail extends Basic.AbstractContent {
 
           <Basic.SelectBox
             readOnly={!isNew}
-            onChange={this._pickTemplate.bind(this)}
+            onChange={ this._pickTemplate.bind(this) }
             ref="template"
             label={this.i18n('entity.Notification.template')}
             manager={this.notificationTemplateManager}/>

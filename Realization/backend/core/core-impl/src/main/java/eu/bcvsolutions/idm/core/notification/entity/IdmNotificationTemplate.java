@@ -70,6 +70,11 @@ public class IdmNotificationTemplate extends AbstractEntity implements Codeable,
 	@Column(name = "module")
 	private String module;
 
+	@Audited
+	@Size(max= DefaultFieldLengths.NAME)
+	@Column(name = "sender")
+	private String sender;
+
 	public String getBodyHtml() {
 		return bodyHtml;
 	}
@@ -125,6 +130,14 @@ public class IdmNotificationTemplate extends AbstractEntity implements Codeable,
 
 	public void setModule(String module) {
 		this.module = module;
+	}
+
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
 	}
 
 	@Override

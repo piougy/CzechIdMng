@@ -353,6 +353,10 @@
           "success": "Atribut [{{name}}] IdM byl úspěšně vytvořen",
           "header": "Nový atribut IdM"
         }
+      },
+      "roles": {
+        "title" : "Role",
+        "header" : "Role <small>přiřazené role</small>"
       }
     },
     "role": {
@@ -367,6 +371,16 @@
         },
         "save": {
           "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        },
+        "filter": {
+          "system": {
+            "label": "Systém",
+            "placeholder": "Systém"
+          },
+          "role": {
+            "label": "Role",
+            "placeholder": "Role"
+          }
         }
       },
       "roleSystemDetail": {
@@ -608,6 +622,10 @@
       "create": {
         "success": "Příjemce byl úspěšně vytvořen"
       }
+    },
+    "systemRoles": {
+      "title": "Role",
+      "header": "Role <small>Role přiřazuje účet na systémech</small>"
     },
     "passwordPolicy": {
       "system": {

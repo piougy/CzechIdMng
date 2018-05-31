@@ -2764,7 +2764,7 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role",
+      "role" : "Název role",
       "identityContract": {
         "label": "PPV",
         "title": "Pracovně právní vztah",

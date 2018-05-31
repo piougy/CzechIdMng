@@ -2722,7 +2722,7 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role name",
+      "role" : "Role",
       "identityContract": {
         "label": "Contracted position",
         "title": "Contracted position",

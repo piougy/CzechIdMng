@@ -353,6 +353,10 @@
           "success": "IdM attribute [{{name}}] successfully created",
           "header": "New IdM attribute"
         }
+      },
+      "roles": {
+        "title" : "Roles",
+        "header" : "Roles <small>Role assigns account in systems</small>"
       }
     },
     "role": {
@@ -367,6 +371,16 @@
         },
         "save": {
           "success": "System [{{system}}] for role {{role}} successfully saved"
+        },
+        "filter": {
+          "system": {
+            "label": "System",
+            "placeholder": "System"
+          },
+          "role": {
+            "label": "Role",
+            "placeholder": "Role"
+          }
         }
       },
       "roleSystemDetail": {
@@ -601,6 +615,10 @@
       "create": {
         "success": "Recipient successfully created"
       }
+    },
+    "systemRoles": {
+      "title" : "Roles",
+      "header": "Roles <small>connected roles</small>"
     },
     "passwordPolicy": {
     "system": {

@@ -331,21 +331,4 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			entityEventManager.enable(processor.getId());
 		}
 	}
-	
-	@Test
-	public void testEnableDisableProcessorByType() {
-		EntityEventProcessor<IdmEntityEventDto> processor = entityEventManager.getProcessor(EntityEventDeleteExecutedProcessor.class);
-		//
-		try {
-			Assert.assertNotNull(processor);
-			Assert.assertFalse(processor.isDisabled());
-			//
-			entityEventManager.setEnabled(EntityEventDeleteExecutedProcessor.class, false);
-			//
-			processor =  entityEventManager.getProcessor(EntityEventDeleteExecutedProcessor.class);
-			Assert.assertTrue(processor.isDisabled());
-		} finally {
-			entityEventManager.setEnabled(EntityEventDeleteExecutedProcessor.class, true);
-		}
-	}
 }

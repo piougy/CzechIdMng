@@ -91,12 +91,9 @@ const Components = {
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
-<<<<<<< HEAD
   EavAttributeForm,
-  LongRunningTask
-=======
+  LongRunningTask,
   CreatableSelectBox
->>>>>>> develop
 };
 
 Components.version = '0.0.1';

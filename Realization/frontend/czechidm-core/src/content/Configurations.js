@@ -17,6 +17,7 @@ const IDM_CONFIGURATION_PREFIX = 'idm.';
  * Application configurations
  *
  * @author Radek Tomiška
+ * @author Patrik Stroukal
  */
 class Configurations extends Advanced.AbstractTableContent {
 
@@ -162,8 +163,8 @@ class Configurations extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().addMoreEntities(entities, `${uiKey}-detail`, this._afterAddMoreSave.bind(this)));
   }
 
-  _afterAddMoreSave(error) {
-    if (error.status !== 200) {
+  _afterAddMoreSave(entity, error) {
+    if (error) {
       this.refs.formAddMore.processEnded();
       this.addError(error);
       return;
@@ -175,8 +176,7 @@ class Configurations extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
 
-  _forceSave() {
-    const entity = this.refs.form.getData();
+  _forceSave(entity) {
     this.context.store.dispatch(this.getManager().fetchEntity(entity.name, entity.name, (entityBackend) => {
       this.refs['confirm-task-save'].show(
         this.i18n(`content.configuration.forceSave.message`, { name: entityBackend.name, value: entityBackend.value }),
@@ -193,7 +193,7 @@ class Configurations extends Advanced.AbstractTableContent {
   _afterSave(entity, error) {
     if (error) {
       if (error.statusCode === 409) {
-        this._forceSave();
+        this._forceSave(this.refs.form.getData());
       } else {
         this.refs.form.processEnded();
         this.addError(error);
@@ -292,7 +292,7 @@ class Configurations extends Advanced.AbstractTableContent {
       showPrefixWarning
     } = this.state;
     const render = detail.show || detail.addMore ? true : false;
-
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />

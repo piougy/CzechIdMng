@@ -288,9 +288,9 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	 * @return
 	 * @throws IOException 
 	 */
-	@ResponseStatus(code = HttpStatus.ACCEPTED)
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
-	@RequestMapping(value = "/bulk/save", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(value = "/bulk/save", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE, produces = BaseController.APPLICATION_HAL_JSON_VALUE)
 	@ApiOperation(
 			value = "Save configuration items in bulk", 
 			nickname = "saveConfigurationBulk", 
@@ -303,21 +303,18 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				},
 			notes = "Save configuration properties pasted from configration file (e.q. from application.properties)."
 					+ " Simple text/plain .properties format is accepted.")
-	public ResponseEntity<?> saveProperties(@RequestBody String configuration) {
+	public void saveProperties(@RequestBody String configuration) {
 		try {
 			Properties p = new Properties();
 	    	p.load(new StringReader(configuration));
 	    	p.forEach((name, value) -> {
 	    		configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
 	    	});
-		} 
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
-		}
-		catch (IllegalArgumentException ex) {
+		} catch (IllegalArgumentException ex) {
 			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex.getLocalizedMessage());
 		}
-		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
 
 	@Override

@@ -48,7 +48,7 @@ export default class PlainTextApi {
     const fetchConfig = {
       method: methodType,
       headers: {
-        'Accept': 'text/plain',
+        'Accept': 'text/plain, application/hal+json',
         'Content-Type': 'text/plain;charset=UTF-8'
       },
       credentials: 'include'

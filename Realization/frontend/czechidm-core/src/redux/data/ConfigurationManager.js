@@ -134,13 +134,17 @@ export default class ConfigurationManager extends EntityManager {
       };
     }
     uiKey = this.resolveUiKey(uiKey);
-    return () => {
+    return (dispatch) => {
       this.getService().addMoreEntities(entities)
-      .then(json => {
-        if (cb) {
-          cb(json, null, uiKey);
-        }
-      });
+        .then(json => {
+          if (cb) {
+            cb(json, null, uiKey);
+          }
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
     };
   }
 

@@ -58,6 +58,7 @@
   "button": {
     "activate": "Aktivovat",
     "add": "Přidat",
+    "addMore": "Přidat více",
     "back": "Zpět",
     "cancel": "Zrušit",
     "close": "Zavřít",
@@ -949,7 +950,15 @@
         "header": "Nová konfigurační položka"
       },
       "save": {
-        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena",
+        "sucessBulk": "Položky konfigurace byly úspěšně uloženy."
+      },
+      "addMore":{
+        "header": "Přidat více konfiguračních položek",
+        "configurationArea": {
+          "header": "Konfigurační položky",
+          "helpBlock": "Je možné vložení více konfiguračních položek. Komentáře za znakem '#' jsou ignorovány."
+        }
       },
       "configurable": "Konfigurovatelné položky <small>měnitelné, mohou přetěžovat statické položky</small>",
       "environment": "Statické konfigurační položky prostředí <small>pouze pro čtení</small>",
@@ -963,7 +972,11 @@
         "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
         "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
       },
-      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'>konfigurace aplikace</a>."
+      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'>konfigurace aplikace</a>.",
+      "forceSave": {
+        "header": "Přepsání konfigurovatelné položky",
+        "message": "Konfigurovatelná položka [<strong>{{name}}</strong>] již existuje s hodnotou [<strong>{{value}}</strong>]. Chcete ji přepsat?"
+      }
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",

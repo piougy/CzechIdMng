@@ -238,19 +238,15 @@ public class DefaultIdmTreeNodeService
 				predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), defaultTreeType.getId()));
 			}
 		}
-
+		//
 		// dyn property
 		if (filter.getProperty() != null) {
-			switch (filter.getProperty()) {
-				case "name" :
-					predicates.add(builder.equal(root.get(IdmTreeNode_.name), filter.getValue()));
-					break;
-				case "code" :
-					predicates.add(builder.equal(root.get(IdmTreeNode_.code), filter.getValue()));
-					break;
-				case "externalId" :
-					predicates.add(builder.equal(root.get(IdmTreeNode_.externalId), filter.getValue()));
-					break;
+			if (IdmTreeNode_.name.getName().equals(filter.getProperty())) {
+				predicates.add(builder.equal(root.get(IdmTreeNode_.name), filter.getValue()));
+			} else if(IdmTreeNode_.code.getName().equals(filter.getProperty())) {
+				predicates.add(builder.equal(root.get(IdmTreeNode_.code), filter.getValue()));
+			} else if(IdmTreeNode_.externalId.getName().equals(filter.getProperty())) {
+				predicates.add(builder.equal(root.get(IdmTreeNode_.externalId), filter.getValue()));
 			}
 		}
 		//

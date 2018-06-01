@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
@@ -257,6 +259,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 		if (this instanceof Codeable) {
 			String code = ((Codeable) this).getCode();
 			if (!Strings.isNullOrEmpty(code)) {
+				// TODO: e.g. "username" in logs can be dangerous ...
 				return MessageFormat.format("{0} [code= {1}]", getClass().getCanonicalName(), code);
 			}
 		}
@@ -264,21 +267,26 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	}
 
 	@Override
-	public int hashCode() {
-		int hash = 0;
-		hash += (getId() != null ? getId().hashCode() : 0);
-		return hash;
-	}
-
-	@Override
-	public boolean equals(Object object) {
-		if (object == null || !object.getClass().equals(getClass())) {
+	public boolean equals(final Object o) {
+		if (!(o instanceof AbstractDto)) {
 			return false;
 		}
-
-		AbstractDto other = (AbstractDto) object;
-		return !((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))
-				|| (this.getId() == null && other.getId() == null && this != other));
+		AbstractDto that = (AbstractDto) o;
+		
+		EqualsBuilder builder = new EqualsBuilder();
+		
+		if (id == null && that.id == null) {
+			builder.appendSuper(super.equals(o));
+		}
+		return builder
+				.append(id, that.id)
+				.isEquals();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				 .append(id)
+				 .toHashCode();
 	}
 }

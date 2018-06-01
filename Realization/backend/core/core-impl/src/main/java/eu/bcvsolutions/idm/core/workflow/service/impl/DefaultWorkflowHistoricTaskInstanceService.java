@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
  * @author svandav
  *
  */
+@SuppressWarnings("deprecation")
 @Service
 public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoService<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto> implements WorkflowHistoricTaskInstanceService {
 

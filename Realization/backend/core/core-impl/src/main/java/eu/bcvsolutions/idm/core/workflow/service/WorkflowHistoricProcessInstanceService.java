@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstan
  * @author svandav
  *
  */
+@SuppressWarnings("deprecation")
 public interface WorkflowHistoricProcessInstanceService extends ReadDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> {
 	
 	String SORT_BY_START_TIME = "startTime";

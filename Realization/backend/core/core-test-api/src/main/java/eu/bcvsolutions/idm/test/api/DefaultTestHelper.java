@@ -515,7 +515,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	private void enableProcessor(Class<? extends EntityEventProcessor<?>> processorType, boolean enabled) {
-		entityEventManager.setEnabled(processorType, enabled);
+		entityEventManager.setEnabled(context.getBean(processorType).getId(), enabled);
 	}
 	
 	private void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType, boolean enabled) {

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.scheduler.task;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.UUID;
 

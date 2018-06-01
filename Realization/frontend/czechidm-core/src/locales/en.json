@@ -58,6 +58,7 @@
   "button": {
     "activate": "Activate",
     "add": "Add",
+    "addMore": "Add in bulk",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
@@ -961,7 +962,15 @@
         "header": "New configuration item"
       },
       "save": {
-        "success": "Configuration items [{{name}}] successfully saved"
+        "success": "Configuration items [{{name}}] successfully saved",
+        "sucessBulk": "Configuration items were successfully saved"
+      },
+      "addMore":{
+        "header": "Add more configuration items",
+        "configurationArea": {
+          "header": "Configuration items",
+          "helpBlock": "Can be added more configuration items. Comments after character '#' are ignored."
+        }
       },
       "configurable": "Configurable items <small>editable, can override static items</small>",
       "environment": "Static environment configuration items <small>read only</small>",
@@ -975,7 +984,11 @@
         "notAllowed": "You do not have permission to edit the system configuration",
         "help": "Public items are accessible without logging. Confidential items can be public."
       },
-      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>."
+      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>.",
+      "forceSave": {
+        "header": "Overwrite configurable item",
+        "message": "Configurable item [<strong>{{name}}</strong>] is already existing with value [<strong>{{value}}</strong>]. Do you want to overwrite it?"
+      }
     },
     "tasks-summary": {
       "summary": "Tasks list",
@@ -1736,8 +1749,7 @@
         "password": "Change password",
         "roles": "Roles",
         "subordinates": "Subordinates",
-        "positions": "Contracted positions",
-        "approve": "Approver of roles"
+        "positions": "Contracted positions"
       },
       "profile": {
         "header": "Personal data",
@@ -2122,11 +2134,6 @@
         }
       }
     },
-    "audit": {
-      "header": "Audit",
-      "headerSmall": "Audit logs records",
-      "title": "Audit"
-    },
     "system": {
       "modules": {
         "header": "Application modules and components",
@@ -2148,7 +2155,19 @@
       },
       "be-modules": {
         "header": "Modules <small>backend</small>",
-        "title": "Modules (backend)"
+        "title": "Modules (backend)",
+        "result-codes": {
+          "button-show": "Result codes",
+          "title": "List of result codes [{{moduleName}}]",
+          "status": "Status",
+          "code": "Code",
+          "message": "Message",
+          "filter": {
+            "text": {
+              "placeholder": "Code"
+            }
+          }
+        }
       },
       "entity-event-processors": {
         "header": "Processors",
@@ -2387,7 +2406,6 @@
         "category": "Category",
         "diagramResourceName": "Scheme name",
         "deploymentId": "Deployment Id",
-        "resourceName": "Resource name",
         "id":"Identificator",
         "diagram": "Process preview",
         "fullscreenDiagram": "Process preview"
@@ -2755,7 +2773,7 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role name",
+      "role" : "Role",
       "identityContract": {
         "label": "Contracted position",
         "title": "Contracted position",
@@ -2969,6 +2987,7 @@
       "_type": "Notification Template",
       "name": "Name",
       "code": "Code",
+      "sender": "Sender address",
       "subject": "Subject",
       "parameter": {
         "name": "Parameters",
@@ -2999,7 +3018,6 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "model": "$t(entity.Notification.message.model)",
         "level": "$t(entity.Notification.message.level)"
@@ -4065,6 +4083,254 @@
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
       "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
       "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"
+    },
+    "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
+      "title": "Password was changed",
+      "message": "Password change for account [{{account}}] was successful."
+    },
+    "OK": {
+      "title": "Operation was successful",
+      "message": "Request was successfully completed."
+    },
+    "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
+      "title": "Missing attribute 'groupPermission'",
+      "message": "When authorization type is filled, then attribute 'groupPermission' must be filled to."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
+      "title": "Role wasn't assigned",
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{autoRole}}] for identity [{{identity}}]. Check role request agenda for reason."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Role is used by concurrent task",
+      "message": "Automatic role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
+      "title": "Role wasn't removed",
+      "message": "Role [{{role}}] wasn't removed by automatic role [{{autoRole}}] for identity [{{identity}}], Check role request agenda for reason."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Role is used by concurrent task",
+      "message": "Automatic role [{{autoRole}}] is used by concurrent task [{{task}}]."
+    },
+    "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
+      "title": "Some attributes are missing",
+      "message": "Rule for automatic role didn't fill all necessary attributes: [{{attrs}}]."
+    },
+    "AUTOMATIC_ROLE_TASK_EMPTY": {
+      "title": "Missing 'id' of automatic role",
+      "message": "Id of automatic role is required."
+    },
+    "BACKUP_FAIL": {
+      "title": "Backup failed",
+      "message": "Backup for script [{{script}}] failed. Error: [{{error}}]."
+    },
+    "DEPLOY_ERROR": {
+      "title": "Deployment of entity failed",
+      "message": "Deploying entity from path [{{path}}] failed."
+    },
+    "FORM_VALUE_WRONG_TYPE": {
+      "title": "Wrong format of attributes",
+      "message": "Value [{{value}}] of attribute [{{attr}}] must be type of [{{type}}] instead of [{{currentType}}]."
+    },
+    "GROOVY_SCRIPT_EXCEPTION": {
+      "title": "Error in script",
+      "message": "Script contains following errors: [{{errors}}]."
+    },
+    "GROOVY_SCRIPT_INVALID_CATEGORY": {
+      "title": "Wrong category for script",
+      "message": "Script is using script from wrong category [{{category}}]."
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_CLASS": {
+      "title": "Class is not accessible",
+      "message": "Class [{{class}}] is not accessible!"
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
+      "title": "Service is not accessible",
+      "message": "Service [{{service}}] is not accessible!"
+    },
+    "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
+      "title": "Task has multiple instances",
+      "message": "Task [{{task}}] has other instance {{instance}}], because of it, it's not accessible from this one{{thisInstance}}]."
+    },
+    "LONG_RUNNING_TASK_NOT_FOUND": {
+      "title": "Can not create instance",
+      "message": "Can not create instance for task type [{{taskType}}]."
+    },
+    "NOTIFICATION_TEMPLATE_ERROR_XML_SCHEMA": {
+      "title": "Can not load template",
+      "message": "Can not load template [{{template}}], Error in XML schema."
+    },
+    "NULL_ATTRIBUTE": {
+      "title": "Attribute is NULL",
+      "message": "Attribute 'null' is NULL."
+    },
+    "ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED": {
+      "title": "Wrong value",
+      "message": "Attribute 'requested by' in request [{{request}}] can not have value 'AUTOMATICALLY' via REST API."
+    },
+    "ROLE_REQUEST_EXECUTE_WRONG_STATE": {
+      "title": "Wrong state of request",
+      "message": "Request is in state [{{state}}], Allowed states, which can be executed are APPROVED a CONCEPT."
+    },
+    "SCHEDULER_UNSUPPORTED_TASK_TRIGGER": {
+      "title": "Unsupported trigger",
+      "message": "Task trigger [{{trigger}}] is not supported."
+    },
+    "TREE_NODE_BAD_CHILDREN": {
+      "title": "Wrong node children",
+      "message": "Tree node [{{node}}] has bad children."
+    },
+    "SEARCH_ERROR": {
+      "title": "Search error",
+      "message": "Error during searching entities. Error: [{{error}}]."
+    },
+    "WF_WARNING": {
+      "title": "Workflow execution warning",
+      "message": "Warning occurred during workflow execution. Warning: [{{warning}}]."
+    },
+    "XML_JAXB_INIT_ERROR": {
+      "title": "Init JAXB instance failed",
+      "message": "Can not perform init of JAXB instance."
+    },
+    "AUTH_EXPIRED": {
+      "title": "Authorization expired",
+      "message": "Authorization expired."
+    },
+    "ATTACHMENT_DATA_NOT_FOUND": {
+      "title": "Data for attachment not found",
+      "message": "Binary data for attachment: [{{one}}:{{two}}] - [{{three}}] not found."
+    },
+    "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
+      "title": "Template not found",
+      "message": "XML file for template [{{template}}] not found."
+    },
+    "SCRIPT_XML_FILE_NOT_FOUND": {
+      "title": "File not found",
+      "message": "XML file for script [{{script}}] not found."
+    },
+    "METHOD_NOT_ALLOWED": {
+      "title": "Method not allowed",
+      "message": "This method is not allowed!"
+    },
+    "FILTER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Filter not found",
+      "message": "Filter [{{filter}}] for attribute [{{property}}] not found. Fix configuration property [{{repairProperty}}]."
+    },
+    "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
+      "title": "Can not update form definition",
+      "message": "Form definition [{{form}}][{{form1}}] can not be updated. Can not automatically update property [{{property}}] of attribute [{{attr}}]. Provide change script for updating form definition or define new form definition."
+    },
+    "NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Sender not found",
+      "message": "Sender [{{sender}}] for type [{{type}}] not found. Fix configuration property [{{repairProperty}}]."
+    },
+    "NOTIFICATION_TEMPLATE_MORE_CODE_FOUND": {
+      "title": "More then one template was found",
+      "message": "More then one template was found for code: [{{code}}]."
+    },
+    "PASSWORD_CHANGE_ACCOUNT_FAILED": {
+      "title": "Password change failed",
+      "message": "Can not change password in these accounts: [{{accounts}}]."
+    },
+    "ROLE_DELETE_FAILED_IDENTITY_ASSIGNED": {
+      "title": "Role can not be deleted",
+      "message": "Can not delete role [{{role}}], because is assigned to some identities."
+    },
+    "SCRIPT_MORE_CODE_FOUND": {
+      "title": "More then one script was found",
+      "message": "More then one script was found for code: [{{code}}]."
+    },
+    "UNMODIFIABLE_LOCKED": {
+      "title": "Can not change entity",
+      "message": "Entity [{{entity}}] can not be changed, because it's locked."
+    },
+    "ATTACHMENT_CREATE_FAILED": {
+      "title": "Creation of attachment failed",
+      "message": "Creation of attachment [{{attachment}}] with owner [{{owner}}][{{owner1}}] failed."
+    },
+    "ATTACHMENT_CREATE_TEMP_FILE_FAILED": {
+      "title": "Creation of temp file failed",
+      "message": "Creation of temp file [{{file}}] in temp dir [{{folder}}] failed."
+    },
+    "ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED": {
+      "title": "Can not create default storage",
+      "message": "Creation of folder for default storage [{{storage}}] in temp dir failed."
+    },
+    "ATTACHMENT_INIT_DEFAULT_TEMP_FAILED": {
+      "title": "Can no create default temp storage",
+      "message": "Creation of folder for temp default storage [{{storage}}] in temp dir failed."
+    },
+    "ATTACHMENT_UPDATE_FAILED": {
+      "title": "Update of attachment failed",
+      "message": "Update of attachment [{{attachment}}] with owner [{{owner}}][{{owner1}}] failed."
+    },
+    "INTERNAL_SERVER_ERROR": {
+      "title": "Server error",
+      "message": "Some error occurred on server."
+    },
+    "NOT_IMPLEMENTED": {
+      "title": "Not implemented",
+      "message": "Function [{{function}}] not implemented."
+    },
+    "NOT_SUPPORTED": {
+      "title": "Not supported",
+      "message": "Function [{{function}}] not supported."
+    },
+    "RECAPTCHA_SECRET_KEY_MISSING": {
+      "title": "Wrong Recaptcha configuration",
+      "message": "Recaptcha has wrong configuration. Please set missing attribute [{{attr}}]."
+    },
+    "SCHEDULER_CREATE_TASK_FAILED": {
+      "title": "Task creation failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_CREATE_TRIGGER_FAILED": {
+      "title": "Trigger creation failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TASK_FAILED": {
+      "title": "Task deleting failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TRIGGER_FAILED": {
+      "title": "Trigger deleting failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_INTERRUPT_TASK_FAILED": {
+      "title": "Task interruption failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_PAUSE_TRIGGER_FAILED": {
+      "title": "Task pause failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_RESUME_TRIGGER_FAILED": {
+      "title": "Task resume failed",
+      "message": "[{{error}}]."
+    },
+    "WF_ERROR": {
+      "title": "Error during workflow execution",
+      "message": "During workflow execution, error occurred: [{{error}}]."
+    },
+    "WRONG_PROXY_CONFIG": {
+      "title": "Wrong proxy configuration",
+      "message": "Wrong configuration of http proxy. The required format is'[IP]:[PORT]'. For example: '153.25.16.8:1234'."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE": {
+      "title": "Entity type is not external identifiable",
+      "message": "Entity type [{{entityType}}] is not external identifiable."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_CODEABLE": {
+      "title": "Entity type is not external codeable",
+      "message": "Entity type [{{entityType}}] is not external codeable."
+    },
+    "DUPLICATE_EXTERNAL_ID": {
+      "title": "Entity already exists",
+      "message": "Entity type [{{entityType}}] with external identifier [{{externalId}}] already exists (id: [{{duplicateId}}])."
+    },
+    "DUPLICATE_EXTERNAL_CODE": {
+      "title": "Entity already exists",
+      "message": "Entity type [{{entityType}}] with external code [{{externalCode}}] already exists (id: [{{duplicateId}}])."
     }
   },
   "validationError": {

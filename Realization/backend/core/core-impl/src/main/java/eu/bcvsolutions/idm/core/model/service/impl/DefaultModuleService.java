@@ -10,6 +10,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;

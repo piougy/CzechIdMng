@@ -134,8 +134,12 @@ public class DefaultEmailer implements Emailer {
 		Map<String, Object> headers = new HashMap<String, Object>();		
 		// resolve recipients
 		headers.put("To", getRecipiets(emailLog));	
-		
-		String from = configuration.getFrom();
+
+		String from = emailLog.getMessage().getTemplate().getSender();
+		if (StringUtils.isBlank(from)) {
+			from = configuration.getFrom();
+		}
+
 		if (StringUtils.isNotBlank(from)) {
 			headers.put("From", from);
 		}

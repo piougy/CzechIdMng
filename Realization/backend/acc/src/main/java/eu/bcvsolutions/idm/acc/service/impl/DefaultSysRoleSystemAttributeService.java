@@ -138,7 +138,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		// TODO: move to filter and use distinct
 		List<IdmIdentityDto> identities = new ArrayList<>();
 		identityAccounts.stream().forEach(identityAccount -> {
-			if (!identities.contains(identityAccount.getIdentity())) {
+			if (!identities.contains(new IdmIdentityDto(identityAccount.getIdentity()))) {
 				// TODO: embedded
 				identities.add(identityService.get(identityAccount.getIdentity()));
 			}

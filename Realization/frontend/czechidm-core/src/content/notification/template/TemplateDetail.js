@@ -191,6 +191,10 @@ export default class TemplateDetail extends Basic.AbstractContent {
               label={this.i18n('entity.NotificationTemplate.parameter.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
             <Basic.TextField
+              ref="sender"
+              label={this.i18n('entity.NotificationTemplate.sender')}
+              max={255} />
+            <Basic.TextField
               ref="subject"
               label={this.i18n('entity.NotificationTemplate.subject')}
               required

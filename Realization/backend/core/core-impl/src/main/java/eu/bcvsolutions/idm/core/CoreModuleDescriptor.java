@@ -8,7 +8,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
@@ -187,5 +189,10 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	@Override
 	public boolean isDocumentationAvailable() {
 		return true;
+	}
+
+	@Override
+	public List<ResultCode> getResultCodes() {
+		return Arrays.asList(CoreResultCode.values());
 	}
 }

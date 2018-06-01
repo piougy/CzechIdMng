@@ -85,14 +85,6 @@ public interface EntityEventManager {
 	EntityEventProcessor<?> getProcessor(String processorId);
 	
 	/**
-	 * Get registered event processor by id
-	 * 
-	 * @param processorId
-	 * @return
-	 */
-	<DTO extends Serializable> EntityEventProcessor<DTO> getProcessor(Class<? extends EntityEventProcessor<DTO>> processorType);
-	
-	/**
 	 * Publish common event to all listeners
 	 * 
 	 * @param event
@@ -252,12 +244,4 @@ public interface EntityEventManager {
 	 * @param enabled
 	 */
 	void setEnabled(String processorId, boolean enabled);
-	
-	/**
-	 * Enable / disable given processor.
-	 * 
-	 * @param processorType
-	 * @param enabled
-	 */
-	<T extends Serializable> void setEnabled(Class<? extends EntityEventProcessor<T>> processorType, boolean enabled);
 }

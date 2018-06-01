@@ -65,6 +65,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  * @author svandav
  *
  */
+@SuppressWarnings("deprecation")
 @Service
 public class DefaultWorkflowTaskInstanceService extends
 		AbstractBaseDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> implements WorkflowTaskInstanceService {
@@ -85,7 +86,8 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		return internalSearch(filter, pageable);
+	
+		return internalSearch(filter, pageable, permission);
 	}
 
 	@Override
@@ -104,19 +106,12 @@ public class DefaultWorkflowTaskInstanceService extends
 			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize());
 		}
 		filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
-		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable);
+		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable, IdmBasePermission.READ);
 
 		return new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
 				filter.getPageNumber(), filter.getPageSize());
 	}
 
-	private WorkflowTaskInstanceDto get(String taskId) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(UUID.fromString(taskId));
-		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null).getContent();
-
-		return tasks.isEmpty() ? null : tasks.get(0);
-	}
 
 	@Override
 	public void completeTask(String taskId, String decision) {
@@ -131,9 +126,16 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData,
 			Map<String, Object> variables) {
+		BasePermission[] permission = {IdmBasePermission.UPDATE};
+		this.completeTask(taskId, decision, formData, variables,  permission);
+	}
+	
+	@Override
+	public void completeTask(String taskId, String decision, Map<String, String> formData,
+			Map<String, Object> variables, BasePermission[] permission) {
 
 		// Check if user can complete this task
-		if (!canExecute(this.get(taskId))) {
+		if (!canExecute(this.get(taskId, permission), permission)) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for execute task with ID: %s !", ImmutableMap.of("taskId", taskId));
 		}
@@ -155,8 +157,8 @@ public class DefaultWorkflowTaskInstanceService extends
 	 * @param taskId
 	 * @return
 	 */
-	private boolean canExecute(WorkflowTaskInstanceDto task) {
-		return this.getPermissions(task).contains(IdmBasePermission.EXECUTE.getName());
+	private boolean canExecute(WorkflowTaskInstanceDto task, BasePermission[] permission) {
+		return permission == null || permission.length == 0 || this.getPermissions(task).contains(IdmBasePermission.EXECUTE.getName());
 	}
 
 	@Override
@@ -167,7 +169,12 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	@Override
 	public WorkflowTaskInstanceDto get(Serializable id, BasePermission... permission) {
-		return this.get(String.valueOf(id));
+		Assert.notNull(id);
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setId(UUID.fromString(String.valueOf(id)));
+		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null,  permission).getContent();
+
+		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 
 	@Override
@@ -192,7 +199,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		return permissions;
 	}
 
-	private WorkflowTaskInstanceDto toResource(Task task) {
+	private WorkflowTaskInstanceDto toResource(Task task, BasePermission[] permission) {
 		if (task == null) {
 			return null;
 		}
@@ -247,7 +254,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		}
 
 		// Check if the logged user can complete this task
-		boolean canExecute = this.canExecute(dto);
+		boolean canExecute = this.canExecute(dto, permission);
 		if (formProperties != null && !formProperties.isEmpty()) {
 			for (FormProperty property : formProperties) {
 				resovleFormProperty(property, dto, canExecute);
@@ -264,6 +271,7 @@ public class DefaultWorkflowTaskInstanceService extends
 	 * @param dto
 	 * @param canExecute
 	 */
+	@SuppressWarnings("unchecked")
 	private void resovleFormProperty(FormProperty property, WorkflowTaskInstanceDto dto, boolean canExecute) {
 		FormType formType = property.getType();
 
@@ -346,17 +354,18 @@ public class DefaultWorkflowTaskInstanceService extends
 	 * 
 	 * @return
 	 */
-	private boolean canReadAllTask() {
-		if (securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN)) {
+	private boolean canReadAllTask(BasePermission... permission) {
+		// TODO: Implement check on permission (READ, UPDATE ...). Permissions are uses only for skip rights check now!
+		if (permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN)) {
 			return true;
 		}
 		return false;
 	}
 
-	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable) {
+	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
 		
 		// if currently logged user can read all task continue
-		if (!canReadAllTask()) {
+		if (!canReadAllTask(permission)) {
 			// if user can't read all task check filter
 			if (filter.getCandidateOrAssigned() == null) {
 				filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
@@ -423,7 +432,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
 		if (tasks != null) {
 			for (Task task : tasks) {
-				dtos.add(toResource(task));
+				dtos.add(toResource(task, permission));
 			}
 		}
 		return new PageImpl<WorkflowTaskInstanceDto>(dtos, pageable, count);

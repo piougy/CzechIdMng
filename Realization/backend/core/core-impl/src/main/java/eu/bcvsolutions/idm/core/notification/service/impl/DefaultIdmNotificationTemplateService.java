@@ -432,6 +432,7 @@ public class DefaultIdmNotificationTemplateService extends
 		template.setSubject(type.getSubject());
 		template.setUnmodifiable(type.isSystemTemplate());
 		template.setParameter(type.getParameter());
+		template.setSender(type.getSender());
 		return template;
 	}
 
@@ -466,6 +467,7 @@ public class DefaultIdmNotificationTemplateService extends
 		type.setSubject(dto.getSubject());
 		type.setSystemTemplate(dto.isUnmodifiable());
 		type.setParameter(dto.getParameter());
+		type.setSender(dto.getSender());
 		return type;
 	}
 

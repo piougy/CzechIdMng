@@ -220,19 +220,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		return (EntityEventProcessor<?>) context.getBean(processorId);
 	}
-	
-	/**
-	 * Get processor from context by type
-	 * 
-	 * @param processorId
-	 * @return
-	 */
-	@Override
-	public <T extends Serializable> EntityEventProcessor<T> getProcessor(Class<? extends EntityEventProcessor<T>> processorType) {
-		Assert.notNull(processorType);
-		//
-		return context.getBean(processorType);
-	}
 
 	@Override
 	public void publishEvent(Object event) {
@@ -551,11 +538,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public void setEnabled(String processorId, boolean enabled) {
 		setEnabled(getProcessor(processorId), enabled);
-	}
-	
-	@Override
-	public <DTO extends Serializable> void setEnabled(Class<? extends EntityEventProcessor<DTO>> processorType, boolean enabled) {
-		setEnabled(getProcessor(processorType), enabled);
 	}
 	
 	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {

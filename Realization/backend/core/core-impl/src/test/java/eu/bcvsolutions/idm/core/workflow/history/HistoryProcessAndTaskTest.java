@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  * @author svandav
  *
  */
+@SuppressWarnings("deprecation")
 public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testHistoryProcessAndTask";

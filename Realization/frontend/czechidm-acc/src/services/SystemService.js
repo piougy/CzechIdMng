@@ -1,6 +1,12 @@
 import { Services } from 'czechidm-core';
 import { Domain, Utils} from 'czechidm-core';
 
+/**
+ * Target systems
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
 class SystemService extends Services.AbstractService {
 
   getApiPath() {
@@ -20,6 +26,10 @@ class SystemService extends Services.AbstractService {
 
   getGroupPermission() {
     return 'SYSTEM';
+  }
+
+  supportsAuthorization() {
+    return false;
   }
 
   /**

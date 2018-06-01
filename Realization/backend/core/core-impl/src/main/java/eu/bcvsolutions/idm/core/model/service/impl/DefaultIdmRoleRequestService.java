@@ -50,9 +50,11 @@ import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -573,6 +575,7 @@ public class DefaultIdmRoleRequestService
 			WorkflowFilterDto filter = new WorkflowFilterDto();
 			filter.setProcessInstanceId(dto.getWfProcessId());
 
+			@SuppressWarnings("deprecation")
 			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
 					.searchInternal(filter, false).getResources();
 			if (resources.isEmpty()) {
@@ -607,7 +610,7 @@ public class DefaultIdmRoleRequestService
 		//
 		// if exists role tree node, set automatic role
 		if (conceptRole.getAutomaticRole() != null) {
-			identityRole.setAutomaticRole(true);
+			identityRole.setRoleTreeNode(conceptRole.getAutomaticRole());
 		}
 		return identityRole;
 	}

@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.processor.tree.TreeNodeDeleteProcessor;
@@ -209,20 +210,28 @@ public class DefaultIdmTreeNodeService
 		}
 		// parent node
 		if (filter.getTreeNode() != null) {
-			// TODO: bug - forest index needs tree type => same numbers in different trees
 			if (filter.isRecursively()) {
+				// forest index needs tree type => same numbers in different trees
+				Subquery<IdmTreeType> subqueryTreeType = query.subquery(IdmTreeType.class);
+				Root<IdmTreeNode> subRootTreeType = subqueryTreeType.from(IdmTreeNode.class);
+				subqueryTreeType.select(subRootTreeType.get(IdmTreeNode_.treeType));
+				subqueryTreeType.where(builder.equal(subRootTreeType.get(IdmTreeNode_.id), filter.getTreeNode()));
+				//
 				Subquery<IdmTreeNode> subquery = query.subquery(IdmTreeNode.class);
 				Root<IdmTreeNode> subRoot = subquery.from(IdmTreeNode.class);
 				subquery.select(subRoot);
-				Path<IdmForestIndexEntity> forestIndexPath = subRoot.get(IdmTreeNode_.forestIndex);
-				subquery.where(builder.and(
-					builder.equal(subRoot.get(AbstractEntity_.id), filter.getTreeNode()),
-					// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
-					// In order to do that, we must shrink the boundaries of query so it is true only for subtree of given node.
-					// Remember that between clause looks like this a >= x <= b, where a and b are boundaries, in our case lft+1 and rgt-1.
-					builder.between(root.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
-						builder.sum(forestIndexPath.get(IdmForestIndexEntity_.lft), 1L),
-						builder.diff(forestIndexPath.get(IdmForestIndexEntity_.rgt), 1L))));
+				Join<IdmTreeNode, IdmForestIndexEntity> forestIndexPath = subRoot.join(IdmTreeNode_.forestIndex);
+				subquery.where(
+						builder.and(
+							builder.equal(subRoot.get(IdmTreeNode_.id), filter.getTreeNode()),
+							// join tree type
+							builder.equal(root.get(IdmTreeNode_.treeType), subqueryTreeType),
+							// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
+							// In order to do that, we must shrink the boundaries of query so it is true only for subtree of given node.
+							// Remember that between clause looks like this a >= x <= b, where a and b are boundaries, in our case lft+1 and rgt-1.
+							builder.between(root.join(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
+									builder.sum(forestIndexPath.get(IdmForestIndexEntity_.lft), 1L),
+									builder.diff(forestIndexPath.get(IdmForestIndexEntity_.rgt), 1L))));
 				predicates.add(builder.exists(subquery));
 			} else {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.parent).get(AbstractEntity_.id), filter.getTreeNode()));

@@ -13,6 +13,7 @@ import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +67,12 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Before
 	public void init() {		
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultSchedulerManager.class);
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+	}
+	
+	@After
+	public void after() {
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 	
 	@Test
@@ -98,41 +105,31 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	
 	@Test
 	public void testCreateAndRunSimpleTrigger() throws InterruptedException, ExecutionException {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			String result = "TEST_SCHEDULER_TWO";
-			Task task = createTask(result);
-			//
-			manager.createTrigger(task.getId(), getSimpleTrigger(task));
-			//
-			helper.waitForResult(getContinueFunction());
-			//
-			List<FutureTask<?>> taskList = getFutureTaskList(TestSchedulableTask.class);
-			assertEquals(result, taskList.get(0).get());
-			//
-			checkScheduledTask(task);
-		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-		}
+		String result = "TEST_SCHEDULER_TWO";
+		Task task = createTask(result);
+		//
+		manager.createTrigger(task.getId(), getSimpleTrigger(task));
+		//
+		helper.waitForResult(getContinueFunction());
+		//
+		List<FutureTask<?>> taskList = getFutureTaskList(TestSchedulableTask.class);
+		assertEquals(result, taskList.get(0).get());
+		//
+		checkScheduledTask(task);
 	}
 
 	@Test
 	public void testCreateAndRunRoleExpirationTask() throws Exception {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			Task task = createRoleExpirationTask();
-			//
-			manager.createTrigger(task.getId(), getSimpleTrigger(task));
-			//
-			helper.waitForResult(getContinueFunction());
-			//
-			List<FutureTask<?>> taskList = getFutureTaskList(IdentityRoleExpirationTaskExecutor.class);
-			assertEquals(Boolean.TRUE, taskList.get(0).get());
-			//
-			checkScheduledTask(task);
-		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-		}	
+		Task task = createRoleExpirationTask();
+		//
+		manager.createTrigger(task.getId(), getSimpleTrigger(task));
+		//
+		helper.waitForResult(getContinueFunction());
+		//
+		List<FutureTask<?>> taskList = getFutureTaskList(IdentityRoleExpirationTaskExecutor.class);
+		assertEquals(Boolean.TRUE, taskList.get(0).get());
+		//
+		checkScheduledTask(task);
 	}
 
 	@Test
@@ -171,96 +168,86 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testDependentTaskExecution() throws Exception {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			String resultValue = "dependent-task-initiator";
-			//
-			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-			filter.setOperationState(OperationState.CREATED);
-			filter.setTaskType(TestSchedulableTask.class.getCanonicalName());
-			filter.setFrom(new DateTime());
-			List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(0L, createdLrts.size());
-			//
-			Task task = createTask("dependent-task-initiator");
-			DependentTaskTrigger trigger = new DependentTaskTrigger();
-			trigger.setInitiatorTaskId(task.getId());
-			// 
-			// initiator = dependent task => circular execution
-			manager.createTrigger(task.getId(), trigger);
-			manager.runTask(task.getId());
-			helper.waitForResult(getContinueFunction());
-			createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(1L, createdLrts.size());
-			// execute first task
-			LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
-			Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
-			//
-			helper.waitForResult(getContinueFunction());
-			createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
-			//
-			longRunningTaskManager.cancel(createdLrts.get(0).getId());
-			//
-			longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
-		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-		}
+		String resultValue = "dependent-task-initiator";
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setOperationState(OperationState.CREATED);
+		filter.setTaskType(TestSchedulableTask.class.getCanonicalName());
+		filter.setFrom(new DateTime());
+		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, createdLrts.size());
+		//
+		Task task = createTask("dependent-task-initiator");
+		DependentTaskTrigger trigger = new DependentTaskTrigger();
+		trigger.setInitiatorTaskId(task.getId());
+		// 
+		// initiator = dependent task => circular execution
+		manager.createTrigger(task.getId(), trigger);
+		manager.runTask(task.getId());
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, createdLrts.size());
+		// execute first task
+		LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
+		Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
+		//
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
+		//
+		longRunningTaskManager.cancel(createdLrts.get(0).getId());
+		//
+		longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
 	}
 	
 	@Test
 	public void testDependentTaskNoExecutionAfterInitiatorFails() throws Exception {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			LongRunningTaskExecuteDependentProcessor processor = context.getBean(LongRunningTaskExecuteDependentProcessor.class);
-			//
-			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-			filter.setOperationState(OperationState.CREATED);
-			filter.setTaskType(TestSchedulableTask.class.getCanonicalName());
-			filter.setFrom(new DateTime());
-			List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(0L, createdLrts.size());
-			//
-			Task task = createTask("dependent-task-initiator");
-			DependentTaskTrigger trigger = new DependentTaskTrigger();
-			trigger.setInitiatorTaskId(task.getId());
-			// 
-			// initiator = dependent task => circular execution
-			manager.createTrigger(task.getId(), trigger);
-			manager.runTask(task.getId());
-			helper.waitForResult(getContinueFunction());
-			createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(1L, createdLrts.size());
-			
-		    IdmLongRunningTaskDto lrt = createdLrts.get(0);
-		    lrt.setResult(new OperationResult(OperationState.EXCEPTION));
-			// not executed
-			EventResult<IdmLongRunningTaskDto> result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
-			Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
-			lrt.setResult(new OperationResult(OperationState.BLOCKED));
-			result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
-			Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
-			lrt.setResult(new OperationResult(OperationState.NOT_EXECUTED));
-			result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
-			Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
-			lrt.setResult(new OperationResult(OperationState.CANCELED));
-			result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
-			Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
-			lrt.setResult(new OperationResult(OperationState.CREATED));
-			result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
-			Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
-			lrt.setResult(new OperationResult(OperationState.RUNNING));
-			result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
-			Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
-			//
-			longRunningTaskManager.cancel(lrt.getId());
-			//
-			longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
-		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-		}
+		LongRunningTaskExecuteDependentProcessor processor = context.getBean(LongRunningTaskExecuteDependentProcessor.class);
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setOperationState(OperationState.CREATED);
+		filter.setTaskType(TestSchedulableTask.class.getCanonicalName());
+		filter.setFrom(new DateTime());
+		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, createdLrts.size());
+		//
+		Task task = createTask("dependent-task-initiator");
+		DependentTaskTrigger trigger = new DependentTaskTrigger();
+		trigger.setInitiatorTaskId(task.getId());
+		// 
+		// initiator = dependent task => circular execution
+		manager.createTrigger(task.getId(), trigger);
+		manager.runTask(task.getId());
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, createdLrts.size());
+		
+	    IdmLongRunningTaskDto lrt = createdLrts.get(0);
+	    lrt.setResult(new OperationResult(OperationState.EXCEPTION));
+		// not executed
+		EventResult<IdmLongRunningTaskDto> result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
+		Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
+		lrt.setResult(new OperationResult(OperationState.BLOCKED));
+		result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
+		Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
+		lrt.setResult(new OperationResult(OperationState.NOT_EXECUTED));
+		result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
+		Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
+		lrt.setResult(new OperationResult(OperationState.CANCELED));
+		result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
+		Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
+		lrt.setResult(new OperationResult(OperationState.CREATED));
+		result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
+		Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
+		lrt.setResult(new OperationResult(OperationState.RUNNING));
+		result = processor.process(new LongRunningTaskEvent(LongRunningTaskEventType.END, lrt));
+		Assert.assertEquals(OperationState.NOT_EXECUTED, result.getResults().get(0).getState());
+		//
+		longRunningTaskManager.cancel(lrt.getId());
+		//
+		longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
 	}
 	
 	@Test(expected = DryRunNotSupportedException.class)
@@ -273,46 +260,41 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testDependentTaskInDryModeExecution() throws Exception {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			String resultValue = "dependent-task-initiator-dry-run";
-			//
-			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-			filter.setOperationState(OperationState.CREATED);
-			filter.setTaskType(TestSchedulableDryRunTask.class.getCanonicalName());
-			filter.setFrom(new DateTime());
-			List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(0L, createdLrts.size());
-			//
-			Task task = createDryRunTask(resultValue);
-			DependentTaskTrigger trigger = new DependentTaskTrigger();
-			trigger.setInitiatorTaskId(task.getId());
-			// 
-			// initiator = dependent task => circular execution
-			manager.createTrigger(task.getId(), trigger);
-			manager.runTask(task.getId(), true);
-			helper.waitForResult(getContinueFunction());
-			createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(1L, createdLrts.size());
-			Assert.assertTrue(createdLrts.get(0).isDryRun());
-			UUID firstTaskId = createdLrts.get(0).getId();
-			// execute first task
-			LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
-			Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
-			//
-			helper.waitForResult(getContinueFunction());
-			createdLrts = longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
-			Assert.assertTrue(createdLrts.get(0).isDryRun());
-			Assert.assertNotEquals(firstTaskId, createdLrts.get(0).getId());
-			//
-			longRunningTaskManager.cancel(createdLrts.get(0).getId());
-			//
-			longRunningTaskService.find(filter, null).getContent();
-			Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
-		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-		}
+		String resultValue = "dependent-task-initiator-dry-run";
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setOperationState(OperationState.CREATED);
+		filter.setTaskType(TestSchedulableDryRunTask.class.getCanonicalName());
+		filter.setFrom(new DateTime());
+		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, createdLrts.size());
+		//
+		Task task = createDryRunTask(resultValue);
+		DependentTaskTrigger trigger = new DependentTaskTrigger();
+		trigger.setInitiatorTaskId(task.getId());
+		// 
+		// initiator = dependent task => circular execution
+		manager.createTrigger(task.getId(), trigger);
+		manager.runTask(task.getId(), true);
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, createdLrts.size());
+		Assert.assertTrue(createdLrts.get(0).isDryRun());
+		UUID firstTaskId = createdLrts.get(0).getId();
+		// execute first task
+		LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
+		Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
+		//
+		helper.waitForResult(getContinueFunction());
+		createdLrts = longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
+		Assert.assertTrue(createdLrts.get(0).isDryRun());
+		Assert.assertNotEquals(firstTaskId, createdLrts.get(0).getId());
+		//
+		longRunningTaskManager.cancel(createdLrts.get(0).getId());
+		//
+		longRunningTaskService.find(filter, null).getContent();
+		Assert.assertEquals(0L, longRunningTaskService.find(filter, null).getTotalElements()); // cancel - clean up
 	}
 	
 	private Task createTask(String result) {

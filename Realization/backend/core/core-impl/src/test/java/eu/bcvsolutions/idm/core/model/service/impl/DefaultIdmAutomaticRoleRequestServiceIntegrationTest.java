@@ -123,48 +123,53 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testCreateAutomaticAttributeRole() {
-		IdmRoleDto role = prepareRole();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(role.getId());
-		guarantee.setGuarantee(guaranteeIdentity.getId());
-		role.getGuarantees().add(guarantee);
-		role = roleService.save(role);
-
-		IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
-		request.setState(RequestState.EXECUTED);
-		request.setOperation(RequestOperationType.ADD);
-		request.setRequestType(AutomaticRoleRequestType.ATTRIBUTE);
-		request.setExecuteImmediately(true);
-		request.setName(role.getName());
-		request.setRole(role.getId());
-		request = roleRequestService.save(request);
-
-		Assert.assertEquals(RequestState.CONCEPT, request.getState());
-
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmAutomaticRoleAttributeRuleRequestDto rule = new IdmAutomaticRoleAttributeRuleRequestDto();
-		rule.setRequest(request.getId());
-		rule.setOperation(RequestOperationType.ADD);
-		rule.setAttributeName(IdmIdentity_.username.getName());
-		rule.setComparison(AutomaticRoleAttributeRuleComparison.EQUALS);
-		rule.setType(AutomaticRoleAttributeRuleType.IDENTITY);
-		rule.setValue(identity.getUsername());
-		rule = ruleRequestService.save(rule);
-
-		request = roleRequestService.startRequestInternal(request.getId(), true);
-		// Recalculate
-		Assert.assertNotNull(request.getAutomaticRole());
-		this.recalculateSync(request.getAutomaticRole());
-
-		request = roleRequestService.get(request.getId());
-
-		Assert.assertEquals(RequestState.EXECUTED, request.getState());
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
-		Assert.assertFalse(identityRoles.isEmpty());
-		Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
-		Assert.assertNotNull(identityRoles.get(0).getRoleTreeNode());
-
+		// TODO: why this not work synchronously?
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		try {
+			IdmRoleDto role = prepareRole();
+			IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+			IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
+			guarantee.setRole(role.getId());
+			guarantee.setGuarantee(guaranteeIdentity.getId());
+			role.getGuarantees().add(guarantee);
+			role = roleService.save(role);
+	
+			IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
+			request.setState(RequestState.EXECUTED);
+			request.setOperation(RequestOperationType.ADD);
+			request.setRequestType(AutomaticRoleRequestType.ATTRIBUTE);
+			request.setExecuteImmediately(true);
+			request.setName(role.getName());
+			request.setRole(role.getId());
+			request = roleRequestService.save(request);
+	
+			Assert.assertEquals(RequestState.CONCEPT, request.getState());
+	
+			IdmIdentityDto identity = helper.createIdentity();
+			IdmAutomaticRoleAttributeRuleRequestDto rule = new IdmAutomaticRoleAttributeRuleRequestDto();
+			rule.setRequest(request.getId());
+			rule.setOperation(RequestOperationType.ADD);
+			rule.setAttributeName(IdmIdentity_.username.getName());
+			rule.setComparison(AutomaticRoleAttributeRuleComparison.EQUALS);
+			rule.setType(AutomaticRoleAttributeRuleType.IDENTITY);
+			rule.setValue(identity.getUsername());
+			rule = ruleRequestService.save(rule);
+	
+			request = roleRequestService.startRequestInternal(request.getId(), true);
+			// Recalculate
+			Assert.assertNotNull(request.getAutomaticRole());
+			this.recalculateSync(request.getAutomaticRole());
+	
+			request = roleRequestService.get(request.getId());
+	
+			Assert.assertEquals(RequestState.EXECUTED, request.getState());
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertFalse(identityRoles.isEmpty());
+			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
+			Assert.assertNotNull(identityRoles.get(0).getRoleTreeNode());
+		} finally {
+			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		}
 	}
 
 	@Test
@@ -172,29 +177,35 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	 * Test for AutomaticRoleManager. Create automatic role with rule.
 	 */
 	public void testCreateAutomaticAttributeRoleViaManager() {
-		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-
-		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
-		automaticRole.setRole(role.getId());
-		automaticRole.setName(role.getName());
-
-		IdmAutomaticRoleAttributeRuleDto rule = new IdmAutomaticRoleAttributeRuleDto();
-		rule.setAttributeName(IdmIdentity_.username.getName());
-		rule.setComparison(AutomaticRoleAttributeRuleComparison.EQUALS);
-		rule.setType(AutomaticRoleAttributeRuleType.IDENTITY);
-		rule.setValue(identity.getUsername());
-
-		// Create automatic role via manager
-		automaticRole = automaticRoleManager.createAutomaticRoleByAttribute(automaticRole, true, rule);
-		// Recalculate
-		Assert.assertNotNull(automaticRole.getId());
-		this.recalculateSync(automaticRole.getId());
-
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
-		Assert.assertFalse(identityRoles.isEmpty());
-		Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
-		Assert.assertNotNull(identityRoles.get(0).getRoleTreeNode());
+		// TODO: why this not work synchronously?
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		try {
+			IdmRoleDto role = prepareRole();
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+	
+			IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
+			automaticRole.setRole(role.getId());
+			automaticRole.setName(role.getName());
+	
+			IdmAutomaticRoleAttributeRuleDto rule = new IdmAutomaticRoleAttributeRuleDto();
+			rule.setAttributeName(IdmIdentity_.username.getName());
+			rule.setComparison(AutomaticRoleAttributeRuleComparison.EQUALS);
+			rule.setType(AutomaticRoleAttributeRuleType.IDENTITY);
+			rule.setValue(identity.getUsername());
+	
+			// Create automatic role via manager
+			automaticRole = automaticRoleManager.createAutomaticRoleByAttribute(automaticRole, true, rule);
+			// Recalculate
+			Assert.assertNotNull(automaticRole.getId());
+			this.recalculateSync(automaticRole.getId());
+	
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertFalse(identityRoles.isEmpty());
+			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
+			Assert.assertNotNull(identityRoles.get(0).getRoleTreeNode());
+		} finally {
+			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 
 	@Test
@@ -382,32 +393,27 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testDeleteTreeAutomaticRole() {
-		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			IdmRoleDto role = prepareRole();
-			IdmTreeNodeDto nodeOne = helper.createTreeNode();
-	
-			IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
-			automaticRole.setRole(role.getId());
-			automaticRole.setName(role.getName());
-			automaticRole.setTreeNode(nodeOne.getId());
-	
-			// Create automatic role via manager
-			automaticRole = automaticRoleManager.createAutomaticRoleByTree(automaticRole, true);
-			Assert.assertNotNull(automaticRole.getId());
-	
-			IdmRoleTreeNodeDto treeAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
-			Assert.assertNotNull(treeAutomaticRole);
-			Assert.assertEquals(nodeOne.getId(), treeAutomaticRole.getTreeNode());
-			Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
-	
-			// Delete automatic role via manager
-			automaticRoleManager.deleteAutomaticRole(automaticRole, true);
-			IdmRoleTreeNodeDto deletedAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
-			Assert.assertNull(deletedAutomaticRole);
-		} finally {
-			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-		}
+		IdmRoleDto role = prepareRole();
+		IdmTreeNodeDto nodeOne = helper.createTreeNode();
+
+		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
+		automaticRole.setRole(role.getId());
+		automaticRole.setName(role.getName());
+		automaticRole.setTreeNode(nodeOne.getId());
+
+		// Create automatic role via manager
+		automaticRole = automaticRoleManager.createAutomaticRoleByTree(automaticRole, true);
+		Assert.assertNotNull(automaticRole.getId());
+
+		IdmRoleTreeNodeDto treeAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
+		Assert.assertNotNull(treeAutomaticRole);
+		Assert.assertEquals(nodeOne.getId(), treeAutomaticRole.getTreeNode());
+		Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
+
+		// Delete automatic role via manager
+		automaticRoleManager.deleteAutomaticRole(automaticRole, true);
+		IdmRoleTreeNodeDto deletedAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
+		Assert.assertNull(deletedAutomaticRole);
 	}
 
 	@Test
@@ -436,7 +442,6 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 		Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
 
 		// Delete automatic role via manager
-		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		try {
 			automaticRoleManager.deleteAutomaticRole(automaticRole, false);
 		} catch (AcceptedException ex) {
@@ -457,8 +462,6 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			IdmRoleTreeNodeDto deletedAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
 			Assert.assertNull(deletedAutomaticRole);
 			return;
-		} finally {
-			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		}
 		fail("Automatic role request have to be approving by gurantee!");
 	}

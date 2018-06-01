@@ -311,9 +311,9 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	    		configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
 	    	});
 		} catch (IOException ex) {
-			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, ex);
 		} catch (IllegalArgumentException ex) {
-			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex.getLocalizedMessage());
+			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex);
 		}
 	}
 

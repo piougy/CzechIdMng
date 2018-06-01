@@ -135,7 +135,7 @@ public class DefaultEmailer implements Emailer {
 		// resolve recipients
 		headers.put("To", getRecipiets(emailLog));	
 
-		String from = emailLog.getMessage().getTemplate().getSender();
+		String from = (emailLog.getMessage().getTemplate() != null) ? emailLog.getMessage().getTemplate().getSender() : null;
 		if (StringUtils.isBlank(from)) {
 			from = configuration.getFrom();
 		}

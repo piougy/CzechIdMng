@@ -4078,6 +4078,30 @@
       "title": "Required property wasn't filled",
       "message": "Property [{{attributeCode}}] wasn't filled."
     },
+    "BULK_ACTION_ROLE_NOT_FOUND": {
+      "title": "Roles not found",
+      "message": "Roles for remove not found for identity: [{{identity}}]."
+    },
+    "BULK_ACTION_CONTRACT_NOT_FOUND": {
+      "title": "Contract not found",
+      "message": "Contract for identity: [{{identity}}] not found."
+    },
+    "BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED": {
+      "title": "Bulk action can not be started",
+      "message": "Only one filtering option can be applied."
+    },
+    "BULK_ACTION_MODULE_DISABLED": {
+      "title": "Bulk action can not be started",
+      "message": "Action [{{action}}] can't be processed. Module [{{module}}] is disabled."
+    },
+      "BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED": {
+      "title": "Bulk action can not be started",
+      "message": "Bulk action hasn't specified entities or filter."
+    },
+    "BULK_ACTION_BAD_FILTER": {
+      "title": "Bulk action can not be started",
+      "message": "Filter must be instance of [{{filter}}], given instance [{{givenFilter}}]."
+    },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Contract cannot be deleted!",
       "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"

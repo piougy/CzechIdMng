@@ -4121,6 +4121,30 @@
       "title": "Nebyla vyplněna povinná položka",
       "message": "Položka [{{attributeCode}}] nebyla vyplněna."
     },
+    "BULK_ACTION_ROLE_NOT_FOUND": {
+      "title": "Nebyly/a nalezena role",
+      "message": "Role pro identitu [{{identity}}], nebyla nalezeny/a."
+    },
+    "BULK_ACTION_CONTRACT_NOT_FOUND": {
+      "title": "Nebyl nalezen kontrakt",
+      "message": "Pro identitu [{{identity}}] nebyl nalezen kontrakt."
+    },
+    "BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Lze použít pouze jednu možnost filtrování."
+    },
+    "BULK_ACTION_MODULE_DISABLED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Hromadnou akci: [{{action}}] nelze spustit, modul [{{module}}] je neaktivní."
+    },
+    "BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Hromadná akce nemá definové entity pro zpracování, nebo filtr."
+    },
+    "BULK_ACTION_BAD_FILTER": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Špatná třída filtru. Je požadována třída [{{filter}}]. Obdržená třída [{{givenFilter}}]."
+    },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Pracovní pozici není možné odstranit.",
       "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"

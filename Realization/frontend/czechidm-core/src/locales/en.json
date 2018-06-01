@@ -3659,7 +3659,7 @@
       "identity-save-bulk-action": {
         "onlyNotify": {
           "label": "Throw only NOTIFY event",
-          "helpBlock": "After selecting, the user's classic save will not be invoked, but onlz NOTIFY event will be thrown. This event is also processed asynchronously."
+          "helpBlock": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
         }
       }
     }

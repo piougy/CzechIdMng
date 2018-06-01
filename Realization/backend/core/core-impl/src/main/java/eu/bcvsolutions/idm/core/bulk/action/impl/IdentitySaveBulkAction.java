@@ -16,6 +16,13 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
+/**
+ * Bulk operation for save identity
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 @Component("identitySaveBulkAction")
 @Description("Bulk action save identity.")
 public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {

@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
  */
 
 @Component
-@Description("Evaluator for currently logged user and jis task.")
+@Description("Evaluator for currently logged user and his task.")
 public class SelfLongRunningTaskEvaluator extends AbstractAuthorizationEvaluator<IdmLongRunningTask> {
 
 	private final SecurityService securityService;

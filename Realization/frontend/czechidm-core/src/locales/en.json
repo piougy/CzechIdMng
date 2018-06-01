@@ -1748,6 +1748,7 @@
         "profile": "Personal data",
         "password": "Change password",
         "roles": "Roles",
+        "approve": "Approver of roles",
         "subordinates": "Subordinates",
         "positions": "Contracted positions"
       },
@@ -2403,6 +2404,7 @@
         "key": "Key",
         "version": "Version",
         "description": "Description",
+        "resourceName": "Resource name",
         "category": "Category",
         "diagramResourceName": "Scheme name",
         "deploymentId": "Deployment Id",

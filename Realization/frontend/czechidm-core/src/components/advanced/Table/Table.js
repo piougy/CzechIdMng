@@ -371,6 +371,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     //
     this.setState({
       backendBulkAction,
+      now: moment(new Date()).format(this.i18n('format.datetime')),
       showBulkActionDetail: !showBulkActionDetail
     });
   }
@@ -381,6 +382,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       showBulkActionDetail,
       bulkActionShowLoading,
       selectedRows,
+      now,
       removedRows } = this.state;
     const { _total, manager } = this.props;
     const count = _total - removedRows.size;
@@ -425,7 +427,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   {
                     count,
                     action: this.i18n(`${backendBulkAction.module}:bulkAction.actions.${backendBulkAction.name}.header`),
-                    date: moment(new Date()).format(this.i18n('format.datetime')) })}
+                    date: now })}
                 rendered={isSelectedAll} />
               <Basic.Row rendered={!isSelectedAll} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
                 <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.message', {

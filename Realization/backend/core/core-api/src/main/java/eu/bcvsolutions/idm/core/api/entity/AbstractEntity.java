@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.joda.time.DateTime;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
@@ -269,29 +272,28 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	/**
 	 * Based on entity identifier
 	 */
-	@Override
-	public int hashCode() {
-		int hash = 0;
-		hash += (getId() != null ? getId().hashCode() : 0);
-		return hash;
+	public boolean equals(final Object o) {
+		if (!(o instanceof AbstractEntity)) {
+			return false;
+		}
+		AbstractEntity that = (AbstractEntity) o;
+		
+		EqualsBuilder builder = new EqualsBuilder();
+		
+		if (id == null && that.id == null) {
+			builder.appendSuper(super.equals(o));
+		}
+		return builder
+				.append(id, that.id)
+				.isEquals();
 	}
-
+	
 	/**
 	 * Based on entity identifier
 	 */
-	@Override
-	public boolean equals(Object object) {
-		if (object == null || !object.getClass().equals(getClass())) {
-			return false;
-		}
-
-		AbstractEntity other = (AbstractEntity) object;
-		if ((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))
-				|| (this.getId() == null && other.getId() == null && this != other)) {
-			return false;
-		}
-
-		return true;
+	public int hashCode() {
+		 return new HashCodeBuilder()
+				 .append(id)
+				 .toHashCode();
 	}
 }

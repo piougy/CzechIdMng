@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -196,7 +197,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		CriteriaQuery<UUID> cq = criteriaBuilder.createQuery(UUID.class);
 		Root<E> root = cq.from(getEntityClass());
 
-		cq.select(root.get("id"));
+		cq.select(root.get(AbstractEntity_.id.getName()));
 
 		Predicate predicate = criteria.toPredicate(root, cq, criteriaBuilder);
 		cq.where(predicate);

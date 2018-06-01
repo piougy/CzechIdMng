@@ -578,6 +578,7 @@ public class DefaultIdmIdentityService
 	}
 
 	@Override
+	@Transactional
 	public IdmIdentityDto enable(UUID identityId, BasePermission... permission) {
 		Assert.notNull(identityId);
 		IdmIdentityDto identity = get(identityId);
@@ -596,6 +597,7 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
+	@Transactional
 	public IdmIdentityDto disable(UUID identityId, BasePermission... permission) {
 		Assert.notNull(identityId);
 		IdmIdentityDto identity = get(identityId);

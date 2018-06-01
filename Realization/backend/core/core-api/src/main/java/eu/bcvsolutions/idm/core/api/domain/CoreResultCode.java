@@ -240,6 +240,7 @@ public enum CoreResultCode implements ResultCode {
 	BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED(HttpStatus.BAD_REQUEST, "Bulk action hasn't specified entities or filter."),
 	BULK_ACTION_INSUFFICIENT_PERMISSION(HttpStatus.FORBIDDEN, "Insufficient permissions for execute bulk action: [%s] on identity id: [%s] and identity username: [%s]."),
 	BULK_ACTION_CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "Contract for identity: [%s] not found."),
+	BULK_ACTION_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Roles for remove not found for identity: [%s]."),
 	//
 	// Contract slices
 	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),

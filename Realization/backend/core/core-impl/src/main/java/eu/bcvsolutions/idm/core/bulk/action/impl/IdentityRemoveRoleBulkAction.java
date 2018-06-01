@@ -154,7 +154,12 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 			}
 		}
 		//
-		return new OperationResult.Builder(OperationState.NOT_EXECUTED).build();
+		LOG.warn("For identity id: [{}] username: [{}] wasn't found role.", identity.getId(), identity.getUsername());
+		return new OperationResult.Builder(OperationState.NOT_EXECUTED)
+				.setModel(
+						new DefaultResultModel(CoreResultCode.BULK_ACTION_ROLE_NOT_FOUND,
+								ImmutableMap.of("identity", identity.getId()))) //
+				.build();
 	}
 
 	@Override

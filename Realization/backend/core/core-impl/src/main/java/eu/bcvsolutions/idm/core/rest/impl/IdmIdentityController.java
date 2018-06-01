@@ -668,6 +668,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @param bulkAction
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
@@ -689,7 +690,12 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			Map<String, Object> properties = bulkAction.getFilter();
 			
 			for (Entry<String, Object> entry : properties.entrySet()) {
-				multivaluedMap.add(entry.getKey(), entry.getValue());
+				Object value = entry.getValue();
+				if(value instanceof List<?>) {
+					multivaluedMap.put(entry.getKey(), (List<Object>) value);
+				}else {
+					multivaluedMap.add(entry.getKey(), entry.getValue());
+				}
 			}
 			IdmIdentityFilter filter = this.toFilter(multivaluedMap);
 			bulkAction.setTransformedFilter(filter);

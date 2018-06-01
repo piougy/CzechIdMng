@@ -118,6 +118,7 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 	 */
 	protected OperationResult processIdentities(Collection<UUID> identitiesId) {
 		for (UUID identityId : identitiesId) {
+			this.increaseCounter();
 			IdmIdentityDto identity = identityService.get(identityId);
 			if (identity == null) {
 				LOG.warn("Identity with id [{}] not found. The identity will be skipped.", identityId);
@@ -133,7 +134,6 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 				}
 				//
 				//
-				this.increaseCounter();
 				if (!updateState()) {
 					return new OperationResult.Builder(OperationState.CANCELED).build();
 				}

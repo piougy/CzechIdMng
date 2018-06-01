@@ -123,6 +123,7 @@ public class DefaultIdmPasswordPolicyService
 	public IdmPasswordPolicyDto save(IdmPasswordPolicyDto dto, BasePermission... permission) {
 		Assert.notNull(dto);
 		//
+		// TODO: this should be moved to save internal, can be bypassed by event publishing
 		if (!ObjectUtils.isEmpty(permission)) {
 			IdmPasswordPolicy persistEntity = null;
 			if (dto.getId() != null) {
@@ -314,9 +315,7 @@ public class DefaultIdmPasswordPolicyService
 					: passwordPolicy.getMinRulesToFulfill().intValue();
 
 			// check to max password length
-			if (!isNull(passwordPolicy.getMaxPasswordLength())
-					&& password.length() > passwordPolicy.getMaxPasswordLength()
-					|| !isNull(passwordPolicy.getMaxPasswordLength()) && prevalidation) {
+			if (!isNull(passwordPolicy.getMaxPasswordLength()) && (password.length() > passwordPolicy.getMaxPasswordLength() ||  prevalidation)) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH,
 							Math.min(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));

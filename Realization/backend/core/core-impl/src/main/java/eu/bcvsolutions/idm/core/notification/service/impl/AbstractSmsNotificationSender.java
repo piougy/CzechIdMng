@@ -114,7 +114,9 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
     }
 
     /**
-     * Resolve phone number from given identity. Can
+     * Resolve phone number from given identity.
+     * 
+     * TODO: move to IdmSmsLogService
      * 
      * @see DefaultIdmEmailLogService#getEmailAddress
      * @param recipient

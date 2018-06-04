@@ -30,11 +30,11 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	 * 
 	 * @param roleId
 	 * @return List of identities with assigned role
-	 * @deprecated use {@link IdmIdentityService#findAllByRole(UUID)} - prevent to multiply identities.
+	 * @deprecated @since 7.8.0 use {@link IdmIdentityService#findAllByRole(UUID)} - prevent to multiply identities.
 	 */
 	@Deprecated
 	@Transactional(timeout = 5, readOnly = true)
-	@Query(value = "SELECT e FROM IdmIdentity e"
+	@Query(value = "SELECT e FROM #{#entityName} e"
 			+ " JOIN e.contracts contracts"
 			+ " JOIN contracts.roles roles"
 			+ " WHERE"
@@ -44,13 +44,24 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	/**
 	 * Find identities where the IdmAuthorityChange relation does not
 	 * exist.
+	 * 
+	 * TODO: move to IdmAuthorityChangeRepository
+	 * 
 	 * @param identities
 	 * @return
 	 */
-	@Query(value = "select e from IdmIdentity e where e.id in (:identities) and e not in"
+	@Query(value = "select e from #{#entityName} e where e.id in (:identities) and e not in"
 			+ "(select z.identity from IdmAuthorityChange z where z.identity.id in (:identities))")
 	List<IdmIdentity> findAllWithoutAuthorityChange(@Param("identities") List<UUID> identities);
 	
+	/**
+	 * Marks identities, with authority change 
+	 * 
+	 * TODO: move to IdmAuthorityChangeRepository
+	 * 
+	 * @param identities
+	 * @param authorityChange
+	 */
 	@Transactional
 	@Modifying
 	@Query(value = "update IdmAuthorityChange e set e.authChangeTimestamp = :authorityChange"

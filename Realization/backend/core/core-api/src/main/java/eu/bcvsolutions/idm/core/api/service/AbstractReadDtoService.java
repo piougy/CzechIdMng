@@ -3,12 +3,16 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -22,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -33,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -69,6 +75,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected ModelMapper modelMapper;
 	@Autowired
 	private ApplicationContext context;
+	@Autowired
+	private EntityManager entityManager;
 	//
 	private AuthorizationManager authorizationManager;
 	private FilterManager filterManager;
@@ -177,6 +185,49 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	@Override
+	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
+		return this.findIds(null, pageable, permission);
+	}
+	
+	@Override
+	public Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission) {
+		Specification<E> criteria = toCriteria(filter, permission);
+		
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<UUID> cq = criteriaBuilder.createQuery(UUID.class);
+		Root<E> root = cq.from(getEntityClass());
+
+		cq.select(root.get(AbstractEntity_.id.getName()));
+
+		Predicate predicate = criteria.toPredicate(root, cq, criteriaBuilder);
+		cq.where(predicate);
+
+		// prepare sort
+		if (pageable != null && pageable.getSort() != null) {
+			List<Order> orders = QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder);
+			cq.orderBy(orders);
+		}
+
+		TypedQuery<UUID> query = entityManager.createQuery(cq);
+
+		// if pageable is empty return result
+		if (pageable == null) {
+			return new PageImpl<UUID>(query.getResultList());
+		}
+		
+		// count query
+		CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+		countQuery.where(predicate);
+		Long total = entityManager.createQuery(countQuery).getSingleResult();
+		
+		query.setFirstResult(pageable.getOffset());
+		query.setMaxResults(pageable.getPageSize());
+		
+		List<UUID> content = total > pageable.getOffset() ? query.getResultList() : Collections.<UUID> emptyList();
+		
+		return new PageImpl<UUID>(content, pageable, total);
+	}
+
 	@Transactional(readOnly = true)
 	public long count(final F filter, BasePermission... permission) {
 		return getRepository().count(toCriteria(filter, permission));
@@ -447,5 +498,4 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
 	}
-
 }

@@ -65,26 +65,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(activityBehaviorFactory);
     }
 	
-	/**
-	 * Login as user without authorities given in parameter authorities
-	 *
-	 * @param user
-	 * @param authorities
-	 */
-	public void loginWithout(String user, String ...authorities) {
-		Collection<GrantedAuthority> authoritiesWithout = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
-			for (String auth: authorities) {
-				if (auth.equals(authority.getAuthority())) {
-					return false;
-				}
-			}
-			return true;
-		}).collect(Collectors.toList());
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authoritiesWithout, "test"));
-	}
-
-	
     @Override
 	public void loginAsAdmin(String username){
     	IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(username);

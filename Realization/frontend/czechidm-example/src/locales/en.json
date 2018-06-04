@@ -26,6 +26,14 @@
       }
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-log-example-bulk-action": {
+        "niceLabel": "Log identities",
+        "header": "$t(example:bulkAction.actions.identity-log-example-bulk-action.niceLabel)"
+      }
+    }
+  },
   "permission": {
     "group": {
       "EXAMPLEPRODUCT": "Ukázkové produkty"
@@ -88,6 +96,28 @@
         },
         "save": {
           "success": "Product [{{name}}] successfully saved"
+        }
+      }
+    }
+  },
+  "eav": {
+    "bulkAction": {
+      "identity-log-example-bulk-action": {
+        "exampleText": {
+          "label": "Example input text",
+          "helpBlock": ""
+        },
+        "exampleWarning": {
+          "label": "Warning log",
+          "helpBlock": "After check username will be log into warning"
+        },
+        "sleep": {
+          "label": "Delay between processing (ms)",
+          "helpBlock": ""
+        },
+        "failEveryN": {
+          "label": "Failure on every Xth identity",
+          "helpBlock": "Every X-th identity will not be successful"
         }
       }
     }

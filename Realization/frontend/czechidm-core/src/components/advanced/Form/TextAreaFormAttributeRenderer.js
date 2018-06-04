@@ -28,10 +28,10 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
     return (
       <Basic.TextArea
         ref={ TextFormAttributeRenderer.INPUT }
-        label={ attribute.name}
+        label={ this.getLabel() }
         value={ this.toInputValue(values) }
         placeholder={ attribute.placeholder }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         validation={ this.getInputValidation() }
         required={ attribute.required }/>

@@ -23,7 +23,7 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | showPageSize | bool | Shows page size. | true |
 | showToolbar | bool | Shows toolbar. | true |
 | header | oneOfType([string, element]) | Table header |  |
-
+| useBackendBulkAction | bool | Use bulk action on backend. Before use the flag is necessary implements all required prerequisites for bulk action. See documentation for bulk actions. | false |
 
 # AdvancedColumn Component
 

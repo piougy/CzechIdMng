@@ -14,6 +14,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 | now | number | Actual counter | 0 |
 | label | oneOfType([string, bool])] | Label |  |
 | active | bool | Adds animation -  the stripes right to left. Not available in IE9 and below. | true |
+| bsStyle | string | Color of progress bar (succes, info, error, warning) | info |
 
 ## Usage
 

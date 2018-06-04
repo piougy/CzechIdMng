@@ -404,10 +404,10 @@ public class DefaultIdmRoleRequestService
 			// Concepts in concept state will be executed too (for situation, when will be
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).filter(concept -> {
-			return concept.getIdentityRole() != null;
 		}).forEach(concept -> {
+			Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
 			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+			
 			if (identityRole != null) {
 				concept.setState(RoleRequestState.EXECUTED);
 				concept.setIdentityRole(null); // we have to remove relation on

@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.ic.connid.service.impl;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -21,6 +20,9 @@ import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.spi.ConnectorClass;
+import org.jboss.vfs.VFS;
+import org.jboss.vfs.VFSUtils;
+import org.jboss.vfs.VirtualFile;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	private List<String> localConnectorsPackages;
 
 	final private static String IMPLEMENTATION_TYPE = "connId";
+	final private static String URL_PROTOCOL_FILE = "file";
+	final private static String URL_PROTOCOL_VFS = "vfs";
 
 	/**
 	 * Return key defined IC implementation
@@ -292,24 +296,49 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
 
+			System.out.println("path-annotated: " + annotated.toString());
 			for (Class<?> clazz : annotated) {
 				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
-				String path = url.getPath();
-				try {
-					// We have to create new instance of URL, because we don't want use the URL with
-					// 'vfs' protocol. This happens on the WildFly server (where are connectors
-					// copied to temp folder -> problem with non exists MANIFEST in the ConnId).
-					URL resultUrl = new URL("file", "", path);
-					ConnectorInfoManagerFactory fact = ConnectorInfoManagerFactory.getInstance();
-					ConnectorInfoManager manager = fact.getLocalManager(resultUrl);
-					managers.add(manager);
-				} catch (MalformedURLException ex) {
-					throw new CoreException(ex);
-				}
+				// Transformation the Url to standard Java Url (for the JBoss VFS problem)
+				URL resultUrl = toStandardJavaUrl(url);
+				ConnectorInfoManagerFactory fact = ConnectorInfoManagerFactory.getInstance();
+				ConnectorInfoManager manager = fact.getLocalManager(resultUrl);
+				managers.add(manager);
 			}
 			LOG.info(MessageFormat.format("Found all local connector managers [{0}]", managers.toString()));
 		}
 		return managers;
+	}
+
+	/**
+	 * Transformation the Url to standard Java Url (for the JBoss VFS problem)
+	 * 
+	 * We have to create new instance of URL, because we don't want use the URL with
+	 * 'vfs' protocol. This happens on the WildFly server (where are connectors
+	 * copied to temp folder -> problem with non exists MANIFEST in the ConnId).
+	 * 
+	 * @param url
+	 * @return
+	 */
+	private URL toStandardJavaUrl(URL url) {
+		if (url == null) {
+			return null;
+		}
+		if (URL_PROTOCOL_VFS.equals(url.getProtocol())) {
+			try {
+				VirtualFile vf = VFS.getChild(url.toURI());
+
+				URL physicalUrl = VFSUtils.getPhysicalURL(vf);
+				// Workaround ... replace contents folder with name of file
+				URL resultUrl = new URL(URL_PROTOCOL_FILE, physicalUrl.getHost(),
+						physicalUrl.getFile().replace("/contents/", "/" + vf.getName()));
+
+				return resultUrl;
+			} catch (Exception e) {
+				throw new CoreException("JBoss VFS URL transformation failed", e);
+			}
+		}
+		return url;
 	}
 
 	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance,

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +52,7 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	DTO get(Serializable id, BasePermission... permission);
 
 	/**
-	 * Returns page of DTOs
+	 * Returns page of DTOs.
 	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
 	 * 
 	 * @param pageable
@@ -70,6 +71,28 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @return
 	 */
 	Page<DTO> find(F filter, Pageable pageable, BasePermission... permission);
+	
+	/**
+	 * Return page of UUID's. Method works same as {@link ReadDtoService#find(Pageable, BasePermission...)},
+	 * but returns only ID's. The behavior with ID is useful for quick receive result.
+	 *
+	 * @param pageable
+	 * @param permission
+	 * @return
+	 */
+	Page<UUID> findIds(Pageable pageable, BasePermission... permission);
+	
+	/**
+	 * Return page of UUID's by given filter, authorization permission will be evaluated.
+	 * Method works same as {@link ReadDtoService#find(BaseFilter, Pageable, BasePermission...)},
+	 * but returns only ID's. The behavior with ID is useful for quick receive result.
+	 *
+	 * @param filter
+	 * @param pageable
+	 * @param permission
+	 * @return
+	 */
+	Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission);
 	
 	/**
 	 * The number of entities that match the filter.

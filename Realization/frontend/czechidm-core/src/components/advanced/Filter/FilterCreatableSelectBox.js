@@ -8,6 +8,14 @@ import CreatableSelectBox from '../CreatableSelectBox/CreatableSelectBox';
  */
 export default class FilterCreatableSelectBox extends CreatableSelectBox {
 
+  getValue() {
+    const value = super.getValue();
+
+    if (value && value.length === 0) {
+      return null;
+    }
+    return value;
+  }
 }
 
 FilterCreatableSelectBox.propTypes = {

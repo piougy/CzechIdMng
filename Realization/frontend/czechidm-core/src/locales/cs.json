@@ -4278,12 +4278,12 @@
       "message": "Typ entity [{{entityType}}] nepodporuje externí kód."
     },
     "DUPLICATE_EXTERNAL_ID": {
-      "title": "Entita již existuje",
-      "message": "Typ entity [{{entityType}}] s externím identifikátorem [{{externalId}}] již existuje (id: [{{duplicateId}}])."
+      "title": "Záznam již existuje",
+      "message": "Záznam s externím identifikátorem [{{externalId}}] již existuje."
     },
     "DUPLICATE_EXTERNAL_CODE": {
-      "title": "Entita již existuje",
-      "message": "Typ entity [{{entityType}}] s externím kódem [{{externalCode}}] již existuje (id: [{{duplicateId}}])."
+      "title": "Záznam již existuje",
+      "message": "Záznam s osobním číslem [{{externalCode}}] již existuje."
     }
   },
   "validationError": {

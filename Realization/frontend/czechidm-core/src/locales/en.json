@@ -4237,12 +4237,12 @@
       "message": "Entity type [{{entityType}}] is not external codeable."
     },
     "DUPLICATE_EXTERNAL_ID": {
-      "title": "Entity already exists",
-      "message": "Entity type [{{entityType}}] with external identifier [{{externalId}}] already exists (id: [{{duplicateId}}])."
+      "title": "Record already exists",
+      "message": "Record with external identifier [{{externalId}}] already exists."
     },
     "DUPLICATE_EXTERNAL_CODE": {
-      "title": "Entity already exists",
-      "message": "Entity type [{{entityType}}] with external code [{{externalCode}}] already exists (id: [{{duplicateId}}])."
+      "title": "Record already exists",
+      "message": "Record with personal number [{{externalCode}}] already exists."
     }
   },
   "validationError": {

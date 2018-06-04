@@ -295,8 +295,6 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 			});
 
 			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
-
-			System.out.println("path-annotated: " + annotated.toString());
 			for (Class<?> clazz : annotated) {
 				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
 				// Transformation the Url to standard Java Url (for the JBoss VFS problem)

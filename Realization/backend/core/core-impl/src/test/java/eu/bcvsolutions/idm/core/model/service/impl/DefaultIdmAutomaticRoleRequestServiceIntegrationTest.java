@@ -168,7 +168,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
 			Assert.assertNotNull(identityRoles.get(0).getRoleTreeNode());
 		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		}
 	}
 

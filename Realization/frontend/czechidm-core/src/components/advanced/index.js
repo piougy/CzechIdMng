@@ -41,6 +41,8 @@ import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
+import EavAttributeForm from './Form/EavAttributeForm';
+import LongRunningTask from './LongRunningTask/LongRunningTask';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 
 const Components = {
@@ -89,6 +91,8 @@ const Components = {
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
+  EavAttributeForm,
+  LongRunningTask,
   CreatableSelectBox
 };
 

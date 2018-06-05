@@ -11,6 +11,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -45,6 +47,8 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 	private String description;
 	@NotNull
 	private boolean unmodifiable = false;
+	@JsonProperty(access = Access.READ_ONLY)
+	private String module; // TODO: now is module get by owner type, is possible add it as column into DB
 	//
 	// attribute definitions cache
 	private List<IdmFormAttributeDto> formAttributes;
@@ -174,5 +178,13 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 			return null;
 		}
 		return getMappedAttributes().get(getMappedNames().get(attributeCode));
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 }

@@ -132,7 +132,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.EXECUTE, 
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
-			IdmBasePermission.UPDATE, 
+			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
 	ROLEREQUEST(
 			IdmBasePermission.ADMIN, 

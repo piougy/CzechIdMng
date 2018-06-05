@@ -221,6 +221,43 @@
       "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-add-role-bulk-action": {
+        "niceLabel": "Roles assignment",
+        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)"
+      },
+      "identity-remove-role-bulk-action": {
+        "niceLabel": "Role removing",
+        "header": "$t(bulkAction.actions.identity-remove-role-bulk-action.niceLabel)"
+      },
+      "identity-disable-bulk-action": {
+        "niceLabel": "Deactivate - (manually)",
+        "header": "$t(bulkAction.actions.identity-disable-bulk-action.niceLabel)"
+      },
+      "identity-enable-bulk-action": {
+        "niceLabel": "Activate - (manually)",
+        "header": "$t(bulkAction.actions.identity-enable-bulk-action.niceLabel)"
+      },
+      "identity-delete-bulk-action": {
+        "niceLabel": "Remove",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
+      },
+      "identity-save-bulk-action": {
+        "niceLabel": "Re-save identity",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
+      }
+    },
+    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date [{{date}}] is actual count [{{count}}]. Processed items may be different.",
+    "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
+    "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
+    "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
+    "message": "Performing the bulk action on select record: <b>[{{entities}}]</b>.",
+    "message_plural": "Performing the bulk action on {{count}} records: <b>[{{entities}}]</b>",
+    "button": {
+      "execute": "Execute"
+    }
+  },
   "environment": {
     "development": {
       "short": "D",
@@ -702,6 +739,9 @@
     "profileDashboard" : {
       "header": "Your basic information",
       "goToProfil": "Go to profile"
+    },
+    "longRunningTaskDashboard": {
+      "header": "Your long running task"
     }
   },
   "permission": {
@@ -3578,6 +3618,52 @@
       }
     }
   },
+  "eav": {
+    "bulkAction": {
+      "identity-add-role-bulk-action": {
+        "role": {
+          "label": "Roles",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Approve",
+          "helpBlock": "After check, the role assignment will be approved"
+        },
+        "mainContract": {
+          "label": "Assign to main contract only",
+          "helpBlock": "Assigning new roles will only be done on the main contract."
+        },
+        "validFrom": {
+          "label": "Valid from",
+          "helpBlock": ""
+        },
+        "validTill": {
+          "label": "Valid till",
+          "helpBlock": ""
+        }
+      },
+      "identity-remove-role-bulk-action": {
+        "role": {
+          "label": "Roles",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Approve",
+          "helpBlock": "After check, the role remove will be approved"
+        },
+        "mainContract": {
+          "label": "Remove only from the main contract",
+          "helpBlock": "Removing role/s will only be done from the main contract."
+        }
+      },
+      "identity-save-bulk-action": {
+        "onlyNotify": {
+          "label": "Throw only NOTIFY event",
+          "helpBlock": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
+        }
+      }
+    }
+  },
   "error": {
     "AUTH_FAILED": {
       "title": "Login failed",
@@ -3987,6 +4073,34 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Event cannot be deleted",
       "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    },
+    "BULK_ACTION_REQUIRED_PROPERTY": {
+      "title": "Required property wasn't filled",
+      "message": "Property [{{attributeCode}}] wasn't filled."
+    },
+    "BULK_ACTION_ROLE_NOT_FOUND": {
+      "title": "Roles not found",
+      "message": "Roles for remove not found for identity: [{{identity}}]."
+    },
+    "BULK_ACTION_CONTRACT_NOT_FOUND": {
+      "title": "Contract not found",
+      "message": "Contract for identity: [{{identity}}] not found."
+    },
+    "BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED": {
+      "title": "Bulk action can not be started",
+      "message": "Only one filtering option can be applied."
+    },
+    "BULK_ACTION_MODULE_DISABLED": {
+      "title": "Bulk action can not be started",
+      "message": "Action [{{action}}] can't be processed. Module [{{module}}] is disabled."
+    },
+      "BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED": {
+      "title": "Bulk action can not be started",
+      "message": "Bulk action hasn't specified entities or filter."
+    },
+    "BULK_ACTION_BAD_FILTER": {
+      "title": "Bulk action can not be started",
+      "message": "Filter must be instance of [{{filter}}], given instance [{{givenFilter}}]."
     },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Contract cannot be deleted!",

@@ -249,6 +249,45 @@
       "accepted_5": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu)."
     }
   },
+  "bulkAction": {
+    "actions": {
+      "identity-add-role-bulk-action": {
+        "niceLabel": "Přidělení rolí",
+        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)"
+      },
+      "identity-remove-role-bulk-action": {
+        "niceLabel": "Odebrání rolí",
+        "header": "$t(bulkAction.actions.identity-remove-role-bulk-action.niceLabel)"
+      },
+      "identity-disable-bulk-action": {
+        "niceLabel": "Deaktivovat - (manuálně)",
+        "header": "$t(bulkAction.actions.identity-disable-bulk-action.niceLabel)"
+      },
+      "identity-enable-bulk-action": {
+        "niceLabel": "Aktivovat - (manuálně)",
+        "header": "$t(bulkAction.actions.identity-enable-bulk-action.niceLabel)"
+      },
+      "identity-delete-bulk-action": {
+        "niceLabel": "Odebrat",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
+      },
+      "identity-save-bulk-action": {
+        "niceLabel": "Přeuložit uživatele",
+        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
+      }
+    },
+    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad právě vyfiltrovanými položkami. K tomuto datu [{{date}}] je aktuální počet [{{count}}]. Zpracované položky se mohou lišit.",
+    "removedRecord_1": "Do zpracování hromadné úlohy nebude započítána tato entita: <b>[{{entities}}]</b>.",
+    "removedRecord_2": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
+    "removedRecord_5": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
+    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "message_1": "Provádíte hromadnou úlohu [{{name}}] nad vybráným záznamem: <b>[{{entities}}]</b>.",
+    "message_2": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
+    "message_5": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
+    "button": {
+      "execute": "Spustit"
+    }
+  },
   "environment": {
     "development": {
       "short": "D",
@@ -731,6 +770,9 @@
     "profileDashboard" : {
       "header": "Vaše základní údaje",
       "goToProfil": "Přejít na detail profilu"
+    },
+    "longRunningTaskDashboard": {
+      "header": "Vaše dlouhotrvající úlohy"
     }
   },
   "permission": {
@@ -3619,6 +3661,52 @@
       }
     }
   },
+  "eav": {
+    "bulkAction": {
+      "identity-add-role-bulk-action": {
+        "role": {
+          "label": "Role",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Schvalovat",
+          "helpBlock": "Po zakrtnutí bude přidělení role schvalováno"
+        },
+        "mainContract": {
+          "label": "Přiřadit pouze na hlavní kontrakt",
+          "helpBlock": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+        },
+        "validFrom": {
+          "label": "Platnost od",
+          "helpBlock": ""
+        },
+        "validTill": {
+          "label": "Platnost do",
+          "helpBlock": ""
+        }
+      },
+      "identity-remove-role-bulk-action": {
+        "role": {
+          "label": "Role",
+          "helpBlock": ""
+        },
+        "approve": {
+          "label": "Schvalovat",
+          "helpBlock": "Po zakrtnutí bude odebrání role schvalováno"
+        },
+        "mainContract": {
+          "label": "Odebrat pouze z hlavního kontraktu",
+          "helpBlock": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+        }
+      },
+      "identity-save-bulk-action": {
+        "onlyNotify": {
+          "label": "Vyvolat pouze událost NOTIFY",
+          "helpBlock": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
+        }
+      }
+    }
+  },
   "error": {
     "AUTH_FAILED": {
       "title": "Chybné přihlašovací údaje",
@@ -4028,6 +4116,34 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Událost nelze smazat",
       "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    },
+    "BULK_ACTION_REQUIRED_PROPERTY": {
+      "title": "Nebyla vyplněna povinná položka",
+      "message": "Položka [{{attributeCode}}] nebyla vyplněna."
+    },
+    "BULK_ACTION_ROLE_NOT_FOUND": {
+      "title": "Nebyly/a nalezena role",
+      "message": "Role pro identitu [{{identity}}], nebyla nalezeny/a."
+    },
+    "BULK_ACTION_CONTRACT_NOT_FOUND": {
+      "title": "Nebyl nalezen kontrakt",
+      "message": "Pro identitu [{{identity}}] nebyl nalezen kontrakt."
+    },
+    "BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Lze použít pouze jednu možnost filtrování."
+    },
+    "BULK_ACTION_MODULE_DISABLED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Hromadnou akci: [{{action}}] nelze spustit, modul [{{module}}] je neaktivní."
+    },
+    "BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Hromadná akce nemá definové entity pro zpracování, nebo filtr."
+    },
+    "BULK_ACTION_BAD_FILTER": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Špatná třída filtru. Je požadována třída [{{filter}}]. Obdržená třída [{{givenFilter}}]."
     },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Pracovní pozici není možné odstranit.",

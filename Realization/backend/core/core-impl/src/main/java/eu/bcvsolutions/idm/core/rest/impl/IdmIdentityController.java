@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +25,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +39,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -95,6 +100,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmAuditService auditService; 	
 	private final IdmTreeNodeService treeNodeService;
+	private final BulkActionManager bulkActionManager;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -106,7 +112,8 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
 			IdmAuditService auditService,
-			IdmTreeNodeService treeNodeService) {
+			IdmTreeNodeService treeNodeService,
+			BulkActionManager bulkOperationManager) {
 		super(identityService);
 		//
 		Assert.notNull(identityService);
@@ -116,6 +123,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		Assert.notNull(identityRoleService);
 		Assert.notNull(auditService);
 		Assert.notNull(treeNodeService);
+		Assert.notNull(bulkOperationManager);
 		//
 		this.identityService = identityService;
 		this.formDefinitionController = formDefinitionController;
@@ -124,6 +132,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		this.identityRoleService = identityRoleService;
 		this.auditService = auditService;
 		this.treeNodeService = treeNodeService;
+		this.bulkActionManager = bulkOperationManager;
 	}
 	
 	@Override
@@ -653,6 +662,70 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
+	/**
+	 * Process bulk action for identities
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@ApiOperation(
+			value = "Process bulk action for identity", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")})
+				})
+	public Resource<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		// TODO: use MultiValueMap in object if is possible?
+		if (bulkAction.getFilter() != null) {
+			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
+			Map<String, Object> properties = bulkAction.getFilter();
+			
+			for (Entry<String, Object> entry : properties.entrySet()) {
+				Object value = entry.getValue();
+				if(value instanceof List<?>) {
+					multivaluedMap.put(entry.getKey(), (List<Object>) value);
+				}else {
+					multivaluedMap.add(entry.getKey(), entry.getValue());
+				}
+			}
+			IdmIdentityFilter filter = this.toFilter(multivaluedMap);
+			bulkAction.setTransformedFilter(filter);
+		}
+		bulkAction.setEntityClass(IdmIdentity.class.getName());
+		bulkAction.setFilterClass(this.getFilterClass().getName());
+		return new Resource<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction));
+	}
+	
+	/**
+	 * Get available bulk actions for identity
+	 *
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/bulk/action", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions", 
+			nickname = "availableBulkAction", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+				})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return bulkActionManager.getAvailableActions(IdmIdentity.class);
+	}
 	
 	@Override
 	protected IdmIdentityDto validateDto(IdmIdentityDto dto) {

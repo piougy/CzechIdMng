@@ -210,6 +210,81 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   /**
+   * Return localized label for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
+   */
+  getLabel(defaultValue = null) {
+    const { attribute } = this.props;
+    const formDefinition = attribute._embedded.formDefinition;
+
+    let key = null;
+    let localizeMessage = null;
+    if (formDefinition) {
+      const formType = this._transformKey(formDefinition.type);
+      const formCode = this._transformKey(formDefinition.code);
+      const attrCode = this._transformKey(attribute.code);
+      //
+      key = `eav.${formType}.${formCode}.${attrCode}.label`;
+      localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
+    }
+
+    // if localized message is exactly same as key, that means message isn't localize
+    if (key === null || key === localizeMessage) {
+      if (attribute.code) {
+        return attribute.code;
+      }
+      return defaultValue;
+    }
+
+    return localizeMessage;
+  }
+
+  /**
+   * Return localized help block for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
+   */
+  getHelpBlock(defaultValue = null) {
+    const { attribute } = this.props;
+    const formDefinition = attribute._embedded.formDefinition;
+
+    let key = null;
+    let localizeMessage = null;
+    if (formDefinition) {
+      const formType = this._transformKey(formDefinition.type);
+      const formCode = this._transformKey(formDefinition.code);
+      const attrCode = this._transformKey(attribute.code);
+      //
+      key = `eav.${formType}.${formCode}.${attrCode}.helpBlock`;
+      localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
+    }
+
+    // if localized message is exactly same as key, that means message isn't localize
+    if (key === null || key === localizeMessage) {
+      if (attribute.description) {
+        return attribute.description;
+      }
+      return defaultValue;
+    }
+
+    return localizeMessage;
+  }
+
+  /**
+   * Tranform key. Return key without dot or double dot. All these characters
+   * will be replaced by dash.
+   */
+  _transformKey(key) {
+    const dash = '-';
+    const dot = '.';
+    const colon = ':';
+    // replace dots must be done with split and join, reqular expression doesn't work correctly
+    // g is globaly - replace all
+    return _.replace(key.split(dot).join(dash), new RegExp(colon, 'g'), dash);
+  }
+
+  /**
    * Input as single fields
    */
   renderSingleInput() {

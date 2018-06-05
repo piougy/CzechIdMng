@@ -30,6 +30,13 @@ module.exports = {
       'component': require('./src/content/dashboards/ProfileDashboard')
     },
     {
+      'id': 'long-running-task-dashboard',
+      'type': 'dashboard',
+      'span': '12',
+      'order': '50',
+      'component': require('./src/content/dashboards/LongRunningTaskDashboard')
+    },
+    {
       'id': 'password-change-content',
       'priority': 0,
       'component': require('./src/content/identity/PasswordChangeContent')

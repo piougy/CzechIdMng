@@ -214,6 +214,9 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			LOG.debug("Long running task ended [{}] standardly, previous state [{}], result [{}].", longRunningTaskId, task.getResultState(), result);
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
+		// after update state is send websocket with information about end of LRT
+		task = longRunningTaskService.save(task);
+		this.updateState();
 		//
 		// publish event - LRT ended
 		// TODO: result is not persisted - propagate him in event?
@@ -271,6 +274,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		if (task == null) {
 			return true;
 		}
+		//
 		return task.isRunning() && OperationState.isRunnable(task.getResultState());
 	}
 	
@@ -327,7 +331,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Override
 	public <DTO extends AbstractDto> IdmProcessedTaskItemDto logItemProcessed(DTO item, OperationResult opResult) {
 		Assert.notNull(item);
-		Assert.notNull(opResult);
 		//
 		return itemService.createLogItem(item, opResult, this.getLongRunningTaskService().get(this.getLongRunningTaskId()));
 	}

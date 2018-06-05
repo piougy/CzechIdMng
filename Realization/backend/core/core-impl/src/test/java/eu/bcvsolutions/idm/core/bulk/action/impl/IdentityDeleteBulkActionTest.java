@@ -41,12 +41,10 @@ public class IdentityDeleteBulkActionTest extends AbstractBulkActionTest {
 	public void login() {
 		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdmBasePermission.DELETE, IdmBasePermission.READ);
 		loginAsNoAdmin(adminIdentity.getUsername());
-		this.enableSynchronousLrt();
 	}
 	
 	@After
 	public void logout() {
-		this.setDefaultSynchronousLrt();
 		super.logout();
 	}
 	

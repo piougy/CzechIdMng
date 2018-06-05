@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFactory;
@@ -14,14 +12,10 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
@@ -45,8 +39,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 	private WorkflowDeploymentService processDeploymentService;
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
-	@Autowired
-	private ModuleService moduleService;
 	@Autowired
 	private LookupService lookupService;
 

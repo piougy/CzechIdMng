@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
-import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
@@ -96,22 +95,6 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 		getHelper().createIdentityRole(createIdentity, createRole);
 		
 		return createIdentity;
-	}
-	
-	/**
-	 * Enable only synchronously long runnign task
-	 */
-	protected void enableSynchronousLrt() {
-		configurationService.setBooleanValue(
-				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-	}
-	
-	/**
-	 * Set default value for asznc/sznc behavior on long running task 
-	 */
-	protected void setDefaultSynchronousLrt() {
-		configurationService.setBooleanValue(
-				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
 	
 	/**

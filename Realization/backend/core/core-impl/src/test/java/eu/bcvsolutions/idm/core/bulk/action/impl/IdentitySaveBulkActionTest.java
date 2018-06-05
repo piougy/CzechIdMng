@@ -66,14 +66,12 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());
-		this.enableSynchronousLrt();
 
 		originalAsynchronousValue = eventConfiguration.isAsynchronous();
 	}
 
 	@After
 	public void logout() {
-		this.setDefaultSynchronousLrt();
 		configurationService.setBooleanValue(DELETE_PROCESSOR_KEY, Boolean.TRUE);
 		configurationService.setBooleanValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED,
 				originalAsynchronousValue);

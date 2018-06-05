@@ -64,12 +64,10 @@ public class IdentityRemoveRoleBulkActionTest extends AbstractBulkActionTest {
 
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());
-		this.enableSynchronousLrt();
 	}
 	
 	@After
 	public void logout() {
-		this.setDefaultSynchronousLrt();
 		super.logout();
 	}
 

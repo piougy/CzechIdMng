@@ -40,12 +40,10 @@ public class IdentityEnableBulkActionTest extends AbstractBulkActionTest {
 	public void login() {
 		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdmBasePermission.UPDATE, IdmBasePermission.READ);
 		loginAsNoAdmin(adminIdentity.getUsername());
-		this.enableSynchronousLrt();
 	}
 	
 	@After
 	public void logout() {
-		this.setDefaultSynchronousLrt();
 		super.logout();
 	}
 	

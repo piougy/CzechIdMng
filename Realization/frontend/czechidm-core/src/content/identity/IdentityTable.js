@@ -274,12 +274,12 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
           <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
           <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
-          <Advanced.Column property="firstName" width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
-          <Advanced.Column property="externalCode" width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
+          <Advanced.Column property="firstName" sort width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
+          <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={_ .includes(columns, 'email') }/>
           <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={ _.includes(columns, 'disabled') }/>
           <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={ _.includes(columns, 'state') }/>
-          <Advanced.Column property="description" face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
+          <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
         </Advanced.Table>
       </div>
     );

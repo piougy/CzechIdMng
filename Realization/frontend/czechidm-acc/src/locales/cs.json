@@ -1454,7 +1454,7 @@
     },
     "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
       "title": "Mapovaný atribut neexistuje",
-      "message": "Mapovaný atribut pro IdM pole [{{field}}] musí existovat v mapování systému."
+      "message": "Mapovaný atribut pro IdM pole [{{property}}] musí existovat v mapování systému."
     },
     "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
       "title": "Špatná hodnota filtru",

@@ -137,6 +137,7 @@ class BackendModules extends Basic.AbstractContent {
           <Basic.Column
             property="documentation"
             header={this.i18n('entity.Module.documentation')}
+            className="action"
             width={ 250 }
             cell={
               /* eslint-disable react/no-multi-comp */

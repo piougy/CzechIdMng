@@ -1446,7 +1446,7 @@
     },
     "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
       "title": "Mapped attribute not exists",
-      "message": "Mapped attribute fo IdM field [{{field}}] must exists in system mapping."
+      "message": "Mapped attribute for IdM field [{{property}}] must exists in system mapping."
     },
     "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
       "title": "Wrong filter value",

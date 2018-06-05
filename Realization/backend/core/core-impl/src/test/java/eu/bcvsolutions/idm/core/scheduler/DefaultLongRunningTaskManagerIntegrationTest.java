@@ -39,8 +39,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Long running tasks test
@@ -51,7 +51,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
-	@Autowired private TestHelper helper;
 	@Autowired private IdmLongRunningTaskService service;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmProcessedTaskItemService itemService;
@@ -61,12 +60,12 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Before
 	public void init() {		
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultLongRunningTaskManager.class);
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 	}
 	
 	@After
 	public void after() {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 	
 	@Test
@@ -154,7 +153,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		Function<String, Boolean> continueFunction = res -> {
 			return !manager.getLongRunningTask(futureTask).isRunning();
 		};
-		helper.waitForResult(continueFunction);
+		getHelper().waitForResult(continueFunction);
 		//
 		manager.cancel(taskExecutor.getLongRunningTaskId());
 		//
@@ -177,7 +176,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		Function<String, Boolean> continueFunction = res -> {
 			return !manager.getLongRunningTask(taskExecutor).isRunning();
 		};
-		helper.waitForResult(continueFunction);
+		getHelper().waitForResult(continueFunction);
 		//
 		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
@@ -225,7 +224,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		TestTaskExecutor executorOne = new TestTaskExecutor();
 		executorOne.setCount(30L);
 		LongRunningFutureTask<Boolean> longRunningFutureTask = manager.execute(executorOne);
-		helper.waitForResult(res -> {
+		getHelper().waitForResult(res -> {
 			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
 		});		
 		TestTaskExecutor executorTwo = new TestTaskExecutor();
@@ -235,11 +234,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testCheckLogs() throws InterruptedException, ExecutionException {
-		IdmIdentityDto identity1 = helper.createIdentity();
-		IdmIdentityDto identity2 = helper.createIdentity();
-		IdmIdentityDto identity3 = helper.createIdentity();
-		IdmIdentityDto identity4 = helper.createIdentity();
-		IdmIdentityDto identity5 = helper.createIdentity();
+		IdmIdentityDto identity1 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity4 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity5 = getHelper().createIdentity((GuardedString) null);
 		//
 		TestLogItemLongRunningTaskExecutor taskExecutor = new TestLogItemLongRunningTaskExecutor();
 		taskExecutor.addIdentityToProcess(identity1, identity2, identity3, identity4, identity5);
@@ -283,11 +282,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testCheckDisableLogs() throws InterruptedException, ExecutionException {
-		IdmIdentityDto identity1 = helper.createIdentity();
-		IdmIdentityDto identity2 = helper.createIdentity();
-		IdmIdentityDto identity3 = helper.createIdentity();
-		IdmIdentityDto identity4 = helper.createIdentity();
-		IdmIdentityDto identity5 = helper.createIdentity();
+		IdmIdentityDto identity1 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity4 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity5 = getHelper().createIdentity((GuardedString) null);
 		//
 		TestLogItemLongRunningTaskExecutor taskExecutor = new TestLogItemLongRunningTaskExecutor();
 		taskExecutor.addIdentityToProcess(identity1, identity2, identity3, identity4, identity5);

@@ -212,7 +212,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   /**
    * Return localized label for current attribute. As key is used
    * form definition code and attribute code.
-   * If key in localization and form name is defined, it will be used default value.
+   * If key in localization and form name is not defined, it will be used default value.
    */
   getLabel(defaultValue = null) {
     const { attribute } = this.props;

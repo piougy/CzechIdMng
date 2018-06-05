@@ -292,7 +292,7 @@ public class DefaultIdmConceptRoleRequestService extends
 							.filter(decision -> WorkflowTaskInstanceService.WORKFLOW_DECISION_DISAPPROVE
 									.equals(decision.getId()))
 							.findFirst() //
-							.orElseGet(null);
+							.orElse(null);
 					if (disapprove != null) {
 						// Active task exists and has decision for 'disapprove'. Complete task (process)
 						// with this decision.

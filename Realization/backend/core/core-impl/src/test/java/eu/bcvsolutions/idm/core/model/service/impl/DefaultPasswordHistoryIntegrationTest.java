@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test class for {@link DefaultIdmPasswordHistoryService}
- * TODO: now is during create identity save password twice.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *

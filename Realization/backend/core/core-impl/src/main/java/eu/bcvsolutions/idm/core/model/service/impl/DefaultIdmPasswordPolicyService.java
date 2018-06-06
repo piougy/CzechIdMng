@@ -423,9 +423,6 @@ public class DefaultIdmPasswordPolicyService
 
 			// TODO: weak words
 		}
-		if (!specialCharBase.isEmpty()) {
-			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
-		}
 
 		if (!policyNames.isEmpty()) {
 			String name = prevalidation ? POLICY_NAME_PREVALIDATION : POLICY_NAME;

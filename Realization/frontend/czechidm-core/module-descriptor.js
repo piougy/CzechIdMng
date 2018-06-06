@@ -987,6 +987,15 @@ module.exports = {
                 'icon': '',
                 'type': 'TAB',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+              },
+              {
+                'id': 'forms-localization',
+                'labelKey': 'content.formDefinitions.localization.title',
+                'order': 900,
+                'path': '/forms/:entityId/localization',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
               }
             ]
           },

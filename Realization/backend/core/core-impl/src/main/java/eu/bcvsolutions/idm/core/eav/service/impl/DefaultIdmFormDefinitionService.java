@@ -114,7 +114,7 @@ public class DefaultIdmFormDefinitionService
 			try {
 				dto.setModule(EntityUtils.getModule(Class.forName(dto.getType())));
 			} catch (ClassNotFoundException e) {
-				LOG.error("Owner type: {}, wasn't found.", dto.getType(), e);
+				LOG.warn("Owner type: {}, wasn't found. Form definition module will be empty", dto.getType(), e);
 			}
 		}
 		return dto;

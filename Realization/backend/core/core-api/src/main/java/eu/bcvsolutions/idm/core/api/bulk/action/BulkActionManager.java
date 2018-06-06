@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.bulk.action;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Interface for bulk action manager
@@ -19,7 +19,7 @@ public interface BulkActionManager {
 	 * @param entity
 	 * @return
 	 */
-	List<IdmBulkActionDto> getAvailableActions(Class<? extends AbstractEntity> entity);
+	List<IdmBulkActionDto> getAvailableActions(Class<? extends BaseEntity> entity);
 	
 	/**
 	 * Process bulk action in new long running task

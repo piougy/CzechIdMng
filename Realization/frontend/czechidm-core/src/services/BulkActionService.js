@@ -35,7 +35,7 @@ export default class BulkActionService {
    */
   getAvailableBulkActions() {
     return RestApiService
-      .get(this.getApiPath() + `/bulk/action`)
+      .get(this.getApiPath() + `/bulk/actions`)
       .then(response => {
         return response.json();
       })

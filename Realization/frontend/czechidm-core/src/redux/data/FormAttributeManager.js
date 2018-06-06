@@ -1,6 +1,8 @@
 import EntityManager from './EntityManager';
 import { FormAttributeService } from '../../services';
 import ComponentService from '../../services/ComponentService';
+import FormDefinitionManager from './FormDefinitionManager';
+import * as Utils from '../../utils';
 
 /**
  * Eav form attributes
@@ -51,5 +53,30 @@ export default class FormAttributeManager extends EntityManager {
       return attribute.persistentType.toLowerCase() === component.persistentType.toLowerCase()
           && _attributeFaceType.toLowerCase() === _componentFaceType.toLowerCase();
     });
+  }
+
+  /**
+   * Returns prefix for localization
+   * ''
+   * @param  {object} formDefinition
+   * @param  {string} formAttribute optional - if attribute is not given, then formDefinition prefix is returned
+   * @return {string}
+   */
+  static getLocalizationPrefix(formDefinition, formAttribute, withModule = true) {
+    if (!formDefinition && !formAttribute) {
+      return undefined;
+    }
+    const _formDefinition = formDefinition || formAttribute._embedded.formDefinition;
+    if (!_formDefinition) {
+      return undefined;
+    }
+    //
+    const definitionPrefix = FormDefinitionManager.getLocalizationPrefix(_formDefinition, withModule);
+    if (!formAttribute) {
+      // definition prefix only
+      return definitionPrefix;
+    }
+    //
+    return `${definitionPrefix}.attributes.${Utils.Ui.spinalCase(formAttribute.code)}`;
   }
 }

@@ -42,7 +42,7 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
         mode={ attribute.persistentType.toLowerCase() }
         required={ attribute.required }
         label={ this.getLabel() }
-        placeholder={ attribute.placeholder }
+        placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(values) }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }/>

@@ -117,6 +117,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
             return (
               <FormValueComponent
                 ref={ attribute.code }
+                formDefinition={ this.getFormDefinition() }
                 attribute={ attribute }
                 values={ formInstance.getValues(attribute.code) }
                 readOnly={ readOnly }

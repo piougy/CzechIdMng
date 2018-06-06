@@ -5,7 +5,7 @@ import classnames from 'classnames';
 //
 import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
-import { DataManager } from '../../../redux';
+import { DataManager, FormDefinitionManager } from '../../../redux';
 import EavForm from './EavForm';
 
 /**
@@ -70,6 +70,21 @@ class EavContent extends Basic.AbstractContent {
     }));
   }
 
+  _getLocalization(formDefinition, property, defaultValue = null) {
+    if (!formDefinition) {
+      return undefined;
+    }
+    const key = `${ FormDefinitionManager.getLocalizationPrefix(formDefinition, false) }.${ property }`;
+    const keyWithModule = `${ FormDefinitionManager.getLocalizationPrefix(formDefinition, true) }.${ property }`;
+    const localizeMessage = this.i18n(keyWithModule);
+    //
+    // if localized message is exactly same as key, that means message isn't localized
+    if (key === null || key === localizeMessage || keyWithModule === localizeMessage) {
+      return defaultValue;
+    }
+    return localizeMessage;
+  }
+
   render() {
     const { _formInstances, _showLoading, showSaveButton } = this.props;
     const { error } = this.state;
@@ -98,9 +113,17 @@ class EavContent extends Basic.AbstractContent {
               }>
 
               {/* RT: back compatibilty header */}
-              <Basic.PanelHeader text={ _formInstance.getDefinition().name === 'default' ? this.i18n('header') : _formInstance.getDefinition().name }/>
+              <Basic.PanelHeader
+                text={
+                  _formInstance.getDefinition().name === 'default'
+                  ?
+                  this.i18n('header')
+                  :
+                  this._getLocalization(_formInstance.getDefinition(), 'label', _formInstance.getDefinition().name) }/>
 
-              <Basic.Alert icon="info-sign" text={ _formInstance.getDefinition().description } />
+              <Basic.Alert
+                icon="info-sign"
+                text={ this._getLocalization(_formInstance.getDefinition(), 'help', _formInstance.getDefinition().description) } />
 
               <Basic.PanelBody>
                 <EavForm

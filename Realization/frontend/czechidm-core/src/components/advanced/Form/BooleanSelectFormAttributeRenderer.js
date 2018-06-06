@@ -49,7 +49,7 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }
-        placeholder={ attribute.placeholder }/>
+        placeholder={ this.getPlaceholder() }/>
     );
   }
 

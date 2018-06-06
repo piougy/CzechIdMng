@@ -30,7 +30,7 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
         ref={ TextFormAttributeRenderer.INPUT }
         label={ this.getLabel() }
         value={ this.toInputValue(values) }
-        placeholder={ attribute.placeholder }
+        placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         validation={ this.getInputValidation() }

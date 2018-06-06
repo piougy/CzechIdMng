@@ -178,7 +178,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             bulkActionShowLoading: false
           });
         } else {
-          this.addMessage({ level: 'info', message: this.i18n('bulkAction.created', { longRunningTaskId: processBulkAction.longRunningTaskId, name: this.i18n(processBulkAction.module + 'bulkAction.actions.' + processBulkAction.name + '.niceLabel')})});
+          this.addMessage({ level: 'info', message: this.i18n('bulkAction.created', { longRunningTaskId: processBulkAction.longRunningTaskId, name: this.i18n(processBulkAction.module + ':eav.bulkAction.' + processBulkAction.name + '.label')})});
           // this.showBulkActionDetail(null);
           this.setState({
             selectedRows: [],
@@ -369,14 +369,20 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   showBulkActionDetail(backendBulkAction) {
     const { showBulkActionDetail } = this.state;
     //
-    this.setState({
-      backendBulkAction,
-      now: moment(new Date()).format(this.i18n('format.datetime')),
-      showBulkActionDetail: !showBulkActionDetail
-    });
+    if (showBulkActionDetail) {
+      this.setState({
+        showBulkActionDetail: !showBulkActionDetail
+      });
+    } else {
+      this.setState({
+        showBulkActionDetail: !showBulkActionDetail,
+        backendBulkAction,
+        now: moment(new Date()).format(this.i18n('format.datetime'))
+      });
+    }
   }
 
-  _backendBulkActionDetail() {
+  _renderBulkActionDetail() {
     const {
       backendBulkAction,
       showBulkActionDetail,
@@ -405,7 +411,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         <Basic.Modal.Body style={ {padding: 0, marginBottom: -20} }>
           <LongRunningTask
             entityIdentifier={ backendBulkAction.longRunningTaskId }
-            header={ this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.header')}
+            header={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}
             footerButtons={
               <Basic.Button
                 level="link"
@@ -418,7 +424,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     } else if (backendBulkAction) {
       modalContent = (
         <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
-          <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.header') }/>
+          <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }/>
           <Basic.Modal.Body>
             <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
               <Basic.Alert
@@ -426,14 +432,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 text={this.i18n('bulkAction.selectAllRecordsWarning',
                   {
                     count,
-                    action: this.i18n(`${backendBulkAction.module}:bulkAction.actions.${backendBulkAction.name}.header`),
-                    date: now })}
+                    action: this.i18n(`${backendBulkAction.module}:eav.bulk-action.${backendBulkAction.name}.label`),
+                    date: now,
+                    escape: false
+                  })}
                 rendered={isSelectedAll} />
               <Basic.Row rendered={!isSelectedAll} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
                 <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.message', {
                   count: selectedRows.length,
                   entities: manager.getNiceLabels(selectedEntities).join(', '),
-                  name: this.i18n(`${backendBulkAction.module}:bulkAction.actions.${backendBulkAction.name}.niceLabel`) }) }}/>
+                  name: this.i18n(`${backendBulkAction.module}:eav.bulk-action.${backendBulkAction.name}.label`) }) }}/>
               </Basic.Row>
               <Basic.Row rendered={removedEnties.length > 0} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
                 <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.removedRecord', {
@@ -445,7 +453,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 localizationKey={backendBulkAction.name}
                 localizationModule={backendBulkAction.module}
                 formAttributes={backendBulkAction.formAttributes}
-                localizationType="bulkAction"/>
+                localizationType="bulk-action"/>
             </Basic.AbstractForm>
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
@@ -633,7 +641,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           const backendBulkAction = _backendBulkActions[index];
           _actions.push({
             value: backendBulkAction.name,
-            niceLabel: this.i18n(backendBulkAction.module + ':bulkAction.actions.' + backendBulkAction.name + '.niceLabel'),
+            niceLabel: this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label'),
             action: this.showBulkActionDetail.bind(this, backendBulkAction)
           });
         }
@@ -757,7 +765,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               total={ pagination ? _total : _entities.length } {...range} />
           </div>
         }
-        { this._backendBulkActionDetail() }
+        { this._renderBulkActionDetail() }
       </div>
     );
   }
@@ -847,6 +855,7 @@ AdvancedTable.propTypes = {
   filterViewportOffsetTop: PropTypes.number,
   /**
    * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) }
+   * This prop is ignored, if backend actions are used (see prop "useBackendBulkAction")
    */
   actions: PropTypes.arrayOf(PropTypes.object),
   /**
@@ -869,6 +878,7 @@ AdvancedTable.propTypes = {
   showToolbar: PropTypes.bool,
   /**
    * Use bulk operation from backend
+   * Prop "actions" will be ignored, if "true" is given.
    */
   useBackendBulkAction: PropTypes.bool,
   //

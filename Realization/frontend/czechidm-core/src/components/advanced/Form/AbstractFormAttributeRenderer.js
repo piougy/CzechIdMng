@@ -2,6 +2,8 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
+import * as Utils from '../../../utils';
+import { FormAttributeManager } from '../../../redux';
 
 /**
  * Abstract form value component
@@ -194,19 +196,39 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * Unsupported info
    */
   _unsupportedMode(mode = 'single') {
-    const { attribute } = this.props;
-    const formDefinition = attribute._embedded.formDefinition;
+    const { attribute, formDefinition } = this.props;
+    const _formDefinition = formDefinition || attribute._embedded.formDefinition;
     //
     return (
       <Basic.LabelWrapper label={ attribute.code } >
         <Basic.Alert level="warning" className="no-margin">
           <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.title`, { name: attribute.persistentType, face: attribute.faceType }) }</div>
           <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.title`) }:</div>
-          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { formDefinition.type }</div>
-          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { formDefinition.code }</div>
+          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { _formDefinition.type }</div>
+          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { _formDefinition.code }</div>
         </Basic.Alert>
       </Basic.LabelWrapper>
     );
+  }
+
+  _getLocalization(property, defaultValue = null) {
+    const { attribute, formDefinition } = this.props;
+    const _formDefinition = formDefinition || attribute._embedded.formDefinition;
+
+    let key = null;
+    let keyWithModule = null;
+    let localizeMessage = null;
+    if (_formDefinition) {
+      key = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, attribute, false) }.${ property }`;
+      keyWithModule = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, attribute, true) }.${ property }`;
+      localizeMessage = this.i18n(keyWithModule);
+    }
+    //
+    // if localized message is exactly same as key, that means message isn't localized
+    if (key === null || key === localizeMessage || keyWithModule === localizeMessage) {
+      return defaultValue;
+    }
+    return localizeMessage;
   }
 
   /**
@@ -216,28 +238,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    */
   getLabel(defaultValue = null) {
     const { attribute } = this.props;
-    const formDefinition = attribute._embedded.formDefinition;
-
-    let key = null;
-    let localizeMessage = null;
-    if (formDefinition) {
-      const formType = this._transformKey(formDefinition.type);
-      const formCode = this._transformKey(formDefinition.code);
-      const attrCode = this._transformKey(attribute.code);
-      //
-      key = `eav.${formType}.${formCode}.${attrCode}.label`;
-      localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
-    }
-
-    // if localized message is exactly same as key, that means message isn't localize
-    if (key === null || key === localizeMessage) {
-      if (attribute.code) {
-        return attribute.code;
-      }
-      return defaultValue;
-    }
-
-    return localizeMessage;
+    //
+    return this._getLocalization('label', attribute.name || attribute.code || defaultValue);
   }
 
   /**
@@ -247,41 +249,19 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    */
   getHelpBlock(defaultValue = null) {
     const { attribute } = this.props;
-    const formDefinition = attribute._embedded.formDefinition;
-
-    let key = null;
-    let localizeMessage = null;
-    if (formDefinition) {
-      const formType = this._transformKey(formDefinition.type);
-      const formCode = this._transformKey(formDefinition.code);
-      const attrCode = this._transformKey(attribute.code);
-      //
-      key = `eav.${formType}.${formCode}.${attrCode}.helpBlock`;
-      localizeMessage = this.i18n(`${formDefinition.module}:${key}`);
-    }
-
-    // if localized message is exactly same as key, that means message isn't localize
-    if (key === null || key === localizeMessage) {
-      if (attribute.description) {
-        return attribute.description;
-      }
-      return defaultValue;
-    }
-
-    return localizeMessage;
+    //
+    return this._getLocalization('help', attribute.description || defaultValue);
   }
 
   /**
-   * Tranform key. Return key without dot or double dot. All these characters
-   * will be replaced by dash.
+   * Return localized help block for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
    */
-  _transformKey(key) {
-    const dash = '-';
-    const dot = '.';
-    const colon = ':';
-    // replace dots must be done with split and join, reqular expression doesn't work correctly
-    // g is globaly - replace all
-    return _.replace(key.split(dot).join(dash), new RegExp(colon, 'g'), dash);
+  getPlaceholder(defaultValue = null) {
+    const { attribute } = this.props;
+    //
+    return this._getLocalization('placeholder', attribute.placeholder || defaultValue);
   }
 
   /**
@@ -321,6 +301,10 @@ AbstractFormAttributeRenderer.propTypes = {
    * Form attribute
    */
   attribute: PropTypes.object.isRequired,
+  /**
+   * Form definition. Attribute embedded form definition will be used otherwise.
+   */
+  formDefinition: PropTypes.object,
   /**
    * Filled form values
    */

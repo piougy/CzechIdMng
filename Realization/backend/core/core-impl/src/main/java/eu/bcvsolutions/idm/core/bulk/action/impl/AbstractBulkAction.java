@@ -128,7 +128,6 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 		//
 		IdmIdentityDto identityDto = identityService.get(task.getCreatorId());
 		if (identityDto != null) {
-			configurationService.getValue("idm.pub.security.allowed-origins");
 			notificationManager.send(CoreModuleDescriptor.TOPIC_BULK_ACTION_END,
 					new IdmMessageDto.Builder()
 					.addParameter("action", action)

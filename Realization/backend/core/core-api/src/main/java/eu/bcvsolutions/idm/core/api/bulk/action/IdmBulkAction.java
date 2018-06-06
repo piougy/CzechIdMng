@@ -8,7 +8,7 @@ import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -20,9 +20,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 
 public interface IdmBulkAction<DTO extends BaseDto>
-		extends Plugin<Class<? extends AbstractEntity>>, Ordered {
+		extends Plugin<Class<? extends BaseEntity>>, Ordered {
 
-	static int DEFAULT_ORDER = 0;
+	int DEFAULT_ORDER = 0;
 	
 	/**
 	 * Get list of form attributes

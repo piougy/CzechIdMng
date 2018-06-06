@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -33,7 +34,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 @Service("bulkActionManager")
 public class DefaultBulkActionManager implements BulkActionManager {
 
-	private final PluginRegistry<AbstractBulkAction<? extends BaseDto>, Class<? extends AbstractEntity>> pluginExecutors;
+	private final PluginRegistry<AbstractBulkAction<? extends BaseDto>, Class<? extends BaseEntity>> pluginExecutors;
 	private final LongRunningTaskManager taskManager;
 	private final ModuleService moduleService;
 	
@@ -75,7 +76,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	
 	@Override
 	public List<IdmBulkActionDto> getAvailableActions(
-			Class<? extends AbstractEntity> entity) {
+			Class<? extends BaseEntity> entity) {
 		List<AbstractBulkAction<? extends BaseDto>> actions = pluginExecutors.getPluginsFor(entity);
 		//
 		List<IdmBulkActionDto> result = new ArrayList<>();
@@ -96,13 +97,14 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	private AbstractBulkAction<? extends BaseDto> getOperationForDto(IdmBulkActionDto actionDto) {
 		Assert.notNull(actionDto);
 		Assert.notNull(actionDto.getEntityClass());
 		try {
 			Class<?> forName = Class.forName(actionDto.getEntityClass());
 			if (AbstractEntity.class.isAssignableFrom(forName)) {
-				List<AbstractBulkAction<?>> actions = pluginExecutors.getPluginsFor((Class<? extends AbstractEntity>) forName);
+				List<AbstractBulkAction<?>> actions = pluginExecutors.getPluginsFor((Class<? extends BaseEntity>) forName);
 				//
 				for (AbstractBulkAction<? extends BaseDto> action : actions) {
 					if (action.getName().equals(actionDto.getName())) {

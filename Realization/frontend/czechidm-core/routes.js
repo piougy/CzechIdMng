@@ -559,6 +559,11 @@ module.exports = {
           path: ':entityId/attributes',
           component: require('./src/content/form/FormAttributes'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+        },
+        {
+          path: ':entityId/localization',
+          component: require('./src/content/form/FormLocalization'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
         }
       ]
     },

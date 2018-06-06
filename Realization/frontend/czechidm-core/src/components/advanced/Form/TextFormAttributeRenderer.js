@@ -153,7 +153,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
         label={ this.getLabel() }
-        placeholder={ attribute.placeholder }
+        placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(values) }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
@@ -185,7 +185,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         value={ this.toInputValues(values) }
         helpBlock={ this.getHelpBlock(this.i18n('multiple.title')) }
         readOnly={ readOnly || attribute.readonly }
-        placeholder={ attribute.placeholder }/>
+        placeholder={ this.getPlaceholder() }/>
     );
   }
 }

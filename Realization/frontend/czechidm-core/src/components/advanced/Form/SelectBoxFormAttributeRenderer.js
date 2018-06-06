@@ -113,7 +113,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
       <Basic.SelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
         label={ this.getLabel() }
-        placeholder={ attribute.placeholder }
+        placeholder={ this.getPlaceholder() }
         manager={ this.getManager() }
         value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
         helpBlock={ this.getHelpBlock() }

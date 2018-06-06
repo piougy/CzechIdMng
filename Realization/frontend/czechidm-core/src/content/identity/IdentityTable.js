@@ -225,13 +225,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           filterOpened={ filterOpened }
           showFilter={ showFilter }
           forceSearchParameters={_forceSearchParameters}
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_DELETE') || !deleteEnabled },
-              { value: 'activate', niceLabel: this.i18n('action.activate.action'), action: this.onActivate.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_ADMIN') },
-              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_ADMIN') }
-            ]
-          }
           buttons={
             [
               <Basic.Button

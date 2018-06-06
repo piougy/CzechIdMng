@@ -36,7 +36,7 @@ export default class RichTextAreaFormAttributeRenderer extends TextFormAttribute
         ref={ TextFormAttributeRenderer.INPUT }
         label={ this.getLabel() }
         value={ this.toInputValue(values) }
-        placeholder={ attribute.placeholder }
+        placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }/>

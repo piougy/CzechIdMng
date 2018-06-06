@@ -250,33 +250,7 @@
     }
   },
   "bulkAction": {
-    "actions": {
-      "identity-add-role-bulk-action": {
-        "niceLabel": "Přidělení rolí",
-        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)"
-      },
-      "identity-remove-role-bulk-action": {
-        "niceLabel": "Odebrání rolí",
-        "header": "$t(bulkAction.actions.identity-remove-role-bulk-action.niceLabel)"
-      },
-      "identity-disable-bulk-action": {
-        "niceLabel": "Deaktivovat - (manuálně)",
-        "header": "$t(bulkAction.actions.identity-disable-bulk-action.niceLabel)"
-      },
-      "identity-enable-bulk-action": {
-        "niceLabel": "Aktivovat - (manuálně)",
-        "header": "$t(bulkAction.actions.identity-enable-bulk-action.niceLabel)"
-      },
-      "identity-delete-bulk-action": {
-        "niceLabel": "Odebrat",
-        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
-      },
-      "identity-save-bulk-action": {
-        "niceLabel": "Přeuložit uživatele",
-        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
-      }
-    },
-    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad právě vyfiltrovanými položkami. K tomuto datu [{{date}}] je aktuální počet [{{count}}]. Zpracované položky se mohou lišit.",
+    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad právě vyfiltrovanými položkami.<br />K tomuto datu <strong>{{date}}</strong> je aktuální počet <strong class=\"highlight\">{{count}}</strong>. Zpracované položky se mohou lišit.",
     "removedRecord_1": "Do zpracování hromadné úlohy nebude započítána tato entita: <b>[{{entities}}]</b>.",
     "removedRecord_2": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
     "removedRecord_5": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
@@ -1460,6 +1434,19 @@
       },
       "save": {
         "success": "Definice [{{name}}] byla úspěšně uložena"
+      },
+      "localization": {
+        "header": "Lokalizace formuláře",
+        "title": "Lokalizace formuláře",
+        "check": {
+          "found": "Lokalizace formuláře existuje. Lokalizace nalezena v lokalizačním souboru.",
+          "not-found": "Lokalizace formuláře neexistuje, definovat ji můžete dle příkladu níže v lokalizačních souborech.",
+          "attributes-not-found": "Atributy definice <strong class=\"highlight\">{{attributes}}</strong> nejsou lokalizovány, doplňte je do lokalizačních souborů."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Lokalizaci pro formulář je možné definovat v modulu <strong class=\"highlight\">{{name}}</strong> (v sekci <strong>eav</strong>):"
+        }
       }
     },
     "formAttributes": {
@@ -3662,47 +3649,65 @@
     }
   },
   "eav": {
-    "bulkAction": {
+    "bulk-action": {
+      "identity-disable-bulk-action": {
+        "label": "Deaktivovat - (manuálně)"
+      },
+      "identity-enable-bulk-action": {
+        "label": "Aktivovat - (manuálně)"
+      },
+      "identity-delete-bulk-action": {
+        "label": "Odebrat"
+      },
       "identity-add-role-bulk-action": {
-        "role": {
-          "label": "Role",
-          "helpBlock": ""
-        },
-        "approve": {
-          "label": "Schvalovat",
-          "helpBlock": "Po zakrtnutí bude přidělení role schvalováno"
-        },
-        "mainContract": {
-          "label": "Přiřadit pouze na hlavní kontrakt",
-          "helpBlock": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
-        },
-        "validFrom": {
-          "label": "Platnost od",
-          "helpBlock": ""
-        },
-        "validTill": {
-          "label": "Platnost do",
-          "helpBlock": ""
+        "label": "Přidělení rolí",
+        "attributes": {
+          "role": {
+            "label": "Role",
+            "help": ""
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zakrtnutí bude přidělení role schvalováno"
+          },
+          "maincontract": {
+            "label": "Přiřadit pouze na hlavní kontrakt",
+            "help": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+          },
+          "validfrom": {
+            "label": "Platnost od",
+            "help": ""
+          },
+          "validtill": {
+            "label": "Platnost do",
+            "help": ""
+          }
         }
       },
       "identity-remove-role-bulk-action": {
-        "role": {
-          "label": "Role",
-          "helpBlock": ""
-        },
-        "approve": {
-          "label": "Schvalovat",
-          "helpBlock": "Po zakrtnutí bude odebrání role schvalováno"
-        },
-        "mainContract": {
-          "label": "Odebrat pouze z hlavního kontraktu",
-          "helpBlock": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+        "label": "Odebrání rolí",
+        "attributes": {
+          "role": {
+            "label": "Role",
+            "help": ""
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zakrtnutí bude odebrání role schvalováno"
+          },
+          "maincontract": {
+            "label": "Odebrat pouze z hlavního kontraktu",
+            "help": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+          }
         }
       },
       "identity-save-bulk-action": {
-        "onlyNotify": {
-          "label": "Vyvolat pouze událost NOTIFY",
-          "helpBlock": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
+        "label": "Přeuložit uživatele",
+        "attributes": {
+          "onlynotify": {
+            "label": "Vyvolat pouze událost NOTIFY",
+            "help": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
+          }
         }
       }
     }

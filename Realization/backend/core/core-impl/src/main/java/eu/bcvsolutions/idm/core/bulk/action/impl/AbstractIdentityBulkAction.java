@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -42,7 +42,7 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 	private IdmIdentityService identityService;
 	
 	@Override
-	public boolean supports(Class<? extends AbstractEntity> clazz) {
+	public boolean supports(Class<? extends BaseEntity> clazz) {
 		return clazz.isAssignableFrom(IdmIdentity.class);
 	}
 	

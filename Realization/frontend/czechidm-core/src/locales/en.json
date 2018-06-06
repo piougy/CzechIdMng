@@ -222,32 +222,6 @@
     }
   },
   "bulkAction": {
-    "actions": {
-      "identity-add-role-bulk-action": {
-        "niceLabel": "Roles assignment",
-        "header": "$t(bulkAction.actions.identity-add-role-bulk-action.niceLabel)"
-      },
-      "identity-remove-role-bulk-action": {
-        "niceLabel": "Role removing",
-        "header": "$t(bulkAction.actions.identity-remove-role-bulk-action.niceLabel)"
-      },
-      "identity-disable-bulk-action": {
-        "niceLabel": "Deactivate - (manually)",
-        "header": "$t(bulkAction.actions.identity-disable-bulk-action.niceLabel)"
-      },
-      "identity-enable-bulk-action": {
-        "niceLabel": "Activate - (manually)",
-        "header": "$t(bulkAction.actions.identity-enable-bulk-action.niceLabel)"
-      },
-      "identity-delete-bulk-action": {
-        "niceLabel": "Remove",
-        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
-      },
-      "identity-save-bulk-action": {
-        "niceLabel": "Re-save identity",
-        "header": "$t(bulkAction.actions.identity-delete-bulk-action.niceLabel)"
-      }
-    },
     "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date [{{date}}] is actual count [{{count}}]. Processed items may be different.",
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
@@ -1420,6 +1394,19 @@
       },
       "save": {
         "success": "Form definition [{{name}}] successfully saved"
+      },
+      "localization": {
+        "header": "Form localization",
+        "title": "Form localization",
+        "check": {
+          "found": "Form localization exists. Localization found in localization file.",
+          "not-found": "Form localization doesn't exist. Define her by the example bellow in module localization files.",
+          "attributes-not-found": "Form definition attributes <strong class=\"highlight\">{{attributes}}</strong> are not localized. Add localization into module localization files."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (vin the <strong>eav</strong> section):"
+        }
       }
     },
     "formAttributes": {
@@ -3619,47 +3606,65 @@
     }
   },
   "eav": {
-    "bulkAction": {
+    "bulk-action": {
+      "identity-disable-bulk-action": {
+        "label": "Deactivate - (manually)"
+      },
+      "identity-enable-bulk-action": {
+        "label": "Activate - (manually)"
+      },
+      "identity-delete-bulk-action": {
+        "label": "Remove"
+      },
       "identity-add-role-bulk-action": {
-        "role": {
-          "label": "Roles",
-          "helpBlock": ""
-        },
-        "approve": {
-          "label": "Approve",
-          "helpBlock": "After check, the role assignment will be approved"
-        },
-        "mainContract": {
-          "label": "Assign to main contract only",
-          "helpBlock": "Assigning new roles will only be done on the main contract."
-        },
-        "validFrom": {
-          "label": "Valid from",
-          "helpBlock": ""
-        },
-        "validTill": {
-          "label": "Valid till",
-          "helpBlock": ""
+        "label": "Roles assignment",
+        "attributes": {
+          "role": {
+            "label": "Roles",
+            "help": ""
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role assignment will be approved"
+          },
+          "maincontract": {
+            "label": "Assign to main contract only",
+            "help": "Assigning new roles will only be done on the main contract."
+          },
+          "validfrom": {
+            "label": "Valid from",
+            "help": ""
+          },
+          "validtill": {
+            "label": "Valid till",
+            "help": ""
+          }
         }
       },
       "identity-remove-role-bulk-action": {
-        "role": {
-          "label": "Roles",
-          "helpBlock": ""
-        },
-        "approve": {
-          "label": "Approve",
-          "helpBlock": "After check, the role remove will be approved"
-        },
-        "mainContract": {
-          "label": "Remove only from the main contract",
-          "helpBlock": "Removing role/s will only be done from the main contract."
+        "label": "Role removing",
+        "attributes": {
+          "role": {
+            "label": "Roles",
+            "help": ""
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role remove will be approved"
+          },
+          "maincontract": {
+            "label": "Remove only from the main contract",
+            "help": "Removing role/s will only be done from the main contract."
+          }
         }
       },
       "identity-save-bulk-action": {
-        "onlyNotify": {
-          "label": "Throw only NOTIFY event",
-          "helpBlock": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
+        "label": "Re-save identity",
+        "attributes": {
+          "onlynotify": {
+            "label": "Throw only NOTIFY event",
+            "help": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
+          }
         }
       }
     }

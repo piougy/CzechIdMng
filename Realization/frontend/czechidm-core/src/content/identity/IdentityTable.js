@@ -119,7 +119,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       showAddButton,
       showDetailButton,
       showFilter,
-      deleteEnabled,
       showRowSelection,
       rendered,
       treeType

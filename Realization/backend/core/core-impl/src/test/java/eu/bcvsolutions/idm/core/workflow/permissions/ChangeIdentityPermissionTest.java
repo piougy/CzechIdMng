@@ -1098,7 +1098,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	@Transactional
 	public void cancelSubprocessOnContractDeleteTest() {
-
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1156,19 +1156,24 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Delete the contract that is using in the concept
 		UUID contractId = concept.getIdentityContract();
 		assertNotNull(contractId);
+		// Wf process for concept cannot be cancelled (because main process would be frozen ). Process will be disapproved.
 		identityContractService.deleteById(contractId);
 
-		// Concept has to be in the Cancel state and WF must be canceled
+		// Concept has to be in the Cancel state and WF must be ended
 		concept = conceptRoleRequestService.get(concept.getId());
 		assertEquals(RoleRequestState.CANCELED, concept.getState());
 		assertNotNull(concept.getWfProcessId());
 		assertNull(workflowProcessInstanceService.get(conceptWf));
+		request = roleRequestService.get(request.getId());
+		// Main process has to be executed
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
 	}
 	
 	@Test
 	@Transactional
 	public void cancelSubprocessOnRoleDeleteTest() {
 
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1231,13 +1236,18 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		identityRoleFilter.setRoleId(roleId);
 		identityRoleService.find(identityRoleFilter, null).getContent().forEach(identityRole -> identityRoleService.delete(identityRole));
 		
+		// Wf process for concept cannot be cancelled (because main process would be frozen ). Process will be disapproved.
 		roleService.deleteById(roleId);
 
-		// Concept has to be in the Cancel state and WF must be canceled
+		// Concept has to be in the Cancel state and WF must be ended
 		concept = conceptRoleRequestService.get(concept.getId());
 		assertEquals(RoleRequestState.CANCELED, concept.getState());
 		assertNotNull(concept.getWfProcessId());
 		assertNull(workflowProcessInstanceService.get(conceptWf));
+		request = roleRequestService.get(request.getId());
+		// Main process has to be executed
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		
 	}
 
 	/**

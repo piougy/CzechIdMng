@@ -104,23 +104,39 @@ New virtual system request (for realization) was created and send to implementer
         </tbody>
       </table>
     #end
+    
+  	## Print contact info
+    #macro( printContact $name $identity $loc )
+     #if($identity)
+    	#set($locEng = 'ENG')
+		#if($locEng == $loc)
+			Contact information: <br />
+		#else
+			Kontaktní údaje: <br />
+		#end
+		
+		#if($locEng == $loc)
+			Name: 
+		#else
+			Jméno: 
+		#end
+		<b>$fullName</b><br />
+		
+		#if($locEng == $loc)
+			Phone:  
+		#else
+			Telefon: 
+		#end
+		<b>$identity.getPhone()</b><br />
+		Email: <b>$identity.getEmail()</b><br />
+	 #end
+    #end
 
     Dobrý den,<br />
     byl vytvořen požadavek na realizaci účtu '<b>$request.getUid()</b>' na virtuálním systému '<b>$systemName</b>'.<br />
     <br />
 
-    Kontaktní údaje: <br />
-    Jméno: <b>$fullName</b><br />
-    Telefon:
-    #if($identity.getPhone())
-      <b>$identity.getPhone()</b>
-    #end
-    <br />
-    Email:
-    #if($identity.getEmail())
-      <b>$identity.getEmail()</b>
-    #end
-    <br />
+    #printContact($fullName $identity 'CZ')
     <br />
     #set($operationTypeDelete = 'DELETE')
     #if($operationTypeDelete == $request.getOperationType())
@@ -165,18 +181,7 @@ New virtual system request (for realization) was created and send to implementer
     the request was created to implement the change for the account '<b>$request.getUid()</b>' on the virtual system '<b>$systemName</b>'.<br />
     <br />
 
-    Contact information: <br />
-    Name: <b>$fullName</b><br />
-    Phone:
-    #if($identity.getPhone())
-      <b>$identity.getPhone()</b>
-    #end
-    <br />
-    Email:
-    #if($identity.getEmail())
-      <b>$identity.getEmail()</b>
-    #end
-    <br />
+    #printContact($fullName $identity 'ENG')
     <br />
     #set($operationTypeDelete = 'DELETE')
     #if($operationTypeDelete == $request.getOperationType())

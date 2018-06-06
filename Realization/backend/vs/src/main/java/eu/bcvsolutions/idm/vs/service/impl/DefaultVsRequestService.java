@@ -229,8 +229,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			if (previousRequest != null) {
 				// previousRequest = this.get(previousRequest.getId());
 				// Shows on previous request with same operation type. We need
-				// this
-				// for create diff.
+				// this for create diff.
 				request.setPreviousRequest(previousRequest.getId());
 
 				if (this.isRequestSame(request, previousRequest)) {
@@ -581,6 +580,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
 		Assert.notNull(request, "VS request cannot be null for send notification!");
+		final String NAME = "__NAME__";
 
 		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem());
 		if (implementers.isEmpty()) {
@@ -592,9 +592,18 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 
 		// We assume the request.UID is equals Identity user name!;
-		IdmIdentityDto identity = this.getIdentity(request);
-		SysSystemDto system = systemService.get(request.getSystem());
 		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
+		IdmIdentityDto identity = this.getIdentity(request.getUid());
+		if(identity == null) {
+			// Identity was not found, we try found her again with 'new' UID (__NAME__)
+			for ( VsAttributeDto att : wish.getAttributes()) {
+				if(att.getName().equals(NAME)) {
+					identity = this.getIdentity((String)att.getValue().getValue());
+					break;
+				}
+			}
+		}
+		SysSystemDto system = systemService.get(request.getSystem());
 
 		// send create notification
 		notificationManager.send(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, new IdmMessageDto.Builder()
@@ -630,13 +639,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		return null;
 	}
 
-	private IdmIdentityDto getIdentity(VsRequestDto request) {
-		if (request == null) {
+	private IdmIdentityDto getIdentity(String uid) {
+		if (uid == null) {
 			return null;
 		}
 		// We assume the request.UID is equals Identity user name!;
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setUsername(request.getUid());
+		filter.setUsername(uid);
 		List<IdmIdentityDto> identities = this.identityService.find(filter, null).getContent();
 		if (identities.isEmpty()) {
 			return null;

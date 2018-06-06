@@ -229,8 +229,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			if (previousRequest != null) {
 				// previousRequest = this.get(previousRequest.getId());
 				// Shows on previous request with same operation type. We need
-				// this
-				// for create diff.
+				// this for create diff.
 				request.setPreviousRequest(previousRequest.getId());
 
 				if (this.isRequestSame(request, previousRequest)) {
@@ -596,6 +595,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
 		IdmIdentityDto identity = this.getIdentity(request.getUid());
 		if(identity == null) {
+			// Identity was not found, we try found her again with 'new' UID (__NAME__)
 			for ( VsAttributeDto att : wish.getAttributes()) {
 				if(att.getName().equals(NAME)) {
 					identity = this.getIdentity((String)att.getValue().getValue());

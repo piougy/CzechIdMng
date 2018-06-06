@@ -1405,7 +1405,7 @@
         },
         "how-to": {
           "header": "How to",
-          "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (vin the <strong>eav</strong> section):"
+          "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
         }
       }
     },

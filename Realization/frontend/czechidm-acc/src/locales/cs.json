@@ -1182,150 +1182,152 @@
   "eav": {
     "eu-bcvsolutions-idm-acc-entity-syssystem": {
       "connid-net-tirasa-connid-bundles-db-table-databasetableconnector-net-tirasa-connid-bundles-db-table-2-2-4": {
-        "quoting": {
-          "label": "Dopnit uvozovky",
-          "help": "Zvolte, zda mají být uvedeny názvy sloupců databáze pro tento zdroj v uvozovkách. Ve výchozím nastavení nejsou názvy sloupců databáze v uvozovkách. U jiných výběrů (jednoduhé, dvojité, zpětné uvozovky, nebo závorky) se názvy sloupců objeví s uvozovkami nebo závorkami v SQL vygenerovaném pro přístup k databázi.",
-          "placeholder": ""
-        },
-        "host": {
-          "label": "Host",
-          "help": "Zadejte název serveru, na kterém je vystavena databáze.",
-          "placeholder": ""
-        },
-        "port": {
-          "label": "Port",
-          "help": "Zadejte číslo portu TCP, na kterém je vystavena databáze.",
-          "placeholder": ""
-        },
-        "user": {
-          "label": "Uživatel",
-          "help": "Uživatel databáze s oprávněním pracovat s tabulkou.",
-          "placeholder": ""
-        },
-        "password": {
-          "label": "Heslo",
-          "help": "Heslo uživatele s oprávněním pracovat s tabulkou",
-          "placeholder": ""
-        },
-        "database": {
-          "label": "Databáze",
-          "help": "Zadejte název databáze na databázovém serveru, který obsahuje tabulku.",
-          "placeholder": ""
-        },
-        "table": {
-          "label": "Tabulka",
-          "help": "Zadejte název tabulky do databáze, která obsahuje účty, se kterými bude konektor pracovat (synchronizace, provisioning).",
-          "placeholder": ""
-        },
-        "keycolumn": {
-          "label": "Sloupec s klíčem",
-          "help": "Název sloupce s unikátním identifikátorem řádku v tabulce (většinou shodný s primárním klíčem).",
-          "placeholder": ""
-        },
-        "passwordcolumn": {
-          "label": "Sloupec s heslem",
-          "help": "Název sloupce, který bude obsahovat hesla k účtům. Ponechte prázdné, pokud není třeba pracovat s hesly (provisioning)",
-          "placeholder": ""
-        },
-        "statuscolumn": {
-          "label": "Sloupec se stavem",
-          "help": "Název sloupce, který bude obsahovat stavy účtů. Ponechte prázdné, pokud není třeba pracovat se stavem.",
-          "placeholder": ""
-        },
-        "disabledstatusvalue": {
-          "label": "Hodnota stavu - neaktivní",
-          "help": "Hodnota, která udává, že účet není aktivní. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "enabledstatusvalue": {
-          "label": "Hodnota stavu - aktivní",
-          "help": "Hodnota, která udává, že účet je aktivní. Výchozí hodnota je \"true\".",
-          "placeholder": ""
-        },
-        "defaultstatusvalue": {
-          "label": "Hodnota stavu - výchozí",
-          "help": "Hodnota, která udává stav účtu, pokud není stav vyplněn. Výchozí hodnota je \"true\".",
-          "placeholder": ""
-        },
-        "jdbcdriver": {
-          "label": "JDBC Driver",
-          "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro <strong>MySQL org.gjt.mm.mysql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
-          "placeholder": ""
-        },
-        "jdbcurltemplate": {
-          "label": "JDBC Connection URL",
-          "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. Pro MySQL je šablona jdbc:mysql://[host]:[port(3306)]/[db], více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
-          "placeholder": ""
-        },
-        "enableemptystring": {
-          "label": "Povolit zadání prázdných řetězců",
-          "help": "Povolit zadání prázdných řetězců místo NULL hodnot pro sloupce pracující s řetězci. Pokud je mapovaný sloupec poviný, pošle místo NULL hodnoty prázdný řetězec. Tato volba neovlivňuje způsob zápisu řetězců na databázi Oracle. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "rethrowallsqlexceptions": {
-          "label": "Vrať všechny SQL výjimky (SQLExceptions)",
-          "help": "Pokud není zaškrtnuto, SQL výrazy, které vrací SQL výjimky (SQLExceptions) s návratovým kódem 0 (ErrorCode 0) budou odchyceny a nebudou zpropagovány dále. Výchozí hodnota je \"true\".",
-          "placeholder": ""
-        },
-        "nativetimestamps": {
-          "label": "Nativní Timestampy ",
-          "help": "Načítání nativního datového typu Timestamp pro sloupce typu java.sql.Timestamp z databázové tabulky. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "allnative": {
-          "label": "Všechny nativní",
-          "help": "Načítání nativního datového typu u všech sloupců s nativním formátem z databázové tabulky. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "validconnectionquery": {
-          "label": "Dotaz pro validaci připojení",
-          "help": "Lze zadat dotaz pro ověření spojení (Validate Connection Query). Pokud je prázdná, implicitní implementace otestuje pomocí přepínače zapnutí / vypnutí autokommitu. Některé vybrané položky 1 ze stolu by mohly být efektivnější.",
-          "placeholder": ""
-        },
-        "changelogcolumn": {
-          "label": "Sloupec s časem modifikace (Sync)",
-          "help": "Sloupec, který obsahuje čas poslední modifikace záznamu. Sloupce je povinný pro možnost synchronizace záznamů.",
-          "placeholder": ""
-        },
-        "datasource": {
-          "label": "Datasource (path)",
-          "help": "Zadejte JDBC Data Source Name/Path pro připojení k Oracle serveru. Je-li zadán, konektor se pokusí připojit pouze pomocí tohoto datasourcu a ignoruje další zadané parametry (JDBC Driver, JDBC Connection URL). Příklad hodnoty je: <CODE>jdbc/SampleDataSourceName</CODE>",
-          "placeholder": ""
-        },
-        "jndiproperties": {
-          "label": "Výchozí konfigurace JNDI",
-          "help": "Zadejte výchozí konfiguraci kontextu JNDI (pro inicializaci context factory i context providera) ve formátu: key = value. Nebo ponechte nevyplněné.",
-          "placeholder": ""
-        },
-        "cipheralgorithm": {
-          "label": "Algoritmus pro šifrování hesla",
-          "help": "Šifrovací algoritmus bude použitý pro ukládání hesel do databázové tabulky (sloupce s heslem). Dostupné algoritmy <strong>CLEARTEXT,AES, MD5, SHA1, SHA256</strong>. Je možné implementovat vlastní algoritmus, pak zde uveďte implementační třídu (class name). Výchozí hodnota je \"CLEARTEXT\".",
-          "placeholder": ""
-        },
-        "pwdencodetouppercase": {
-          "label": "Vynucení kódování hesla na velká písmena",
-          "help": "Vynucení kódování hesla na velká písmena. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "cipherkey": {
-          "label": "Heslo šifrovacího klíče",
-          "help": "Zadejte klíč v případě reverzibilního algoritmu.",
-          "placeholder": ""
-        },
-        "pwdencodetolowercase": {
-          "label": "Vynutit kódování hesla do malých písmen",
-          "help": "Vynutit kódování hesla do malých písmen. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "retrievepassword": {
-          "label": "Načítat heslo",
-          "help": "Nastavit povinné načítání hesla jako výchozí. Výchozí hodnota je \"false\".",
-          "placeholder": ""
-        },
-        "passwordcharset": {
-          "label": "Znaková sada hesla",
-          "help": "Nastavit znakovou sadu pouzitou pro textové heslo (ve variantě bez šifrování - CLEARTEXT). Výchozí hodnota je \"UTF-8\".",
-          "placeholder": ""
+        "attributes": {
+          "quoting": {
+            "label": "Doplnit uvozovky",
+            "help": "Zvolte, zda mají být uvedeny názvy sloupců databáze pro tento zdroj v uvozovkách. Ve výchozím nastavení nejsou názvy sloupců databáze v uvozovkách. U jiných výběrů (jednoduhé, dvojité, zpětné uvozovky, nebo závorky) se názvy sloupců objeví s uvozovkami nebo závorkami v SQL vygenerovaném pro přístup k databázi.",
+            "placeholder": ""
+          },
+          "host": {
+            "label": "Host",
+            "help": "Zadejte název serveru, na kterém je vystavena databáze.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Zadejte číslo portu TCP, na kterém je vystavena databáze.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "Uživatel",
+            "help": "Uživatel databáze s oprávněním pracovat s tabulkou.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Heslo",
+            "help": "Heslo uživatele s oprávněním pracovat s tabulkou",
+            "placeholder": ""
+          },
+          "database": {
+            "label": "Databáze",
+            "help": "Zadejte název databáze na databázovém serveru, který obsahuje tabulku.",
+            "placeholder": ""
+          },
+          "table": {
+            "label": "Tabulka",
+            "help": "Zadejte název tabulky do databáze, která obsahuje účty, se kterými bude konektor pracovat (synchronizace, provisioning).",
+            "placeholder": ""
+          },
+          "keycolumn": {
+            "label": "Sloupec s klíčem",
+            "help": "Název sloupce s unikátním identifikátorem řádku v tabulce (většinou shodný s primárním klíčem).",
+            "placeholder": ""
+          },
+          "passwordcolumn": {
+            "label": "Sloupec s heslem",
+            "help": "Název sloupce, který bude obsahovat hesla k účtům. Ponechte prázdné, pokud není třeba pracovat s hesly (provisioning)",
+            "placeholder": ""
+          },
+          "statuscolumn": {
+            "label": "Sloupec se stavem",
+            "help": "Název sloupce, který bude obsahovat stavy účtů. Ponechte prázdné, pokud není třeba pracovat se stavem.",
+            "placeholder": ""
+          },
+          "disabledstatusvalue": {
+            "label": "Hodnota stavu - neaktivní",
+            "help": "Hodnota, která udává, že účet není aktivní. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "enabledstatusvalue": {
+            "label": "Hodnota stavu - aktivní",
+            "help": "Hodnota, která udává, že účet je aktivní. Výchozí hodnota je \"true\".",
+            "placeholder": ""
+          },
+          "defaultstatusvalue": {
+            "label": "Hodnota stavu - výchozí",
+            "help": "Hodnota, která udává stav účtu, pokud není stav vyplněn. Výchozí hodnota je \"true\".",
+            "placeholder": ""
+          },
+          "jdbcdriver": {
+            "label": "JDBC Driver",
+            "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro <strong>MySQL org.gjt.mm.mysql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "placeholder": ""
+          },
+          "jdbcurltemplate": {
+            "label": "JDBC Connection URL",
+            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. Pro MySQL je šablona jdbc:mysql://[host]:[port(3306)]/[db], více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "placeholder": ""
+          },
+          "enableemptystring": {
+            "label": "Povolit zadání prázdných řetězců",
+            "help": "Povolit zadání prázdných řetězců místo NULL hodnot pro sloupce pracující s řetězci. Pokud je mapovaný sloupec poviný, pošle místo NULL hodnoty prázdný řetězec. Tato volba neovlivňuje způsob zápisu řetězců na databázi Oracle. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "rethrowallsqlexceptions": {
+            "label": "Vrať všechny SQL výjimky (SQLExceptions)",
+            "help": "Pokud není zaškrtnuto, SQL výrazy, které vrací SQL výjimky (SQLExceptions) s návratovým kódem 0 (ErrorCode 0) budou odchyceny a nebudou zpropagovány dále. Výchozí hodnota je \"true\".",
+            "placeholder": ""
+          },
+          "nativetimestamps": {
+            "label": "Nativní Timestampy ",
+            "help": "Načítání nativního datového typu Timestamp pro sloupce typu java.sql.Timestamp z databázové tabulky. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "allnative": {
+            "label": "Všechny nativní",
+            "help": "Načítání nativního datového typu u všech sloupců s nativním formátem z databázové tabulky. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "validconnectionquery": {
+            "label": "Dotaz pro validaci připojení",
+            "help": "Lze zadat dotaz pro ověření spojení (Validate Connection Query). Pokud je prázdná, implicitní implementace otestuje pomocí přepínače zapnutí / vypnutí autokommitu. Některé vybrané položky 1 ze stolu by mohly být efektivnější.",
+            "placeholder": ""
+          },
+          "changelogcolumn": {
+            "label": "Sloupec s časem modifikace (Sync)",
+            "help": "Sloupec, který obsahuje čas poslední modifikace záznamu. Sloupce je povinný pro možnost synchronizace záznamů.",
+            "placeholder": ""
+          },
+          "datasource": {
+            "label": "Datasource (path)",
+            "help": "Zadejte JDBC Data Source Name/Path pro připojení k Oracle serveru. Je-li zadán, konektor se pokusí připojit pouze pomocí tohoto datasourcu a ignoruje další zadané parametry (JDBC Driver, JDBC Connection URL). Příklad hodnoty je: <CODE>jdbc/SampleDataSourceName</CODE>",
+            "placeholder": ""
+          },
+          "jndiproperties": {
+            "label": "Výchozí konfigurace JNDI",
+            "help": "Zadejte výchozí konfiguraci kontextu JNDI (pro inicializaci context factory i context providera) ve formátu: key = value. Nebo ponechte nevyplněné.",
+            "placeholder": ""
+          },
+          "cipheralgorithm": {
+            "label": "Algoritmus pro šifrování hesla",
+            "help": "Šifrovací algoritmus bude použitý pro ukládání hesel do databázové tabulky (sloupce s heslem). Dostupné algoritmy <strong>CLEARTEXT,AES, MD5, SHA1, SHA256</strong>. Je možné implementovat vlastní algoritmus, pak zde uveďte implementační třídu (class name). Výchozí hodnota je \"CLEARTEXT\".",
+            "placeholder": ""
+          },
+          "pwdencodetouppercase": {
+            "label": "Vynucení kódování hesla na velká písmena",
+            "help": "Vynucení kódování hesla na velká písmena. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "cipherkey": {
+            "label": "Heslo šifrovacího klíče",
+            "help": "Zadejte klíč v případě reverzibilního algoritmu.",
+            "placeholder": ""
+          },
+          "pwdencodetolowercase": {
+            "label": "Vynutit kódování hesla do malých písmen",
+            "help": "Vynutit kódování hesla do malých písmen. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "retrievepassword": {
+            "label": "Načítat heslo",
+            "help": "Nastavit povinné načítání hesla jako výchozí. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "passwordcharset": {
+            "label": "Znaková sada hesla",
+            "help": "Nastavit znakovou sadu pouzitou pro textové heslo (ve variantě bez šifrování - CLEARTEXT). Výchozí hodnota je \"UTF-8\".",
+            "placeholder": ""
+          }
         }
       }
     }

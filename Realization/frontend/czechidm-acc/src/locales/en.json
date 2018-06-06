@@ -1174,150 +1174,152 @@
   "eav": {
     "eu-bcvsolutions-idm-acc-entity-syssystem": {
       "connid-net-tirasa-connid-bundles-db-table-databasetableconnector-net-tirasa-connid-bundles-db-table-2-2-4": {
-        "quoting": {
-          "label": "Name Quoting",
-          "help": "Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.",
-          "placeholder": ""
-        },
-        "host": {
-          "label": "Host",
-          "help": "Enter the name of the host where the database is running.",
-          "placeholder": ""
-        },
-        "port": {
-          "label": "Port",
-          "help": "Enter the TCP port number the database server is listening on.",
-          "placeholder": ""
-        },
-        "user": {
-          "label": "User",
-          "help": "Enter the name of the mandatory Database user with permission to account table.",
-          "placeholder": ""
-        },
-        "password": {
-          "label": "User Password",
-          "help": "Enter a user account password that has permission to access accounts table.",
-          "placeholder": ""
-        },
-        "database": {
-          "label": "Database",
-          "help": "Enter the name of the database on the database server that contains the table.",
-          "placeholder": ""
-        },
-        "table": {
-          "label": "Table",
-          "help": "Enter the name of the table in the database that contains the accounts.",
-          "placeholder": ""
-        },
-        "keycolumn": {
-          "label": "Key Column",
-          "help": "This mandatory column value will be used as the unique identifier for rows in the table.",
-          "placeholder": ""
-        },
-        "passwordcolumn": {
-          "label": "Password Column",
-          "help": "Enter the name of the column in the table that will hold the password values. If empty, no validation on resource and passwords are activated.",
-          "placeholder": ""
-        },
-        "statuscolumn": {
-          "label": "Status Column",
-          "help": "Enter the name of the column in the table that will hold the status values. If empty enabled and disabled operation wont be performed.",
-          "placeholder": ""
-        },
-        "disabledstatusvalue": {
-          "label": "Disabled Status Value",
-          "help": "Enter the value for disabled status. Default is \"false\".",
-          "placeholder": ""
-        },
-        "enabledstatusvalue": {
-          "label": "Enabled Status Value",
-          "help": "Enter the value for enabled status. Default is \"true\".",
-          "placeholder": ""
-        },
-        "defaultstatusvalue": {
-          "label": "Default Status Value",
-          "help": "Enter the value for status in case of status not specified. Default is \"true\".",
-          "placeholder": ""
-        },
-        "jdbcdriver": {
-          "label": "JDBC Driver",
-          "help": "Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver. Could be empty if datasource is provided.",
-          "placeholder": ""
-        },
-        "jdbcurltemplate": {
-          "label": "JDBC Connection URL",
-          "help": "Specify the JDBC Driver Connection URL. Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
-          "placeholder": ""
-        },
-        "enableemptystring": {
-          "label": "Enable writing empty string",
-          "help": "Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. Default is \"false\".",
-          "placeholder": ""
-        },
-        "rethrowallsqlexceptions": {
-          "label": "Rethrow all SQLExceptions",
-          "help": "If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown. Default is \"true\".",
-          "placeholder": ""
-        },
-        "nativetimestamps": {
-          "label": "Native Timestamps ",
-          "help": "Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table. Default is \"false\".",
-          "placeholder": ""
-        },
-        "allnative": {
-          "label": "All native",
-          "help": "Select to retrieve all data type of the columns in a native format from the database table. Default is \"false\".",
-          "placeholder": ""
-        },
-        "validconnectionquery": {
-          "label": "Validate Connection Query",
-          "help": "There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.",
-          "placeholder": ""
-        },
-        "changelogcolumn": {
-          "label": "Change Log Column (Sync)",
-          "help": "The change log column store the latest change time. Providing this value the Sync capabilities are activated.",
-          "placeholder": ""
-        },
-        "datasource": {
-          "label": "Datasource Path",
-          "help": "Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified. An the example value is: <CODE>jdbc/SampleDataSourceName</CODE>",
-          "placeholder": ""
-        },
-        "jndiproperties": {
-          "label": "Initial JNDI Properties",
-          "help": "Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.",
-          "placeholder": ""
-        },
-        "cipheralgorithm": {
-          "label": "Password cipher algorithm",
-          "help": "Cipher algorithm used to encode password before to store it onto the database table. Specify one of the values among CLEARTEXT,AES, MD5, SHA1, SHA256 or a custom implementation identified by its class name. Default is \"CLEARTEXT\".",
-          "placeholder": ""
-        },
-        "pwdencodetouppercase": {
-          "label": "Force password encoding to upper case",
-          "help": "Force password encoding to upper case. Default is \"false\".",
-          "placeholder": ""
-        },
-        "cipherkey": {
-          "label": "Password cipher key",
-          "help": "Specify key in case of reversible algorithm.",
-          "placeholder": ""
-        },
-        "pwdencodetolowercase": {
-          "label": "Force password encoding to lower case",
-          "help": "Force password encoding to lower case. Default is \"false\".",
-          "placeholder": ""
-        },
-        "retrievepassword": {
-          "label": "Retrieve password",
-          "help": "Specify if password must be retrieved by default. Default is \"false\".",
-          "placeholder": ""
-        },
-        "passwordcharset": {
-          "label": "Resource Password Charset",
-          "help": "Specify Character set used by resource to encode clear text password. Default is \"UTF-8\".",
-          "placeholder": ""
+        "attributes": {
+          "quoting": {
+            "label": "Name Quoting",
+            "help": "Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.",
+            "placeholder": ""
+          },
+          "host": {
+            "label": "Host",
+            "help": "Enter the name of the host where the database is running.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Enter the TCP port number the database server is listening on.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "User",
+            "help": "Enter the name of the mandatory Database user with permission to account table.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "User Password",
+            "help": "Enter a user account password that has permission to access accounts table.",
+            "placeholder": ""
+          },
+          "database": {
+            "label": "Database",
+            "help": "Enter the name of the database on the database server that contains the table.",
+            "placeholder": ""
+          },
+          "table": {
+            "label": "Table",
+            "help": "Enter the name of the table in the database that contains the accounts.",
+            "placeholder": ""
+          },
+          "keycolumn": {
+            "label": "Key Column",
+            "help": "This mandatory column value will be used as the unique identifier for rows in the table.",
+            "placeholder": ""
+          },
+          "passwordcolumn": {
+            "label": "Password Column",
+            "help": "Enter the name of the column in the table that will hold the password values. If empty, no validation on resource and passwords are activated.",
+            "placeholder": ""
+          },
+          "statuscolumn": {
+            "label": "Status Column",
+            "help": "Enter the name of the column in the table that will hold the status values. If empty enabled and disabled operation wont be performed.",
+            "placeholder": ""
+          },
+          "disabledstatusvalue": {
+            "label": "Disabled Status Value",
+            "help": "Enter the value for disabled status. Default is \"false\".",
+            "placeholder": ""
+          },
+          "enabledstatusvalue": {
+            "label": "Enabled Status Value",
+            "help": "Enter the value for enabled status. Default is \"true\".",
+            "placeholder": ""
+          },
+          "defaultstatusvalue": {
+            "label": "Default Status Value",
+            "help": "Enter the value for status in case of status not specified. Default is \"true\".",
+            "placeholder": ""
+          },
+          "jdbcdriver": {
+            "label": "JDBC Driver",
+            "help": "Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver. Could be empty if datasource is provided.",
+            "placeholder": ""
+          },
+          "jdbcurltemplate": {
+            "label": "JDBC Connection URL",
+            "help": "Specify the JDBC Driver Connection URL. Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
+            "placeholder": ""
+          },
+          "enableemptystring": {
+            "label": "Enable writing empty string",
+            "help": "Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. Default is \"false\".",
+            "placeholder": ""
+          },
+          "rethrowallsqlexceptions": {
+            "label": "Rethrow all SQLExceptions",
+            "help": "If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown. Default is \"true\".",
+            "placeholder": ""
+          },
+          "nativetimestamps": {
+            "label": "Native Timestamps ",
+            "help": "Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table. Default is \"false\".",
+            "placeholder": ""
+          },
+          "allnative": {
+            "label": "All native",
+            "help": "Select to retrieve all data type of the columns in a native format from the database table. Default is \"false\".",
+            "placeholder": ""
+          },
+          "validconnectionquery": {
+            "label": "Validate Connection Query",
+            "help": "There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.",
+            "placeholder": ""
+          },
+          "changelogcolumn": {
+            "label": "Change Log Column (Sync)",
+            "help": "The change log column store the latest change time. Providing this value the Sync capabilities are activated.",
+            "placeholder": ""
+          },
+          "datasource": {
+            "label": "Datasource Path",
+            "help": "Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified. An the example value is: <CODE>jdbc/SampleDataSourceName</CODE>",
+            "placeholder": ""
+          },
+          "jndiproperties": {
+            "label": "Initial JNDI Properties",
+            "help": "Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.",
+            "placeholder": ""
+          },
+          "cipheralgorithm": {
+            "label": "Password cipher algorithm",
+            "help": "Cipher algorithm used to encode password before to store it onto the database table. Specify one of the values among CLEARTEXT,AES, MD5, SHA1, SHA256 or a custom implementation identified by its class name. Default is \"CLEARTEXT\".",
+            "placeholder": ""
+          },
+          "pwdencodetouppercase": {
+            "label": "Force password encoding to upper case",
+            "help": "Force password encoding to upper case. Default is \"false\".",
+            "placeholder": ""
+          },
+          "cipherkey": {
+            "label": "Password cipher key",
+            "help": "Specify key in case of reversible algorithm.",
+            "placeholder": ""
+          },
+          "pwdencodetolowercase": {
+            "label": "Force password encoding to lower case",
+            "help": "Force password encoding to lower case. Default is \"false\".",
+            "placeholder": ""
+          },
+          "retrievepassword": {
+            "label": "Retrieve password",
+            "help": "Specify if password must be retrieved by default. Default is \"false\".",
+            "placeholder": ""
+          },
+          "passwordcharset": {
+            "label": "Resource Password Charset",
+            "help": "Specify Character set used by resource to encode clear text password. Default is \"UTF-8\".",
+            "placeholder": ""
+          }
         }
       }
     }

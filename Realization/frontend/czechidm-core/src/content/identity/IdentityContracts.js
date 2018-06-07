@@ -113,7 +113,6 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               }/>
             <Advanced.Column
               property="main"
-              header={this.i18n('entity.IdentityContract.main.label')}
               face="bool"
               width={75}
               sort/>

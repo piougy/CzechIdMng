@@ -2571,7 +2571,8 @@
       "titleAfter": "Titles after",
       "state": {
         "label": "State",
-        "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions."
+        "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions.",
+        "title": "$t(entity.Identity.state.help)"
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
@@ -2824,7 +2825,8 @@
       "description": "Note",
       "main": {
         "label": "Main position",
-        "help": "Main / prime work position. It's created automatically when the user is created."
+        "help": "Main / prime work position. It's created automatically when the user is created.",
+        "title": "Main position"
       },
       "state": {
         "label": "State",
@@ -2866,7 +2868,8 @@
       "description": "$t(entity.IdentityContract.description)",
       "main": {
         "label": "$t(entity.IdentityContract.main.label)",
-        "help": "$t(entity.IdentityContract.main.help)"
+        "help": "$t(entity.IdentityContract.main.help)",
+        "title": "$t(entity.IdentityContract.main.title)"
       },
       "state": {
         "label": "$t(entity.IdentityContract.state.label)",

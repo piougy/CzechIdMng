@@ -552,20 +552,27 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       };
       // construct basic column from advanced column definition
       let columnHeader = column.props.header;
-      if (!columnHeader && column.props.property) {
-        columnHeader = this.i18n(
-          `${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}.label`, // label has higher priority
-          { defaultValue: this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`)}
-        );
+      let columnTitle = column.props.title;
+      if (column.props.property) {
+        if (!columnHeader) {
+          columnHeader = this.i18n(
+            `${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}.label`, // label has higher priority
+            { defaultValue: this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`)}
+          );
+        }
+        if (!columnTitle) {
+          columnTitle = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}.title`, { defaultValue: '' });
+        }
       }
       if (column.props.sort) {
         columnHeader = (
           <Basic.BasicTable.SortHeaderCell
-            header={columnHeader}
-            sortHandler={this._handleSort.bind(this)}
-            sortProperty={column.props.sortProperty || column.props.property}
-            searchParameters={_searchParameters}
-            className={commonProps.className}/>
+            header={ columnHeader }
+            sortHandler={ this._handleSort.bind(this) }
+            sortProperty={ column.props.sortProperty || column.props.property }
+            searchParameters={ _searchParameters }
+            className={ commonProps.className }
+            title={ columnTitle }/>
         );
       }
 
@@ -624,6 +631,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           className={column.props.className}
           width={column.props.width}
           header={ columnHeader }
+          title={ columnTitle }
           cell={cell}/>
       );
     }

@@ -78,7 +78,7 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE = "passwordSimilarFirstNamePreValidate";
 	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
-	// private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
+	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
 	private static final String MAX_HISTORY_SIMILAR = "maxHistorySimilar";
 	
 	private PasswordGenerator passwordGenerator;
@@ -422,6 +422,10 @@ public class DefaultIdmPasswordPolicyService
 			}
 
 			// TODO: weak words
+		}
+		
+		if (!specialCharBase.isEmpty() && prevalidation) {
+			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
 		}
 
 		if (!policyNames.isEmpty()) {

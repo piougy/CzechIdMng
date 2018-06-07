@@ -1,10 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [8.1.0] - unreleased
+## [[8.1.0](https://github.com/bcvsolutions/CzechIdMng/releases/tag/8.1.0)]
 
+- Bulk action for identities - More about bulk backend actions you can find [here](https://wiki.czechidm.com/devel/documentation/bulk_actions).
+- Time slices of contracts - More about time slices you can find [here](https://wiki.czechidm.com/devel/documentation/identities#time_slices_of_the_contractual_relationship).
+- Password history - More about password history you can find [here](https://wiki.czechidm.com/8.0/documentation/security/dev/password-policies#standard_policy_for_validation).
 - [#1076](https://redmine.czechidm.com/issues/1076) -  Extended form value - added support for ``org.joda.time.LocalDate`` and string in ISO 8601 format as value for DATE or DATETIME persistent type. Persistent type INT, LONG, BOOLEAN - supports setting string value now (default conversions from string representation added ~ the same meaning as``#valueOf(String)``).
 - [#853](https://redmine.czechidm.com/issues/853) - Extended form values without filled values (``null``) are not saved.
+
+
 
 
 ## [8.0.0]

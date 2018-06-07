@@ -10,6 +10,27 @@
 -->
 <tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
+	
+	<task>
+		<description>Recalculate current using slices as contract. Find all slices which should be for actual date using as contract and copy their values to parent contracts.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.SelectCurrentContractSliceTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 30 0 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
+	
 	<task>
 		<description>Remove roles by expired identity contracts (=> removes assigned roles).</description>
 		<instanceId>idm-primary</instanceId>
@@ -89,6 +110,7 @@
 			</trigger>
 		</triggers>		
 	</task>
+	
 	<task>
 		<description>Default</description>
 		<instanceId>idm-primary</instanceId>

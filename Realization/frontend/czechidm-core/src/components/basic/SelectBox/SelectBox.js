@@ -265,39 +265,40 @@ class SelectBox extends AbstractFormComponent {
               this.itemRenderer(item, '');
             } else if (manager && ((typeof item === 'string') || (typeof item === 'number'))) {
               // value is string, we try load entity by id
-              if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
-                this.setState({
-                  isLoading: true
-                  /* eslint-disable no-loop-func */
-                }, () => {
-                  this.context.store.dispatch(manager.autocompleteEntityIfNeeded(item, null, (json, error) => {
-                    if (!error) {
-                      this.itemRenderer(json, '');
-                      // add item to array
-                      renderedValues.push(json);
-                      if (renderedValues.length === value.length) { // posledni callback
-                        if (!isError) {
-                          this.setState({
-                            value: renderedValues,
-                            isLoading: false
-                          }, this.validate);
-                        } else {
-                          this.setState({
-                            value: null,
-                            isLoading: false
-                          });
-                        }
+              // TODO: wait for another loading get the entity
+              // if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
+              this.setState({
+                isLoading: true
+                /* eslint-disable no-loop-func */
+              }, () => {
+                this.context.store.dispatch(manager.autocompleteEntityIfNeeded(item, null, (json, error) => {
+                  if (!error) {
+                    this.itemRenderer(json, '');
+                    // add item to array
+                    renderedValues.push(json);
+                    if (renderedValues.length === value.length) { // posledni callback
+                      if (!isError) {
+                        this.setState({
+                          value: renderedValues,
+                          isLoading: false
+                        }, this.validate);
+                      } else {
+                        this.setState({
+                          value: null,
+                          isLoading: false
+                        });
                       }
-                    } else {
-                      isError = true;
-                      renderedValues.push(item);
-                      this.setState({
-                        error
-                      });
                     }
-                  }));
-                });
-              }
+                  } else {
+                    isError = true;
+                    renderedValues.push(item);
+                    this.setState({
+                      error
+                    });
+                  }
+                }));
+              });
+              // }
             }
           }
         }
@@ -307,36 +308,37 @@ class SelectBox extends AbstractFormComponent {
         this.setState({isLoading: false});
       } else if (typeof value === 'string' || typeof value === 'number') {
         // value is string, we try load entity by id
-        if (manager && !manager.isShowLoading(this.context.store.getState(), null, value)) {
-          this.setState({
-            isLoading: false
-          }, () => {
-            this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
-              if (!error) {
-                if (!json) {
-                  this.setState({
-                    value: null,
-                    isLoading: false,
-                    error: {
-                      title: label,
-                      level: 'warning',
-                      message: this.i18n('security.record.notFound')
-                    }
-                  });
-                } else {
-                  this.itemRenderer(json, '');
-                  this.setState({ value: json, isLoading: false }, this.validate);
-                }
-              } else {
+        // TODO: wait for another loading get the entity
+        // if (manager && !manager.isShowLoading(this.context.store.getState(), null, value)) {
+        this.setState({
+          isLoading: false
+        }, () => {
+          this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
+            if (!error) {
+              if (!json) {
                 this.setState({
                   value: null,
                   isLoading: false,
-                  error
+                  error: {
+                    title: label,
+                    level: 'warning',
+                    message: this.i18n('security.record.notFound')
+                  }
                 });
+              } else {
+                this.itemRenderer(json, '');
+                this.setState({ value: json, isLoading: false }, this.validate);
               }
-            }));
-          });
-        }
+            } else {
+              this.setState({
+                value: null,
+                isLoading: false,
+                error
+              });
+            }
+          }));
+        });
+        // }
       }
     }
     return value;
@@ -403,6 +405,7 @@ class SelectBox extends AbstractFormComponent {
       actualPage: 0
     });
     this.getOptions(value, this.props.forceSearchParameters);
+    return value;
   }
 
   getBody(feedback) {
@@ -495,6 +498,8 @@ class SelectBox extends AbstractFormComponent {
     const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
+    // from new version react-select is necessary turn off onBlurResetsInput and closeOnSelect
+    // onBlurResetsInput made problems with submit form and focus
     return (
         <Select
           ref="selectComponent"
@@ -504,10 +509,12 @@ class SelectBox extends AbstractFormComponent {
           disabled={readOnly || disabled}
           ignoreCase
           ignoreAccents={false}
-          multi={multiSelect}
+          multi={ multiSelect }
           onValueClick={this.gotoContributor}
           valueKey={ITEM_FULL_KEY}
           labelKey={fieldLabel}
+          onBlurResetsInput={false}
+          closeOnSelect={ !multiSelect }
           noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
           placeholder={this.getPlaceholder(placeholder)}
           searchingText={this.i18n('component.basic.SelectBox.searchingText')}

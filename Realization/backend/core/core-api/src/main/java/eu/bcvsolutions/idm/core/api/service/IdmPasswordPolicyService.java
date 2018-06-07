@@ -14,7 +14,9 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public interface IdmPasswordPolicyService extends ReadWriteDtoService<IdmPasswordPolicyDto, IdmPasswordPolicyFilter> {
+public interface IdmPasswordPolicyService extends 
+		ReadWriteDtoService<IdmPasswordPolicyDto, IdmPasswordPolicyFilter>,
+		CodeableService<IdmPasswordPolicyDto> {
 	
 	/**
 	 * Method validate password by password policy,
@@ -91,6 +93,7 @@ public interface IdmPasswordPolicyService extends ReadWriteDtoService<IdmPasswor
 	 * 
 	 * @param name
 	 * @return
+	 * @see #getByCode(String)
 	 */
 	IdmPasswordPolicyDto findOneByName(String name);
 

@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.test.api;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -7,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -19,9 +23,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.IdmApplication;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
@@ -41,8 +51,11 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
 	
-	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
+	@Autowired private TestHelper helper;
+	@Autowired private PlatformTransactionManager platformTransactionManager;
+	@Autowired private LookupService lookupService;
+	@Autowired private ModuleService moduleService;
+	//
 	private TransactionTemplate template;
 	
 	@BeforeClass
@@ -57,7 +70,12 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Log in as "boss" with all authorities
+	 * Log in as "boss" with all authorities.
+	 * Look out - identity (with id) is not set. Authorities will be added only => authorization policies will not be initialized. 
+	 * Use {@link #getHelper()} login method to login as exists identity. 
+	 * 
+	 * TODO: add deprecated? - Use {@link #getHelper()} login method to login as exists identity. This method is confusing (creates mock context).
+	 * 
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
@@ -65,10 +83,42 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	/**
+	 * User will be logged as user with all authorities without APP_ADMIN
+	 * 
+	 * @param user
+	 */
+	public void loginAsNoAdmin(String user) {
+		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
+			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
+		}).collect(Collectors.toList());
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
+	}
+
+	/**
+	 * Login as user without authorities given in parameter authorities
+	 *
+	 * @param user
+	 * @param authorities
+	 */
+	public void loginWithout(String user, String ...authorities) {
+		Collection<GrantedAuthority> authoritiesWithout = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
+			for (String auth: authorities) {
+				if (auth.equals(authority.getAuthority())) {
+					return false;
+				}
+			}
+			return true;
+		}).collect(Collectors.toList());
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authoritiesWithout, "test"));
+	}
+
+	/**
 	 * Clears security context
 	 */
 	public void logout(){
-		SecurityContextHolder.clearContext();
+		getHelper().logout();
 	}
 	
 	/**
@@ -113,5 +163,14 @@ public abstract class AbstractIntegrationTest {
 				return repository.save(object);
 			}
 		});
+	}
+	
+	/**
+	 * Test helper with useful test utilities
+	 * 
+	 * @return
+	 */
+	protected TestHelper getHelper() {
+		return helper;
 	}
 }

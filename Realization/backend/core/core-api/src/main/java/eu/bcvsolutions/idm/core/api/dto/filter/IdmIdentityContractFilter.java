@@ -7,6 +7,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
@@ -15,9 +17,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
  *
  * @author Radek Tomiška
  */
-public class IdmIdentityContractFilter extends DataFilter implements CorrelationFilter{
+public class IdmIdentityContractFilter
+		extends DataFilter
+		implements CorrelationFilter, ExternalIdentifiable {
 
 	private UUID identity;
+	private UUID workPosition;
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private Boolean externe;
@@ -26,6 +31,8 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	private Boolean main;
 	private Boolean validNowOrInFuture;
 	private ContractState state;
+	private String position;
+
 	/**
 	 * Little dynamic search by role property and value
 	 */
@@ -38,6 +45,10 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 
 	public IdmIdentityContractFilter(MultiValueMap<String, Object> data) {
 		super(IdmIdentityContractDto.class, data);
+	}
+
+	public IdmIdentityContractFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {
+		super(dtoClass, data);
 	}
 
 	public UUID getIdentity() {
@@ -95,19 +106,19 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	public void setMain(Boolean main) {
 		this.main = main;
 	}
-	
+
 	public void setValidNowOrInFuture(Boolean validNowOrInFuture) {
 		this.validNowOrInFuture = validNowOrInFuture;
 	}
-	
+
 	public Boolean getValidNowOrInFuture() {
 		return validNowOrInFuture;
 	}
-	
+
 	public void setState(ContractState state) {
 		this.state = state;
 	}
-	
+
 	public ContractState getState() {
 		return state;
 	}
@@ -126,9 +137,35 @@ public class IdmIdentityContractFilter extends DataFilter implements Correlation
 	public String getValue() {
 		return value;
 	}
-
+	
 	@Override
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
+	}
+	
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	
+	public void setWorkPosition(UUID workPosition) {
+		this.workPosition = workPosition;
+	}
+	
+	public UUID getWorkPosition() {
+		return workPosition;
 	}
 }

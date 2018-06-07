@@ -1,2 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context antiJARLocking="true" path="/idm"/>
+<Context antiJARLocking="true" path="/idm">
+<!-- TODO Data resource -->
+<!-- 	<Resource  -->
+<!-- 		name="PostgresDS"  -->
+<!-- 		auth="Container"  -->
+<!-- 	    type="javax.sql.DataSource"  -->
+<!-- 	    username="idmadmin"  -->
+<!-- 	    password="idmadmin" -->
+<!-- 	    driverClassName="org.postgresql.Driver" -->
+<!-- 	    url="jdbc:postgresql://localhost:5432/bcv_idm_storage" -->
+<!-- 	    maxActive="8" -->
+<!--         maxIdle="4"/> -->
+
+</Context>
+

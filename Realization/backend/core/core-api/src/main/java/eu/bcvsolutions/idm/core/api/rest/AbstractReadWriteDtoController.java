@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,18 +11,25 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -47,6 +57,8 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	private RequestResourceResolver requestResourceResolver;
 	@Autowired(required = false) // optional dependency for support automatic JSR303 validations
 	private ValidatorFactory validatorFactory;
+	@Autowired
+	private BulkActionManager bulkActionManager;
 
 	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
@@ -95,7 +107,11 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	public ResponseEntity<?> post(@ApiParam(value = "Record (dto).", required = true) DTO dto) {
-		return new ResponseEntity<>(toResource(postDto(dto)), HttpStatus.CREATED);
+		ResourceSupport resource = toResource(postDto(dto));
+		if (resource == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(resource, HttpStatus.CREATED);
 	}
 
 	/**
@@ -127,7 +143,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@ApiParam(value = "Record (dto).", required = true) DTO dto) {
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		DTO updatedDto = putDto(dto);
 		return new ResponseEntity<>(toResource(updatedDto), HttpStatus.OK);
@@ -159,7 +175,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		//
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		updateDto = patchDto((DTO) requestResourceResolver.resolve(nativeRequest, getDtoClass(), updateDto));
 		return new ResponseEntity<>(toResource(updateDto), HttpStatus.OK);
@@ -190,7 +206,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		deleteDto(dto);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
@@ -206,6 +222,44 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		Assert.notNull(dto, "DTO is required");
 		//
 		getService().delete(dto, IdmBasePermission.DELETE);
+	}
+	
+	/**
+	 * Returns available bulk actions
+	 * 
+	 * @return
+	 */
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return bulkActionManager.getAvailableActions(getService().getEntityClass());
+	}
+	
+	/**
+	 * Process bulk action
+	 * 
+	 * @param bulkAction
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Resource<IdmBulkActionDto> bulkAction(IdmBulkActionDto bulkAction) {
+		// TODO: use MultiValueMap in object if is possible?
+		if (bulkAction.getFilter() != null) {
+			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
+			Map<String, Object> properties = bulkAction.getFilter();
+			
+			for (Entry<String, Object> entry : properties.entrySet()) {
+				Object value = entry.getValue();
+				if(value instanceof List<?>) {
+					multivaluedMap.put(entry.getKey(), (List<Object>) value);
+				}else {
+					multivaluedMap.add(entry.getKey(), entry.getValue());
+				}
+			}
+			F filter = this.toFilter(multivaluedMap);
+			bulkAction.setTransformedFilter(filter);
+		}
+		bulkAction.setEntityClass(getService().getEntityClass().getName());
+		bulkAction.setFilterClass(this.getFilterClass().getName());
+		return new Resource<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction));
 	}
 
 	/**

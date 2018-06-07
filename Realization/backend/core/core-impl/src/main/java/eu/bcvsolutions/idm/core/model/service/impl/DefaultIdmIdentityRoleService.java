@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -122,7 +121,7 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {
-		List<Predicate> predicates = new ArrayList<>();
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// id
 		if (filter.getId() != null) {
 			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
@@ -180,7 +179,11 @@ public class DefaultIdmIdentityRoleService
 		//
 		// is automatic role
 		if (filter.getAutomaticRole() != null) {
-			predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
+			if (filter.getAutomaticRole()) {
+				predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
+			} else {
+				predicates.add(builder.isNull(root.get(IdmIdentityRole_.automaticRole)));
+			}
 		}
 		//
 		if (filter.getAutomaticRoleId() != null) {

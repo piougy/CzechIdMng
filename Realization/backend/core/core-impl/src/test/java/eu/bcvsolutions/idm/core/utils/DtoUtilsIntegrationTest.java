@@ -27,7 +27,7 @@ public class DtoUtilsIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto(UUID.randomUUID());
 		dto.getEmbedded().put(IdmIdentityRole_.identityContract.getName(), contract);
 		//
-		IdmIdentityContractDto embedded = DtoUtils.getEmbedded(dto, IdmIdentityRole_.identityContract, IdmIdentityContractDto.class);
+		IdmIdentityContractDto embedded = DtoUtils.getEmbedded(dto, IdmIdentityRole_.identityContract);
 		assertEquals(contract, embedded);
 	}
 	
@@ -35,13 +35,13 @@ public class DtoUtilsIntegrationTest extends AbstractIntegrationTest {
 	public void testEmptyEmbeddedWIthoutDefault() {
 		IdmIdentityRoleDto dto = new IdmIdentityRoleDto();
 		//
-		DtoUtils.getEmbedded(dto, IdmIdentityRole_.identityContract, IdmIdentityContractDto.class);
+		DtoUtils.getEmbedded(dto, IdmIdentityRole_.identityContract);
 	}
 	
 	@Test
 	public void testEmbeddedWithtDefault() {
 		IdmIdentityRoleDto dto = new IdmIdentityRoleDto();
 		//
-		assertNull(DtoUtils.getEmbedded(dto, IdmIdentityRole_.identityContract, IdmIdentityContractDto.class, null));
+		assertNull(DtoUtils.getEmbedded(dto, IdmIdentityRole_.identityContract, (IdmIdentityContractDto) null));
 	}
 }

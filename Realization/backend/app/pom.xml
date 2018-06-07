@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>8.0.0</version>
+		<version>8.1.0</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -242,6 +242,29 @@
 										<resource>
 											<directory>../../frontend/czechidm-app/dist</directory>
 											<filtering>false</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<!-- Copy FE sources to WAR file -->
+							<execution>
+								<id>copy-fe-sources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>target/idm/fe-sources</outputDirectory>
+									<resources>
+										<resource>
+											<directory>../../frontend/czechidm-app</directory>
+											<filtering>true</filtering>
+											<excludes>
+												<exclude>dist/</exclude>
+												<exclude>node_modules/</exclude>
+												<exclude>czechidm-modules/**/node_modules/</exclude>
+												<exclude>**/.*</exclude>
+											</excludes>
 										</resource>
 									</resources>
 								</configuration>

@@ -8,6 +8,7 @@ import { IdentityContractManager, TreeTypeManager, TreeNodeManager, SecurityMana
 import SearchParameters from '../../domain/SearchParameters';
 import ManagersInfo from './ManagersInfo';
 import ContractStateEnum from '../../enums/ContractStateEnum';
+import ContractSlices from './ContractSlices';
 
 const uiKey = 'identity-contracts';
 
@@ -57,6 +58,19 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
     }
   }
 
+  showGuarantees(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    const { entityId } = this.props.params;
+    this.context.router.push(`/identity/${encodeURIComponent(entityId)}/identity-contract/${entity.id}/guarantees`);
+  }
+
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
   render() {
     const { entityId } = this.props.params;
     //
@@ -93,7 +107,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               cell={
                 ({rowIndex, data}) => {
                   return (
-                    <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    <Advanced.DetailButton onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                   );
                 }
               }/>
@@ -102,6 +116,11 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               header={this.i18n('entity.IdentityContract.main.label')}
               face="bool"
               width={75}
+              sort/>
+            <Advanced.Column
+              property="position"
+              header={this.i18n('entity.IdentityContract.position')}
+              width={ 200 }
               sort/>
             <Basic.Column
               property="workPosition"
@@ -120,7 +139,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                           entityIdentifier={ data[rowIndex].workPosition }
                           face="popover" />
                         :
-                        data[rowIndex].position
+                        null
                       }
                     </span>
                   );
@@ -133,7 +152,10 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <ManagersInfo managersFor={entityId} identityContractId={data[rowIndex].id}/>
+                    <ManagersInfo
+                      managersFor={entityId}
+                      identityContractId={data[rowIndex].id}
+                      detailLink={ this.showGuarantees.bind(this, data[rowIndex]) }/>
                   );
                 }
               }
@@ -150,12 +172,6 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               face="date"
               sort/>
             <Advanced.Column
-              property="disabled"
-              header={this.i18n('entity.IdentityContract.disabled.label')}
-              face="bool"
-              width={100}
-              sort/>
-            <Advanced.Column
               property="state"
               header={this.i18n('entity.IdentityContract.state.label')}
               face="enum"
@@ -170,6 +186,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               sort/>
           </Advanced.Table>
         </Basic.Panel>
+        <ContractSlices rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')} params={{entityId}} reloadExternal={this.reload.bind(this)}/>
       </div>
     );
   }

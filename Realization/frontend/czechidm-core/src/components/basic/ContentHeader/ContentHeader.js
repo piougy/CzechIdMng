@@ -21,6 +21,9 @@ class ContentHeader extends AbstractComponent {
     if (!rendered) {
       return null;
     }
+    if (!text && !children) {
+      return null;
+    }
 
     const classNames = classnames(
       'content-header',

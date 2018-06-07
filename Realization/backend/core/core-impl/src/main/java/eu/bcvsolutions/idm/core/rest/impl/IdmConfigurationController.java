@@ -29,8 +29,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -106,6 +108,24 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countConfigurations", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 
 	@Override
@@ -268,9 +288,9 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	 * @return
 	 * @throws IOException 
 	 */
-	@ResponseStatus(code = HttpStatus.ACCEPTED)
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
-	@RequestMapping(value = "/bulk/save", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(value = "/bulk/save", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE, produces = BaseController.APPLICATION_HAL_JSON_VALUE)
 	@ApiOperation(
 			value = "Save configuration items in bulk", 
 			nickname = "saveConfigurationBulk", 
@@ -283,14 +303,20 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				},
 			notes = "Save configuration properties pasted from configration file (e.q. from application.properties)."
 					+ " Simple text/plain .properties format is accepted.")
-	public void saveProperties(@RequestBody String configuration) throws IOException {
-		Properties p = new Properties();
-	    p.load(new StringReader(configuration));
-	    p.forEach((name, value) -> {
-	    	configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
-	    });
+	public void saveProperties(@RequestBody String configuration) {
+		try {
+			Properties p = new Properties();
+	    	p.load(new StringReader(configuration));
+	    	p.forEach((name, value) -> {
+	    		configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
+	    	});
+		} catch (IOException ex) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, ex);
+		} catch (IllegalArgumentException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex);
+		}
 	}
-	
+
 	@Override
 	protected DataFilter toFilter(MultiValueMap<String, Object> parameters) {
 		return new DataFilter(getDtoClass(), parameters);

@@ -9,10 +9,12 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
+import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 
 /**
  * Virtual system module descriptor
@@ -58,5 +60,10 @@ public class VirtualSystemModuleDescriptor extends PropertyModuleDescriptor {
 				"New virtual system request (for realization) was created and send to implementers.", 
 				getNotificationTemplateId(TOPIC_VS_REQUEST_CREATED)));
 		return configs;
+	}
+
+	@Override
+	public List<ResultCode> getResultCodes() {
+		return Arrays.asList(VsResultCode.values());
 	}
 }

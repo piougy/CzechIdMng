@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
@@ -75,6 +76,21 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission... permission) {
+		return null;
+	}
+	
+	@Override
+	public long count(F filter, BasePermission... permission) {
+		return 0;
+	}
+
+	@Override
+	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
+		return null;
+	}
+	
+	@Override
+	public Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission) {
 		return null;
 	}
 

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
@@ -15,7 +16,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
  * @author Radek Tomiška
  *
  */
-public class IdmRoleFilter extends DataFilter implements CorrelationFilter {
+public class IdmRoleFilter 
+		extends DataFilter 
+		implements CorrelationFilter, ExternalIdentifiable {
 
 	private RoleType roleType;
 	private UUID roleCatalogueId;
@@ -76,5 +79,15 @@ public class IdmRoleFilter extends DataFilter implements CorrelationFilter {
 
 	public void setGuaranteeId(UUID guaranteeId) {
 		this.guaranteeId = guaranteeId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

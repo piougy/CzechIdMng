@@ -43,11 +43,15 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.CONTRACT: {
         return 'success';
       }
+      case this.CONTRACT_SLICE: {
+        return 'success';
+      }
       default: {
         return 'default';
       }
     }
   }
+
   static getEntityEnum(key) {
     if (!key) {
       return null;
@@ -71,6 +75,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.CONTRACT: {
         return Enums.ContractAttributeEnum;
       }
+      case this.CONTRACT_SLICE: {
+        return Enums.ContractSliceAttributeEnum;
+      }
       default: {
         return null;
       }
@@ -83,3 +90,4 @@ SystemEntityTypeEnum.TREE = Symbol('TREE');
 SystemEntityTypeEnum.ROLE = Symbol('ROLE');
 SystemEntityTypeEnum.ROLE_CATALOGUE = Symbol('ROLE_CATALOGUE');
 SystemEntityTypeEnum.CONTRACT = Symbol('CONTRACT');
+SystemEntityTypeEnum.CONTRACT_SLICE = Symbol('CONTRACT_SLICE');

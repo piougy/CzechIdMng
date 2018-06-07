@@ -72,6 +72,10 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
    */
   fillFormValue(formValue, rawValue) {
     formValue.stringValue = rawValue;
+    if (formValue.stringValue === '') {
+      // empty string is sent as null => value will not be saved on BE
+      formValue.stringValue = null;
+    }
     return formValue;
   }
 
@@ -148,10 +152,10 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
       <Basic.TextField
         ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
-        label={ attribute.name }
-        placeholder={ attribute.placeholder }
+        label={ this.getLabel() }
+        placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         validation={ this.getInputValidation() }
         required={ attribute.required }
@@ -169,7 +173,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         required={ attribute.required }
         label={
           <span>
-            { attribute.name }
+            { this.getLabel() }
             {' '}
             <Basic.Tooltip placement="bottom" value={ this.i18n('component.advanced.EavForm.multiple.title') }>
               {
@@ -179,9 +183,9 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
           </span>
         }
         value={ this.toInputValues(values) }
-        helpBlock={ attribute.description ? attribute.description : this.i18n('multiple.title') }
+        helpBlock={ this.getHelpBlock(this.i18n('multiple.title')) }
         readOnly={ readOnly || attribute.readonly }
-        placeholder={ attribute.placeholder }/>
+        placeholder={ this.getPlaceholder() }/>
     );
   }
 }

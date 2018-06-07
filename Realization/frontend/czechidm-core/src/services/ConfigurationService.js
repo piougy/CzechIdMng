@@ -2,6 +2,7 @@ import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
+import PlainTextApi from './PlainTextApi';
 
 export default class ConfigurationService extends AbstractService {
 
@@ -91,6 +92,31 @@ export default class ConfigurationService extends AbstractService {
         throw Utils.Response.getFirstError(json);
       }
       return json;
+    });
+  }
+
+  /**
+   * Creates more configuration's items
+   *
+   * @param {text}
+   * @return Promise
+   */
+  addMoreEntities(text) {
+    return PlainTextApi.put(this.getApiPath() + `/bulk/save`, text)
+    .then(response => {
+      if (response.status === 204) { // no content - ok
+        return null;
+      }
+      return response.json();
+    })
+    .then(jsonResponse => {
+      if (Utils.Response.hasError(jsonResponse)) {
+        throw Utils.Response.getFirstError(jsonResponse);
+      }
+      if (Utils.Response.hasInfo(jsonResponse)) {
+        throw Utils.Response.getFirstInfo(jsonResponse);
+      }
+      return jsonResponse;
     });
   }
 }

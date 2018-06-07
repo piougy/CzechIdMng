@@ -1,5 +1,6 @@
 import EntityUtils from './EntityUtils';
 import Joi from 'joi';
+import _ from 'lodash';
 
 /**
  * Helper methods for ui state
@@ -307,6 +308,30 @@ export default class UiUtils {
     // Set default value (original text without [{{}}])
     results.defaultValue = text.replace(/{{/g, '').replace(/}}/g, '');
     return results;
+  }
+
+  /**
+   * Spinal case string transformation
+   *
+   * @param  {[type]} text [description]
+   * @return {[type]}      [description]
+   */
+  static spinalCase(text) {
+    if (!text) {
+      return null;
+    }
+    //
+    return _.kebabCase(text.toLowerCase());
+  }
+
+  /**
+   * Escapes all occurencesof double quotes
+   */
+  static escapeDoubleQuotes(text) {
+    if (!text) {
+      return null;
+    }
+    return text.split('"').join('\\"');
   }
 }
 

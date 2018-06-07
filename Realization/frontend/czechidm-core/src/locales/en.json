@@ -58,6 +58,7 @@
   "button": {
     "activate": "Activate",
     "add": "Add",
+    "addMore": "Add in bulk",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
@@ -105,6 +106,10 @@
         "header": "Filtering",
         "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>"
       }
+    },
+    "module": {
+      "label": "Modul",
+      "placeholder": "Modul"
     }
   },
   "action": {
@@ -214,6 +219,17 @@
       "approve_plural": "Records cancel [{{records}}] have to be approved, tasks successfully created",
       "accepted": "Record cancel [{{record}}] run asynchronously (cancel has to be approved or run as long running task)",
       "accepted_plural": "Records cancel [{{records}}] run asynchronously (cancel has to be approved or run as long running task)"
+    }
+  },
+  "bulkAction": {
+    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date [{{date}}] is actual count [{{count}}]. Processed items may be different.",
+    "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
+    "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
+    "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
+    "message": "Performing the bulk action on select record: <b>[{{entities}}]</b>.",
+    "message_plural": "Performing the bulk action on {{count}} records: <b>[{{entities}}]</b>",
+    "button": {
+      "execute": "Execute"
     }
   },
   "environment": {
@@ -441,6 +457,11 @@
           "header": "Result",
           "code": "Code"
         }
+      },
+      "CreatableSelectBox": {
+        "textCreator": "Create a new filtering option: [{{value}}]?",
+        "noResultsText": "Create new values for filtering",
+        "searchPromptText": "Start typing for create new options for filtering ..."
       }
     }
   },
@@ -634,6 +655,7 @@
     },
     "IdentityAttributeEnum": {
       "USERNAME": "User name (String)",
+      "EXTERNAL_CODE": "Personal number (String)",
       "DISABLED": "Disabled (boolean)",
       "FIRSTNAME": "First name (String)",
       "LASTNAME": "Surname (String)",
@@ -656,6 +678,21 @@
       "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)"
     },
+    "ContractSliceAttributeEnum": {
+      "IDENTITY": "Owner (IdmIdentity - Id or username)",
+      "VALID_FROM": "Valid from of slice (LocalDate)",
+      "CONTRACT_VALID_FROM": "Valid from of contract (LocalDate)",
+      "CONTRACT_VALID_TILL": "Valid till of contract (LocalDate)",
+      "WORK_POSITION": "Work position (IdmTreeNode - Id or code)",
+      "POSITION": "Name of position (String)",
+      "EXTERNE": "Externe (boolean)",
+      "MAIN": "Main relation (boolean)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)",
+      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "STATE": "State (ContractState - String)",
+      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Created",
       "NO_CONTRACT": "No contract",
@@ -676,11 +713,15 @@
     "profileDashboard" : {
       "header": "Your basic information",
       "goToProfil": "Go to profile"
+    },
+    "longRunningTaskDashboard": {
+      "header": "Your long running task"
     }
   },
   "permission": {
     "base" : {
       "ADMIN": "Administration (all)",
+      "COUNT": "Number of records",
       "AUTOCOMPLETE": "View in select box (autocomplete)",
       "READ": "Read",
       "CREATE": "Create",
@@ -698,7 +739,9 @@
       "IDENTITY": "Users",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
+      "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
+      "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
@@ -859,24 +902,25 @@
         "minLength": "Minimum password length: {{0}}",
         "minNumber": "Minimum number of digits: {{0}}",
         "minUpperChar": "Minimum number uppercase characters: {{0}}",
-        "prohibited": "Password contains illegal characters: ",
+        "prohibited": "Password contains illegal characters: {{0}}",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
-        "policiesNames": "Password does not meet these password policies: ",
-        "policiesNamesPreValidation": "Password have to meet these password policies: ",
-        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: ",
-        "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
-        "passwordSimilarUsername": "Password cannot be similar to login: ",
-        "passwordSimilarEmail": "Password cannot be similar to email: ",
-        "passwordSimilarFirstName": "Password cannot be similar to first name: ",
-        "passwordSimilarLastName": "Password cannot be similar to surname: ",
-        "date": "Password can not be change now, try again: ",
+        "policiesNames": "Password does not meet these password policies: {{0}}",
+        "policiesNamesPreValidation": "Password have to meet these password policies: {{0}}",
+        "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: {{0}}",
+        "minRulesToFulfill": "Fill in at least {{count}} the following rules: {{0}}",
+        "passwordSimilarUsername": "Password cannot be similar to login: {{0}}",
+        "passwordSimilarEmail": "Password cannot be similar to email: {{0}}",
+        "passwordSimilarFirstName": "Password cannot be similar to first name: {{0}}",
+        "passwordSimilarLastName": "Password cannot be similar to surname: {{0}}",
+        "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
         "specialCharacterBase": "List of special characters for password policies: ",
-        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login",
-        "passwordSimilarEmailPreValidate": "Password cannot be similar to email",
-        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name",
-        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname"
+        "passwordSimilarUsernamePreValidate": "Password cannot be similar to login.",
+        "passwordSimilarEmailPreValidate": "Password cannot be similar to email.",
+        "passwordSimilarFirstNamePreValidate": "Password cannot be similar to first name.",
+        "passwordSimilarLastNamePreValidate": "Password cannot be similar to surname.",
+        "maxHistorySimilar": "The password must be different from the last {{0}} passwords."
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."
@@ -892,7 +936,15 @@
         "header": "New configuration item"
       },
       "save": {
-        "success": "Configuration items [{{name}}] successfully saved"
+        "success": "Configuration items [{{name}}] successfully saved",
+        "sucessBulk": "Configuration items were successfully saved"
+      },
+      "addMore":{
+        "header": "Add more configuration items",
+        "configurationArea": {
+          "header": "Configuration items",
+          "helpBlock": "Can be added more configuration items. Comments after character '#' are ignored."
+        }
       },
       "configurable": "Configurable items <small>editable, can override static items</small>",
       "environment": "Static environment configuration items <small>read only</small>",
@@ -906,7 +958,11 @@
         "notAllowed": "You do not have permission to edit the system configuration",
         "help": "Public items are accessible without logging. Confidential items can be public."
       },
-      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>."
+      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>.",
+      "forceSave": {
+        "header": "Overwrite configurable item",
+        "message": "Configurable item [<strong>{{name}}</strong>] is already existing with value [<strong>{{value}}</strong>]. Do you want to overwrite it?"
+      }
     },
     "tasks-summary": {
       "summary": "Tasks list",
@@ -1006,7 +1062,6 @@
         "taskState": "$t(entity.ApprovalTask.taskState)",
         "approve": "Accept",
         "disapprove": "Reject",
-        "approvers": "Approvers of this task",
         "messages": {
           "approved":"Task successfully approved",
           "disapproved": "Task successfully rejected",
@@ -1066,7 +1121,7 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, surname, name, e-mail or note"
+          "placeholder": "Username, personal number, surname, name, e-mail or note"
         },
         "organization": {
           "label": "Org. structure",
@@ -1085,6 +1140,15 @@
         "disabled": {
           "label": "$t(label.disabled)",
           "placeholder": "$t(label.disabled)"
+        },
+        "identifiers": {
+          "label": "Identifiers",
+          "placeholder": "Identifiers - usernames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
+          "tooltip": "Enter individual values separated by a comma."
+        },
+        "state": {
+          "label": "State",
+          "placeholder": "Identity state"
         }
       },
       "action": {
@@ -1330,6 +1394,19 @@
       },
       "save": {
         "success": "Form definition [{{name}}] successfully saved"
+      },
+      "localization": {
+        "header": "Form localization",
+        "title": "Form localization",
+        "check": {
+          "found": "Form localization exists. Localization found in localization file.",
+          "not-found": "Form localization doesn't exist. Define her by the example bellow in module localization files.",
+          "attributes-not-found": "Form definition attributes <strong class=\"highlight\">{{attributes}}</strong> are not localized. Add localization into module localization files."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
+        }
       }
     },
     "formAttributes": {
@@ -1660,14 +1737,14 @@
         "roles": "Roles",
         "approve": "Approver of roles",
         "subordinates": "Subordinates",
-        "positions": "Contracted positions",
-        "approve": "Approver of roles"
+        "positions": "Contracted positions"
       },
       "profile": {
         "header": "Personal data",
         "title": "My profile",
         "userDetail": "User details",
         "username": "$t(entity.Identity.username)",
+        "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
         "email": {
@@ -1683,6 +1760,7 @@
           "placeholder": "Notes to user"
         },
         "active": "Active",
+        "blockLoginDate": "Identity has a blocked login to the application due to exceeding unsuccessful login attempts. Login will be possible after {{date}}.",
         "button": {
 
         },
@@ -1820,6 +1898,9 @@
         },
         "button": {
           "change": "Change password"
+        },
+        "identity": {
+          "username": "$t(entity.Identity.username)"
         }
       },
       "identityRoleDetail": {
@@ -1833,6 +1914,16 @@
         },
         "delete": {
           "success": "Contracted position [{{position}}] for user [{{username}}] successfully removed."
+        }
+      },
+      "contractSlices": {
+        "header": "Contracted positions (time slices)",
+        "title": "$t(content.identity.contractSlices.header)",
+        "contractSlices": {
+          "empty": "Contracted positions (time slices) not found."
+        },
+        "delete": {
+          "success": "Contracted position [{{position}}] (time slice) for user [{{username}}] successfully removed."
         }
       },
       "approve": {
@@ -1920,6 +2011,9 @@
         },
         "save": {
           "success": "Contracted position [{{name}}] successfully saved."
+        },
+        "alert": {
+          "controlledBySlices": "This contract is controlled by time slices. Cannot be modified directly!"
         }
       },
       "eav": {
@@ -1957,6 +2051,66 @@
         }
       }
     },
+    "contract-slice": {
+      "detail": {
+        "header": "Time slice of contracted position detail",
+        "title": "Time slice of contracted position detail",
+        "label": "Basic information",
+        "labelContract": "Basic information of contract",
+        "labelSlice": "Basic information of time slice",
+        "invalidContract":"Invalid time slice of contracted position detail",
+        "validContract":"Time slice of contracted position detail",
+        "edit": {
+          "title": "Time slice of contracted position detail",
+          "header": "{{position}} <small>time slice of contracted position detail</small>",
+          "success": "Time slice of contracted position [{{position}}] successfully saved.",
+          "notEditable": "Time slices cannot be editing or adding manually."
+        },
+        "create": {
+          "title": "New time slice of contracted position",
+          "header": "New time slice of contracted position",
+          "success": "Time slice of contracted position [{{position}}] successfully saved.",
+          "accepted": "Time slice of contracted position [{{position}}] was accepted. Time slice of contracted position has to be approved at first."
+        },
+        "save": {
+          "success": "Time slice of contracted position [{{name}}] successfully saved."
+        }
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "label": "More information",
+        "save": {
+          "success": "Extended attributes for time slice of contracted position [{{name}}] successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for time slice of contracted position not found."
+        }
+      },
+      "guarantees": {
+        "header": "Guarantees and managers",
+        "title": "Guarantees",
+        "label": "Guarantees",
+        "guarantees": {
+          "direct": "Direct guarantees <small>on this time slice</small>",
+          "byTree": "Managers <small>by tree structures</small>"
+        },
+        "edit": {
+          "title": "Guarantee detail",
+          "header": "Guarantee detail"
+        },
+        "create": {
+          "title": "Add guarantee",
+          "header": "Add guarantee"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "For time slice was successfully saved authorizer [{{record}}]"
+          }
+        }
+      }
+    },
     "organizations": {
       "header": "Organizational structure",
       "title": "Organizational structure",
@@ -1967,11 +2121,6 @@
           "button": "Define default type"
         }
       }
-    },
-    "audit": {
-      "header": "Audit",
-      "headerSmall": "Audit logs records",
-      "title": "Audit"
     },
     "system": {
       "modules": {
@@ -1994,7 +2143,19 @@
       },
       "be-modules": {
         "header": "Modules <small>backend</small>",
-        "title": "Modules (backend)"
+        "title": "Modules (backend)",
+        "result-codes": {
+          "button-show": "Result codes",
+          "title": "List of result codes [{{moduleName}}]",
+          "status": "Status",
+          "code": "Code",
+          "message": "Message",
+          "filter": {
+            "text": {
+              "placeholder": "Code"
+            }
+          }
+        }
       },
       "entity-event-processors": {
         "header": "Processors",
@@ -2095,10 +2256,6 @@
         "header": "All tasks",
         "title": "All tasks",
         "filter": {
-          "text": {
-            "label": "Key / Type",
-            "placeholder": "Key or task type"
-          },
           "text": {
             "label": "Type / Description",
             "placeholder": "Type or description of task"
@@ -2238,7 +2395,6 @@
         "category": "Category",
         "diagramResourceName": "Scheme name",
         "deploymentId": "Deployment Id",
-        "resourceName": "Resource name",
         "id":"Identificator",
         "diagram": "Process preview",
         "fullscreenDiagram": "Process preview"
@@ -2399,6 +2555,7 @@
     "Identity": {
       "_type": "User",
       "username": "Login",
+      "externalCode": "Personal number",
       "firstName": "First name",
       "lastName": "Surname",
       "email": "E-mail",
@@ -2414,11 +2571,11 @@
       "titleAfter": "Titles after",
       "state": {
         "label": "State",
-        "help": "Identity state"
+        "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions."
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
-        "help": "$t(label.disabled) identity cannot log in."
+        "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
       }
     },
     "RoleCatalogue": {
@@ -2605,7 +2762,7 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role name",
+      "role" : "Role",
       "identityContract": {
         "label": "Contracted position",
         "title": "Contracted position",
@@ -2649,7 +2806,7 @@
       "id": "Internal position id",
       "treeType": "Structure type",
       "workPosition": "Position",
-      "position": "Work position",
+      "position": "Name of the position",
       "identity": "User",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",
@@ -2657,7 +2814,8 @@
       "externe": "External contractor",
       "managers": {
         "label": "Authorizers",
-        "title": "Authorizer and all managers for position in structure"
+        "title": "Authorizer and all managers for position in structure",
+        "total": "Total number of authorizers"
       },
       "disabled": {
         "label": "$t(label.disabled)",
@@ -2671,6 +2829,48 @@
       "state": {
         "label": "State",
         "help": "Contract's state"
+      }
+    },
+    "ContractSlice": {
+      "_type": "Time slices",
+      "parentContract": "Parent contract relationship",
+      "contractCode": "Code of contract relationship",
+      "code": "Code of slice",
+      "code": {
+        "label": "Code of slice",
+        "help": "Identifier of the time slice (typically external identifier from source system)."
+      },
+      "usingAsContract": {
+        "label": "Currently used",
+        "help": "If checked, this time slot is currently used as the source of the parent contract (the values on the parent contract are copied from this slice)."
+      },
+      "id": "$t(entity.IdentityContract.id)",
+      "treeType": "$t(entity.IdentityContract.treeType)",
+      "workPosition": "$t(entity.IdentityContract.workPosition)",
+      "position": "$t(entity.IdentityContract.position)",
+      "identity": "$t(entity.IdentityContract.identity)",
+      "contractValidFrom": "$t(entity.validFrom)",
+      "contractValidTill": "$t(entity.validTill)",
+      "validFrom": "Valid from (slice)",
+      "validTill": "Valid till (slice)",
+      "guarantee": "$t(entity.IdentityContract.guarantee)",
+      "externe": "$t(entity.IdentityContract.externe)",
+      "managers": {
+        "label": "$t(entity.IdentityContract.managers.label)",
+        "title": "$t(entity.IdentityContract.managers.title)"
+      },
+      "disabled": {
+        "label": "$t(entity.IdentityContract.disabled.label)",
+        "help": "$t(entity.IdentityContract.disabled.help)"
+      },
+      "description": "$t(entity.IdentityContract.description)",
+      "main": {
+        "label": "$t(entity.IdentityContract.main.label)",
+        "help": "$t(entity.IdentityContract.main.help)"
+      },
+      "state": {
+        "label": "$t(entity.IdentityContract.state.label)",
+        "help": "$t(entity.IdentityContract.state.help)"
       }
     },
     "TreeNode": {
@@ -2776,6 +2976,7 @@
       "_type": "Notification Template",
       "name": "Name",
       "code": "Code",
+      "sender": "Sender address",
       "subject": "Subject",
       "parameter": {
         "name": "Parameters",
@@ -2806,7 +3007,6 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "model": "$t(entity.Notification.message.model)",
         "level": "$t(entity.Notification.message.level)"
@@ -2927,19 +3127,23 @@
       "enchancedControl": "Enabled",
       "minRulesToFulfill": "Minimum number of additional rules for policy",
       "maxHistorySimilar": "Number of old passwords checked for match",
+      "blockLoginTime": "Login blocking time (seconds)",
+      "maxUnsuccessfulAttempts": "Maximum number of unsuccessful login attempts",
       "lowerCharBase": "Lowercase letters",
       "upperCharBase": "Uppercase letters",
       "numberBase": "Digits",
       "specialCharBase": "Special characters",
       "identityAttributeCheck": "User attributes not allowed in password",
       "help": {
-        "defaultPolicy": "Default policy is used for password validation for IdM system and all systems without set password policy.",
+        "defaultPolicy": "Default policy is used for CzechIdM and all systems without set policy.",
         "maxPasswordAge": "Maximum number of days for password validity.",
         "minPasswordAge": "Minimum number of days for password validity.",
         "enchancedControl": "Enhanced control makes passwords more secure by comparing new passwords with previous ones and user attributes. It is possible to select which rules are required.",
         "rules": "Select which rules are required set number of how many additional rules newly created password must fulfill at least.",
         "minRulesToFulfill": "Minimum number of the requirements which password must match to be valid.",
         "maxHistorySimilar": "Number of retroactively checked passwords, which cannot be same as new.",
+        "blockLoginTime": "After entering X failed attempts, the user will be blocked from signing in.",
+        "maxUnsuccessfulAttempts": "Number of unsuccessful login attempts. Upon overrun, the user will be blocked from logging into the application.",
         "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
         "bases": "Character set allowed for password generation. Forbidden characters are excluded from sets.",
         "identityAttributeCheck": "Password may not contain any listed attributes or variations thereof.",
@@ -3072,6 +3276,13 @@
       "guarantee": {
         "label": "Guarantee",
         "help": "Guarantee assigned to contracted position"
+      }
+    },
+    "ContractSliceGuarantee": {
+      "contractSliceId": "Time slice of contract position",
+      "guarantee": {
+        "label": "Guarantee",
+        "help": "Guarantee assigned to slice of contract position"
       }
     },
     "AutomaticRoleRequest": {
@@ -3394,6 +3605,70 @@
       }
     }
   },
+  "eav": {
+    "bulk-action": {
+      "identity-disable-bulk-action": {
+        "label": "Deactivate - (manually)"
+      },
+      "identity-enable-bulk-action": {
+        "label": "Activate - (manually)"
+      },
+      "identity-delete-bulk-action": {
+        "label": "Remove"
+      },
+      "identity-add-role-bulk-action": {
+        "label": "Roles assignment",
+        "attributes": {
+          "role": {
+            "label": "Roles",
+            "help": ""
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role assignment will be approved"
+          },
+          "maincontract": {
+            "label": "Assign to main contract only",
+            "help": "Assigning new roles will only be done on the main contract."
+          },
+          "validfrom": {
+            "label": "Valid from",
+            "help": ""
+          },
+          "validtill": {
+            "label": "Valid till",
+            "help": ""
+          }
+        }
+      },
+      "identity-remove-role-bulk-action": {
+        "label": "Role removing",
+        "attributes": {
+          "role": {
+            "label": "Roles",
+            "help": ""
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role remove will be approved"
+          },
+          "maincontract": {
+            "label": "Remove only from the main contract",
+            "help": "Removing role/s will only be done from the main contract."
+          }
+        }
+      },
+      "identity-save-bulk-action": {
+        "label": "Re-save identity",
+        "attributes": {
+          "onlynotify": {
+            "label": "Throw only NOTIFY event",
+            "help": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
+          }
+        }
+      }
+    }
+  },
   "error": {
     "AUTH_FAILED": {
       "title": "Login failed",
@@ -3560,6 +3835,10 @@
       "title": "Structure element cannot be removed",
       "message": "Structure element [{{treeNode}}] is used in contracted positions. Edit all used contracted positions before removing."
     },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
+      "title": "Structure element cannot be removed",
+      "message": "Structure element [{{treeNode}}] is used in contract slice positions. Edit all used contract slice positions before removing."
+    },
     "TREE_NODE_BAD_TYPE": {
       "title": "Wrong element type",
       "message": "Please select different element type."
@@ -3722,11 +4001,11 @@
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
       "title": "Role cannot be deleted",
-      "message": "Role [{{role}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+      "message": "Role [{{role}}] has assigned automatic roles. Remove automatic roles at first."
     },
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Tree node cannot be deleted",
-      "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+      "message": "Node [{{treeNode}}] has assigned automatic roles. Remove automatic roles at first."
     },
     "ROLE_TREE_NODE_TYPE_EXISTS": {
       "title": "A similar definition of an automatic role already exists",
@@ -3799,6 +4078,290 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Event cannot be deleted",
       "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    },
+    "BULK_ACTION_REQUIRED_PROPERTY": {
+      "title": "Required property wasn't filled",
+      "message": "Property [{{attributeCode}}] wasn't filled."
+    },
+    "BULK_ACTION_ROLE_NOT_FOUND": {
+      "title": "Roles not found",
+      "message": "Roles for remove not found for identity: [{{identity}}]."
+    },
+    "BULK_ACTION_CONTRACT_NOT_FOUND": {
+      "title": "Contract not found",
+      "message": "Contract for identity: [{{identity}}] not found."
+    },
+    "BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED": {
+      "title": "Bulk action can not be started",
+      "message": "Only one filtering option can be applied."
+    },
+    "BULK_ACTION_MODULE_DISABLED": {
+      "title": "Bulk action can not be started",
+      "message": "Action [{{action}}] can't be processed. Module [{{module}}] is disabled."
+    },
+      "BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED": {
+      "title": "Bulk action can not be started",
+      "message": "Bulk action hasn't specified entities or filter."
+    },
+    "BULK_ACTION_BAD_FILTER": {
+      "title": "Bulk action can not be started",
+      "message": "Filter must be instance of [{{filter}}], given instance [{{givenFilter}}]."
+    },
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
+      "title": "Contract cannot be deleted!",
+      "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"
+    },
+    "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
+      "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
+      "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"
+    },
+    "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
+      "title": "Password was changed",
+      "message": "Password change for account [{{account}}] was successful."
+    },
+    "OK": {
+      "title": "Operation was successful",
+      "message": "Request was successfully completed."
+    },
+    "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
+      "title": "Missing attribute 'groupPermission'",
+      "message": "When authorization type is filled, then attribute 'groupPermission' must be filled to."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
+      "title": "Role wasn't assigned",
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{autoRole}}] for identity [{{identity}}]. Check role request agenda for reason."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Role is used by concurrent task",
+      "message": "Automatic role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
+      "title": "Role wasn't removed",
+      "message": "Role [{{role}}] wasn't removed by automatic role [{{autoRole}}] for identity [{{identity}}], Check role request agenda for reason."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Role is used by concurrent task",
+      "message": "Automatic role [{{autoRole}}] is used by concurrent task [{{task}}]."
+    },
+    "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
+      "title": "Some attributes are missing",
+      "message": "Rule for automatic role didn't fill all necessary attributes: [{{attrs}}]."
+    },
+    "AUTOMATIC_ROLE_TASK_EMPTY": {
+      "title": "Missing 'id' of automatic role",
+      "message": "Id of automatic role is required."
+    },
+    "BACKUP_FAIL": {
+      "title": "Backup failed",
+      "message": "Backup for script [{{script}}] failed. Error: [{{error}}]."
+    },
+    "DEPLOY_ERROR": {
+      "title": "Deployment of entity failed",
+      "message": "Deploying entity from path [{{path}}] failed."
+    },
+    "FORM_VALUE_WRONG_TYPE": {
+      "title": "Wrong format of attributes",
+      "message": "Value [{{value}}] of attribute [{{attr}}] must be type of [{{type}}] instead of [{{currentType}}]."
+    },
+    "GROOVY_SCRIPT_EXCEPTION": {
+      "title": "Error in script",
+      "message": "Script contains following errors: [{{errors}}]."
+    },
+    "GROOVY_SCRIPT_INVALID_CATEGORY": {
+      "title": "Wrong category for script",
+      "message": "Script is using script from wrong category [{{category}}]."
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_CLASS": {
+      "title": "Class is not accessible",
+      "message": "Class [{{class}}] is not accessible!"
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
+      "title": "Service is not accessible",
+      "message": "Service [{{service}}] is not accessible!"
+    },
+    "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
+      "title": "Task has multiple instances",
+      "message": "Task [{{task}}] has other instance {{instance}}], because of it, it's not accessible from this one{{thisInstance}}]."
+    },
+    "LONG_RUNNING_TASK_NOT_FOUND": {
+      "title": "Can not create instance",
+      "message": "Can not create instance for task type [{{taskType}}]."
+    },
+    "NOTIFICATION_TEMPLATE_ERROR_XML_SCHEMA": {
+      "title": "Can not load template",
+      "message": "Can not load template [{{template}}], Error in XML schema."
+    },
+    "NULL_ATTRIBUTE": {
+      "title": "Attribute is NULL",
+      "message": "Attribute 'null' is NULL."
+    },
+    "ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED": {
+      "title": "Wrong value",
+      "message": "Attribute 'requested by' in request [{{request}}] can not have value 'AUTOMATICALLY' via REST API."
+    },
+    "ROLE_REQUEST_EXECUTE_WRONG_STATE": {
+      "title": "Wrong state of request",
+      "message": "Request is in state [{{state}}], Allowed states, which can be executed are APPROVED a CONCEPT."
+    },
+    "SCHEDULER_UNSUPPORTED_TASK_TRIGGER": {
+      "title": "Unsupported trigger",
+      "message": "Task trigger [{{trigger}}] is not supported."
+    },
+    "TREE_NODE_BAD_CHILDREN": {
+      "title": "Wrong node children",
+      "message": "Tree node [{{node}}] has bad children."
+    },
+    "SEARCH_ERROR": {
+      "title": "Search error",
+      "message": "Error during searching entities. Error: [{{error}}]."
+    },
+    "WF_WARNING": {
+      "title": "Workflow execution warning",
+      "message": "Warning occurred during workflow execution. Warning: [{{warning}}]."
+    },
+    "XML_JAXB_INIT_ERROR": {
+      "title": "Init JAXB instance failed",
+      "message": "Can not perform init of JAXB instance."
+    },
+    "AUTH_EXPIRED": {
+      "title": "Authorization expired",
+      "message": "Authorization expired."
+    },
+    "ATTACHMENT_DATA_NOT_FOUND": {
+      "title": "Data for attachment not found",
+      "message": "Binary data for attachment: [{{one}}:{{two}}] - [{{three}}] not found."
+    },
+    "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
+      "title": "Template not found",
+      "message": "XML file for template [{{template}}] not found."
+    },
+    "SCRIPT_XML_FILE_NOT_FOUND": {
+      "title": "File not found",
+      "message": "XML file for script [{{script}}] not found."
+    },
+    "METHOD_NOT_ALLOWED": {
+      "title": "Method not allowed",
+      "message": "This method is not allowed!"
+    },
+    "FILTER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Filter not found",
+      "message": "Filter [{{filter}}] for attribute [{{property}}] not found. Fix configuration property [{{repairProperty}}]."
+    },
+    "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
+      "title": "Can not update form definition",
+      "message": "Form definition [{{form}}][{{form1}}] can not be updated. Can not automatically update property [{{property}}] of attribute [{{attr}}]. Provide change script for updating form definition or define new form definition."
+    },
+    "NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Sender not found",
+      "message": "Sender [{{sender}}] for type [{{type}}] not found. Fix configuration property [{{repairProperty}}]."
+    },
+    "NOTIFICATION_TEMPLATE_MORE_CODE_FOUND": {
+      "title": "More then one template was found",
+      "message": "More then one template was found for code: [{{code}}]."
+    },
+    "PASSWORD_CHANGE_ACCOUNT_FAILED": {
+      "title": "Password change failed",
+      "message": "Can not change password in these accounts: [{{accounts}}]."
+    },
+    "ROLE_DELETE_FAILED_IDENTITY_ASSIGNED": {
+      "title": "Role can not be deleted",
+      "message": "Can not delete role [{{role}}], because is assigned to some identities."
+    },
+    "SCRIPT_MORE_CODE_FOUND": {
+      "title": "More then one script was found",
+      "message": "More then one script was found for code: [{{code}}]."
+    },
+    "UNMODIFIABLE_LOCKED": {
+      "title": "Can not change entity",
+      "message": "Entity [{{entity}}] can not be changed, because it's locked."
+    },
+    "ATTACHMENT_CREATE_FAILED": {
+      "title": "Creation of attachment failed",
+      "message": "Creation of attachment [{{attachment}}] with owner [{{owner}}][{{owner1}}] failed."
+    },
+    "ATTACHMENT_CREATE_TEMP_FILE_FAILED": {
+      "title": "Creation of temp file failed",
+      "message": "Creation of temp file [{{file}}] in temp dir [{{folder}}] failed."
+    },
+    "ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED": {
+      "title": "Can not create default storage",
+      "message": "Creation of folder for default storage [{{storage}}] in temp dir failed."
+    },
+    "ATTACHMENT_INIT_DEFAULT_TEMP_FAILED": {
+      "title": "Can no create default temp storage",
+      "message": "Creation of folder for temp default storage [{{storage}}] in temp dir failed."
+    },
+    "ATTACHMENT_UPDATE_FAILED": {
+      "title": "Update of attachment failed",
+      "message": "Update of attachment [{{attachment}}] with owner [{{owner}}][{{owner1}}] failed."
+    },
+    "INTERNAL_SERVER_ERROR": {
+      "title": "Server error",
+      "message": "Some error occurred on server."
+    },
+    "NOT_IMPLEMENTED": {
+      "title": "Not implemented",
+      "message": "Function [{{function}}] not implemented."
+    },
+    "NOT_SUPPORTED": {
+      "title": "Not supported",
+      "message": "Function [{{function}}] not supported."
+    },
+    "RECAPTCHA_SECRET_KEY_MISSING": {
+      "title": "Wrong Recaptcha configuration",
+      "message": "Recaptcha has wrong configuration. Please set missing attribute [{{attr}}]."
+    },
+    "SCHEDULER_CREATE_TASK_FAILED": {
+      "title": "Task creation failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_CREATE_TRIGGER_FAILED": {
+      "title": "Trigger creation failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TASK_FAILED": {
+      "title": "Task deleting failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TRIGGER_FAILED": {
+      "title": "Trigger deleting failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_INTERRUPT_TASK_FAILED": {
+      "title": "Task interruption failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_PAUSE_TRIGGER_FAILED": {
+      "title": "Task pause failed",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_RESUME_TRIGGER_FAILED": {
+      "title": "Task resume failed",
+      "message": "[{{error}}]."
+    },
+    "WF_ERROR": {
+      "title": "Error during workflow execution",
+      "message": "During workflow execution, error occurred: [{{error}}]."
+    },
+    "WRONG_PROXY_CONFIG": {
+      "title": "Wrong proxy configuration",
+      "message": "Wrong configuration of http proxy. The required format is'[IP]:[PORT]'. For example: '153.25.16.8:1234'."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE": {
+      "title": "Entity type is not external identifiable",
+      "message": "Entity type [{{entityType}}] is not external identifiable."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_CODEABLE": {
+      "title": "Entity type is not external codeable",
+      "message": "Entity type [{{entityType}}] is not external codeable."
+    },
+    "DUPLICATE_EXTERNAL_ID": {
+      "title": "Record already exists",
+      "message": "Record with external identifier [{{externalId}}] already exists."
+    },
+    "DUPLICATE_EXTERNAL_CODE": {
+      "title": "Record already exists",
+      "message": "Record with personal number [{{externalCode}}] already exists."
     }
   },
   "validationError": {

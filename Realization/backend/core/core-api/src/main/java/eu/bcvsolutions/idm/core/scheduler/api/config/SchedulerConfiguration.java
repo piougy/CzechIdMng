@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.api.config;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Configuration for scheduler and asynchronous processing.
  * 

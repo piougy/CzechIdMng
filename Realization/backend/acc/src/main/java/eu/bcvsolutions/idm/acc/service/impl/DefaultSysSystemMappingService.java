@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
@@ -34,9 +33,9 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -80,6 +79,15 @@ public class DefaultSysSystemMappingService
 		this.applicationContext = applicationContext;
 		this.groovyScriptService = groovyScriptService;
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
+	}
+	
+	@Override
+	public SysSystemMappingDto save(SysSystemMappingDto dto, BasePermission... permission) {
+		SystemEntityType entityType = dto.getEntityType();
+		if (SystemOperationType.PROVISIONING == dto.getOperationType() && !entityType.isSupportsProvisioning()) {
+			throw new ResultCodeException(AccResultCode.PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE, ImmutableMap.of("entityType", entityType));
+		}
+		return super.save(dto, permission);
 	}
 
 	@Override
@@ -129,7 +137,7 @@ public class DefaultSysSystemMappingService
 	public boolean isEnabledProtection(AccAccountDto account) {
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getEntityType(), "EntityType cannot be null!");
-		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 		List<SysSystemMappingDto> mappings = this.findBySystem(system, SystemOperationType.PROVISIONING,
 				account.getEntityType());
 		if (mappings.isEmpty()) {
@@ -144,7 +152,7 @@ public class DefaultSysSystemMappingService
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getEntityType(), "EntityType cannot be null!");
 
-		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 		List<SysSystemMappingDto> mappings = this.findBySystem(system, SystemOperationType.PROVISIONING,
 				account.getEntityType());
 		if (mappings.isEmpty()) {
@@ -188,7 +196,7 @@ public class DefaultSysSystemMappingService
 	}
 
 	/**
-	 * Validation: Missing Identifier
+	 * Validation of sync: Missing Identifier
 	 * 
 	 * @param errors
 	 * @param systemMapping
@@ -211,8 +219,7 @@ public class DefaultSysSystemMappingService
 	}
 
 	/**
-	 * Validation: synchronization - entityAttribute=true and
-	 * idmPropertyName=identity
+	 * Validation of sync
 	 * 
 	 * @param errors
 	 * @param systemMapping
@@ -232,7 +239,7 @@ public class DefaultSysSystemMappingService
 				}
 			}
 			if (isError) {
-				errors.put(SYSTEM_MISSING_OWNER, "Synchronization does not have Idm Key: identity");
+				errors.put(SYSTEM_MISSING_OWNER, "Synchronization does not have IdM key: identity");
 			}
 		}
 		return errors;

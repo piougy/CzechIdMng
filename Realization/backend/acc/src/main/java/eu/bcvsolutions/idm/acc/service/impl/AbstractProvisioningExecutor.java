@@ -226,7 +226,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		Assert.notNull(dto);
 		//
 		ProvisioningOperationType operationType;
-		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 		SysSystemEntityDto systemEntity = getSystemEntity(account);
 		SystemEntityType entityType = SystemEntityType.getByClass(dto.getClass());
 		String uid = account.getUid();
@@ -324,7 +324,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			accounts.add(account);
 			// find uid from system entity or from account
 			String uid = account.getUid();
-			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 			SysSystemEntityDto systemEntity = systemEntityService.get(account.getSystemEntity());
 			//
 			// Find mapped attributes (include overloaded attributes)
@@ -403,11 +403,11 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			AccAccountDto account = accounts
 					.stream()
 					.filter(a -> {					
-						return a.getUid().equals(result.getSystemEntityUid()) 
+						return a.getRealUid().equals(result.getSystemEntityUid()) 
 								&& a.getSystem().equals(operation.getSystem());
 					})
 					.findFirst().get();				
-			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);
+			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 			//
 			IdmAccountDto resultAccountDto = new IdmAccountDto();
 			resultAccountDto.setId(account.getId());
@@ -450,8 +450,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				// We already have account for this system -> next
 				return;
 			}
-			SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
-					SysSystemDto.class);
+			SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
 			
 			List<SysSystemAttributeMappingDto> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
 			SysSystemAttributeMappingDto uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes,
@@ -533,7 +532,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		Assert.notNull(systemEntity);
 		Assert.notNull(systemEntity.getUid());
 		Assert.notNull(systemEntity.getEntityType());
-		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system);
 		Assert.notNull(system);
 		//
 		// If are input attributes null, then we load default mapped attributes
@@ -611,7 +610,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			List<? extends AttributeMapping> attributes) {
 		AccAccountDto account = getAccountSystemEntity(systemEntity.getId());
 		String uid = systemEntity.getUid();
-		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system, SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system);
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
 
 		// delete - account attributes is not needed
@@ -1183,7 +1182,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 */
 	protected SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClassDto) {
 		Assert.notNull(schemaObjectClassDto);
-		return DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+		return DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
 	}
 
 	/**

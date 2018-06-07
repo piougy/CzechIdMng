@@ -43,6 +43,8 @@ public class PasswordGenerator {
 	
 	private static final String DEFAULT_DELIMITER = " ";
 	
+	private static final int DEFAULT_PASSWORD_LENGTH = 12;
+
 	private Map<Integer, Long> filePosition;
 	
 	public String generatePassphrase(PasswordGenerate policy) {
@@ -72,17 +74,33 @@ public class PasswordGenerator {
 	public String generateRandom(PasswordGenerate policy) {
 		Assert.notNull(policy, "Password policy can't be null.");		
 		// policy may contains null values
-		int maximumLength = policy.getMaxPasswordLength() == null ? Integer.MAX_VALUE : policy.getMaxPasswordLength().intValue();
 		int minimumLength = policy.getMinPasswordLength() == null ? 0 : policy.getMinPasswordLength().intValue();
+
+		int minimumLengthAll = policy.getMinLowerChar() == null ? 0 : policy.getMinLowerChar().intValue(); 
+		minimumLengthAll += policy.getMinUpperChar() == null ? 0 : policy.getMinUpperChar().intValue();
+		minimumLengthAll += policy.getMinSpecialChar() == null ? 0 : policy.getMinSpecialChar().intValue();
+		minimumLengthAll += policy.getMinNumber() == null ? 0 : policy.getMinNumber().intValue();
+
+		// defensive set of max length
+		int maximumLength = 0;
+		if (policy.getMaxPasswordLength() != null) {
+			// if is defined maximum password length in policy use it
+			maximumLength = policy.getMaxPasswordLength().intValue();
+		} else {
+			// set higher value of minimal lengths
+			maximumLength = minimumLength > minimumLengthAll ? minimumLength : minimumLengthAll;
+		}
+		
+		// if maximum and minimum length is both zero use default password length (defensive behavior)
+		if (maximumLength == 0 && minimumLength == 0) {
+			maximumLength = DEFAULT_PASSWORD_LENGTH;
+			minimumLength = DEFAULT_PASSWORD_LENGTH;
+		}
 		
 		if (maximumLength < minimumLength) {
 			throw new IllegalArgumentException("Parameter: maxLength can't be lower than parameter: minLength");
 		}
 		
-		int minimumLengthAll = policy.getMinLowerChar() == null ? 0 : policy.getMinLowerChar().intValue(); 
-		minimumLengthAll += policy.getMinUpperChar() == null ? 0 : policy.getMinUpperChar().intValue();
-		minimumLengthAll += policy.getMinSpecialChar() == null ? 0 : policy.getMinSpecialChar().intValue();
-		minimumLengthAll += policy.getMinNumber() == null ? 0 : policy.getMinNumber().intValue();
 		
 		if (maximumLength < minimumLengthAll) {
 			throw new IllegalArgumentException("Parameter: maxLength must be higer or same as sum minimal length of all base.");
@@ -209,32 +227,32 @@ public class PasswordGenerator {
 			
 			@Override
 			public Integer getMinUpperChar() {
-				return getValue(upperMin);
+				return upperMin;
 			}
 			
 			@Override
 			public Integer getMinSpecialChar() {
-				return getValue(specialMin);
+				return specialMin;
 			}
 			
 			@Override
 			public Integer getMinPasswordLength() {
-				return getValue(minLength);
+				return minLength;
 			}
 			
 			@Override
 			public Integer getMinNumber() {
-				return getValue(numberMin);
+				return numberMin;
 			}
 			
 			@Override
 			public Integer getMinLowerChar() {
-				return getValue(lowerMin);
+				return lowerMin;
 			}
 			
 			@Override
 			public Integer getMaxPasswordLength() {
-				return getValue(maxLength);
+				return maxLength;
 			}
 			
 			@Override
@@ -291,10 +309,6 @@ public class PasswordGenerator {
 		return generateRandom(
 				minLength, maxLength, lowerMin,
 				upperMin, specialMin, numberMin, null);
-	}
-	
-	private Integer getValue(Integer integer) {
-		return integer != null ? integer : 0;
 	}
 	
 	private StringBuilder shuffle(StringBuilder string) {

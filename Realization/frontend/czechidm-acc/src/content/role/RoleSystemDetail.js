@@ -15,16 +15,23 @@ const roleSystemManager = new RoleSystemManager();
 const roleManager = new Managers.RoleManager();
 const systemMappingManager = new SystemMappingManager();
 
+/**
+ * Role system mapping detail - attribute mapping can be overriden.
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
 class RoleSystemDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
       ...this.state,
-      systemId: null, // dependant select box
-      systemMappingFilter: new Domain.SearchParameters()
-        .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
-        .setFilter('systemId', Domain.SearchParameters.BLANK_UUID) // dependant select box
+      systemId: this._isSystemMenu() ? props.params.entityId : null, // dependant select box
+      roleSystem: {
+        role: this._isSystemMenu() ? null : props.params.entityId,
+        system: this._isSystemMenu() ? props.params.entityId : null
+      }
     };
   }
 
@@ -40,15 +47,38 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     return 'acc:content.role.roleSystemDetail';
   }
 
+  getNavigationKey() {
+    if (this._isSystemMenu()) {
+      return 'system-roles';
+    }
+    return 'role-systems';
+  }
+
+  _isMenu(menu = 'role') {
+    // TODO: better alghoritm
+    return this.props.location.pathname.lastIndexOf(`/${menu}`, 0) === 0;
+  }
+
+  _isSystemMenu() {
+    return this._isMenu('system');
+  }
+
   showDetail(entity, add) {
-    const role = entity._embedded && entity._embedded.role ? entity._embedded.role.id : this.props.params.entityId;
+    let entityId = null;
+    if (!add) {
+      entityId = this._isSystemMenu() ? entity.role : entity.system;
+    } else {
+      entityId = this.props.params.entityId;
+    }
     const roleSystem = this.props.params.roleSystemId;
+    const linkMenu = this._isSystemMenu() ? `/system/${entityId}/roles/${roleSystem}/attributes` : `/role/${entityId}/systems/${roleSystem}/attributes`;
+    //
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`/role/${role}/systems/${roleSystem}/attributes/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
+      this.context.router.push(`${linkMenu}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
     } else {
-      this.context.router.push(`/role/${role}/systems/${roleSystem}/attributes/${entity.id}/detail`);
+      this.context.router.push(`${linkMenu}/${entity.id}/detail`);
     }
   }
 
@@ -56,16 +86,13 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     const { roleSystemId } = nextProps.params;
     if (roleSystemId && roleSystemId !== this.props.params.roleSystemId) {
       this._initComponent(nextProps);
-    } else {
-      // set persisted system for dependant select box
-      this.setState({
-        systemId: !this.props.roleSystem || this.props.roleSystem.system.id
-      });
     }
   }
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
@@ -74,18 +101,16 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId, roleSystemId} = props.params;
-    if (this._getIsNew(props)) {
-      this.setState({
-        roleSystem: {
-          role: entityId
-        },
-        systemId: null
-      });
-    } else {
+    if (!this._getIsNew(props)) {
+      const { roleSystemId } = props.params;
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
+    } else {
+      if (this._isSystemMenu()) {
+        this.refs.role.focus();
+      } else {
+        this.refs.system.focus();
+      }
     }
-    this.selectNavigationItems(['roles', 'role-systems']);
   }
 
   /**
@@ -116,7 +141,11 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
-        this.context.router.replace(`/role/${entity._embedded.role.id}/systems/${entity.id}/detail`, {entityId: entity.id});
+        if (this._isSystemMenu()) {
+          this.context.router.replace(`/system/${entity.system}/roles/${entity.id}/detail`, { entityId: entity.id });
+        } else {
+          this.context.router.replace(`/role/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
+        }
       } else {
         this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
       }
@@ -143,8 +172,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
   onChangeSystem(system) {
     const systemId = system ? system.id : null;
     this.setState({
-      systemId,
-      systemMappingFilter: this.state.systemMappingFilter.setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID)
+      systemId
     }, () => {
       // clear selected systemMapping
       this.refs.systemMapping.setValue(null);
@@ -153,11 +181,16 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _roleSystem } = this.props;
-    const { systemMappingFilter, systemId } = this.state;
+    const { systemId } = this.state;
     //
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
+    const forceSearchMappings = new Domain.SearchParameters()
+     .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
+     .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
+    const linkMenu = this._isSystemMenu() ? `/system/${roleSystem.system}/roles/${roleSystem}/attributes` : `/role/${roleSystem.role}/systems/${roleSystem}/attributes`;
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -171,30 +204,35 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={roleSystem} showLoading={_showLoading} style={{ padding: 0 }}>
+            <Basic.AbstractForm ref="form" data={ roleSystem } showLoading={ _showLoading } style={{ padding: 0 }}>
               <Basic.SelectBox
                 ref="role"
-                manager={roleManager}
+                manager={ roleManager }
                 label={this.i18n('acc:entity.RoleSystem.role')}
-                readOnly
+                readOnly={ !isNew || !this._isSystemMenu() }
                 required/>
               <Basic.SelectBox
                 ref="system"
-                manager={systemManager}
-                label={this.i18n('acc:entity.RoleSystem.system')}
-                readOnly={!isNew}
+                manager={ systemManager }
+                label={ this.i18n('acc:entity.RoleSystem.system') }
+                readOnly={ !isNew || this._isSystemMenu() }
                 required
-                onChange={this.onChangeSystem.bind(this)}/>
+                onChange={ this.onChangeSystem.bind(this) }/>
               <Basic.SelectBox
                 ref="systemMapping"
-                manager={systemMappingManager}
-                forceSearchParameters={systemMappingFilter}
-                label={this.i18n('acc:entity.RoleSystem.systemMapping')}
-                placeholder={systemId ? null : this.i18n('systemMapping.systemPlaceholder')}
+                manager={ systemMappingManager }
+                forceSearchParameters={ forceSearchMappings }
+                label={ this.i18n('acc:entity.RoleSystem.systemMapping') }
+                placeholder={ systemId ? null : this.i18n('systemMapping.systemPlaceholder') }
                 readOnly={!isNew || !systemId}
-                required/>
+                required
+                useFirst/>
+              <Basic.Checkbox
+                ref="forwardAccountManagemen"
+                label={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.label')}
+                helpBlock={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.help')}/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter rendered={Utils.Entity.isNew(roleSystem)}>
+            <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}
                 showLoading={_showLoading}>
@@ -257,7 +295,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 }
               }/>
               <Advanced.ColumnLink
-                to={`role/${roleSystem ? roleSystem.role.id : null }/systems/${roleSystem ? roleSystem.id : null}/attributes/:id/detail`}
+                to={`${linkMenu}/:id/detail`}
                 property="name"
                 header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
                 sort />
@@ -283,13 +321,8 @@ RoleSystemDetail.defaultProps = {
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.params.roleSystemId);
-  if (entity) {
-    entity.role = entity._embedded && entity._embedded.role ? entity._embedded.role : null;
-    entity.system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
-    entity.systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
-  }
   return {
-    _roleSystem: entity,
+    _roleSystem: entity || {},
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }

@@ -62,6 +62,18 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	@Column(name = "unsuccessful_attempts", nullable = false)
 	private int unsuccessfulAttempts;
 
+	@Audited
+	@Column(name = "block_login_date")
+	private DateTime blockLoginDate;
+	
+	public DateTime getBlockLoginDate() {
+		return blockLoginDate;
+	}
+
+	public void setBlockLoginDate(DateTime blockLoginDate) {
+		this.blockLoginDate = blockLoginDate;
+	}
+
 	public DateTime getLastSuccessfulLogin() {
 		return lastSuccessfulLogin;
 	}

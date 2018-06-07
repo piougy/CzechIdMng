@@ -102,7 +102,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 		assertEquals(1, confidentiaValues.size());
 		assertEquals(guardedValue.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded.getKey(), 0)));
 		assertEquals(normalValue, accoutObject.get(normal));
-		assertNotEquals(guardedValue, accoutObject.get(guardedValue));
+		assertNotEquals(guardedValue, accoutObject.get(guarded));
 	}
 	
 	@Test

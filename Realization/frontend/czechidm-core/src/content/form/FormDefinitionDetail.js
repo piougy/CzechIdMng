@@ -115,7 +115,8 @@ class FormDefinitionDetail extends Basic.AbstractContent {
               placeholder={this.i18n('entity.FormDefinition.type')}
               required
               readOnly={!entity || entity.unmodifiable || !Utils.Entity.isNew(entity)}
-              options={types}/>
+              options={types}
+              searchable/>
             <Basic.TextField
               ref="code"
               label={this.i18n('entity.FormDefinition.code')}

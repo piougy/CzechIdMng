@@ -14,7 +14,7 @@ import org.springframework.util.MultiValueMap;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -143,12 +143,22 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public Boolean toBoolean(Map<String, Object> parameters, String parameterName) {
-		String valueAsString = toString(parameters, parameterName);
-		if (StringUtils.isNotEmpty(valueAsString)) {
-			return Boolean.valueOf(valueAsString);
+		return toBoolean(toString(parameters, parameterName));
+	}
+	
+	/**
+	 * Converts parameter to {@code Boolean} from given parameters.
+	 *  
+	 * @param parameterValue
+	 * @return
+	 */
+	public Boolean toBoolean(String parameterValue) {
+		if (StringUtils.isNotEmpty(parameterValue)) {
+			return Boolean.valueOf(parameterValue);
 		}
 		return null;
 	}
+	
 	
 	/**
 	 * Converts parameter to {@code Long} from given parameters.
@@ -305,48 +315,48 @@ public class ParameterConverter {
 	}
 	
 	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
+	 * Converts parameter to given {@code identifiableType} from given parameters.
 	 * 
 	 * @param parameters
 	 * @param parameterName
-	 * @param entityClass
+	 * @param identifiableType
 	 * @return
 	 */
-	public <T extends BaseEntity> T toEntity(MultiValueMap<String, Object> parameters, String parameterName, Class<T> entityClass) {
+	public <T extends BaseEntity> T toEntity(MultiValueMap<String, Object> parameters, String parameterName, Class<T> identifiableType) {
 		Assert.notNull(parameters);
 	    //
-		return toEntity(parameters.toSingleValueMap(), parameterName, entityClass);
+		return toEntity(parameters.toSingleValueMap(), parameterName, identifiableType);
 	}
 	
 	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
+	 * Converts parameter to given {@code identifiableType} from given parameters.
 	 * 
 	 * @param parameters
 	 * @param parameterName
-	 * @param entityClass
+	 * @param identifiableType
 	 * @return
 	 */
-	public <T extends BaseEntity> T toEntity(Map<String, Object> parameters, String parameterName, Class<T> entityClass) {
-		return toEntity(toString(parameters, parameterName), entityClass);
+	public <T extends BaseEntity> T toEntity(Map<String, Object> parameters, String parameterName, Class<T> identifiableType) {
+		return toEntity(toString(parameters, parameterName), identifiableType);
 	}
 	
 	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
+	 * Converts parameter to given {@code identifiableType} from given parameters.
 	 * 
 	 * @param parameterValue
 	 * @param parameterName
-	 * @param entityClass
+	 * @param identifiableType
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends BaseEntity> T toEntity(String parameterValue, Class<T> entityClass) {
+	public <T extends Identifiable> T toEntity(String parameterValue, Class<T> identifiableType) {
 	    if(StringUtils.isEmpty(parameterValue)) {
 	    	return null;
 	    }
 	    Assert.notNull(lookupService, "Lookup service is not defined. Initialize converter properly.");
-		T entity = (T) lookupService.lookupEntity(entityClass, parameterValue);
+		T entity = (T) lookupService.lookupEntity(identifiableType, parameterValue);
 		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("identifiableType", identifiableType.getSimpleName(), "identifier", parameterValue));
 		}
 		return entity;
 	}
@@ -356,23 +366,23 @@ public class ParameterConverter {
 	 * 
 	 * @param parameters
 	 * @param parameterName
-	 * @param entityClass
+	 * @param identifiableType dto or entity type
 	 * @return
 	 */
-	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends AbstractEntity> entityClass) {
-		return toEntityUuid(toString(parameters, parameterName), entityClass);
+	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
+		return toEntityUuid(toString(parameters, parameterName), identifiableType);
 	}
 	
 	/**
 	 * Converts parameter value to entity id.
 	 * 
 	 * @param parameterValue
-	 * @param entityClass
+	 * @param identifiableType dto or entity type
 	 * @return
 	 */
-	public UUID toEntityUuid(String parameterValue, Class<? extends AbstractEntity> entityClass) {
-		AbstractEntity entity = toEntity(parameterValue, entityClass);
-		return entity == null ? null : entity.getId();
+	public UUID toEntityUuid(String parameterValue, Class<? extends Identifiable> identifiableType) {
+		Identifiable entity = toEntity(parameterValue, identifiableType);
+		return entity == null ? null : (UUID) entity.getId();
 	}
 	
 	/**

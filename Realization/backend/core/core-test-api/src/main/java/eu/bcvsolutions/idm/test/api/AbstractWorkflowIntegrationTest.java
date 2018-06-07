@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFactory;
@@ -14,15 +12,10 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
@@ -47,8 +40,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
 	@Autowired
-	private ModuleService moduleService;
-	@Autowired
 	private LookupService lookupService;
 
     
@@ -65,34 +56,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 		// For catch email
 		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(activityBehaviorFactory);
     }
-	
-	public void loginAsNoAdmin(String user) {
-		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
-			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
-		}).collect(Collectors.toList());
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
-	}
-
-	/**
-	 * Login as user without authorities given in parameter authorities
-	 *
-	 * @param user
-	 * @param authorities
-	 */
-	public void loginWithout(String user, String ...authorities) {
-		Collection<GrantedAuthority> authoritiesWithout = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
-			for (String auth: authorities) {
-				if (auth.equals(authority.getAuthority())) {
-					return false;
-				}
-			}
-			return true;
-		}).collect(Collectors.toList());
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authoritiesWithout, "test"));
-	}
-
 	
     @Override
 	public void loginAsAdmin(String username){

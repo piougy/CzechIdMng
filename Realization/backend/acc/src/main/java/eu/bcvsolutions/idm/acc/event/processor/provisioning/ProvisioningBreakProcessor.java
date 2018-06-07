@@ -147,8 +147,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 				if (breakConfig.getWarningTemplate() == null) {
 					LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
 				} else {
-					template = DtoUtils.getEmbedded(breakConfig,
-							SysProvisioningBreakConfig_.warningTemplate, IdmNotificationTemplateDto.class);				
+					template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.warningTemplate);				
 				}
 				//
 				sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template,
@@ -162,8 +161,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 				if (breakConfig.getWarningTemplate() == null) {
 					LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
 				} else {
-					template = DtoUtils.getEmbedded(breakConfig,
-							SysProvisioningBreakConfig_.disableTemplate, IdmNotificationTemplateDto.class);
+					template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.disableTemplate);
 				}
 				//
 				sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template,

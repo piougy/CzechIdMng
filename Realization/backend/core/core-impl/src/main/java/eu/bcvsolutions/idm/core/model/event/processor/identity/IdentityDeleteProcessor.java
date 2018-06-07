@@ -13,6 +13,8 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -23,9 +25,12 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
@@ -46,48 +51,22 @@ public class IdentityDeleteProcessor
 		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
-	private final IdmIdentityService service;
-	private final IdentityPasswordProcessor passwordProcessor;
-	private final IdmRoleGuaranteeService roleGuaranteeService;
-	private final IdmIdentityContractService identityContractService;
-	private final IdmNotificationRecipientRepository notificationRecipientRepository;
-	private final IdmRoleRequestService roleRequestService;
-	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
-	private final IdmContractGuaranteeService contractGuaranteeService;
-	private final IdmAuthorityChangeRepository authChangeRepository;
+	//
+	@Autowired private IdmIdentityService service;
+	@Autowired private IdentityPasswordProcessor passwordProcessor;
+	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmNotificationRecipientRepository notificationRecipientRepository;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
+	@Autowired private IdmPasswordHistoryService passwordHistoryService;
+	@Autowired private IdmContractSliceService contractSliceService;
+	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	
-	@Autowired
-	public IdentityDeleteProcessor(
-			IdmIdentityService service,
-			IdentityPasswordProcessor passwordProcessor,
-			IdmRoleGuaranteeService roleGuaranteeService,
-			IdmIdentityContractService identityContractService,
-			IdmNotificationRecipientRepository notificationRecipientRepository,
-			IdmRoleRequestService roleRequestService,
-			IdmIdentityRoleValidRequestService identityRoleValidRequestService,
-			IdmAuthorityChangeRepository authChangeRepository,
-			IdmContractGuaranteeService contractGuaranteeService) {
+	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
-		//
-		Assert.notNull(service);
-		Assert.notNull(passwordProcessor);
-		Assert.notNull(roleGuaranteeService);
-		Assert.notNull(identityContractService);
-		Assert.notNull(notificationRecipientRepository);
-		Assert.notNull(roleRequestService);
-		Assert.notNull(identityRoleValidRequestService);
-		Assert.notNull(contractGuaranteeService);
-		Assert.notNull(authChangeRepository);
-		//
-		this.service = service;
-		this.passwordProcessor = passwordProcessor;
-		this.roleGuaranteeService = roleGuaranteeService;
-		this.identityContractService = identityContractService;
-		this.notificationRecipientRepository = notificationRecipientRepository;
-		this.roleRequestService = roleRequestService;
-		this.identityRoleValidRequestService = identityRoleValidRequestService;
-		this.contractGuaranteeService = contractGuaranteeService;
-		this.authChangeRepository = authChangeRepository;
 	}
 	
 	@Override
@@ -98,6 +77,21 @@ public class IdentityDeleteProcessor
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
+		Assert.notNull(identity.getId(), "Identity ID is required!");
+		
+		// delete contract slices
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setIdentity(identity.getId());
+		contractSliceService.find(sliceFilter, null).forEach(guarantee -> {
+			contractSliceService.delete(guarantee);
+		});
+		// delete contract slice guarantees
+		IdmContractSliceGuaranteeFilter sliceGuaranteeFilter = new IdmContractSliceGuaranteeFilter();
+		sliceGuaranteeFilter.setGuaranteeId(identity.getId());
+		contractSliceGuaranteeService.find(sliceGuaranteeFilter, null).forEach(guarantee -> {
+			contractSliceGuaranteeService.delete(guarantee);
+		});
+		
 		// contracts
 		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
 			// when identity is deleted, then HR processes has to be shipped (prevent to update deleted identity, when contract is removed)
@@ -105,7 +99,6 @@ public class IdentityDeleteProcessor
 			properties.put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 			identityContractService.publish(new CoreEvent<>(CoreEventType.DELETE, identityContract, properties));
 		});
-		// contract guaratee - set to null
 		// delete contract guarantees
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
@@ -120,6 +113,8 @@ public class IdentityDeleteProcessor
 		});
 		// remove password
 		passwordProcessor.deletePassword(identity);
+		// delete password history for identity
+		passwordHistoryService.deleteAllByIdentity(identity.getId());
 		// set to null all notification recipients - real recipient remains (email etc.)
 		notificationRecipientRepository.clearIdentity(identity.getId());
 		// remove authorities last changed relation

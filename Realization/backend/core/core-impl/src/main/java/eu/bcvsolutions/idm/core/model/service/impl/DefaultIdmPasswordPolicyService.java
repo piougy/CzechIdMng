@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
@@ -77,31 +78,36 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE = "passwordSimilarFirstNamePreValidate";
 	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
-	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
+	// private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
+	private static final String MAX_HISTORY_SIMILAR = "maxHistorySimilar";
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository repository;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventProcessorService;
 	private final IdmPasswordService passwordService;
+	private final IdmPasswordHistoryService passwordHistoryService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
 			IdmPasswordPolicyRepository repository,
 			EntityEventManager entityEventProcessorService,
 			SecurityService securityService,
-			IdmPasswordService passwordService) {
+			IdmPasswordService passwordService,
+			IdmPasswordHistoryService passwordHistoryService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventProcessorService);
 		Assert.notNull(repository);
 		Assert.notNull(securityService);
 		Assert.notNull(passwordService);
+		Assert.notNull(passwordHistoryService);
 		//
 		this.entityEventProcessorService = entityEventProcessorService;
 		this.repository = repository;
 		this.securityService = securityService;
 		this.passwordService = passwordService;
+		this.passwordHistoryService = passwordHistoryService;
 	}
 	
 	@Override
@@ -117,6 +123,7 @@ public class DefaultIdmPasswordPolicyService
 	public IdmPasswordPolicyDto save(IdmPasswordPolicyDto dto, BasePermission... permission) {
 		Assert.notNull(dto);
 		//
+		// TODO: this should be moved to save internal, can be bypassed by event publishing
 		if (!ObjectUtils.isEmpty(permission)) {
 			IdmPasswordPolicy persistEntity = null;
 			if (dto.getId() != null) {
@@ -127,6 +134,12 @@ public class DefaultIdmPasswordPolicyService
 				}
 			}
 			checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
+		}
+		// Check, if max attempts attribute is defined, then time of blocking must have defined too
+		Integer maxAttempts = dto.getMaxUnsuccessfulAttempts();
+		Integer blockLogin = dto.getBlockLoginTime();
+		if (maxAttempts != null && maxAttempts.intValue() > 0 && (blockLogin == null || blockLogin <= 0)) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED, ImmutableMap.of("definition", dto.getName()));
 		}
 		//
 		LOG.debug("Saving entity [{}]", dto.getName());
@@ -250,10 +263,12 @@ public class DefaultIdmPasswordPolicyService
 			boolean prevalidation) {
 		Assert.notNull(passwordPolicyList);
 		Assert.notNull(passwordValidationDto);
+		
+		// default password policy is used when list of password policies is empty, or for get maximum equals password
+		IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 
 		// if list is empty, get default password policy
 		if (passwordPolicyList.isEmpty() && !prevalidation) {
-			IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			if (defaultPolicy != null) {
 				passwordPolicyList.add(defaultPolicy);
 			}
@@ -300,9 +315,7 @@ public class DefaultIdmPasswordPolicyService
 					: passwordPolicy.getMinRulesToFulfill().intValue();
 
 			// check to max password length
-			if (!isNull(passwordPolicy.getMaxPasswordLength())
-					&& password.length() > passwordPolicy.getMaxPasswordLength()
-					|| !isNull(passwordPolicy.getMaxPasswordLength()) && prevalidation) {
+			if (!isNull(passwordPolicy.getMaxPasswordLength()) && (password.length() > passwordPolicy.getMaxPasswordLength() ||  prevalidation)) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH,
 							Math.min(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
@@ -409,11 +422,6 @@ public class DefaultIdmPasswordPolicyService
 			}
 
 			// TODO: weak words
-
-			// TODO: history similar
-		}
-		if (!specialCharBase.isEmpty()) {
-			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
 		}
 
 		if (!policyNames.isEmpty()) {
@@ -423,6 +431,20 @@ public class DefaultIdmPasswordPolicyService
 
 		if (!prohibitedChar.isEmpty()) {
 			errors.put(COINTAIN_PROHIBITED, prohibitedChar.toString());
+		}
+		
+		// password history. Skip when doesn't exists settings, or identity isn't saved
+		// in some case (tests) are save identity in one transaction and id doesn't exist
+		if (!prevalidation && defaultPolicy != null) {
+			Integer maxHistorySimilar = defaultPolicy.getMaxHistorySimilar();
+			IdmIdentityDto identity = passwordValidationDto.getIdentity();
+			if (maxHistorySimilar != null && identity != null && identity.getId() != null) {
+				boolean checkHistory = passwordHistoryService.checkHistory(passwordValidationDto.getIdentity().getId(), maxHistorySimilar, passwordValidationDto.getPassword());
+				
+				if (checkHistory) {
+					errors.put(MAX_HISTORY_SIMILAR, maxHistorySimilar);
+				}
+			}
 		}
 
 		if (!errors.isEmpty()) {
@@ -536,6 +558,11 @@ public class DefaultIdmPasswordPolicyService
 	 */
 	private boolean isNull(Integer number) {
 		return number == null;
+	}
+	
+	@Override
+	public IdmPasswordPolicyDto getByCode(String code) {
+		return findOneByName(code);
 	}
 
 	@Override

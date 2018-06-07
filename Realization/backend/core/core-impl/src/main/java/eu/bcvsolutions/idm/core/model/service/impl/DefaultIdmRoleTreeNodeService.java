@@ -105,6 +105,7 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
+		// FIXME: this should be in save internal or in save processor ... can be skipped by publishing raw create event
 		if (isNew(roleTreeNode)) { // create
 			// check if exists same entity for roleId, treeNodeId and recursion type
 			IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
@@ -141,11 +142,8 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
-		EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
-		//
-		if (context.isSuspended()) {
-			throw new AcceptedException();
-		}
+		// its asynchronous, but we cannot throw Accepted exception - its called from requests
+		entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
 	}
 	
 	@Override
@@ -179,13 +177,13 @@ public class DefaultIdmRoleTreeNodeService
 
 	@Override
 	public IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.addAutomaticRoles(contract, automaticRoles);
+		this.createIdentityRole(contract, automaticRoles);
 		return null;
 	}
 	
 	@Override
 	public IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.addAutomaticRoles(contract, automaticRoles);
+		this.createIdentityRole(contract, automaticRoles);
 		return null;
 	}
 
@@ -204,6 +202,22 @@ public class DefaultIdmRoleTreeNodeService
 		// @Transactional with required new - this doesn't works with processor
 		// IdentityContractCreateByAutomaticRoleProcessor (some test are not passed)
 		// original method assignAutomaticRoles has also only @Transactional without reguired new
+		createIdentityRole(contract, automaticRoles);
+	}
+
+	@Override
+	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
+		automaticRoleAttributeService.removeAutomaticRoles(identityRole);
+	}
+
+	/**
+	 * Method create identity role and start event with create
+	 * the identity role and skip check authorities.
+	 *
+	 * @param contract
+	 * @param automaticRoles
+	 */
+	private void createIdentityRole(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			// create identity role directly
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
@@ -218,10 +232,5 @@ public class DefaultIdmRoleTreeNodeService
 			event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
 			identityRoleService.publish(event);
 		}
-	}
-
-	@Override
-	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		automaticRoleAttributeService.removeAutomaticRoles(identityRole);
 	}
 }

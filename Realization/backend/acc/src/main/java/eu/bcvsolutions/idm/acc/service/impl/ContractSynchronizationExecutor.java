@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
@@ -228,56 +227,31 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	/**
 	 * Call provisioning for given account
 	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityContractDto entity = null;
-		if (entityId != null) {
-			entity = contractService.get(entityId);
-		}
-		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(entity, entityType, logItem);
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
 	 */
-	@Override
-	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
-			SysSyncItemLogDto logItem) {
-		addToItemLog(logItem,
-				MessageFormat.format(
-						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-						entity.getId(), entity.getPosition()));
-		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
-		// We do not want execute HR processes for every contract. We need start
-		// them for every identity only once.
-		// For this we skip them now. HR processes must be start after whole
-		// sync finished (by using dependent scheduled task)!
-		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
-		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
-
-		entityEventManager.process(event);
-	}
+// TODO: Uncomment after contract will supports provisioning
+//	@Override
+//	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
+//			SysSyncItemLogDto logItem) {
+//		addToItemLog(logItem,
+//				MessageFormat.format(
+//						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
+//						entity.getId(), entity.getPosition()));
+//		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
+//		// We do not want execute HR processes for every contract. We need start
+//		// them for every identity only once.
+//		// For this we skip them now. HR processes must be start after whole
+//		// sync finished (by using dependent scheduled task)!
+//		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+//		//
+//		// We don't want recalculate automatic role by attribute recalculation for every contract.
+//		// Recalculation will be started only once.
+//		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+//
+//		entityEventManager.process(event);
+//	}
 
 	/**
 	 * Operation remove IdentityContractAccount relations and linked roles
@@ -500,7 +474,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, (Serializable) value);
 
 			if (node != null) {
-				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class);
+				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType);
 				context.getLogItem()
 						.addToLog(MessageFormat.format(
 								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
@@ -522,8 +496,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					return null;
 				}
 				IdmTreeNodeFilter treeNodeFilter = new IdmTreeNodeFilter();
-				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType,
-						IdmTreeTypeDto.class);
+				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType);
 				treeNodeFilter.setTreeTypeId(config.getDefaultTreeType());
 				treeNodeFilter.setCode((String) value);
 				context.getLogItem()
@@ -537,15 +510,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
-				} else if (nodes.size() > 1) {
-					context.getLogItem()
-							.addToLog(MessageFormat.format(
-									"Warning - Work position - more then one [{0}] node found for code [{1}]!", value,
-									nodes.size()));
-					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
-							context.getLog(), context.getActionLogs());
-					return null;
-
 				} else {
 					context.getLogItem().addToLog(MessageFormat.format(
 							"Work position - One node [{1}] was found for code [{0}]!", value, nodes.get(0).getId()));

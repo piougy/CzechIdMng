@@ -1,7 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [8.0.0 - unreleased]
+## [8.1.0] - unreleased
+
+- [#1076](https://redmine.czechidm.com/issues/1076) -  Extended form value - added support for ``org.joda.time.LocalDate`` and string in ISO 8601 format as value for DATE or DATETIME persistent type. Persistent type INT, LONG, BOOLEAN - supports setting string value now (default conversions from string representation added ~ the same meaning as``#valueOf(String)``).
+- [#853](https://redmine.czechidm.com/issues/853) - Extended form values without filled values (``null``) are not saved.
+
+
+## [8.0.0]
 
 - [#938](https://redmine.czechidm.com/issues/938) - Requests for automatic assign roles (by tree node or attributes) was implemented.
  - Creating, updating, deleting of the any automatic role **must use** this requests. Requests are approval by "same" workflows as request for roles uses.

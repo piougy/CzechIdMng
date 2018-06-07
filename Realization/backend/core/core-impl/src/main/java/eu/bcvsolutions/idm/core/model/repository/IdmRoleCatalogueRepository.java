@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  */
 public interface IdmRoleCatalogueRepository extends 
 		AbstractEntityRepository<IdmRoleCatalogue>, 
-		BaseForestContentRepository<IdmRoleCatalogue, UUID>  {
+		BaseForestContentRepository<IdmRoleCatalogue, UUID> {
 	
 	IdmRoleCatalogue findOneByCode(@Param("code") String code);
 	

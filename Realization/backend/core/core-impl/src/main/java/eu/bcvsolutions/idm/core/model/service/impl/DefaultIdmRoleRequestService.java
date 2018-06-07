@@ -363,7 +363,7 @@ public class DefaultIdmRoleRequestService
 			// Save created identity role id
 			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
 			String message = MessageFormat.format("Role [{0}] was added to applicant. Requested in concept [{1}].",
 					roleDto.getCode(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
@@ -386,7 +386,7 @@ public class DefaultIdmRoleRequestService
 			// Save created identity role id
 			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
 			String message = MessageFormat.format("Role [{0}] was changed. Requested in concept [{1}].",
 					roleDto.getCode(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
@@ -402,10 +402,10 @@ public class DefaultIdmRoleRequestService
 			// Concepts in concept state will be executed too (for situation, when will be
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).filter(concept -> {
-			return concept.getIdentityRole() != null;
 		}).forEach(concept -> {
+			Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
 			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+			
 			if (identityRole != null) {
 				concept.setState(RoleRequestState.EXECUTED);
 				concept.setIdentityRole(null); // we have to remove relation on
@@ -573,6 +573,7 @@ public class DefaultIdmRoleRequestService
 			WorkflowFilterDto filter = new WorkflowFilterDto();
 			filter.setProcessInstanceId(dto.getWfProcessId());
 
+			@SuppressWarnings("deprecation")
 			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
 					.searchInternal(filter, false).getResources();
 			if (resources.isEmpty()) {
@@ -607,7 +608,7 @@ public class DefaultIdmRoleRequestService
 		//
 		// if exists role tree node, set automatic role
 		if (conceptRole.getAutomaticRole() != null) {
-			identityRole.setAutomaticRole(true);
+			identityRole.setRoleTreeNode(conceptRole.getAutomaticRole());
 		}
 		return identityRole;
 	}

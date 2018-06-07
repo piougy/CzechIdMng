@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -22,6 +23,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -35,12 +38,16 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -50,6 +57,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -64,7 +72,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 
 /**
  * Creates common test entities
@@ -95,6 +105,30 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private FormService formService;
 	@Autowired private IdmFormDefinitionService formDefinitionService;
 	@Autowired private IdmFormAttributeService formAttributeService;
+	@Autowired private LoginService loginService;
+	@Autowired private IdmContractSliceService contractSliceService;
+	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
+	@Autowired private EntityEventManager entityEventManager;
+	
+	@Override
+	public LoginDto loginAdmin() {
+		return loginService.login(new LoginDto(TestHelper.ADMIN_USERNAME, new GuardedString(TestHelper.ADMIN_PASSWORD)));
+	}
+	
+	@Override
+	public LoginDto login(String username, String password) {
+		return loginService.login(new LoginDto(username, new GuardedString(password)));
+	}
+	
+	@Override
+	public void logout() {
+		SecurityContextHolder.clearContext();
+	}
+	
+	@Override
+	public <T extends ReadDtoService<?, ?>> T getService(Class<T> dtoServiceType) {
+		return context.getBean(dtoServiceType);
+	}
 
 	/**
 	 * Creates random unique name
@@ -128,7 +162,11 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity.setPassword(password);
-		return identityService.save(identity);
+		identity = identityService.save(identity);
+		// password is transient, some test except password back in identity
+		identity.setPassword(password);
+		//
+		return identity;
 	}
 
 	@Override
@@ -163,6 +201,11 @@ public class DefaultTestHelper implements TestHelper {
 		treeType.setName(name);
 		return treeTypeService.save(treeType);
 	}
+	
+	@Override
+	public IdmTreeTypeDto getDefaultTreeType() {
+		return treeTypeService.getDefaultTreeType();
+	}
 
 	@Override
 	public IdmTreeNodeDto createTreeNode() {
@@ -171,7 +214,7 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmTreeNodeDto createTreeNode(String name, IdmTreeNodeDto parent) {
-		return createTreeNode(treeTypeService.getDefaultTreeType(), name, parent);
+		return createTreeNode(getDefaultTreeType(), name, parent);
 	}
 
 	@Override
@@ -331,6 +374,33 @@ public class DefaultTestHelper implements TestHelper {
 		contract.setValidTill(validTill);
 		return identityContractService.save(contract);
 	}
+	
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity) {
+		return createContractSlice(identity, null, null, null, null);
+	}
+
+	
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position,
+			LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill) {
+		return createContractSlice(identity, null, position, validFrom, contractValidFrom, contractValidTill);
+	}
+
+	@Override
+	public IdmContractSliceDto createContractSlice(IdmIdentityDto identity, String contractCode,
+			IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill) {
+		IdmContractSliceDto contract = new IdmContractSliceDto();
+		contract.setIdentity(identity.getId());
+		contract.setPosition(createName());
+		contract.setContractCode(contractCode);
+		contract.setWorkPosition(position == null ? null : position.getId());
+		contract.setValidFrom(validFrom);
+		contract.setContractValidFrom(contractValidFrom);
+		contract.setContractValidTill(contractValidTill);
+		return contractSliceService.save(contract);
+	}
+
 
 	@Override
 	public void deleteIdentityContact(UUID id) {
@@ -340,6 +410,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {
 		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
+	}
+	
+	@Override
+	public IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId) {
+		return contractSliceGuaranteeService.save(new IdmContractSliceGuaranteeDto(sliceId, identityId));
 	}
 
 	@Override
@@ -395,10 +470,27 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
+	public void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType) {
+		enableFilter(filterType, true);
+	}
+	
+	@Override
+	public void disableFilter(Class<? extends FilterBuilder<?, ?>> filterType) {
+		enableFilter(filterType, false);
+	}
+	
+	@Override
 	public void setConfigurationValue(String configurationPropertyName, boolean value) {
 		Assert.notNull(configurationPropertyName);
 		//
 		configurationService.setBooleanValue(configurationPropertyName, value);
+	}
+	
+	@Override
+	public void setConfigurationValue(String configurationPropertyName, String value) {
+		Assert.notNull(configurationPropertyName);
+		//
+		configurationService.setValue(configurationPropertyName, value);
 	}
 
 	@Override
@@ -423,11 +515,15 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	private void enableProcessor(Class<? extends EntityEventProcessor<?>> processorType, boolean enabled) {
-		Assert.notNull(processorType);
+		entityEventManager.setEnabled(context.getBean(processorType).getId(), enabled);
+	}
+	
+	private void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType, boolean enabled) {
+		Assert.notNull(filterType);
 		//
-		EntityEventProcessor<?> processor = context.getBean(processorType);
-		Assert.notNull(processor);
-		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		FilterBuilder<?, ?> filter = context.getBean(filterType);
+		Assert.notNull(filter);
+		String enabledPropertyName = filter.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
 		configurationService.setBooleanValue(enabledPropertyName, enabled);
 	}
 

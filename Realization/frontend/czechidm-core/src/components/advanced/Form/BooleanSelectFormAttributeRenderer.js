@@ -2,13 +2,14 @@ import React from 'react';
 //
 import * as Basic from '../../basic';
 import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
+import BooleanFormAttributeRenderer from './BooleanFormAttributeRenderer';
 
 /**
  * Boolean selectbox form value component
  *
  * @author Radek Tomiška
  */
-export default class BooleanSelectFormAttributeRenderer extends AbstractFormAttributeRenderer {
+export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttributeRenderer {
 
   /**
    * Fill form value field by persistent type from input value
@@ -43,12 +44,12 @@ export default class BooleanSelectFormAttributeRenderer extends AbstractFormAttr
     return (
       <Basic.BooleanSelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ attribute.name }
+        label={ this.getLabel() }
         value={ this.toInputValue(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         required={ attribute.required }
-        placeholder={ attribute.placeholder }/>
+        placeholder={ this.getPlaceholder() }/>
     );
   }
 

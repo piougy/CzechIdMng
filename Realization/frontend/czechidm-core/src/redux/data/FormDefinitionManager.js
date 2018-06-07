@@ -1,6 +1,7 @@
 import EntityManager from './EntityManager';
 import { FormDefinitionService } from '../../services';
 import DataManager from './DataManager';
+import * as Utils from '../../utils';
 
 export default class FormDefinitionManager extends EntityManager {
 
@@ -43,5 +44,21 @@ export default class FormDefinitionManager extends EntityManager {
         dispatch(this.receiveError({}, uiKey, error, cb));
       });
     };
+  }
+
+  /**
+   * Returns prefix for localization
+   *
+   * @param  {object} formDefinition
+   * @return {string}
+   */
+  static getLocalizationPrefix(formDefinition, withModule = true) {
+    if (!formDefinition) {
+      return undefined;
+    }
+    const formType = Utils.Ui.spinalCase(formDefinition.type);
+    const formCode = Utils.Ui.spinalCase(formDefinition.code);
+    //
+    return `${withModule ? formDefinition.module + ':' : ''}eav.${formType}.${formCode}`;
   }
 }

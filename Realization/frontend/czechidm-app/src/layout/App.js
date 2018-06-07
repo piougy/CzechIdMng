@@ -125,7 +125,6 @@ export class App extends Basic.AbstractContent {
                 { this.props.children }
               </div>
               {
-                /* TODO: move to redux and hide it, when is needed */
                 !userContext.isExpired && !hideFooter
                 ?
                 <Footer />

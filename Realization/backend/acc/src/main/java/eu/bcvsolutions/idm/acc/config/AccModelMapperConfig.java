@@ -37,8 +37,7 @@ public class AccModelMapperConfig implements ApplicationListener<ContextRefreshe
 		// synchronization item logs list
 		TypeMap<SysSyncLog, SysSyncLogDto> typeMap = modelMapper.getTypeMap(SysSyncLog.class, SysSyncLogDto.class);
 		if (typeMap == null) {
-			modelMapper.createTypeMap(SysSyncLog.class, SysSyncLogDto.class);
-			typeMap = modelMapper.getTypeMap(SysSyncLog.class, SysSyncLogDto.class);
+			typeMap = modelMapper.createTypeMap(SysSyncLog.class, SysSyncLogDto.class);
 			typeMap.addMappings(new PropertyMap<SysSyncLog, SysSyncLogDto>() {
 				
 				@Override

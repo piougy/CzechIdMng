@@ -17,13 +17,15 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * Processor for validating password, when identity is created
+ * Processor for validating password, when identity is created or updated
+ * 
+ * TODO: Rename processor + implement the same processor in acc - password can be changed by IdmIdentityDto ... or ... publish PASSWORD event everytime.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Component
-@Description("Validates identity's password before identity is created.")
+@Description("Validates identity's password before identity is created or updated.")
 public class IdentityCreatePasswordValidateProcessor
 		extends CoreEventProcessor<IdmIdentityDto> 
 		implements IdentityProcessor {
@@ -34,7 +36,7 @@ public class IdentityCreatePasswordValidateProcessor
 	@Autowired
 	public IdentityCreatePasswordValidateProcessor(
 			IdmPasswordPolicyService passwordPolicyService) {
-		super(IdentityEventType.CREATE);
+		super(IdentityEventType.CREATE, IdentityEventType.UPDATE);
 		//
 		Assert.notNull(passwordPolicyService);
 		//

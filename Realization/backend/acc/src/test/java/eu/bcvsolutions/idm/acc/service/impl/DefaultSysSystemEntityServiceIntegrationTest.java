@@ -68,7 +68,7 @@ public class DefaultSysSystemEntityServiceIntegrationTest extends AbstractIntegr
 		account.setSystemEntity(systemEntity.getId());
 		account = accountService.save(account);
 		
-		SysSystemEntityDto systemEntityDto = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
+		SysSystemEntityDto systemEntityDto = DtoUtils.getEmbedded(account, AccAccount_.systemEntity);
 		assertEquals(uid, systemEntityDto.getUid());
 		
 		systemEntityService.delete(systemEntity);

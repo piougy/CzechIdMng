@@ -82,7 +82,7 @@ public class DefaultSysSystemEntityService
 		filter.setEntityType(systemEntityDto.getEntityType());
 		filter.setSystemEntity(systemEntityDto.getId());
 		if (provisioningOperationRepository.find(filter, null).getTotalElements() > 0) {
-			SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system, SysSystemDto.class);
+			SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system);
 			throw new ResultCodeException(AccResultCode.SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS,
 					ImmutableMap.of("uid", systemEntityDto.getUid(), "system", system.getName()));
 		}

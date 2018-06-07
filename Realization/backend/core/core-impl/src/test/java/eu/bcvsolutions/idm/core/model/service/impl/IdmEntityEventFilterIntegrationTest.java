@@ -17,21 +17,21 @@ import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for event filters
  * 
+ * TODO: move to rest test 
+ * 
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private IdmEntityEventService service;
 	
 	@Test
-	@Transactional
 	public void testFindByOwnerId() {
 		UUID ownerOneId = UUID.randomUUID();
 		IdmEntityEventDto entityEventOne = new IdmEntityEventDto();
@@ -62,7 +62,6 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	@Transactional
 	public void testFindByOwnerType() {
 		UUID ownerOneId = UUID.randomUUID();
 		IdmEntityEventDto entityEventOne = new IdmEntityEventDto();
@@ -93,7 +92,6 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	@Transactional
 	public void testFindByCreated() {
 		UUID ownerOneId = UUID.randomUUID();
 		IdmEntityEventDto entityEventOne = new IdmEntityEventDto();
@@ -104,8 +102,6 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 		entityEventOne.setResult(new OperationResultDto(OperationState.BLOCKED));
 		entityEventOne.setPriority(PriorityType.NORMAL);
 		entityEventOne = service.save(entityEventOne);
-		//
-		helper.waitForResult(null, null, 1);
 		//
 		UUID ownerTwoId = UUID.randomUUID();
 		IdmEntityEventDto entityEventTwo = new IdmEntityEventDto();
@@ -136,7 +132,6 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	@Transactional
 	public void testFindByStates() {
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto();
@@ -191,7 +186,6 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	@Transactional
 	public void testFindByParentId() {
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto();
@@ -244,7 +238,6 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	@Transactional
 	public void testFindByPriority() {
 		UUID ownerOneId = UUID.randomUUID();
 		IdmEntityEventDto entityEventOne = new IdmEntityEventDto();

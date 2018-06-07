@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
  * Support for loading {@link BaseDto} and {@link BaseEntity} by identifier.
@@ -18,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
  * 
  * @author Radek Tomiška
  */
-public interface LookupService {
+public interface LookupService extends ScriptEnabled {
 
 	/**
 	 * Returns {@link BaseEntity} by given identifier and type. 

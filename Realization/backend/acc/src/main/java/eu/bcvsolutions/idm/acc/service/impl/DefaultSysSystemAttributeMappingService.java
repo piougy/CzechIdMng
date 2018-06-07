@@ -551,6 +551,6 @@ public class DefaultSysSystemAttributeMappingService
 	}
 	
 	private SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObject) {
-		return DtoUtils.getEmbedded(schemaObject, SysSchemaObjectClass_.system, SysSystemDto.class);
+		return DtoUtils.getEmbedded(schemaObject, SysSchemaObjectClass_.system);
 	}
 }

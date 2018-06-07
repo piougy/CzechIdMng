@@ -1,8 +1,11 @@
-
-
 import { PropTypes } from 'react';
 import * as Basic from '../../basic';
 
+/**
+ * Select box used in filters
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterSelectBox extends Basic.SelectBox {
 
 }

@@ -1,6 +1,6 @@
 {
   "name": "czechidm-acc",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "description": "Module of CzechIdM 2.0 devstack for accounts managment",
   "main": "index.js",
   "scripts": {
@@ -12,5 +12,8 @@
     "IdM"
   ],
   "author": "BCV solutions s.r.o",
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  }
 }

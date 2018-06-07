@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
@@ -32,6 +35,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  *
  * @author Marek Klement
  * @author Radek Tomiška
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Transactional
@@ -43,12 +47,12 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		getHelper().loginAdmin();
 	}
 	
 	@After
-	public void deleteIdentity() {
-		logout();
+	public void logout() {
+		super.logout();
 	}
 
 	@Test
@@ -95,7 +99,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		Page<IdmIdentityDto> result = identityService.find(filter, null);
 		person.setState(IdentityState.DISABLED);
 		identityService.save(person);
-		filter.setDisabled(false);
+		//
 		Page<IdmIdentityDto> result2 = identityService.find(filter, null);
 		int changed = (int) (result.getTotalElements() - result2.getTotalElements());
 		assertEquals("Wrong Disabled",1, changed);
@@ -396,15 +400,117 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		Assert.assertTrue(results.getTotalElements() == 1);
 		Assert.assertEquals(identity.getUsername(), results.getContent().get(0).getUsername());
 	}
+	
+	@Test
+	public void testExternalCodeFilterOne() {
+		String testExternalCode = "externalCodeTest-" + System.currentTimeMillis();
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setExternalCode(testExternalCode);
+		identity = identityService.save(identity);
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setExternalCode("nonExistingCode" + System.currentTimeMillis());
+		List<IdmIdentityDto> content = identityService.find(filter, null).getContent();
+		//
+		assertEquals(0, content.size());
+		filter.setExternalCode(testExternalCode);
+		content = identityService.find(filter, null).getContent();
+		assertEquals(1, content.size());
+		//
+		IdmIdentityDto founded = content.get(0);
+		assertEquals(testExternalCode, founded.getExternalCode());
+		assertEquals(identity.getExternalCode(), founded.getExternalCode());
+		assertEquals(identity.getId(), founded.getId());
+	}
 
-	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){
+	@Test
+	public void testExternalCodeFilterMany() {
+		String testExternalCode = "externalCodeTest-" + System.currentTimeMillis();
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setExternalCode(testExternalCode);
+		identity = identityService.save(identity);
+		//
 		IdmIdentityDto identity2 = helper.createIdentity();
-		identity2.setFirstName(firstName);
-		identity2.setLastName(lastName);
-		identity2.setEmail(email);
-		identity2.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
-		identity2.setPhone(phone);
-		return identityService.save(identity2);
+		identity2.setExternalCode(getHelper().createName());
+		identity2 = identityService.save(identity2);
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setExternalCode(getHelper().createName());
+		List<IdmIdentityDto> content = identityService.find(filter, null).getContent();
+		//
+		assertEquals(0, content.size());
+		filter.setExternalCode(testExternalCode);
+		content = identityService.find(filter, null).getContent();
+		assertEquals(1, content.size());
+		//
+		IdmIdentityDto founded = content.get(0);
+		//
+		assertEquals(testExternalCode, founded.getExternalCode());
+		assertNotEquals(identity2.getId(), founded.getId());
+	}
+
+	@Test
+	public void testIdentifiers() {
+		List<IdmIdentityDto> identities = createIdentities(10);
+		
+		IdmIdentityDto identityOne = identities.get(1);
+		IdmIdentityDto identityTwo = identities.get(2);
+		IdmIdentityDto identityFive = identities.get(5);
+		IdmIdentityDto identityNine = identities.get(9);
+		
+		identityOne.setExternalCode("identityOneExternalCode" + System.currentTimeMillis());
+		
+		identityTwo.setUsername("identityTwoUsername" + System.currentTimeMillis());
+		
+		identityFive.setUsername("identityFiveUsername" + System.currentTimeMillis());
+		identityFive.setExternalCode("identityFiveExternalCode" + System.currentTimeMillis());
+		
+		identityNine.setExternalCode("identityNineExternalCode" + System.currentTimeMillis());
+		identityNine.setUsername("identityNineUsername" + System.currentTimeMillis());
+		
+		identityOne = identityService.save(identityOne);
+		identityTwo = identityService.save(identityTwo);
+		identityFive = identityService.save(identityFive);
+		identityNine = identityService.save(identityNine);
+		
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		List<String> identifiers = new ArrayList<>();
+		
+		identifiers.add(identityOne.getExternalCode());
+		identifiers.add(identityTwo.getUsername());
+		identifiers.add(identityFive.getExternalCode());
+		identifiers.add(identityFive.getUsername());
+		identifiers.add(identityNine.getExternalCode());
+		identifiers.add(identityNine.getUsername());
+		
+		filter.setIdentifiers(identifiers);
+		
+		List<IdmIdentityDto> result = identityService.find(filter, null).getContent();
+		assertEquals(4, result.size());
+	}
+
+	/**
+	 * Create X identities without password
+	 *
+	 * @param count
+	 * @return
+	 */
+	private List<IdmIdentityDto> createIdentities(int count) {
+		List<IdmIdentityDto> identities = new ArrayList<>();
+		for (int index = 0; index < count; index++) {
+			identities.add(getHelper().createIdentity(getHelper().createName(), null));
+		}
+		return identities;
+	}
+	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		identity.setFirstName(firstName);
+		identity.setLastName(lastName);
+		identity.setEmail(email);
+		identity.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
+		identity.setPhone(phone);
+		return identityService.save(identity);
 	}
 
 }

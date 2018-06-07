@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 public enum ExampleGroupPermission implements GroupPermission {
 	
 	EXAMPLEPRODUCT(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
@@ -27,6 +28,7 @@ public enum ExampleGroupPermission implements GroupPermission {
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String EXAMPLE_PRODUCT_ADMIN = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String EXAMPLE_PRODUCT_COUNT = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String EXAMPLE_PRODUCT_AUTOCOMPLETE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String EXAMPLE_PRODUCT_READ = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "READ";
 	public static final String EXAMPLE_PRODUCT_CREATE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "CREATE";

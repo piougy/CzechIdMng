@@ -31,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -118,6 +117,7 @@ import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.filter.impl.IcAndFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;
+import eu.bcvsolutions.idm.ic.filter.impl.IcNotFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcOrFilter;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -256,10 +256,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// List of all accounts keys (used in reconciliation)
 		Set<String> systemAccountsList = new HashSet<>();
 
-		// TODO: Export is not fully implemented (FE, configuration and Groovy
-		// part missing)
-		boolean export = false;
-
 		longRunningTaskExecutor.setCounter(0L);
 
 		try {
@@ -269,12 +265,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// add logs to context
 			context.addLog(log).addActionLogs(actionsLog);
 
-			if (export) {
-				// Start exporting entities to resource
-				log.addToLog("Exporting entities to resource started...");
-				this.startExport(entityType, config, context.getMappedAttributes(), log, actionsLog);
-
-			} else if (config.isCustomFilter() || config.isReconciliation()) {
+			if (config.isCustomFilter() || config.isReconciliation()) {
 				// Custom filter Sync
 				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
 				AttributeMapping tokenAttribute = null;
@@ -496,12 +487,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected boolean handleIcObject(SynchronizationContext itemContext) {
 		Assert.notNull(itemContext);
-
-		String uid = itemContext.getUid();
+		
 		IcConnectorObject icObject = itemContext.getIcObject();
 		AbstractSysSyncConfigDto config = itemContext.getConfig();
 		SysSyncLogDto log = itemContext.getLog();
-		List<SysSyncActionLogDto> actionLogs = itemContext.getActionLogs();
 		AttributeMapping tokenAttribute = itemContext.getTokenAttribute();
 
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
@@ -532,23 +521,14 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		// Save token
 		log.setToken(token);
-		config.setToken(token);
+		if (!config.isReconciliation()) {
+			config.setToken(token);
+		}
 
 		boolean result = startItemSynchronization(itemContext);
-
-		// We reload log (maybe was synchronization canceled)
-		longRunningTaskExecutor.increaseCounter();
-		log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-		if (!log.isRunning()) {
-			result = false;
-		}
-		if (!result) {
-			log.setRunning(false);
-			log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-			addToItemLog(itemLog, "Canceled!");
-			initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log, actionLogs);
-		}
-		return result;
+		// Update (increased counter) and check state of sync (maybe was cancelled from
+		// sync or LRT)
+		return updateAndCheckState(result, log);
 	}
 
 	/**
@@ -652,6 +632,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<AccAccountDto> accounts = accountService.find(accountFilter, null).getContent();
 
 		for (AccAccountDto account : accounts) {
+			if (!log.isRunning()) {
+				return;
+			}
 			String uid = account.getRealUid();
 			if (!allAccountsSet.contains(uid)) {
 				SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
@@ -679,19 +662,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 						result = (boolean) lastResult.getEvent().getProperties()
 								.get(SynchronizationService.RESULT_SYNC_ITEM);
 					}
-
-					// We reload log (maybe was synchronization canceled)
-					log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-					if (!log.isRunning()) {
-						result = false;
-					}
-					if (!result) {
-						log.setRunning(false);
-						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-						addToItemLog(itemLog, "Canceled!");
-						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
-								actionsLog);
-					}
+					// Update (increased counter) and check state of sync (maybe was cancelled from
+					// sync or LRT)
+					updateAndCheckState(result, log);
 
 				} catch (Exception ex) {
 					String message = MessageFormat.format("Reconciliation - error for uid {0}", uid);
@@ -713,44 +686,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				}
 			}
 		}
-	}
-
-	/**
-	 * Start export entities to target resource
-	 * 
-	 * @param entityType
-	 * @param config
-	 * @param mappedAttributes
-	 * @param log
-	 * @param actionsLog
-	 */
-	@Beta
-	protected void startExport(SystemEntityType entityType, AbstractSysSyncConfigDto config,
-			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log,
-			List<SysSyncActionLogDto> actionsLog) {
-
-		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
-		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
-				SysSystemDto.class);
-		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
-				system);
-
-		List<DTO> entities = this.findAll();
-		entities.stream().forEach(entity -> {
-
-			// TODO: evaluate to groovy script
-
-			SynchronizationContext itemBuilder = new SynchronizationContext();
-			itemBuilder.addConfig(config) //
-					.addSystem(system) //
-					.addEntityType(entityType) //
-					.addEntityId(entity.getId()) //
-					.addLog(log) //
-					.addActionLogs(actionsLog);
-			// Start export for this entity
-			exportEntity(itemBuilder, uidAttribute, entity);
-		});
 	}
 
 	/**
@@ -810,18 +745,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				result = (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
 			}
 
-			// We reload log (maybe was synchronization canceled)
-			log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-			if (!log.isRunning()) {
-				result = false;
-			}
-			if (!result) {
-				log.setRunning(false);
-				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-				addToItemLog(itemLog, "Canceled!");
-				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
-						actionsLog);
-			}
+			// Update (increased counter) and check state of sync (maybe was cancelled from
+			// sync or LRT)
+			updateAndCheckState(result, log);
 
 		} catch (Exception ex) {
 			String message = MessageFormat.format("Export - error for entity {0}", entity.getId());
@@ -877,8 +803,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		Assert.notNull(mapping);
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system,
-				SysSystemDto.class);
+		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
 		Assert.notNull(system);
 
 		// System must be enabled
@@ -988,6 +913,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			allowTypes.add(IcFilterBuilder.class);
 			allowTypes.add(IcAttributeImpl.class);
 			allowTypes.add(IcAttribute.class);
+			allowTypes.add(IcNotFilter.class);
 			Object filterObj = groovyScriptService.evaluate(filterScript, variables, allowTypes);
 			if (filterObj != null && !(filterObj instanceof IcFilter)) {
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE,
@@ -1197,8 +1123,43 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected abstract void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs);
+	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
+		UUID entityId = getEntityByAccount(account.getId());
+		DTO entity = null;
+		if (entityId != null) {
+			entity = getService().get(entityId);
+		}
+		if (entity == null) {
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		if (this.isProvisioningImplemented(entityType, logItem)) {
+			// Call provisioning for this entity
+			callProvisioningForEntity(entity, entityType, logItem);
+		}
+	}
+
+	/**
+	 * Check if is supported provisioning for given entity type.
+	 * 
+	 * @param entityType
+	 * @param logItem
+	 * @return
+	 */
+	protected boolean isProvisioningImplemented(SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		if (entityType != null && entityType.isSupportsProvisioning()) {
+			return true;
+		}
+		if (entityType != null) {
+			logItem.addToLog(MessageFormat
+					.format("Warning! - Provisioning for this entity type [{0}] is not supported!", entityType.name()));
+		}
+		return false;
+
+	}
 
 	/**
 	 * Call provisioning for given account
@@ -1207,7 +1168,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected abstract void callProvisioningForEntity(DTO dto, SystemEntityType entityType, SysSyncItemLogDto logItem);
+	protected void callProvisioningForEntity(DTO dto, SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		throw new UnsupportedOperationException("Call provisioning method is not implemented!");
+	}
 
 	/**
 	 * Create new instance of ACC account
@@ -1263,8 +1226,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 		}
 
-		// Call provisioning for entity
-		this.callProvisioningForEntity(entity, entityType, logItem);
+		if (this.isProvisioningImplemented(entityType, logItem)) {
+			// Call provisioning for this entity
+			callProvisioningForEntity(entity, entityType, logItem);
+		}
 	}
 
 	/**
@@ -1314,7 +1279,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entity != null) {
 			// Update entity
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
-			this.save(entity, true);
+			entity = this.save(entity, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
 			// Update confidential attribute (entity must be persisted
@@ -1327,12 +1292,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 			}
 
-			// Call provisioning for entity
-			this.callProvisioningForEntity(entity, context.getEntityType(), logItem);
+			SystemEntityType entityType = context.getEntityType();
+			if (this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(entity, entityType, logItem);
+			}
 
 			return;
 		} else {
-			addToItemLog(logItem, "Entity-account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity-account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -1967,7 +1935,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionLogs
 	 * @return
 	 */
-	protected UUID getEntityByAccount(UUID accountId) {
+	@Override
+	public UUID getEntityByAccount(UUID accountId) {
 		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
 		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
@@ -2064,8 +2033,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		logItem.setIdentification(entityAccount.getId().toString());
 
 		if (callProvisioning) {
-			// Call provisioning for this identity
-			callProvisioningForEntity(dto, entityType, logItem);
+			if (this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(dto, entityType, logItem);
+			}
 		}
 	}
 
@@ -2092,7 +2063,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entity = this.getEntityByAccount(account.getId());
 		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -2131,6 +2102,28 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return null;
 		}
 		return optional.get();
+	}
+
+	/**
+	 * Update (increased counter) and check state of sync (maybe was cancelled from
+	 * sync or LRT)
+	 * 
+	 * @param result
+	 * @param log
+	 */
+	private boolean updateAndCheckState(boolean result, SysSyncLogDto log) {
+		// We reload log (maybe was synchronization canceled)
+		log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
+		longRunningTaskExecutor.increaseCounter();
+		boolean lrtResult = longRunningTaskExecutor.updateState();
+		if (!log.isRunning() || !lrtResult) {
+			result = false;
+		}
+		if (!result) {
+			log.setRunning(false);
+			log.addToLog("Synchronization canceled!");
+		}
+		return result;
 	}
 
 	/**
@@ -2200,7 +2193,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			String tokenObject = token.getValue() != null ? token.getValue().toString() : null;
 			// Save token
 			log.setToken(tokenObject);
-			config.setToken(tokenObject);
+			if (!config.isReconciliation()) {
+				config.setToken(tokenObject);
+			}
 			//
 			if (config.isReconciliation()) {
 				systemAccountsList.add(uid);
@@ -2216,20 +2211,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			boolean result = startItemSynchronization(itemContext);
 
-			// We reload log (maybe was synchronization canceled)
-			log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-			longRunningTaskExecutor.increaseCounter();
-			if (!log.isRunning()) {
-				result = false;
-			}
-			if (!result) {
-				log.setRunning(false);
-				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
-				addToItemLog(itemLog, "Canceled!");
-				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
-						itemContext.getActionLogs());
-			}
-			return result;
+			// Update (increased counter) and check state of sync (maybe was cancelled from
+			// sync or LRT)
+			return updateAndCheckState(result, log);
 
 		}
 	}

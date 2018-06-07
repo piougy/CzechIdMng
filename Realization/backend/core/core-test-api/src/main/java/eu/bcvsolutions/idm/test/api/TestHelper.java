@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -25,7 +27,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -34,6 +38,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
@@ -45,7 +50,39 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 public interface TestHelper {
 	
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
+	String ADMIN_USERNAME = "admin";
+	String ADMIN_PASSWORD = "admin";
 	String DEFAULT_PASSWORD = "password";
+	String HAL_CONTENT_TYPE = "application/hal+json";
+	
+	/**
+	 * Login as test admin
+	 *  
+	 * @return
+	 */
+	LoginDto loginAdmin();
+	
+	/**
+	 * Login as given identity.
+	 * Identity has to exists, assigned identity roles and permissions will be used.
+	 * 
+	 * @param username
+	 * @param password
+	 */
+	LoginDto login(String username, String password);
+	
+	/**
+	 * Logout current logged identity ~ clear secutity context
+	 */
+	void logout();
+	
+	/**
+	 * Get dto service from context
+	 * 
+	 * @param dtoServiceType
+	 * @return
+	 */
+	<T extends ReadDtoService<?, ?>> T getService(Class<T> dtoServiceType);
 
 	/**
 	 * Creates random unique name
@@ -55,14 +92,16 @@ public interface TestHelper {
 	String createName();
 
 	/**
-	 * Creates test identity with random username  and default "password"
+	 * Creates test identity with random username  and default "password".
+	 * The password is set back to identity after save.
 	 *
 	 * @return
 	 */
 	IdmIdentityDto createIdentity();
 
 	/**
-	 * Creates test identity with given username and default "password"
+	 * Creates test identity with given username and default "password".
+	 * The password is set back to identity after save.
 	 *
 	 * @param username
 	 * @return
@@ -70,7 +109,8 @@ public interface TestHelper {
 	IdmIdentityDto createIdentity(String username);
 	
 	/**
-	 * Creates test identity with random username and given password
+	 * Creates test identity with random username and given password.
+	 * The password is set back to identity after save.
 	 *
 	 * @param password [optional] when password is not given, then identity password will not be saved - useful when password is not needed
 	 * @return
@@ -78,7 +118,8 @@ public interface TestHelper {
 	IdmIdentityDto createIdentity(GuardedString password);
 	
 	/**
-	 * Creates test identity given username and given password
+	 * Creates test identity given username and given password.
+	 * The password is set back to identity after save.
 	 *
 	 * @param username
 	 * @param password [optional] when password is not given, then identity password will not be saved - usefull when password is not needed
@@ -129,6 +170,13 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmTreeTypeDto createTreeType(String code);
+	
+	/**
+	 * Returns configured default tree type.
+	 * 
+	 * @return
+	 */
+	IdmTreeTypeDto getDefaultTreeType();
 
 	/**
 	 * Creates tree node with random name and code
@@ -306,7 +354,41 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
+	
+	/**
+	 * Creates simple identity contract slice
+	 *
+	 * @param identity
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity);
+	
+	/**
+	 * Creates identity contract slice on given position
+	 * 
+	 * @param identity
+	 * @param position
+	 * @param validFrom
+	 * @param contractValidFrom
+	 * @param contractValidTill
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
 
+	/**
+	 *  Creates identity contract slice on given position
+	 *  
+	 * @param identity
+	 * @param contractCode
+	 * @param position
+	 * @param validFrom
+	 * @param contractValidFrom
+	 * @param contractValidTill
+	 * @return
+	 */
+	IdmContractSliceDto createContractSlice(IdmIdentityDto identity, String contractCode, IdmTreeNodeDto position,
+			LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
+	
 	/**
 	 * Creates identity contract on given position
 	 *
@@ -342,6 +424,15 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
+	
+	/**
+	 * Creates identity contract's guarantee slice
+	 *
+	 * @param identityContractId
+	 * @param identityId
+	 * @return
+	 */
+	IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId);
 
 	/**
 	 * Assign roles through role request (manual, execute immediately)
@@ -392,6 +483,14 @@ public interface TestHelper {
 	 * @param configurationPropertyName
 	 */
 	void setConfigurationValue(String configurationPropertyName, boolean value);
+	
+	/**
+	 * Sets configuration value
+	 * 
+	 * @param configurationPropertyName
+	 * @param value
+	 */
+	void setConfigurationValue(String configurationPropertyName, String value);
 
 	/**
 	 * Enables given processor
@@ -406,6 +505,20 @@ public interface TestHelper {
 	 * @param processorType
 	 */
 	void disable(Class<? extends EntityEventProcessor<?>> processorType);
+	
+	/**
+	 * Enables given filter
+	 *
+	 * @param processorType
+	 */
+	void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType);
+
+	/**
+	 * Disables given filter
+	 *
+	 * @param processorType
+	 */
+	void disableFilter(Class<? extends FilterBuilder<?, ?>> filterType);
 
 	/**
 	 * Wait for result - usable for asynchronous tests
@@ -473,4 +586,6 @@ public interface TestHelper {
 	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
 			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
 			UUID formAttrId, String value);
+
+
 }

@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 
 import com.google.common.collect.Lists;
@@ -40,7 +39,6 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.event.ConditionalContent;
 import eu.bcvsolutions.idm.core.event.TestContent;
 import eu.bcvsolutions.idm.core.event.TestContentTwo;
@@ -49,7 +47,6 @@ import eu.bcvsolutions.idm.core.event.domain.MockOwner;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
-import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -63,10 +60,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 
 	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
-	@Autowired private ApplicationEventPublisher publisher;
-	@Autowired private EnabledEvaluator enabledEvaluator;
-	@Autowired private LookupService lookupService;
-	@Autowired private IdmIdentityService identityService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmEntityEventService entityEventService;
 
@@ -79,7 +72,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
-		entityEventManager = new DefaultEntityEventManager(context, publisher, enabledEvaluator, lookupService);
+		entityEventManager = context.getAutowireCapableBeanFactory().createBean(DefaultEntityEventManager.class);
 	}
 	
 	@After 
@@ -169,7 +162,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	public void testOriginalSource() {
 		IdmIdentityDto createdIdentity = helper.createIdentity();
 		// process change
-		IdmIdentityDto updateIdentity = identityService.get(createdIdentity.getId());
+		IdmIdentityDto updateIdentity = helper.getService(IdmIdentityService.class).get(createdIdentity.getId());
 		updateIdentity.setFirstName("newFirst");
 		updateIdentity.setLastName("newLast");
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(IdentityEventType.UPDATE, updateIdentity);
@@ -319,6 +312,23 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			entityEventService.delete(events.get(9)); // the last one
 			helper.setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			helper.enable(EntityEventDeleteExecutedProcessor.class);
+		}
+	}
+	
+	@Test
+	public void testEnableDisableProcessorById() {
+		EntityEventProcessorDto processor = entityEventManager.get(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
+		//
+		try {
+			Assert.assertNotNull(processor);
+			Assert.assertFalse(processor.isDisabled());
+			//
+			entityEventManager.disable(processor.getId());
+			//
+			processor = entityEventManager.get(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
+			Assert.assertTrue(processor.isDisabled());
+		} finally {
+			entityEventManager.enable(processor.getId());
 		}
 	}
 }

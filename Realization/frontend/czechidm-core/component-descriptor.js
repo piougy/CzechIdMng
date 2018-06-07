@@ -30,6 +30,13 @@ module.exports = {
       'component': require('./src/content/dashboards/ProfileDashboard')
     },
     {
+      'id': 'long-running-task-dashboard',
+      'type': 'dashboard',
+      'span': '12',
+      'order': '50',
+      'component': require('./src/content/dashboards/LongRunningTaskDashboard')
+    },
+    {
       'id': 'password-change-content',
       'priority': 0,
       'component': require('./src/content/identity/PasswordChangeContent')
@@ -82,6 +89,13 @@ module.exports = {
       'entityType': ['contract', 'identityContract', 'IdmIdentityContract', 'IdmIdentityContractDto'],
       'component': require('./src/components/advanced/IdentityContractInfo/IdentityContractInfo').default,
       'manager': require('./src/redux').IdentityContractManager
+    },
+    {
+      'id': 'contract-slice-info',
+      'type': 'entity-info',
+      'entityType': ['contractSlice', 'contractSlice', 'IdmContractSlice', 'IdmContractSliceDto'],
+      'component': require('./src/components/advanced/ContractSliceInfo/ContractSliceInfo').default,
+      'manager': require('./src/redux').ContractSliceManager
     },
     {
       'id': 'text-form-value',
@@ -200,16 +214,18 @@ module.exports = {
       'type': 'form-attribute-renderer',
       'persistentType': 'UUID',
       'faceType': 'IDENTITY-SELECT',
-      'component': require('./src/components/advanced/Form/IdentitySelectFormAttributeRenderer'),
-      'labelKey': 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT'
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT',
+      'manager': require('./src/redux').IdentityManager
     },
     {
       'id': 'role-select-form-value',
       'type': 'form-attribute-renderer',
       'persistentType': 'UUID',
       'faceType': 'ROLE-SELECT',
-      'component': require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
-      'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT'
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.ROLE-SELECT',
+      'manager': require('./src/redux').RoleManager
     },
     {
       'id': 'boolean-select-form-value',

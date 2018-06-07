@@ -9,10 +9,12 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.example.domain.ExampleGroupPermission;
+import eu.bcvsolutions.idm.example.domain.ExampleResultCode;
 
 /**
  * Example module descriptor
@@ -56,5 +58,10 @@ public class ExampleModuleDescriptor extends PropertyModuleDescriptor {
 	@Override
 	public List<GroupPermission> getPermissions() {
 		return Arrays.asList(ExampleGroupPermission.values());
+	}
+
+	@Override
+	public List<ResultCode> getResultCodes() {
+		return Arrays.asList(ExampleResultCode.values());
 	}
 }

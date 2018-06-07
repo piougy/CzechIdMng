@@ -108,7 +108,7 @@ public class DefaultSysRoleSystemAttributeService extends
 			if (list.size() > 0 && !list.get(0).getId().equals(dto.getId())) {
 				SysRoleSystemDto roleSystem = roleSystemService.get(dto.getRoleSystem());
 				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
-				SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system, SysSystemDto.class);
+				SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
 						ImmutableMap.of("role", roleDto.getName(), "system", systemDto.getName()));
 			}
@@ -138,7 +138,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		// TODO: move to filter and use distinct
 		List<IdmIdentityDto> identities = new ArrayList<>();
 		identityAccounts.stream().forEach(identityAccount -> {
-			if (!identities.contains(identityAccount.getIdentity())) {
+			if (!identities.contains(new IdmIdentityDto(identityAccount.getIdentity()))) {
 				// TODO: embedded
 				identities.add(identityService.get(identityAccount.getIdentity()));
 			}

@@ -309,7 +309,7 @@ public class DefaultFormService implements FormService {
 		//
 		List<IdmFormValueDto> results = new ArrayList<>();
 		for (IdmFormValueDto value : values) {
-			// value could contant attribute id only
+			// value could contain attribute id only
 			UUID attributeId = value.getFormAttribute();
 			Assert.notNull(attributeId, "Form attribute is required");
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(attributeId);
@@ -319,21 +319,29 @@ public class DefaultFormService implements FormService {
 			//
 			IdmFormValueDto previousValue = value.getId() == null ? null : previousValues.get(value.getId());
 			if (previousValue != null) {
-				// saved values will not be removed
-				previousValues.remove(value.getId());
 				// the same value should not be updated
 				// confidential value is always updated - only new values are sent from client
-				if (value.isConfidential() || !value.isEquals(previousValue)) {
-					// update value
-					results.add(formValueService.save(value));
-					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(),
-							ownerEntity);
+				if (value.isConfidential() || !value.isNull()) {
+					// saved values will not be removed
+					previousValues.remove(value.getId());
+					//
+					if (value.isConfidential() || !value.isEquals(previousValue)) {
+						// update value
+						results.add(formValueService.save(value));
+						LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(),
+								ownerEntity);
+					}
+				} else {
+					// null value will be removed by previousValues set on the end
 				}
 			} else {
-				// create new value
-				results.add(formValueService.save(value));
-				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(),
-						ownerEntity);
+				// new value
+				if (!value.isNull()) {
+					// create new value
+					results.add(formValueService.save(value));
+					LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(),
+							ownerEntity);
+				}
 			}
 		}
 		//
@@ -409,12 +417,12 @@ public class DefaultFormService implements FormService {
 		}
 
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
-
-		// get old values
-		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, attribute);
+		//
+		// get previous (old) values
+		List<IdmFormValueDto> previousValues = formValueService.getValues(ownerEntity, attribute);
 
 		// size isn't same drop and create
-		if (values.size() != persistentValues.size()) {
+		if (previousValues.size() != persistentValues.size()) {
 			deleteValues(owner, attribute);
 			// create
 			List<IdmFormValueDto> results = new ArrayList<>();
@@ -424,7 +432,9 @@ public class DefaultFormService implements FormService {
 				//
 				value.setValue(persistentValues.get(seq));
 				value.setSeq(seq);
-				results.add(formValueService.save(value));
+				if (!value.isNull()) { // null values are not saved
+					results.add(formValueService.save(value));
+				}
 			}
 			;
 			//
@@ -433,15 +443,22 @@ public class DefaultFormService implements FormService {
 
 		// compare values
 		List<IdmFormValueDto> results = new ArrayList<>();
-		for (IdmFormValueDto value : values) {
+		for (IdmFormValueDto previousValue : previousValues) {
 			IdmFormValueDto newValue = new IdmFormValueDto();
 			newValue.setOwnerAndAttribute(ownerEntity, attribute);
-			Serializable serializableValue = persistentValues.get(value.getSeq());
+			Serializable serializableValue = persistentValues.get(previousValue.getSeq());
 			newValue.setValue(serializableValue);
-
-			if (!value.isEquals(newValue)) {
-				value.setValue(serializableValue);
-				results.add(formValueService.save(value));
+			//
+			// we using filled value only and set her into previous value => value id is preserved 
+			if (!previousValue.isEquals(newValue)) {
+				previousValue.setValue(serializableValue);
+				// attribute persistent type could be changed
+				previousValue.setOwnerAndAttribute(ownerEntity, attribute);
+				if (!previousValue.isNull()) { // null values are not saved
+					results.add(formValueService.save(previousValue));
+				} else {
+					formValueService.delete(previousValue);
+				}
 			}
 		}
 		return results;

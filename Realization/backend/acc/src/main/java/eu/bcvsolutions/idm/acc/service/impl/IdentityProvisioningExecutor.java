@@ -143,7 +143,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = new ArrayList<>();
 
 		idenityAccoutnList.stream().filter(ia -> {
-			AccAccountDto account = DtoUtils.getEmbedded((AccIdentityAccountDto)ia, AccIdentityAccount_.account, AccAccountDto.class);
+			AccAccountDto account = DtoUtils.getEmbedded((AccIdentityAccountDto)ia, AccIdentityAccount_.account);
 			return ((AccIdentityAccountDto)ia).getIdentityRole() != null && account.getSystem() != null
 					&& account.getSystem().equals(system.getId())
 					&& ia.isOwnership();
@@ -151,8 +151,8 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			AbstractDto identityAccount = (AbstractDto) identityAccountInner;
 			// All identity account with same system and with filled
 			// identityRole
-			AccAccountDto account = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account, AccAccountDto.class);
-			IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identityRole, IdmIdentityRoleDto.class);
+			AccAccountDto account = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account);
+			IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.identityRole);
 			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 			roleSystemFilter.setRoleId(identityRole.getRole());
 			roleSystemFilter.setSystemId(account.getSystem());
@@ -161,7 +161,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			if (roleSystems.size() > 1) {
 				SysRoleSystemDto roleSystem = roleSystems.get(0);
 				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
-				SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system, SysSystemDto.class);
+				SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_DUPLICATE_ROLE_MAPPING,
 						ImmutableMap.of("role", roleDto.getName(), "system",
 								systemDto.getName(), "entityType", entityType));

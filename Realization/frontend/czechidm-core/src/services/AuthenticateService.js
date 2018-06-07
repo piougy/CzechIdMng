@@ -125,6 +125,13 @@ export default class AuthenticateService {
   }
 
   /**
+   * Returns token expiration - iso date time format
+   */
+  static getTokenExpiration(decodedToken) {
+    return decodedToken.exp;
+  }
+
+  /**
    * Decodes JWT token as a plain JSON object.
    * @return {object} decoded token
    */

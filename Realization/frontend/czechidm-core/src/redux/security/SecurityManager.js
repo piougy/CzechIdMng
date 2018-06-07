@@ -465,6 +465,15 @@ export default class SecurityManager {
       }
     };
   }
+
+  static getTokenExpiration(userContext = null) {
+    if (!userContext) {
+      userContext = AuthenticateService.getUserContext();
+    }
+    const decodedToken = AuthenticateService.decodeToken(userContext.tokenCIDMST);
+    //
+    return AuthenticateService.getTokenExpiration(decodedToken);
+  }
 }
 
 SecurityManager.ADMIN_PERMISSION = ADMIN_PERMISSION;

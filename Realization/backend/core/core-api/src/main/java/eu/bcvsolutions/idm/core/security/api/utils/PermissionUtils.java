@@ -50,7 +50,7 @@ public abstract class PermissionUtils {
 				|| permissions.containsAll(
 						Arrays
 							.stream(permission)
-							.map(Object::toString)
+							.map(BasePermission::getName)
 							.collect(Collectors.toList()));
 	}
 	
@@ -65,7 +65,7 @@ public abstract class PermissionUtils {
 		return permissions.contains(IdmBasePermission.ADMIN.getName()) // admin - wildcard
 				|| Arrays
 					.stream(permission)
-					.map(Object::toString)
+					.map(BasePermission::getName)
 					.anyMatch(singlePermission -> {
 						return permissions.contains(singlePermission);
 					});
@@ -83,7 +83,7 @@ public abstract class PermissionUtils {
 		}
 		return permissions
 				.stream()
-				.map(Object::toString)
+				.map(BasePermission::getName)
 				.collect(Collectors.toSet());
 	}
 }

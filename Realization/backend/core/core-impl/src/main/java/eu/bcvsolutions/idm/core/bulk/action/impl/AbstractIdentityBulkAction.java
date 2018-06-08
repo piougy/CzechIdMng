@@ -66,7 +66,7 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 		description.append(longRunningTask.getTaskDescription());
 		//
 		List<UUID> identities = null;
-		if (action.getIdentifiers() != null) {
+		if (!action.getIdentifiers().isEmpty()) {
 			identities = new ArrayList<UUID>(action.getIdentifiers());
 			//
 			description.append(System.lineSeparator());
@@ -83,7 +83,7 @@ public abstract class AbstractIdentityBulkAction extends AbstractBulkAction<IdmI
 		}
 		//
 		// remove given ids
-		if (action.getRemoveIdentifiers() != null && !action.getRemoveIdentifiers().isEmpty()) {
+		if (!action.getRemoveIdentifiers().isEmpty()) {
 			identities.removeAll(action.getRemoveIdentifiers());
 		}
 		//

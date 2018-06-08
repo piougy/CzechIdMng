@@ -66,17 +66,17 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 	public void validate() {
 		Assert.notNull(action, "Action can't be null");
 		//
-		if (action.getIdentifiers() == null && action.getFilter() == null) {
+		if (action.getIdentifiers().isEmpty() && action.getFilter() == null) {
 			throw new ResultCodeException(CoreResultCode.BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED);
 		}
 		//
-		if (action.getIdentifiers() != null && action.getFilter() != null) {
+		if (!action.getIdentifiers().isEmpty() && action.getFilter() != null) {
 			throw new ResultCodeException(CoreResultCode.BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED);
 		}
 		//
 		for (IdmFormAttributeDto attribute : this.getFormAttributes()) {
 			if (attribute.isRequired()) {
-				if (action.getProperties() == null) {
+				if (action.getProperties().isEmpty()) {
 					// this state is also possible
 					throw new ResultCodeException(CoreResultCode.BULK_ACTION_REQUIRED_PROPERTY, ImmutableMap.of("attributeCode", attribute.getCode()));
 				}
@@ -97,9 +97,6 @@ public abstract class AbstractBulkAction<DTO extends BaseDto>
 	@Override
 	public Map<String, Object> getProperties() {
 		if (this.getAction() == null) {
-			return super.getProperties();
-		}
-		if (this.getAction().getProperties() == null) {
 			return super.getProperties();
 		}
 		return this.getAction().getProperties();

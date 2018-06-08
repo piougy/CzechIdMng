@@ -33,6 +33,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
@@ -600,6 +601,14 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return String.format("%s/%s/permissions", getBaseUrl(), backendId);
 	}
 	
+	protected String getBulkActionsUrl() {
+		return String.format("%s/bulk/actions", getBaseUrl());
+	}
+	
+	protected String getBulkActionUrl() {
+		return String.format("%s/bulk/action", getBaseUrl());
+	}
+	
 	protected String getResourcesName() {
 		Relation mapping = getController().getDtoClass().getAnnotation(Relation.class);
 		if (mapping == null) {
@@ -676,6 +685,61 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return results;
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed parse entities from list response", ex);
+		}
+	}
+	
+	protected DTO toDto(String response) {
+		try {
+			JsonNode json = getController().getMapper().readTree(response);
+			//
+			return getController().getMapper().convertValue(json, getController().getDtoClass());
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed parse entity from response", ex);
+		}
+	}
+	
+	/**
+	 * Returns available bulk actions for admin
+	 * 
+	 * @return
+	 */
+	protected List<IdmBulkActionDto> getAvailableBulkActions() {
+		try {
+			String response = getMockMvc().perform(get(getBulkActionsUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return getController().getMapper().readValue(response, new TypeReference<List<IdmBulkActionDto>>(){});
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to get available bulk actions", ex);
+		}
+	}
+	
+	/**
+	 * Execute bulk action
+	 * 
+	 * @param action
+	 * @return
+	 */
+	protected IdmBulkActionDto bulkAction(IdmBulkActionDto action) {
+		try {
+			String response = getMockMvc().perform(post(getBulkActionUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.content(getController().getMapper().writeValueAsString(action))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isCreated())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return getController().getMapper().readValue(response, IdmBulkActionDto.class);
+			// TODO: look out - READ_ONLY fields are not mapped
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to execute bulk action [" + action.getName() + "]", ex);
 		}
 	}
 }

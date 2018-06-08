@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -24,6 +27,8 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Implementation of manager for bulk action
@@ -70,13 +75,13 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		action.setFilterClass(executor.getFilterClass());
 		action.setModule(executor.getModule());
 		action.setFormAttributes(executor.getFormAttributes());
-		action.setPermissions(executor.getPermissions());
+		//
+		action.setPermissions(toString(executor.getPermissions()));
 		return action;
 	}
 	
 	@Override
-	public List<IdmBulkActionDto> getAvailableActions(
-			Class<? extends BaseEntity> entity) {
+	public List<IdmBulkActionDto> getAvailableActions(Class<? extends BaseEntity> entity) {
 		List<AbstractBulkAction<? extends BaseDto>> actions = pluginExecutors.getPluginsFor(entity);
 		//
 		List<IdmBulkActionDto> result = new ArrayList<>();
@@ -91,7 +96,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 			actionDto.setModule(action.getModule());
 			actionDto.setName(action.getName());
 			actionDto.setFormAttributes(action.getFormAttributes());
-			actionDto.setPermissions(action.getPermissions());
+			actionDto.setPermissions(toString(action.getPermissions()));
 			result.add(actionDto);
 		}
 		return result;
@@ -118,4 +123,11 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
 	}
 
+	private Map<String, String[]> toString(Map<String, BasePermission[]> permissions) {
+		Map<String, String[]> results = new HashMap<>();
+		permissions.entrySet().forEach(entry -> {
+			results.put(entry.getKey(), PermissionUtils.toString(Arrays.asList(entry.getValue())).toArray(new String[]{}));
+		});
+		return results;
+	}
 }

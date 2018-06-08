@@ -11,7 +11,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -240,7 +239,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Resource<IdmBulkActionDto> bulkAction(IdmBulkActionDto bulkAction) {
+	public ResponseEntity<IdmBulkActionDto> bulkAction(IdmBulkActionDto bulkAction) {
 		// TODO: use MultiValueMap in object if is possible?
 		if (bulkAction.getFilter() != null) {
 			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
@@ -259,7 +258,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		}
 		bulkAction.setEntityClass(getService().getEntityClass().getName());
 		bulkAction.setFilterClass(this.getFilterClass().getName());
-		return new Resource<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction));
+		return new ResponseEntity<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction), HttpStatus.CREATED);
 	}
 
 	/**

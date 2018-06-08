@@ -1,3 +1,10 @@
+/**
+ * Module API
+ *
+ * import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
+ *
+ * @author Radek Tomiška
+ */
 import * as Basic from './src/components/basic';
 import * as Advanced from './src/components/advanced';
 import * as Services from './src/services';

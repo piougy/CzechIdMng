@@ -348,6 +348,34 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
+	public void testCreatedEventsDontRemoveDuplicatesWithDifferentPerentEventType() {
+		DateTime created = new DateTime();
+		UUID ownerId = UUID.randomUUID();
+		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
+		highEventOne.setCreated(created.minusMillis(11));
+		highEventOne.setPriority(PriorityType.HIGH);
+		highEventOne.setOwnerId(ownerId);	
+		highEventOne.setParentEventType("one");
+		//
+		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
+		highEventTwo.setCreated(created.minusMillis(21));
+		highEventTwo.setPriority(PriorityType.HIGH);
+		highEventTwo.setOwnerId(ownerId);		
+		highEventTwo.setParentEventType("one");
+		//
+		IdmEntityEventDto highEventThree = new IdmEntityEventDto(UUID.randomUUID());
+		highEventThree.setCreated(created.minusMillis(2));
+		highEventThree.setPriority(PriorityType.HIGH);
+		highEventThree.setOwnerId(ownerId);	
+		highEventThree.setParentEventType("two");
+		//
+		Assert.assertTrue(eventManager.isDuplicate(highEventOne, highEventOne));
+		Assert.assertTrue(eventManager.isDuplicate(highEventOne, highEventTwo));
+		Assert.assertFalse(eventManager.isDuplicate(highEventOne, highEventThree));
+		Assert.assertFalse(eventManager.isDuplicate(highEventTwo, highEventThree));
+	}
+	
+	@Test
 	public void testCreatedEventsRemoveDuplicatesByProps() {
 		List<IdmEntityEventDto> highEvents = new ArrayList<>();
 		DateTime created = new DateTime();

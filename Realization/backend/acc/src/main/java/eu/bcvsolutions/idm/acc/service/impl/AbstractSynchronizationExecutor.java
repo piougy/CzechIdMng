@@ -1153,10 +1153,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entityType != null && entityType.isSupportsProvisioning()) {
 			return true;
 		}
-		if (entityType != null) {
-			logItem.addToLog(MessageFormat
-					.format("Warning! - Provisioning for this entity type [{0}] is not supported!", entityType.name()));
-		}
 		return false;
 
 	}

@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
@@ -195,34 +196,31 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 		log = synchronizationLogService.save(log);
-		
+
 		if (getConfig(context).isStartOfHrProcesses()) {
 			// start all HR process with skip automatic role recalculation
 			// Enable contracts task
 			log = executeHrProcess(log, new HrEnableContractProcess(true));
-			
+
 			// End contracts task
 			log = executeHrProcess(log, new HrEndContractProcess(true));
-			
+
 			// Exclude contracts task
 			log = executeHrProcess(log, new HrContractExclusionProcess(true));
 		} else {
-			log.addToLog(MessageFormat.format(
-					"Start HR processes contracts (after sync) isn't allowed [{0}]",
+			log.addToLog(MessageFormat.format("Start HR processes contracts (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
-		
+
 		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
-		} else { 
-			log.addToLog(MessageFormat.format(
-					"Start automatic role recalculation (after sync) isn't allowed [{0}]",
+		} else {
+			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
-		
+
 		return log;
 	}
-
 
 	/**
 	 * Call provisioning for given account
@@ -231,27 +229,26 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param entityType
 	 * @param logItem
 	 */
-// TODO: Uncomment after contract will supports provisioning
-//	@Override
-//	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
-//			SysSyncItemLogDto logItem) {
-//		addToItemLog(logItem,
-//				MessageFormat.format(
-//						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-//						entity.getId(), entity.getPosition()));
-//		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
-//		// We do not want execute HR processes for every contract. We need start
-//		// them for every identity only once.
-//		// For this we skip them now. HR processes must be start after whole
-//		// sync finished (by using dependent scheduled task)!
-//		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-//		//
-//		// We don't want recalculate automatic role by attribute recalculation for every contract.
-//		// Recalculation will be started only once.
-//		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
-//
-//		entityEventManager.process(event);
-//	}
+	@Override
+	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
+			SysSyncItemLogDto logItem) {
+		addToItemLog(logItem, MessageFormat.format(
+				"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
+				entity.getId(), entity.getPosition()));
+		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
+		// We do not want execute HR processes for every contract. We need start
+		// them for every identity only once.
+		// For this we skip them now. HR processes must be start after whole
+		// sync finished (by using dependent scheduled task)!
+		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+		//
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
+		// Recalculation will be started only once.
+		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+
+		entityEventManager.process(event);
+	}
 
 	/**
 	 * Operation remove IdentityContractAccount relations and linked roles
@@ -281,10 +278,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			// We will remove contract account, but without delete connected
 			// account
 			contractAccoutnService.delete(entityAccount, false);
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
-							entityAccount.getContract(), entityAccount.getId()));
+			addToItemLog(logItem, MessageFormat.format(
+					"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
+					entityAccount.getContract(), entityAccount.getId()));
 
 		});
 		return;
@@ -344,6 +340,21 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		return dto;
 	}
 
+	/**
+	 * Check if is supported provisioning for given entity type.
+	 * 
+	 * @param entityType
+	 * @param logItem
+	 * @return
+	 */
+	@Override
+	protected boolean isProvisioningImplemented(SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		// Contract does not supports provisioning, but we need publish 'save' event,
+		// because identity provisioning still should be executed.
+		return true;
+
+	}
+
 	@Override
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
 			SynchronizationContext context) {
@@ -371,10 +382,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					UUID defaultNode = ((SysSyncContractConfigDto) context.getConfig()).getDefaultTreeNode();
 					IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, defaultNode);
 					if (node != null) {
-						context.getLogItem()
-								.addToLog(MessageFormat.format(
-										"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
-										node.getCode()));
+						context.getLogItem().addToLog(MessageFormat.format(
+								"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
+								node.getCode()));
 						return node.getId();
 					}
 				}
@@ -475,10 +485,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 			if (node != null) {
 				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType);
-				context.getLogItem()
-						.addToLog(MessageFormat.format(
-								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
-								value, node.getCode(), treeTypeDto.getCode()));
+				context.getLogItem().addToLog(MessageFormat.format(
+						"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
+						value, node.getCode(), treeTypeDto.getCode()));
 				return node;
 			}
 			context.getLogItem().addToLog(MessageFormat
@@ -487,10 +496,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				// Find by code in default tree type
 				SysSyncContractConfigDto config = this.getConfig(context);
 				if (config.getDefaultTreeType() == null) {
-					context.getLogItem()
-							.addToLog(MessageFormat.format(
-									"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
-									value));
+					context.getLogItem().addToLog(MessageFormat.format(
+							"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
+							value));
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
@@ -517,10 +525,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				}
 			}
 		} else {
-			context.getLogItem()
-					.addToLog(MessageFormat.format(
-							"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
-							value));
+			context.getLogItem().addToLog(MessageFormat.format(
+					"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
+					value));
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 		}
@@ -557,7 +564,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
@@ -664,30 +672,31 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Start automatic role by attribute recalculation synchronously.
 	 *
 	 * @param log
 	 * @return
 	 */
-	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) { 
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) {
 		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
-		
+
 		log.addToLog(MessageFormat.format(
 				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
 				LocalDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
-			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].", LocalDateTime.now()));
+			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
+					LocalDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
 
 		return synchronizationLogService.save(log);
 	}
-	
+
 	/**
 	 * Start HR process. Find quartz task and LRT. If some LRT for this task type
 	 * exists, then is used. If not exists, then is created new. Task is execute
@@ -740,13 +749,12 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			log = synchronizationLogService.save(log);
 			executor.setLongRunningTaskId(lrt.getId());
 			longRunningTaskManager.executeSync(executor);
-			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(),
-					simpleName));
+			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(), simpleName));
 			log = synchronizationLogService.save(log);
 		}
 		return log;
 	}
-	
+
 	/**
 	 * Find quartz task for given task type. If existed more then one task for same
 	 * type, then is using that with name "Default". If none with this name exists,

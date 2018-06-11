@@ -301,7 +301,7 @@ public class DefaultIdmTreeNodeService
 	
 	private void checkTreeType(UUID treeTypeId) {
 		IdmTreeTypeDto treeType = treeTypeService.get(treeTypeId);
-		if (StringUtils.hasLength(configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeType.getCode(), IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD)))) {
+		if (StringUtils.isNotBlank(configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeType.getCode(), IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD)))) {
 			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("treeType", treeType.getCode()));
 		}
 	}

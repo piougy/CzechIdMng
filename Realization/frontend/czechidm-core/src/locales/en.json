@@ -2948,7 +2948,7 @@
       "name": "Task name",
       "startTime": "Creation date",
       "endTime": "Ends on",
-      "assignee": "Assignee",
+      "assignee": "Assigned (resolved)",
       "deleteReason": "Completed",
       "id": "Id",
       "priority": "Priority",
